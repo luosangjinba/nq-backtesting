@@ -24,10 +24,21 @@ maintainable roll workflow before the phase-one milestone.
   chart, Replay, Session, or Bar Data owner mutation authority;
 - made a Roll commit revoke all selected-range acquisition evidence.
 
+Pre-review corrective pass:
+
+- removed the single-overtake fallback so the configured two-complete-session
+  confirmation rule cannot be bypassed;
+- made every calendar transition obey the old contract's hard decision
+  deadline;
+- staged calendar and audit output before mutation and added exact rollback
+  plus retryable Preview behavior for an injected audit replacement failure;
+- moved acquisition-gate revocation ahead of all post-commit refreshes and
+  verified that a failed Roll-health refresh cannot preserve write authority.
+
 ## Evidence
 
-- 9 Roll domain/maintenance service tests passed;
-- 9 scanner tests passed;
+- 13 Roll domain/maintenance service tests passed;
+- 10 scanner tests passed;
 - 11 updater/write-guard tests passed;
 - V4 maintenance boundary and Python compilation passed;
 - V7 data-acquisition unit, module-host, source-quality, and real Chrome visual

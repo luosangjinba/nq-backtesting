@@ -105,6 +105,38 @@ class RollVolumeScannerTests(unittest.TestCase):
             self.assertIn("candidate_roll_date: 2026-03-16", result.stdout)
             self.assertIn("candidate_status: manual confirmation required", result.stdout)
 
+    def test_single_overtake_does_not_bypass_two_day_candidate_rule(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            fixture = Path(temp_dir) / "es-single-overtake.csv"
+            fixture.write_text(
+                "\n".join([
+                    "symbol,ts,volume",
+                    "ESU6,2026-09-11 09:30:00,900",
+                    "ESZ6,2026-09-11 09:30:00,1200",
+                    "",
+                ]),
+                encoding="utf-8",
+            )
+
+            result = run_scanner([
+                "--instrument", "ES",
+                "--old-contract", "ESU6",
+                "--new-contract", "ESZ6",
+                "--start", "2026-09-11",
+                "--end", "2026-09-12",
+                "--source-file", fixture,
+                "--min-consecutive-days", "2",
+            ])
+
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertIn("first_new_overtake_date: 2026-09-11", result.stdout)
+            self.assertIn("first_consecutive_new_dominance_date: n/a", result.stdout)
+            self.assertIn("candidate_roll_date: n/a", result.stdout)
+            self.assertIn(
+                "candidate_status: minimum consecutive new-contract dominance not met",
+                result.stdout,
+            )
+
     def test_no_candidate_when_old_contract_stays_dominant(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             fixture = Path(temp_dir) / "es-roll.csv"

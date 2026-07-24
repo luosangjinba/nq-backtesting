@@ -283,10 +283,14 @@ def print_summary(args: argparse.Namespace, daily: list[DailyVolume]) -> None:
     print(f"first_new_overtake_date: {overtake or 'n/a'}")
     print(f"min_consecutive_new_days: {max(1, args.min_consecutive_days)}")
     print(f"first_consecutive_new_dominance_date: {consecutive or 'n/a'}")
-    candidate = consecutive or overtake
+    # The first single-day overtake is useful diagnostic evidence, but it is
+    # not a confirmed candidate until the configured dominance streak is met.
+    candidate = consecutive
     print(f"candidate_roll_date: {candidate or 'n/a'}")
     if candidate:
         print("candidate_status: manual confirmation required")
+    elif overtake:
+        print("candidate_status: minimum consecutive new-contract dominance not met")
     else:
         print("candidate_status: no new-contract dominance detected")
 

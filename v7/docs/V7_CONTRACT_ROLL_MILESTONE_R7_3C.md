@@ -48,15 +48,20 @@ operator should scan and confirm earlier from market evidence.
    standard session must contain at least 1,200 distinct minutes per contract,
    begin within 30 minutes of `18:00`, and end within 30 minutes of `17:00`.
    Partial first/last days and early-close sessions cannot become candidates.
+   A single new-contract overtake remains diagnostic only; a candidate requires
+   the configured two consecutive complete new-dominant trade dates.
 3. **Preview** requires retained scan evidence, an unchanged calendar hash,
    a single-line evidence note, and `volume_confirmed` or
    `manual_confirmed`. A proposed boundary already covered by DuckDB is
    rejected as a historical repair.
 4. **Commit** requires exact `ROLL <old> <new>`, rechecks the Preview hash,
-   validates the whole candidate calendar, creates a backup, fsyncs and
-   atomically replaces YAML, and appends an audit JSONL record.
-5. **Post-commit** refreshes Roll health and revokes every prior Data
-   Acquisition Preflight, Dry Run, Backup, and read-verification presentation.
+   validates the whole candidate calendar including each old-contract hard
+   deadline, and creates a backup. Calendar and audit output are both staged
+   and fsynced before replacement; a second-file failure restores both exact
+   prior texts and leaves Preview retryable.
+5. **Post-commit** first revokes every prior Data Acquisition Preflight, Dry
+   Run, Backup, and read-verification presentation, then refreshes Roll health
+   and coverage as fallible views that cannot restore stale write authority.
 
 The legacy V4 `confirm_roll_write` API action and scanner `--confirm-roll
 --write` path are disabled. They cannot bypass v2 evidence, history, backup,

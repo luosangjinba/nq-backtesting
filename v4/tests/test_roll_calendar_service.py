@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from datetime import date, datetime
 from pathlib import Path
+from unittest import mock
 
 import duckdb
 import yaml
@@ -113,6 +114,43 @@ class RollCalendarServiceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "non-consecutive"):
             service.validate_calendar(data, events)
 
+    def test_transition_after_old_contract_deadline_is_rejected(self) -> None:
+        data = {"version": 2, "timezone": "America/New_York"}
+        events = [service.RollEvent(
+            "ES", "ESU6", "ESZ6", datetime(2026, 9, 17, 18),
+            "volume_confirmed", "late", "cme_trade_date_session_open",
+        )]
+
+        with self.assertRaisesRegex(ValueError, "decision deadline"):
+            service.validate_calendar(data, events)
+
+    def test_preview_rejects_candidate_after_old_contract_deadline(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            calendar = root / "roll.yml"
+            database = root / "bars.duckdb"
+            write_calendar(calendar)
+            create_db(database, [("ES", datetime(2026, 7, 23, 12, 0))])
+            scan = service.record_scan_evidence(
+                calendar,
+                instrument="ES",
+                old_contract="ESU6",
+                new_contract="ESZ6",
+                candidate_trade_date="2026-09-18",
+                scan_start="2026-09-08",
+                scan_end="2026-09-18",
+                output="late complete trade-date evidence",
+            )
+
+            with self.assertRaisesRegex(ValueError, "decision deadline"):
+                service.create_roll_preview(
+                    calendar,
+                    database,
+                    scan_token=scan["token"],
+                    status="volume_confirmed",
+                    note="Late candidate must remain blocked.",
+                )
+
     def test_preview_commit_backs_up_atomically_and_audits(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -155,6 +193,119 @@ class RollCalendarServiceTests(unittest.TestCase):
             self.assertEqual(saved["version"], 2)
             self.assertEqual(saved["rolls"][-1]["new_contract"], "ESZ6")
             self.assertEqual(saved["rolls"][-1]["effective_at_et"], "2026-09-10T18:00")
+
+    def test_audit_replace_failure_rolls_calendar_back_and_keeps_preview_retryable(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            calendar = root / "roll.yml"
+            database = root / "bars.duckdb"
+            backups = root / "backups"
+            audit = root / "audit.jsonl"
+            write_calendar(calendar)
+            original_calendar = calendar.read_text(encoding="utf-8")
+            create_db(database, [("ES", datetime(2026, 7, 23, 12, 0))])
+            scan = service.record_scan_evidence(
+                calendar,
+                instrument="ES",
+                old_contract="ESU6",
+                new_contract="ESZ6",
+                candidate_trade_date="2026-09-11",
+                scan_start="2026-09-04",
+                scan_end="2026-09-16",
+                output="complete trade-date evidence",
+            )
+            preview = service.create_roll_preview(
+                calendar,
+                database,
+                scan_token=scan["token"],
+                status="volume_confirmed",
+                note="Two complete trade dates show new-contract dominance.",
+            )
+            real_replace = service.os.replace
+
+            def fail_audit_replace(source: object, destination: object) -> None:
+                if Path(destination) == audit:
+                    raise OSError("injected audit replacement failure")
+                real_replace(source, destination)
+
+            with mock.patch.object(service.os, "replace", side_effect=fail_audit_replace):
+                with self.assertRaisesRegex(OSError, "injected audit replacement failure"):
+                    service.commit_roll_preview(
+                        calendar,
+                        preview_token=preview["previewToken"],
+                        confirm_text="ROLL ESU6 ESZ6",
+                        backup_dir=backups,
+                        audit_path=audit,
+                    )
+
+            self.assertEqual(calendar.read_text(encoding="utf-8"), original_calendar)
+            self.assertFalse(audit.exists())
+
+            result = service.commit_roll_preview(
+                calendar,
+                preview_token=preview["previewToken"],
+                confirm_text="ROLL ESU6 ESZ6",
+                backup_dir=backups,
+                audit_path=audit,
+            )
+            self.assertEqual(result["ok"], True)
+            self.assertTrue(audit.exists())
+
+    def test_audit_fsync_failure_restores_existing_audit_and_calendar(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            calendar = root / "roll.yml"
+            database = root / "bars.duckdb"
+            backups = root / "backups"
+            audit = root / "audit.jsonl"
+            write_calendar(calendar)
+            audit.write_text('{"prior": true}\n', encoding="utf-8")
+            original_calendar = calendar.read_text(encoding="utf-8")
+            original_audit = audit.read_text(encoding="utf-8")
+            create_db(database, [("ES", datetime(2026, 7, 23, 12, 0))])
+            scan = service.record_scan_evidence(
+                calendar,
+                instrument="ES",
+                old_contract="ESU6",
+                new_contract="ESZ6",
+                candidate_trade_date="2026-09-11",
+                scan_start="2026-09-04",
+                scan_end="2026-09-16",
+                output="complete trade-date evidence",
+            )
+            preview = service.create_roll_preview(
+                calendar,
+                database,
+                scan_token=scan["token"],
+                status="volume_confirmed",
+                note="Two complete trade dates show new-contract dominance.",
+            )
+            real_fsync_directory = service._fsync_directory
+            fsync_calls = 0
+
+            def fail_second_directory_fsync(path: Path) -> None:
+                nonlocal fsync_calls
+                fsync_calls += 1
+                if fsync_calls == 2:
+                    raise OSError("injected audit directory fsync failure")
+                real_fsync_directory(path)
+
+            with mock.patch.object(
+                service,
+                "_fsync_directory",
+                side_effect=fail_second_directory_fsync,
+            ):
+                with self.assertRaisesRegex(OSError, "injected audit directory fsync failure"):
+                    service.commit_roll_preview(
+                        calendar,
+                        preview_token=preview["previewToken"],
+                        confirm_text="ROLL ESU6 ESZ6",
+                        backup_dir=backups,
+                        audit_path=audit,
+                    )
+
+            self.assertEqual(calendar.read_text(encoding="utf-8"), original_calendar)
+            self.assertEqual(audit.read_text(encoding="utf-8"), original_audit)
 
     def test_preview_rejects_historical_boundary_and_stale_scan(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

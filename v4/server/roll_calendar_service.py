@@ -54,6 +54,7 @@ class RollEvent:
 
 
 _EVIDENCE_LOCK = threading.Lock()
+_COMMIT_LOCK = threading.Lock()
 _SCAN_EVIDENCE: dict[str, dict[str, object]] = {}
 _PREVIEW_EVIDENCE: dict[str, dict[str, object]] = {}
 
@@ -139,6 +140,17 @@ def validate_calendar(data: dict[str, object], events: list[RollEvent]) -> None:
             raise ValueError(f"contract prefix does not match {event.instrument}: {event.old_contract}->{event.new_contract}")
         if next_contract(event.old_contract) != event.new_contract:
             raise ValueError(f"non-consecutive quarterly contracts: {event.old_contract}->{event.new_contract}")
+        deadline = decision_deadline_et(
+            event.old_contract,
+            reference_year=event.effective_at_et.year,
+        )
+        if event.effective_at_et > deadline:
+            raise ValueError(
+                f"roll transition exceeds old-contract decision deadline: "
+                f"{event.old_contract}->{event.new_contract} effective "
+                f"{event.effective_at_et.isoformat(timespec='minutes')} is after "
+                f"{deadline.isoformat(timespec='minutes')}"
+            )
         key = (event.instrument, event.old_contract, event.new_contract)
         if key in seen:
             raise ValueError(f"duplicate roll transition: {event.instrument} {event.old_contract}->{event.new_contract}")
@@ -424,25 +436,62 @@ def create_roll_preview(
     }
 
 
-def _atomic_write(path: Path, text: str) -> None:
+def _fsync_directory(path: Path) -> None:
+    directory_fd = os.open(path, os.O_DIRECTORY)
+    try:
+        os.fsync(directory_fd)
+    finally:
+        os.close(directory_fd)
+
+
+def _stage_write(path: Path, text: str) -> Path:
     descriptor, temp_name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=str(path.parent))
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
             handle.write(text)
             handle.flush()
             os.fsync(handle.fileno())
-        os.replace(temp_name, path)
-        directory_fd = os.open(path.parent, os.O_DIRECTORY)
-        try:
-            os.fsync(directory_fd)
-        finally:
-            os.close(directory_fd)
+        return Path(temp_name)
     except Exception:
         try:
             os.unlink(temp_name)
         except FileNotFoundError:
             pass
         raise
+
+
+def _replace_staged(staged: Path, path: Path) -> None:
+    os.replace(staged, path)
+
+
+def _atomic_write(path: Path, text: str) -> None:
+    staged = _stage_write(path, text)
+    try:
+        _replace_staged(staged, path)
+        _fsync_directory(path.parent)
+    finally:
+        try:
+            staged.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def _restore_file(path: Path, original_text: str | None) -> None:
+    if original_text is None:
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            return
+        _fsync_directory(path.parent)
+        return
+    _atomic_write(path, original_text)
+
+
+def _append_jsonl(existing_text: str, record: dict[str, object]) -> str:
+    prefix = existing_text
+    if prefix and not prefix.endswith("\n"):
+        prefix += "\n"
+    return prefix + json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n"
 
 
 def commit_roll_preview(
@@ -455,44 +504,98 @@ def commit_roll_preview(
 ) -> dict[str, object]:
     preview = _require_fresh_evidence(_PREVIEW_EVIDENCE, preview_token, "preview")
     path = Path(calendar_path).expanduser().resolve()
-    if str(path) != preview["calendarPath"]:
-        raise ValueError("preview belongs to a different roll calendar")
-    if str(confirm_text or "").strip() != preview["expectedConfirmation"]:
-        raise ValueError(f"type '{preview['expectedConfirmation']}' to commit the roll")
-    if calendar_revision(path) != preview["calendarRevision"]:
-        raise ValueError("roll calendar changed after Preview; Preview again")
-    parsed = yaml.safe_load(str(preview["newText"])) or {}
-    events = [_event_from_row(row) for row in parsed.get("rolls") or []]
-    validate_calendar(parsed, events)
-    backups = Path(backup_dir).expanduser().resolve()
-    backups.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(ET).strftime("%Y%m%dT%H%M%S%z")
-    backup = backups / f"{path.stem}.{stamp}.{str(preview['calendarRevision'])[:12]}.yml"
-    shutil.copy2(path, backup)
-    _atomic_write(path, str(preview["newText"]))
-    new_revision = calendar_revision(path)
     audit = Path(audit_path).expanduser().resolve()
-    audit.parent.mkdir(parents=True, exist_ok=True)
-    record = {
-        "committedAt": datetime.now(ET).isoformat(timespec="seconds"),
-        "instrument": preview["instrument"],
-        "oldContract": preview["oldContract"],
-        "newContract": preview["newContract"],
-        "effectiveAtEt": preview["effectiveAtEt"],
-        "status": preview["status"],
-        "note": preview["note"],
-        "previousRevision": preview["calendarRevision"],
-        "newRevision": new_revision,
-        "backup": str(backup),
-    }
-    with audit.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
-        handle.flush()
-        os.fsync(handle.fileno())
-    with _EVIDENCE_LOCK:
-        _PREVIEW_EVIDENCE.clear()
-        _SCAN_EVIDENCE.clear()
-    result = health_snapshot(path)
+    with _COMMIT_LOCK:
+        if str(path) != preview["calendarPath"]:
+            raise ValueError("preview belongs to a different roll calendar")
+        if str(confirm_text or "").strip() != preview["expectedConfirmation"]:
+            raise ValueError(f"type '{preview['expectedConfirmation']}' to commit the roll")
+        if calendar_revision(path) != preview["calendarRevision"]:
+            raise ValueError("roll calendar changed after Preview; Preview again")
+        new_text = str(preview["newText"])
+        parsed = yaml.safe_load(new_text) or {}
+        events = [_event_from_row(row) for row in parsed.get("rolls") or []]
+        validate_calendar(parsed, events)
+
+        backups = Path(backup_dir).expanduser().resolve()
+        backups.mkdir(parents=True, exist_ok=True)
+        audit.parent.mkdir(parents=True, exist_ok=True)
+        if audit.exists() and not audit.is_file():
+            raise ValueError(f"roll audit path is not a file: {audit}")
+
+        original_calendar = path.read_text(encoding="utf-8")
+        original_audit = audit.read_text(encoding="utf-8") if audit.exists() else None
+        stamp = datetime.now(ET).strftime("%Y%m%dT%H%M%S%z")
+        backup = backups / f"{path.stem}.{stamp}.{str(preview['calendarRevision'])[:12]}.yml"
+        shutil.copy2(path, backup)
+        new_revision = hashlib.sha256(new_text.encode("utf-8")).hexdigest()
+        record = {
+            "committedAt": datetime.now(ET).isoformat(timespec="seconds"),
+            "instrument": preview["instrument"],
+            "oldContract": preview["oldContract"],
+            "newContract": preview["newContract"],
+            "effectiveAtEt": preview["effectiveAtEt"],
+            "status": preview["status"],
+            "note": preview["note"],
+            "previousRevision": preview["calendarRevision"],
+            "newRevision": new_revision,
+            "backup": str(backup),
+        }
+        audit_text = _append_jsonl(original_audit or "", record)
+
+        # Stage and fsync both files before mutating either destination. If the
+        # second replacement fails, restore both destinations to their exact
+        # pre-commit text so the API cannot report failure after a partial roll.
+        staged_calendar = _stage_write(path, new_text)
+        try:
+            staged_audit = _stage_write(audit, audit_text)
+        except Exception:
+            staged_calendar.unlink(missing_ok=True)
+            raise
+        calendar_replaced = False
+        audit_replaced = False
+        try:
+            _replace_staged(staged_calendar, path)
+            calendar_replaced = True
+            _fsync_directory(path.parent)
+            _replace_staged(staged_audit, audit)
+            audit_replaced = True
+            _fsync_directory(audit.parent)
+        except Exception as commit_error:
+            rollback_errors = []
+            changed_files = []
+            if audit_replaced:
+                changed_files.append((audit, original_audit))
+            if calendar_replaced:
+                changed_files.append((path, original_calendar))
+            for target, original in changed_files:
+                try:
+                    _restore_file(target, original)
+                except Exception as rollback_error:  # pragma: no cover - catastrophic filesystem failure
+                    rollback_errors.append(f"{target}: {rollback_error}")
+            if rollback_errors:
+                raise RuntimeError(
+                    f"roll commit failed ({commit_error}); rollback also failed: {'; '.join(rollback_errors)}"
+                ) from commit_error
+            raise
+        finally:
+            staged_calendar.unlink(missing_ok=True)
+            staged_audit.unlink(missing_ok=True)
+
+        with _EVIDENCE_LOCK:
+            _PREVIEW_EVIDENCE.clear()
+            _SCAN_EVIDENCE.clear()
+
+    try:
+        result = health_snapshot(path)
+    except Exception as refresh_error:  # commit is durable; post-commit health is best-effort
+        result = {
+            "ok": True,
+            "returncode": 0,
+            "calendar": str(path),
+            "rollHealth": [],
+            "postCommitRefreshError": str(refresh_error),
+        }
     result.update({
         "backup": str(backup),
         "audit": str(audit),

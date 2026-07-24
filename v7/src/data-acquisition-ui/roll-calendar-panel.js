@@ -189,22 +189,44 @@ export function createRollCalendarPanel(options) {
   async function commit() {
     if (!previewEvidence) return;
     setBusy(true, 'atomic contract roll commit running…');
+    let result;
     try {
-      const result = await client.request({
+      result = await client.request({
         action: 'roll_commit_v2',
         previewToken: previewEvidence.previewToken,
         confirmText: controls.confirmation.value,
       }, { signal });
       appendOutput('roll_commit_v2', result);
       resetEvidence('Contract roll committed. Prior acquisition gate evidence was revoked.');
-      await refresh();
-      await onCommitted(result);
     } catch (error) {
       appendOutput('roll_commit_v2', error.message);
-    } finally {
       setBusy(false);
       renderActions();
+      return;
     }
+
+    // Invalidate all prior acquisition evidence immediately after the commit
+    // response. Roll-health and coverage refreshes are post-commit views: they
+    // may fail independently, but must never preserve stale write authority.
+    let acquisitionRefresh;
+    try {
+      acquisitionRefresh = onCommitted(result);
+    } catch (error) {
+      appendOutput('roll_post_commit_invalidation', error.message);
+      acquisitionRefresh = undefined;
+    }
+    const refreshResults = await Promise.allSettled([
+      Promise.resolve(acquisitionRefresh),
+      refresh(),
+    ]);
+    refreshResults.forEach((outcome, index) => {
+      if (outcome.status === 'rejected') {
+        appendOutput(index === 0 ? 'acquisition_status_refresh' : 'roll_health_refresh', outcome.reason?.message || outcome.reason);
+      }
+    });
+    // Keep the committed state visible even if either refresh failed.
+    setBusy(false);
+    renderActions();
   }
 
   const listeners = [

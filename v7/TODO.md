@@ -1629,6 +1629,14 @@ ownership.
 - [x] back up, validate, fsync, atomically replace, and audit the Roll Calendar;
 - [x] make Roll commit revoke selected-range Preflight, Dry Run, Backup, and
   read-verification evidence;
+- [x] require the configured consecutive complete-session dominance count
+  before exposing a roll candidate; retain a one-day overtake as diagnostics;
+- [x] reject every transition later than the old contract's decision deadline
+  before Preview or commit can extend the calendar horizon;
+- [x] stage calendar and audit together and restore both exact prior texts if
+  either atomic replacement fails, while retaining Preview for a safe retry;
+- [x] revoke acquisition gates immediately on a successful commit response,
+  before any fallible Roll-health or coverage refresh;
 - [x] bind domain, adapter, updater, scanner, module, source-quality, and real
   Chrome interaction/visual evidence;
 - [ ] obtain explicit human review without committing the future U6→Z6 roll

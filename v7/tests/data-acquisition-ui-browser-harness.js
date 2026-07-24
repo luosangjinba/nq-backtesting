@@ -87,21 +87,29 @@ const fetchStub = `{
     else if (payload.action === 'environment_status') result = { ok: true, environment: [
       { key: 'DATABENTO_API_KEY', processSet: true }, { key: 'V4_TRADING_DB', processSet: true }
     ] };
-    else if (payload.action === 'roll_health') result = { ok: true, calendarVersion: 2, rollHealth: [
-      { instrument: 'ES', activeContract: 'ESU6', lastConfirmedContract: 'ESU6',
-        lastEffectiveAtEt: '2026-06-15T00:00', nextOldContract: 'ESU6', nextNewContract: 'ESZ6',
-        decisionDeadlineEt: '2026-09-14T00:00', state: 'ready' },
-      { instrument: 'NQ', activeContract: 'NQU6', lastConfirmedContract: 'NQU6',
-        lastEffectiveAtEt: '2026-06-15T00:00', nextOldContract: 'NQU6', nextNewContract: 'NQZ6',
-        decisionDeadlineEt: '2026-09-14T00:00', state: 'ready' }
-    ], output: 'roll_health_status: ok' };
+    else if (payload.action === 'roll_health') {
+      if (sessionStorage.getItem('test-roll-committed') === '1'
+          && sessionStorage.getItem('test-fail-post-commit-roll-health') === '1') {
+        result = { ok: false, output: 'forced post-commit roll-health failure' };
+      } else result = { ok: true, calendarVersion: 2, rollHealth: [
+        { instrument: 'ES', activeContract: 'ESU6', lastConfirmedContract: 'ESU6',
+          lastEffectiveAtEt: '2026-06-15T00:00', nextOldContract: 'ESU6', nextNewContract: 'ESZ6',
+          decisionDeadlineEt: '2026-09-14T00:00', state: 'ready' },
+        { instrument: 'NQ', activeContract: 'NQU6', lastConfirmedContract: 'NQU6',
+          lastEffectiveAtEt: '2026-06-15T00:00', nextOldContract: 'NQU6', nextNewContract: 'NQZ6',
+          decisionDeadlineEt: '2026-09-14T00:00', state: 'ready' }
+      ], output: 'roll_health_status: ok' };
+    }
     else if (payload.action === 'roll_preview_v2') result = {
       ok: true, previewToken: 'roll-preview-browser-fixture', expectedConfirmation: 'ROLL ESU6 ESZ6',
       output: 'roll_preview_status: ok\\neffective_at_et: 2026-09-10T18:00\\nhistory_guard: clear'
     };
-    else if (payload.action === 'roll_commit_v2') result = {
-      ok: true, rollHealth: [], output: 'roll_commit_status: committed\\ncalendar_backup: /safe/roll.yml'
-    };
+    else if (payload.action === 'roll_commit_v2') {
+      sessionStorage.setItem('test-roll-committed', '1');
+      result = {
+        ok: true, rollHealth: [], output: 'roll_commit_status: committed\\ncalendar_backup: /safe/roll.yml'
+      };
+    }
     else if (payload.action === 'job_status' && !payload.jobId) result = { ok: false, output: 'No retained data maintenance job is available.' };
     else if (payload.action === 'job_start') {
       jobCounter += 1;
@@ -203,6 +211,26 @@ try {
   })()`);
   await waitFor(cdp, `document.querySelector('#rollCommit').disabled === false`);
   assert.equal(await evaluate(cdp, `document.querySelector('#rollConfirmation').placeholder`), 'ROLL ESU6 ESZ6');
+  await evaluate(cdp, `(() => {
+    sessionStorage.setItem('test-fail-post-commit-roll-health', '1');
+    const confirmation = document.querySelector('#rollConfirmation');
+    confirmation.value = 'ROLL ESU6 ESZ6';
+    document.querySelector('#rollCommit').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('#data-acquisition-app').dataset.busy === 'false'
+    && document.querySelector('#output').textContent.includes('forced post-commit roll-health failure')`);
+  assert.equal(await evaluate(cdp, `document.querySelector('[data-gate="preflight"]').dataset.state`), 'pending',
+    'a committed roll must revoke Preflight evidence before post-commit refresh');
+  assert.equal(await evaluate(cdp, `document.querySelector('[data-gate="dry-run"]').dataset.state`), 'locked',
+    'a committed roll must revoke Dry Run evidence before post-commit refresh');
+  assert.equal(await evaluate(cdp, `document.querySelector('[data-gate="backup"]').dataset.state`), 'locked',
+    'a committed roll must revoke Backup evidence before post-commit refresh');
+  assert.equal(await evaluate(cdp, `document.querySelector('[data-gate="verify"]').dataset.state`), 'pending',
+    'a committed roll must revoke read-verification evidence before post-commit refresh');
+  assert.equal(await evaluate(cdp, `document.querySelector('#write').disabled`), true,
+    'post-commit refresh failure must not preserve stale write authority');
+  assert.equal(await evaluate(cdp, `document.querySelector('#rollCommit').disabled`), true,
+    'committed Preview evidence must remain revoked when Roll health refresh fails');
   await evaluate(cdp, `(() => {
     const instrument = document.querySelector('#instrument');
     instrument.value = 'NQ';
