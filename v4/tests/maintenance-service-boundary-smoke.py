@@ -11,6 +11,7 @@ V4_ROOT = REPO_ROOT / "v4"
 api_source = (V4_ROOT / "v4_api.py").read_text(encoding="utf-8")
 maintenance_source = (V4_ROOT / "server" / "maintenance_service.py").read_text(encoding="utf-8")
 local_env_source = (V4_ROOT / "server" / "local_env_service.py").read_text(encoding="utf-8")
+roll_maintenance_source = (V4_ROOT / "server" / "roll_maintenance_service.py").read_text(encoding="utf-8")
 
 for expected in [
     "from server import local_env_service",
@@ -19,7 +20,10 @@ for expected in [
     "local_env_service.run_local_env_action",
     "maintenance_service.run_api_restart_action",
     "maintenance_service.run_data_maintenance_action_guarded",
+    "roll_maintenance_service.run_roll_action",
     '"--db",\n            DB_PATH',
+    'if action == "confirm_roll_write":',
+    "Legacy roll-calendar writes are disabled",
 ]:
     assert expected in api_source, f"v4_api.py should delegate maintenance behavior via {expected}"
 
@@ -46,6 +50,14 @@ for expected in [
     "def run_data_maintenance_action_guarded",
 ]:
     assert expected in maintenance_source, f"maintenance_service.py should own {expected}"
+
+for expected in [
+    "ROLL_ACTIONS =",
+    "def run_roll_action",
+    "roll_calendar_service.health_snapshot",
+    '"--min-session-minutes", "1200"',
+]:
+    assert expected in roll_maintenance_source, f"roll_maintenance_service.py should own {expected}"
 
 for expected in [
     "LOCAL_ENV_VARIABLES =",

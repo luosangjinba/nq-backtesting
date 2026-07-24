@@ -1,5 +1,12 @@
 # V4 Roll Calendar Workflow
 
+> Superseded write path: the legacy `--confirm-roll --write` command and V4
+> `confirm_roll_write` maintenance action are disabled. New calendar changes
+> must use **V7 → Data acquisition → Contract Roll**, which requires complete
+> CME trade-date Scan evidence, hash-bound Preview, exact typed confirmation,
+> backup, atomic replacement, and audit. The legacy commands below remain
+> useful only for read-only reports, scans, and patch previews.
+
 V4 does not use Databento continuous futures symbols as the write authority.
 The local DB is stitched from raw quarterly contracts through
 `v4/data_config/futures_roll_calendar.yml`.
@@ -71,22 +78,8 @@ python3 v4/scripts/scan_roll_volume_candidates.py \
   --confirmed-note "Volume audit resolved conflict: NQM6 first overtakes NQH6 on 2026-03-16."
 ```
 
-Write only after reviewing the preview:
-
-```bash
-python3 v4/scripts/scan_roll_volume_candidates.py \
-  --confirm-roll \
-  --instrument NQ \
-  --old-contract NQH6 \
-  --new-contract NQM6 \
-  --confirmed-roll-date 2026-03-16 \
-  --confirmed-status volume_validated \
-  --confirmed-note "Volume audit resolved conflict: NQM6 first overtakes NQH6 on 2026-03-16." \
-  --write \
-  --confirm-write
-```
-
-Do not use `--write --confirm-write` unless the date and note are intentional.
+After reviewing the legacy patch preview, repeat the evidence through the V7
+Contract Roll workflow. Direct legacy writes fail intentionally.
 
 ## NQ Preflight
 
@@ -113,8 +106,8 @@ Current state:
 1. Run `--report-calendar`.
 2. For each `future_candidate`, scan old/new raw contract volume around the roll window.
 3. Compare the candidate date with actual trading roll practice.
-4. Preview the calendar confirmation with `--confirm-roll`.
-5. Write the calendar only with `--write --confirm-write`.
+4. Optionally inspect the legacy patch preview with `--confirm-roll`.
+5. Run V7 Contract Roll Scan, Preview, and exact typed Commit.
 6. Run `update_databento_1m.py --roll-status-preflight` for the intended refresh range.
 7. Run Databento dry-run with `DATABENTO_API_KEY` and inspect rows, duplicates, existing keys, timestamps, and warnings.
 8. Write only after a clean dry-run and explicit confirmation.

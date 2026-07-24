@@ -3,10 +3,17 @@ import fs from 'node:fs';
 
 import {
   createAcquisitionWorkflow,
+  rollCalendarTemplate,
   createMaintenanceClient,
   parseOutputMetric,
   resolveMaintenanceApiBase,
 } from '../src/data-acquisition-ui/public.js';
+
+const rollTemplate = rollCalendarTemplate();
+assert.match(rollTemplate, /Contract Roll/);
+assert.match(rollTemplate, /roll_scan_v2|rollScan/);
+assert.match(rollTemplate, /Preview calendar change/);
+assert.match(rollTemplate, /Commit contract roll/);
 
 const selection = Object.freeze({
   instrument: 'ES',

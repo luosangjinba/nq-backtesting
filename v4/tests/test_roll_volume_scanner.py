@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import subprocess
 import sys
 import tempfile
@@ -10,6 +11,7 @@ import unittest
 from pathlib import Path
 
 import yaml
+import pandas as pd
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -28,6 +30,38 @@ def run_scanner(args: list[object]) -> subprocess.CompletedProcess[str]:
 
 
 class RollVolumeScannerTests(unittest.TestCase):
+    def test_trade_date_bucketing_and_incomplete_sessions_are_not_candidates(self) -> None:
+        spec = importlib.util.spec_from_file_location("roll_scanner_domain", SCANNER)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["roll_scanner_domain"] = module
+        spec.loader.exec_module(module)
+        rows = pd.DataFrame([
+            {"source_symbol": "ESU6", "ts": "2026-09-10 18:00", "volume": 10},
+            {"source_symbol": "ESZ6", "ts": "2026-09-10 18:00", "volume": 20},
+            {"source_symbol": "ESU6", "ts": "2026-09-11 09:30", "volume": 10},
+            {"source_symbol": "ESZ6", "ts": "2026-09-11 09:30", "volume": 20},
+        ])
+
+        daily = module.aggregate_daily_volume(rows, "ESU6", "ESZ6", min_session_minutes=3)
+
+        self.assertEqual(len(daily), 1)
+        self.assertEqual(daily[0].date, "2026-09-11")
+        self.assertEqual(daily[0].old_volume, 20)
+        self.assertEqual(daily[0].new_volume, 40)
+        self.assertEqual(daily[0].complete, False)
+        self.assertIsNone(module.first_new_overtake(daily))
+
+        boundary_rows = pd.DataFrame([
+            {"source_symbol": symbol, "ts": ts, "volume": volume}
+            for symbol, volume in [("ESU6", 10), ("ESZ6", 20)]
+            for ts in ["2026-09-10 18:00", "2026-09-11 12:00", "2026-09-11 16:59"]
+        ])
+        complete = module.aggregate_daily_volume(
+            boundary_rows, "ESU6", "ESZ6", min_session_minutes=3,
+        )
+        self.assertEqual(complete[0].complete, True)
+        self.assertEqual(module.first_new_overtake(complete), "2026-09-11")
+
     def test_detects_first_overtake_and_consecutive_candidate(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             fixture = Path(temp_dir) / "nq-roll.csv"
@@ -203,7 +237,7 @@ class RollVolumeScannerTests(unittest.TestCase):
             self.assertIn("+    roll_date_et: 2026-03-16", result.stdout)
             self.assertEqual(calendar.read_text(encoding="utf-8"), original)
 
-    def test_confirm_roll_write_requires_confirm_write(self) -> None:
+    def test_legacy_confirm_roll_write_is_disabled_without_confirmation(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             calendar = Path(temp_dir) / "roll.yml"
             calendar.write_text(
@@ -242,9 +276,9 @@ class RollVolumeScannerTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 1, result.stdout)
             self.assertIn("roll_confirmation_status: failed", result.stdout)
-            self.assertIn("--write requires --confirm-write", result.stdout)
+            self.assertIn("legacy roll-calendar writes are disabled", result.stdout)
 
-    def test_confirm_roll_write_updates_calendar_with_explicit_confirmation(self) -> None:
+    def test_legacy_confirm_roll_write_is_disabled_even_with_confirmation(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             calendar = Path(temp_dir) / "roll.yml"
             calendar.write_text(
@@ -285,12 +319,12 @@ class RollVolumeScannerTests(unittest.TestCase):
                 "--confirm-write",
             ])
 
-            self.assertEqual(result.returncode, 0, result.stdout)
-            self.assertIn("write_status: written", result.stdout)
+            self.assertEqual(result.returncode, 1, result.stdout)
+            self.assertIn("legacy roll-calendar writes are disabled", result.stdout)
             written = calendar.read_text(encoding="utf-8")
-            self.assertIn("roll_date_et: 2026-06-15", written)
-            self.assertIn("status: volume_validated", written)
-            self.assertIn("note: Volume scan confirmed.", written)
+            self.assertIn("roll_date_et: 2026-06-14", written)
+            self.assertIn("status: future_candidate", written)
+            self.assertIn("note: pending", written)
 
     def test_confirm_roll_quotes_yaml_note_when_needed(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -326,15 +360,12 @@ class RollVolumeScannerTests(unittest.TestCase):
                 "volume_validated",
                 "--confirmed-note",
                 "Resolved: volume crossover confirmed.",
-                "--write",
-                "--confirm-write",
             ])
 
             self.assertEqual(result.returncode, 0, result.stdout)
-            written = calendar.read_text(encoding="utf-8")
-            self.assertIn("note: 'Resolved: volume crossover confirmed.'", written)
-            parsed = yaml.safe_load(written)
-            self.assertEqual(parsed["rolls"][0]["note"], "Resolved: volume crossover confirmed.")
+            self.assertIn("note: 'Resolved: volume crossover confirmed.'", result.stdout)
+            parsed = yaml.safe_load(calendar.read_text(encoding="utf-8"))
+            self.assertEqual(parsed["rolls"][0]["note"], "pending")
 
 
 if __name__ == "__main__":

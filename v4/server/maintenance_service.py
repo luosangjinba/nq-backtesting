@@ -18,6 +18,7 @@ _ASYNC_ACTIONS = frozenset({
     "dry_run",
     "preflight",
     "roll_report",
+    "roll_scan_v2",
     "verify",
     "verify_api",
     "write",

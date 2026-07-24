@@ -64,6 +64,16 @@ Changing any selection field invalidates all prior evidence. A failed or dirty
 gate keeps Write locked. A successful write clears evidence so a later write
 must repeat the complete sequence.
 
+## Contract Roll v2 prerequisite
+
+The Roll Calendar is now an explicit prerequisite of this write chain rather
+than a reminder-only report. The administrator surface derives the next ES/NQ
+quarterly raw contract, scans complete CME trade dates, freezes a hash-bound
+Preview, and commits through backup plus atomic replacement and audit. The
+Databento updater refuses a selected range beyond the missing next transition's
+hard calendar horizon. A Roll commit invalidates every prior selected-range
+gate. See `V7_CONTRACT_ROLL_MILESTONE_R7_3C.md` for the binding contract.
+
 ## Long-task and recovery contract
 
 - Only one maintenance command may run at a time.
@@ -95,6 +105,10 @@ Automated:
 - `v4/tests/test_market_data_maintenance.py`
 - `v4/tests/test_data_freshness_scripts.py`
 - `v4/tests/maintenance-service-boundary-smoke.py`
+- `v4/tests/test_roll_calendar_service.py`
+- `v4/tests/test_roll_maintenance_service.py`
+- `v4/tests/test_roll_volume_scanner.py`
+- `v4/tests/test_databento_write_guard.py`
 - `v7/tests/data-acquisition-ui-harness.js`
 - `v7/tests/data-acquisition-ui-browser-harness.js`
 - `v7/tests/fixtures/data-acquisition/negative/write-without-dry-run.json`

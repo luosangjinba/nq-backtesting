@@ -87,6 +87,21 @@ const fetchStub = `{
     else if (payload.action === 'environment_status') result = { ok: true, environment: [
       { key: 'DATABENTO_API_KEY', processSet: true }, { key: 'V4_TRADING_DB', processSet: true }
     ] };
+    else if (payload.action === 'roll_health') result = { ok: true, calendarVersion: 2, rollHealth: [
+      { instrument: 'ES', activeContract: 'ESU6', lastConfirmedContract: 'ESU6',
+        lastEffectiveAtEt: '2026-06-15T00:00', nextOldContract: 'ESU6', nextNewContract: 'ESZ6',
+        decisionDeadlineEt: '2026-09-14T00:00', state: 'ready' },
+      { instrument: 'NQ', activeContract: 'NQU6', lastConfirmedContract: 'NQU6',
+        lastEffectiveAtEt: '2026-06-15T00:00', nextOldContract: 'NQU6', nextNewContract: 'NQZ6',
+        decisionDeadlineEt: '2026-09-14T00:00', state: 'ready' }
+    ], output: 'roll_health_status: ok' };
+    else if (payload.action === 'roll_preview_v2') result = {
+      ok: true, previewToken: 'roll-preview-browser-fixture', expectedConfirmation: 'ROLL ESU6 ESZ6',
+      output: 'roll_preview_status: ok\\neffective_at_et: 2026-09-10T18:00\\nhistory_guard: clear'
+    };
+    else if (payload.action === 'roll_commit_v2') result = {
+      ok: true, rollHealth: [], output: 'roll_commit_status: committed\\ncalendar_backup: /safe/roll.yml'
+    };
     else if (payload.action === 'job_status' && !payload.jobId) result = { ok: false, output: 'No retained data maintenance job is available.' };
     else if (payload.action === 'job_start') {
       jobCounter += 1;
@@ -101,8 +116,15 @@ const fetchStub = `{
         write: 'inserted_rows: 28\\nwrite_status: committed insert-only transaction',
         roll_report: 'roll_report_status: ok'
       };
-      result = { ok: true, job: { jobId: payload.jobId, action: request.action, state: 'succeeded',
-        result: { ok: true, returncode: 0, output: outputs[request.action] } } };
+      const jobResult = { ok: true, returncode: 0, output: outputs[request.action] };
+      if (request.action === 'roll_scan_v2') {
+        jobResult.output = 'scan_status: ok\\ncomplete_trade_dates: 4\\ncandidate_roll_date: 2026-09-11';
+        jobResult.rollScan = {
+          token: 'roll-scan-browser-fixture', oldContract: 'ESU6', newContract: 'ESZ6',
+          candidateTradeDate: '2026-09-11', effectiveAtEt: '2026-09-10T18:00'
+        };
+      }
+      result = { ok: true, job: { jobId: payload.jobId, action: request.action, state: 'succeeded', result: jobResult } };
     }
     return new Response(JSON.stringify(result), { status: 200, headers: { 'Content-Type': 'application/json' } });
   };
@@ -134,9 +156,13 @@ try {
   await cdp.send('Page.navigate', { url: `http://127.0.0.1:${webPort}/v7/app/data-acquisition.html` });
   await waitFor(cdp, `document.querySelector('#serviceState')?.dataset.state === 'ready'`);
   assert.equal(await evaluate(cdp, `document.querySelectorAll('.coverage-card').length`), 2);
+  assert.equal(await evaluate(cdp, `document.querySelectorAll('.roll-health-card').length`), 2);
+  assert.equal(await evaluate(cdp, `document.querySelector('.roll-health-card').textContent.includes('ESU6 → ESZ6')`), true);
   assert.equal(await evaluate(cdp, `document.querySelector('#dryRun').disabled`), true);
   assert.equal(await evaluate(cdp, `document.querySelector('#backup').disabled`), true);
   assert.equal(await evaluate(cdp, `document.querySelector('#write').disabled`), true);
+  assert.equal(await evaluate(cdp, `document.querySelector('#rollPreview').disabled`), true);
+  assert.equal(await evaluate(cdp, `document.querySelector('#rollCommit').disabled`), true);
 
   await evaluate(cdp, `document.querySelector('#preflight').click()`);
   await waitFor(cdp, `document.querySelector('#data-acquisition-app').dataset.busy === 'true'`);
@@ -144,6 +170,10 @@ try {
     'a running maintenance task must lock the exact selection fields');
   await waitFor(cdp, `document.querySelector('[data-gate="preflight"]').dataset.state === 'passed'`);
   assert.equal(await evaluate(cdp, `document.querySelector('#instrument').disabled`), false);
+  assert.equal(await evaluate(cdp, `document.querySelector('#rollPreview').disabled`), true,
+    'finishing an unrelated task must not unlock roll Preview without scan evidence');
+  assert.equal(await evaluate(cdp, `document.querySelector('#rollCommit').disabled`), true,
+    'finishing an unrelated task must not unlock roll Commit without Preview evidence');
   await evaluate(cdp, `document.querySelector('#dryRun').click()`);
   await waitFor(cdp, `document.querySelector('[data-gate="dry-run"]').dataset.state === 'passed'`);
   assert.equal(await evaluate(cdp, `document.querySelector('#write').disabled`), true,
@@ -163,6 +193,16 @@ try {
     'write must reuse the Dry Run effective end instead of a later provider watermark');
 
   await capture(cdp, 'ready-verified');
+  await evaluate(cdp, `document.querySelector('#rollScan').click()`);
+  await waitFor(cdp, `document.querySelector('#rollPreview').disabled === false`);
+  await evaluate(cdp, `(() => {
+    const note = document.querySelector('#rollNote');
+    note.value = 'Two complete trade dates show new-contract dominance.';
+    note.dispatchEvent(new Event('input', { bubbles: true }));
+    document.querySelector('#rollPreview').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('#rollCommit').disabled === false`);
+  assert.equal(await evaluate(cdp, `document.querySelector('#rollConfirmation').placeholder`), 'ROLL ESU6 ESZ6');
   await evaluate(cdp, `(() => {
     const instrument = document.querySelector('#instrument');
     instrument.value = 'NQ';

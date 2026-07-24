@@ -1612,6 +1612,32 @@ DuckDB. Its `/v4/available_dates` endpoint returned HTTP `200` for NQ+ES. This
 step does not mutate market data, Session persistence, chart state, or Replay
 ownership.
 
+### R7.3c Contract Roll v2 — Awaiting Human Review
+
+- [x] replace reminder-only roll reporting with structured ES/NQ active,
+  expected-next, decision-deadline, and ready/due-soon/blocked health;
+- [x] validate contiguous H/M/U/Z quarterly chains and stop treating the final
+  configured contract as valid forever;
+- [x] retain accepted historical midnight boundaries while making every new
+  transition effective at the full CME trade-date session open;
+- [x] aggregate scan evidence by CME trade date and reject incomplete source
+  sessions using count plus first/last-minute coverage;
+- [x] bind Scan evidence to calendar revision, require Preview and exact typed
+  confirmation, reject historical boundaries, and expire retained evidence;
+- [x] disable the legacy V4/API roll-calendar write path so it cannot bypass
+  v2 history, Preview, backup, atomic-replace, or audit gates;
+- [x] back up, validate, fsync, atomically replace, and audit the Roll Calendar;
+- [x] make Roll commit revoke selected-range Preflight, Dry Run, Backup, and
+  read-verification evidence;
+- [x] bind domain, adapter, updater, scanner, module, source-quality, and real
+  Chrome interaction/visual evidence;
+- [ ] obtain explicit human review without committing the future U6→Z6 roll
+  before real complete-session evidence exists.
+
+The current health result derives `ESU6→ESZ6` and `NQU6→NQZ6`, with a hard
+New York horizon at `2026-09-14 00:00`. This is a safety deadline rather than a
+preselected roll date. R7.3c mutates no authoritative market-data row.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

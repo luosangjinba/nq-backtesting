@@ -6,12 +6,12 @@
 # - This file is configuration only; it is not an import log.
 #
 # Semantics:
-# - `roll_date_et` is a US/Eastern calendar date.
-# - Bars whose ET-naive timestamp date is before `roll_date_et` use `old_contract`.
-# - Bars whose ET-naive timestamp date is on/after `roll_date_et` use `new_contract`.
+# - Historical v1 rows retain their accepted midnight boundaries explicitly.
+# - New rows use `effective_at_et` at the prior 18:00 CME trade-date session open.
+# - `roll_date_et` remains the human-facing candidate trade date.
 # - Existing DB rows remain authoritative; future importers must be insert-only.
 
-version: 1
+version: 2
 timezone: America/New_York
 dataset: GLBX.MDP3
 schema: ohlcv-1m
@@ -20,35 +20,47 @@ rolls:
     old_contract: ESZ5
     new_contract: ESH6
     roll_date_et: 2025-12-14
+    effective_at_et: 2025-12-14T00:00
+    boundary_policy: legacy_midnight
     status: validated
     note: Validated against ES DB overlap; 0 missing, 0 duplicate, max OHLC diff 0.25.
   - instrument: NQ
     old_contract: NQZ5
     new_contract: NQH6
     roll_date_et: 2025-12-15
+    effective_at_et: 2025-12-15T00:00
+    boundary_policy: legacy_midnight
     status: volume_validated
     note: 'Volume audit resolved no-overlap entry: NQH6 first overtakes NQZ5 on 2025-12-15; local NQ DB has no direct overlap for validation.'
   - instrument: ES
     old_contract: ESH6
     new_contract: ESM6
     roll_date_et: 2026-03-13
+    effective_at_et: 2026-03-13T00:00
+    boundary_policy: legacy_midnight
     status: validated
     note: Validated against ES DB overlap after correcting candidate date from 2026-03-15 to 2026-03-13; 0 missing, 0 duplicate, max OHLC diff 0.25. Databento flagged 2026-03-15/16 as degraded quality.
   - instrument: NQ
     old_contract: NQH6
     new_contract: NQM6
     roll_date_et: 2026-03-16
+    effective_at_et: 2026-03-16T00:00
+    boundary_policy: legacy_midnight
     status: volume_validated
     note: 'Volume audit resolved conflict: NQM6 first overtakes NQH6 on 2026-03-16; ES 2026-03 remains validated on 2026-03-13; no DB overlap exists for direct NQ validation.'
   - instrument: ES
     old_contract: ESM6
     new_contract: ESU6
     roll_date_et: 2026-06-15
+    effective_at_et: 2026-06-15T00:00
+    boundary_policy: legacy_midnight
     status: manual_validated
     note: Manual trading system switched to ESU6 on 2026-06-15.
   - instrument: NQ
     old_contract: NQM6
     new_contract: NQU6
     roll_date_et: 2026-06-15
+    effective_at_et: 2026-06-15T00:00
+    boundary_policy: legacy_midnight
     status: manual_validated
     note: Manual trading system switched to NQU6 on 2026-06-15.

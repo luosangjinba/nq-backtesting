@@ -122,7 +122,7 @@ class DatabentoWriteGuardTests(unittest.TestCase):
         )
 
     def test_write_guard_allows_write_eligible_roll_statuses_for_es(self) -> None:
-        for status in ["validated", "volume_validated", "manual_validated"]:
+        for status in ["validated", "volume_validated", "manual_validated", "volume_confirmed", "manual_confirmed"]:
             with self.subTest(status=status):
                 updater.validate_write_allowed(args(), [segment(status)])
 
@@ -176,6 +176,45 @@ class DatabentoWriteGuardTests(unittest.TestCase):
         text = output.getvalue()
         self.assertIn("status=volume_validated write_eligible=true", text)
         self.assertIn("preflight_status: write-eligible", text)
+
+    def test_explicit_session_open_boundary_does_not_split_trade_date_at_midnight(self) -> None:
+        entries = [
+            updater.RollEntry(
+                instrument="ES",
+                old_contract="ESM6",
+                new_contract="ESU6",
+                roll_date_et=date(2026, 6, 15),
+                status="volume_confirmed",
+                note="complete trade-date evidence",
+                effective_at_et=datetime(2026, 6, 14, 18, 0),
+                boundary_policy="cme_trade_date_session_open",
+            ),
+        ]
+
+        segments = updater.build_segments(
+            "ES", entries, datetime(2026, 6, 14, 17, 0), datetime(2026, 6, 15, 1, 0),
+        )
+
+        self.assertEqual(segments[0].contract, "ESM6")
+        self.assertEqual(segments[0].end_et, datetime(2026, 6, 14, 18, 0))
+        self.assertEqual(segments[1].contract, "ESU6")
+        self.assertEqual(segments[1].start_et, datetime(2026, 6, 14, 18, 0))
+
+    def test_missing_next_roll_blocks_ranges_after_horizon(self) -> None:
+        entries = [
+            updater.RollEntry(
+                instrument="ES",
+                old_contract="ESM6",
+                new_contract="ESU6",
+                roll_date_et=date(2026, 6, 15),
+                status="manual_validated",
+                note="legacy",
+            ),
+        ]
+        with self.assertRaisesRegex(RuntimeError, "ESU6->ESZ6"):
+            updater.build_segments(
+                "ES", entries, datetime(2026, 9, 13), datetime(2026, 9, 14, 0, 1),
+            )
 
 
 if __name__ == "__main__":

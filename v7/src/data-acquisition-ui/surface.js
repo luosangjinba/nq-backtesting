@@ -1,4 +1,5 @@
 import { createMaintenanceClient } from './maintenance-client.js';
+import { createRollCalendarPanel, rollCalendarTemplate } from './roll-calendar-panel.js';
 import { createAcquisitionWorkflow, parseOutputMetric } from './workflow-state.js';
 
 function easternInput(date = new Date()) {
@@ -59,6 +60,8 @@ function template() {
             <div class="environment-strip" id="environmentStrip">Checking Databento and database configuration…</div>
           </section>
 
+          ${rollCalendarTemplate()}
+
           <section class="data-admin-section" aria-labelledby="workflowTitle">
             <div class="data-admin-section-heading">
               <div><h2 id="workflowTitle">Selected-range refresh</h2><p>Changing any range field invalidates prior Preflight and Dry Run evidence.</p></div>
@@ -118,6 +121,7 @@ export function createDataAcquisitionSurface(options) {
   let disposed = false;
   let busy = false;
   let activeSelectionKey = JSON.stringify(workflow.snapshot().selection);
+  let rollPanel = null;
 
   root.innerHTML = template();
   const find = (selector) => root.querySelector(selector);
@@ -203,7 +207,10 @@ export function createDataAcquisitionSurface(options) {
       control.disabled = next;
     });
     controls.jobStatus.textContent = next ? label || 'Maintenance task running…' : 'No maintenance task is running.';
-    if (!next) renderGates();
+    if (!next) {
+      renderGates();
+      rollPanel?.renderActions();
+    }
   }
 
   function renderCoverage(items) {
@@ -249,13 +256,14 @@ export function createDataAcquisitionSurface(options) {
   async function refreshStatus({ resetStart = false } = {}) {
     const service = find('#serviceState');
     try {
-      const [coverageResult, environmentResult] = await Promise.all([
-        client.request(
-          { action: 'coverage_status' },
-          { signal: abortController.signal, acceptErrorResult: true },
-        ),
-        client.request({ action: 'environment_status' }, { signal: abortController.signal }),
-      ]);
+      const coverageResult = await client.request(
+        { action: 'coverage_status' },
+        { signal: abortController.signal, acceptErrorResult: true },
+      );
+      const environmentResult = await client.request(
+        { action: 'environment_status' },
+        { signal: abortController.signal },
+      );
       if (!Array.isArray(coverageResult.coverage)) {
         throw new Error(coverageResult.output || 'Coverage check returned no structured result.');
       }
@@ -285,6 +293,19 @@ export function createDataAcquisitionSurface(options) {
       appendOutput('status', error.message);
     }
   }
+
+  rollPanel = createRollCalendarPanel({
+    root,
+    client,
+    appendOutput,
+    setBusy,
+    signal: abortController.signal,
+    async onCommitted() {
+      workflow.clearEvidence();
+      resetVerifyGate();
+      await refreshStatus();
+    },
+  });
 
   async function runWorkflowAction(action) {
     let taskStarted = false;
@@ -396,13 +417,16 @@ export function createDataAcquisitionSurface(options) {
   find('#clearOutput').addEventListener('click', () => { controls.output.textContent = 'Ready.'; });
 
   renderGates();
-  refreshStatus({ resetStart: true }).then(resumeRetainedJob);
+  refreshStatus({ resetStart: true })
+    .then(() => rollPanel.refresh().catch((error) => appendOutput('roll_health', error.message)))
+    .then(resumeRetainedJob);
 
   return Object.freeze({
     dispose() {
       if (disposed) return;
       disposed = true;
       abortController.abort();
+      rollPanel?.dispose();
       root.replaceChildren();
     },
   });

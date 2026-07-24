@@ -9,16 +9,21 @@ statuses, and insertion is `insert where not exists` inside a transaction.
 from __future__ import annotations
 
 import argparse
+import sys
 import time as time_lib
 import warnings
 from dataclasses import dataclass
-from datetime import date, datetime, time, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import duckdb
 import pandas as pd
-import yaml
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from v4.server import roll_calendar_service
 
 try:
     import databento as db
@@ -33,7 +38,7 @@ DEFAULT_DB = V4_ROOT / "data" / "trading_data.duckdb"
 DEFAULT_ROLL_CALENDAR = V4_ROOT / "data_config" / "futures_roll_calendar.yml"
 ET = ZoneInfo("America/New_York")
 OHLC_COLUMNS = ["open", "high", "low", "close"]
-WRITE_ELIGIBLE_ROLL_STATUSES = frozenset({"validated", "volume_validated", "manual_validated"})
+WRITE_ELIGIBLE_ROLL_STATUSES = roll_calendar_service.WRITE_ELIGIBLE_STATUSES
 
 
 @dataclass(frozen=True)
@@ -44,6 +49,8 @@ class RollEntry:
     roll_date_et: date
     status: str
     note: str
+    effective_at_et: datetime | None = None
+    boundary_policy: str = "legacy_midnight"
 
 
 @dataclass(frozen=True)
@@ -96,24 +103,22 @@ def et_naive_to_utc_iso(value: datetime) -> str:
 
 
 def load_roll_calendar(path: Path) -> tuple[str, str, list[RollEntry]]:
-    data = yaml.safe_load(path.read_text())
+    data, roll_events = roll_calendar_service.load_calendar(path)
     dataset = str(data.get("dataset") or "GLBX.MDP3")
     schema = str(data.get("schema") or "ohlcv-1m")
-    entries = []
-    for row in data.get("rolls", []):
-        roll_date = row["roll_date_et"]
-        if isinstance(roll_date, str):
-            roll_date = date.fromisoformat(roll_date)
-        entries.append(
-            RollEntry(
-                instrument=str(row["instrument"]).upper(),
-                old_contract=str(row["old_contract"]),
-                new_contract=str(row["new_contract"]),
-                roll_date_et=roll_date,
-                status=str(row.get("status") or "unknown"),
-                note=str(row.get("note") or ""),
-            )
+    entries = [
+        RollEntry(
+            instrument=event.instrument,
+            old_contract=event.old_contract,
+            new_contract=event.new_contract,
+            roll_date_et=event.effective_at_et.date(),
+            status=event.status,
+            note=event.note,
+            effective_at_et=event.effective_at_et,
+            boundary_policy=event.boundary_policy,
         )
+        for event in roll_events
+    ]
     return dataset, schema, entries
 
 
@@ -158,13 +163,20 @@ def get_databento_end_et(client: db.Historical, dataset: str, schema: str) -> da
     return floor_to_minute(end_utc.astimezone(ET).replace(tzinfo=None))
 
 
-def contract_for_date(entries: list[RollEntry], day: date) -> RollEntry:
+def _entry_effective_at(entry: RollEntry) -> datetime:
+    return entry.effective_at_et or datetime.combine(entry.roll_date_et, datetime.min.time())
+
+
+def contract_for_instant(entries: list[RollEntry], instant_et: datetime) -> RollEntry:
     if not entries:
         raise RuntimeError("missing roll entries")
     for index, entry in enumerate(entries):
-        if day < entry.roll_date_et:
+        if instant_et < _entry_effective_at(entry):
             if index == 0:
-                return RollEntry(entry.instrument, entry.old_contract, entry.old_contract, entry.roll_date_et, entry.status, entry.note)
+                return RollEntry(
+                    entry.instrument, entry.old_contract, entry.old_contract, entry.roll_date_et,
+                    entry.status, entry.note, _entry_effective_at(entry), entry.boundary_policy,
+                )
             previous = entries[index - 1]
             return RollEntry(
                 previous.instrument,
@@ -173,22 +185,44 @@ def contract_for_date(entries: list[RollEntry], day: date) -> RollEntry:
                 previous.roll_date_et,
                 previous.status,
                 previous.note,
+                _entry_effective_at(previous),
+                previous.boundary_policy,
             )
     selected = entries[-1]
-    return RollEntry(selected.instrument, selected.new_contract, selected.new_contract, selected.roll_date_et, selected.status, selected.note)
+    return RollEntry(
+        selected.instrument, selected.new_contract, selected.new_contract, selected.roll_date_et,
+        selected.status, selected.note, _entry_effective_at(selected), selected.boundary_policy,
+    )
 
 
 def build_segments(instrument: str, entries: list[RollEntry], start_et: datetime, end_et: datetime) -> list[Segment]:
     instrument_entries = sorted(
         [entry for entry in entries if entry.instrument == instrument],
-        key=lambda entry: entry.roll_date_et,
+        key=_entry_effective_at,
     )
     if not instrument_entries:
         raise RuntimeError(f"no roll calendar entries for {instrument}")
 
+    domain_events = [
+        roll_calendar_service.RollEvent(
+            entry.instrument,
+            entry.old_contract,
+            entry.new_contract,
+            _entry_effective_at(entry),
+            entry.status,
+            entry.note,
+            entry.boundary_policy,
+        )
+        for entry in instrument_entries
+    ]
+    try:
+        roll_calendar_service.assert_range_within_horizon(domain_events, instrument, end_et)
+    except ValueError as exc:
+        raise RuntimeError(str(exc)) from exc
+
     boundaries = [start_et]
     for entry in instrument_entries:
-        boundary = datetime.combine(entry.roll_date_et, time.min)
+        boundary = _entry_effective_at(entry)
         if start_et < boundary < end_et:
             boundaries.append(boundary)
     boundaries.append(end_et)
@@ -198,7 +232,7 @@ def build_segments(instrument: str, entries: list[RollEntry], start_et: datetime
     for left, right in zip(boundaries, boundaries[1:]):
         if left >= right:
             continue
-        contract_entry = contract_for_date(instrument_entries, left.date())
+        contract_entry = contract_for_instant(instrument_entries, left)
         contract = contract_entry.old_contract
         segments.append(
             Segment(

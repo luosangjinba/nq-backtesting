@@ -12,6 +12,11 @@ assert.match(
 assert.doesNotMatch(html, /function\s+summarize\(/, 'output summarization should not live inline in HTML');
 assert.doesNotMatch(html, /function\s+resolveApiBase\(/, 'API base resolution should not live inline in HTML');
 assert.doesNotMatch(html, /buildTradovateLiveRecordArchives/, 'Tradovate import workflow should not live inline in HTML');
+assert.match(
+  html,
+  /id="writeRoll"[^>]*disabled[^>]*data-permanently-disabled="true"/,
+  'the superseded V4 roll write control must remain permanently disabled',
+);
 
 const moduleExpectations = new Map([
   ['data-maintenance-app.js', 'initTradovateImportPanel'],
@@ -30,5 +35,18 @@ for (const [filename, marker] of moduleExpectations) {
   const source = readFileSync(modulePath, 'utf8');
   assert.match(source, new RegExp(marker.replaceAll(' ', '\\s+')), `${filename} should expose ${marker}`);
 }
+
+const rollPanelSource = readFileSync(resolve('v4/src/maintenance/roll-calendar-panel.js'), 'utf8');
+assert.doesNotMatch(
+  rollPanelSource,
+  /rollPayload\('confirm_roll_write'\)/,
+  'the V4 panel must not dispatch the superseded roll write action',
+);
+const outputPanelSource = readFileSync(resolve('v4/src/maintenance/output-panel.js'), 'utf8');
+assert.match(
+  outputPanelSource,
+  /dataset\.permanentlyDisabled === 'true'/,
+  'maintenance busy-state recovery must preserve permanently disabled controls',
+);
 
 console.log('data maintenance boundary smoke passed');

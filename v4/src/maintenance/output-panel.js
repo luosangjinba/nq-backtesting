@@ -20,7 +20,7 @@ export function setMaintenanceState(state, kind = '') {
   pill.className = `pill ${kind}`;
   document.querySelectorAll('button').forEach((button) => {
     if (!['clearOutput', 'copyOutput', 'scrollOutput'].includes(button.id)) {
-      button.disabled = state === 'running';
+      button.disabled = button.dataset.permanentlyDisabled === 'true' || state === 'running';
     }
   });
 }

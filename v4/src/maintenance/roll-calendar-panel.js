@@ -87,7 +87,6 @@ export function initRollCalendarPanel({ run }) {
     appendOutput(`Roll date set to candidate ${lastRollCandidateDate}. Preview before writing.`);
   });
   document.getElementById('previewRoll').addEventListener('click', () => run(rollPayload('confirm_roll_preview')));
-  document.getElementById('writeRoll').addEventListener('click', () => run(rollPayload('confirm_roll_write')));
   document.getElementById('rollDate').addEventListener('change', () => {
     clearRollCandidate();
     setRollScanRangeAroundRollDate();

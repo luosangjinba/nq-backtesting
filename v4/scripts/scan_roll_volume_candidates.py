@@ -6,15 +6,22 @@ from __future__ import annotations
 import argparse
 import csv
 import difflib
+import sys
 import warnings
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime, time, timedelta
 from io import StringIO
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import pandas as pd
 import yaml
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from v4.server import roll_calendar_service
 
 try:
     import databento as db
@@ -39,6 +46,9 @@ class DailyVolume:
     new_volume: int
     winner: str
     new_old_ratio: float | None
+    old_minutes: int = 0
+    new_minutes: int = 0
+    complete: bool = True
 
 
 def parse_args() -> argparse.Namespace:
@@ -52,6 +62,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--schema", default=DEFAULT_SCHEMA, help="Databento schema.")
     parser.add_argument("--source-file", help="Read normalized raw rows from local CSV instead of Databento.")
     parser.add_argument("--min-consecutive-days", type=int, default=2, help="Required consecutive new-dominant days.")
+    parser.add_argument(
+        "--min-session-minutes",
+        type=int,
+        default=0,
+        help="Ignore incomplete CME trade dates with fewer minutes per contract; 0 keeps legacy fixture behavior.",
+    )
     parser.add_argument("--show-empty-days", action="store_true", help="Print days where both contracts have zero volume.")
     parser.add_argument("--roll-calendar", default=str(DEFAULT_ROLL_CALENDAR), help="Roll calendar YAML path.")
     parser.add_argument("--report-calendar", action="store_true", help="Print roll calendar reminder report.")
@@ -158,21 +174,47 @@ def read_source_file(path: Path, old_contract: str, new_contract: str) -> pd.Dat
     return pd.DataFrame(rows, columns=["source_symbol", "ts", "volume"])
 
 
-def aggregate_daily_volume(rows: pd.DataFrame, old_contract: str, new_contract: str) -> list[DailyVolume]:
+def aggregate_daily_volume(
+    rows: pd.DataFrame,
+    old_contract: str,
+    new_contract: str,
+    min_session_minutes: int = 0,
+) -> list[DailyVolume]:
     if rows.empty:
         return []
     working = rows.copy()
-    working["date"] = pd.to_datetime(working["ts"]).dt.strftime("%Y-%m-%d")
-    grouped = (
-        working.groupby(["date", "source_symbol"], sort=True)["volume"]
-        .sum()
-        .reset_index()
+    working["ts"] = pd.to_datetime(working["ts"])
+    working["trade_date"] = working["ts"].map(
+        lambda value: roll_calendar_service.trade_date_for_et(value.to_pydatetime()).isoformat()
     )
-    pivot = grouped.pivot(index="date", columns="source_symbol", values="volume").fillna(0)
     output: list[DailyVolume] = []
-    for day in sorted(pivot.index):
-        old_volume = int(pivot.at[day, old_contract]) if old_contract in pivot.columns else 0
-        new_volume = int(pivot.at[day, new_contract]) if new_contract in pivot.columns else 0
+    for day, day_rows in working.groupby("trade_date", sort=True):
+        old_rows = day_rows[day_rows["source_symbol"] == old_contract]
+        new_rows = day_rows[day_rows["source_symbol"] == new_contract]
+        old_volume = int(old_rows["volume"].sum())
+        new_volume = int(new_rows["volume"].sum())
+        old_minutes = int(old_rows["ts"].nunique())
+        new_minutes = int(new_rows["ts"].nunique())
+        trade_day = date.fromisoformat(str(day))
+        expected_open = roll_calendar_service.session_open_for_trade_date(trade_day)
+        expected_close = datetime.combine(trade_day, time(17, 0))
+
+        def source_is_complete(source_rows: pd.DataFrame, minute_count: int) -> bool:
+            if min_session_minutes <= 0:
+                return True
+            if minute_count < min_session_minutes or source_rows.empty:
+                return False
+            first_minute = source_rows["ts"].min().to_pydatetime()
+            last_minute = source_rows["ts"].max().to_pydatetime()
+            return (
+                first_minute <= expected_open + timedelta(minutes=30)
+                and last_minute >= expected_close - timedelta(minutes=30)
+            )
+
+        complete = (
+            source_is_complete(old_rows, old_minutes)
+            and source_is_complete(new_rows, new_minutes)
+        )
         if new_volume > old_volume:
             winner = "new"
         elif old_volume > new_volume:
@@ -182,13 +224,16 @@ def aggregate_daily_volume(rows: pd.DataFrame, old_contract: str, new_contract: 
         else:
             winner = "none"
         ratio = None if old_volume == 0 else new_volume / old_volume
-        output.append(DailyVolume(day, old_volume, new_volume, winner, ratio))
+        output.append(DailyVolume(
+            str(day), old_volume, new_volume, winner, ratio,
+            old_minutes, new_minutes, complete,
+        ))
     return output
 
 
 def first_new_overtake(daily: list[DailyVolume]) -> str | None:
     for row in daily:
-        if row.winner == "new":
+        if row.complete and row.winner == "new":
             return row.date
     return None
 
@@ -197,7 +242,7 @@ def first_consecutive_new_dominance(daily: list[DailyVolume], min_days: int) -> 
     required = max(1, min_days)
     streak: list[str] = []
     for row in daily:
-        if row.winner == "new":
+        if row.complete and row.winner == "new":
             streak.append(row.date)
             if len(streak) >= required:
                 return streak[0]
@@ -208,14 +253,15 @@ def first_consecutive_new_dominance(daily: list[DailyVolume], min_days: int) -> 
 
 def print_daily_table(daily: list[DailyVolume], old_contract: str, new_contract: str, show_empty: bool) -> None:
     print("\ndaily volume")
-    print("date old_contract old_volume new_contract new_volume winner new_old_ratio")
+    print("trade_date old_contract old_volume new_contract new_volume winner new_old_ratio old_minutes new_minutes complete")
     for row in daily:
         if row.winner == "none" and not show_empty:
             continue
         ratio = "n/a" if row.new_old_ratio is None else f"{row.new_old_ratio:.4f}"
         print(
             f"{row.date} {old_contract} {row.old_volume} "
-            f"{new_contract} {row.new_volume} {row.winner} {ratio}"
+            f"{new_contract} {row.new_volume} {row.winner} {ratio} "
+            f"{row.old_minutes} {row.new_minutes} {str(row.complete).lower()}"
         )
 
 
@@ -231,6 +277,7 @@ def print_summary(args: argparse.Namespace, daily: list[DailyVolume]) -> None:
     print(f"start: {args.start}")
     print(f"end: {args.end}")
     print(f"days: {len(daily)}")
+    print(f"complete_trade_dates: {sum(1 for row in daily if row.complete)}")
     print(f"old_total_volume: {old_total}")
     print(f"new_total_volume: {new_total}")
     print(f"first_new_overtake_date: {overtake or 'n/a'}")
@@ -335,8 +382,11 @@ def validate_confirm_roll_args(args: argparse.Namespace) -> None:
         datetime.fromisoformat(str(args.confirmed_roll_date)).date()
     except ValueError as exc:
         raise ValueError("--confirmed-roll-date must be an ISO date, e.g. 2026-03-16") from exc
-    if args.write and not args.confirm_write:
-        raise ValueError("--write requires --confirm-write")
+    if args.write:
+        raise ValueError(
+            "legacy roll-calendar writes are disabled; use the V7 Contract Roll v2 "
+            "Scan -> Preview -> typed Commit workflow"
+        )
     if "\n" in str(args.confirmed_note):
         raise ValueError("--confirmed-note must be a single line")
 
@@ -477,7 +527,9 @@ def main() -> int:
             rows = read_source_file(Path(args.source_file).expanduser().resolve(), args.old_contract, args.new_contract)
         else:
             rows = download_databento_rows(args)
-        daily = aggregate_daily_volume(rows, args.old_contract, args.new_contract)
+        daily = aggregate_daily_volume(
+            rows, args.old_contract, args.new_contract, max(0, args.min_session_minutes)
+        )
     except Exception as exc:
         print("scan_status: failed")
         print(f"error: {exc}")

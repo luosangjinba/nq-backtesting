@@ -28,6 +28,7 @@ from server import maintenance_service
 from server import market_data_backup_service
 from server import market_data_coverage_service
 from server import market_data_calendar_service
+from server import roll_maintenance_service
 from server import economic_calendar_service
 from server import economic_manual_import
 from server.workspace_handler import handle_workspace_get_request, handle_workspace_put_request
@@ -60,6 +61,9 @@ ECONOMIC_CALENDAR_PATH = os.path.join(
 )
 ECONOMIC_CALENDAR_BACKUP_DIR = os.path.join(V4_ROOT, "data", "economic_calendar", "backups")
 LOCAL_ENV_PATH = os.path.join(V4_ROOT, ".env.local")
+ROLL_CALENDAR_PATH = os.path.join(V4_ROOT, "data_config", "futures_roll_calendar.yml")
+ROLL_CALENDAR_BACKUP_DIR = os.path.join(V4_ROOT, "data_config", "roll_calendar_backups")
+ROLL_CALENDAR_AUDIT_PATH = os.path.join(V4_ROOT, "data_config", "roll_calendar_audit.jsonl")
 MAINTENANCE_REQUEST_HEADER = "X-V4-Maintenance-Request"
 MAINTENANCE_REQUEST_VALUE = "data-maintenance"
 WORKSPACE_REQUEST_HEADER = "X-V4-Workspace-Request"
@@ -238,6 +242,10 @@ def run_data_maintenance_action(payload):
         "api_restart",
         "roll_report",
         "roll_scan_volume",
+        "roll_health",
+        "roll_scan_v2",
+        "roll_preview_v2",
+        "roll_commit_v2",
         "confirm_roll_preview",
         "confirm_roll_write",
         "preflight",
@@ -267,8 +275,17 @@ def run_data_maintenance_action(payload):
         return _run_api_restart_action(payload)
 
     python = sys.executable
-    if action == "roll_report":
-        return _run_maintenance_command([python, "v4/scripts/scan_roll_volume_candidates.py", "--report-calendar"])
+    if action in roll_maintenance_service.ROLL_ACTIONS:
+        return roll_maintenance_service.run_roll_action(
+            action,
+            payload,
+            calendar_path=ROLL_CALENDAR_PATH,
+            db_path=DB_PATH,
+            backup_dir=ROLL_CALENDAR_BACKUP_DIR,
+            audit_path=ROLL_CALENDAR_AUDIT_PATH,
+            python=python,
+            run_command=_run_maintenance_command,
+        )
 
     if action == "roll_scan_volume":
         instrument = _choice(payload.get("instrument"), {"ES", "NQ"}, "instrument")
@@ -287,7 +304,13 @@ def run_data_maintenance_action(payload):
             "--end", end,
         ], timeout=1800)
 
-    if action in {"confirm_roll_preview", "confirm_roll_write"}:
+    if action == "confirm_roll_write":
+        raise ValueError(
+            "Legacy roll-calendar writes are disabled; use the V7 Contract Roll v2 "
+            "Scan -> Preview -> typed Commit workflow."
+        )
+
+    if action == "confirm_roll_preview":
         instrument = _choice(payload.get("instrument"), {"ES", "NQ"}, "instrument")
         old_contract = _clean_text(payload.get("oldContract"), 20)
         new_contract = _clean_text(payload.get("newContract"), 20)
@@ -304,8 +327,6 @@ def run_data_maintenance_action(payload):
             "--confirmed-status", status,
             "--confirmed-note", note,
         ]
-        if action == "confirm_roll_write":
-            args.extend(["--write", "--confirm-write"])
         return _run_maintenance_command(args)
 
     if action in {"preflight", "dry_run", "write"}:
