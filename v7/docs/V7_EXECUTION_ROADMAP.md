@@ -458,8 +458,16 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R7.2`: rerun and close cache-hit, delayed/reordered-response, and full
   foundation cross-product performance gates against restored workspaces;
   automatically accepted on 2026-07-23 with no interaction/visual change.
+- `R7.3`: close the phase-one market-data acquisition prerequisite through an
+  independent trusted local admin surface over the guarded V4 maintenance
+  boundary; require roll Preflight, clean Dry Run, verified backup, exact
+  confirmation, insert-only write, and V7-facing read verification without
+  granting Databento or DuckDB authority to chart/session owners.
 
-R7 closes the shared replay/chart foundation. The next bounded step is a
-product-boundary plan for Backtesting and Journal modules over the same runtime
-owners; it must not introduce a second chart or Replay product. Economic
-Calendar remains a later independent business module.
+R7.1–R7.2 close the shared replay/chart runtime. R7.3 is the final operational
+data prerequisite requested before phase-one closure. Tradovate import,
+automatic scheduling, and Economic Calendar acquisition remain outside this
+gate. After controlled ES/NQ catch-up, read verification, human Data
+Acquisition review, and the user's complete foundation walkthrough, decide
+whether to close phase one. The later Backtesting/Journal boundary must reuse
+the same chart and Replay owners.

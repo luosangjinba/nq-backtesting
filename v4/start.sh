@@ -19,7 +19,7 @@ if [ -f "$SCRIPT_DIR/.env.local" ]; then
 fi
 
 PYTHON="${PYTHON_BIN:-python3}"
-PORT=8766
+PORT="${V4_API_PORT:-8766}"
 WEB_PORT="${V4_WEB_PORT:-8001}"
 PID_FILE=".api_pid"
 

@@ -1528,9 +1528,44 @@ The accepted Chrome run measured p95 `63.2ms`, p99 `74.6ms`, max `75.9ms`,
 and zero provider requests across the 100 measured restored mixed-Pane Next
 actions. R7 now closes the shared chart/replay foundation.
 
-Next bounded slice: specify the phase-two module boundary and evidence model for
-Backtesting and Journal over the existing shared foundation. Do not implement
-Economic Calendar or create another Replay/chart owner in that planning step.
+### R7.3 Data Acquisition Milestone Gate — Executable
+
+- [x] audit the V4 `data-maintenance.html`, API, Databento updater, roll
+  workflow, authoritative DuckDB, live coverage, and V7 read path;
+- [x] retain V4 Maintenance API as the sole Databento/DuckDB write boundary and
+  keep chart/session owners read-only;
+- [x] add a removable-independent V7 administrator page with structured ES/NQ
+  coverage and masked environment state;
+- [x] require unchanged-range Preflight, clean Dry Run, verified recoverable
+  database backup, exact `WRITE ES/NQ`, insert-only write, and V7 feed verify;
+- [x] retain one maintenance job at a time and make long tasks recoverable by
+  immediate job id plus retained status polling;
+- [x] correct stale ES/NQ freshness guidance so selected-range writes depend on
+  current roll preflight and Dry Run rather than an obsolete blanket NQ block;
+- [x] bind domain, client, backend, negative, real-Chrome interaction, and
+  `1440×900` visual evidence;
+- [x] run current-source API against the canonical DuckDB and confirm local
+  V7-origin access;
+- [x] run full ES/NQ catch-up Preflight and Dry Run with zero duplicate
+  candidates and no degraded warning;
+- [x] create and verify named durable pre-write backups before ES and NQ;
+- [x] execute controlled insert-only ES/NQ catch-up and verify coverage,
+  duplicate integrity, V4 bars API, and V7 chart reads;
+- [ ] obtain explicit human interaction and visual acceptance.
+
+The controlled 2026-07-23 run inserted `30,834` ES and `30,837` NQ rows from
+the exact frozen Dry Run ranges. Final coverage is ES `6,491,818` rows through
+`2026-07-23 14:12` and NQ `6,158,352` rows through `2026-07-23 14:17`, with
+zero duplicate timestamps for both instruments. Two distinct pre-write backups
+passed read-only restore smoke before their respective writes, and both latest
+ranges were returned through `/v4/bars`.
+
+Tradovate import, automatic scheduling, and Economic Calendar acquisition are
+not required for this phase-one milestone gate.
+
+After R7.3 acceptance and the user's complete foundation walkthrough, decide
+whether to close phase one. Only then specify the phase-two Backtesting/Journal
+module boundary; do not create another Replay/chart owner.
 
 ## Standing Gates
 

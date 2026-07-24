@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r7.2-restored-workspace-performance-accepted",
+  "status": "r7.3-data-acquisition-executable",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -47,6 +47,7 @@
     "docs/V7_LAYOUT_SYNC_CONTRACT_R6_10A.md",
     "docs/V7_SESSION_WORKSPACE_CHECKPOINT_R7_1.md",
     "docs/V7_RESTORED_WORKSPACE_PERFORMANCE_R7_2.md",
+    "docs/V7_DATA_ACQUISITION_MILESTONE_R7_3.md",
     "docs/v7-restored-workspace-performance-matrix.json",
     "docs/V7_RESIZABLE_PANE_LAYOUTS_R6_9.md",
     "docs/V7_PANE_OHLC_CROSSHAIR_SYNC_R6_9A.md",
@@ -77,7 +78,8 @@
     "layout-sync-domain",
     "calendar-surface",
     "workstation-settings",
-    "workspace-checkpoint-domain"
+    "workspace-checkpoint-domain",
+    "data-acquisition-admin"
   ],
   "requiredIdentityFields": [
     "sessionId",
@@ -132,7 +134,8 @@
     "src/session-persistence/module.json",
     "src/session-store/module.json",
     "src/calendar-surface/module.json",
-    "src/session-browser-ui/module.json"
+    "src/session-browser-ui/module.json",
+    "src/data-acquisition-ui/module.json"
   ],
   "moduleContract": {
     "descriptorRequiredFields": [
@@ -261,6 +264,7 @@
     "session-browser-delete-is-confirmed-and-durable",
     "global-workstation-settings-transactional-all-pane",
     "versioned-session-layout-sync-policy",
-    "restored-workspace-cache-race-and-foundation-performance-closed"
+    "restored-workspace-cache-race-and-foundation-performance-closed",
+    "guarded-data-acquisition-admin-outside-chart-runtime"
   ]
 }

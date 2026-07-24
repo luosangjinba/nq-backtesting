@@ -1,13 +1,27 @@
 import os
+import secrets
 import subprocess
 import threading
 import time
+from copy import deepcopy
 from datetime import datetime, timezone
 
 
 _MAINTENANCE_LOCK = threading.Lock()
+_MAINTENANCE_JOB_LOCK = threading.Lock()
 _MAINTENANCE_JOB = None
 _MAINTENANCE_PROCESS = None
+
+_ASYNC_ACTIONS = frozenset({
+    "api_smoke",
+    "backup",
+    "dry_run",
+    "preflight",
+    "roll_report",
+    "verify",
+    "verify_api",
+    "write",
+})
 
 
 def _clean_text(value, max_length=500):
@@ -115,32 +129,149 @@ def run_api_restart_action(payload, *, v4_root):
     }
 
 
+def _maintenance_busy_result():
+    with _MAINTENANCE_JOB_LOCK:
+        job = deepcopy(_MAINTENANCE_JOB or {})
+    return {
+        "ok": False,
+        "returncode": 423,
+        "command": "data_maintenance busy",
+        "job": job or None,
+        "output": (
+            "Another data maintenance action is already running.\n"
+            f"running_action: {job.get('action', 'unknown')}\n"
+            f"started_at: {job.get('startedAt', 'unknown')}\n"
+            "Wait for it to finish, or restart the V4 API if the job is known to be stale."
+        ),
+    }
+
+
+def _job_status_result(payload):
+    requested_id = _clean_text(payload.get("jobId"), 120)
+    with _MAINTENANCE_JOB_LOCK:
+        job = deepcopy(_MAINTENANCE_JOB)
+    if not job:
+        return {
+            "ok": False,
+            "returncode": 404,
+            "command": "data_maintenance job status",
+            "job": None,
+            "output": "No retained data maintenance job is available.",
+        }
+    if requested_id and requested_id != job.get("jobId"):
+        return {
+            "ok": False,
+            "returncode": 404,
+            "command": "data_maintenance job status",
+            "job": None,
+            "output": "The requested data maintenance job is no longer retained.",
+        }
+    return {
+        "ok": True,
+        "returncode": 0,
+        "command": "data_maintenance job status",
+        "job": job,
+        "output": (
+            f"job_id: {job.get('jobId', 'synchronous')}\n"
+            f"job_state: {job['state']}\n"
+            f"job_action: {job['action']}"
+        ),
+    }
+
+
+def _run_background_job(job_id, request, run_action):
+    try:
+        result = run_action(request)
+        if not isinstance(result, dict):
+            raise TypeError("Maintenance action must return a result object")
+    except subprocess.TimeoutExpired:
+        result = {
+            "ok": False,
+            "returncode": 504,
+            "command": f"data_maintenance {request['action']}",
+            "output": "Command timed out",
+        }
+    except Exception as exc:
+        result = {
+            "ok": False,
+            "returncode": 500,
+            "command": f"data_maintenance {request['action']}",
+            "output": str(exc),
+        }
+    try:
+        finished_at = datetime.now(timezone.utc).isoformat()
+        with _MAINTENANCE_JOB_LOCK:
+            if _MAINTENANCE_JOB and _MAINTENANCE_JOB.get("jobId") == job_id:
+                _MAINTENANCE_JOB.update({
+                    "state": "succeeded" if result.get("ok") else "failed",
+                    "finishedAt": finished_at,
+                    "result": result,
+                })
+    finally:
+        _MAINTENANCE_LOCK.release()
+
+
+def _start_background_job(payload, run_action):
+    global _MAINTENANCE_JOB
+    request = payload.get("request")
+    if not isinstance(request, dict):
+        raise ValueError("job_start requires a request object")
+    action = _clean_text(request.get("action"), 80)
+    if action not in _ASYNC_ACTIONS:
+        raise ValueError(f"Action cannot run as a background job: {action or 'unknown'}")
+    if not _MAINTENANCE_LOCK.acquire(blocking=False):
+        return _maintenance_busy_result()
+    job_id = f"maintenance-{secrets.token_urlsafe(12)}"
+    job = {
+        "jobId": job_id,
+        "action": action,
+        "state": "running",
+        "startedAt": datetime.now(timezone.utc).isoformat(),
+        "finishedAt": None,
+        "result": None,
+    }
+    with _MAINTENANCE_JOB_LOCK:
+        _MAINTENANCE_JOB = job
+    thread = threading.Thread(
+        target=_run_background_job,
+        args=(job_id, deepcopy(request), run_action),
+        name=f"v4-maintenance-{action}",
+        daemon=True,
+    )
+    thread.start()
+    return {
+        "ok": True,
+        "returncode": 202,
+        "command": "data_maintenance job start",
+        "job": deepcopy(job),
+        "output": (
+            f"job_id: {job_id}\n"
+            "job_state: running\n"
+            f"job_action: {action}"
+        ),
+    }
+
+
 def run_data_maintenance_action_guarded(payload, *, run_action):
     global _MAINTENANCE_JOB
     action = str(payload.get("action") or "unknown")
+    if action == "job_status":
+        return _job_status_result(payload)
+    if action == "job_start":
+        return _start_background_job(payload, run_action)
     if action == "api_restart":
         return run_action(payload)
     if not _MAINTENANCE_LOCK.acquire(blocking=False):
-        job = _MAINTENANCE_JOB or {}
-        started_at = job.get("startedAt", "unknown")
-        running_action = job.get("action", "unknown")
-        return {
-            "ok": False,
-            "returncode": 423,
-            "command": "data_maintenance busy",
-            "output": (
-                "Another data maintenance action is already running.\n"
-                f"running_action: {running_action}\n"
-                f"started_at: {started_at}\n"
-                "Wait for it to finish, or restart the V4 API if the job is known to be stale."
-            ),
+        return _maintenance_busy_result()
+    with _MAINTENANCE_JOB_LOCK:
+        _MAINTENANCE_JOB = {
+            "action": action,
+            "state": "running",
+            "startedAt": datetime.now(timezone.utc).isoformat(),
         }
-    _MAINTENANCE_JOB = {
-        "action": action,
-        "startedAt": datetime.now(timezone.utc).isoformat(),
-    }
     try:
         return run_action(payload)
     finally:
-        _MAINTENANCE_JOB = None
+        with _MAINTENANCE_JOB_LOCK:
+            _MAINTENANCE_JOB = None
         _MAINTENANCE_LOCK.release()

@@ -1,0 +1,10 @@
+{
+  "selection": {
+    "instrument": "ES",
+    "start": "2026-07-20T10:00",
+    "end": "2026-07-20T11:00",
+    "chunkDays": 3
+  },
+  "confirmation": "WRITE ES",
+  "expectedError": "Run Preflight, Dry Run, and verified Backup"
+}

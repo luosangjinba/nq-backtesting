@@ -20,6 +20,23 @@ UI intent
 Events notify observers after accepted commits. Events do not form an
 asynchronous business-process chain and never trigger a second materialization.
 
+## Independent Data Acquisition Administration
+
+R7.3 adds `adapter.data-acquisition-ui` outside the chart state flow. It owns a
+trusted local administrator DOM, selected-range safety evidence, and a client
+for the guarded V4 Maintenance API. V4 remains the only Databento and DuckDB
+writer. The administrator path requires Preflight, clean Dry Run, verified
+recoverable backup, exact confirmation, insert-only write, and a V7-facing
+read verification. It has no Replay, Pane, chart-series, Workspace Snapshot,
+or raw-bar-cache authority.
+
+The one-way chart flow is unchanged: `core.bar-data-runtime` remains the only
+raw requester and consumes the V4 bars provider read-only. Chart or Session UI
+must never call Databento, start maintenance work, or mutate DuckDB. Long
+maintenance commands are retained single-owner background jobs; browser polling
+is presentation and does not become a second job owner. The binding contract is
+`V7_DATA_ACQUISITION_MILESTONE_R7_3.md`.
+
 ## State Owners
 
 ### Session Store

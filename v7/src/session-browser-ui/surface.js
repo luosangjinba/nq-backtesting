@@ -202,6 +202,7 @@ function shell(content, { immersive = false } = {}) {
       ]),
       element('nav', {}, [
         element('a', { className: 'rail-link is-active', href: '#/sessions' }, [icon('sessions'), element('span', { text: 'Sessions' })]),
+        element('a', { className: 'rail-link', href: './data-acquisition.html' }, [icon('database'), element('span', { text: 'Data acquisition' })]),
       ]),
       element('div', { className: 'rail-footer' }, [
         element('span', { className: 'foundation-badge', text: 'Local-first' }),

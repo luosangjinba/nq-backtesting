@@ -1,0 +1,12 @@
+{
+  "id": "adapter.data-acquisition-ui",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "data-acquisition-admin",
+  "publicEntry": "src/data-acquisition-ui/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/data-acquisition-ui-harness.js",
+  "removable": false
+}

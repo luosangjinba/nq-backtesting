@@ -24,6 +24,8 @@ from server.economic_calendar_handler import handle_economic_events_request
 from server.maintenance_handler import handle_data_maintenance_post_request
 from server import local_env_service
 from server import maintenance_service
+from server import market_data_backup_service
+from server import market_data_coverage_service
 from server import economic_calendar_service
 from server import economic_manual_import
 from server.workspace_handler import handle_workspace_get_request, handle_workspace_put_request
@@ -66,6 +68,8 @@ def _parse_allowed_maintenance_origins():
     origins = {
         "http://127.0.0.1:8001",
         "http://localhost:8001",
+        "http://127.0.0.1:8007",
+        "http://localhost:8007",
     }
     for raw in os.environ.get("V4_ALLOWED_WEB_ORIGINS", "").split(","):
         origin = raw.strip().rstrip("/")
@@ -227,6 +231,8 @@ def run_data_maintenance_action(payload):
         "environment_status",
         "environment_write",
         "environment_delete",
+        "coverage_status",
+        "backup",
         "api_restart",
         "roll_report",
         "roll_scan_volume",
@@ -248,6 +254,12 @@ def run_data_maintenance_action(payload):
 
     if action in {"environment_status", "environment_write", "environment_delete"}:
         return _run_local_env_action(payload)
+
+    if action == "coverage_status":
+        return market_data_coverage_service.build_coverage_result(DB_PATH)
+
+    if action == "backup":
+        return market_data_backup_service.backup_market_data_database(DB_PATH)
 
     if action == "api_restart":
         return _run_api_restart_action(payload)
@@ -301,7 +313,14 @@ def run_data_maintenance_action(payload):
         chunk_days = int(payload.get("chunkDays") or 3)
         if chunk_days <= 0 or chunk_days > 30:
             raise ValueError("chunkDays must be between 1 and 30")
-        args = [python, "v4/scripts/update_databento_1m.py", "--instrument", instrument]
+        args = [
+            python,
+            "v4/scripts/update_databento_1m.py",
+            "--db",
+            DB_PATH,
+            "--instrument",
+            instrument,
+        ]
         if start:
             args.extend(["--start", start])
         if end:
@@ -602,7 +621,7 @@ class V4Handler(BaseHTTPRequestHandler):
 
 def main():
     host = os.environ.get("V4_API_HOST", "").strip() or V4_CONFIG["api"]["host"]
-    port = V4_CONFIG["api"]["port"]
+    port = int(os.environ.get("V4_API_PORT", "") or V4_CONFIG["api"]["port"])
     server = ThreadingHTTPServer((host, port), V4Handler)
     print(f"[V4 API] Running on http://{host}:{port}")
     print(f"[V4 API] DB: {DB_PATH}")

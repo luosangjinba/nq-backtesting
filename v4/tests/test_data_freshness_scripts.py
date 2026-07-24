@@ -194,7 +194,7 @@ class DataFreshnessScriptTests(unittest.TestCase):
             self.assertIn("malformed_rows: 1", result.stdout)
             self.assertIn("data_freshness_status: failed", result.stdout)
 
-    def test_freshness_verifier_reports_current_nq_deferred_status(self) -> None:
+    def test_freshness_verifier_reports_range_guard_instead_of_stale_nq_block(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp = Path(temp_dir)
             db_path = temp / "trading_data.duckdb"
@@ -223,9 +223,10 @@ class DataFreshnessScriptTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 0, result.stdout)
             self.assertIn(
-                "write_status: deferred; NQ full refresh remains blocked until selected roll segments are write-eligible",
+                "write_status: selected-range writes require a successful roll preflight and dry-run",
                 result.stdout,
             )
+            self.assertNotIn("NQ full refresh remains blocked", result.stdout)
 
     def test_refresh_runner_manual_local_path_and_write_guard(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

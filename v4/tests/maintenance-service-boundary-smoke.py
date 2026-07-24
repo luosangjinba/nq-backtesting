@@ -19,6 +19,7 @@ for expected in [
     "local_env_service.run_local_env_action",
     "maintenance_service.run_api_restart_action",
     "maintenance_service.run_data_maintenance_action_guarded",
+    '"--db",\n            DB_PATH',
 ]:
     assert expected in api_source, f"v4_api.py should delegate maintenance behavior via {expected}"
 
@@ -38,6 +39,8 @@ for expected in [
     "_MAINTENANCE_LOCK =",
     "_MAINTENANCE_JOB =",
     "_MAINTENANCE_PROCESS =",
+    "def _start_background_job",
+    "def _job_status_result",
     "def run_maintenance_command",
     "def run_api_restart_action",
     "def run_data_maintenance_action_guarded",
