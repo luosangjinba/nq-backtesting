@@ -228,6 +228,49 @@ async function clickPaneControl(cdp, paneId, selector) {
   });
 }
 
+async function chooseTimeframeWithMouse(cdp, timeframeId) {
+  const togglePoint = await evaluate(cdp, `(() => {
+    const rect = document.querySelector('.timeframe-toggle').getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  })()`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: togglePoint.x, y: togglePoint.y, button: 'none', buttons: 0,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed', x: togglePoint.x, y: togglePoint.y,
+    button: 'left', buttons: 1, clickCount: 1,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased', x: togglePoint.x, y: togglePoint.y,
+    button: 'left', buttons: 0, clickCount: 1,
+  });
+  await waitFor(cdp, `document.querySelector('.timeframe-toggle')?.getAttribute('aria-expanded') === 'true'`);
+  const optionPoint = await evaluate(cdp, `(() => {
+    const option = document.querySelector(${JSON.stringify(`[data-timeframe-id="${timeframeId}"]`)});
+    const rect = option.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    return {
+      hitTimeframeId: document.elementFromPoint(x, y)?.closest('.timeframe-menu-option')?.dataset.timeframeId ?? null,
+      x,
+      y,
+    };
+  })()`);
+  assert.equal(optionPoint.hitTimeframeId, timeframeId,
+    'an open timeframe option must remain the pointer hit target above a maximized Pane');
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: optionPoint.x, y: optionPoint.y, button: 'none', buttons: 0,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed', x: optionPoint.x, y: optionPoint.y,
+    button: 'left', buttons: 1, clickCount: 1,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased', x: optionPoint.x, y: optionPoint.y,
+    button: 'left', buttons: 0, clickCount: 1,
+  });
+}
+
 let cdp;
 try {
   const debugPort = await waitForDevtools();
@@ -502,6 +545,19 @@ try {
     workspaceRevision: beforeMaximize.workspaceRevision,
   }, 'maximize is a transient outer-DOM presentation and keeps every chart mounted');
   await capture(cdp, maximizeVisualFile);
+  await chooseTimeframeWithMouse(cdp, 'timeframe.display-2-minute');
+  await waitFor(cdp, `document.querySelector('[data-pane-id="pane-secondary"] .lightweight-chart-host')
+    ?.dataset.displayTimeframeId === 'timeframe.display-2-minute'
+    && document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host')
+      ?.dataset.displayTimeframeId === 'timeframe.display-1-minute'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.workspace-pane-grid')?.dataset.maximizedPaneId`), 'pane-secondary',
+  'a Pane-local timeframe replacement must retain the transient maximized presentation');
+  await chooseTimeframeWithMouse(cdp, 'timeframe.display-1-minute');
+  await waitFor(cdp, `document.querySelector('[data-pane-id="pane-secondary"] .lightweight-chart-host')
+    ?.dataset.displayTimeframeId === 'timeframe.display-1-minute'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
   await clickPaneControl(cdp, 'pane-secondary', '.pane-maximize');
   await waitFor(cdp, `document.querySelector('.workspace-pane-grid')?.dataset.maximizedPaneId === 'none'`);
   const restoredSecondary = (await evaluate(cdp, layoutStateExpression())).panes

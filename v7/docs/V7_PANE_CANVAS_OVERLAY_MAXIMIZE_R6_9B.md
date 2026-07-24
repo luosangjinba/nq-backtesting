@@ -72,3 +72,18 @@ with no interaction freeze.
 The user accepted this interaction and visual correction with R6.9/R6.9a on
 2026-07-21. R6.9c records the subsequent lower-right control-dock placement
 request without reopening these accepted interaction semantics.
+
+## Post-acceptance Pointer Correction
+
+The 2026-07-23 phase-one walkthrough found that the global timeframe menu
+opened behind a transiently maximized product Pane. The menu and maximized Pane
+had both used stacking level `8`; because the Pane grid occurs later in the DOM,
+its chart Canvas won pointer hit-testing over the visible menu options.
+
+The correction keeps maximize in the outer DOM presentation boundary and gives
+the timeframe menu the same reviewed toolbar-menu stacking level used by the
+other workspace menus. It does not change Pane focus, interval ownership,
+Workspace transactions, chart hosts, or maximize persistence. The browser gate
+now uses actual CDP mouse events and `elementFromPoint` to prove that a menu
+option remains the hit target, changes only the maximized active Pane, and does
+not exit maximize.

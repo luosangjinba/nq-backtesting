@@ -1567,6 +1567,25 @@ After R7.3 acceptance and the user's complete foundation walkthrough, decide
 whether to close phase one. Only then specify the phase-two Backtesting/Journal
 module boundary; do not create another Replay/chart owner.
 
+### R7.3a Maximized Pane Timeframe Pointer Correction — Executable
+
+- [x] reproduce the failure with real mouse hit-testing instead of scripted
+  DOM `click()` calls;
+- [x] confirm the timeframe menu opened but its options lost pointer ownership
+  to the later maximized chart Canvas at an equal stacking level;
+- [x] raise only the timeframe menu to the established toolbar-menu layer;
+- [x] keep Pane focus, independent timeframe ownership, mounted chart hosts,
+  maximize state, Replay cursor, and other Panes unchanged;
+- [x] bind a maximized active-Pane `1m → 2m → 1m` round trip with real CDP
+  mouse events and an explicit `elementFromPoint` invariant;
+- [x] rerun Layout Workspace, Replay Pane Workspace, architecture, module-host,
+  source-quality, visual, and whitespace gates;
+- [ ] obtain explicit human interaction acceptance before resuming the R7.3
+  Data Acquisition review.
+
+This is a UI stacking correction in the existing outer-DOM maximize boundary.
+It does not reopen R6 ownership or add a chart-runtime fullscreen mode.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;
