@@ -22,10 +22,12 @@ from server import target_bars_service
 from server.bars_handler import handle_bars_request, handle_price_request, handle_target_bars_request
 from server.economic_calendar_handler import handle_economic_events_request
 from server.maintenance_handler import handle_data_maintenance_post_request
+from server.market_data_calendar_handler import handle_available_dates_request
 from server import local_env_service
 from server import maintenance_service
 from server import market_data_backup_service
 from server import market_data_coverage_service
+from server import market_data_calendar_service
 from server import economic_calendar_service
 from server import economic_manual_import
 from server.workspace_handler import handle_workspace_get_request, handle_workspace_put_request
@@ -472,12 +474,15 @@ class V4Handler(BaseHTTPRequestHandler):
                 "version": "4.0",
                 "capabilities": {
                     "bars": True,
+                    "availableDates": True,
                     "targetBars": True,
                     "targetTimeframes": list(target_bars_service.SUPPORTED_TARGET_TIMEFRAMES),
                 },
             })
         elif path == "/v4/bars":
             self._handle_bars(params)
+        elif path == "/v4/available_dates":
+            self._handle_available_dates(params)
         elif path == "/v4/target_bars":
             self._handle_target_bars(params)
         elif path == "/v4/price":
@@ -558,6 +563,16 @@ class V4Handler(BaseHTTPRequestHandler):
             query_bars=query_v4_bars,
         )
 
+    def _handle_available_dates(self, params):
+        handle_available_dates_request(
+            params,
+            send_json=self._send_json,
+            send_error=self._send_error,
+            db_path=DB_PATH,
+            table_name=TABLE_NAME,
+            query_available_dates=market_data_calendar_service.query_available_market_dates,
+        )
+
     def _handle_target_bars(self, params):
         handle_target_bars_request(
             params,
@@ -625,7 +640,7 @@ def main():
     server = ThreadingHTTPServer((host, port), V4Handler)
     print(f"[V4 API] Running on http://{host}:{port}")
     print(f"[V4 API] DB: {DB_PATH}")
-    print(f"[V4 API] Endpoints: /v4/health, /v4/bars, /v4/target_bars, /v4/price, /v4/economic_events, /v4/workspace")
+    print(f"[V4 API] Endpoints: /v4/health, /v4/bars, /v4/available_dates, /v4/target_bars, /v4/price, /v4/economic_events, /v4/workspace")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

@@ -1586,6 +1586,30 @@ module boundary; do not create another Replay/chart owner.
 This is a UI stacking correction in the existing outer-DOM maximize boundary.
 It does not reopen R6 ownership or add a chart-runtime fullscreen mode.
 
+### R7.3b Source-Aware Session Calendar — Awaiting Human Review
+
+- [x] expose one read-only V4 market-date endpoint backed by the configured
+  authoritative DuckDB;
+- [x] cache ES/NQ date indexes only while the database file signature remains
+  unchanged;
+- [x] refresh source availability whenever Create Session opens and keep the
+  Session Browser unavailable-date policy outside Calendar Surface domain
+  state;
+- [x] disable dates containing no bars for the selected instrument and use the
+  date intersection when more than one instrument is selected;
+- [x] render previous/next-month placeholders grey and non-selectable in the
+  Session picker without changing Exact GoTo calendar behavior;
+- [x] keep a partially populated latest date selectable while rejecting a
+  Start/End wall minute beyond the selected instruments' shared source bounds;
+- [x] bind service, HTTP adapter, provider adapter, intersection/bounds policy,
+  real-browser interaction, and updated visual evidence;
+- [ ] obtain explicit human interaction and visual acceptance.
+
+The running local V4 API was moved to the current source and the canonical
+DuckDB. Its `/v4/available_dates` endpoint returned HTTP `200` for NQ+ES. This
+step does not mutate market data, Session persistence, chart state, or Replay
+ownership.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

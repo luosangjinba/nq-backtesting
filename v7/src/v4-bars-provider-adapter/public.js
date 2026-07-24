@@ -5,6 +5,7 @@ export {
   V4_BARS_DATASET_REVISION,
   V4_BARS_PROVIDER_ID,
 } from './v4-bars-provider-adapter.js';
+export { createV4MarketDateAvailability } from './market-date-availability.js';
 export {
   exchangeWallSecondsToInstantMs,
   formatExchangeWallMinute,

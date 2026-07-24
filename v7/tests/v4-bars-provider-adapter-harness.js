@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   createV4BarsAdapter,
+  createV4MarketDateAvailability,
   exchangeWallSecondsToInstantMs,
   formatExchangeWallMinute,
   V4_BARS_DATASET_REVISION,
@@ -120,5 +121,48 @@ await assert.rejects(
     && error.message === 'V4 bars adapter does not support this instrument identity.',
 );
 assert.equal(unsupportedFetches, 0, 'unsupported instruments must fail before any market-data request');
+
+const dateCalls = [];
+const dateAvailability = createV4MarketDateAvailability({
+  apiBase: 'http://127.0.0.1:8766',
+  fetchImpl: async (url) => {
+    dateCalls.push(url);
+    return {
+      ok: true,
+      async json() {
+        return {
+          schemaVersion: 1,
+          timeZone: 'America/New_York',
+          instruments: [
+            {
+              instrument: 'NQ', dates: ['2026-07-20', '2026-07-22'],
+              firstTimestamp: '2026-07-20T09:31', latestTimestamp: '2026-07-22T06:59',
+            },
+            {
+              instrument: 'ES', dates: ['2026-07-20'],
+              firstTimestamp: '2026-07-20T09:30', latestTimestamp: '2026-07-20T16:59',
+            },
+          ],
+        };
+      },
+    };
+  },
+});
+const availableDates = await dateAvailability.loadAvailableDates([
+  'instrument.cme.nq', 'instrument.cme.es',
+]);
+assert.equal(
+  dateCalls[0],
+  'http://127.0.0.1:8766/v4/available_dates?instrument=NQ&instrument=ES',
+);
+assert.deepEqual(availableDates['instrument.cme.nq'], {
+  dates: ['2026-07-20', '2026-07-22'],
+  firstTimestamp: '2026-07-20T09:31',
+  latestTimestamp: '2026-07-22T06:59',
+});
+await assert.rejects(
+  () => dateAvailability.loadAvailableDates(['instrument.cme.mes']),
+  /unsupported instrument/,
+);
 
 console.log('v7 V4 bars provider adapter harness passed');

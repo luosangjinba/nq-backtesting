@@ -55,7 +55,10 @@ function createOptionRecords(instruments, onSelectionChange) {
  * Outputs: owned DOM plus selectedIds/reset APIs.
  * Side effects: updates only its own summary label and native checkbox state.
  */
-export function createInstrumentPicker(instruments) {
+export function createInstrumentPicker(instruments, { onSelectionChange = () => {} } = {}) {
+  if (typeof onSelectionChange !== 'function') {
+    throw new TypeError('Instrument picker selection callback must be a function.');
+  }
   const value = element('span', { className: 'instrument-picker-value' });
   const summary = element('summary', { className: 'instrument-picker-trigger' }, [
     value,
@@ -67,8 +70,13 @@ export function createInstrumentPicker(instruments) {
     autocomplete: 'off',
   });
   let applyFilters = () => {};
-  const records = createOptionRecords(instruments, () => {
+  let records = [];
+  const selectedIds = () => records
+    .filter(({ input }) => input.checked)
+    .map(({ input }) => input.value);
+  records = createOptionRecords(instruments, () => {
     value.textContent = selectedLabel(instruments, records.map((record) => record.input));
+    onSelectionChange(selectedIds());
   });
   const categories = createCategoryFilter(instruments, () => applyFilters());
   const empty = element('p', { className: 'instrument-picker-empty', text: 'No matching instruments.', hidden: '' });
@@ -109,7 +117,7 @@ export function createInstrumentPicker(instruments) {
 
   return Object.freeze({
     element: picker,
-    selectedIds: () => records.filter(({ input }) => input.checked).map(({ input }) => input.value),
+    selectedIds,
     close: () => { picker.open = false; },
     isOpen: () => picker.open,
     reset,

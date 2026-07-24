@@ -12,6 +12,10 @@ const V4_INSTRUMENT_CODES = Object.freeze({
   'instrument.cme.nq': 'NQ',
 });
 
+export function resolveV4InstrumentCode(instrumentId) {
+  return V4_INSTRUMENT_CODES[instrumentId] ?? null;
+}
+
 export function resolveV4BarsApiBase(locationLike = globalThis.location) {
   const hostname = locationLike?.hostname || '127.0.0.1';
   if (hostname !== '127.0.0.1' && hostname !== 'localhost') return '';
@@ -25,7 +29,7 @@ function requestUrl(request, apiBase) {
   );
   const parameters = new URLSearchParams({
     end: formatExchangeWallMinute(inclusiveEndEpochMs),
-    instrument: V4_INSTRUMENT_CODES[request.instrumentId],
+    instrument: resolveV4InstrumentCode(request.instrumentId),
     start: formatExchangeWallMinute(request.windowStartEpochMs),
     tf: '1',
   });
@@ -92,7 +96,7 @@ export function createV4BarsAdapter({
       if (request.providerId !== V4_BARS_PROVIDER_ID) {
         throw failure('unsupported', 'V4 bars adapter does not support this provider identity.');
       }
-      if (!Object.hasOwn(V4_INSTRUMENT_CODES, request.instrumentId)) {
+      if (resolveV4InstrumentCode(request.instrumentId) === null) {
         throw failure('unsupported', 'V4 bars adapter does not support this instrument identity.');
       }
       const bars = [];

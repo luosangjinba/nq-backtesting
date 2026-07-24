@@ -89,9 +89,24 @@ try {
   await cdp.send('Page.addScriptToEvaluateOnNewDocument', {
     source: `{
       const NativeDate = Date;
+      const nativeFetch = globalThis.fetch.bind(globalThis);
       globalThis.Date = class extends NativeDate {
         constructor(...args) { super(...(args.length ? args : [1780693200000])); }
         static now() { return 1780693200000; }
+      };
+      globalThis.fetch = async (input, options) => {
+        if (String(input).includes('/v4/available_dates')) {
+          const dates = ['2026-05-01', '2026-05-05', '2026-06-05', '2026-06-10', '2026-06-12'];
+          return new Response(JSON.stringify({
+            schemaVersion: 1,
+            timeZone: 'America/New_York',
+            instruments: [
+              { instrument: 'NQ', dates, firstTimestamp: '2026-05-01T09:30', latestTimestamp: '2026-06-12T16:00' },
+              { instrument: 'ES', dates, firstTimestamp: '2026-05-01T09:30', latestTimestamp: '2026-06-12T16:00' },
+            ],
+          }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        }
+        return nativeFetch(input, options);
       };
     }`,
   });
@@ -133,6 +148,12 @@ try {
   })()`);
   assert.deepEqual(searchEvidence, ['ES'], 'instrument dropdown search must filter configuration-driven options');
   await capture(cdp, 'create-dialog');
+  await evaluate(cdp, `(() => {
+    const input = document.querySelector('[name="instrument"]');
+    input.checked = true;
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  })()`);
+  await waitFor(cdp, `document.querySelector('.create-dialog')?.dataset.dateAvailabilityState === 'ready'`);
   const datePickerEvidence = await evaluate(cdp, `(() => {
     const start = document.querySelectorAll('.date-time-control')[0];
     start.querySelector('.date-time-trigger').click();
@@ -148,11 +169,19 @@ try {
     const yearCount = start.querySelectorAll('.date-time-choice').length;
     start.querySelectorAll('.date-time-choice')[6].click();
     start.querySelectorAll('.date-time-choice')[5].click();
-    return { ...initial, monthCount, yearCount };
+    return {
+      ...initial,
+      monthCount,
+      yearCount,
+      availableEnabled: !start.querySelector('[data-date="2026-06-05"]').disabled,
+      unavailableDisabled: start.querySelector('[data-date="2026-06-04"]').disabled,
+      outsideDisabled: [...start.querySelectorAll('.date-time-day.is-outside')].every((day) => day.disabled),
+    };
   })()`);
   assert.deepEqual(datePickerEvidence, {
     open: true, dayCount: 42, heading: 'June2026', monthCount: 12, yearCount: 10,
-  }, 'professional picker must expose deterministic day, month, and decade views');
+    availableEnabled: true, unavailableDisabled: true, outsideDisabled: true,
+  }, 'Session picker must disable source-empty and outside-month dates while retaining navigation views');
   await capture(cdp, 'date-time-picker-open');
   const todayEvidence = await evaluate(cdp, `(() => {
     const start = document.querySelectorAll('.date-time-control')[0];
@@ -163,6 +192,19 @@ try {
   })()`);
   assert.equal(todayEvidence.value.startsWith('2026-06-05T'), true, 'Today must use the injected deterministic browser clock');
   assert.equal(todayEvidence.cleared, '', 'Clear must restore the empty field contract');
+  const latestBoundaryEvidence = await evaluate(cdp, `(() => {
+    const form = document.querySelector('.create-form');
+    form.elements.name.value = 'Too late';
+    form.elements.start.value = '2026-06-12T15:00';
+    form.elements.end.value = '2026-06-12T16:01';
+    form.requestSubmit();
+    return form.querySelector('.form-error').textContent;
+  })()`);
+  assert.equal(
+    latestBoundaryEvidence,
+    'End time must be on or before 2026-06-12 16:00 New York time.',
+    'the latest data date stays selectable while time after the final bar is rejected',
+  );
   await evaluate(cdp, `(() => {
     const form = document.querySelector('.create-form');
     form.elements.name.value = 'Session Alpha';
@@ -180,6 +222,7 @@ try {
 
   await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
   await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
+  await waitFor(cdp, `document.querySelector('.create-dialog')?.dataset.dateAvailabilityState === 'ready'`);
   const reopenedDraft = await evaluate(cdp, `(() => {
     const form = document.querySelector('.create-form');
     return {

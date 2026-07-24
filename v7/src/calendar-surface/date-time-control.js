@@ -162,8 +162,21 @@ function createStructure(name, label, placement, presentation) {
 }
 
 class DateTimeControl {
-  constructor({ dateRange, dateTimePresentation, name, label, precision, placement, presentation, now, timeZone }) {
+  constructor({
+    dateRange,
+    dateTimePresentation,
+    disableOutsideMonth,
+    name,
+    label,
+    precision,
+    placement,
+    presentation,
+    now,
+    timeZone,
+  }) {
     this.dateRange = dateRange;
+    this.dateEnabled = () => true;
+    this.disableOutsideMonth = disableOutsideMonth;
     this.precision = precision;
     this.presentation = presentation;
     this.now = now;
@@ -217,6 +230,15 @@ class DateTimeControl {
   }
 
   reset() {
+    this.clearSelection();
+    const today = this.wallDate(this.now());
+    this.displayYear = today.getFullYear();
+    this.displayMonth = today.getMonth();
+    this.close();
+    this.render();
+  }
+
+  clearSelection() {
     this.selected = null;
     this.nodes.hiddenInput.value = '';
     this.nodes.triggerText.textContent = 'Select date and time';
@@ -225,11 +247,6 @@ class DateTimeControl {
       this.nodes.inlineTime.textContent = this.dateTimePresentation.hourFormat === '12-hour'
         ? '12:00 AM' : '00:00';
     }
-    const today = this.wallDate(this.now());
-    this.displayYear = today.getFullYear();
-    this.displayMonth = today.getMonth();
-    this.close();
-    this.render();
   }
 
   clear() {
@@ -244,12 +261,26 @@ class DateTimeControl {
     });
   }
 
-  dateDisabled(date) {
+  dateDisabled(date, { outside = false } = {}) {
     const state = this.dateState(date);
-    return state === 'before' || state === 'after';
+    return state === 'before' || state === 'after'
+      || (outside && this.disableOutsideMonth)
+      || !this.dateEnabled({
+        day: date.getDate(), month: date.getMonth(), year: date.getFullYear(),
+      });
+  }
+
+  setDateEnabled(predicate) {
+    if (predicate !== null && typeof predicate !== 'function') {
+      throw new TypeError('Date enabled predicate must be a function or null.');
+    }
+    this.dateEnabled = predicate ?? (() => true);
+    if (this.selected && this.dateDisabled(this.selected)) this.clearSelection();
+    this.render();
   }
 
   select(date) {
+    if (this.dateDisabled(date)) return;
     this.selected = new Date(date.getTime());
     this.displayYear = date.getFullYear();
     this.displayMonth = date.getMonth();
@@ -324,11 +355,12 @@ class DateTimeControl {
     }).map((item) => {
       const date = createLocalDate(item);
       const rangeState = this.dateState(date);
-      const disabled = rangeState === 'before' || rangeState === 'after';
+      const disabled = this.dateDisabled(date, { outside: item.outside });
       const rangeClass = rangeState === null || disabled ? '' : ` is-in-range is-range-${rangeState}`;
       return element('button', {
         className: `date-time-day${item.outside ? ' is-outside' : ''}${item.selected ? ' is-selected' : ''}${item.today ? ' is-today' : ''}${rangeClass}`,
         type: 'button', text: String(item.day), 'aria-label': `${MONTH_LABELS[item.month]} ${item.day}, ${item.year}`,
+        'data-date': `${item.year}-${pad(item.month + 1)}-${pad(item.day)}`,
         'data-range-state': rangeState,
         disabled: disabled ? '' : null,
         onClick: disabled ? null : () => {
@@ -413,6 +445,7 @@ class DateTimeControl {
  */
 export function createDateTimeControl({
   dateTimePresentation = null,
+  disableOutsideMonth = false,
   maxEpochMs = null,
   minEpochMs = null,
   name,
@@ -423,6 +456,9 @@ export function createDateTimeControl({
   now = () => Date.now(),
   timeZone = null,
 }) {
+  if (typeof disableOutsideMonth !== 'boolean') {
+    throw new TypeError('Disable-outside-month option must be boolean.');
+  }
   if (!Object.hasOwn(PRECISION_LENGTH, precision)) throw new TypeError('Date-time precision is unsupported.');
   if (placement !== 'start' && placement !== 'end') throw new TypeError('Date-time placement is unsupported.');
   if (presentation !== 'popover' && presentation !== 'inline') {
@@ -451,12 +487,13 @@ export function createDateTimeControl({
     });
   }
   const controller = new DateTimeControl({
-    dateRange, dateTimePresentation: formattedPresentation, name, label, precision,
+    dateRange, dateTimePresentation: formattedPresentation, disableOutsideMonth, name, label, precision,
     placement, presentation, now, timeZone,
   });
   return Object.freeze({
     element: controller.nodes.root,
     reset: () => controller.reset(),
+    setDateEnabled: (predicate) => controller.setDateEnabled(predicate),
     readEpochMs: () => parseLocalDateTimeValue(controller.nodes.hiddenInput.value, timeZone),
     setEpochMs(epochMs) {
       const value = formatLocalDateTimeValue(epochMs, precision, timeZone);

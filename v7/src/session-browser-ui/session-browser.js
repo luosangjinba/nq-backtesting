@@ -39,6 +39,7 @@ class SessionBrowserController {
     this.stopped = false;
     this.unsubscribe = null;
     this.dialog = createSessionDialog({
+      dateAvailability: options.dateAvailability,
       instruments: this.instruments,
       onSubmit: (intent) => this.createSession(intent),
     });
@@ -176,7 +177,7 @@ class SessionBrowserController {
     this.unsubscribe?.();
     this.unsubscribe = null;
     this.openedSessionSurface?.unmount();
-    this.dialog.element.remove();
+    this.dialog.dispose();
     this.root.replaceChildren();
   }
 }
@@ -192,6 +193,7 @@ class SessionBrowserController {
  */
 export function createSessionBrowser(options) {
   if (!(options.root instanceof HTMLElement)) throw new TypeError('Session Browser requires an HTMLElement root.');
+  requirePort(options.dateAvailability, ['loadAvailableDates'], 'Market date availability');
   if (options.openedSessionSurface) {
     requirePort(options.openedSessionSurface, ['mount', 'supports', 'unmount'], 'Opened Session surface');
     requirePort(options.replayNavigationPreferences, ['save', 'snapshot'], 'Replay navigation preferences');

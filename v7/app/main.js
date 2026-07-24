@@ -9,6 +9,7 @@ import {
 } from '../src/workstation-settings/public.js';
 import { SESSION_BROWSER_CONFIG } from './config.js';
 import { createHashNavigation } from './hash-navigation.js';
+import { createV4MarketDateAvailability } from '../src/v4-bars-provider-adapter/public.js';
 
 function createOpaqueToken() {
   return `session-${crypto.randomUUID()}`;
@@ -46,6 +47,7 @@ try {
 
 const replayWorkspace = createReplayWorkspaceSurface();
 const browser = createSessionBrowser({
+  dateAvailability: createV4MarketDateAvailability(),
   root: document.querySelector('#app'),
   store: composed?.sessionStore ?? null,
   replayNavigationPreferences: composed?.replayNavigationPreferences ?? null,
