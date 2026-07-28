@@ -36,15 +36,28 @@
       "atomicReplacement": true,
       "blankSeriesAllowed": false
     },
-    "history-extension-chunked": {
-      "cacheHitChunkVisible": { "p95Ms": 150, "p99Ms": 250, "maxMs": 400 },
-      "postResponseChunkVisible": { "p95Ms": 150, "p99Ms": 250, "maxMs": 400 },
-      "automaticContinuationMaxMs": 50,
-      "minimumVisibleRangeMultiplier": 2,
-      "safetyVisibleRanges": 1,
-      "atomicChunkCommit": true,
+    "history-extension-single-pass": {
+      "cacheHitVisible": { "p95Ms": 150, "p99Ms": 250, "maxMs": 400 },
+      "postResponseVisible": { "p95Ms": 150, "p99Ms": 250, "maxMs": 400 },
+      "automaticVisibleContinuation": false,
+      "heldOrWheelIntentStabilityMs": 500,
+      "pointerReleaseStartsImmediately": true,
+      "leftBufferBars": 24,
+      "leftFillSafetyBars": 8,
+      "minimumDisplayBars": 240,
+      "oneVisibleCommit": true,
       "barByBarVisibleRepairAllowed": false,
-      "requiresAdditionalUserInput": false
+      "blockByBlockVisibleRepairAllowed": false,
+      "dimDuringHistory": false,
+      "internalTransportChunkingAllowed": true,
+      "requiresAdditionalUserInput": false,
+      "highTimeframeProjectedHistory": {
+        "minimumDurationMs": 3600000,
+        "maximumWindowDays": 3660,
+        "barDataRuntimeOwnsCache": true,
+        "rawReplayLedgerContaminationAllowed": false,
+        "separateProvenanceRequired": true
+      }
     },
     "miss-overhead-and-feedback": {
       "feedback": { "p95Ms": 50, "p99Ms": 100 },
@@ -67,5 +80,17 @@
       "targetVisibleSourceWindows": 1,
       "respectsProviderRequestLimits": true
     }
+  },
+  "projectedHistoryCache": {
+    "owner": "bar-data-runtime",
+    "boundedEvictionRequired": true,
+    "coalesceIdenticalInflightRequests": true,
+    "keyFields": [
+      "providerId", "instrumentId", "displayTimeframeId", "durationMs",
+      "sessionHoursMode", "windowStart", "windowEnd", "datasetRevision",
+      "calendarRevision", "aggregationPolicyRevision"
+    ],
+    "sourceDataset": "immutable-1m",
+    "replaySourceTraversalVisible": false
   }
 }

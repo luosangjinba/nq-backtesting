@@ -5,11 +5,14 @@ import { fileURLToPath } from 'node:url';
 import {
   createV4BarsAdapter,
   createV4MarketDateAvailability,
+  createV4ProjectedHistoryProvider,
   exchangeWallSecondsToInstantMs,
   formatExchangeWallMinute,
   V4_BARS_DATASET_REVISION,
   V4_BARS_PROVIDER_ID,
+  V4_PROJECTED_HISTORY_PROVIDER_ID,
 } from '../src/v4-bars-provider-adapter/public.js';
+import { createProjectedHistoryRequest } from '../src/projected-history-contract/public.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const negativeCases = JSON.parse(fs.readFileSync(path.join(
@@ -83,9 +86,15 @@ assert.deepEqual(result.coverage.segments[0], {
 });
 
 const chunkCalls = [];
+let activeChunkCalls = 0;
+let maximumActiveChunkCalls = 0;
 const chunked = createV4BarsAdapter({
   fetchImpl: async (url) => {
     chunkCalls.push(url);
+    activeChunkCalls += 1;
+    maximumActiveChunkCalls = Math.max(maximumActiveChunkCalls, activeChunkCalls);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    activeChunkCalls -= 1;
     return { ok: true, async json() { return { bars: [] }; } };
   },
 });
@@ -97,6 +106,8 @@ assert.equal(chunkCalls.length, 3, 'large logical requests must yield between bo
 assert.match(chunkCalls[0], /end=2026-05-08\+15%3A39/);
 assert.match(chunkCalls[1], /start=2026-05-08\+15%3A40/);
 assert.match(chunkCalls[2], /start=2026-05-15\+15%3A40/);
+assert.equal(maximumActiveChunkCalls, 2,
+  'large logical requests must use the bounded two-transfer adapter pool');
 
 const failing = createV4BarsAdapter({
   fetchImpl: async () => ({
@@ -121,6 +132,53 @@ await assert.rejects(
     && error.message === 'V4 bars adapter does not support this instrument identity.',
 );
 assert.equal(unsupportedFetches, 0, 'unsupported instruments must fail before any market-data request');
+
+const projectedCalls = [];
+const projectedStartEpochMs = Date.parse('2026-05-01T12:00:00Z');
+const projectedRequest = createProjectedHistoryRequest({
+  aggregationPolicyRevision: 'fixed-240m-eth-r1',
+  calendarRevision: 'calendar-r1',
+  datasetRevision: V4_BARS_DATASET_REVISION,
+  displayTimeframeId: 'timeframe.display-4-hour',
+  durationMs: 240 * MINUTE,
+  instrumentId: 'instrument.cme.nq',
+  providerId: V4_PROJECTED_HISTORY_PROVIDER_ID,
+  schemaVersion: 1,
+  sessionHoursMode: 'eth',
+  windowEndEpochMs: projectedStartEpochMs + (240 * MINUTE),
+  windowStartEpochMs: projectedStartEpochMs,
+});
+const projectedProvider = createV4ProjectedHistoryProvider({
+  apiBase: 'http://127.0.0.1:8766',
+  fetchImpl: async (url) => {
+    projectedCalls.push(url);
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          bars: [{
+            close: 101,
+            displayTimestamp: (projectedStartEpochMs + (239 * MINUTE)) / 1_000,
+            high: 102,
+            low: 99,
+            open: 100,
+            timestamp: projectedStartEpochMs / 1_000,
+            volume: 20,
+          }],
+          datasetRevision: V4_BARS_DATASET_REVISION,
+          sessionHoursMode: 'eth',
+          targetDurationMinutes: 240,
+        };
+      },
+    };
+  },
+});
+const projectedBatch = await projectedProvider.requestProjectedHistory(projectedRequest);
+assert.equal(projectedCalls[0],
+  'http://127.0.0.1:8766/v4/projected_history?end=2026-05-01+12%3A00&instrument=NQ&session=eth&start=2026-05-01+08%3A00&tf=240');
+assert.equal(projectedBatch.bars.length, 1);
+assert.equal(projectedBatch.bars[0].displayEpochMs, projectedStartEpochMs + (239 * MINUTE));
 
 const dateCalls = [];
 const dateAvailability = createV4MarketDateAvailability({

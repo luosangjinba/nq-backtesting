@@ -103,6 +103,7 @@
     "src/module-host/module.json",
     "src/capability-contract/module.json",
     "src/bar-data-contract/module.json",
+    "src/projected-history-contract/module.json",
     "src/provider-policy-contract/module.json",
     "src/coverage-planning-contract/module.json",
     "src/provider-execution-runtime/module.json",

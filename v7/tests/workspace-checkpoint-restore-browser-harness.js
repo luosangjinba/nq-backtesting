@@ -119,12 +119,13 @@ try {
 
   await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
   await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
+  await waitFor(cdp, `document.querySelector('.create-dialog')?.dataset.dateAvailabilityState === 'ready'`);
   await evaluate(cdp, `(() => {
     const form = document.querySelector('.create-form');
     form.elements.name.value = 'Earlier Session';
     form.querySelector('[name="instrument"]').checked = true;
     form.elements.start.value = '2026-05-01T12:40';
-    form.elements.end.value = '2026-05-02T16:00';
+    form.elements.end.value = '2026-05-01T16:00';
     form.requestSubmit();
   })()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`);
@@ -133,6 +134,7 @@ try {
 
   await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
   await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
+  await waitFor(cdp, `document.querySelector('.create-dialog')?.dataset.dateAvailabilityState === 'ready'`);
   await evaluate(cdp, `(() => {
     const form = document.querySelector('.create-form');
     form.elements.name.value = 'R7 restore';

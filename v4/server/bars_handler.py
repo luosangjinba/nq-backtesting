@@ -55,6 +55,30 @@ def handle_target_bars_request(params, *, send_json, send_error, db_path, table_
         send_error(str(exc), 500)
 
 
+def handle_projected_history_request(
+    params, *, send_json, send_error, db_path, table_name, query_projected_history
+):
+    start = params.get("start", [None])[0]
+    end = params.get("end", [None])[0]
+    instrument = params.get("instrument", ["NQ"])[0]
+    timeframe = params.get("tf", [None])[0]
+    session_mode = params.get("session", [None])[0]
+    if not start or not end:
+        send_error("Missing 'start' and/or 'end' parameter (format: YYYY-MM-DD HH:MM)")
+        return
+    if not timeframe or not session_mode:
+        send_error("Missing 'tf' and/or 'session' parameter")
+        return
+    try:
+        send_json(query_projected_history(
+            db_path, table_name, instrument, start, end, timeframe, session_mode
+        ))
+    except ValueError as exc:
+        send_error(str(exc), 400)
+    except Exception as exc:
+        send_error(str(exc), 500)
+
+
 def handle_price_request(params, *, send_json, send_error, parse_price_request, query_price):
     try:
         timestamp, instrument = parse_price_request(params)

@@ -8,11 +8,16 @@
       "requiredRecordedContext": []
     },
     "profiles": {
-      "history-extension-chunked": {
-        "atomicChunkCommit": false,
+      "history-extension-single-pass": {
+        "oneVisibleCommit": false,
+        "automaticVisibleContinuation": true,
         "barByBarVisibleRepairAllowed": true,
+        "blockByBlockVisibleRepairAllowed": true,
+        "dimDuringHistory": true,
+        "internalTransportChunkingAllowed": false,
         "requiresAdditionalUserInput": true,
-        "minimumVisibleRangeMultiplier": 1
+        "leftBufferBars": -1,
+        "minimumDisplayBars": 0
       }
     }
   }

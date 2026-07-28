@@ -168,12 +168,12 @@
       "command": "RequestEarlierHistory",
       "owner": "workspace-transaction-runtime",
       "visibleStates": ["loading", "unavailable", "error", "ready"],
-      "completion": { "runtimeSignal": "One bounded history window is projected and committed", "visibleEvidence": "Complete earlier bars appear without mouse-driven incremental repair" },
+      "completion": { "runtimeSignal": "One complete raw or high-timeframe projected history window is committed", "visibleEvidence": "The entire visible left gap appears together without mouse-driven incremental repair" },
       "failure": { "visibleState": "error", "preservesLastAcceptedSnapshot": true },
       "persistence": "none",
-      "performanceProfile": "history-extension-chunked",
-      "refreshPolicy": "automatic-atomic-prepend-chunks",
-      "coverageAxes": ["cacheState", "timeframe", "sessionHours"]
+      "performanceProfile": "history-extension-single-pass",
+      "refreshPolicy": "single-opaque-atomic-prepend",
+      "coverageAxes": ["cacheState", "timeframe", "sessionHours", "gapScale", "acquisitionTier"]
     },
     {
       "id": "UX-FND-012",

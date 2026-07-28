@@ -10,11 +10,13 @@ import {
   createWorkspaceTransactionIntent,
   describeWorkspaceTransactionEnvelope,
 } from '../workspace-transaction-contract/public.js';
+import { planSingleHistoryFill } from './history-fill-plan.js';
 import { createRefreshFeedback } from './refresh-feedback.js';
 
 /** Own transient UI dispatch/pending policy around the sole Workspace Transaction coordinator. */
 export function createWorkspaceExecution({
   acceptVisibleState,
+  historyPort,
   initialSessionHoursMode,
   market,
   navigation,
@@ -26,8 +28,10 @@ export function createWorkspaceExecution({
   runtime,
   view,
 }) {
+  if (typeof historyPort?.readPaneHistoryState !== 'function') {
+    throw new TypeError('Workspace execution requires a read-only Pane history state port.');
+  }
   const refreshFeedback = createRefreshFeedback({ view });
-  const queuedHistoryPaneIds = new Set();
   let disposed = false;
   let pending = false;
   let sessionHoursMode = initialSessionHoursMode ?? market.defaultTarget.sessionHoursMode;
@@ -49,13 +53,6 @@ export function createWorkspaceExecution({
     return Object.freeze({ calendarRevision: market.calendar.revision, mode, revision });
   }
 
-  function finishHistoryQueue() {
-    if (disposed || pending || queuedHistoryPaneIds.size === 0) return;
-    const [paneId] = queuedHistoryPaneIds;
-    queuedHistoryPaneIds.delete(paneId);
-    queueMicrotask(() => requestHistory(paneId));
-  }
-
   async function run(task, { allowDim = false, loading = false } = {}) {
     if (disposed || pending) return null;
     pending = true;
@@ -70,7 +67,6 @@ export function createWorkspaceExecution({
     } finally {
       pending = false;
       refreshFeedback.finish(feedbackToken);
-      finishHistoryQueue();
     }
   }
 
@@ -119,6 +115,7 @@ export function createWorkspaceExecution({
       const paneRequests = Object.freeze(responsePlan.paneResponses.map((paneResponse) => Object.freeze({
         paneId: paneResponse.paneId,
         request: paneData.createRequest({
+          historyDisplayBars: requestKinds.get(paneResponse.paneId)?.historyDisplayBars ?? null,
           kind: requestKinds.get(paneResponse.paneId)?.kind ?? 'navigation',
           oldestEpochMs: requestKinds.get(paneResponse.paneId)?.oldestEpochMs ?? null,
           targetEpochMs: requestKinds.get(paneResponse.paneId)?.targetEpochMs ?? null,
@@ -140,15 +137,18 @@ export function createWorkspaceExecution({
 
   function requestHistory(paneId) {
     if (disposed) return undefined;
-    if (pending) {
-      queuedHistoryPaneIds.add(paneId);
-      return undefined;
-    }
+    if (pending) return undefined;
     const oldestEpochMs = paneData.oldestEpochMs(paneId);
-    if (oldestEpochMs === null || oldestEpochMs <= 0) return undefined;
+    const historyState = historyPort.readPaneHistoryState(paneId);
+    if (oldestEpochMs === null || oldestEpochMs <= 0 || historyState === null) return undefined;
+    const fill = planSingleHistoryFill(historyState);
     return materialize({
-      requestKinds: new Map([[paneId, { kind: 'history-extension', oldestEpochMs }]]),
-    });
+      requestKinds: new Map([[paneId, {
+        historyDisplayBars: fill.displayBars,
+        kind: 'history-extension',
+        oldestEpochMs,
+      }]]),
+    }, { allowDim: false });
   }
 
   function requestTimeLocationHistory(paneId, targetEpochMs) {
@@ -169,7 +169,6 @@ export function createWorkspaceExecution({
     dispose() {
       disposed = true;
       refreshFeedback.dispose();
-      queuedHistoryPaneIds.clear();
     },
     isPending: () => pending,
     materialize,

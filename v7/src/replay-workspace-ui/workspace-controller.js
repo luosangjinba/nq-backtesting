@@ -1,4 +1,7 @@
-import { createBarDataRuntime } from '../bar-data-runtime/public.js';
+import {
+  createBarDataRuntime,
+  createProjectedHistoryRuntime,
+} from '../bar-data-runtime/public.js';
 import { createPaneSetChartSnapshotApplication } from '../chart-snapshot-application/public.js';
 import { createLightweightPaneSetAdapter } from '../lightweight-chart-adapter/public.js';
 import {
@@ -207,9 +210,15 @@ export function createReplayWorkspaceController({
     maxConcurrentRequests: 2,
     resolveProvider: () => market.provider,
   });
+  const projectedHistoryData = createProjectedHistoryRuntime({
+    maxCacheEntries: 24,
+    maxConcurrentRequests: 2,
+    resolveProvider: () => market.projectedHistoryProvider,
+  });
   const paneData = createPaneDataComposition({
     barData,
     market,
+    projectedHistoryData,
     readAcceptedSnapshot: () => runtime?.snapshot().acceptedSnapshot?.workspace ?? null,
   });
   const materialization = createPaneSetMaterializationPorts({
@@ -273,6 +282,7 @@ export function createReplayWorkspaceController({
 
   execution = createWorkspaceExecution({
     acceptVisibleState,
+    historyPort: adapter,
     initialSessionHoursMode,
     market,
     navigation,
@@ -381,6 +391,7 @@ export function createReplayWorkspaceController({
       chartApplication.dispose();
       adapter.dispose();
       barData.dispose();
+      projectedHistoryData.dispose();
       replay.dispose();
       market.dispose();
       paneState.dispose();

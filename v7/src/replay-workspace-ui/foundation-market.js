@@ -1,15 +1,29 @@
 import { createRawBarRequest } from '../bar-data-contract/public.js';
-import { createV4BarsProvider, V4_BARS_DATASET_REVISION } from '../v4-bars-provider-adapter/public.js';
+import { createProjectedHistoryRequest } from '../projected-history-contract/public.js';
+import {
+  createV4BarsProvider,
+  createV4ProjectedHistoryProvider,
+  V4_BARS_DATASET_REVISION,
+  V4_PROJECTED_HISTORY_PROVIDER_ID,
+} from '../v4-bars-provider-adapter/public.js';
 import { createFoundationCapabilities, FOUNDATION_IDS } from './foundation-capabilities.js';
+import { planSingleHistoryWindow } from './history-window-plan.js';
 const MINUTE = 60_000;
 const ENTRY_PREFIX_BARS = 120;
 const FORWARD_BUFFER_SOURCE_BARS = 500;
 const MINIMUM_HISTORY_SOURCE_BARS = 240;
 const TARGET_HISTORY_DISPLAY_BARS = 240;
 const MAXIMUM_REQUEST_SOURCE_BARS = 35 * 24 * 60;
+const MAXIMUM_SINGLE_HISTORY_DAYS = 210;
+const MAXIMUM_SINGLE_HISTORY_WINDOW_MS = MAXIMUM_SINGLE_HISTORY_DAYS * 24 * 60 * MINUTE;
+const MAXIMUM_PROJECTED_HISTORY_WINDOW_MS = 10 * 366 * 24 * 60 * MINUTE;
+const PROJECTED_HISTORY_MINIMUM_DURATION_MS = 60 * MINUTE;
 
 /** Concrete NQ-primary Session market composition, isolated outside all core owners. */
-export function createFoundationMarket(record, { provider = createV4BarsProvider() } = {}) {
+export function createFoundationMarket(record, {
+  projectedHistoryProvider = createV4ProjectedHistoryProvider(),
+  provider = createV4BarsProvider(),
+} = {}) {
   const configuredInstrumentIds = record?.configuration?.instrumentIds ?? [FOUNDATION_IDS.instrument];
   const capabilities = createFoundationCapabilities(configuredInstrumentIds);
   const range = record.configuration.historicalRange;
@@ -71,13 +85,57 @@ export function createFoundationMarket(record, { provider = createV4BarsProvider
         : Math.max(desiredStart, boundedStart),
     });
   }
-  function requestBefore(oldestEpochMs, selection = capabilities.defaultSelection) {
+  function requestBefore(
+    oldestEpochMs,
+    selection = capabilities.defaultSelection,
+    targetDisplayBars = TARGET_HISTORY_DISPLAY_BARS,
+  ) {
     const windowEndEpochMs = Math.max(MINUTE, oldestEpochMs);
-    const sourceBars = historySourceBars(selection);
+    const durationMs = selection?.displayTimeframe?.alignment?.durationMs ?? MINUTE;
     return rawRequest({
       instrumentId: selection.instrument.id,
       windowEndEpochMs,
-      windowStartEpochMs: contributingHistoryStart(windowEndEpochMs, sourceBars, selection),
+      windowStartEpochMs: planSingleHistoryWindow({
+        durationMs,
+        isEligibleMinute: (epochMs) => isEligibleMinute(epochMs, selection),
+        maximumWindowMs: MAXIMUM_SINGLE_HISTORY_WINDOW_MS,
+        targetDisplayBars: Math.ceil(targetDisplayBars ?? TARGET_HISTORY_DISPLAY_BARS),
+        windowEndEpochMs,
+      }),
+    });
+  }
+  function supportsProjectedHistory(selection = capabilities.defaultSelection) {
+    return selection?.displayTimeframe?.alignment?.kind === 'fixed-duration'
+      && selection.displayTimeframe.alignment.durationMs >= PROJECTED_HISTORY_MINIMUM_DURATION_MS;
+  }
+  function requestProjectedHistoryBefore(
+    oldestEpochMs,
+    selection = capabilities.defaultSelection,
+    targetDisplayBars = TARGET_HISTORY_DISPLAY_BARS,
+  ) {
+    if (!supportsProjectedHistory(selection)) {
+      throw new TypeError('Projected History requires a fixed timeframe of at least one hour.');
+    }
+    const windowEndEpochMs = Math.max(MINUTE, oldestEpochMs);
+    const durationMs = selection.displayTimeframe.alignment.durationMs;
+    return createProjectedHistoryRequest({
+      aggregationPolicyRevision: selection.aggregationPolicy.revision,
+      calendarRevision: selection.calendar.revision,
+      datasetRevision: V4_BARS_DATASET_REVISION,
+      displayTimeframeId: selection.displayTimeframe.id,
+      durationMs,
+      instrumentId: selection.instrument.id,
+      providerId: V4_PROJECTED_HISTORY_PROVIDER_ID,
+      schemaVersion: 1,
+      sessionHoursMode: selection.sessionHoursMode,
+      windowEndEpochMs,
+      windowStartEpochMs: planSingleHistoryWindow({
+        durationMs,
+        isEligibleMinute: (epochMs) => isEligibleMinute(epochMs, selection),
+        maximumWindowMs: MAXIMUM_PROJECTED_HISTORY_WINDOW_MS,
+        targetDisplayBars: Math.ceil(targetDisplayBars ?? TARGET_HISTORY_DISPLAY_BARS),
+        windowEndEpochMs,
+      }),
     });
   }
   function requestForTimeLocation(
@@ -125,16 +183,22 @@ export function createFoundationMarket(record, { provider = createV4BarsProvider
   }
   return Object.freeze({
     ...capabilities,
-    dispose: () => provider.dispose?.(),
+    dispose() {
+      provider.dispose?.();
+      projectedHistoryProvider.dispose?.();
+    },
     entryAdvanceMs: MINUTE,
     ids: FOUNDATION_IDS,
     planEligibleMinutes,
     provider,
+    projectedHistoryProvider,
     request,
     requestBefore,
+    requestProjectedHistoryBefore,
     requestForTimeLocation,
     requestThrough,
     requestWindow: rawRequest,
+    supportsProjectedHistory,
   });
 }
 

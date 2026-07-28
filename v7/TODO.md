@@ -1646,6 +1646,59 @@ The current health result derives `ESU6→ESZ6` and `NQU6→NQZ6`, with a hard
 New York horizon at `2026-09-14 00:00`. This is a safety deadline rather than a
 preselected roll date. R7.3c mutates no authoritative market-data row.
 
+### R7.3j Single-Pass Dense History Fill — Awaiting Human Review
+
+- [x] re-derive the dense-history prepend fix after the explicit rollback to
+  `5077c13e`, without restoring the removed consolidated correction commit;
+- [x] preserve a partially negative manual logical range exactly so prepended
+  candles occupy Canvas whitespace without moving the prior pointer anchor;
+- [x] derive one display-bar target from the actual left-side gap through the
+  accepted logical-index-24 buffer, retaining a 240-bar minimum;
+- [x] count ETH/RTH-eligible fixed-duration buckets before acquisition so one
+  bounded logical request targets the complete current Canvas fill;
+- [x] remove post-commit automatic history continuation and require exactly one
+  Workspace revision plus one chart `setData()` for one drag;
+- [x] keep seven-day V4 transport parts invisible behind one Raw Batch while an
+  adapter-wide two-transfer pool overlaps local I/O;
+- [x] keep the accepted Canvas fully opaque and out of the delayed stale state
+  throughout history acquisition;
+- [x] bind pure gap/window/anchor controls, provider transport concurrency, and
+  a real dense `8h` Chrome gesture with one visible commit;
+- [ ] obtain explicit human confirmation that dense left-history navigation no
+  longer rebounds, flashes, or paints block by block.
+
+Human review then exposed a screenshot-scale `4h` gap beyond the 210-day raw
+window. R7.3j remains the anchor/single-commit foundation, but its raw-only
+high-timeframe acquisition evidence is superseded by R7.3k below.
+
+The removed R7.3g–R7.3i experiment remains recoverable only through historical
+commit `77b2714a`; this replacement does not reapply that bundled commit. The
+current implementation keeps the same V7 owners: Bar Data owns acquisition,
+Projection owns eligible/no-future candles, Chart Runtime is the sole series
+writer, Viewport owns the drag wall, and Replay does not move.
+
+### R7.3k Projected Screenshot-Scale History Fill — Awaiting Human Review
+
+- [x] identify the reported delayed partial fill as a high-timeframe request
+  exceeding R7.3j's 210-day raw-source window rather than another anchor defect;
+- [x] publish a released drag immediately and coalesce a held drag/wheel burst
+  after 500 ms of stable logical range;
+- [x] capture each gesture once and discard duplicate history boundary events
+  during the active transaction instead of replaying an unexplained queued fill;
+- [x] add a read-only V4 projected-history service for `1h`–`12h`, using the
+  same immutable `1m` source, exact V7 real-instant grid, and ETH/RTH filtering;
+- [x] add an explicit projected-history request/batch contract plus separately
+  bounded Bar Data-owned cache/runtime and Pane provenance;
+- [x] keep projected display context out of Replay raw-source traversal and
+  retain authoritative raw acquisition for lower-timeframe drill-down/replay;
+- [x] prove `4h` ETH/RTH projected bars equal raw `1m` aggregation across DST;
+- [x] bind a real screenshot-scale `4h` Chrome drag: about 1,910 logical bars,
+  2,427 final candles, logical `from=12.62`, one visible revision, no stale/dim,
+  and `496.3ms` gesture-to-visible completion on the final cold-window run;
+- [ ] obtain explicit human confirmation after a hard reload that the reported
+  `4h` Session fills its entire left edge once, predictably, without rebound or
+  flashing.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

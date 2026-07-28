@@ -173,6 +173,7 @@ try {
   await waitFor(cdp, `document.querySelector('#app')?.dataset.viewState === 'empty'`);
   await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
   await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
+  await waitFor(cdp, `document.querySelector('.create-dialog')?.dataset.dateAvailabilityState === 'ready'`);
   await evaluate(cdp, `(() => {
     const form = document.querySelector('.create-form');
     form.elements.name.value = 'NQ ES Pane Replay';
@@ -257,7 +258,8 @@ try {
   });
   await waitFor(cdp, `Number(document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host')
     ?.dataset.wheelEventCount) >= 2`);
-  await new Promise((resolve) => setTimeout(resolve, 250));
+  await waitFor(cdp, `document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host')
+    ?.dataset.viewportOrigin === 'manual'`, 2_000);
   state = await evaluate(cdp, paneStateExpression());
   assert.equal(state.panes[0].viewportOrigin, 'manual',
     `native main-Pane wheel must create a manual wall: ${JSON.stringify(state.panes[0])}`);
@@ -1040,6 +1042,7 @@ try {
   await waitFor(cdp, `document.querySelector('#app')?.dataset.screen === 'list'`);
   await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
   await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
+  await waitFor(cdp, `document.querySelector('.create-dialog')?.dataset.dateAvailabilityState === 'ready'`);
   await evaluate(cdp, `(() => {
     const form = document.querySelector('.create-form');
     form.elements.name.value = 'Global GoTo Witness';

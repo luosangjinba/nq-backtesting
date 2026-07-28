@@ -40,6 +40,10 @@ export function createSourceBatchLedger() {
     acceptedBatches: () => accepted,
     oldestEpochMs() { return accepted[0]?.request.windowStartEpochMs ?? null; },
     reject() { staged = null; },
+    stageRetained() {
+      staged = accepted;
+      return staged;
+    },
     stage,
   });
 }

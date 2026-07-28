@@ -10,6 +10,7 @@
     "core.transaction-identity",
     "core.bar-data-contract",
     "core.bar-data-runtime",
+    "core.projected-history-contract",
     "core.capability-contract",
     "core.replay-contract",
     "core.replay-runtime",

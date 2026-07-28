@@ -1,0 +1,12 @@
+{
+  "id": "core.projected-history-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "bar-data-runtime",
+  "publicEntry": "src/projected-history-contract/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/projected-history-runtime-harness.js",
+  "removable": false
+}

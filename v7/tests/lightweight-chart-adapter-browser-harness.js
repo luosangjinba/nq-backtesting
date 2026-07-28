@@ -52,8 +52,12 @@ assert.deepEqual(planVisibleLogicalRange({ from: -200, latestOffsetBars: -120, t
   'a low→high replacement must not submit an inverted range or strand all candles off-screen');
 assert.deepEqual(planVisibleLogicalRange({
   from: -73.113, latestOffsetBars: -184.113, origin: 'manual', spanBars: 80, to: 6.887,
-}, 191), { from: -0.5, to: 79.5 },
-'a left-clamped manual wall must translate without collapsing its canonical span');
+}, 191), { from: -73.113, to: 6.887 },
+'a partially covered manual wall must retain its exact drag anchor during prepend');
+assert.deepEqual(planVisibleLogicalRange({
+  from: -200, latestOffsetBars: -305, origin: 'manual', spanBars: 80, to: -120,
+}, 185), { from: -0.5, to: 79.5 },
+'a wholly stranded manual wall must recover without collapsing its canonical span');
 assert.equal(planSeriesMutation([], [candle(1)]).kind, 'full-replace');
 assert.equal(planSeriesMutation([candle(1)], [candle(1, 2.5)]).kind, 'tail-update');
 assert.equal(planSeriesMutation([candle(1)], [candle(1), candle(2)]).kind, 'tail-update');

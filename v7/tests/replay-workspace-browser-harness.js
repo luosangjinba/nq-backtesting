@@ -209,6 +209,7 @@ try {
   }
   await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
   await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
+  await waitFor(cdp, `document.querySelector('.create-dialog')?.dataset.dateAvailabilityState === 'ready'`);
   await evaluate(cdp, `(() => {
     const form = document.querySelector('.create-form');
     form.elements.name.value = 'NQ Morning Replay';
@@ -604,6 +605,9 @@ try {
       `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision)`);
     if (revision > historyBefore.revision) break;
   }
+  await waitFor(cdp,
+    `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${historyBefore.revision}`,
+    5_000);
   const historyDragEvidence = await evaluate(cdp, `(() => ({
     logicalFrom: Number(document.querySelector('.lightweight-chart-host').dataset.logicalFrom),
     revision: Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision),
@@ -703,17 +707,115 @@ try {
 
   await evaluate(cdp, `(() => {
     document.querySelector('.timeframe-toggle').click();
-    document.querySelector('[data-timeframe-id="timeframe.display-8-hour"]').click();
+    document.querySelector('[data-timeframe-id="timeframe.display-4-hour"]').click();
   })()`);
-  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.timeframeId === 'timeframe.display-8-hour'
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.timeframeId === 'timeframe.display-4-hour'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+  const denseRevisionBefore = Number(await evaluate(cdp,
+    `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
+  const denseBarsBefore = Number(await evaluate(cdp,
+    `document.querySelector('.lightweight-chart-host').dataset.barCount`));
+  const denseStartedAt = performance.now();
+  const denseSpanBefore = Number(await evaluate(cdp,
+    `document.querySelector('.lightweight-chart-host').dataset.spanBars`));
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseWheel', x: historyBox.x, y: historyBox.y, deltaX: 0, deltaY: 300,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 35));
+    const span = Number(await evaluate(cdp,
+      `document.querySelector('.lightweight-chart-host').dataset.spanBars`));
+    if (span >= 240) break;
+  }
+  await waitFor(cdp,
+    `Number(document.querySelector('.lightweight-chart-host')?.dataset.spanBars) >= 900`,
+    3_000);
+  const denseTriggeredRange = await evaluate(cdp, `(() => ({
+    from: Number(document.querySelector('.lightweight-chart-host').dataset.logicalFrom),
+    to: Number(document.querySelector('.lightweight-chart-host').dataset.logicalTo),
+  }))()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 15_000);
+  const denseSpan = Number(await evaluate(cdp,
+    `document.querySelector('.lightweight-chart-host').dataset.spanBars`));
+  const denseFillEvidence = await evaluate(cdp, `(() => ({
+    barCount: Number(document.querySelector('.lightweight-chart-host').dataset.barCount),
+    from: Number(document.querySelector('.lightweight-chart-host').dataset.logicalFrom),
+    revision: Number(document.querySelector('.replay-workspace').dataset.workspaceRevision),
+  }))()`);
+  denseFillEvidence.elapsedMs = performance.now() - denseStartedAt;
+  assert.ok(denseSpan >= 900 && denseSpan > denseSpanBefore,
+    `single-fill gate must use a genuinely dense native wall: ${JSON.stringify({ denseSpan, denseSpanBefore })}`);
+  assert.ok(denseTriggeredRange.from < -500,
+    `dense gate must expose a screenshot-scale left gap: ${JSON.stringify(denseTriggeredRange)}`);
+  assert.equal(denseFillEvidence.revision - denseRevisionBefore, 1,
+    `one dense zoom gesture must produce one visible commit: ${JSON.stringify(denseFillEvidence)}`);
+  assert.ok(denseFillEvidence.barCount > denseBarsBefore && denseFillEvidence.from >= 0,
+    `one projected-history response must fill the complete Canvas edge: ${JSON.stringify(denseFillEvidence)}`);
+  const rapidHistoryBox = await evaluate(cdp, `(() => {
+    const rect = document.querySelector('.lightweight-chart-host').getBoundingClientRect();
+    return { x: rect.left + 12, y: rect.top + rect.height * .5, right: rect.right - 12 };
+  })()`);
+  async function dragRapidHistory(fraction = 1) {
+    const targetX = rapidHistoryBox.x
+      + ((rapidHistoryBox.right - rapidHistoryBox.x) * fraction);
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved', x: rapidHistoryBox.x, y: rapidHistoryBox.y, button: 'none', buttons: 0,
+    });
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mousePressed', x: rapidHistoryBox.x, y: rapidHistoryBox.y,
+      button: 'left', buttons: 1, clickCount: 1,
+    });
+    for (const ratio of [.1, .2, .3, .4, .5, .6, .7, .8, .9, 1]) {
+      await cdp.send('Input.dispatchMouseEvent', {
+        type: 'mouseMoved', x: rapidHistoryBox.x + ((targetX - rapidHistoryBox.x) * ratio),
+        y: rapidHistoryBox.y, button: 'left', buttons: 1,
+      });
+    }
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseReleased', x: targetX, y: rapidHistoryBox.y,
+      button: 'left', buttons: 0, clickCount: 1,
+    });
+  }
+  const preparationRevision = Number(await evaluate(cdp,
+    `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
+  let preparedHistoryState;
+  for (let attempt = 0; attempt < 16; attempt += 1) {
+    preparedHistoryState = await evaluate(cdp, `(() => ({
+      from: Number(document.querySelector('.lightweight-chart-host').dataset.logicalFrom),
+      revision: Number(document.querySelector('.replay-workspace').dataset.workspaceRevision),
+    }))()`);
+    if (preparedHistoryState.from < 99) break;
+    await dragRapidHistory(.15);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    assert.equal(Number(await evaluate(cdp,
+      `document.querySelector('.replay-workspace').dataset.workspaceRevision`)), preparationRevision,
+      `dense gate preparation must stop before requesting history: ${JSON.stringify(preparedHistoryState)}`);
+  }
+  preparedHistoryState = await evaluate(cdp, `(() => ({
+    from: Number(document.querySelector('.lightweight-chart-host').dataset.logicalFrom),
+    revision: Number(document.querySelector('.replay-workspace').dataset.workspaceRevision),
+  }))()`);
+  assert.equal(preparedHistoryState.revision, preparationRevision);
+  assert.ok(preparedHistoryState.from >= 0 && preparedHistoryState.from < 99,
+    `dense gate must begin one drag away from history: ${JSON.stringify(preparedHistoryState)}`);
   await evaluate(cdp, `(() => {
     globalThis.__rapidHistorySamples = [];
     globalThis.__rapidHistoryLongTasks = [];
+    globalThis.__rapidHistoryOpacities = [];
+    globalThis.__rapidHistoryViewStates = [document.querySelector('.replay-workspace').dataset.viewState];
     globalThis.__rapidHistoryStartedAt = performance.now();
     globalThis.__rapidHistoryTimer = setInterval(() => {
       globalThis.__rapidHistorySamples.push(performance.now());
+      globalThis.__rapidHistoryOpacities.push(Number(getComputedStyle(
+        document.querySelector('.workspace-pane-grid')
+      ).opacity));
     }, 16);
+    globalThis.__rapidHistoryViewObserver = new MutationObserver(() => {
+      globalThis.__rapidHistoryViewStates.push(document.querySelector('.replay-workspace').dataset.viewState);
+    });
+    globalThis.__rapidHistoryViewObserver.observe(document.querySelector('.replay-workspace'), {
+      attributeFilter: ['data-view-state'],
+    });
     globalThis.__rapidHistoryObserver = new PerformanceObserver((list) => {
       globalThis.__rapidHistoryLongTasks.push(...list.getEntries().map((entry) => entry.duration));
     });
@@ -723,55 +825,61 @@ try {
     `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
   const rapidHistoryBars = Number(await evaluate(cdp,
     `document.querySelector('.lightweight-chart-host').dataset.barCount`));
-  for (let attempt = 0; attempt < 8; attempt += 1) {
-    await cdp.send('Input.dispatchMouseEvent', {
-      type: 'mouseMoved', x: historyBox.x, y: historyBox.y, button: 'none', buttons: 0,
-    });
-    await cdp.send('Input.dispatchMouseEvent', {
-      type: 'mousePressed', x: historyBox.x, y: historyBox.y, button: 'left', buttons: 1, clickCount: 1,
-    });
-    await cdp.send('Input.dispatchMouseEvent', {
-      type: 'mouseMoved', x: historyBox.right, y: historyBox.y, button: 'left', buttons: 1,
-    });
-    await cdp.send('Input.dispatchMouseEvent', {
-      type: 'mouseReleased', x: historyBox.right, y: historyBox.y, button: 'left', buttons: 0, clickCount: 1,
-    });
-    await new Promise((resolve) => setTimeout(resolve, 50));
-  }
+  await dragRapidHistory();
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'true'`, 2_000);
+  const triggeredRange = await evaluate(cdp, `(() => ({
+    from: Number(document.querySelector('.lightweight-chart-host').dataset.logicalFrom),
+    to: Number(document.querySelector('.lightweight-chart-host').dataset.logicalTo),
+  }))()`);
   await waitFor(cdp,
     `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${rapidHistoryRevision}`,
-    10_000);
-  await new Promise((resolve) => setTimeout(resolve, 150));
-  await waitFor(cdp, `document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+    15_000);
+  await waitFor(cdp, `Number(document.querySelector('.lightweight-chart-host')?.dataset.logicalFrom) >= 0
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 15_000);
   const rapidHistoryEvidence = await evaluate(cdp, `(() => {
     clearInterval(globalThis.__rapidHistoryTimer);
     globalThis.__rapidHistoryObserver.disconnect();
+    globalThis.__rapidHistoryViewObserver.disconnect();
     const intervals = globalThis.__rapidHistorySamples.slice(1).map((value, index) => (
       value - globalThis.__rapidHistorySamples[index]
     ));
+    const host = document.querySelector('.lightweight-chart-host');
     return {
-      barCount: Number(document.querySelector('.lightweight-chart-host').dataset.barCount),
+      barCount: Number(host.dataset.barCount),
       elapsedMs: performance.now() - globalThis.__rapidHistoryStartedAt,
+      from: Number(host.dataset.logicalFrom),
       maxLongTaskMs: Math.max(0, ...globalThis.__rapidHistoryLongTasks),
       maxSampleIntervalMs: Math.max(0, ...intervals),
+      minimumCanvasOpacity: Math.min(1, ...globalThis.__rapidHistoryOpacities),
       revisionDelta: Number(document.querySelector('.replay-workspace').dataset.workspaceRevision)
         - ${rapidHistoryRevision},
+      to: Number(host.dataset.logicalTo),
+      viewStates: globalThis.__rapidHistoryViewStates,
     };
   })()`);
+  const prependedBars = rapidHistoryEvidence.barCount - rapidHistoryBars;
   assert.ok(rapidHistoryEvidence.barCount > rapidHistoryBars,
     `rapid high-TF boundary drag must extend history: ${JSON.stringify(rapidHistoryEvidence)}`);
-  assert.ok(rapidHistoryEvidence.revisionDelta <= 2,
-    `rapid boundary input must coalesce to at most one queued continuation: ${JSON.stringify(rapidHistoryEvidence)}`);
+  assert.equal(rapidHistoryEvidence.revisionDelta, 1,
+    `one dense drag must produce exactly one visible history commit: ${JSON.stringify(rapidHistoryEvidence)}`);
+  assert.ok(Math.abs((rapidHistoryEvidence.from - triggeredRange.from) - prependedBars) < 0.01
+    && Math.abs((rapidHistoryEvidence.to - triggeredRange.to) - prependedBars) < 0.01,
+  `prepend must retain the exact drag anchor: ${JSON.stringify({ rapidHistoryEvidence, triggeredRange })}`);
   assert.ok(rapidHistoryEvidence.maxLongTaskMs < 200,
     `high-TF history projection must not block the main thread for 200ms: ${JSON.stringify(rapidHistoryEvidence)}`);
   assert.ok(rapidHistoryEvidence.maxSampleIntervalMs < 250,
     `history loading must keep the browser event loop responsive: ${JSON.stringify(rapidHistoryEvidence)}`);
+  assert.equal(rapidHistoryEvidence.minimumCanvasOpacity, 1,
+    `history extension must keep the accepted Canvas fully opaque: ${JSON.stringify(rapidHistoryEvidence)}`);
+  assert.equal(rapidHistoryEvidence.viewStates.includes('stale'), false,
+    `history extension must not flash the stale/dim state: ${JSON.stringify(rapidHistoryEvidence)}`);
   rapidHistoryLatencyEvidence = Object.freeze(rapidHistoryEvidence);
 
   await evaluate(cdp, `location.hash = '#/sessions'`);
   await waitFor(cdp, `document.querySelectorAll('.session-card').length === 1`);
   await evaluate(cdp, `performance.clearResourceTimings(); document.querySelector('.page-header .button-primary').click()`);
   await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
+  await waitFor(cdp, `document.querySelector('.create-dialog')?.dataset.dateAvailabilityState === 'ready'`);
   await evaluate(cdp, `(() => {
     const form = document.querySelector('.create-form');
     form.elements.name.value = 'NQ Aggregate Latency';

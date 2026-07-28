@@ -56,6 +56,8 @@ function maximumDisplayGapMs(data) {
   return maximum;
 }
 
+const HISTORY_INTENT_STABILITY_MS = 500;
+
 /** Construct the only real Lightweight Charts series writer for one pane. */
 export function createLightweightChartAdapter({
   host,
@@ -95,6 +97,9 @@ export function createLightweightChartAdapter({
   let barCount = 0;
   let disposed = false;
   let captureToken = 0;
+  let historyCaptureTimer = null;
+  let nativeGestureRevision = 0;
+  let capturedGestureRevision = -1;
   let nativePointerActive = false;
   let pointerDownPoint = null;
   let nativePointerDragged = false;
@@ -203,29 +208,49 @@ export function createLightweightChartAdapter({
     onHistoryBoundary(Object.freeze({ from: range.from, to: range.to }));
   }
 
+  function scheduleNativeViewportCapture(delayMs = HISTORY_INTENT_STABILITY_MS) {
+    const gestureRevision = nativeGestureRevision;
+    if (capturedGestureRevision === gestureRevision) return;
+    if (historyCaptureTimer !== null) clearTimeout(historyCaptureTimer);
+    historyCaptureTimer = setTimeout(() => {
+      historyCaptureTimer = null;
+      if (disposed || capturedGestureRevision === gestureRevision) return;
+      capturedGestureRevision = gestureRevision;
+      host.dataset.historyBoundaryCaptureCount = String(
+        Number(host.dataset.historyBoundaryCaptureCount || 0) + 1,
+      );
+      void captureNativeViewport();
+    }, delayMs);
+  }
+
   const onPointerDown = (event) => {
     if (!host.contains(event.target)) return;
+    if (!nativePointerActive) nativeGestureRevision += 1;
     nativePointerActive = true;
     pointerDownPoint = Object.freeze({ x: event.clientX, y: event.clientY });
     nativePointerDragged = false;
   };
   const onPointerMove = (event) => {
-    if (!nativePointerActive || nativePointerDragged || !pointerDownPoint) return;
-    const x = event.clientX - pointerDownPoint.x;
-    const y = event.clientY - pointerDownPoint.y;
-    nativePointerDragged = ((x * x) + (y * y)) >= 4;
+    if (!nativePointerActive || !pointerDownPoint) return;
+    if (!nativePointerDragged) {
+      const x = event.clientX - pointerDownPoint.x;
+      const y = event.clientY - pointerDownPoint.y;
+      nativePointerDragged = ((x * x) + (y * y)) >= 4;
+    }
+    if (nativePointerDragged) scheduleNativeViewportCapture();
   };
   const onPointerUp = () => {
     if (!nativePointerActive) return;
     nativePointerActive = false;
     pointerDownPoint = null;
-    if (nativePointerDragged) void captureNativeViewport();
+    if (nativePointerDragged) scheduleNativeViewportCapture(0);
     nativePointerDragged = false;
   };
   const onWheel = (event) => {
     host.dataset.wheelEventCount = String(Number(host.dataset.wheelEventCount || 0) + 1);
     if (applyPriceScaleWheel({ event, host, priceScale })) return;
-    void captureNativeViewport();
+    nativeGestureRevision += 1;
+    scheduleNativeViewportCapture();
   };
   host.addEventListener('wheel', onWheel, { capture: true, passive: false });
   window.addEventListener('pointerdown', onPointerDown, true);
@@ -508,6 +533,8 @@ export function createLightweightChartAdapter({
     dispose() {
       if (disposed) return;
       disposed = true;
+      if (historyCaptureTimer !== null) clearTimeout(historyCaptureTimer);
+      historyCaptureTimer = null;
       captureToken += 1;
       visibleMutationToken += 1;
       host.removeEventListener('wheel', onWheel, true);

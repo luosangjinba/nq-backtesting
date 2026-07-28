@@ -67,17 +67,41 @@ export function validateCacheLatencyContract(model) {
     violations.push({ code: 'non-atomic-or-blank-projection-refresh' });
   }
 
-  const history = profiles['history-extension-chunked'] ?? {};
+  const history = profiles['history-extension-single-pass'] ?? {};
   if (
-    !boundedLatency(history.cacheHitChunkVisible) ||
-    !boundedLatency(history.postResponseChunkVisible) ||
-    history.atomicChunkCommit !== true ||
+    !boundedLatency(history.cacheHitVisible) ||
+    !boundedLatency(history.postResponseVisible) ||
+    history.oneVisibleCommit !== true ||
+    history.automaticVisibleContinuation !== false ||
     history.barByBarVisibleRepairAllowed !== false ||
+    history.blockByBlockVisibleRepairAllowed !== false ||
+    history.dimDuringHistory !== false ||
+    history.internalTransportChunkingAllowed !== true ||
     history.requiresAdditionalUserInput !== false ||
-    !(history.minimumVisibleRangeMultiplier >= 2) ||
-    !Number.isFinite(history.automaticContinuationMaxMs)
+    history.heldOrWheelIntentStabilityMs !== 500 ||
+    history.pointerReleaseStartsImmediately !== true ||
+    !(history.leftFillSafetyBars >= 0) ||
+    !(history.leftBufferBars >= 0) ||
+    !(history.minimumDisplayBars >= 1) ||
+    history.highTimeframeProjectedHistory?.minimumDurationMs !== 3_600_000 ||
+    !(history.highTimeframeProjectedHistory?.maximumWindowDays >= 365) ||
+    history.highTimeframeProjectedHistory?.barDataRuntimeOwnsCache !== true ||
+    history.highTimeframeProjectedHistory?.rawReplayLedgerContaminationAllowed !== false ||
+    history.highTimeframeProjectedHistory?.separateProvenanceRequired !== true
   ) {
     violations.push({ code: 'incremental-or-user-driven-history-repair' });
+  }
+
+  const projectedCache = model.projectedHistoryCache ?? {};
+  if (projectedCache.owner !== 'bar-data-runtime'
+    || projectedCache.boundedEvictionRequired !== true
+    || projectedCache.coalesceIdenticalInflightRequests !== true
+    || projectedCache.sourceDataset !== 'immutable-1m'
+    || projectedCache.replaySourceTraversalVisible !== false
+    || !Array.isArray(projectedCache.keyFields)
+    || !['sessionHoursMode', 'displayTimeframeId', 'calendarRevision', 'aggregationPolicyRevision']
+      .every((field) => projectedCache.keyFields.includes(field))) {
+    violations.push({ code: 'unsafe-projected-history-cache' });
   }
 
   const rawCache = model.rawBarCache ?? {};

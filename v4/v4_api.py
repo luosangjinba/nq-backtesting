@@ -18,8 +18,14 @@ from urllib.parse import urlparse, parse_qs
 
 from server.price_lookup import query_price
 from server import bars_service
+from server import projected_history_service
 from server import target_bars_service
-from server.bars_handler import handle_bars_request, handle_price_request, handle_target_bars_request
+from server.bars_handler import (
+    handle_bars_request,
+    handle_price_request,
+    handle_projected_history_request,
+    handle_target_bars_request,
+)
 from server.economic_calendar_handler import handle_economic_events_request
 from server.maintenance_handler import handle_data_maintenance_post_request
 from server.market_data_calendar_handler import handle_available_dates_request
@@ -498,6 +504,10 @@ class V4Handler(BaseHTTPRequestHandler):
                     "availableDates": True,
                     "targetBars": True,
                     "targetTimeframes": list(target_bars_service.SUPPORTED_TARGET_TIMEFRAMES),
+                    "projectedHistory": True,
+                    "projectedHistoryTimeframes": sorted(
+                        projected_history_service.SUPPORTED_TIMEFRAME_MINUTES
+                    ),
                 },
             })
         elif path == "/v4/bars":
@@ -506,6 +516,8 @@ class V4Handler(BaseHTTPRequestHandler):
             self._handle_available_dates(params)
         elif path == "/v4/target_bars":
             self._handle_target_bars(params)
+        elif path == "/v4/projected_history":
+            self._handle_projected_history(params)
         elif path == "/v4/price":
             self._handle_price(params)
         elif path == "/v4/economic_events":
@@ -602,6 +614,16 @@ class V4Handler(BaseHTTPRequestHandler):
             db_path=DB_PATH,
             table_name=TABLE_NAME,
             query_target_bars=query_target_bars,
+        )
+
+    def _handle_projected_history(self, params):
+        handle_projected_history_request(
+            params,
+            send_json=self._send_json,
+            send_error=self._send_error,
+            db_path=DB_PATH,
+            table_name=TABLE_NAME,
+            query_projected_history=projected_history_service.query_projected_history,
         )
 
     def _handle_price(self, params):

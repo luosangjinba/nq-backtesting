@@ -7,6 +7,7 @@
   "requiredPorts": [
     "core.bar-data-contract",
     "core.coverage-planning-contract",
+    "core.projected-history-contract",
     "core.provider-policy-contract",
     "core.provider-execution-runtime"
   ],

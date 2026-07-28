@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-23 after R7.2 restored Workspace performance closure
+Last updated: 2026-07-28 after R7.3k projected dense-history correction
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -38,7 +38,11 @@ required for normal startup.
   re-entry/hard-refresh restore human accepted after automated and manual
   re-entry gates; R7.2 restored mixed-Pane cache-hit performance, buffered
   source traversal, incremental Projection, and complete foundation race/axis
-  gates automatically accepted with no visual or interaction change; R2.4
+  gates automatically accepted with no visual or interaction change; R7.3,
+  R7.3a–c remain at their recorded human gates; R7.3j re-derived the history
+  anchor/single-commit correction after the explicit reset to `5077c13e`, and
+  R7.3k replaces its insufficient high-timeframe raw window with projected
+  screenshot-scale history; R7.3k awaits interaction review; R2.4
   Session Browser
   readability and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
@@ -439,11 +443,14 @@ Corrective implementation, in order:
     high-timeframe performance improvement.
 13. Deep earlier-history projection cost is bounded to the new plus boundary
     chunks instead of all accumulated raw history.
-14. Large V4 logical requests yield between contiguous seven-day transport
-    responses without changing Bar Data identity or coverage.
-15. Rapid `8h` boundary input coalesces to two visible revisions; the final
-    Chrome gate observes no 200ms long task and about a 125ms maximum event-loop
-    interval while both history loads complete.
+14. Sub-hour V4 history retains an adapter-wide two-transfer pool over
+    contiguous seven-day raw transport parts. `1h`–`12h` left context instead
+    uses separately provenanced, Bar Data-owned projected history from the same
+    immutable `1m` dataset and never enters Replay raw-source traversal.
+15. One screenshot-scale dense `4h` drag spans about 1,910 logical bars, fills
+    the complete visible left edge with 2,427 final candles, and commits exactly
+    one visible revision/`setData` in `496.3ms`; Canvas opacity stays `1`, stale
+    state never appears, and the pre-existing candle anchor remains exact.
 
 Use V6 source/docs/tests as binding interaction evidence for items 1–4. Do not
 restart product interviews or copy V6 runtime ownership.
@@ -515,10 +522,13 @@ delayed/reordered-response, and full foundation-axis performance gates are
 automatically accepted with no visual/interaction change. The chart/Replay
 foundation is closed.
 
-Exact next slice: specify the phase-two Backtesting and Journal module and
-semantic-evidence boundaries over the existing shared runtime owners. Do not
-implement Economic Calendar or introduce another chart/Replay product during
-that planning step.
+Exact next step: hard-reload the open workspace and manually repeat the
+reported screenshot-scale `4h` left-history gesture for R7.3k. Confirm that
+release starts one predictable fill, the entire visible left edge appears
+together within the accepted delay, and the chart neither rebounds nor flashes.
+Do not accept the correction from automated evidence alone. After the
+remaining R7.3 human gates and the complete foundation walkthrough, decide
+whether phase one closes before specifying Backtesting/Journal boundaries.
 
 ## Standing Workflow
 

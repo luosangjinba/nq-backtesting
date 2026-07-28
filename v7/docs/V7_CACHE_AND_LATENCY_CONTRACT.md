@@ -65,13 +65,46 @@ controls retain their disabled presentation.
 Visible-range proximity is only an explicit request trigger. Correctness never
 depends on another wheel, mouse, resize, or retry event.
 
-Earlier history is requested in bounded contiguous chunks. Each accepted chunk
-is prepended atomically while preserving the logical anchor and viewport. The
-target chunk covers at least two current visible ranges when provider limits
-permit, plus a one-visible-range safety buffer. If more coverage is needed, the
-runtime schedules the next chunk automatically within the continuation budget.
+Earlier history uses one user-intent-sized logical request and one visible
+commit. Pointer release publishes the final drag wall immediately. A held drag
+or wheel burst publishes after the logical range has remained stable for 500
+ms; this is input coalescing, not an artificial provider delay. Repeated
+boundary notifications while a history transaction is active are discarded
+instead of becoming a delayed continuation with an unclear trigger.
 
-A timeframe-aware nominal window is retained when it contains any eligible
+At that boundary the history owner measures the actual negative logical gap
+and targets enough display bars to move the left endpoint through logical index
+`24`, with an eight-bar boundary safety allowance and a 240-display-bar
+minimum. The request planner counts eligible fixed-duration display buckets
+under the selected ETH/RTH policy rather than treating wall-clock minutes as
+candles. It therefore plans the complete Canvas fill before acquisition begins
+instead of exposing a sequence of fixed-size chart updates.
+
+One drag may produce at most one Workspace revision, one Projection result,
+and one complete chart `setData()` replacement. There is no post-commit
+automatic history continuation. If real source coverage is exhausted, the
+accepted result stops there; the runtime does not loop, synthesize candles, or
+wait for mouse movement to repair an unfinished transaction.
+
+Acquisition has two explicit Bar Data-owned tiers:
+
+- display timeframes below `1h` retain the exact raw-`1m` history path, including
+  its 210-day safety bound and invisible seven-day transport partitioning;
+- `1h` through `12h` use the read-only V4 projected-history service for left
+  chart context. The service filters the immutable `1m` source under the exact
+  ETH/RTH schedule and aggregates on V7's real-instant fixed grid before
+  returning one compact projected batch. A single request may cover up to ten
+  years, so a screenshot-scale high-timeframe gap does not become dozens of
+  foreground raw transfers.
+
+Projected context has a separate, bounded cache identity containing instrument,
+timeframe, duration, ETH/RTH mode, calendar revision, aggregation revision,
+window, provider, and dataset revision. Its provenance is attached separately
+to the Pane snapshot. It never enters Replay source traversal or impersonates
+raw `1m` evidence; lower-timeframe navigation still acquires the authoritative
+raw bars when needed.
+
+A raw timeframe-aware nominal window is retained when it contains any eligible
 source minute. If the whole nominal window falls inside an RTH close, the
 request planner expands that same request backward until it contains up to 240
 eligible source minutes or reaches the 35-day foreground cap. Overnight and
@@ -81,22 +114,30 @@ does not synthesize bars, start a recursive foreground chain, or move Replay.
 If no earlier eligible data exists within the hard cap, the accepted Pane and
 its canonical manual Viewport remain unchanged.
 
-Bar-by-bar visible history repair is forbidden. Large datasets may appear in a
-small number of fast atomic blocks when one bounded request cannot cover the
-target.
+Bar-by-bar and block-by-block visible history repair are forbidden for one
+history intent. Network transport may remain internally partitioned, but those
+parts cannot become separate Workspace or chart commits.
 
-History projection cost must not grow with every already accepted raw chunk.
-Projection reprocesses the new chunk plus one adjacent boundary chunk and owns
-the aggregate-boundary/tail merge. A large logical V4 request may use smaller
-contiguous transport chunks; the adapter yields between chunks and returns one
-validated Raw Batch under the original exact request identity. Transport
-chunking is responsiveness policy, not new cache or Replay identity.
+Raw history projection cost must not grow with every already accepted raw chunk.
+Projection reprocesses the new logical window plus one adjacent boundary
+window and owns the aggregate-boundary/tail merge. A large logical V4 request
+may use smaller contiguous seven-day transport chunks. One adapter-wide
+two-transfer pool overlaps local I/O, each response is normalized
+independently, and the adapter yields before returning one validated Raw Batch
+under the original exact request identity. Transport chunking is responsiveness
+policy, not new cache, Workspace, Chart, or Replay identity.
+
+Both acquisition tiers retain the accepted Canvas at full opacity while the single
+snapshot is prepared. It never enters the delayed dimmed/stale presentation;
+TF and ETH/RTH replacements retain their separate refresh feedback.
 
 The official Lightweight Charts infinite-history pattern confirms that visible
 logical-range subscriptions and `barsInLogicalRange` can trigger proactive
-history requests. `setData` supports whole ordered snapshot replacement and
-`update` supports current-tail updates. V7 owns the request, transaction,
-chunking, and visibility semantics; chart callbacks do not become data owners.
+history requests. `setData` supports whole ordered snapshot replacement;
+`update(..., historicalUpdate)` handles one older point and is documented as
+slower than latest-point update. The library exposes no bulk-prepend API. V7
+therefore owns the single logical request, transaction, and visibility
+semantics while the chart callback remains only an intent trigger.
 
 ## Raw Bar Cache
 

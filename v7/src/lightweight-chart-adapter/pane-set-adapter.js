@@ -267,6 +267,14 @@ export function createLightweightPaneSetAdapter({
     resetView(paneId, latestOffsetBars = undefined) {
       adapters.get(paneId)?.resetView(latestOffsetBars);
     },
+    readPaneHistoryState(paneId) {
+      const snapshot = adapters.get(paneId)?.snapshot();
+      if (!snapshot?.logicalRange || snapshot.barCount < 1) return null;
+      return Object.freeze({
+        barCount: snapshot.barCount,
+        logicalRange: Object.freeze({ ...snapshot.logicalRange }),
+      });
+    },
     locateMarketTime(paneId, marketEpochMs) {
       const adapter = adapters.get(paneId);
       if (!adapter) return Object.freeze({

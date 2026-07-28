@@ -9,6 +9,10 @@ existing V4 `/v4/bars` service backed by `v4/data/trading_data.duckdb`.
 Production no longer generates sine-wave prices, pseudo-random candles, or
 artificial wicks, and it has no silent synthetic fallback.
 
+Dense `1h`–`12h` left-history context additionally uses the read-only
+`/v4/projected_history` endpoint. It derives compact target-period candles from
+the same immutable `1m` table; it is not a second market-data source.
+
 ## Time Boundary
 
 Session creation interprets its explicit wall fields in `America/New_York`, so
@@ -33,11 +37,22 @@ instants, Projection provenance, or Replay's exclusive cursor.
 
 - raw requests remain half-open and Session-independent;
 - the V4 API's automatic 19-bar padding is removed at the adapter boundary;
-- the provider policy limits one request to 45 days, 65,000 bars, two concurrent
-  attempts, a three-second attempt deadline, and one bounded retry;
+- the provider policy permits one explicitly bounded manual-history request up
+  to 210 days/302,400 source minutes, retains two concurrent logical requests,
+  a three-second attempt deadline, and one bounded retry;
 - logical requests above seven days are transported as contiguous API chunks
-  with a browser-main-thread yield between responses, then returned as one
-  validated Raw Batch with the original exact request/coverage identity;
+  through one adapter-wide two-transfer pool, then returned as one validated
+  Raw Batch with the original exact request/coverage identity;
+- transport parts never become separate Bar Data identities, Projection
+  results, Workspace revisions, or chart `setData()` calls;
+- projected-history requests explicitly key instrument, display timeframe,
+  duration, ETH/RTH mode, calendar and aggregation revisions, window, and
+  dataset revision; their cache is separately bounded by Bar Data ownership;
+- the projected service uses the exact V7 real-instant bucket grid, filters ETH
+  or RTH before aggregation, caps a request at ten years, and keeps at most 64
+  service cache entries;
+- projected history carries separate snapshot provenance and is excluded from
+  Replay raw-source traversal;
 - HTTP/network failures become stable provider failures;
 - initial service failure shows Chart unavailable and never substitutes fake
   candles;
@@ -47,7 +62,10 @@ instants, Projection provenance, or Replay's exclusive cursor.
 ## Verification
 
 - the independent adapter harness proves DST-aware request conversion,
-  response conversion, padding removal, exact identity, coverage, and failure;
+  response conversion, projected-response identity, padding removal, exact
+  identity, coverage, and failure;
+- the real API parity gate proves `4h` ETH and RTH projected output equals raw
+  `1m` client aggregation across the November DST boundary;
 - chart entry requests one bounded prefix-plus-forward window while Projection
   still reveals exactly the 121-bar prefix-plus-start baseline;
 - the real-Chrome workspace harness proves entry, Next bar, TF/ETH-RTH atomic

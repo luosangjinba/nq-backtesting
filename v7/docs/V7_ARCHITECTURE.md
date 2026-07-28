@@ -9,7 +9,7 @@ UI intent
   -> Workspace Transaction Runtime
     -> Session Store (identity/configuration)
     -> Replay Runtime (cursor/reveal proposal)
-    -> Bar Data Runtime (raw acquisition/cache)
+    -> Bar Data Runtime (raw + provenanced projected-history acquisition/cache)
     -> pure Projection Domain (hours + TF + no-future)
     -> atomic Workspace Snapshot commit
       -> Chart Runtime/Adapter (series)
@@ -31,7 +31,7 @@ read verification. It has no Replay, Pane, chart-series, Workspace Snapshot,
 or raw-bar-cache authority.
 
 The one-way chart flow is unchanged: `core.bar-data-runtime` remains the only
-raw requester and consumes the V4 bars provider read-only. Chart or Session UI
+bar requester/cache owner and consumes V4 providers read-only. Chart or Session UI
 must never call Databento, start maintenance work, or mutate DuckDB. Long
 maintenance commands are retained single-owner background jobs; browser polling
 is presentation and does not become a second job owner. The binding contract is
@@ -226,6 +226,14 @@ accepted projection input and does not become a second raw cache/request owner.
 Closed periods advance by bounded request ends until real source evidence is
 found.
 
+R7.3k adds `core.projected-history-contract` and a Bar Data-owned projected
+history runtime for screenshot-scale `1h`–`12h` left context. Its cache identity
+explicitly includes display timeframe, duration, ETH/RTH mode, calendar and
+aggregation revisions, provider/dataset, and exact window. This context is
+separately provenanced, never enters the raw source ledger, and is invisible to
+Replay source traversal. It is a compact view of the same immutable `1m`
+dataset, not an alternative source of replay evidence.
+
 R3.2b1 adds `core.provider-policy-contract` as a pure transport-neutral policy
 boundary. Provider revision freshness, request limits, failure deadline,
 bounded retries, stable error kinds, and the adapter port are declared before
@@ -318,6 +326,13 @@ padding outside the exact half-open request, and returns validated Raw Bar and
 Coverage contracts through the existing policy executor. It has no Session,
 Replay, Projection, chart, or viewport ownership. Production has no synthetic
 bar fallback; an unavailable V4/DuckDB source remains a visible failure.
+
+R7.3k extends that adapter boundary with the read-only
+`/v4/projected_history` port. The service filters source minutes under the
+requested ETH/RTH policy and aggregates on V7's real-instant fixed grid before
+returning one bounded projected batch. The adapter validates exact request,
+dataset, timeframe, session, timestamp, and OHLCV identity. Chart Runtime still
+receives only the final Workspace snapshot and remains the sole series writer.
 
 ### Workspace Transaction Runtime
 

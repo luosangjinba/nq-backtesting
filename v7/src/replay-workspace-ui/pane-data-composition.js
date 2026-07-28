@@ -7,18 +7,32 @@ import {
   projectPaneSnapshot,
   ProjectionDomainError,
 } from '../projection-domain/public.js';
+import { createDisplayHistoryLedger } from './display-history-ledger.js';
 import { createSourceBatchLedger } from './source-batch-ledger.js';
 
 const EMPTY_PROJECTION_CODES = new Set(['PROJECTION_SOURCE_EMPTY', 'PROJECTION_VISIBLE_EMPTY']);
 
 /** Compose Pane-local ledgers over the sole Bar Data Runtime and pure Projection Domain. */
-export function createPaneDataComposition({ barData, market, readAcceptedSnapshot }) {
+export function createPaneDataComposition({
+  barData,
+  market,
+  projectedHistoryData,
+  readAcceptedSnapshot,
+}) {
   const ledgers = new Map();
+  const displayHistoryLedgers = new Map();
   const stagedPaneIds = new Set();
 
   function ledger(paneId) {
     if (!ledgers.has(paneId)) ledgers.set(paneId, createSourceBatchLedger());
     return ledgers.get(paneId);
+  }
+
+  function displayHistoryLedger(paneId) {
+    if (!displayHistoryLedgers.has(paneId)) {
+      displayHistoryLedgers.set(paneId, createDisplayHistoryLedger());
+    }
+    return displayHistoryLedgers.get(paneId);
   }
 
   function selection(paneResponse, responsePlan) {
@@ -35,10 +49,16 @@ export function createPaneDataComposition({ barData, market, readAcceptedSnapsho
 
   return Object.freeze({
     accept(activePaneIds) {
-      for (const paneId of stagedPaneIds) ledger(paneId).accept();
+      for (const paneId of stagedPaneIds) {
+        ledger(paneId).accept();
+        displayHistoryLedger(paneId).accept();
+      }
       stagedPaneIds.clear();
       const active = new Set(activePaneIds);
       for (const paneId of ledgers.keys()) if (!active.has(paneId)) ledgers.delete(paneId);
+      for (const paneId of displayHistoryLedgers.keys()) {
+        if (!active.has(paneId)) displayHistoryLedgers.delete(paneId);
+      }
     },
     acquisitionPort: Object.freeze({
       async acquirePane(context) {
@@ -46,14 +66,26 @@ export function createPaneDataComposition({ barData, market, readAcceptedSnapsho
         const selected = selection(context.paneResponse, descriptor.responsePlan);
         const historyRequest = descriptor.kind === 'history-extension'
           || descriptor.kind === 'time-location-history';
-        const request = descriptor.kind === 'time-location-history'
+        const projectedHistoryRequest = descriptor.kind === 'history-extension'
+          && market.supportsProjectedHistory(selected);
+        const request = projectedHistoryRequest
+          ? market.requestProjectedHistoryBefore(
+            descriptor.oldestEpochMs,
+            selected,
+            descriptor.historyDisplayBars,
+          )
+          : descriptor.kind === 'time-location-history'
           ? market.requestForTimeLocation(
             descriptor.oldestEpochMs,
             descriptor.targetEpochMs,
             selected,
           )
           : historyRequest
-            ? market.requestBefore(descriptor.oldestEpochMs, selected)
+            ? market.requestBefore(
+              descriptor.oldestEpochMs,
+              selected,
+              descriptor.historyDisplayBars,
+            )
             : market.requestThrough(readReplayCursorProposal(context.proposal).targetEpochMs, selected);
         // An accepted Pane source batch is already validated projection state,
         // so reuse its exact request identity before asking the bounded Bar
@@ -61,19 +93,43 @@ export function createPaneDataComposition({ barData, market, readAcceptedSnapsho
         // automatic history has legitimately evicted the forward batch from
         // the runtime LRU.
         const paneLedger = ledger(context.paneResponse.paneId);
-        const batch = paneLedger.acceptedBatch(rawBarRequestKey(request))
-          ?? await barData.acquire(request);
-        return Object.freeze({ batch, descriptor, selection: selected });
+        const batch = projectedHistoryRequest
+          ? await projectedHistoryData.acquire(request)
+          : paneLedger.acceptedBatch(rawBarRequestKey(request)) ?? await barData.acquire(request);
+        return Object.freeze({
+          batch,
+          descriptor,
+          projectedHistoryRequest,
+          selection: selected,
+        });
       },
     }),
-    createRequest({ kind = 'navigation', oldestEpochMs = null, responsePlan, targetEpochMs = null }) {
-      return Object.freeze({ kind, oldestEpochMs, responsePlan, targetEpochMs });
+    createRequest({
+      historyDisplayBars = null,
+      kind = 'navigation',
+      oldestEpochMs = null,
+      responsePlan,
+      targetEpochMs = null,
+    }) {
+      return Object.freeze({ historyDisplayBars, kind, oldestEpochMs, responsePlan, targetEpochMs });
     },
-    oldestEpochMs(paneId) { return ledger(paneId).oldestEpochMs(); },
     projectionPort: Object.freeze({
       projectPane(context) {
-        const { batch, descriptor, selection: selected } = context.acquired;
+        const {
+          batch, descriptor, projectedHistoryRequest, selection: selected,
+        } = context.acquired;
         const paneLedger = ledger(context.paneResponse.paneId);
+        const historyLedger = displayHistoryLedger(context.paneResponse.paneId);
+        if (projectedHistoryRequest) {
+          const accepted = acceptedPane(context.paneResponse.paneId);
+          if (!accepted || accepted.status !== 'ready') {
+            throw new TypeError('Projected History requires an accepted visible Pane.');
+          }
+          paneLedger.stageRetained();
+          historyLedger.stageExtension(batch, selected);
+          stagedPaneIds.add(context.paneResponse.paneId);
+          return historyLedger.merge(accepted.snapshot, context.proposal);
+        }
         const historyRequest = descriptor.kind === 'history-extension'
           || descriptor.kind === 'time-location-history';
         const ledgerOperation = historyRequest
@@ -81,6 +137,7 @@ export function createPaneDataComposition({ barData, market, readAcceptedSnapsho
           : descriptor.kind === 'instrument-replacement'
             ? 'pane-source-replacement' : 'navigation';
         const batches = paneLedger.stage(batch, ledgerOperation);
+        historyLedger.stageSelection(selected);
         stagedPaneIds.add(context.paneResponse.paneId);
         const input = {
           aggregationPolicy: selected.aggregationPolicy,
@@ -98,16 +155,20 @@ export function createPaneDataComposition({ barData, market, readAcceptedSnapsho
           const replayAdvance = descriptor.kind === 'navigation'
             && ['autoplay-next', 'manual-next'].includes(descriptor.responsePlan.actionKind);
           if (!historyRequest && replayAdvance && accepted?.status === 'ready') {
-            return projectPaneReplayAdvance({ ...input, acceptedSnapshot: accepted.snapshot });
+            return historyLedger.merge(projectPaneReplayAdvance({
+              ...input, acceptedSnapshot: accepted.snapshot,
+            }));
           }
-          if (!historyRequest) return projectPaneSnapshot(input);
-          if (!accepted || accepted.status !== 'ready') return projectPaneSnapshot(input);
-          return projectPaneHistoryExtension({
+          if (!historyRequest) return historyLedger.merge(projectPaneSnapshot(input));
+          if (!accepted || accepted.status !== 'ready') {
+            return historyLedger.merge(projectPaneSnapshot(input));
+          }
+          return historyLedger.merge(projectPaneHistoryExtension({
             ...input,
             acceptedSnapshot: accepted.snapshot,
             sourceBatches: batches.slice(0, 2),
             sourceRequestKeys: batches.map((entry) => entry.requestKey),
-          });
+          }));
         } catch (error) {
           if (error instanceof ProjectionDomainError && EMPTY_PROJECTION_CODES.has(error.code)) {
             return createEmptyPaneProjection({
@@ -119,8 +180,18 @@ export function createPaneDataComposition({ barData, market, readAcceptedSnapsho
       },
     }),
     reject() {
-      for (const paneId of stagedPaneIds) ledger(paneId).reject();
+      for (const paneId of stagedPaneIds) {
+        ledger(paneId).reject();
+        displayHistoryLedger(paneId).reject();
+      }
       stagedPaneIds.clear();
+    },
+    oldestEpochMs(paneId) {
+      const rawOldest = ledger(paneId).oldestEpochMs();
+      const displayOldest = displayHistoryLedger(paneId).oldestEpochMs();
+      if (rawOldest === null) return displayOldest;
+      if (displayOldest === null) return rawOldest;
+      return Math.min(rawOldest, displayOldest);
     },
     sourceBars(instrumentId) {
       const byEpoch = new Map();
