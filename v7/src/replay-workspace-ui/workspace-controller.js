@@ -23,11 +23,13 @@ import {
 import { readWorkspaceCheckpoint } from '../workspace-checkpoint-domain/public.js';
 import { createTimePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
 import { createWorkspaceTransactionRuntime } from '../workspace-transaction-runtime/public.js';
+import { readViewportIntent } from '../viewport-runtime/public.js';
 import { createReplayAutoplayScheduler } from './autoplay-scheduler.js';
 import { DEFAULT_AUTOPLAY_SPEED, readAutoplaySpeed } from './autoplay-speed.js';
 import { createFoundationMarket } from './foundation-market.js';
 import { createFoundationSourceTraversal } from './foundation-source-traversal.js';
 import { quickGotoLabel } from './goto-quick-actions.js';
+import { planReplacementHistoryFill } from './history-fill-plan.js';
 import { createLayoutSyncController } from './layout-sync-controller.js';
 import { createPaneDataComposition } from './pane-data-composition.js';
 import { createPaneTimeLocationController } from './pane-time-location-controller.js';
@@ -445,7 +447,13 @@ export function createReplayWorkspaceController({
       return execution.materialize({ desiredWorkspace, requestKinds });
     },
     replaceSessionHours(mode) {
-      return execution.replaceSessionHours(mode);
+      const requestKinds = new Map(paneState.read().panes.map((pane) => [pane.paneId, {
+        historyDisplayBars: planReplacementHistoryFill(
+          readViewportIntent(pane.viewportIntent),
+        ).displayBars,
+        kind: 'session-hours-replacement',
+      }]));
+      return execution.replaceSessionHours(mode, requestKinds);
     },
     replaceTimeframe(timeframeId) {
       if (disposed || execution.isPending()) return;
@@ -455,8 +463,17 @@ export function createReplayWorkspaceController({
         layoutSyncController.read().interval,
       );
       const desired = paneState.read(desiredWorkspace);
-      if (desired.panes.every((pane, index) => pane.timeframeId === current.panes[index].timeframeId)) return;
-      return execution.materialize({ desiredWorkspace });
+      const changedPanes = desired.panes.filter(
+        (pane, index) => pane.timeframeId !== current.panes[index].timeframeId,
+      );
+      if (changedPanes.length === 0) return;
+      const requestKinds = new Map(changedPanes.map((pane) => [pane.paneId, {
+        historyDisplayBars: planReplacementHistoryFill(
+          readViewportIntent(pane.viewportIntent),
+        ).displayBars,
+        kind: 'timeframe-replacement',
+      }]));
+      return execution.materialize({ desiredWorkspace, requestKinds });
     },
     resizePaneLayout(nextLayout) {
       if (disposed || execution.isPending()) return;

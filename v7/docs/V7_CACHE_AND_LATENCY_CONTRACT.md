@@ -51,6 +51,29 @@ On a TF or ETH/RTH intent:
 5. atomically replace the pane/workspace once;
 6. remove the refresh state only after browser-visible completion.
 
+The replacement request anchors its left-context plan to the Session entry,
+not to a moving Replay cursor. If that entry context is wholly outside RTH, the
+same request crosses the close/weekend and includes prior eligible minutes;
+the forward buffer may still contain later bars, but no-future Projection keeps
+them hidden. The stable entry anchor also preserves one exact request identity
+for Manual Next while the cursor remains inside the accepted 500-minute
+forward window.
+
+A projection replacement must also plan against the retained semantic
+Viewport before acquisition. For a manual wall, the target is the display-bar
+count required to cover its `spanBars`, latest-bar offset, 24-bar left buffer,
+and eight-bar safety allowance. The programmatic replacement must not commit a
+small series and wait for a later native mouse/wheel event to discover the
+negative logical gap.
+
+Sub-hour replacements acquire one raw window sized for that target. When a
+`1h`–`12h` target exceeds the bounded raw entry window, Bar Data concurrently
+acquires compact projected context before the authoritative raw tail;
+Projection/Pane composition merges them into one separately provenanced
+snapshot and Chart Runtime still performs one visible replacement. Raw entry
+planning uses the sparser RTH calendar for both ETH and RTH so their raw request
+identity remains shared; Session Hours Projection alone decides visibility.
+
 The chart never clears to an empty series and never exposes a partially rebuilt
 target. A cache hit has an end-to-end budget. A cache miss has an immediate
 feedback budget and a separate post-provider-response budget.
@@ -91,11 +114,12 @@ Acquisition has two explicit Bar Data-owned tiers:
 - display timeframes below `1h` retain the exact raw-`1m` history path, including
   its 210-day safety bound and invisible seven-day transport partitioning;
 - `1h` through `12h` use the read-only V4 projected-history service for left
-  chart context. The service filters the immutable `1m` source under the exact
-  ETH/RTH schedule and aggregates on V7's real-instant fixed grid before
-  returning one compact projected batch. A single request may cover up to ten
-  years, so a screenshot-scale high-timeframe gap does not become dozens of
-  foreground raw transfers.
+  chart context, including pre-commit projection replacements whose dense
+  retained Viewport exceeds the raw entry window. The service filters the
+  immutable `1m` source under the exact ETH/RTH schedule and aggregates on
+  V7's real-instant fixed grid before returning one compact projected batch. A
+  single request may cover up to ten years, so a screenshot-scale
+  high-timeframe gap does not become dozens of foreground raw transfers.
 
 Projected context has a separate, bounded cache identity containing instrument,
 timeframe, duration, ETH/RTH mode, calendar revision, aggregation revision,
@@ -151,10 +175,11 @@ write Chart state. Bounded eviction affects performance only, not correctness.
 
 The one-pane foundation quantizes foreground coverage into bounded 500-source-
 minute windows. Chart entry acquires only the first bounded window, not the
-Session range. Manual Next and projection replacements reuse that exact Bar
-Data identity while the target remains covered; crossing a boundary acquires a
-new bounded window. Future raw bars in the window remain invisible until the
-exclusive Replay cursor admits them.
+Session range. Session-aware left context stays anchored to that entry even
+when ETH/RTH projection changes. Manual Next and projection replacements reuse
+that exact Bar Data identity while the target remains covered; crossing a
+boundary acquires a new bounded window. Future raw bars in the window remain
+invisible until the exclusive Replay cursor admits them.
 
 Replay prefetch maintains contiguous raw coverage ahead of the cursor using
 high/low watermarks and provider request limits. TF and ETH/RTH reuse compatible

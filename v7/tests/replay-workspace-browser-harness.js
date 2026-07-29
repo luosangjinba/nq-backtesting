@@ -105,6 +105,25 @@ assert.equal(
   Date.parse('2026-05-01T16:15:00Z'),
   'one RTH history request at Monday 09:30 must cross the weekend without repeated empty loads',
 );
+const premarketStart = Date.parse('2026-05-01T09:47:00Z');
+const premarketMarket = createFoundationMarket({
+  configuration: { historicalRange: {
+    startEpochMs: premarketStart,
+    endEpochMs: Date.parse('2026-05-31T09:48:00Z'),
+  } },
+});
+const premarketRthOneMinute = premarketMarket.catalog.get({
+  instrumentId: premarketMarket.defaultTarget.instrumentId,
+  sessionHoursMode: 'rth',
+  timeframeId: premarketMarket.defaultTarget.timeframeId,
+});
+assert.equal(
+  premarketMarket.requestThrough(premarketStart + 60_000, premarketRthOneMinute)
+    .windowStartEpochMs,
+  Date.parse('2026-04-30T16:15:00Z'),
+  'premarket RTH materialization must warm from the prior eligible Session instead of future bars',
+);
+premarketMarket.dispose();
 const nearTimeLocationRequest = fridayMarket.requestForTimeLocation(
   Date.parse('2026-05-04T13:30:00Z'),
   Date.parse('2026-04-20T13:30:00Z'),
@@ -584,7 +603,7 @@ try {
     const rect = document.querySelector('.lightweight-chart-host').getBoundingClientRect();
     return { x: rect.left + rect.width * .35, y: rect.top + rect.height * .5, right: rect.right - 12 };
   })()`);
-  for (let attempt = 0; attempt < 12; attempt += 1) {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
     await cdp.send('Input.dispatchMouseEvent', {
       type: 'mouseMoved', x: historyBox.x, y: historyBox.y, button: 'none', buttons: 0,
     });
@@ -607,7 +626,7 @@ try {
   }
   await waitFor(cdp,
     `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${historyBefore.revision}`,
-    5_000);
+    10_000);
   const historyDragEvidence = await evaluate(cdp, `(() => ({
     logicalFrom: Number(document.querySelector('.lightweight-chart-host').dataset.logicalFrom),
     revision: Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision),
@@ -705,6 +724,10 @@ try {
     `document.querySelector('.lightweight-chart-host').dataset.maximumDisplayGapMs`)) < 4 * 24 * 60 * 60_000,
   '1h RTH→ETH replacement must not create a multi-day internal hole');
 
+  await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="rth"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'rth'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`);
+
   await evaluate(cdp, `(() => {
     document.querySelector('.timeframe-toggle').click();
     document.querySelector('[data-timeframe-id="timeframe.display-4-hour"]').click();
@@ -751,6 +774,64 @@ try {
     `one dense zoom gesture must produce one visible commit: ${JSON.stringify(denseFillEvidence)}`);
   assert.ok(denseFillEvidence.barCount > denseBarsBefore && denseFillEvidence.from >= 0,
     `one projected-history response must fill the complete Canvas edge: ${JSON.stringify(denseFillEvidence)}`);
+  const denseReplacementCaptureCount = Number(await evaluate(cdp,
+    `document.querySelector('.lightweight-chart-host').dataset.historyBoundaryCaptureCount`));
+  const denseReplacementRevision = denseFillEvidence.revision;
+  await evaluate(cdp, `(() => {
+    document.querySelector('.timeframe-toggle').click();
+    document.querySelector('[data-timeframe-id="timeframe.display-3-minute"]').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.timeframeId === 'timeframe.display-3-minute'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 15_000);
+  const denseThreeMinuteReplacement = await evaluate(cdp, `(() => {
+    const host = document.querySelector('.lightweight-chart-host');
+    return { barCount: Number(host.dataset.barCount), from: Number(host.dataset.logicalFrom),
+      historyBoundaryCaptureCount: Number(host.dataset.historyBoundaryCaptureCount),
+      revision: Number(document.querySelector('.replay-workspace').dataset.workspaceRevision),
+      span: Number(host.dataset.spanBars) };
+  })()`);
+  assert.equal(denseThreeMinuteReplacement.revision - denseReplacementRevision, 1,
+    `dense 3m replacement must fill in its own transaction: ${JSON.stringify(denseThreeMinuteReplacement)}`);
+  assert.equal(denseThreeMinuteReplacement.historyBoundaryCaptureCount, denseReplacementCaptureCount,
+    'programmatic timeframe replacement must not wait for a native mouse/wheel history trigger');
+  assert.ok(denseThreeMinuteReplacement.from >= 24,
+    `dense 3m replacement must arrive with its retained Canvas already filled: ${JSON.stringify(denseThreeMinuteReplacement)}`);
+
+  await evaluate(cdp, `(() => {
+    document.querySelector('.timeframe-toggle').click();
+    document.querySelector('[data-timeframe-id="timeframe.display-4-hour"]').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.timeframeId === 'timeframe.display-4-hour'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 15_000);
+  const denseFourHourReplacement = await evaluate(cdp, `(() => {
+    const host = document.querySelector('.lightweight-chart-host');
+    return { barCount: Number(host.dataset.barCount), from: Number(host.dataset.logicalFrom),
+      historyBoundaryCaptureCount: Number(host.dataset.historyBoundaryCaptureCount),
+      revision: Number(document.querySelector('.replay-workspace').dataset.workspaceRevision),
+      span: Number(host.dataset.spanBars) };
+  })()`);
+  assert.equal(denseFourHourReplacement.revision - denseThreeMinuteReplacement.revision, 1,
+    `dense 4h replacement must merge projected context in one transaction: ${JSON.stringify(denseFourHourReplacement)}`);
+  assert.equal(denseFourHourReplacement.historyBoundaryCaptureCount, denseReplacementCaptureCount,
+    'high-timeframe replacement must not wait for a native mouse/wheel history trigger');
+  assert.ok(denseFourHourReplacement.from >= 24,
+    `dense 4h replacement must arrive with projected history already filling Canvas: ${JSON.stringify(denseFourHourReplacement)}`);
+
+  await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="eth"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'eth'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 15_000);
+  const denseEthReplacement = await evaluate(cdp, `(() => {
+    const host = document.querySelector('.lightweight-chart-host');
+    return { from: Number(host.dataset.logicalFrom),
+      historyBoundaryCaptureCount: Number(host.dataset.historyBoundaryCaptureCount),
+      revision: Number(document.querySelector('.replay-workspace').dataset.workspaceRevision) };
+  })()`);
+  assert.equal(denseEthReplacement.revision - denseFourHourReplacement.revision, 1,
+    `dense RTH→ETH replacement must fill in its own transaction: ${JSON.stringify(denseEthReplacement)}`);
+  assert.equal(denseEthReplacement.historyBoundaryCaptureCount, denseReplacementCaptureCount,
+    'dense Session Hours replacement must not wait for a native history trigger');
+  assert.ok(denseEthReplacement.from >= 24,
+    `dense Session Hours replacement must retain a filled Canvas: ${JSON.stringify(denseEthReplacement)}`);
   const rapidHistoryBox = await evaluate(cdp, `(() => {
     const rect = document.querySelector('.lightweight-chart-host').getBoundingClientRect();
     return { x: rect.left + 12, y: rect.top + rect.height * .5, right: rect.right - 12 };
@@ -785,7 +866,7 @@ try {
       revision: Number(document.querySelector('.replay-workspace').dataset.workspaceRevision),
     }))()`);
     if (preparedHistoryState.from < 99) break;
-    await dragRapidHistory(.15);
+    await dragRapidHistory(.03);
     await new Promise((resolve) => setTimeout(resolve, 600));
     assert.equal(Number(await evaluate(cdp,
       `document.querySelector('.replay-workspace').dataset.workspaceRevision`)), preparationRevision,

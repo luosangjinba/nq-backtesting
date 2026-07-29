@@ -34,7 +34,14 @@
       "retainLastAcceptedSnapshot": true,
       "dimDuringRefresh": true,
       "atomicReplacement": true,
-      "blankSeriesAllowed": false
+      "blankSeriesAllowed": false,
+      "entryContextAnchor": "session-start",
+      "closedRthEntryCrossesPriorSession": true,
+      "forwardRequestIdentityStableWithinBuffer": true,
+      "replacementViewportTargetPlannedBeforeAcquire": true,
+      "nativeHistoryTriggerRequired": false,
+      "highTimeframeProjectedContextMerge": true,
+      "authoritativeRawTailRequired": true
     },
     "history-extension-single-pass": {
       "cacheHitVisible": { "p95Ms": 150, "p99Ms": 250, "maxMs": 400 },

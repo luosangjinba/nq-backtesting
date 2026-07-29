@@ -1677,7 +1677,7 @@ current implementation keeps the same V7 owners: Bar Data owns acquisition,
 Projection owns eligible/no-future candles, Chart Runtime is the sole series
 writer, Viewport owns the drag wall, and Replay does not move.
 
-### R7.3k Projected Screenshot-Scale History Fill — Awaiting Human Review
+### R7.3k Projected Screenshot-Scale History Fill — Human Accepted
 
 - [x] identify the reported delayed partial fill as a high-timeframe request
   exceeding R7.3j's 210-day raw-source window rather than another anchor defect;
@@ -1695,9 +1695,50 @@ writer, Viewport owns the drag wall, and Replay does not move.
 - [x] bind a real screenshot-scale `4h` Chrome drag: about 1,910 logical bars,
   2,427 final candles, logical `from=12.62`, one visible revision, no stale/dim,
   and `496.3ms` gesture-to-visible completion on the final cold-window run;
-- [ ] obtain explicit human confirmation after a hard reload that the reported
+- [x] obtain explicit human confirmation after a hard reload that the reported
   `4h` Session fills its entire left edge once, predictably, without rebound or
-  flashing.
+  flashing (`2026-07-29`: user confirms speed is acceptable and loading is
+  one-pass).
+
+### R7.3l Premarket RTH Entry Warmup — Human Accepted
+
+- [x] reproduce the reported `2026-05-01 05:47 EDT` Session where switching to
+  RTH committed an empty Pane even though prior-session RTH bars existed;
+- [x] identify the cause as a natural-minute entry prefix containing only
+  closed-market minutes while the buffered same-day RTH bars remained correctly
+  hidden by no-future Projection;
+- [x] anchor Session-aware RTH context planning to the stable Session entry and
+  cross the prior close/weekend when that nominal entry window is wholly closed;
+- [x] preserve the exact 500-minute forward request identity so cache-hit Manual
+  Next does not issue a new provider request;
+- [x] prove in real Chrome that the exact premarket Session switches to ready
+  RTH with at least 200 prior-session bars, survives a hard reload with two
+  Panes, extends earlier RTH history, and returns to ETH;
+- [x] obtain explicit human confirmation after a hard reload that the reported
+  Session no longer shows `No visible bars` in RTH (`2026-07-29` screenshot
+  shows ready `3m` RTH candles in the same Session).
+
+### R7.3m Dense Projection Replacement Prefill — Human Accepted
+
+- [x] reproduce the retained dense Viewport with a timeframe replacement that
+  initially commits only a short series and waits for native mouse/wheel input;
+- [x] identify the missing boundary as pre-commit replacement planning rather
+  than provider speed, projected-history volume, or Chart rendering;
+- [x] derive the replacement display target from the semantic Viewport span,
+  latest-bar offset, 24-bar left buffer, and eight-bar safety allowance;
+- [x] size sub-hour raw replacement windows against the sparser shared RTH plan
+  so ETH/RTH retain one raw cache identity;
+- [x] merge compact projected prefix with authoritative raw tail for dense
+  `1h`–`12h` replacements before one visible Chart commit;
+- [x] prove in real Chrome under RTH that dense `4h→3m→4h` and subsequent
+  RTH→ETH each add exactly one Workspace revision, retain `logicalFrom >= 24`,
+  and do not increment the native history-boundary capture count;
+- [x] rebaseline and normally re-verify the affected Pane/Layout Canvas fixtures
+  after confirming the rendered market/UI semantics are unchanged;
+- [x] obtain explicit human confirmation that a hard-reloaded dense timeframe
+  switch fills left context without any subsequent mouse action (`2026-07-29`:
+  user supplied the filled dense-workspace screenshot and explicitly requested
+  the accepted correction be committed).
 
 ## Standing Gates
 

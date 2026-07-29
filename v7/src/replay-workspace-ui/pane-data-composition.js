@@ -66,6 +66,8 @@ export function createPaneDataComposition({
         const selected = selection(context.paneResponse, descriptor.responsePlan);
         const historyRequest = descriptor.kind === 'history-extension'
           || descriptor.kind === 'time-location-history';
+        const projectionReplacementRequest = descriptor.kind === 'timeframe-replacement'
+          || descriptor.kind === 'session-hours-replacement';
         const projectedHistoryRequest = descriptor.kind === 'history-extension'
           && market.supportsProjectedHistory(selected);
         const request = projectedHistoryRequest
@@ -86,20 +88,49 @@ export function createPaneDataComposition({
               selected,
               descriptor.historyDisplayBars,
             )
-            : market.requestThrough(readReplayCursorProposal(context.proposal).targetEpochMs, selected);
+            : market.requestThrough(
+              readReplayCursorProposal(context.proposal).targetEpochMs,
+              selected,
+              projectionReplacementRequest ? descriptor.historyDisplayBars : null,
+            );
+        const replacementProjectedRequest = projectionReplacementRequest
+          && market.requiresProjectedReplacementHistory(
+            request,
+            selected,
+            descriptor.historyDisplayBars,
+          )
+          ? market.requestProjectedHistoryBefore(
+            request.windowStartEpochMs,
+            selected,
+            descriptor.historyDisplayBars,
+          ) : null;
         // An accepted Pane source batch is already validated projection state,
         // so reuse its exact request identity before asking the bounded Bar
         // Data cache. This keeps restored workspaces cache-hit even when deep
         // automatic history has legitimately evicted the forward batch from
         // the runtime LRU.
         const paneLedger = ledger(context.paneResponse.paneId);
-        const batch = projectedHistoryRequest
-          ? await projectedHistoryData.acquire(request)
-          : paneLedger.acceptedBatch(rawBarRequestKey(request)) ?? await barData.acquire(request);
+        let batch;
+        let replacementProjectedBatch = null;
+        if (projectedHistoryRequest) {
+          batch = await projectedHistoryData.acquire(request);
+        } else {
+          const rawBatch = paneLedger.acceptedBatch(rawBarRequestKey(request))
+            ?? barData.acquire(request);
+          if (replacementProjectedRequest) {
+            [batch, replacementProjectedBatch] = await Promise.all([
+              rawBatch,
+              projectedHistoryData.acquire(replacementProjectedRequest),
+            ]);
+          } else {
+            batch = await rawBatch;
+          }
+        }
         return Object.freeze({
           batch,
           descriptor,
           projectedHistoryRequest,
+          replacementProjectedBatch,
           selection: selected,
         });
       },
@@ -116,7 +147,11 @@ export function createPaneDataComposition({
     projectionPort: Object.freeze({
       projectPane(context) {
         const {
-          batch, descriptor, projectedHistoryRequest, selection: selected,
+          batch,
+          descriptor,
+          projectedHistoryRequest,
+          replacementProjectedBatch,
+          selection: selected,
         } = context.acquired;
         const paneLedger = ledger(context.paneResponse.paneId);
         const historyLedger = displayHistoryLedger(context.paneResponse.paneId);
@@ -135,6 +170,8 @@ export function createPaneDataComposition({
         const ledgerOperation = historyRequest
           ? 'history-extension'
           : descriptor.kind === 'instrument-replacement'
+              || descriptor.kind === 'timeframe-replacement'
+              || descriptor.kind === 'session-hours-replacement'
             ? 'pane-source-replacement' : 'navigation';
         const batches = paneLedger.stage(batch, ledgerOperation);
         historyLedger.stageSelection(selected);
@@ -159,7 +196,13 @@ export function createPaneDataComposition({
               ...input, acceptedSnapshot: accepted.snapshot,
             }));
           }
-          if (!historyRequest) return historyLedger.merge(projectPaneSnapshot(input));
+          if (!historyRequest) {
+            const snapshot = projectPaneSnapshot(input);
+            if (replacementProjectedBatch) {
+              historyLedger.stageExtension(replacementProjectedBatch, selected);
+            }
+            return historyLedger.merge(snapshot, context.proposal);
+          }
           if (!accepted || accepted.status !== 'ready') {
             return historyLedger.merge(projectPaneSnapshot(input));
           }

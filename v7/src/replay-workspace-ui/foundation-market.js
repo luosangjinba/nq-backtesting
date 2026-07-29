@@ -28,11 +28,21 @@ export function createFoundationMarket(record, {
   const capabilities = createFoundationCapabilities(configuredInstrumentIds);
   const range = record.configuration.historicalRange;
   const contextStartEpochMs = Math.max(0, range.startEpochMs - (ENTRY_PREFIX_BARS * MINUTE));
-  function historySourceBars(selection) {
+  const entryHistoryEndEpochMs = range.startEpochMs + MINUTE;
+  function targetDisplayBars(value = TARGET_HISTORY_DISPLAY_BARS) {
+    if (!Number.isSafeInteger(value) || value < 1) {
+      throw new TypeError('Target display bars must be a positive safe integer.');
+    }
+    return value;
+  }
+  function historySourceBars(selection, displayBars = TARGET_HISTORY_DISPLAY_BARS) {
     const durationMs = selection?.displayTimeframe?.alignment?.durationMs ?? MINUTE;
     return Math.min(
       MAXIMUM_REQUEST_SOURCE_BARS,
-      Math.max(MINIMUM_HISTORY_SOURCE_BARS, Math.ceil(durationMs / MINUTE) * TARGET_HISTORY_DISPLAY_BARS),
+      Math.max(
+        MINIMUM_HISTORY_SOURCE_BARS,
+        Math.ceil(durationMs / MINUTE) * targetDisplayBars(displayBars),
+      ),
     );
   }
   function usesEntryPrefix(selection) {
@@ -57,32 +67,42 @@ export function createFoundationMarket(record, {
       sessionHoursMode: selection.sessionHoursMode,
     });
   }
-  function contributingHistoryStart(windowEndEpochMs, sourceBars, selection) {
-    const boundedStart = Math.max(0, windowEndEpochMs - (MAXIMUM_REQUEST_SOURCE_BARS * MINUTE));
-    const nominalStart = Math.max(boundedStart, windowEndEpochMs - (sourceBars * MINUTE));
-    for (let epochMs = windowEndEpochMs - MINUTE; epochMs >= nominalStart; epochMs -= MINUTE) {
-      if (isEligibleMinute(epochMs, selection)) return nominalStart;
-    }
-    let requiredEligibleBars = Math.min(MINIMUM_HISTORY_SOURCE_BARS, sourceBars);
-    for (let epochMs = nominalStart - MINUTE; epochMs >= boundedStart; epochMs -= MINUTE) {
-      if (!isEligibleMinute(epochMs, selection)) continue;
-      requiredEligibleBars -= 1;
-      if (requiredEligibleBars === 0) return epochMs;
-    }
-    return boundedStart;
+  function plannedEntryHistoryStart(selection, displayBars) {
+    // Raw Bar identity is intentionally independent of ETH/RTH. Plan the
+    // shared entry window against the sparser RTH policy so either projection
+    // receives enough source coverage without changing the cache key when the
+    // user switches Session Hours.
+    const planningSelection = capabilities.catalog.get({
+      instrumentId: selection.instrument.id,
+      sessionHoursMode: 'rth',
+      timeframeId: selection.displayTimeframe.id,
+    });
+    return planSingleHistoryWindow({
+      durationMs: planningSelection.displayTimeframe.alignment.durationMs,
+      isEligibleMinute: (epochMs) => isEligibleMinute(epochMs, planningSelection),
+      maximumWindowMs: MAXIMUM_REQUEST_SOURCE_BARS * MINUTE,
+      targetDisplayBars: targetDisplayBars(displayBars),
+      windowEndEpochMs: entryHistoryEndEpochMs,
+    });
   }
-  function requestThrough(exclusiveEndEpochMs, selection = capabilities.defaultSelection) {
+  function requestThrough(
+    exclusiveEndEpochMs,
+    selection = capabilities.defaultSelection,
+    replacementDisplayBars = null,
+  ) {
+    const displayBars = targetDisplayBars(
+      replacementDisplayBars ?? TARGET_HISTORY_DISPLAY_BARS,
+    );
     const requiredBars = Math.max(1, Math.ceil((exclusiveEndEpochMs - range.startEpochMs) / MINUTE));
     const bufferedBars = Math.ceil(requiredBars / FORWARD_BUFFER_SOURCE_BARS) * FORWARD_BUFFER_SOURCE_BARS;
     const boundedEnd = Math.min(range.endEpochMs, range.startEpochMs + (bufferedBars * MINUTE));
-    const desiredStart = range.startEpochMs - (historySourceBars(selection) * MINUTE);
     const boundedStart = Math.max(0, boundedEnd - (MAXIMUM_REQUEST_SOURCE_BARS * MINUTE));
     return rawRequest({
       instrumentId: selection.instrument.id,
       windowEndEpochMs: boundedEnd,
-      windowStartEpochMs: usesEntryPrefix(selection)
+      windowStartEpochMs: replacementDisplayBars === null && usesEntryPrefix(selection)
         ? contextStartEpochMs
-        : Math.max(desiredStart, boundedStart),
+        : Math.max(plannedEntryHistoryStart(selection, displayBars), boundedStart),
     });
   }
   function requestBefore(
@@ -107,6 +127,15 @@ export function createFoundationMarket(record, {
   function supportsProjectedHistory(selection = capabilities.defaultSelection) {
     return selection?.displayTimeframe?.alignment?.kind === 'fixed-duration'
       && selection.displayTimeframe.alignment.durationMs >= PROJECTED_HISTORY_MINIMUM_DURATION_MS;
+  }
+  function requiresProjectedReplacementHistory(request, selection, displayBars) {
+    if (!supportsProjectedHistory(selection)) return false;
+    const plannedStart = plannedEntryHistoryStart(selection, displayBars);
+    const hardStart = Math.max(
+      0,
+      entryHistoryEndEpochMs - (MAXIMUM_REQUEST_SOURCE_BARS * MINUTE),
+    );
+    return plannedStart <= hardStart || request.windowStartEpochMs > plannedStart;
   }
   function requestProjectedHistoryBefore(
     oldestEpochMs,
@@ -198,6 +227,7 @@ export function createFoundationMarket(record, {
     requestForTimeLocation,
     requestThrough,
     requestWindow: rawRequest,
+    requiresProjectedReplacementHistory,
     supportsProjectedHistory,
   });
 }

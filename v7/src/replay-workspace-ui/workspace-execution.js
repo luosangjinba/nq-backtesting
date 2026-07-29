@@ -174,9 +174,13 @@ export function createWorkspaceExecution({
     materialize,
     requestHistory,
     requestTimeLocationHistory,
-    replaceSessionHours(mode) {
+    replaceSessionHours(mode, requestKinds = new Map()) {
       if (mode === sessionHoursMode) return undefined;
-      return materialize({ desiredMode: mode, desiredRevision: sessionHoursRevision + 1 });
+      return materialize({
+        desiredMode: mode,
+        desiredRevision: sessionHoursRevision + 1,
+        requestKinds,
+      });
     },
     sessionHoursMode: () => sessionHoursMode,
   });

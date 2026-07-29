@@ -227,12 +227,16 @@ Closed periods advance by bounded request ends until real source evidence is
 found.
 
 R7.3k adds `core.projected-history-contract` and a Bar Data-owned projected
-history runtime for screenshot-scale `1h`–`12h` left context. Its cache identity
-explicitly includes display timeframe, duration, ETH/RTH mode, calendar and
-aggregation revisions, provider/dataset, and exact window. This context is
-separately provenanced, never enters the raw source ledger, and is invisible to
-Replay source traversal. It is a compact view of the same immutable `1m`
-dataset, not an alternative source of replay evidence.
+history runtime for screenshot-scale `1h`–`12h` left context. R7.3m also uses
+that same boundary before a projection replacement when its retained semantic
+Viewport exceeds the bounded raw entry window. Bar Data acquires projected
+prefix and authoritative raw tail concurrently; Pane composition merges one
+target snapshot before the sole Chart writer commits. The projected cache
+identity explicitly includes display timeframe, duration, ETH/RTH mode,
+calendar and aggregation revisions, provider/dataset, and exact window. This
+context is separately provenanced, never enters the raw source ledger, and is
+invisible to Replay source traversal. It is a compact view of the same
+immutable `1m` dataset, not an alternative source of replay evidence.
 
 R3.2b1 adds `core.provider-policy-contract` as a pure transport-neutral policy
 boundary. Provider revision freshness, request limits, failure deadline,

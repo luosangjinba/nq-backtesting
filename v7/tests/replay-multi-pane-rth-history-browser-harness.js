@@ -120,8 +120,8 @@ try {
     const form = document.querySelector('.create-form');
     form.elements.name.value = 'RTH history regression';
     for (const input of form.querySelectorAll('[name="instrument"]')) input.checked = true;
-    form.elements.start.value = '2026-05-01T12:40';
-    form.elements.end.value = '2026-05-11T12:40';
+    form.elements.start.value = '2026-05-01T05:47';
+    form.elements.end.value = '2026-05-31T05:48';
     form.requestSubmit();
   })()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`, 10_000);
@@ -136,10 +136,23 @@ try {
   await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="rth"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'rth'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
-  const beforeFirstRthHistory = await readState(cdp);
+  let beforeFirstRthHistory = await readState(cdp);
+  assert.equal(beforeFirstRthHistory.state, 'ready',
+    `premarket RTH replacement must retain prior-session context: ${JSON.stringify(beforeFirstRthHistory)}`);
+  assert.ok(beforeFirstRthHistory.panes.every(({ bars, empty }) => bars >= 200 && !empty),
+    `premarket RTH replacement must paint eligible prior-session bars: ${JSON.stringify(beforeFirstRthHistory)}`);
+  await cdp.send('Page.reload', { ignoreCache: true });
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'rth'
+    && document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+  beforeFirstRthHistory = await readState(cdp);
+  assert.equal(beforeFirstRthHistory.panes.length, 2,
+    `premarket RTH hard reload must restore the two-Pane checkpoint: ${JSON.stringify(beforeFirstRthHistory)}`);
+  assert.ok(beforeFirstRthHistory.panes.every(({ bars, empty }) => bars >= 200 && !empty),
+    `premarket RTH hard reload must restore eligible prior-session bars: ${JSON.stringify(beforeFirstRthHistory)}`);
   state = await extendHistory(cdp, 'pane-main');
   assert.ok(state.panes[0].bars >= beforeFirstRthHistory.panes[0].bars + 200,
-    `one drag at RTH 09:30 must cross the close and prepend a useful prior-session block: ${JSON.stringify({
+    `one premarket RTH drag must prepend another useful prior-session block: ${JSON.stringify({
       beforeFirstRthHistory, state,
     })}`);
   for (const paneId of ['pane-main', 'pane-secondary']) {
@@ -204,5 +217,5 @@ try {
 }
 
 console.log('v7 multi-Pane RTH history browser harness passed', {
-  scope: 'rapid RTH span, two-to-one Pane wall, first-drag extension, ETH recovery',
+  scope: 'premarket RTH warmup, rapid RTH span, two-to-one Pane wall, first-drag extension, ETH recovery',
 });

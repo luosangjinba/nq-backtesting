@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-28 after R7.3k projected dense-history correction
+Last updated: 2026-07-29 after R7.3m dense replacement prefill correction
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -42,7 +42,10 @@ required for normal startup.
   R7.3a–c remain at their recorded human gates; R7.3j re-derived the history
   anchor/single-commit correction after the explicit reset to `5077c13e`, and
   R7.3k replaces its insufficient high-timeframe raw window with projected
-  screenshot-scale history; R7.3k awaits interaction review; R2.4
+  screenshot-scale history; R7.3l corrects empty premarket RTH entry/restore
+  while preserving forward cache identity; both are human accepted. R7.3m
+  preplans dense TF/ETH-RTH replacements without native input and is also human
+  accepted after the filled dense-workspace review; R2.4
   Session Browser
   readability and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
@@ -451,6 +454,15 @@ Corrective implementation, in order:
     the complete visible left edge with 2,427 final candles, and commits exactly
     one visible revision/`setData` in `496.3ms`; Canvas opacity stays `1`, stale
     state never appears, and the pre-existing candle anchor remains exact.
+16. RTH materialization anchors its context window at Session entry. A premarket
+    entry therefore crosses to the prior eligible RTH Session instead of
+    committing an empty Pane from closed-market natural minutes; no-future bars
+    stay hidden, and Manual Next retains the same buffered request identity.
+17. Dense TF/ETH-RTH replacements derive their complete bar target from the
+    retained semantic Viewport before acquisition. Sub-hour targets use one
+    shared conservative raw window; capped `1h`–`12h` targets merge separately
+    provenanced projected context with the authoritative raw tail. No native
+    history event or second visible transaction is required.
 
 Use V6 source/docs/tests as binding interaction evidence for items 1–4. Do not
 restart product interviews or copy V6 runtime ownership.
@@ -522,13 +534,13 @@ delayed/reordered-response, and full foundation-axis performance gates are
 automatically accepted with no visual/interaction change. The chart/Replay
 foundation is closed.
 
-Exact next step: hard-reload the open workspace and manually repeat the
-reported screenshot-scale `4h` left-history gesture for R7.3k. Confirm that
-release starts one predictable fill, the entire visible left edge appears
-together within the accepted delay, and the chart neither rebounds nor flashes.
-Do not accept the correction from automated evidence alone. After the
-remaining R7.3 human gates and the complete foundation walkthrough, decide
-whether phase one closes before specifying Backtesting/Journal boundaries.
+Exact next step: R7.3k one-pass loading, R7.3l premarket RTH entry, and R7.3m
+dense replacement prefill are human accepted. Resolve the newly reported
+disabled `1D`/`1W`/`1M` Calendar choices through a session-aware aggregation
+owner before the remaining R7.3 human gates and complete foundation walkthrough.
+Do not merely enable unsupported controls or move calendar aggregation into the
+Chart/UI owner. After those gates, decide whether phase one closes before
+specifying Backtesting/Journal boundaries.
 
 ## Standing Workflow
 

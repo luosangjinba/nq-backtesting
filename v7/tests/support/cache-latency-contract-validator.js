@@ -62,7 +62,14 @@ export function validateCacheLatencyContract(model) {
     switchProfile.retainLastAcceptedSnapshot !== true ||
     switchProfile.dimDuringRefresh !== true ||
     switchProfile.atomicReplacement !== true ||
-    switchProfile.blankSeriesAllowed !== false
+    switchProfile.blankSeriesAllowed !== false ||
+    switchProfile.entryContextAnchor !== 'session-start' ||
+    switchProfile.closedRthEntryCrossesPriorSession !== true ||
+    switchProfile.forwardRequestIdentityStableWithinBuffer !== true ||
+    switchProfile.replacementViewportTargetPlannedBeforeAcquire !== true ||
+    switchProfile.nativeHistoryTriggerRequired !== false ||
+    switchProfile.highTimeframeProjectedContextMerge !== true ||
+    switchProfile.authoritativeRawTailRequired !== true
   ) {
     violations.push({ code: 'non-atomic-or-blank-projection-refresh' });
   }

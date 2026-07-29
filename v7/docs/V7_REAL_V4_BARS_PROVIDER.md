@@ -52,7 +52,9 @@ instants, Projection provenance, or Replay's exclusive cursor.
   or RTH before aggregation, caps a request at ten years, and keeps at most 64
   service cache entries;
 - projected history carries separate snapshot provenance and is excluded from
-  Replay raw-source traversal;
+  Replay raw-source traversal; dense high-timeframe projection replacements
+  may merge that compact prefix with an authoritative raw tail before one
+  visible commit;
 - HTTP/network failures become stable provider failures;
 - initial service failure shows Chart unavailable and never substitutes fake
   candles;
@@ -69,7 +71,9 @@ instants, Projection provenance, or Replay's exclusive cursor.
 - chart entry requests one bounded prefix-plus-forward window while Projection
   still reveals exactly the 121-bar prefix-plus-start baseline;
 - the real-Chrome workspace harness proves entry, Next bar, TF/ETH-RTH atomic
-  replacement, manual/reset wall, and repeated left history against real data;
+  replacement, manual/reset wall, repeated left history, and dense
+  `4h→3m→4h` RTH replacement without a native history trigger against real
+  data;
 - fixed visual fixtures now contain actual DuckDB NQ candles.
 
 Human re-review of New York Session input/labels, shared ETH/RTH aggregate

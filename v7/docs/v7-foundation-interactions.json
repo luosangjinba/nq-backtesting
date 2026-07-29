@@ -153,7 +153,7 @@
       "command": "SetSessionHours",
       "owner": "workspace-transaction-runtime",
       "visibleStates": ["loading", "stale", "unavailable", "error", "ready"],
-      "completion": { "runtimeSignal": "All affected panes commit one hours/calendar revision", "visibleEvidence": "Eligible history reaches the viewport boundary with correct common TF anchors" },
+      "completion": { "runtimeSignal": "All affected panes commit one hours/calendar revision", "visibleEvidence": "Eligible history reaches the retained viewport boundary without a native input trigger; a closed premarket entry retains prior-session RTH context" },
       "failure": { "visibleState": "error", "preservesLastAcceptedSnapshot": true },
       "persistence": "workspace",
       "performanceProfile": "projection-switch-cache-tiered",

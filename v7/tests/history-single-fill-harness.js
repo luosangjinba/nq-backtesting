@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { planSingleHistoryFill } from '../src/replay-workspace-ui/history-fill-plan.js';
+import {
+  planReplacementHistoryFill,
+  planSingleHistoryFill,
+} from '../src/replay-workspace-ui/history-fill-plan.js';
 import { planSingleHistoryWindow } from '../src/replay-workspace-ui/history-window-plan.js';
 
 const state = (barCount, from, to) => Object.freeze({
@@ -15,6 +18,13 @@ assert.equal(planSingleHistoryFill(state(5_000, -300.2, 699.8)).displayBars, 333
   'a dense negative range must request exactly enough bars to cross the buffered Canvas edge');
 assert.equal(planSingleHistoryFill(state(5_000, -1_000, 0)).displayBars, 1_032,
   'the target must depend on missing left coverage rather than a fixed chunk or span multiplier');
+
+assert.deepEqual(planReplacementHistoryFill({ latestOffsetBars: 12, spanBars: null }), {
+  displayBars: 240,
+}, 'a default Viewport replacement keeps the established minimum target');
+assert.deepEqual(planReplacementHistoryFill({ latestOffsetBars: 12, spanBars: 1_910 }), {
+  displayBars: 1_931,
+}, 'a dense replacement must plan enough final bars before applying the retained Viewport');
 
 for (const invalid of [
   null,
