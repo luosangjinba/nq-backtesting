@@ -2,12 +2,37 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  analyzeProductionArchitecture,
+} from './support/production-architecture-analyzer.js';
+import {
+  compareProductionArchitectureSnapshots,
+} from './support/production-architecture-validator.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const V7_ROOT = path.resolve(TEST_DIR, '..');
 const REPOSITORY_ROOT = path.resolve(V7_ROOT, '..');
 const manifest = JSON.parse(
   fs.readFileSync(path.join(V7_ROOT, 'docs/v7-architecture-manifest.json'), 'utf8'),
+);
+const productionBaseline = JSON.parse(fs.readFileSync(
+  path.join(V7_ROOT, 'docs/v7-production-architecture-baseline.json'),
+  'utf8',
+));
+const productionArchitecture = analyzeProductionArchitecture({
+  manifest,
+  policy: productionBaseline.analysisPolicy,
+  v7Root: V7_ROOT,
+});
+assert.deepEqual(
+  compareProductionArchitectureSnapshots(productionBaseline.snapshot, productionArchitecture.snapshot),
+  [],
+  'production architecture must match its exact recovery baseline',
+);
+assert.deepEqual(
+  productionArchitecture.violations,
+  productionBaseline.knownViolations.map(({ bugId, recoveryStep, ...violation }) => violation),
+  'production architecture findings must match the blocking recovery inventory',
 );
 
 function walk(directory) {
@@ -184,6 +209,7 @@ for (const rule of [
   'professional-ui-from-first-visible-slice',
   'critical-rules-have-enforcement-lifecycle',
   'regression-lifecycle-blocks-feature-acceptance',
+  'production-source-descriptor-and-writer-conformance',
   'executable-rules-require-negative-controls',
   'automated-evidence-cannot-grant-human-acceptance',
   'production-files-have-one-long-lived-responsibility',

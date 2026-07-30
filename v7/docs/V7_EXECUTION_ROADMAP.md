@@ -479,7 +479,8 @@ binding detail, bug identities, exact acceptance workflow, and per-step gates
 live in `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
 
 - `R8.1`: recovery constitution and executable regression lifecycle;
-- `R8.2`: production architecture analyzer;
+- `R8.2`: production architecture analyzer; completed as an executable exact
+  production baseline with 13 blocking findings and eight negative controls;
 - `R8.3`: descriptor, lifecycle, and independent-harness repair;
 - `R8.4`: pure bounded Raw Coverage Lease contract;
 - `R8.5`: sole Bar Data raw retention owner;

@@ -1,0 +1,3624 @@
+{
+  "schemaVersion": 1,
+  "deliveryStep": "R8.2",
+  "status": "blocking-recovery-baseline",
+  "analysisPolicy": {
+    "lifecycleFactoryExemptions": [
+      {
+        "moduleId": "core.module-host",
+        "reason": "Module Host consumes participant lifecycle handles but exposes start/stop as its own lifecycle."
+      }
+    ],
+    "writerPolicies": [
+      {
+        "surface": "rawMarketDataRetention",
+        "detectorId": "market-data-retention-ledger",
+        "allowedModuleIds": [
+          "core.bar-data-runtime"
+        ]
+      },
+      {
+        "surface": "chartSeries",
+        "detectorId": "native-chart-series",
+        "allowedModuleIds": [
+          "adapter.lightweight-chart"
+        ]
+      },
+      {
+        "surface": "paneWorkspace",
+        "detectorId": "pane-workspace-accepted-state",
+        "allowedModuleIds": [
+          "core.pane-workspace-domain"
+        ]
+      },
+      {
+        "surface": "workspaceSemanticCommit",
+        "detectorId": "post-terminal-workspace-commit",
+        "allowedModuleIds": [
+          "core.workspace-transaction-runtime"
+        ]
+      },
+      {
+        "surface": "rawBarRequest",
+        "detectorId": "raw-provider-request",
+        "allowedModuleIds": [
+          "core.bar-data-runtime"
+        ]
+      },
+      {
+        "surface": "replayCursor",
+        "detectorId": "replay-cursor-commit",
+        "allowedModuleIds": [
+          "core.replay-runtime"
+        ]
+      },
+      {
+        "surface": "workspaceSnapshot",
+        "detectorId": "workspace-snapshot-commit",
+        "allowedModuleIds": [
+          "core.workspace-transaction-runtime"
+        ]
+      }
+    ]
+  },
+  "knownViolations": [
+    {
+      "code": "descriptor-lifecycle-missing",
+      "detail": "production exposes dispose() in src/bar-data-runtime/bar-data-runtime.js, src/bar-data-runtime/projected-history-runtime.js",
+      "subject": "core.bar-data-runtime",
+      "bugId": "BUG-V7-0004",
+      "recoveryStep": "R8.3"
+    },
+    {
+      "code": "descriptor-lifecycle-missing",
+      "detail": "production exposes dispose() in src/provider-execution-runtime/policy-bound-provider.js",
+      "subject": "core.provider-execution-runtime",
+      "bugId": "BUG-V7-0004",
+      "recoveryStep": "R8.3"
+    },
+    {
+      "code": "descriptor-undeclared-import",
+      "detail": "production imports a module absent from requiredPorts and optionalPorts",
+      "subject": "core.calendar-timeframe-domain->core.bar-data-contract",
+      "bugId": "BUG-V7-0004",
+      "recoveryStep": "R8.3"
+    },
+    {
+      "code": "descriptor-undeclared-import",
+      "detail": "production imports a module absent from requiredPorts and optionalPorts",
+      "subject": "core.fixed-timeframe-domain->core.bar-data-contract",
+      "bugId": "BUG-V7-0004",
+      "recoveryStep": "R8.3"
+    },
+    {
+      "code": "descriptor-undeclared-import",
+      "detail": "production imports a module absent from requiredPorts and optionalPorts",
+      "subject": "core.session-store->core.replay-navigation-settings",
+      "bugId": "BUG-V7-0004",
+      "recoveryStep": "R8.3"
+    },
+    {
+      "code": "independent-harness-app-shell",
+      "detail": "tests/replay-pane-workspace-browser-harness.js boots /v7/app instead of the module public entry",
+      "subject": "adapter.replay-workspace-ui",
+      "bugId": "BUG-V7-0004",
+      "recoveryStep": "R8.3"
+    },
+    {
+      "code": "independent-harness-app-shell",
+      "detail": "tests/session-browser-browser-harness.js boots /v7/app instead of the module public entry",
+      "subject": "adapter.session-browser-ui",
+      "bugId": "BUG-V7-0004",
+      "recoveryStep": "R8.3"
+    },
+    {
+      "code": "production-composition-bypasses-module-host",
+      "detail": "app/data-acquisition.html boots production without core.module-host",
+      "subject": "app/data-acquisition.js",
+      "bugId": "BUG-V7-0004",
+      "recoveryStep": "R8.11"
+    },
+    {
+      "code": "production-composition-bypasses-module-host",
+      "detail": "app/index.html boots production without core.module-host",
+      "subject": "app/main.js",
+      "bugId": "BUG-V7-0004",
+      "recoveryStep": "R8.11"
+    },
+    {
+      "code": "writer-outside-declared-owner",
+      "detail": "adapter.replay-workspace-ui writes paneWorkspace; allowed: core.pane-workspace-domain",
+      "subject": "paneWorkspace:src/replay-workspace-ui/pane-workspace-state.js",
+      "bugId": "BUG-V7-0001",
+      "recoveryStep": "R8.6"
+    },
+    {
+      "code": "writer-outside-declared-owner",
+      "detail": "adapter.replay-workspace-ui writes rawMarketDataRetention; allowed: core.bar-data-runtime",
+      "subject": "rawMarketDataRetention:src/replay-workspace-ui/display-history-ledger.js",
+      "bugId": "BUG-V7-0002",
+      "recoveryStep": "R8.5"
+    },
+    {
+      "code": "writer-outside-declared-owner",
+      "detail": "adapter.replay-workspace-ui writes rawMarketDataRetention; allowed: core.bar-data-runtime",
+      "subject": "rawMarketDataRetention:src/replay-workspace-ui/source-batch-ledger.js",
+      "bugId": "BUG-V7-0002",
+      "recoveryStep": "R8.5"
+    },
+    {
+      "code": "writer-outside-declared-owner",
+      "detail": "adapter.replay-workspace-ui writes workspaceSemanticCommit; allowed: core.workspace-transaction-runtime",
+      "subject": "workspaceSemanticCommit:src/replay-workspace-ui/workspace-execution.js",
+      "bugId": "BUG-V7-0001",
+      "recoveryStep": "R8.9"
+    }
+  ],
+  "snapshot": {
+    "compositionRoots": [
+      {
+        "constructedModuleIds": [
+          "adapter.data-acquisition-ui"
+        ],
+        "htmlFile": "app/data-acquisition.html",
+        "importedModuleIds": [
+          "adapter.data-acquisition-ui"
+        ],
+        "path": "app/data-acquisition.js",
+        "usesModuleHost": false
+      },
+      {
+        "constructedModuleIds": [
+          "adapter.replay-workspace-ui",
+          "adapter.session-browser-ui",
+          "adapter.session-persistence",
+          "adapter.v4-bars-provider",
+          "core.replay-navigation-preference-store",
+          "core.session-store",
+          "core.workstation-settings"
+        ],
+        "htmlFile": "app/index.html",
+        "importedModuleIds": [
+          "adapter.replay-workspace-ui",
+          "adapter.session-browser-ui",
+          "adapter.session-persistence",
+          "adapter.v4-bars-provider",
+          "core.replay-navigation-preference-store",
+          "core.session-store",
+          "core.workstation-settings"
+        ],
+        "path": "app/main.js",
+        "usesModuleHost": false
+      }
+    ],
+    "constructionSites": [
+      {
+        "callCount": 1,
+        "factory": "createActivationGeneration",
+        "sourceFile": "src/session-store/session-store.js",
+        "sourceModuleId": "core.session-store",
+        "targetModuleId": "core.activation-generation"
+      },
+      {
+        "callCount": 1,
+        "factory": "createBarDataRuntime",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.bar-data-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCalendarAggregationPolicy",
+        "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.calendar-timeframe-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createChartAdapterVisibleReceipt",
+        "sourceFile": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "targetModuleId": "core.chart-snapshot-application"
+      },
+      {
+        "callCount": 1,
+        "factory": "createChartAdapterVisibleReceipt",
+        "sourceFile": "src/lightweight-chart-adapter/pane-set-adapter.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "targetModuleId": "core.chart-snapshot-application"
+      },
+      {
+        "callCount": 1,
+        "factory": "createColorHistoryStore",
+        "sourceFile": "app/main.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCoverageReport",
+        "sourceFile": "src/provider-execution-runtime/policy-bound-provider.js",
+        "sourceModuleId": "core.provider-execution-runtime",
+        "targetModuleId": "core.coverage-planning-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCoverageReport",
+        "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+        "sourceModuleId": "adapter.v4-bars-provider",
+        "targetModuleId": "core.coverage-planning-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createDataAcquisitionSurface",
+        "sourceFile": "app/data-acquisition.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "adapter.data-acquisition-ui"
+      },
+      {
+        "callCount": 1,
+        "factory": "createDateTimeControl",
+        "sourceFile": "src/replay-workspace-ui/exact-goto-dialog.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "adapter.calendar-surface"
+      },
+      {
+        "callCount": 1,
+        "factory": "createEmptyPaneProjection",
+        "sourceFile": "src/replay-workspace-ui/pane-data-composition.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.pane-set-materialization"
+      },
+      {
+        "callCount": 1,
+        "factory": "createFixedDurationAggregationPolicy",
+        "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.fixed-timeframe-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createInitialViewportIntent",
+        "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.viewport-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createLayoutSync",
+        "sourceFile": "src/replay-workspace-ui/layout-sync-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.layout-sync-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createLayoutSync",
+        "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.layout-sync-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createLayoutSync",
+        "sourceFile": "src/session-store/session-store.js",
+        "sourceModuleId": "core.session-store",
+        "targetModuleId": "core.layout-sync-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createLightweightPaneSetAdapter",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "adapter.lightweight-chart"
+      },
+      {
+        "callCount": 1,
+        "factory": "createNewYorkWallEpochConverter",
+        "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "adapter.v4-bars-provider"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPaneLayout",
+        "sourceFile": "src/replay-workspace-ui/pane-grid-view.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.pane-layout-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPaneLayout",
+        "sourceFile": "src/replay-workspace-ui/pane-layout-menu.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.pane-layout-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPaneLayout",
+        "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.pane-layout-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPaneLayout",
+        "sourceFile": "src/session-store/session-store.js",
+        "sourceModuleId": "core.session-store",
+        "targetModuleId": "core.pane-layout-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPaneSetChartSnapshotApplication",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.chart-snapshot-application"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPaneSetMaterializationPorts",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.pane-set-materialization"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPaneSetTransactionInput",
+        "sourceFile": "src/replay-navigation-runtime/navigation-executor.js",
+        "sourceModuleId": "core.replay-navigation-runtime",
+        "targetModuleId": "core.pane-set-materialization"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPaneSetTransactionInput",
+        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.pane-set-materialization"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPaneTimeLocationCommand",
+        "sourceFile": "src/replay-workspace-ui/pane-time-location-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.pane-time-location-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPaneTimeLocationSelection",
+        "sourceFile": "src/replay-workspace-ui/pane-time-location-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.pane-time-location-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPaneWorkspace",
+        "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.pane-workspace-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPolicyBoundProvider",
+        "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+        "sourceModuleId": "adapter.v4-bars-provider",
+        "targetModuleId": "core.provider-execution-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPricePresentation",
+        "sourceFile": "src/lightweight-chart-adapter/candle-presentation.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPricePresentation",
+        "sourceFile": "src/replay-workspace-ui/pane-grid-view.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createProjectedBar",
+        "sourceFile": "src/chart-snapshot-application/snapshot-contract.js",
+        "sourceModuleId": "core.chart-snapshot-application",
+        "targetModuleId": "core.projection-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createProjectedHistoryBatch",
+        "sourceFile": "src/replay-workspace-ui/display-history-ledger.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.projected-history-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createProjectedHistoryBatch",
+        "sourceFile": "src/v4-bars-provider-adapter/projected-history-adapter.js",
+        "sourceModuleId": "adapter.v4-bars-provider",
+        "targetModuleId": "core.projected-history-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createProjectedHistoryRequest",
+        "sourceFile": "src/bar-data-runtime/projected-history-runtime.js",
+        "sourceModuleId": "core.bar-data-runtime",
+        "targetModuleId": "core.projected-history-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createProjectedHistoryRequest",
+        "sourceFile": "src/replay-workspace-ui/foundation-market.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.projected-history-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createProjectedHistoryRequest",
+        "sourceFile": "src/v4-bars-provider-adapter/projected-history-adapter.js",
+        "sourceModuleId": "adapter.v4-bars-provider",
+        "targetModuleId": "core.projected-history-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createProjectedHistoryRuntime",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.bar-data-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createRawBar",
+        "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+        "sourceModuleId": "adapter.v4-bars-provider",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createRawBarBatch",
+        "sourceFile": "src/bar-data-runtime/bar-data-runtime.js",
+        "sourceModuleId": "core.bar-data-runtime",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createRawBarBatch",
+        "sourceFile": "src/provider-execution-runtime/policy-bound-provider.js",
+        "sourceModuleId": "core.provider-execution-runtime",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createRawBarBatch",
+        "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+        "sourceModuleId": "adapter.v4-bars-provider",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createRawBarRequest",
+        "sourceFile": "src/bar-data-runtime/bar-data-runtime.js",
+        "sourceModuleId": "core.bar-data-runtime",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createRawBarRequest",
+        "sourceFile": "src/replay-workspace-ui/foundation-market.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createRawBarRequest",
+        "sourceFile": "src/workspace-replacement-runtime/replacement-input.js",
+        "sourceModuleId": "core.workspace-replacement-runtime",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayCursorProposal",
+        "sourceFile": "src/replay-runtime/replay-runtime.js",
+        "sourceModuleId": "core.replay-runtime",
+        "targetModuleId": "core.replay-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayCursorRetentionProposal",
+        "sourceFile": "src/replay-runtime/replay-runtime.js",
+        "sourceModuleId": "core.replay-runtime",
+        "targetModuleId": "core.replay-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayCursorTargetProposal",
+        "sourceFile": "src/replay-runtime/replay-runtime.js",
+        "sourceModuleId": "core.replay-runtime",
+        "targetModuleId": "core.replay-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayNavigationExecutor",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.replay-navigation-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayNavigationPreferenceStore",
+        "sourceFile": "app/main.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "core.replay-navigation-preference-store"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayNavigationReplayPort",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.replay-navigation-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayNavigationSettings",
+        "sourceFile": "src/replay-navigation-preference-store/preference-store.js",
+        "sourceModuleId": "core.replay-navigation-preference-store",
+        "targetModuleId": "core.replay-navigation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayNavigationSettings",
+        "sourceFile": "src/replay-navigation-runtime/navigation-schedule.js",
+        "sourceModuleId": "core.replay-navigation-runtime",
+        "targetModuleId": "core.replay-navigation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayNavigationTargetResolver",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.replay-navigation-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayRange",
+        "sourceFile": "src/replay-pane-response-contract/response-plan.js",
+        "sourceModuleId": "core.replay-pane-response-contract",
+        "targetModuleId": "core.replay-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayRange",
+        "sourceFile": "src/replay-prefetch-contract/prefetch-advice.js",
+        "sourceModuleId": "core.replay-prefetch-contract",
+        "targetModuleId": "core.replay-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayRange",
+        "sourceFile": "src/replay-runtime/replay-runtime.js",
+        "sourceModuleId": "core.replay-runtime",
+        "targetModuleId": "core.replay-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayRuntime",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.replay-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayStep",
+        "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.replay-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayWorkspaceSurface",
+        "sourceFile": "app/main.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "adapter.replay-workspace-ui"
+      },
+      {
+        "callCount": 1,
+        "factory": "createSessionBrowser",
+        "sourceFile": "app/main.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "adapter.session-browser-ui"
+      },
+      {
+        "callCount": 1,
+        "factory": "createSessionHoursCalendar",
+        "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.session-hours-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createSessionHoursPolicy",
+        "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.session-hours-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createSessionRepository",
+        "sourceFile": "app/main.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "adapter.session-persistence"
+      },
+      {
+        "callCount": 1,
+        "factory": "createSessionStore",
+        "sourceFile": "app/main.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "core.session-store"
+      },
+      {
+        "callCount": 1,
+        "factory": "createStorageAdapter",
+        "sourceFile": "app/main.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "adapter.session-persistence"
+      },
+      {
+        "callCount": 1,
+        "factory": "createTimePresentation",
+        "sourceFile": "src/lightweight-chart-adapter/chart-options.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createTimePresentation",
+        "sourceFile": "src/replay-workspace-ui/pane-time-location-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createTimePresentation",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createTimePresentation",
+        "sourceFile": "src/replay-workspace-ui/workspace-view.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createTimePresentation",
+        "sourceFile": "src/session-browser-ui/dom-primitives.js",
+        "sourceModuleId": "adapter.session-browser-ui",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createTransactionId",
+        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.transaction-identity"
+      },
+      {
+        "callCount": 1,
+        "factory": "createV4BarsProvider",
+        "sourceFile": "src/replay-workspace-ui/foundation-market.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "adapter.v4-bars-provider"
+      },
+      {
+        "callCount": 1,
+        "factory": "createV4MarketDateAvailability",
+        "sourceFile": "app/main.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "adapter.v4-bars-provider"
+      },
+      {
+        "callCount": 1,
+        "factory": "createV4ProjectedHistoryProvider",
+        "sourceFile": "src/replay-workspace-ui/foundation-market.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "adapter.v4-bars-provider"
+      },
+      {
+        "callCount": 1,
+        "factory": "createViewportController",
+        "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.viewport-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkspaceCheckpoint",
+        "sourceFile": "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workspace-checkpoint-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkspaceReplacementCatalog",
+        "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workspace-replacement-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkspaceTransactionIdentity",
+        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workspace-transaction-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkspaceTransactionIntent",
+        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workspace-transaction-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkspaceTransactionPlan",
+        "sourceFile": "src/workspace-transaction-runtime/transaction-executor.js",
+        "sourceModuleId": "core.workspace-transaction-runtime",
+        "targetModuleId": "core.workspace-transaction-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkspaceTransactionRuntime",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workspace-transaction-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkstationSettings",
+        "sourceFile": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkstationSettings",
+        "sourceFile": "src/lightweight-chart-adapter/pane-set-adapter.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkstationSettingsRuntime",
+        "sourceFile": "app/main.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 2,
+        "factory": "createDateTimeControl",
+        "sourceFile": "src/session-browser-ui/create-dialog.js",
+        "sourceModuleId": "adapter.session-browser-ui",
+        "targetModuleId": "adapter.calendar-surface"
+      },
+      {
+        "callCount": 2,
+        "factory": "createPaneLayout",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.pane-layout-domain"
+      },
+      {
+        "callCount": 2,
+        "factory": "createProviderFailure",
+        "sourceFile": "src/provider-execution-runtime/attempt-runner.js",
+        "sourceModuleId": "core.provider-execution-runtime",
+        "targetModuleId": "core.provider-policy-contract"
+      },
+      {
+        "callCount": 2,
+        "factory": "createRawBarRequest",
+        "sourceFile": "src/coverage-planning-contract/coverage-report.js",
+        "sourceModuleId": "core.coverage-planning-contract",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 2,
+        "factory": "createRawBarRequest",
+        "sourceFile": "src/coverage-planning-contract/request-planner.js",
+        "sourceModuleId": "core.coverage-planning-contract",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 2,
+        "factory": "createRawBarRequest",
+        "sourceFile": "src/provider-execution-runtime/policy-bound-provider.js",
+        "sourceModuleId": "core.provider-execution-runtime",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 2,
+        "factory": "createRawBarRequest",
+        "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+        "sourceModuleId": "adapter.v4-bars-provider",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 2,
+        "factory": "createReplayNavigationSchedule",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.replay-navigation-runtime"
+      },
+      {
+        "callCount": 2,
+        "factory": "createReplayNavigationSettings",
+        "sourceFile": "src/replay-workspace-ui/goto-settings-dialog.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.replay-navigation-settings"
+      },
+      {
+        "callCount": 2,
+        "factory": "createReplayPaneAction",
+        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.replay-pane-response-contract"
+      },
+      {
+        "callCount": 2,
+        "factory": "createTimePresentation",
+        "sourceFile": "src/replay-workspace-ui/exact-goto-dialog.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 2,
+        "factory": "createWorkstationSettings",
+        "sourceFile": "src/lightweight-chart-adapter/chart-options.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 2,
+        "factory": "createWorkstationSettings",
+        "sourceFile": "src/replay-workspace-ui/workstation-settings-dialog.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 2,
+        "factory": "createWorkstationSettings",
+        "sourceFile": "src/session-browser-ui/dom-primitives.js",
+        "sourceModuleId": "adapter.session-browser-ui",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 3,
+        "factory": "createSessionId",
+        "sourceFile": "src/session-browser-ui/session-browser.js",
+        "sourceModuleId": "adapter.session-browser-ui",
+        "targetModuleId": "core.session-identity"
+      }
+    ],
+    "declaredWriterSurfaces": [
+      {
+        "moduleIds": [
+          "adapter.calendar-surface"
+        ],
+        "surface": "calendarSurfaceDom"
+      },
+      {
+        "moduleIds": [
+          "adapter.lightweight-chart"
+        ],
+        "surface": "chartSeries"
+      },
+      {
+        "moduleIds": [
+          "adapter.replay-workspace-ui"
+        ],
+        "surface": "replayWorkspaceDom"
+      },
+      {
+        "moduleIds": [
+          "adapter.session-browser-ui"
+        ],
+        "surface": "sessionBrowserDom"
+      },
+      {
+        "moduleIds": [
+          "core.bar-data-runtime"
+        ],
+        "surface": "rawBarRequest"
+      },
+      {
+        "moduleIds": [
+          "core.pane-workspace-domain"
+        ],
+        "surface": "paneWorkspace"
+      },
+      {
+        "moduleIds": [
+          "core.replay-navigation-preference-store"
+        ],
+        "surface": "replayNavigationPreferences"
+      },
+      {
+        "moduleIds": [
+          "core.replay-runtime"
+        ],
+        "surface": "replayCursor"
+      },
+      {
+        "moduleIds": [
+          "core.session-store"
+        ],
+        "surface": "layoutSyncPolicy"
+      },
+      {
+        "moduleIds": [
+          "core.session-store"
+        ],
+        "surface": "sessionRecord"
+      },
+      {
+        "moduleIds": [
+          "core.session-store"
+        ],
+        "surface": "workspaceCheckpoint"
+      },
+      {
+        "moduleIds": [
+          "core.viewport-runtime"
+        ],
+        "surface": "viewportIntent"
+      },
+      {
+        "moduleIds": [
+          "core.workspace-transaction-runtime"
+        ],
+        "surface": "workspaceSnapshot"
+      },
+      {
+        "moduleIds": [
+          "core.workstation-settings"
+        ],
+        "surface": "workstationSettings"
+      }
+    ],
+    "modules": [
+      {
+        "actualDependencies": [
+          "adapter.calendar-surface",
+          "adapter.lightweight-chart",
+          "adapter.v4-bars-provider",
+          "core.bar-data-contract",
+          "core.bar-data-runtime",
+          "core.calendar-timeframe-domain",
+          "core.capability-contract",
+          "core.chart-snapshot-application",
+          "core.fixed-timeframe-domain",
+          "core.layout-sync-domain",
+          "core.pane-layout-domain",
+          "core.pane-set-materialization",
+          "core.pane-time-location-domain",
+          "core.pane-workspace-domain",
+          "core.projected-history-contract",
+          "core.projection-domain",
+          "core.replay-contract",
+          "core.replay-navigation-runtime",
+          "core.replay-navigation-settings",
+          "core.replay-pane-response-contract",
+          "core.replay-runtime",
+          "core.session-hours-domain",
+          "core.transaction-identity",
+          "core.viewport-runtime",
+          "core.workspace-checkpoint-domain",
+          "core.workspace-replacement-runtime",
+          "core.workspace-transaction-contract",
+          "core.workspace-transaction-runtime",
+          "core.workstation-settings"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "adapter.calendar-surface",
+          "adapter.lightweight-chart",
+          "adapter.v4-bars-provider",
+          "core.activation-generation",
+          "core.bar-data-contract",
+          "core.bar-data-runtime",
+          "core.calendar-timeframe-domain",
+          "core.capability-contract",
+          "core.chart-snapshot-application",
+          "core.fixed-timeframe-domain",
+          "core.layout-sync-domain",
+          "core.pane-layout-domain",
+          "core.pane-set-materialization",
+          "core.pane-time-location-domain",
+          "core.pane-workspace-domain",
+          "core.projected-history-contract",
+          "core.projection-domain",
+          "core.replay-contract",
+          "core.replay-navigation-runtime",
+          "core.replay-navigation-settings",
+          "core.replay-pane-response-contract",
+          "core.replay-runtime",
+          "core.session-hours-domain",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.viewport-runtime",
+          "core.workspace-checkpoint-domain",
+          "core.workspace-replacement-runtime",
+          "core.workspace-transaction-contract",
+          "core.workspace-transaction-runtime",
+          "core.workstation-settings"
+        ],
+        "descriptorPath": "src/replay-workspace-ui/module.json",
+        "id": "adapter.replay-workspace-ui",
+        "importSites": [
+          {
+            "importedNames": [
+              "changePaneInstrument",
+              "changePaneTimeframe",
+              "createPaneWorkspace",
+              "focusPane",
+              "readPaneWorkspace",
+              "setPaneInstrumentSync"
+            ],
+            "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
+            "targetFile": "src/pane-workspace-domain/public.js",
+            "targetModuleId": "core.pane-workspace-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createBarDataRuntime",
+              "createProjectedHistoryRuntime"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+            "targetFile": "src/bar-data-runtime/public.js",
+            "targetModuleId": "core.bar-data-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createCalendarAggregationPolicy",
+              "resolveCalendarPeriod"
+            ],
+            "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
+            "targetFile": "src/calendar-timeframe-domain/public.js",
+            "targetModuleId": "core.calendar-timeframe-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createDateTimeControl"
+            ],
+            "sourceFile": "src/replay-workspace-ui/exact-goto-dialog.js",
+            "targetFile": "src/calendar-surface/public.js",
+            "targetModuleId": "adapter.calendar-surface",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createEmptyPaneProjection"
+            ],
+            "sourceFile": "src/replay-workspace-ui/pane-data-composition.js",
+            "targetFile": "src/pane-set-materialization/public.js",
+            "targetModuleId": "core.pane-set-materialization",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createFixedDurationAggregationPolicy"
+            ],
+            "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
+            "targetFile": "src/fixed-timeframe-domain/public.js",
+            "targetModuleId": "core.fixed-timeframe-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createInitialViewportIntent",
+              "createViewportController",
+              "readViewportIntent",
+              "restoreViewportIntent"
+            ],
+            "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
+            "targetFile": "src/viewport-runtime/public.js",
+            "targetModuleId": "core.viewport-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createLayoutSync",
+              "deserializeLayoutSync"
+            ],
+            "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+            "targetFile": "src/layout-sync-domain/public.js",
+            "targetModuleId": "core.layout-sync-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createLayoutSync",
+              "readLayoutSync",
+              "setLayoutSync"
+            ],
+            "sourceFile": "src/replay-workspace-ui/layout-sync-controller.js",
+            "targetFile": "src/layout-sync-domain/public.js",
+            "targetModuleId": "core.layout-sync-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createLightweightPaneSetAdapter"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+            "targetFile": "src/lightweight-chart-adapter/public.js",
+            "targetModuleId": "adapter.lightweight-chart",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneLayout",
+              "readPaneLayout",
+              "resizePaneLayout"
+            ],
+            "sourceFile": "src/replay-workspace-ui/pane-grid-view.js",
+            "targetFile": "src/pane-layout-domain/public.js",
+            "targetModuleId": "core.pane-layout-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneLayout",
+              "readPaneLayout"
+            ],
+            "sourceFile": "src/replay-workspace-ui/pane-layout-menu.js",
+            "targetFile": "src/pane-layout-domain/public.js",
+            "targetModuleId": "core.pane-layout-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneLayout",
+              "readPaneLayout"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+            "targetFile": "src/pane-layout-domain/public.js",
+            "targetModuleId": "core.pane-layout-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneSetChartSnapshotApplication"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+            "targetFile": "src/chart-snapshot-application/public.js",
+            "targetModuleId": "core.chart-snapshot-application",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneSetMaterializationPorts"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+            "targetFile": "src/pane-set-materialization/public.js",
+            "targetModuleId": "core.pane-set-materialization",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneSetTransactionInput"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+            "targetFile": "src/pane-set-materialization/public.js",
+            "targetModuleId": "core.pane-set-materialization",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneTimeLocationCommand",
+              "createPaneTimeLocationSelection",
+              "readPaneTimeLocationCommand"
+            ],
+            "sourceFile": "src/replay-workspace-ui/pane-time-location-controller.js",
+            "targetFile": "src/pane-time-location-domain/public.js",
+            "targetModuleId": "core.pane-time-location-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPricePresentation",
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-ui/pane-grid-view.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createProjectedHistoryBatch"
+            ],
+            "sourceFile": "src/replay-workspace-ui/display-history-ledger.js",
+            "targetFile": "src/projected-history-contract/public.js",
+            "targetModuleId": "core.projected-history-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createProjectedHistoryRequest"
+            ],
+            "sourceFile": "src/replay-workspace-ui/foundation-market.js",
+            "targetFile": "src/projected-history-contract/public.js",
+            "targetModuleId": "core.projected-history-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createRawBarRequest"
+            ],
+            "sourceFile": "src/replay-workspace-ui/foundation-market.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createReplayPaneAction",
+              "planReplayPaneResponse"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+            "targetFile": "src/replay-pane-response-contract/public.js",
+            "targetModuleId": "core.replay-pane-response-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createReplayRuntime"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+            "targetFile": "src/replay-runtime/public.js",
+            "targetModuleId": "core.replay-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createReplayStep"
+            ],
+            "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createSessionHoursCalendar",
+              "createSessionHoursPolicy"
+            ],
+            "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
+            "targetFile": "src/session-hours-domain/public.js",
+            "targetModuleId": "core.session-hours-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createTimePresentation",
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-ui/exact-goto-dialog.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createTimePresentation",
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createTimePresentation",
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-view.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createTimePresentation"
+            ],
+            "sourceFile": "src/replay-workspace-ui/pane-time-location-controller.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createTransactionId"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+            "targetFile": "src/transaction-identity/public.js",
+            "targetModuleId": "core.transaction-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceCheckpoint",
+              "serializeWorkspaceCheckpoint"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
+            "targetFile": "src/workspace-checkpoint-domain/public.js",
+            "targetModuleId": "core.workspace-checkpoint-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceReplacementCatalog"
+            ],
+            "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
+            "targetFile": "src/workspace-replacement-runtime/public.js",
+            "targetModuleId": "core.workspace-replacement-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceTransactionIdentity",
+              "createWorkspaceTransactionIntent",
+              "describeWorkspaceTransactionEnvelope"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceTransactionRuntime"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+            "targetFile": "src/workspace-transaction-runtime/public.js",
+            "targetModuleId": "core.workspace-transaction-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "DEFAULT_REPLAY_NAVIGATION_SETTINGS",
+              "createReplayNavigationSettings",
+              "readReplayNavigationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-ui/goto-settings-dialog.js",
+            "targetFile": "src/replay-navigation-settings/public.js",
+            "targetModuleId": "core.replay-navigation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "DEFAULT_WORKSTATION_SETTINGS",
+              "createWorkstationSettings",
+              "hexColorOpacityPercent",
+              "hexColorWithOpacity",
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workstation-settings-dialog.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineInstrument",
+              "defineTradingCalendar"
+            ],
+            "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
+            "targetFile": "src/capability-contract/public.js",
+            "targetModuleId": "core.capability-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineTimeframe"
+            ],
+            "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
+            "targetFile": "src/capability-contract/public.js",
+            "targetModuleId": "core.capability-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "deserializeWorkspaceCheckpoint",
+              "readWorkspaceCheckpoint"
+            ],
+            "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+            "targetFile": "src/workspace-checkpoint-domain/public.js",
+            "targetModuleId": "core.workspace-checkpoint-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "GOTO_TARGET_UNAVAILABLE_IN_RANGE",
+              "createReplayNavigationExecutor",
+              "createReplayNavigationReplayPort",
+              "createReplayNavigationSchedule",
+              "createReplayNavigationTargetResolver"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+            "targetFile": "src/replay-navigation-runtime/public.js",
+            "targetModuleId": "core.replay-navigation-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "GOTO_TARGET_UNAVAILABLE_IN_RANGE",
+              "readReplayNavigationResult"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+            "targetFile": "src/replay-navigation-runtime/public.js",
+            "targetModuleId": "core.replay-navigation-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "hexColorOpacityPercent",
+              "hexColorWithOpacity",
+              "hexColorWithoutAlpha",
+              "normalizeHexAlphaColor"
+            ],
+            "sourceFile": "src/replay-workspace-ui/color-picker-control.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "PANE_LAYOUT_OPTIONS",
+              "createPaneLayout",
+              "deserializePaneLayout"
+            ],
+            "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+            "targetFile": "src/pane-layout-domain/public.js",
+            "targetModuleId": "core.pane-layout-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "ProjectionDomainError",
+              "projectPaneHistoryExtension",
+              "projectPaneReplayAdvance",
+              "projectPaneSnapshot"
+            ],
+            "sourceFile": "src/replay-workspace-ui/pane-data-composition.js",
+            "targetFile": "src/projection-domain/public.js",
+            "targetModuleId": "core.projection-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "rawBarRequestKey"
+            ],
+            "sourceFile": "src/replay-workspace-ui/pane-data-composition.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readLayoutSync"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-view.js",
+            "targetFile": "src/layout-sync-domain/public.js",
+            "targetModuleId": "core.layout-sync-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readPaneLayout"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-view.js",
+            "targetFile": "src/pane-layout-domain/public.js",
+            "targetModuleId": "core.pane-layout-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readPaneWorkspace"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-view.js",
+            "targetFile": "src/pane-workspace-domain/public.js",
+            "targetModuleId": "core.pane-workspace-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readReplayCursorProposal"
+            ],
+            "sourceFile": "src/replay-workspace-ui/pane-data-composition.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readReplayNavigationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+            "targetFile": "src/replay-navigation-settings/public.js",
+            "targetModuleId": "core.replay-navigation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readReplayStep"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-view.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readViewportIntent"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
+            "targetFile": "src/viewport-runtime/public.js",
+            "targetModuleId": "core.viewport-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readViewportIntent"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+            "targetFile": "src/viewport-runtime/public.js",
+            "targetModuleId": "core.viewport-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceCheckpoint"
+            ],
+            "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
+            "targetFile": "src/workspace-checkpoint-domain/public.js",
+            "targetModuleId": "core.workspace-checkpoint-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceCheckpoint"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+            "targetFile": "src/workspace-checkpoint-domain/public.js",
+            "targetModuleId": "core.workspace-checkpoint-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-ui/viewport-settings-consumer.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workstation-settings-view-consumer.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeLayoutSync"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
+            "targetFile": "src/layout-sync-domain/public.js",
+            "targetModuleId": "core.layout-sync-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializePaneLayout"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
+            "targetFile": "src/pane-layout-domain/public.js",
+            "targetModuleId": "core.pane-layout-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "V4_BARS_DATASET_REVISION",
+              "V4_PROJECTED_HISTORY_PROVIDER_ID",
+              "createV4BarsProvider",
+              "createV4ProjectedHistoryProvider"
+            ],
+            "sourceFile": "src/replay-workspace-ui/foundation-market.js",
+            "targetFile": "src/v4-bars-provider-adapter/public.js",
+            "targetModuleId": "adapter.v4-bars-provider",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "V4_BARS_PROVIDER_ID",
+              "createNewYorkWallEpochConverter",
+              "newYorkWallEpochToInstantMs"
+            ],
+            "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
+            "targetFile": "src/v4-bars-provider-adapter/public.js",
+            "targetModuleId": "adapter.v4-bars-provider",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/replay-pane-workspace-browser-harness.js",
+        "independentHarnessMode": "app-shell",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/replay-workspace-ui/autoplay-scheduler.js",
+          "src/replay-workspace-ui/color-picker-control.js",
+          "src/replay-workspace-ui/exact-goto-dialog.js",
+          "src/replay-workspace-ui/foundation-market.js",
+          "src/replay-workspace-ui/goto-controls.js",
+          "src/replay-workspace-ui/goto-settings-dialog.js",
+          "src/replay-workspace-ui/pane-grid-view.js",
+          "src/replay-workspace-ui/pane-layout-menu.js",
+          "src/replay-workspace-ui/pane-time-location-controller.js",
+          "src/replay-workspace-ui/pane-time-location-menu.js",
+          "src/replay-workspace-ui/pane-workspace-state.js",
+          "src/replay-workspace-ui/refresh-feedback.js",
+          "src/replay-workspace-ui/replay-transport.js",
+          "src/replay-workspace-ui/replay-workspace-surface.js",
+          "src/replay-workspace-ui/timeframe-menu.js",
+          "src/replay-workspace-ui/workspace-controller.js",
+          "src/replay-workspace-ui/workspace-execution.js",
+          "src/replay-workspace-ui/workspace-view.js",
+          "src/replay-workspace-ui/workstation-settings-dialog.js"
+        ],
+        "owner": "replay-workspace-ui",
+        "publicEntry": "src/replay-workspace-ui/public.js"
+      },
+      {
+        "actualDependencies": [
+          "adapter.calendar-surface",
+          "core.session-identity",
+          "core.workstation-settings"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [
+          "adapter.replay-workspace-ui"
+        ],
+        "declaredRequiredPorts": [
+          "adapter.calendar-surface",
+          "core.replay-navigation-preference-store",
+          "core.session-identity",
+          "core.session-store",
+          "core.workstation-settings"
+        ],
+        "descriptorPath": "src/session-browser-ui/module.json",
+        "id": "adapter.session-browser-ui",
+        "importSites": [
+          {
+            "importedNames": [
+              "createDateTimeControl"
+            ],
+            "sourceFile": "src/session-browser-ui/create-dialog.js",
+            "targetFile": "src/calendar-surface/public.js",
+            "targetModuleId": "adapter.calendar-surface",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createSessionId",
+              "serializeSessionId"
+            ],
+            "sourceFile": "src/session-browser-ui/session-browser.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createTimePresentation",
+              "createWorkstationSettings"
+            ],
+            "sourceFile": "src/session-browser-ui/dom-primitives.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeSessionId"
+            ],
+            "sourceFile": "src/session-browser-ui/view-model.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/session-browser-browser-harness.js",
+        "independentHarnessMode": "app-shell",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/session-browser-ui/create-dialog.js",
+          "src/session-browser-ui/session-browser.js"
+        ],
+        "owner": "session-store",
+        "publicEntry": "src/session-browser-ui/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.activation-generation",
+          "core.chart-snapshot-application",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.workspace-transaction-contract"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.activation-generation",
+          "core.bar-data-runtime",
+          "core.chart-snapshot-application",
+          "core.replay-runtime",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.workspace-transaction-contract"
+        ],
+        "descriptorPath": "src/workspace-transaction-runtime/module.json",
+        "id": "core.workspace-transaction-runtime",
+        "importSites": [
+          {
+            "importedNames": [
+              "activationGenerationsEqual",
+              "requireActivationGeneration"
+            ],
+            "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "assessWorkspaceTransactionCurrency",
+              "readWorkspaceTransactionIdentity",
+              "workspaceTransactionIdentitiesEqual"
+            ],
+            "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceTransactionPlan",
+              "describeWorkspaceTransactionEnvelope",
+              "settleWorkspaceTransaction"
+            ],
+            "sourceFile": "src/workspace-transaction-runtime/transaction-executor.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireMatchingVisibleCompletion"
+            ],
+            "sourceFile": "src/workspace-transaction-runtime/transaction-executor.js",
+            "targetFile": "src/chart-snapshot-application/public.js",
+            "targetModuleId": "core.chart-snapshot-application",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireSessionId",
+              "sessionIdsEqual"
+            ],
+            "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeTransactionId"
+            ],
+            "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
+            "targetFile": "src/transaction-identity/public.js",
+            "targetModuleId": "core.transaction-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/workspace-transaction-runtime-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [
+          "src/workspace-transaction-runtime/runtime-state.js",
+          "src/workspace-transaction-runtime/workspace-transaction-runtime.js"
+        ],
+        "owner": "workspace-transaction-runtime",
+        "publicEntry": "src/workspace-transaction-runtime/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.activation-generation",
+          "core.layout-sync-domain",
+          "core.pane-layout-domain",
+          "core.replay-navigation-settings",
+          "core.session-identity",
+          "core.workspace-checkpoint-domain"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "adapter.session-persistence",
+          "core.activation-generation",
+          "core.layout-sync-domain",
+          "core.pane-layout-domain",
+          "core.session-identity",
+          "core.workspace-checkpoint-domain"
+        ],
+        "descriptorPath": "src/session-store/module.json",
+        "id": "core.session-store",
+        "importSites": [
+          {
+            "importedNames": [
+              "createActivationGeneration",
+              "nextActivationGeneration"
+            ],
+            "sourceFile": "src/session-store/session-store.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createLayoutSync",
+              "serializeLayoutSync"
+            ],
+            "sourceFile": "src/session-store/session-store.js",
+            "targetFile": "src/layout-sync-domain/public.js",
+            "targetModuleId": "core.layout-sync-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneLayout",
+              "serializePaneLayout"
+            ],
+            "sourceFile": "src/session-store/session-store.js",
+            "targetFile": "src/pane-layout-domain/public.js",
+            "targetModuleId": "core.pane-layout-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "deserializeActivationGeneration",
+              "requireActivationGeneration",
+              "serializeActivationGeneration"
+            ],
+            "sourceFile": "src/session-store/session-record.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "deserializeLayoutSync",
+              "serializeLayoutSync"
+            ],
+            "sourceFile": "src/session-store/session-record.js",
+            "targetFile": "src/layout-sync-domain/public.js",
+            "targetModuleId": "core.layout-sync-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "deserializePaneLayout",
+              "readPaneLayout",
+              "serializePaneLayout"
+            ],
+            "sourceFile": "src/session-store/session-record.js",
+            "targetFile": "src/pane-layout-domain/public.js",
+            "targetModuleId": "core.pane-layout-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "deserializeReplayNavigationSettings",
+              "serializeReplayNavigationSettings"
+            ],
+            "sourceFile": "src/session-store/session-record.js",
+            "targetFile": "src/replay-navigation-settings/public.js",
+            "targetModuleId": "core.replay-navigation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "deserializeSessionId",
+              "requireSessionId",
+              "serializeSessionId"
+            ],
+            "sourceFile": "src/session-store/session-record.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "deserializeWorkspaceCheckpoint",
+              "readWorkspaceCheckpoint",
+              "serializeWorkspaceCheckpoint"
+            ],
+            "sourceFile": "src/session-store/session-record.js",
+            "targetFile": "src/workspace-checkpoint-domain/public.js",
+            "targetModuleId": "core.workspace-checkpoint-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireSessionId",
+              "sessionIdsEqual"
+            ],
+            "sourceFile": "src/session-store/session-store.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeWorkspaceCheckpoint"
+            ],
+            "sourceFile": "src/session-store/session-store.js",
+            "targetFile": "src/workspace-checkpoint-domain/public.js",
+            "targetModuleId": "core.workspace-checkpoint-domain",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/session-store-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "session-store",
+        "publicEntry": "src/session-store/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.activation-generation",
+          "core.projection-domain",
+          "core.replay-contract",
+          "core.replay-pane-response-contract",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.workspace-transaction-contract"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.activation-generation",
+          "core.projection-domain",
+          "core.replay-contract",
+          "core.replay-pane-response-contract",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.workspace-transaction-contract"
+        ],
+        "descriptorPath": "src/chart-snapshot-application/module.json",
+        "id": "core.chart-snapshot-application",
+        "importSites": [
+          {
+            "importedNames": [
+              "activationGenerationsEqual",
+              "requireActivationGeneration"
+            ],
+            "sourceFile": "src/chart-snapshot-application/application-state.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createProjectedBar"
+            ],
+            "sourceFile": "src/chart-snapshot-application/snapshot-contract.js",
+            "targetFile": "src/projection-domain/public.js",
+            "targetModuleId": "core.projection-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readReplayCursorProposal"
+            ],
+            "sourceFile": "src/chart-snapshot-application/pane-set-snapshot-contract.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readReplayCursorProposal"
+            ],
+            "sourceFile": "src/chart-snapshot-application/snapshot-contract.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceTransactionIdentity",
+              "workspaceTransactionIdentitiesEqual"
+            ],
+            "sourceFile": "src/chart-snapshot-application/adapter-receipt.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceTransactionIdentity",
+              "workspaceTransactionIdentitiesEqual"
+            ],
+            "sourceFile": "src/chart-snapshot-application/application-state.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceTransactionIdentity",
+              "workspaceTransactionIdentitiesEqual"
+            ],
+            "sourceFile": "src/chart-snapshot-application/visible-completion.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireReplayPaneResponsePlan"
+            ],
+            "sourceFile": "src/chart-snapshot-application/pane-set-snapshot-contract.js",
+            "targetFile": "src/replay-pane-response-contract/public.js",
+            "targetModuleId": "core.replay-pane-response-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireSessionId",
+              "sessionIdsEqual"
+            ],
+            "sourceFile": "src/chart-snapshot-application/application-state.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeTransactionId"
+            ],
+            "sourceFile": "src/chart-snapshot-application/application-state.js",
+            "targetFile": "src/transaction-identity/public.js",
+            "targetModuleId": "core.transaction-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "workspaceTransactionIdentitiesEqual"
+            ],
+            "sourceFile": "src/chart-snapshot-application/pane-set-snapshot-contract.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "workspaceTransactionIdentitiesEqual"
+            ],
+            "sourceFile": "src/chart-snapshot-application/snapshot-contract.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/chart-snapshot-application-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [
+          "src/chart-snapshot-application/application-state.js",
+          "src/chart-snapshot-application/chart-snapshot-application.js"
+        ],
+        "owner": "chart-runtime-adapter",
+        "publicEntry": "src/chart-snapshot-application/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.activation-generation",
+          "core.replay-contract",
+          "core.session-identity",
+          "core.workspace-transaction-contract"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.activation-generation",
+          "core.replay-contract",
+          "core.session-identity",
+          "core.workspace-transaction-contract"
+        ],
+        "descriptorPath": "src/replay-runtime/module.json",
+        "id": "core.replay-runtime",
+        "importSites": [
+          {
+            "importedNames": [
+              "activationGenerationsEqual",
+              "requireActivationGeneration"
+            ],
+            "sourceFile": "src/replay-runtime/activation-match.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createReplayCursorProposal",
+              "createReplayCursorRetentionProposal",
+              "createReplayCursorTargetProposal",
+              "createReplayRange",
+              "readReplayCursorProposal",
+              "readReplayStep",
+              "requireCursorInRange",
+              "requireReplayAdvanceInput"
+            ],
+            "sourceFile": "src/replay-runtime/replay-runtime.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceTransactionIdentity"
+            ],
+            "sourceFile": "src/replay-runtime/activation-match.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireSessionId",
+              "sessionIdsEqual"
+            ],
+            "sourceFile": "src/replay-runtime/activation-match.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/replay-runtime-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [
+          "src/replay-runtime/replay-runtime.js"
+        ],
+        "owner": "replay-runtime",
+        "publicEntry": "src/replay-runtime/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.activation-generation",
+          "core.session-identity",
+          "core.transaction-identity"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.activation-generation",
+          "core.session-identity",
+          "core.transaction-identity"
+        ],
+        "descriptorPath": "src/workspace-transaction-contract/module.json",
+        "id": "core.workspace-transaction-contract",
+        "importSites": [
+          {
+            "importedNames": [
+              "activationGenerationsEqual",
+              "requireActivationGeneration"
+            ],
+            "sourceFile": "src/workspace-transaction-contract/identity-contract.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireSessionId",
+              "sessionIdsEqual"
+            ],
+            "sourceFile": "src/workspace-transaction-contract/identity-contract.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireTransactionId",
+              "transactionIdsEqual"
+            ],
+            "sourceFile": "src/workspace-transaction-contract/identity-contract.js",
+            "targetFile": "src/transaction-identity/public.js",
+            "targetModuleId": "core.transaction-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/workspace-transaction-contract-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "workspace-transaction-runtime",
+        "publicEntry": "src/workspace-transaction-contract/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.activation-generation",
+          "core.session-identity",
+          "core.viewport-runtime"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.activation-generation",
+          "core.session-identity",
+          "core.viewport-runtime"
+        ],
+        "descriptorPath": "src/pane-workspace-domain/module.json",
+        "id": "core.pane-workspace-domain",
+        "importSites": [
+          {
+            "importedNames": [
+              "activationGenerationsEqual",
+              "requireActivationGeneration"
+            ],
+            "sourceFile": "src/pane-workspace-domain/pane-workspace.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readViewportIntent"
+            ],
+            "sourceFile": "src/pane-workspace-domain/pane-transitions.js",
+            "targetFile": "src/viewport-runtime/public.js",
+            "targetModuleId": "core.viewport-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readViewportIntent"
+            ],
+            "sourceFile": "src/pane-workspace-domain/pane-workspace.js",
+            "targetFile": "src/viewport-runtime/public.js",
+            "targetModuleId": "core.viewport-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireSessionId",
+              "sessionIdsEqual"
+            ],
+            "sourceFile": "src/pane-workspace-domain/pane-workspace.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/pane-workspace-domain-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "pane-workspace-domain",
+        "publicEntry": "src/pane-workspace-domain/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.activation-generation",
+          "core.session-identity"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.activation-generation",
+          "core.session-identity"
+        ],
+        "descriptorPath": "src/viewport-runtime/module.json",
+        "id": "core.viewport-runtime",
+        "importSites": [
+          {
+            "importedNames": [
+              "requireActivationGeneration"
+            ],
+            "sourceFile": "src/viewport-runtime/pane-scope.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireSessionId"
+            ],
+            "sourceFile": "src/viewport-runtime/pane-scope.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/viewport-runtime-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "viewport-runtime",
+        "publicEntry": "src/viewport-runtime/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.bar-data-contract",
+          "core.capability-contract",
+          "core.replay-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.bar-data-contract",
+          "core.capability-contract",
+          "core.replay-contract"
+        ],
+        "descriptorPath": "src/projection-domain/module.json",
+        "id": "core.projection-domain",
+        "importSites": [
+          {
+            "importedNames": [
+              "createRawBarBatch"
+            ],
+            "sourceFile": "src/projection-domain/projection-input.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineInstrument",
+              "defineTimeframe",
+              "defineTradingCalendar"
+            ],
+            "sourceFile": "src/projection-domain/projection-input.js",
+            "targetFile": "src/capability-contract/public.js",
+            "targetModuleId": "core.capability-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "isEpochVisibleAtReplayCursor",
+              "readReplayCursorProposal"
+            ],
+            "sourceFile": "src/projection-domain/pane-projection.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readReplayCursorProposal"
+            ],
+            "sourceFile": "src/projection-domain/pane-history-extension.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readReplayCursorProposal"
+            ],
+            "sourceFile": "src/projection-domain/projection-input.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/projection-domain-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "projection-domain",
+        "publicEntry": "src/projection-domain/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.bar-data-contract",
+          "core.capability-contract",
+          "core.workspace-transaction-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.bar-data-contract",
+          "core.capability-contract",
+          "core.workspace-transaction-contract",
+          "core.workspace-transaction-runtime"
+        ],
+        "descriptorPath": "src/workspace-replacement-runtime/module.json",
+        "id": "core.workspace-replacement-runtime",
+        "importSites": [
+          {
+            "importedNames": [
+              "createRawBarRequest"
+            ],
+            "sourceFile": "src/workspace-replacement-runtime/replacement-input.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineInstrument",
+              "defineTimeframe",
+              "defineTradingCalendar"
+            ],
+            "sourceFile": "src/workspace-replacement-runtime/replacement-catalog.js",
+            "targetFile": "src/capability-contract/public.js",
+            "targetModuleId": "core.capability-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "describeWorkspaceTransactionEnvelope"
+            ],
+            "sourceFile": "src/workspace-replacement-runtime/replacement-executor.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/workspace-replacement-runtime-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "workspace-transaction-runtime",
+        "publicEntry": "src/workspace-replacement-runtime/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.bar-data-contract",
+          "core.coverage-planning-contract",
+          "core.projected-history-contract",
+          "core.provider-execution-runtime"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.bar-data-contract",
+          "core.coverage-planning-contract",
+          "core.projected-history-contract",
+          "core.provider-execution-runtime",
+          "core.provider-policy-contract"
+        ],
+        "descriptorPath": "src/v4-bars-provider-adapter/module.json",
+        "id": "adapter.v4-bars-provider",
+        "importSites": [
+          {
+            "importedNames": [
+              "createCoverageReport"
+            ],
+            "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+            "targetFile": "src/coverage-planning-contract/public.js",
+            "targetModuleId": "core.coverage-planning-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPolicyBoundProvider"
+            ],
+            "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+            "targetFile": "src/provider-execution-runtime/public.js",
+            "targetModuleId": "core.provider-execution-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createProjectedHistoryBatch",
+              "createProjectedHistoryRequest"
+            ],
+            "sourceFile": "src/v4-bars-provider-adapter/projected-history-adapter.js",
+            "targetFile": "src/projected-history-contract/public.js",
+            "targetModuleId": "core.projected-history-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createRawBar",
+              "createRawBarBatch",
+              "createRawBarRequest"
+            ],
+            "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/v4-bars-provider-adapter-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [],
+        "owner": "bar-data-runtime",
+        "publicEntry": "src/v4-bars-provider-adapter/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.bar-data-contract",
+          "core.coverage-planning-contract",
+          "core.provider-policy-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.bar-data-contract",
+          "core.bar-data-runtime",
+          "core.coverage-planning-contract",
+          "core.provider-policy-contract"
+        ],
+        "descriptorPath": "src/provider-execution-runtime/module.json",
+        "id": "core.provider-execution-runtime",
+        "importSites": [
+          {
+            "importedNames": [
+              "createCoverageReport"
+            ],
+            "sourceFile": "src/provider-execution-runtime/policy-bound-provider.js",
+            "targetFile": "src/coverage-planning-contract/public.js",
+            "targetModuleId": "core.coverage-planning-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createProviderFailure",
+              "providerRetryDelay"
+            ],
+            "sourceFile": "src/provider-execution-runtime/attempt-runner.js",
+            "targetFile": "src/provider-policy-contract/public.js",
+            "targetModuleId": "core.provider-policy-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createRawBarBatch",
+              "createRawBarRequest",
+              "rawBarRequestKey"
+            ],
+            "sourceFile": "src/provider-execution-runtime/policy-bound-provider.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createRawBarRequest"
+            ],
+            "sourceFile": "src/provider-execution-runtime/coverage-plan-runner.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineProviderPolicy",
+              "requireProviderAdapter"
+            ],
+            "sourceFile": "src/provider-execution-runtime/policy-bound-provider.js",
+            "targetFile": "src/provider-policy-contract/public.js",
+            "targetModuleId": "core.provider-policy-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/provider-execution-runtime-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [
+          "src/provider-execution-runtime/policy-bound-provider.js"
+        ],
+        "owner": "bar-data-runtime",
+        "publicEntry": "src/provider-execution-runtime/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.bar-data-contract",
+          "core.projected-history-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.bar-data-contract",
+          "core.projected-history-contract"
+        ],
+        "descriptorPath": "src/bar-data-runtime/module.json",
+        "id": "core.bar-data-runtime",
+        "importSites": [
+          {
+            "importedNames": [
+              "createProjectedHistoryBatch",
+              "createProjectedHistoryRequest",
+              "projectedHistoryRequestKey"
+            ],
+            "sourceFile": "src/bar-data-runtime/projected-history-runtime.js",
+            "targetFile": "src/projected-history-contract/public.js",
+            "targetModuleId": "core.projected-history-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createRawBarBatch",
+              "createRawBarRequest",
+              "rawBarRequestKey"
+            ],
+            "sourceFile": "src/bar-data-runtime/bar-data-runtime.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/bar-data-runtime-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [
+          "src/bar-data-runtime/bar-data-runtime.js",
+          "src/bar-data-runtime/projected-history-runtime.js"
+        ],
+        "owner": "bar-data-runtime",
+        "publicEntry": "src/bar-data-runtime/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.bar-data-contract",
+          "core.provider-policy-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.bar-data-contract",
+          "core.provider-policy-contract"
+        ],
+        "descriptorPath": "src/coverage-planning-contract/module.json",
+        "id": "core.coverage-planning-contract",
+        "importSites": [
+          {
+            "importedNames": [
+              "createRawBarRequest",
+              "rawBarRequestKey"
+            ],
+            "sourceFile": "src/coverage-planning-contract/coverage-report.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createRawBarRequest",
+              "rawBarRequestKey"
+            ],
+            "sourceFile": "src/coverage-planning-contract/request-planner.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineProviderPolicy"
+            ],
+            "sourceFile": "src/coverage-planning-contract/request-planner.js",
+            "targetFile": "src/provider-policy-contract/public.js",
+            "targetModuleId": "core.provider-policy-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/coverage-planning-contract-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "bar-data-runtime",
+        "publicEntry": "src/coverage-planning-contract/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.bar-data-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/calendar-timeframe-domain/module.json",
+        "id": "core.calendar-timeframe-domain",
+        "importSites": [
+          {
+            "importedNames": [
+              "isValidatedRawBar"
+            ],
+            "sourceFile": "src/calendar-timeframe-domain/calendar-aggregation.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/calendar-timeframe-domain-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "projection-domain",
+        "publicEntry": "src/calendar-timeframe-domain/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.bar-data-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/fixed-timeframe-domain/module.json",
+        "id": "core.fixed-timeframe-domain",
+        "importSites": [
+          {
+            "importedNames": [
+              "isValidatedRawBar"
+            ],
+            "sourceFile": "src/fixed-timeframe-domain/fixed-duration-aggregation.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/fixed-timeframe-domain-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "projection-domain",
+        "publicEntry": "src/fixed-timeframe-domain/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.chart-snapshot-application",
+          "core.pane-set-materialization",
+          "core.replay-contract",
+          "core.replay-navigation-settings",
+          "core.replay-pane-response-contract",
+          "core.workspace-transaction-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.chart-snapshot-application",
+          "core.pane-set-materialization",
+          "core.replay-contract",
+          "core.replay-navigation-settings",
+          "core.replay-pane-response-contract",
+          "core.replay-runtime",
+          "core.workspace-transaction-contract",
+          "core.workspace-transaction-runtime"
+        ],
+        "descriptorPath": "src/replay-navigation-runtime/module.json",
+        "id": "core.replay-navigation-runtime",
+        "importSites": [
+          {
+            "importedNames": [
+              "createPaneSetTransactionInput"
+            ],
+            "sourceFile": "src/replay-navigation-runtime/navigation-executor.js",
+            "targetFile": "src/pane-set-materialization/public.js",
+            "targetModuleId": "core.pane-set-materialization",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "DEFAULT_REPLAY_NAVIGATION_SETTINGS",
+              "createReplayNavigationSettings",
+              "readReplayNavigationSettings"
+            ],
+            "sourceFile": "src/replay-navigation-runtime/navigation-schedule.js",
+            "targetFile": "src/replay-navigation-settings/public.js",
+            "targetModuleId": "core.replay-navigation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "describeWorkspaceTransactionEnvelope"
+            ],
+            "sourceFile": "src/replay-navigation-runtime/navigation-executor.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "describeWorkspaceTransactionEnvelope"
+            ],
+            "sourceFile": "src/replay-navigation-runtime/navigation-result.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "planReplayPaneResponse",
+              "readReplayPaneAction"
+            ],
+            "sourceFile": "src/replay-navigation-runtime/navigation-executor.js",
+            "targetFile": "src/replay-pane-response-contract/public.js",
+            "targetModuleId": "core.replay-pane-response-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readPaneSetTransactionInput"
+            ],
+            "sourceFile": "src/replay-navigation-runtime/replay-port.js",
+            "targetFile": "src/pane-set-materialization/public.js",
+            "targetModuleId": "core.pane-set-materialization",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readReplayCursorProposal"
+            ],
+            "sourceFile": "src/replay-navigation-runtime/replay-port.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readReplayStep",
+              "requireCursorInRange"
+            ],
+            "sourceFile": "src/replay-navigation-runtime/target-resolver.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "REPLAY_GOTO_ANCHORS"
+            ],
+            "sourceFile": "src/replay-navigation-runtime/navigation-schedule.js",
+            "targetFile": "src/replay-pane-response-contract/public.js",
+            "targetModuleId": "core.replay-pane-response-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireProjectedPaneSetSnapshot"
+            ],
+            "sourceFile": "src/replay-navigation-runtime/replay-port.js",
+            "targetFile": "src/chart-snapshot-application/public.js",
+            "targetModuleId": "core.chart-snapshot-application",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireReplayPaneResponsePlan"
+            ],
+            "sourceFile": "src/replay-navigation-runtime/replay-port.js",
+            "targetFile": "src/replay-pane-response-contract/public.js",
+            "targetModuleId": "core.replay-pane-response-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireReplayPaneResponsePlan"
+            ],
+            "sourceFile": "src/replay-navigation-runtime/target-resolver.js",
+            "targetFile": "src/replay-pane-response-contract/public.js",
+            "targetModuleId": "core.replay-pane-response-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/replay-navigation-runtime-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "workspace-transaction-runtime",
+        "publicEntry": "src/replay-navigation-runtime/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.chart-snapshot-application",
+          "core.pane-time-location-domain",
+          "core.viewport-runtime",
+          "core.workstation-settings"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.chart-snapshot-application",
+          "core.pane-time-location-domain",
+          "core.viewport-runtime",
+          "core.workstation-settings"
+        ],
+        "descriptorPath": "src/lightweight-chart-adapter/module.json",
+        "id": "adapter.lightweight-chart",
+        "importSites": [
+          {
+            "importedNames": [
+              "createChartAdapterVisibleReceipt"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+            "targetFile": "src/chart-snapshot-application/public.js",
+            "targetModuleId": "core.chart-snapshot-application",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createChartAdapterVisibleReceipt"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/pane-set-adapter.js",
+            "targetFile": "src/chart-snapshot-application/public.js",
+            "targetModuleId": "core.chart-snapshot-application",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPricePresentation",
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/candle-presentation.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createTimePresentation",
+              "createWorkstationSettings"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/chart-options.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkstationSettings",
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkstationSettings",
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/pane-set-adapter.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "hexColorWithOpacity",
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/canvas-presentation.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "planPaneTimeLocation"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/pane-time-location-adapter.js",
+            "targetFile": "src/pane-time-location-domain/public.js",
+            "targetModuleId": "core.pane-time-location-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readViewportIntent"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+            "targetFile": "src/viewport-runtime/public.js",
+            "targetModuleId": "core.viewport-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/current-price-presentation.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/lightweight-chart-adapter-browser-harness.js",
+        "independentHarnessMode": "public-entry-fixture",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+          "src/lightweight-chart-adapter/pane-set-adapter.js",
+          "src/lightweight-chart-adapter/replay-truncation-interaction.js"
+        ],
+        "owner": "chart-runtime-adapter",
+        "publicEntry": "src/lightweight-chart-adapter/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.pane-workspace-domain",
+          "core.replay-contract",
+          "core.viewport-runtime"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.pane-workspace-domain",
+          "core.replay-contract",
+          "core.viewport-runtime"
+        ],
+        "descriptorPath": "src/replay-pane-response-contract/module.json",
+        "id": "core.replay-pane-response-contract",
+        "importSites": [
+          {
+            "importedNames": [
+              "createReplayRange",
+              "readReplayStep",
+              "requireCursorInRange"
+            ],
+            "sourceFile": "src/replay-pane-response-contract/response-plan.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readPaneWorkspace"
+            ],
+            "sourceFile": "src/replay-pane-response-contract/response-plan.js",
+            "targetFile": "src/pane-workspace-domain/public.js",
+            "targetModuleId": "core.pane-workspace-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readViewportIntent"
+            ],
+            "sourceFile": "src/replay-pane-response-contract/response-plan.js",
+            "targetFile": "src/viewport-runtime/public.js",
+            "targetModuleId": "core.viewport-runtime",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/replay-pane-response-contract-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "workspace-transaction-runtime",
+        "publicEntry": "src/replay-pane-response-contract/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.replay-contract",
+          "core.replay-pane-response-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.replay-contract",
+          "core.replay-pane-response-contract"
+        ],
+        "descriptorPath": "src/pane-set-materialization/module.json",
+        "id": "core.pane-set-materialization",
+        "importSites": [
+          {
+            "importedNames": [
+              "readReplayCursorProposal"
+            ],
+            "sourceFile": "src/pane-set-materialization/materialization-ports.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireReplayPaneResponsePlan"
+            ],
+            "sourceFile": "src/pane-set-materialization/transaction-input.js",
+            "targetFile": "src/replay-pane-response-contract/public.js",
+            "targetModuleId": "core.replay-pane-response-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/pane-set-materialization-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "workspace-transaction-runtime",
+        "publicEntry": "src/pane-set-materialization/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.replay-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.replay-contract"
+        ],
+        "descriptorPath": "src/replay-prefetch-contract/module.json",
+        "id": "core.replay-prefetch-contract",
+        "importSites": [
+          {
+            "importedNames": [
+              "createReplayRange",
+              "requireCursorInRange"
+            ],
+            "sourceFile": "src/replay-prefetch-contract/prefetch-advice.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/replay-prefetch-contract-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "replay-runtime",
+        "publicEntry": "src/replay-prefetch-contract/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.replay-navigation-settings"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "adapter.session-persistence",
+          "core.replay-navigation-settings"
+        ],
+        "descriptorPath": "src/replay-navigation-preference-store/module.json",
+        "id": "core.replay-navigation-preference-store",
+        "importSites": [
+          {
+            "importedNames": [
+              "createReplayNavigationSettings",
+              "deserializeReplayNavigationSettings",
+              "serializeReplayNavigationSettings"
+            ],
+            "sourceFile": "src/replay-navigation-preference-store/preference-store.js",
+            "targetFile": "src/replay-navigation-settings/public.js",
+            "targetModuleId": "core.replay-navigation-settings",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/replay-navigation-preference-store-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "replay-navigation-runtime",
+        "publicEntry": "src/replay-navigation-preference-store/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.session-identity"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.session-identity"
+        ],
+        "descriptorPath": "src/session-persistence/module.json",
+        "id": "adapter.session-persistence",
+        "importSites": [
+          {
+            "importedNames": [
+              "deserializeSessionId",
+              "requireSessionId",
+              "serializeSessionId"
+            ],
+            "sourceFile": "src/session-persistence/session-repository.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/session-persistence-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [],
+        "owner": "session-store",
+        "publicEntry": "src/session-persistence/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.workspace-transaction-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.workspace-transaction-contract"
+        ],
+        "descriptorPath": "src/replay-contract/module.json",
+        "id": "core.replay-contract",
+        "importSites": [
+          {
+            "importedNames": [
+              "requireWorkspaceTransactionIdentity"
+            ],
+            "sourceFile": "src/replay-contract/cursor-proposal.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/replay-contract-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "replay-runtime",
+        "publicEntry": "src/replay-contract/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/data-acquisition-ui/module.json",
+        "id": "adapter.data-acquisition-ui",
+        "importSites": [],
+        "independentHarness": "tests/data-acquisition-ui-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/data-acquisition-ui/roll-calendar-panel.js",
+          "src/data-acquisition-ui/surface.js"
+        ],
+        "owner": "data-acquisition-admin",
+        "publicEntry": "src/data-acquisition-ui/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "adapter.session-persistence"
+        ],
+        "descriptorPath": "src/workstation-settings/module.json",
+        "id": "core.workstation-settings",
+        "importSites": [],
+        "independentHarness": "tests/workstation-settings-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "workstation-settings",
+        "publicEntry": "src/workstation-settings/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.bar-data-contract",
+          "core.capability-contract"
+        ],
+        "descriptorPath": "src/provider-policy-contract/module.json",
+        "id": "core.provider-policy-contract",
+        "importSites": [],
+        "independentHarness": "tests/provider-policy-contract-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "bar-data-runtime",
+        "publicEntry": "src/provider-policy-contract/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.capability-contract"
+        ],
+        "descriptorPath": "src/bar-data-contract/module.json",
+        "id": "core.bar-data-contract",
+        "importSites": [],
+        "independentHarness": "tests/bar-data-contract-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "bar-data-runtime",
+        "publicEntry": "src/bar-data-contract/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/activation-generation/module.json",
+        "id": "core.activation-generation",
+        "importSites": [],
+        "independentHarness": "tests/activation-generation-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "session-store",
+        "publicEntry": "src/activation-generation/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/calendar-surface/module.json",
+        "id": "adapter.calendar-surface",
+        "importSites": [],
+        "independentHarness": "tests/calendar-surface-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [],
+        "owner": "calendar-surface",
+        "publicEntry": "src/calendar-surface/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/capability-contract/module.json",
+        "id": "core.capability-contract",
+        "importSites": [],
+        "independentHarness": "tests/capability-contract-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "module-registry",
+        "publicEntry": "src/capability-contract/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/layout-sync-domain/module.json",
+        "id": "core.layout-sync-domain",
+        "importSites": [],
+        "independentHarness": "tests/layout-sync-domain-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "layout-sync-domain",
+        "publicEntry": "src/layout-sync-domain/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/module-host/module.json",
+        "id": "core.module-host",
+        "importSites": [],
+        "independentHarness": "tests/module-host-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [
+          "src/module-host/module-instance.js"
+        ],
+        "owner": "module-lifecycle",
+        "publicEntry": "src/module-host/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/pane-layout-domain/module.json",
+        "id": "core.pane-layout-domain",
+        "importSites": [],
+        "independentHarness": "tests/pane-layout-domain-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "pane-layout-domain",
+        "publicEntry": "src/pane-layout-domain/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/pane-time-location-domain/module.json",
+        "id": "core.pane-time-location-domain",
+        "importSites": [],
+        "independentHarness": "tests/pane-time-location-domain-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "pane-time-location-domain",
+        "publicEntry": "src/pane-time-location-domain/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/projected-history-contract/module.json",
+        "id": "core.projected-history-contract",
+        "importSites": [],
+        "independentHarness": "tests/projected-history-runtime-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "bar-data-runtime",
+        "publicEntry": "src/projected-history-contract/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/replay-navigation-settings/module.json",
+        "id": "core.replay-navigation-settings",
+        "importSites": [],
+        "independentHarness": "tests/replay-navigation-settings-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "replay-navigation-runtime",
+        "publicEntry": "src/replay-navigation-settings/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/session-hours-domain/module.json",
+        "id": "core.session-hours-domain",
+        "importSites": [],
+        "independentHarness": "tests/session-hours-domain-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "session-hours-domain",
+        "publicEntry": "src/session-hours-domain/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/session-identity/module.json",
+        "id": "core.session-identity",
+        "importSites": [],
+        "independentHarness": "tests/session-identity-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "session-store",
+        "publicEntry": "src/session-identity/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/transaction-identity/module.json",
+        "id": "core.transaction-identity",
+        "importSites": [],
+        "independentHarness": "tests/transaction-identity-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "workspace-transaction-runtime",
+        "publicEntry": "src/transaction-identity/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/workspace-checkpoint-domain/module.json",
+        "id": "core.workspace-checkpoint-domain",
+        "importSites": [],
+        "independentHarness": "tests/workspace-checkpoint-domain-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "workspace-checkpoint-domain",
+        "publicEntry": "src/workspace-checkpoint-domain/public.js"
+      }
+    ],
+    "writerSites": [
+      {
+        "detectorId": "market-data-retention-ledger",
+        "sourceFile": "src/replay-workspace-ui/display-history-ledger.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "surface": "rawMarketDataRetention"
+      },
+      {
+        "detectorId": "market-data-retention-ledger",
+        "sourceFile": "src/replay-workspace-ui/source-batch-ledger.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "surface": "rawMarketDataRetention"
+      },
+      {
+        "detectorId": "native-chart-series",
+        "sourceFile": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "surface": "chartSeries"
+      },
+      {
+        "detectorId": "native-chart-series",
+        "sourceFile": "src/lightweight-chart-adapter/visible-state-rollback.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "surface": "chartSeries"
+      },
+      {
+        "detectorId": "pane-workspace-accepted-state",
+        "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "surface": "paneWorkspace"
+      },
+      {
+        "detectorId": "post-terminal-workspace-commit",
+        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "surface": "workspaceSemanticCommit"
+      },
+      {
+        "detectorId": "raw-provider-request",
+        "sourceFile": "src/bar-data-runtime/bar-data-runtime.js",
+        "sourceModuleId": "core.bar-data-runtime",
+        "surface": "rawBarRequest"
+      },
+      {
+        "detectorId": "raw-provider-request",
+        "sourceFile": "src/bar-data-runtime/projected-history-runtime.js",
+        "sourceModuleId": "core.bar-data-runtime",
+        "surface": "rawBarRequest"
+      },
+      {
+        "detectorId": "replay-cursor-commit",
+        "sourceFile": "src/replay-runtime/replay-runtime.js",
+        "sourceModuleId": "core.replay-runtime",
+        "surface": "replayCursor"
+      },
+      {
+        "detectorId": "workspace-snapshot-commit",
+        "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
+        "sourceModuleId": "core.workspace-transaction-runtime",
+        "surface": "workspaceSnapshot"
+      }
+    ]
+  }
+}

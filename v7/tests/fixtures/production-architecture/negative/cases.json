@@ -1,0 +1,49 @@
+{
+  "cases": [
+    {
+      "name": "cross-module internal import",
+      "operation": "make-internal-import",
+      "expectedFailureCode": "cross-module-internal-import"
+    },
+    {
+      "name": "actual dependency omitted from descriptor",
+      "operation": "remove-required-port",
+      "expectedFailureCode": "descriptor-undeclared-import",
+      "expectedSubject": "core.workspace-transaction-contract->core.activation-generation"
+    },
+    {
+      "name": "actual production dependency cycle",
+      "operation": "add-actual-dependency-cycle",
+      "expectedFailureCode": "actual-dependency-cycle"
+    },
+    {
+      "name": "returned dispose omitted from lifecycle",
+      "operation": "remove-dispose-lifecycle",
+      "expectedFailureCode": "descriptor-lifecycle-missing",
+      "expectedSubject": "adapter.lightweight-chart"
+    },
+    {
+      "name": "independent harness boots application shell",
+      "operation": "force-app-shell-harness",
+      "expectedFailureCode": "independent-harness-app-shell",
+      "expectedSubject": "core.session-identity"
+    },
+    {
+      "name": "production entry bypasses module host",
+      "operation": "add-unhosted-composition-root",
+      "expectedFailureCode": "production-composition-bypasses-module-host",
+      "expectedSubject": "app/rogue.js"
+    },
+    {
+      "name": "writer appears outside declared owner",
+      "operation": "add-rogue-writer",
+      "expectedFailureCode": "writer-outside-declared-owner",
+      "expectedSubject": "chartSeries:app/rogue-writer.js"
+    },
+    {
+      "name": "production construction changes behind fixture evidence",
+      "operation": "drift-production-construction",
+      "expectedFailureCode": "production-snapshot-drift"
+    }
+  ]
+}

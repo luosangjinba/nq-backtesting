@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-30 by R8.1 architecture recovery activation
+Last updated: 2026-07-30 by R8.2 production architecture analyzer
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -13,7 +13,11 @@ required for normal startup.
 - immutable pre-remediation checkpoint: `fa561599`
 - active delivery: R8 architecture conformance recovery only; new feature work
   and R7.3n/R7.3o acceptance are frozen;
-- next step after this commit is R8.2, but it must not begin until the R8.1
+- R8.1 recovery constitution is commit `7dbabbed`;
+- R8.2 now scans 42 production modules, 100 actual dependency edges, 101
+  construction sites, two production roots, and 10 critical writer sites; its
+  exact baseline contains 13 blocking findings and accepts none of them;
+- next step after this commit is R8.3, but it must not begin until the R8.2
   commit and evidence have been reported for review;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
@@ -71,12 +75,14 @@ listed above.
 1. repository `AGENTS.md`;
 2. this file;
 3. `docs/V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`;
-4. `docs/INDEX.md`;
-5. `TODO.md`;
-6. `docs/V7_ARCHITECTURE.md`;
-7. `docs/V7_HARNESS_STANDARD.md`;
-8. `docs/V7_EXECUTION_ROADMAP.md`;
-9. only the documents directly relevant to the next bounded R8 step.
+4. `docs/V7_PRODUCTION_ARCHITECTURE_ANALYZER_R8_2.md`;
+5. `docs/v7-production-architecture-baseline.json`;
+6. `docs/INDEX.md`;
+7. `TODO.md`;
+8. `docs/V7_ARCHITECTURE.md`;
+9. `docs/V7_HARNESS_STANDARD.md`;
+10. `docs/V7_EXECUTION_ROADMAP.md`;
+11. only the documents directly relevant to the next bounded R8 step.
 
 Do not resume from the historical status narrative alone. The R8 plan and the
 machine-readable recovery mode override earlier statements that phase-one
