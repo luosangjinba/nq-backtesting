@@ -57,3 +57,8 @@ through the normal visible-commit rule but cannot schedule another tick.
 Disposal is idempotent and blocks later reads, proposals, and commits. This
 runtime requests no bars, performs no projection, writes no chart or viewport,
 persists no Session, imports no legacy runtime, and has no DOM/UI behavior.
+
+R8.7 defines the future Prepared Commit lifecycle shared by Replay, Chart,
+Workspace State, and publication. It does not change `commitVisible` or Replay
+state in this step. Replay becomes a real prepared participant only when
+Workspace Transaction Runtime coordinates the four owners in R8.9.

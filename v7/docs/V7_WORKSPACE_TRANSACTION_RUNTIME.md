@@ -78,6 +78,16 @@ Chart Runtime/Adapter exists.
 No events orchestrate a second pipeline. Append, replace, cached, and uncached
 strategies remain future implementation details behind the same transaction.
 
+## R8.7 Prepared Participant Protocol
+
+`core.prepared-commit-contract` now defines the public protocol this runtime
+will coordinate: Chart, Replay, Workspace State, and publication each prepare
+an exact immutable candidate without mutation, apply reversibly with an exact
+receipt, roll back to the exact base revision, or finalize the same receipt at
+the target revision. R8.7 activates only that contract and its failure matrix.
+The coordinator still follows the R4.1 production path above until R8.9 wires
+all four participants and removes the post-terminal UI commit.
+
 ## Explicit R4.1 Exclusions
 
 - real provider or V4/DuckDB access;

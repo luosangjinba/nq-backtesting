@@ -73,8 +73,9 @@ their matching pending semantic identity.
 
 R8.6 does not claim global atomic rollback. The existing UI-side
 `paneData.accept()` publication after a committed Workspace transaction remains
-the single production finding assigned to R8.9. Prepared participants and
-reversible Chart application remain R8.7–R8.8.
+the single production finding assigned to R8.9. R8.7 now defines the generic
+prepared participant protocol; Workspace State activation remains R8.9, while
+reversible Chart application remains R8.8.
 
 ## Recovery Evidence
 

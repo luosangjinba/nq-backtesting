@@ -229,6 +229,7 @@ for (const rule of [
   'replay-runtime-visible-commit-only',
   'replay-prefetch-advice-bounded-and-io-free',
   'workspace-transaction-runtime-visible-gated-and-stale-safe',
+  'prepared-participants-reversible-until-finalize',
   'projection-domain-provider-neutral-exclusive-no-future',
   'chart-snapshot-application-exact-visible-receipt',
   'viewport-intent-pane-local-and-data-independent',

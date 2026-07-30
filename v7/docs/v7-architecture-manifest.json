@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r8.6-sole-workspace-state-owner",
+  "status": "r8.7-prepared-commit-contract",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -12,6 +12,7 @@
     "docs/V7_RAW_COVERAGE_LEASE_CONTRACT_R8_4.md",
     "docs/V7_SOLE_BAR_DATA_RETENTION_OWNER_R8_5.md",
     "docs/V7_SOLE_WORKSPACE_STATE_OWNER_R8_6.md",
+    "docs/V7_PREPARED_COMMIT_CONTRACT_R8_7.md",
     "docs/v7-production-architecture-baseline.json",
     "docs/V7_PRODUCT_AND_SCOPE.md",
     "docs/V7_ARCHITECTURE.md",
@@ -109,6 +110,7 @@
     "src/activation-generation/module.json",
     "src/transaction-identity/module.json",
     "src/workspace-transaction-contract/module.json",
+    "src/prepared-commit-contract/module.json",
     "src/module-host/module.json",
     "src/capability-contract/module.json",
     "src/bar-data-contract/module.json",
@@ -261,6 +263,7 @@
     "replay-runtime-visible-commit-only",
     "replay-prefetch-advice-bounded-and-io-free",
     "workspace-transaction-runtime-visible-gated-and-stale-safe",
+    "prepared-participants-reversible-until-finalize",
     "projection-domain-provider-neutral-exclusive-no-future",
     "chart-snapshot-application-exact-visible-receipt",
     "viewport-intent-pane-local-and-data-independent",

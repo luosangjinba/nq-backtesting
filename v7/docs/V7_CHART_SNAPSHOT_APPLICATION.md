@@ -75,3 +75,11 @@ Pane-set validation, one visible apply, ready/empty Pane handling, failure
 preservation, post-mutation child rollback, and stale-result isolation with 22
 negative/race controls. `tests/lightweight-chart-adapter-browser-harness.js`
 proves real-canvas rollback after paint-time staleness and after outer discard.
+
+## R8.7 Prepared Boundary
+
+R8.7 defines the participant-neutral Prepared Commit lifecycle and receipts.
+It does not change this Chart implementation or claim that its current visible
+completion is a globally coordinated prepared participant. R8.8 must adapt the
+sole Chart writer to that protocol, retain an exact prior visible state until
+finalize, and prove restoration after any later participant failure.

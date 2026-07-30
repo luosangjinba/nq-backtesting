@@ -21,7 +21,7 @@ review. Preserve rejected commits and assign a new delivery id to replacements.
   remove UI source ledgers;
 - [x] `R8.6` make one Workspace State runtime the sole accepted semantic-state
   owner with complete identity;
-- [ ] `R8.7` define prepared commit/rollback/finalize participant contracts;
+- [x] `R8.7` define prepared commit/rollback/finalize participant contracts;
 - [ ] `R8.8` make Chart application staged and reversible;
 - [ ] `R8.9` make Workspace Transaction Runtime the only global atomic commit
   coordinator and remove post-terminal UI commits;
@@ -44,13 +44,14 @@ Tracked recovery regressions:
 - `BUG-V7-0005`: fixture/inventory gates can remain green while production
   violates the architecture.
 
-R8.6 production baseline binds 44 modules, 113 actual dependency edges, 112
+R8.7 production baseline binds 45 modules, 114 actual dependency edges, 112
 construction sites, two production roots, 15 declared writer surfaces, nine
-critical writer sites, and three blocking findings. Workspace State Runtime is
-the sole accepted Pane/Session Hours/Viewport/checkpoint owner; H007 is
-recovered and H075 is accepted after complete identity/revision, stale,
-cross-scope, restore, and disposal evidence. No later recovery rule is cleared
-early.
+critical writer sites, and three blocking findings. The participant-neutral
+prepared commit contract now binds Chart, Replay, Workspace State, and
+publication to exact transaction/candidate/revision provenance, reversible
+apply, exact rollback, and irreversible finalize receipts. H076 is executable,
+not accepted; production activation remains R8.8–R8.9. No later recovery rule
+is cleared early.
 
 ## Established Foundation Governance
 

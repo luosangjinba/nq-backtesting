@@ -496,7 +496,11 @@ live in `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
   revisioned Pane/Session Hours/Viewport/checkpoint snapshot, current complete
   transaction identity enforcement, UI ledger deletion, restore rebranding,
   and ten negative controls;
-- `R8.7`: prepared commit participant contract;
+- `R8.7`: prepared commit participant contract; completed with exactly four
+  branded Chart/Replay/Workspace State/publication roles, immutable candidate
+  and complete transaction identity provenance, no-mutation prepare,
+  reversible apply, exact rollback/finalize receipts, and exhaustive forged,
+  stale, duplicate, partial, revision, ordering, and disposal controls;
 - `R8.8`: reversible Chart application;
 - `R8.9`: globally atomic Workspace transaction and removal of UI second commit;
 - `R8.10`: UI/composition responsibility split;

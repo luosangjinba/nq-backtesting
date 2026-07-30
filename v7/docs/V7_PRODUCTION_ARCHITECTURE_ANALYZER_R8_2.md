@@ -42,11 +42,11 @@ outside the declared owner are violations.
 
 ## Exact Baseline
 
-The exact snapshot was refreshed by R8.6 after activating the sole semantic
-Workspace State owner. It currently contains:
+The exact snapshot was refreshed by R8.7 after activating the prepared commit
+contract descriptor. It currently contains:
 
-- 44 active production modules;
-- 113 actual module dependency edges;
+- 45 active production modules;
+- 114 actual module dependency edges;
 - 112 cross-module construction sites;
 - two production HTML/JavaScript composition roots;
 - all 15 declared writer surfaces;
@@ -122,6 +122,14 @@ of Replay Workspace UI, and binds each aggregate snapshot to complete Session,
 activation, transaction, and runtime revision identity. The Pane writer probe
 now identifies the runtime factory as the sole allowed writer. The R8.6
 finding is closed; the R8.9 post-terminal UI publication finding remains.
+
+## R8.7 Prepared Commit Contract Result
+
+R8.7 adds `core.prepared-commit-contract`, with one declared dependency on the
+complete Workspace Transaction identity contract. It defines exact branded
+prepare/apply/rollback/finalize evidence for Chart, Replay, Workspace State,
+and publication, but does not yet activate any participant or add a production
+writer. The three R8.9/R8.11 findings therefore remain unchanged, as required.
 
 ## Negative Controls
 

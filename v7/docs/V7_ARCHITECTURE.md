@@ -279,6 +279,17 @@ publish only for the exact still-current begun identity. Focus and native
 Viewport completions receive runtime-local complete identities and new
 aggregate revisions. Global prepared/rollback coordination remains R8.7–R8.9.
 
+R8.7 adds `core.prepared-commit-contract`, owned by Workspace Transaction
+Runtime as the participant-neutral protocol boundary. Exactly Chart, Replay,
+Workspace State, and publication may prepare. Each preparation binds one exact
+deeply immutable candidate to complete Session/activation/transaction identity
+and unchanged base revision. Apply advances exactly one revision but remains
+reversible; rollback proves restoration to the exact base; finalize makes the
+same exact commit receipt irreversible at its target revision. Forged,
+cross-preparation, stale, duplicate, out-of-order, and unsafe-disposal paths
+fail. R8.7 changes no participant implementation: Chart activates the protocol
+in R8.8 and global coordination/publication activates it in R8.9.
+
 R3.2b1 adds `core.provider-policy-contract` as a pure transport-neutral policy
 boundary. Provider revision freshness, request limits, failure deadline,
 bounded retries, stable error kinds, and the adapter port are declared before

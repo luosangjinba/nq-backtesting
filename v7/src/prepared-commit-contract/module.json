@@ -1,0 +1,12 @@
+{
+  "id": "core.prepared-commit-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "workspace-transaction-runtime",
+  "publicEntry": "src/prepared-commit-contract/public.js",
+  "requiredPorts": ["core.workspace-transaction-contract"],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/prepared-commit-contract-harness.js",
+  "removable": false
+}
