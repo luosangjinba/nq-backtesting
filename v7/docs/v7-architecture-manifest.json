@@ -1,11 +1,12 @@
 {
   "schemaVersion": 1,
-  "status": "r7.3-data-acquisition-executable",
+  "status": "r8.1-architecture-conformance-recovery-active",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
     "docs/INDEX.md",
     "docs/V7_RESTART_HANDOFF.md",
+    "docs/V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md",
     "docs/V7_PRODUCT_AND_SCOPE.md",
     "docs/V7_ARCHITECTURE.md",
     "docs/V7_V6_MIGRATION_DENYLIST.md",
@@ -230,6 +231,7 @@
     "workflow-coordinators-never-own-feature-state",
     "professional-ui-from-first-visible-slice",
     "critical-rules-have-enforcement-lifecycle",
+    "regression-lifecycle-blocks-feature-acceptance",
     "executable-rules-require-negative-controls",
     "automated-evidence-cannot-grant-human-acceptance",
     "production-files-have-one-long-lived-responsibility",

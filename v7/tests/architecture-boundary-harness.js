@@ -183,6 +183,7 @@ for (const rule of [
   'workflow-coordinators-never-own-feature-state',
   'professional-ui-from-first-visible-slice',
   'critical-rules-have-enforcement-lifecycle',
+  'regression-lifecycle-blocks-feature-acceptance',
   'executable-rules-require-negative-controls',
   'automated-evidence-cannot-grant-human-acceptance',
   'production-files-have-one-long-lived-responsibility',

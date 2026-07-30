@@ -1,0 +1,19 @@
+{
+  "cases": [
+    {
+      "name": "regressed rule outside active recovery",
+      "operation": "deactivate-recovery",
+      "expectedFailureCode": "regressed-rule-outside-recovery"
+    },
+    {
+      "name": "regressed rule without evidence",
+      "operation": "remove-regression-evidence",
+      "expectedFailureCode": "missing-regression-evidence"
+    },
+    {
+      "name": "recovery inventory omits regressed rule",
+      "operation": "remove-recovery-inventory-entry",
+      "expectedFailureCode": "regressed-rule-inventory-mismatch"
+    }
+  ]
+}

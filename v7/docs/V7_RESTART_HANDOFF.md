@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-30 after R7.3o dense RTH time-location correction
+Last updated: 2026-07-30 by R8.1 architecture recovery activation
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -10,6 +10,11 @@ required for normal startup.
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
+- immutable pre-remediation checkpoint: `fa561599`
+- active delivery: R8 architecture conformance recovery only; new feature work
+  and R7.3n/R7.3o acceptance are frozen;
+- next step after this commit is R8.2, but it must not begin until the R8.1
+  commit and evidence have been reported for review;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
   bar-step interaction gate; R6.7 continuous Autoplay implemented; R6.7a
@@ -47,9 +52,9 @@ required for normal startup.
   preplans dense TF/ETH-RTH replacements without native input and is also human
   accepted after the filled dense-workspace review; R7.3n activates
   Projection-owned session-aware `1D`/`1W`/`1M` and is awaiting human review;
-  R7.3o preserves a dense non-target RTH Pane when an explicit location in
-  another Pane materializes a narrower contained navigation window and is
-  awaiting human review;
+  R7.3o attempted to preserve a dense non-target RTH Pane when an explicit
+  location in another Pane materializes a narrower contained navigation window,
+  but it is frozen and unaccepted after the architecture audit activated R8;
   R2.4
   Session Browser
   readability and confirmed durable delete human accepted
@@ -65,11 +70,17 @@ listed above.
 
 1. repository `AGENTS.md`;
 2. this file;
-3. `docs/INDEX.md`;
-4. `TODO.md`;
-5. `docs/V7_ARCHITECTURE.md`;
-6. `docs/V7_EXECUTION_ROADMAP.md`;
-7. only the documents directly relevant to the next bounded step.
+3. `docs/V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`;
+4. `docs/INDEX.md`;
+5. `TODO.md`;
+6. `docs/V7_ARCHITECTURE.md`;
+7. `docs/V7_HARNESS_STANDARD.md`;
+8. `docs/V7_EXECUTION_ROADMAP.md`;
+9. only the documents directly relevant to the next bounded R8 step.
+
+Do not resume from the historical status narrative alone. The R8 plan and the
+machine-readable recovery mode override earlier statements that phase-one
+foundation work was closed or accepted.
 
 Do not load all historical `sessions/` records. For R6 planning, read only the
 R6-relevant architecture/roadmap documents plus:

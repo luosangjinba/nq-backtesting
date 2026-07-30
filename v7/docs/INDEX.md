@@ -3,6 +3,10 @@
 V7 is a clean runtime rebuild of the replay/chart foundation. V6 remains a
 read-only product, interaction, data-contract, and failure-evidence reference.
 
+While R8 recovery mode is active, read
+`V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md` immediately after the restart
+handoff and before the normal implementation reading order below.
+
 Read in this order before V7 implementation work:
 
 1. `V7_RESTART_HANDOFF.md` after any machine/server/agent restart

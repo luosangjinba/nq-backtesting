@@ -3,11 +3,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateArchitectureModel } from './support/architecture-model-validator.js';
+import { validateHarnessRuleCatalogRecovery } from './support/harness-rule-catalog-validator.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const V7_ROOT = path.resolve(TEST_DIR, '..');
 const RULES_PATH = path.join(V7_ROOT, 'docs/v7-harness-rules.json');
 const rules = JSON.parse(fs.readFileSync(RULES_PATH, 'utf8'));
+const recoveryViolations = validateHarnessRuleCatalogRecovery(rules, {
+  pathExists: (relativePath) => fs.existsSync(path.join(V7_ROOT, relativePath)),
+});
+assert.deepEqual(recoveryViolations, [], 'current harness-rule recovery lifecycle must be valid');
 const requiredFields = [
   'id',
   'name',
@@ -37,12 +42,12 @@ for (const rule of rules.rules) {
 
   if (activationStepIndex <= currentStepIndex) {
     assert.ok(
-      rule.state === 'executable' || rule.state === 'accepted',
+      rule.state === 'executable' || rule.state === 'accepted' || rule.state === 'regressed',
       `${rule.id} is active by ${rules.currentStep} but remains ${rule.state}`,
     );
   }
 
-  if (rule.state === 'executable' || rule.state === 'accepted') {
+  if (rule.state === 'executable' || rule.state === 'accepted' || rule.state === 'regressed') {
     assert.ok(rule.harness, `${rule.id} executable rule requires a harness`);
     assert.ok(rule.positiveEvidence.length > 0, `${rule.id} executable rule requires positive evidence`);
     assert.ok(rule.negativeFixtures.length > 0, `${rule.id} executable rule requires a negative fixture`);
@@ -51,7 +56,7 @@ for (const rule of rules.rules) {
       assert.ok(fs.existsSync(path.join(V7_ROOT, evidence)), `${rule.id} evidence path does not exist: ${evidence}`);
     }
   }
-  if (rule.state === 'accepted') {
+  if (rule.state === 'accepted' || rule.state === 'regressed') {
     assert.ok(rule.acceptanceEvidence, `${rule.id} cannot be accepted without completion evidence`);
   } else {
     assert.equal(rule.acceptanceEvidence, null, `${rule.id} has premature acceptance evidence`);
@@ -91,7 +96,9 @@ for (const file of negativeFiles) {
 
 const executableFixturePaths = new Set(
   rules.rules
-    .filter((rule) => rule.state === 'executable' || rule.state === 'accepted')
+    .filter((rule) => (
+      rule.state === 'executable' || rule.state === 'accepted' || rule.state === 'regressed'
+    ))
     .flatMap((rule) => rule.negativeFixtures),
 );
 for (const file of negativeFiles) {
@@ -101,4 +108,36 @@ for (const file of negativeFiles) {
   );
 }
 
-console.log(`v7 architecture hardening harness passed (${rules.rules.length} rules, ${negativeFiles.length} negative controls)`);
+const recoveryNegativePath = path.join(
+  TEST_DIR,
+  'fixtures/harness-rules/negative/regression-lifecycle-cases.json',
+);
+const recoveryNegativeFixture = JSON.parse(fs.readFileSync(recoveryNegativePath, 'utf8'));
+assert.ok(recoveryNegativeFixture.cases.length >= 3, 'R8.1 requires complete lifecycle controls');
+for (const testCase of recoveryNegativeFixture.cases) {
+  const invalidCatalog = structuredClone(rules);
+  const firstRegressed = invalidCatalog.rules.find((rule) => rule.state === 'regressed');
+  assert.ok(firstRegressed, 'R8.1 negative controls require at least one regressed rule');
+  if (testCase.operation === 'deactivate-recovery') {
+    invalidCatalog.recoveryMode.active = false;
+  } else if (testCase.operation === 'remove-regression-evidence') {
+    firstRegressed.regressionEvidence = null;
+  } else if (testCase.operation === 'remove-recovery-inventory-entry') {
+    invalidCatalog.recoveryMode.regressedRuleIds = invalidCatalog.recoveryMode.regressedRuleIds
+      .filter((ruleId) => ruleId !== firstRegressed.id);
+  } else {
+    assert.fail(`unknown recovery negative operation ${testCase.operation}`);
+  }
+  const failureCodes = validateHarnessRuleCatalogRecovery(invalidCatalog, {
+    pathExists: (relativePath) => fs.existsSync(path.join(V7_ROOT, relativePath)),
+  }).map((violation) => violation.code);
+  assert.ok(
+    failureCodes.includes(testCase.expectedFailureCode),
+    `${testCase.name} must fail with ${testCase.expectedFailureCode}; got ${failureCodes.join(', ')}`,
+  );
+}
+
+console.log(
+  `v7 architecture hardening harness passed (${rules.rules.length} rules, `
+  + `${negativeFiles.length + recoveryNegativeFixture.cases.length} negative controls)`,
+);

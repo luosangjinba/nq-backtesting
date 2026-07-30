@@ -471,3 +471,28 @@ gate. After controlled ES/NQ catch-up, read verification, human Data
 Acquisition review, and the user's complete foundation walkthrough, decide
 whether to close phase one. The later Backtesting/Journal boundary must reuse
 the same chart and Replay owners.
+
+## R8 — Architecture Conformance Recovery
+
+R8 supersedes phase-one closure and is the only active delivery milestone. The
+binding detail, bug identities, exact acceptance workflow, and per-step gates
+live in `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
+
+- `R8.1`: recovery constitution and executable regression lifecycle;
+- `R8.2`: production architecture analyzer;
+- `R8.3`: descriptor, lifecycle, and independent-harness repair;
+- `R8.4`: pure bounded Raw Coverage Lease contract;
+- `R8.5`: sole Bar Data raw retention owner;
+- `R8.6`: sole semantic Workspace State owner;
+- `R8.7`: prepared commit participant contract;
+- `R8.8`: reversible Chart application;
+- `R8.9`: globally atomic Workspace transaction and removal of UI second commit;
+- `R8.10`: UI/composition responsibility split;
+- `R8.11`: production ModuleHost boot and removal matrix;
+- `R8.12`: source responsibility, size, documentation, and debt closure;
+- `R8.13`: Open/Closed Calendar re-derivation and dense RTH Locate repair;
+- `R8.14`: full production failure/concurrency/cross-product matrix;
+- `R8.15`: human acceptance and zero-debt recovery closure.
+
+Each item is exactly one commit and stops for review. R7.3n and R7.3o remain
+unaccepted evidence and may not be closed independently of R8.13–R8.15.

@@ -1,5 +1,49 @@
 # V7 TODO
 
+## R8 Architecture Conformance Recovery — Active And Blocking
+
+Binding plan: `docs/V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
+Pre-remediation checkpoint: `fa561599`.
+
+This is the only permitted V7 work until R8.15 closes recovery mode. Do not
+accept R7.3n/R7.3o, start a new product feature, or apply an unnumbered fix.
+Every item is one commit; after each commit, stop and report evidence for
+review. Preserve rejected commits and assign a new delivery id to replacements.
+
+- [x] `R8.1` bind the recovery constitution, stable bug ids, TODO/restart
+  continuity, and executable `regressed` rule lifecycle;
+- [ ] `R8.2` make architecture gates analyze production imports,
+  construction, writers, lifecycle, and independent boot;
+- [ ] `R8.3` repair descriptors, lifecycle declarations, independent
+  harnesses, and the real optional-removal matrix;
+- [ ] `R8.4` define the transaction-scoped bounded Raw Coverage Lease contract;
+- [ ] `R8.5` make Bar Data Runtime the sole raw retention/cache owner and
+  remove UI source ledgers;
+- [ ] `R8.6` make one Workspace State runtime the sole accepted semantic-state
+  owner with complete identity;
+- [ ] `R8.7` define prepared commit/rollback/finalize participant contracts;
+- [ ] `R8.8` make Chart application staged and reversible;
+- [ ] `R8.9` make Workspace Transaction Runtime the only global atomic commit
+  coordinator and remove post-terminal UI commits;
+- [ ] `R8.10` split UI command/presentation from composition and orchestration;
+- [ ] `R8.11` boot production through ModuleHost and prove isolation/removal;
+- [ ] `R8.12` close real source size, responsibility, contract documentation,
+  and tracked-debt gates;
+- [ ] `R8.13` re-derive Calendar capability extension and dense RTH Locate
+  through corrected owners;
+- [ ] `R8.14` pass the full production failure/concurrency/cross-product matrix;
+- [ ] `R8.15` obtain human acceptance of the exact reported workflow and close
+  every regression/debt item before disabling recovery mode.
+
+Tracked recovery regressions:
+
+- `BUG-V7-0001`: visible Chart can diverge from failed Workspace/Replay commit;
+- `BUG-V7-0002`: raw source retention exists outside Bar Data Runtime;
+- `BUG-V7-0003`: dense two-Pane RTH Locate can collapse the non-target Pane;
+- `BUG-V7-0004`: production boot bypasses the declared ModuleHost graph;
+- `BUG-V7-0005`: fixture/inventory gates can remain green while production
+  violates the architecture.
+
 ## Established Foundation Governance
 
 Established:
@@ -1790,11 +1834,11 @@ writer, Viewport owns the drag wall, and Replay does not move.
 ## Standing Gates
 
 - every bounded step has one focused commit;
+- every R8 step stops after its commit for explicit review before the next step;
 - architecture harness and focused tests pass;
 - `git diff --check` passes;
-- only interaction or visual changes stop for human review;
-- headless contract/runtime/doc steps record automated evidence and continue;
-- after acceptance, the agent autonomously executes the next roadmap step;
+- automated evidence never changes a human-review requirement or clears a
+  `regressed` rule by itself;
 - no V6 production runtime import or copied orchestration;
 - every module declares ports/lifecycle and passes an independent harness;
 - optional-module removal and minimal-core boot remain executable gates;

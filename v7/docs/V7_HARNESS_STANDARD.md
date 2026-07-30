@@ -28,9 +28,32 @@ Allowed enforcement states:
 - `scaffolded`: harness shape exists but cannot yet exercise production;
 - `executable`: positive and negative automated evidence runs;
 - `accepted`: executable evidence plus recorded human acceptance.
+- `regressed`: production evidence has disproved an accepted invariant; its
+  historical acceptance remains recorded but current conformance is blocked.
 
 A rule cannot skip states or be marked accepted by an automated run. When its
 activation step begins, `declared` is a blocking failure.
+
+### Regression Lifecycle
+
+An accepted rule enters `regressed` only with all of the following in the same
+commit:
+
+- its original `acceptanceEvidence` retained unchanged;
+- a current `regressionEvidence` record that identifies production behavior;
+- a known `recoveryStep` and an exact entry in the active recovery inventory;
+- a binding recovery plan, immutable pre-remediation checkpoint, and feature-
+  delivery freeze.
+
+`regressed` is an executable but blocking state. Its harness and existing
+positive/negative evidence remain mandatory; a passing old harness does not
+clear the regression. While any rule is regressed, only numbered recovery work
+may land and product/feature acceptance is prohibited.
+
+A rule returns from `regressed` to `accepted` only when its recovery step adds
+production-path positive evidence, a negative control reproducing the failure,
+new recovery evidence, and the required human approval. Historical acceptance
+and regression records are never erased or rewritten.
 
 ## Negative-Control Rule
 
@@ -140,6 +163,11 @@ The rule catalog, manifest, harness, fixtures, and implementation change in the
 same commit. Steps with interaction or visual changes stop after commit for
 human review. Rejection is recorded before corrective work; automated evidence
 cannot overwrite it.
+
+During R8 architecture recovery, every step is exactly one commit and stops
+after commit for explicit review, including headless and documentation steps.
+R8 commits are never amended or squashed. A rejected step remains evidence and
+its replacement receives a new delivery id.
 
 Headless contract/runtime/documentation steps require automated evidence and a
 clear completion report, but do not stop for manual acceptance. From the first

@@ -1,6 +1,6 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule (2026-07-19)
+Status: binding delivery rule (R8 recovery update, 2026-07-30)
 
 ## Delivery IDs
 
@@ -20,9 +20,11 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current completed step is `R5.1`, the V6 interaction decision carry-forward
-audit. `R4.5` was human-accepted on 2026-07-20. The next R5 implementation
-receives `R5.2`; broad `R<n>` headings remain milestones only.
+The current delivery step is `R8.1`, the architecture recovery constitution.
+R8.1 follows immutable pre-remediation checkpoint `fa561599`. R8.2 may not
+begin until the R8.1 commit has been reported for review. Every R8 step is one
+commit and stops after that commit; broad `R<n>` headings remain milestones
+only.
 
 ## Other Stable IDs
 
@@ -32,7 +34,8 @@ receives `R5.2`; broad `R<n>` headings remain milestones only.
   extension boundary and is not a roadmap or phase commitment.
 - `ADR-V7-###`: future architecture decisions when a choice needs a dedicated
   decision record.
-- `BUG-V7-####`: future accepted black-box regression identity.
+- `BUG-V7-####`: stable black-box regression identity. R8 begins with
+  `BUG-V7-0001` through `BUG-V7-0005`; ids never change meaning after issue.
 
 Requirement and bug ids describe product truth; delivery ids describe when
 repository evidence changed. One delivery step may protect several requirement
