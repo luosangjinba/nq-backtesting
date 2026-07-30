@@ -485,7 +485,10 @@ live in `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
   all seven assigned findings closed, 42 production public entries booted, 10
   lifecycle modules disposed in reverse order, and the complete one-case
   optional-removal matrix proven;
-- `R8.4`: pure bounded Raw Coverage Lease contract;
+- `R8.4`: pure bounded Raw Coverage Lease contract; completed with complete
+  transaction identity, finite window-count/per-window/aggregate budgets,
+  callback-scoped synchronous reads, cancellation, disposal, and an executable
+  sole-retention rule awaiting R8.5 activation;
 - `R8.5`: sole Bar Data raw retention owner;
 - `R8.6`: sole semantic Workspace State owner;
 - `R8.7`: prepared commit participant contract;

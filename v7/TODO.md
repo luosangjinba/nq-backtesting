@@ -16,7 +16,7 @@ review. Preserve rejected commits and assign a new delivery id to replacements.
   construction, writers, lifecycle, and independent boot;
 - [x] `R8.3` repair descriptors, lifecycle declarations, independent
   harnesses, and the real optional-removal matrix;
-- [ ] `R8.4` define the transaction-scoped bounded Raw Coverage Lease contract;
+- [x] `R8.4` define the transaction-scoped bounded Raw Coverage Lease contract;
 - [ ] `R8.5` make Bar Data Runtime the sole raw retention/cache owner and
   remove UI source ledgers;
 - [ ] `R8.6` make one Workspace State runtime the sole accepted semantic-state
@@ -44,11 +44,12 @@ Tracked recovery regressions:
 - `BUG-V7-0005`: fixture/inventory gates can remain green while production
   violates the architecture.
 
-R8.3 production baseline binds 42 modules, 100 actual dependency edges, 101
-construction sites, two production roots, 10 critical writer sites, and six
-blocking findings. All seven descriptor/lifecycle/independent-harness findings
-assigned to R8.3 are closed. The remaining six stay assigned to R8.5, R8.6,
-R8.9, and R8.11; no later recovery rule is cleared early.
+R8.4 production baseline binds 43 modules, 102 actual dependency edges, 103
+construction sites, two production roots, 15 declared writer surfaces, 10
+critical writer sites, and six blocking findings. The pure Raw Coverage Lease
+contract is executable with complete identity, bounded windows, synchronous
+read lifetime, cancellation, and disposal. Its two UI-retention findings remain
+assigned to R8.5; no later recovery rule is cleared early.
 
 ## Established Foundation Governance
 

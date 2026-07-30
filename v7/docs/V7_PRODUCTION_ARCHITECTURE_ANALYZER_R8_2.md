@@ -42,14 +42,14 @@ outside the declared owner are violations.
 
 ## Exact Baseline
 
-The exact snapshot was refreshed by R8.3 after repairing the findings assigned
-to that step. It currently contains:
+The exact snapshot was refreshed by R8.4 after adding the pure Raw Coverage
+Lease contract and sole-retention inventory. It currently contains:
 
-- 42 active production modules;
-- 100 actual module dependency edges;
-- 101 cross-module construction sites;
+- 43 active production modules;
+- 102 actual module dependency edges;
+- 103 cross-module construction sites;
 - two production HTML/JavaScript composition roots;
-- all 14 declared writer surfaces;
+- all 15 declared writer surfaces;
 - 10 directly observed critical writer sites;
 - six blocking production findings, down from the 13 first recorded by R8.2.
 
@@ -80,7 +80,7 @@ the full finding objects are compared.
 - `app/main.js` manually constructs its graph without ModuleHost;
 - `app/data-acquisition.js` manually constructs its surface without ModuleHost.
 
-No item above is repaired or accepted by R8.3.
+No item above is repaired or accepted by R8.4.
 
 ## R8.3 Repair Result
 
@@ -102,9 +102,22 @@ optional-removal matrix. There is one declared optional edge: Session Browser
 UI must boot without Replay Workspace UI. Production application factories and
 the two real HTML composition roots remain deliberately assigned to R8.11.
 
+## R8.4 Contract Result
+
+R8.4 adds `core.raw-coverage-lease-contract` through public dependencies on the
+Raw Bar Data and complete Workspace Transaction identity contracts. The module
+defines finite same-source request scopes, synchronous callback-scoped reads,
+and cancellable/disposable access without storing raw batches.
+
+The manifest now declares `rawMarketDataRetention` as the fifteenth sole-writer
+surface, owned only by `core.bar-data-runtime`. The existing production scanner
+continues to report the two Replay Workspace UI ledgers as R8.5 violations.
+R8.4 therefore adds a contract and executable rule without reducing or
+expanding the six-item blocking inventory.
+
 ## Negative Controls
 
-Eight mutations prove the production analyzer rejects:
+Nine mutations now prove the production analyzer rejects:
 
 - internal cross-module imports;
 - an actual dependency omitted from the descriptor;
@@ -113,6 +126,7 @@ Eight mutations prove the production analyzer rejects:
 - an independent harness changed to the application shell;
 - another production root bypassing ModuleHost;
 - a writer outside its declared owner;
+- raw market-data retention in a UI module outside Bar Data Runtime;
 - production construction drift while older fixture evidence remains unchanged.
 
 These controls operate on the production-derived snapshot. The positive path
@@ -127,7 +141,8 @@ named critical writer probes. Dynamic runtime failure atomicity remains owned
 by R8.7–R8.9 and the production cross-product/browser matrix remains owned by
 R8.14–R8.15.
 
-R8.3 reduced its seven assigned findings to zero and updated the same snapshot
-in its single commit. Later steps must do the same for their assigned writer
-and composition findings. Expanding `knownViolations` requires a new stable bug
-identity and explicit review; it can never be an incidental baseline refresh.
+R8.3 reduced its seven assigned findings to zero. R8.4 updates the snapshot for
+its new pure module while intentionally retaining all six later-step findings.
+Later steps must reduce their assigned writer and composition findings to zero.
+Expanding `knownViolations` requires a new stable bug identity and explicit
+review; it can never be an incidental baseline refresh.

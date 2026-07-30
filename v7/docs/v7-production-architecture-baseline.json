@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R8.3",
+  "deliveryStep": "R8.4",
   "status": "blocking-recovery-baseline",
   "analysisPolicy": {
     "lifecycleFactoryExemptions": [
@@ -440,6 +440,13 @@
       {
         "callCount": 1,
         "factory": "createRawBarBatch",
+        "sourceFile": "src/raw-coverage-lease-contract/lease-contract.js",
+        "sourceModuleId": "core.raw-coverage-lease-contract",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createRawBarBatch",
         "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
         "sourceModuleId": "adapter.v4-bars-provider",
         "targetModuleId": "core.bar-data-contract"
@@ -449,6 +456,13 @@
         "factory": "createRawBarRequest",
         "sourceFile": "src/bar-data-runtime/bar-data-runtime.js",
         "sourceModuleId": "core.bar-data-runtime",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createRawBarRequest",
+        "sourceFile": "src/raw-coverage-lease-contract/lease-contract.js",
+        "sourceModuleId": "core.raw-coverage-lease-contract",
         "targetModuleId": "core.bar-data-contract"
       },
       {
@@ -881,6 +895,12 @@
           "core.bar-data-runtime"
         ],
         "surface": "rawBarRequest"
+      },
+      {
+        "moduleIds": [
+          "core.bar-data-runtime"
+        ],
+        "surface": "rawMarketDataRetention"
       },
       {
         "moduleIds": [
@@ -2703,6 +2723,72 @@
         "observedDisposeSites": [],
         "owner": "bar-data-runtime",
         "publicEntry": "src/coverage-planning-contract/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.bar-data-contract",
+          "core.workspace-transaction-contract"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.bar-data-contract",
+          "core.workspace-transaction-contract"
+        ],
+        "descriptorPath": "src/raw-coverage-lease-contract/module.json",
+        "id": "core.raw-coverage-lease-contract",
+        "importSites": [
+          {
+            "importedNames": [
+              "createRawBarBatch",
+              "createRawBarRequest",
+              "rawBarRequestKey"
+            ],
+            "sourceFile": "src/raw-coverage-lease-contract/lease-contract.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createRawBarRequest",
+              "rawBarRequestKey"
+            ],
+            "sourceFile": "src/raw-coverage-lease-contract/scope-contract.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireWorkspaceTransactionIdentity",
+              "workspaceTransactionIdentitiesEqual"
+            ],
+            "sourceFile": "src/raw-coverage-lease-contract/lease-contract.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireWorkspaceTransactionIdentity"
+            ],
+            "sourceFile": "src/raw-coverage-lease-contract/scope-contract.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/raw-coverage-lease-contract-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [
+          "src/raw-coverage-lease-contract/lease-contract.js"
+        ],
+        "owner": "bar-data-runtime",
+        "publicEntry": "src/raw-coverage-lease-contract/public.js"
       },
       {
         "actualDependencies": [

@@ -58,3 +58,11 @@ Provider ids, instrument ids, and source-resolution ids are capability values,
 not concrete branches. Adding seconds or another instrument/provider does not
 change this contract. A future tick contract, if required, must be a separately
 reviewed value kind rather than overloading OHLCV bars.
+
+## R8.4 Transaction-Scoped Access Boundary
+
+`core.raw-coverage-lease-contract` composes these Session-independent request
+values with a complete Workspace transaction identity without changing raw
+cache identity. It defines bounded, revocable, synchronous read views while
+Bar Data Runtime remains the sole retention owner. The binding contract is
+`V7_RAW_COVERAGE_LEASE_CONTRACT_R8_4.md`.

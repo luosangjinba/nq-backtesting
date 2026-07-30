@@ -22,7 +22,7 @@ const baseline = JSON.parse(fs.readFileSync(
 ));
 
 assert.equal(baseline.schemaVersion, 1);
-assert.equal(baseline.deliveryStep, 'R8.3');
+assert.equal(baseline.deliveryStep, 'R8.4');
 assert.equal(baseline.status, 'blocking-recovery-baseline');
 const report = analyzeProductionArchitecture({
   manifest,
@@ -52,6 +52,11 @@ assert.equal(
   baseline.knownViolations.filter(({ recoveryStep }) => recoveryStep === 'R8.3').length,
   0,
   'R8.3 must close every descriptor, lifecycle, and independent-harness finding assigned to it',
+);
+assert.equal(
+  baseline.knownViolations.filter(({ recoveryStep }) => recoveryStep === 'R8.4').length,
+  0,
+  'R8.4 defines the lease boundary without misassigning R8.5 retention migration',
 );
 assert.equal(baseline.knownViolations.length, 6);
 const independentModes = new Map(report.snapshot.modules.map((module) => [
@@ -107,6 +112,13 @@ function mutateSnapshot(snapshot, operation) {
       sourceFile: 'app/rogue-writer.js',
       sourceModuleId: 'application',
       surface: 'chartSeries',
+    });
+  } else if (operation === 'add-ui-raw-retention-writer') {
+    candidate.writerSites.push({
+      detectorId: 'market-data-retention-ledger',
+      sourceFile: 'src/session-browser-ui/rogue-raw-ledger.js',
+      sourceModuleId: 'adapter.session-browser-ui',
+      surface: 'rawMarketDataRetention',
     });
   } else if (operation === 'drift-production-construction') {
     candidate.constructionSites.pop();

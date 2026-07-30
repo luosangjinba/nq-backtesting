@@ -1,0 +1,12 @@
+{
+  "id": "core.raw-coverage-lease-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "bar-data-runtime",
+  "publicEntry": "src/raw-coverage-lease-contract/public.js",
+  "requiredPorts": ["core.bar-data-contract", "core.workspace-transaction-contract"],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/raw-coverage-lease-contract-harness.js",
+  "removable": false
+}

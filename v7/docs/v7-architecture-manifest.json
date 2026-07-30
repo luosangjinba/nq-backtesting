@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r8.3-descriptor-lifecycle-independent-boot-repaired",
+  "status": "r8.4-raw-coverage-lease-contract-executable",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -9,6 +9,7 @@
     "docs/V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md",
     "docs/V7_PRODUCTION_ARCHITECTURE_ANALYZER_R8_2.md",
     "docs/V7_DESCRIPTOR_LIFECYCLE_INDEPENDENT_HARNESS_REPAIR_R8_3.md",
+    "docs/V7_RAW_COVERAGE_LEASE_CONTRACT_R8_4.md",
     "docs/v7-production-architecture-baseline.json",
     "docs/V7_PRODUCT_AND_SCOPE.md",
     "docs/V7_ARCHITECTURE.md",
@@ -108,6 +109,7 @@
     "src/module-host/module.json",
     "src/capability-contract/module.json",
     "src/bar-data-contract/module.json",
+    "src/raw-coverage-lease-contract/module.json",
     "src/projected-history-contract/module.json",
     "src/provider-policy-contract/module.json",
     "src/coverage-planning-contract/module.json",
@@ -215,6 +217,7 @@
     "viewportIntent": ["core.viewport-runtime"],
     "paneWorkspace": ["core.pane-workspace-domain"],
     "workspaceSnapshot": ["core.workspace-transaction-runtime"],
+    "rawMarketDataRetention": ["core.bar-data-runtime"],
     "rawBarRequest": ["core.bar-data-runtime"],
     "replayCursor": ["core.replay-runtime"]
   },
@@ -245,6 +248,7 @@
     "cache-latency-and-refresh-contracts-are-bounded-and-atomic",
     "calendar-surface-business-data-agnostic",
     "raw-bar-contract-session-independent-and-window-bounded",
+    "raw-coverage-lease-and-sole-retention-owner",
     "bar-data-runtime-bounded-coalesced-and-disposable",
     "provider-policy-bounded-and-transport-neutral",
     "coverage-explicit-and-request-planning-bounded",

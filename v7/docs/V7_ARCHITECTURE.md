@@ -254,6 +254,15 @@ location still uses the existing bounded history path; this rule protects only
 unchanged non-target Panes. It introduces no second Bar Data cache, Projection
 writer, Chart writer, or Replay owner.
 
+The R8 production audit supersedes that final ownership conclusion: retaining
+and merging accepted raw batches in Replay Workspace UI is a second raw
+retention domain even when it does not invoke a provider. R8.4 therefore adds
+`core.raw-coverage-lease-contract`. It binds finite same-source request windows
+to complete Workspace transaction identity and permits only synchronous,
+revocable callback-scoped reads from a Bar Data-owned cache capability. The
+scope, lease, and lifecycle snapshot contain no raw batches. R8.5 must activate
+this boundary in Bar Data Runtime and remove the UI source ledgers.
+
 R3.2b1 adds `core.provider-policy-contract` as a pure transport-neutral policy
 boundary. Provider revision freshness, request limits, failure deadline,
 bounded retries, stable error kinds, and the adapter port are declared before

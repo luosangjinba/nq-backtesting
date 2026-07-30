@@ -44,3 +44,13 @@ metrics. Those require a reviewed provider/coverage policy in R3.2b.
 It also owns no Session, Replay cursor, projection, chart, viewport, calendar UI,
 or data-availability presentation. Cached raw future bars cannot become visible
 until later Projection and transaction owners enforce no-future semantics.
+
+## R8.4 Lease Boundary And R8.5 Activation
+
+R8.4 introduces the pure `core.raw-coverage-lease-contract`: complete Workspace
+identity plus explicitly bounded raw request windows and a revocable
+synchronous read view. The contract owns no raw batch or provider work.
+
+R8.5 must activate that contract through this runtime, keep cache lookup and
+retention private to this owner, and remove the Replay Workspace UI source
+ledgers. Until then, the two production retention findings remain blocking.

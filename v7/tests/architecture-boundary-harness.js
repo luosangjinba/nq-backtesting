@@ -99,6 +99,7 @@ assert.deepEqual(manifest.writerInventories, {
   viewportIntent: ['core.viewport-runtime'],
   paneWorkspace: ['core.pane-workspace-domain'],
   workspaceSnapshot: ['core.workspace-transaction-runtime'],
+  rawMarketDataRetention: ['core.bar-data-runtime'],
   rawBarRequest: ['core.bar-data-runtime'],
   replayCursor: ['core.replay-runtime'],
 }, 'R4.5 activates one concrete chart writer and one Replay Workspace DOM owner');
@@ -219,6 +220,7 @@ for (const rule of [
   'cache-latency-and-refresh-contracts-are-bounded-and-atomic',
   'calendar-surface-business-data-agnostic',
   'raw-bar-contract-session-independent-and-window-bounded',
+  'raw-coverage-lease-and-sole-retention-owner',
   'bar-data-runtime-bounded-coalesced-and-disposable',
   'provider-policy-bounded-and-transport-neutral',
   'coverage-explicit-and-request-planning-bounded',

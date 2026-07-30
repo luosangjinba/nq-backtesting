@@ -41,6 +41,12 @@
       "expectedSubject": "chartSeries:app/rogue-writer.js"
     },
     {
+      "name": "UI raw retention appears outside Bar Data owner",
+      "operation": "add-ui-raw-retention-writer",
+      "expectedFailureCode": "writer-outside-declared-owner",
+      "expectedSubject": "rawMarketDataRetention:src/session-browser-ui/rogue-raw-ledger.js"
+    },
+    {
       "name": "production construction changes behind fixture evidence",
       "operation": "drift-production-construction",
       "expectedFailureCode": "production-snapshot-drift"

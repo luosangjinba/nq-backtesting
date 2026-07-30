@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-30 by R8.3 descriptor/lifecycle/independent-harness repair
+Last updated: 2026-07-30 by R8.4 Raw Coverage Lease contract
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -15,6 +15,7 @@ required for normal startup.
   and R7.3n/R7.3o acceptance are frozen;
 - R8.1 recovery constitution is commit `7dbabbed`;
 - R8.2 production architecture analyzer is commit `f19b7f32`;
+- R8.3 descriptor/lifecycle/independent-harness repair is commit `60b92d93`;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10
@@ -22,7 +23,14 @@ required for normal startup.
 - R8.3 boots all 42 production public entries through the descriptor graph,
   proves reverse disposal for all 10 lifecycle modules, and proves the complete
   one-case optional-removal matrix without booting the application shell;
-- next step after this commit is R8.4, but it must not begin until the R8.3
+- R8.4 adds the independently runnable pure Raw Coverage Lease contract with
+  complete transaction identity, finite windows, synchronous callback-scoped
+  reads, cancellation, and disposal; H074 is executable but stays unaccepted
+  until R8.5 removes the two UI retention paths;
+- the exact production baseline now scans 43 modules, 102 dependency edges,
+  103 construction sites, 15 declared writer surfaces, and 10 critical writer
+  sites; the same six blocking findings remain assigned to later steps;
+- next step after this commit is R8.5, but it must not begin until the R8.4
   commit and evidence have been reported;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
@@ -83,12 +91,13 @@ listed above.
 4. `docs/V7_PRODUCTION_ARCHITECTURE_ANALYZER_R8_2.md`;
 5. `docs/v7-production-architecture-baseline.json`;
 6. `docs/V7_DESCRIPTOR_LIFECYCLE_INDEPENDENT_HARNESS_REPAIR_R8_3.md`;
-7. `docs/INDEX.md`;
-8. `TODO.md`;
-9. `docs/V7_ARCHITECTURE.md`;
-10. `docs/V7_HARNESS_STANDARD.md`;
-11. `docs/V7_EXECUTION_ROADMAP.md`;
-12. only the documents directly relevant to the next bounded R8 step.
+7. `docs/V7_RAW_COVERAGE_LEASE_CONTRACT_R8_4.md`;
+8. `docs/INDEX.md`;
+9. `TODO.md`;
+10. `docs/V7_ARCHITECTURE.md`;
+11. `docs/V7_HARNESS_STANDARD.md`;
+12. `docs/V7_EXECUTION_ROADMAP.md`;
+13. only the documents directly relevant to the next bounded R8 step.
 
 Do not resume from the historical status narrative alone. The R8 plan and the
 machine-readable recovery mode override earlier statements that phase-one
@@ -550,11 +559,13 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R8.4 is the exact next step: define the pure, transaction-scoped bounded Raw
-Coverage Lease/read-view contract, including identity, bounded windows,
-lifetime, cancellation, and disposal. It must not yet move raw retention out
-of Replay Workspace UI; activation and removal of those ledgers belong to
-R8.5. R7.3n/R7.3o acceptance and all feature work remain frozen until R8.15.
+R8.5 is the exact next step: activate Raw Coverage Lease through Bar Data
+Runtime, keep request/cache/retention/eviction authority inside that owner, and
+remove `SourceBatchLedger` plus every Replay Workspace UI raw-retention path.
+It must preserve current projection, history, Replay, dense-Pane, cancellation,
+and last-accepted behavior while proving bounded LRU/coverage reuse and cleanup
+against production. R7.3n/R7.3o acceptance and all feature work remain frozen
+until R8.15.
 
 ## Standing Workflow
 
