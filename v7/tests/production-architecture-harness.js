@@ -22,7 +22,7 @@ const baseline = JSON.parse(fs.readFileSync(
 ));
 
 assert.equal(baseline.schemaVersion, 1);
-assert.equal(baseline.deliveryStep, 'R8.5');
+assert.equal(baseline.deliveryStep, 'R8.6');
 assert.equal(baseline.status, 'blocking-recovery-baseline');
 const report = analyzeProductionArchitecture({
   manifest,
@@ -63,7 +63,12 @@ assert.equal(
   0,
   'R8.5 must close every raw-retention finding assigned to it',
 );
-assert.equal(baseline.knownViolations.length, 4);
+assert.equal(
+  baseline.knownViolations.filter(({ recoveryStep }) => recoveryStep === 'R8.6').length,
+  0,
+  'R8.6 must close every Workspace semantic-state ownership finding assigned to it',
+);
+assert.equal(baseline.knownViolations.length, 3);
 const independentModes = new Map(report.snapshot.modules.map((module) => [
   module.id,
   module.independentHarnessMode,

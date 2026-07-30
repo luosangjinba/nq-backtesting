@@ -1,0 +1,54 @@
+{
+  "cases": [
+    {
+      "name": "semantic state cannot publish without begin",
+      "operation": "accept-without-begin",
+      "expectedErrorCode": "WORKSPACE_STATE_TRANSACTION_NOT_CURRENT"
+    },
+    {
+      "name": "foreign Session identity is rejected",
+      "operation": "foreign-session-begin",
+      "expectedErrorCode": "WORKSPACE_STATE_SESSION_MISMATCH"
+    },
+    {
+      "name": "foreign activation identity is rejected",
+      "operation": "foreign-activation-begin",
+      "expectedErrorCode": "WORKSPACE_STATE_ACTIVATION_MISMATCH"
+    },
+    {
+      "name": "superseded transaction cannot publish",
+      "operation": "superseded-transaction-accept",
+      "expectedErrorCode": "WORKSPACE_STATE_TRANSACTION_NOT_CURRENT"
+    },
+    {
+      "name": "transaction identity cannot begin twice",
+      "operation": "duplicate-transaction-begin",
+      "expectedErrorCode": "WORKSPACE_STATE_TRANSACTION_DUPLICATE"
+    },
+    {
+      "name": "unsupported Session Hours mode is rejected",
+      "operation": "unsupported-session-hours",
+      "expectedErrorCode": "WORKSPACE_STATE_SESSION_HOURS_MODE_INVALID"
+    },
+    {
+      "name": "Session Hours revision cannot skip",
+      "operation": "session-hours-revision-skip",
+      "expectedErrorCode": "WORKSPACE_STATE_SESSION_HOURS_REVISION_INVALID"
+    },
+    {
+      "name": "foreign Pane Workspace Session is rejected",
+      "operation": "foreign-pane-session",
+      "expectedErrorCode": "WORKSPACE_STATE_PANE_SESSION_MISMATCH"
+    },
+    {
+      "name": "semantic snapshot structural lookalike is rejected",
+      "operation": "snapshot-lookalike",
+      "expectedErrorCode": "WORKSPACE_STATE_SNAPSHOT_REQUIRED"
+    },
+    {
+      "name": "disposed runtime cannot expose semantic state",
+      "operation": "post-dispose-read",
+      "expectedErrorCode": "WORKSPACE_STATE_RUNTIME_DISPOSED"
+    }
+  ]
+}

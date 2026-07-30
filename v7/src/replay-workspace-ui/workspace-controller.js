@@ -24,6 +24,10 @@ import { readWorkspaceCheckpoint } from '../workspace-checkpoint-domain/public.j
 import { createTimePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
 import { createWorkspaceTransactionRuntime } from '../workspace-transaction-runtime/public.js';
 import { readViewportIntent } from '../viewport-runtime/public.js';
+import {
+  createWorkspaceStateRuntime,
+  readWorkspaceStateSnapshot,
+} from '../workspace-state-runtime/public.js';
 import { createReplayAutoplayScheduler } from './autoplay-scheduler.js';
 import { DEFAULT_AUTOPLAY_SPEED, readAutoplaySpeed } from './autoplay-speed.js';
 import { createFoundationMarket } from './foundation-market.js';
@@ -33,7 +37,6 @@ import { planReplacementHistoryFill } from './history-fill-plan.js';
 import { createLayoutSyncController } from './layout-sync-controller.js';
 import { createPaneDataComposition } from './pane-data-composition.js';
 import { createPaneTimeLocationController } from './pane-time-location-controller.js';
-import { createPaneWorkspaceState } from './pane-workspace-state.js';
 import { WORKSPACE_PANE_IDS } from './pane-identity.js';
 import { resolveReplayTruncationTarget } from './replay-truncation.js';
 import { createWorkspaceCheckpointPersistence } from './workspace-checkpoint-persistence.js';
@@ -95,20 +98,30 @@ export function createReplayWorkspaceController({
   readReplayNavigationSettings(initialNavigationSettings);
   let navigationSchedule = createReplayNavigationSchedule({ settings: initialNavigationSettings });
 
-  const paneState = createPaneWorkspaceState({
+  const workspaceState = createWorkspaceStateRuntime({
+    activationGeneration: record.activationGeneration,
+    allowedInstrumentIds: record.configuration.instrumentIds,
+    calendarRevision: market.calendar.revision,
+    checkpointContext: record.configuration,
     initialCheckpoint,
     initialCursorEpochMs,
     initialPaneCount: readPaneLayout(paneLayout).paneCount,
     initialRightMarginBars: readWorkstationSettings(
       workstationSettings.snapshot().settings,
     ).canvas.rightMarginBars,
+    initialSessionHoursMode,
     initialTarget: market.defaultTarget,
-    record,
+    paneIds: WORKSPACE_PANE_IDS,
+    primaryInstrumentId: record.configuration.instrumentIds[0],
+    sessionHoursModes: market.sessionHoursModes,
+    sessionId: record.sessionId,
   });
+  const semanticState = () => readWorkspaceStateSnapshot(workspaceState.snapshot());
+  const acceptedPaneWorkspace = () => semanticState().paneWorkspace;
   view.setSessionRange({ endEpochMs: range.endEpochMs, startEpochMs: range.startEpochMs });
   view.setSelection({ sessionHoursMode: initialSessionHoursMode });
-  view.setLayout(paneLayout, paneState.paneIds());
-  view.setWorkspace(paneState.current());
+  view.setLayout(paneLayout, workspaceState.paneIds());
+  view.setWorkspace(acceptedPaneWorkspace());
   view.setTimeframeSync(false);
   view.setTruncationSelection({ active: false });
 
@@ -120,9 +133,9 @@ export function createReplayWorkspaceController({
     return snapshot;
   }
 
-  function syncReplayStep(workspace = paneState.current(), publish = true) {
+  function syncReplayStep(workspace = acceptedPaneWorkspace(), publish = true) {
     if (!syncTimeframe) return replay.snapshot();
-    const value = paneState.read(workspace);
+    const value = workspaceState.read(workspace);
     const active = value.panes.find(({ paneId }) => paneId === value.activePaneId);
     return setReplayStep(replayStepIdByTimeframeId.get(active.timeframeId), publish);
   }
@@ -137,14 +150,11 @@ export function createReplayWorkspaceController({
     initialCheckpoint,
     initialLayout: paneLayout,
     initialLayoutSync,
-    paneState,
     persist: persistWorkspaceCheckpoint,
-    readCursorEpochMs: () => replay.snapshot().cursorEpochMs,
     readLayout: () => paneLayout,
     readLayoutSync: () => layoutSyncController?.snapshot() ?? initialLayoutSync,
-    readSessionHoursMode: () => execution?.sessionHoursMode() ?? initialSessionHoursMode,
-    record,
     view,
+    workspaceState,
   });
 
   async function handleTruncationSelect(_paneId, selection) {
@@ -184,7 +194,7 @@ export function createReplayWorkspaceController({
       if (!instrument) throw new TypeError(`Unknown instrument ${instrumentId}.`);
       return instrument.priceIncrement;
     },
-    resolveViewportPort: paneState.viewportPort,
+    resolveViewportPort: workspaceState.viewportPort,
     surfacePort: view.surfacePort,
   });
   layoutSyncController = createLayoutSyncController({
@@ -194,7 +204,7 @@ export function createReplayWorkspaceController({
     view,
   });
   const unregisterViewportSettingsConsumer = workstationSettings.registerConsumer(
-    createViewportSettingsConsumer({ viewportDefaultsPort: paneState }),
+    createViewportSettingsConsumer({ viewportDefaultsPort: workspaceState }),
   );
   const unregisterSettingsConsumer = workstationSettings.registerConsumer(
     adapter.workstationSettingsConsumer,
@@ -252,12 +262,17 @@ export function createReplayWorkspaceController({
     transactionRuntime: runtime,
   });
 
-  function acceptVisibleState(desiredWorkspace, desiredMode) {
-    paneState.accept(desiredWorkspace, replay.snapshot().cursorEpochMs);
-    syncReplayStep(paneState.current(), false);
+  function acceptVisibleState(desiredWorkspace, desiredSessionHours, identity) {
+    const state = readWorkspaceStateSnapshot(workspaceState.accept({
+      cursorEpochMs: replay.snapshot().cursorEpochMs,
+      identity,
+      paneWorkspace: desiredWorkspace,
+      sessionHours: desiredSessionHours,
+    }));
+    syncReplayStep(state.paneWorkspace, false);
     const replaySnapshot = replay.snapshot();
     const workspaceSnapshot = runtime.snapshot().acceptedSnapshot.workspace;
-    const activePaneId = paneState.activePaneId();
+    const activePaneId = workspaceState.activePaneId();
     const active = workspaceSnapshot.panes.find(({ paneId }) => paneId === activePaneId)
       ?? workspaceSnapshot.panes[0];
     const readyPanes = workspaceSnapshot.panes.filter(({ status }) => status === 'ready');
@@ -268,40 +283,39 @@ export function createReplayWorkspaceController({
       workspaceRevision: runtime.snapshot().acceptedRevision,
     });
     view.setReplay(replaySnapshot);
-    view.setSelection({ sessionHoursMode: desiredMode });
+    view.setSelection({ sessionHoursMode: state.sessionHours.mode });
     view.setVisibleThrough({
       barCount: active.status === 'ready' ? active.snapshot.bars.length : 0,
       paneCount: workspaceSnapshot.panes.length,
       visibleThroughEpochMs,
     });
-    view.setLayout(paneLayout, paneState.paneIds());
-    view.setWorkspace(paneState.current());
-    view.setWall(activePaneId, paneState.wallOrigin(activePaneId));
+    view.setLayout(paneLayout, workspaceState.paneIds());
+    view.setWorkspace(state.paneWorkspace);
+    view.setWall(activePaneId, workspaceState.wallOrigin(activePaneId));
     view.setState(readyPanes.length === 0 ? 'empty' : 'ready');
-    checkpointPersistence.save({ sessionHoursMode: desiredMode });
+    checkpointPersistence.save();
   }
 
   execution = createWorkspaceExecution({
     acceptVisibleState,
     historyPort: adapter,
-    initialSessionHoursMode,
     market,
     navigation,
     paneData,
-    paneState,
     range,
     record,
     replay,
     runtime,
     view,
+    workspaceState,
   });
   const paneTimeLocation = createPaneTimeLocationController({
     adapter,
     execution,
     market,
-    paneState,
     readSettings: () => workstationSettings.snapshot().settings,
     view,
+    workspaceState,
   });
   autoplayScheduler = createReplayAutoplayScheduler({
     cadenceMs: DEFAULT_AUTOPLAY_SPEED.cadenceMs,
@@ -347,23 +361,23 @@ export function createReplayWorkspaceController({
       const desired = readPaneLayout(desiredLayout);
       if (desired.paneCount === previous.paneCount) {
         paneLayout = desiredLayout;
-        view.setLayout(paneLayout, paneState.paneIds());
+        view.setLayout(paneLayout, workspaceState.paneIds());
         if (!checkpointPersistence.save({
           layout: paneLayout,
           message: 'Pane layout could not be saved locally.',
         })) {
           paneLayout = previousLayout;
-          view.setLayout(paneLayout, paneState.paneIds());
+          view.setLayout(paneLayout, workspaceState.paneIds());
         }
         return null;
       }
-      const current = paneState.read();
-      const desiredWorkspace = paneState.desiredPaneCount(
+      const current = workspaceState.read(acceptedPaneWorkspace());
+      const desiredWorkspace = workspaceState.desiredPaneCount(
         desired.paneCount,
         replay.snapshot().cursorEpochMs,
       );
       paneLayout = desiredLayout;
-      view.setLayout(paneLayout, paneState.paneIds(desiredWorkspace));
+      view.setLayout(paneLayout, workspaceState.paneIds(desiredWorkspace));
       const terminal = await execution.materialize({ desiredWorkspace });
       if (terminal === null) {
         paneLayout = previousLayout;
@@ -395,17 +409,19 @@ export function createReplayWorkspaceController({
       projectedHistoryData.dispose();
       replay.dispose();
       market.dispose();
-      paneState.dispose();
+      workspaceState.dispose();
     },
     focusPane(paneId) {
       if (disposed || execution.isPending()) return;
-      const previousPaneId = paneState.activePaneId();
-      view.setWorkspace(paneState.focus(paneId));
-      view.setWall(paneId, paneState.wallOrigin(paneId));
+      const previousPaneId = workspaceState.activePaneId();
+      const focused = readWorkspaceStateSnapshot(workspaceState.focus(paneId));
+      view.setWorkspace(focused.paneWorkspace);
+      view.setWall(paneId, workspaceState.wallOrigin(paneId));
       syncReplayStep();
       if (!checkpointPersistence.save({ message: 'Active Pane could not be saved locally.' })) {
-        view.setWorkspace(paneState.focus(previousPaneId));
-        view.setWall(previousPaneId, paneState.wallOrigin(previousPaneId));
+        const restoredState = readWorkspaceStateSnapshot(workspaceState.focus(previousPaneId));
+        view.setWorkspace(restoredState.paneWorkspace);
+        view.setWall(previousPaneId, workspaceState.wallOrigin(previousPaneId));
         syncReplayStep();
       }
     },
@@ -433,12 +449,12 @@ export function createReplayWorkspaceController({
     previous: () => execution.action('manual-previous', {}, { allowDim: true }),
     replaceInstrument(instrumentId) {
       if (disposed || execution.isPending()) return;
-      const current = paneState.read();
-      const desiredWorkspace = paneState.desiredInstrument(
+      const current = workspaceState.read(acceptedPaneWorkspace());
+      const desiredWorkspace = workspaceState.desiredInstrument(
         instrumentId,
         layoutSyncController.read().symbol,
       );
-      const desired = paneState.read(desiredWorkspace);
+      const desired = workspaceState.read(desiredWorkspace);
       const requestKinds = new Map(desired.panes
         .filter((pane, index) => pane.instrumentId !== current.panes[index].instrumentId)
         .map(({ paneId }) => [paneId, { kind: 'instrument-replacement' }]));
@@ -446,7 +462,8 @@ export function createReplayWorkspaceController({
       return execution.materialize({ desiredWorkspace, requestKinds });
     },
     replaceSessionHours(mode) {
-      const requestKinds = new Map(paneState.read().panes.map((pane) => [pane.paneId, {
+      if (disposed || execution.isPending()) return;
+      const requestKinds = new Map(workspaceState.read(acceptedPaneWorkspace()).panes.map((pane) => [pane.paneId, {
         historyDisplayBars: planReplacementHistoryFill(
           readViewportIntent(pane.viewportIntent),
         ).displayBars,
@@ -456,12 +473,12 @@ export function createReplayWorkspaceController({
     },
     replaceTimeframe(timeframeId) {
       if (disposed || execution.isPending()) return;
-      const current = paneState.read();
-      const desiredWorkspace = paneState.desiredTimeframe(
+      const current = workspaceState.read(acceptedPaneWorkspace());
+      const desiredWorkspace = workspaceState.desiredTimeframe(
         timeframeId,
         layoutSyncController.read().interval,
       );
-      const desired = paneState.read(desiredWorkspace);
+      const desired = workspaceState.read(desiredWorkspace);
       const changedPanes = desired.panes.filter(
         (pane, index) => pane.timeframeId !== current.panes[index].timeframeId,
       );
@@ -481,17 +498,17 @@ export function createReplayWorkspaceController({
       if (current.variantId !== next.variantId || current.paneCount !== next.paneCount) return;
       const previousLayout = paneLayout;
       paneLayout = nextLayout;
-      view.setLayout(paneLayout, paneState.paneIds());
+      view.setLayout(paneLayout, workspaceState.paneIds());
       if (!checkpointPersistence.save({
         layout: paneLayout,
         message: 'Pane layout could not be saved locally.',
       })) {
         paneLayout = previousLayout;
-        view.setLayout(paneLayout, paneState.paneIds());
+        view.setLayout(paneLayout, workspaceState.paneIds());
       }
     },
     resetView(paneId = null) {
-      const target = paneId ?? paneState.activePaneId();
+      const target = paneId ?? workspaceState.activePaneId();
       adapter.resetView(target);
     },
     cancelWorkstationSettingsPreview() {
@@ -560,17 +577,15 @@ export function createReplayWorkspaceController({
       crosshairSync: layoutSyncController.read().crosshair,
       layoutSync: layoutSyncController.snapshot(),
       paneLayout,
-      paneWorkspace: paneState.current(),
+      paneWorkspace: acceptedPaneWorkspace(),
       replay: replay.snapshot(),
+      semanticState: workspaceState.snapshot(),
       workspace: runtime.snapshot(),
     }),
     start() {
       return restored === null
         ? execution.action('manual-next', {}, { loading: true })
-        : execution.materialize(
-          { desiredMode: restored.sessionHoursMode },
-          { allowDim: true, loading: true },
-        );
+        : execution.materialize({}, { allowDim: true, loading: true });
     },
     toggleTruncationSelection() {
       if (disposed || execution.isPending()) return;

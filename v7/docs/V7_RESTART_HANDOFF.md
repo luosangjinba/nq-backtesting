@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-30 by R8.5 sole Bar Data retention owner
+Last updated: 2026-07-30 by R8.6 sole semantic Workspace State owner
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -17,6 +17,7 @@ required for normal startup.
 - R8.2 production architecture analyzer is commit `f19b7f32`;
 - R8.3 descriptor/lifecycle/independent-harness repair is commit `60b92d93`;
 - R8.4 Raw Coverage Lease contract is commit `f3d0feed`;
+- R8.5 sole Bar Data retention owner is commit `23d2b17a`;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10
@@ -27,10 +28,15 @@ required for normal startup.
 - R8.5 activates that lease through Bar Data Runtime, removes both UI market-
   data ledgers and cached source reads, and accepts H074 after bounded LRU/
   coverage reuse, delayed cancellation, inactive-Pane release, and disposal;
-- the exact production baseline now scans 43 modules, 105 dependency edges,
-  109 construction sites, 15 declared writer surfaces, and nine critical writer
-  sites; four blocking findings remain assigned to R8.6, R8.9, and R8.11;
-- next step after this commit is R8.6, but it must not begin until the R8.5
+- R8.6 activates one branded, revisioned owner for accepted Pane Workspace,
+  Session Hours, semantic Viewport, and checkpoint state; the UI Pane ledger,
+  Session Hours revision, and checkpoint reconstruction path are removed;
+- H007 is recovered and H075 is accepted through complete current-identity,
+  cross-scope, stale, restore, and disposal controls;
+- the exact production baseline now scans 44 modules, 113 dependency edges,
+  112 construction sites, 15 declared writer surfaces, and nine critical writer
+  sites; three blocking findings remain assigned to R8.9 and R8.11;
+- next step after this commit is R8.7, but it must not begin until the R8.6
   commit and evidence have been reported;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
@@ -92,12 +98,14 @@ listed above.
 5. `docs/v7-production-architecture-baseline.json`;
 6. `docs/V7_DESCRIPTOR_LIFECYCLE_INDEPENDENT_HARNESS_REPAIR_R8_3.md`;
 7. `docs/V7_RAW_COVERAGE_LEASE_CONTRACT_R8_4.md`;
-8. `docs/INDEX.md`;
-9. `TODO.md`;
-10. `docs/V7_ARCHITECTURE.md`;
-11. `docs/V7_HARNESS_STANDARD.md`;
-12. `docs/V7_EXECUTION_ROADMAP.md`;
-13. only the documents directly relevant to the next bounded R8 step.
+8. `docs/V7_SOLE_BAR_DATA_RETENTION_OWNER_R8_5.md`;
+9. `docs/V7_SOLE_WORKSPACE_STATE_OWNER_R8_6.md`;
+10. `docs/INDEX.md`;
+11. `TODO.md`;
+12. `docs/V7_ARCHITECTURE.md`;
+13. `docs/V7_HARNESS_STANDARD.md`;
+14. `docs/V7_EXECUTION_ROADMAP.md`;
+15. only the documents directly relevant to the next bounded R8 step.
 
 Do not resume from the historical status narrative alone. The R8 plan and the
 machine-readable recovery mode override earlier statements that phase-one

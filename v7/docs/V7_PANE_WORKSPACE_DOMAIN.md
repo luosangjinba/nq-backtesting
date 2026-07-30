@@ -1,6 +1,6 @@
 # V7 Pane Workspace Domain
 
-Status: R6.1 foundation with R6.10b Symbol/Interval transitions (2026-07-22)
+Status: R6.1 contract with R8.6 sole accepted-state runtime (2026-07-30)
 
 ## Ownership
 
@@ -10,10 +10,11 @@ Session-bounded instrument intent, and instrument-sync fan-out. It owns no
 mutable runtime, persistence, Replay clock, bars, projection, chart instance,
 DOM, or network access.
 
-Session Store remains the durable owner. Workspace Transaction Runtime remains
-the accepted snapshot revision owner. Viewport Runtime remains the owner of
-each Pane's wall intent. R6.1 composes and validates those public values; it
-does not duplicate their state.
+Session Store remains the durable writer. Workspace State Runtime is the sole
+owner of the accepted semantic Pane/Session Hours/Viewport/checkpoint revision.
+Viewport Runtime supplies the pane-local value/controller mechanics enclosed by
+that owner. Pane Workspace Domain composes and validates pure public values; it
+does not retain accepted state.
 
 ## Uniform Pane Contract
 
@@ -69,3 +70,7 @@ synchronized instrument transitions, shared-cursor preservation, immutable
 Viewport retention, structural rejection of Pane-local Replay fields, and 24
 negative controls including local/all-Pane timeframe and instrument-policy
 transitions.
+
+R8.6 adds `tests/workspace-state-runtime-harness.js`, which proves that only the
+runtime accepts these values, stable P1–P4 reductions survive the move out of
+UI, and foreign Session/activation/transaction proposals cannot publish.

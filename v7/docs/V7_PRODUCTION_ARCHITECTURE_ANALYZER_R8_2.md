@@ -42,16 +42,16 @@ outside the declared owner are violations.
 
 ## Exact Baseline
 
-The exact snapshot was refreshed by R8.4 after adding the pure Raw Coverage
-Lease contract and sole-retention inventory. It currently contains:
+The exact snapshot was refreshed by R8.6 after activating the sole semantic
+Workspace State owner. It currently contains:
 
-- 43 active production modules;
-- 102 actual module dependency edges;
-- 103 cross-module construction sites;
+- 44 active production modules;
+- 113 actual module dependency edges;
+- 112 cross-module construction sites;
 - two production HTML/JavaScript composition roots;
 - all 15 declared writer surfaces;
-- 10 directly observed critical writer sites;
-- six blocking production findings, down from the 13 first recorded by R8.2.
+- nine directly observed critical writer sites;
+- three blocking production findings, down from the 13 first recorded by R8.2.
 
 The full arrays are committed, not summarized away behind counts. Any module,
 owner, import site, public boundary, construction site, lifecycle observation,
@@ -67,9 +67,8 @@ the full finding objects are compared.
 
 ## Current Blocking Findings
 
-### R8.6–R8.9 — Writer Ownership
+### R8.9 — Writer Ownership
 
-- Replay Workspace UI owns mutable accepted Pane Workspace state;
 - `workspace-execution.js` accepts Pane data and semantic visible state after
   the Workspace transaction has already returned `committed`.
 
@@ -78,8 +77,9 @@ the full finding objects are compared.
 - `app/main.js` manually constructs its graph without ModuleHost;
 - `app/data-acquisition.js` manually constructs its surface without ModuleHost.
 
-R8.5 removes both UI market-data ledgers and leaves one detected raw-retention
-writer inside `core.bar-data-runtime`. The four items above remain blocking.
+R8.6 removes the UI accepted Pane ledger and leaves one detected Pane Workspace
+writer inside `core.workspace-state-runtime`. The three items above remain
+blocking.
 
 ## R8.3 Repair Result
 
@@ -113,6 +113,15 @@ surface, owned only by `core.bar-data-runtime`. The existing production scanner
 continues to report the two Replay Workspace UI ledgers as R8.5 violations.
 R8.4 therefore adds a contract and executable rule without reducing or
 expanding the six-item blocking inventory.
+
+## R8.6 Semantic State Result
+
+R8.6 adds `core.workspace-state-runtime`, moves accepted Pane Workspace,
+Session Hours, semantic Viewport controllers, and checkpoint construction out
+of Replay Workspace UI, and binds each aggregate snapshot to complete Session,
+activation, transaction, and runtime revision identity. The Pane writer probe
+now identifies the runtime factory as the sole allowed writer. The R8.6
+finding is closed; the R8.9 post-terminal UI publication finding remains.
 
 ## Negative Controls
 

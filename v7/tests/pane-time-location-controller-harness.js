@@ -1,13 +1,60 @@
 import assert from 'node:assert/strict';
+import { createActivationGeneration } from '../src/activation-generation/public.js';
+import { createSessionId } from '../src/session-identity/public.js';
+import { createTransactionId } from '../src/transaction-identity/public.js';
 import { createWorkstationSettings } from '../src/workstation-settings/public.js';
+import { createWorkspaceTransactionIdentity } from '../src/workspace-transaction-contract/public.js';
+import {
+  createWorkspaceStateRuntime,
+  readWorkspaceStateSnapshot,
+} from '../src/workspace-state-runtime/public.js';
 import { createPaneTimeLocationController } from '../src/replay-workspace-ui/pane-time-location-controller.js';
 
-const panes = Object.freeze([
-  Object.freeze({ instrumentId: 'nq', paneId: 'pane-main', timeframeId: '1m' }),
-  Object.freeze({ instrumentId: 'es', paneId: 'pane-secondary', timeframeId: '4h' }),
-  Object.freeze({ instrumentId: 'nq', paneId: 'pane-tertiary', timeframeId: '15m' }),
-]);
-const workspace = Object.freeze({ activePaneId: 'pane-secondary', panes });
+const sessionId = createSessionId('pane-time-location');
+const activationGeneration = createActivationGeneration(1);
+const workspaceState = createWorkspaceStateRuntime({
+  activationGeneration,
+  allowedInstrumentIds: ['instrument.cme.nq', 'instrument.cme.es'],
+  calendarRevision: 'calendar-r1',
+  checkpointContext: {
+    historicalRange: { startEpochMs: 0, endEpochMs: 100_000 },
+    instrumentIds: ['instrument.cme.nq', 'instrument.cme.es'],
+  },
+  initialCursorEpochMs: 10_000,
+  initialPaneCount: 3,
+  initialSessionHoursMode: 'eth',
+  initialTarget: {
+    instrumentId: 'instrument.cme.nq',
+    timeframeId: 'timeframe.fixed.1-minute',
+  },
+  paneIds: ['pane-main', 'pane-secondary', 'pane-tertiary'],
+  primaryInstrumentId: 'instrument.cme.nq',
+  sessionHoursModes: ['eth', 'rth'],
+  sessionId,
+});
+let transactionSequence = 0;
+function commit(paneWorkspace) {
+  transactionSequence += 1;
+  const identity = createWorkspaceTransactionIdentity({
+    activationGeneration,
+    sessionId,
+    transactionId: createTransactionId(`pane-location-${transactionSequence}`),
+  });
+  const state = readWorkspaceStateSnapshot(workspaceState.snapshot());
+  workspaceState.begin(identity);
+  workspaceState.accept({
+    cursorEpochMs: 10_000,
+    identity,
+    paneWorkspace,
+    sessionHours: state.sessionHours,
+  });
+}
+workspaceState.focus('pane-secondary');
+commit(workspaceState.desiredInstrument('instrument.cme.es'));
+commit(workspaceState.desiredTimeframe('timeframe.calendar.4-hour'));
+workspaceState.focus('pane-tertiary');
+commit(workspaceState.desiredTimeframe('timeframe.fixed.15-minute'));
+workspaceState.focus('pane-secondary');
 const menuModels = [];
 const feedback = [];
 const historyRequests = [];
@@ -37,21 +84,21 @@ const controller = createPaneTimeLocationController({
   execution,
   market: {
     instrumentOptions: [
-      { id: 'nq', label: 'NQ' },
-      { id: 'es', label: 'ES' },
+      { id: 'instrument.cme.nq', label: 'NQ' },
+      { id: 'instrument.cme.es', label: 'ES' },
     ],
     timeframes: [
-      { id: '1m', label: '1m' },
-      { id: '15m', label: '15m' },
-      { id: '4h', label: '4h' },
+      { id: 'timeframe.fixed.1-minute', label: '1m' },
+      { id: 'timeframe.fixed.15-minute', label: '15m' },
+      { id: 'timeframe.calendar.4-hour', label: '4h' },
     ],
   },
-  paneState: { read: () => workspace },
   readSettings: createWorkstationSettings,
   view: {
     openPaneTimeLocationMenu: (model) => menuModels.push(model),
     setGotoFeedback: (message) => feedback.push(message),
   },
+  workspaceState,
 });
 
 assert.equal(controller.open({ clientX: 20, clientY: 30, coordinateX: 40, paneId: 'pane-secondary' }), true);
@@ -75,13 +122,18 @@ assert.deepEqual(results.map(({ paneId, result }) => ({ paneId, status: result.s
 ]);
 assert.match(feedback.at(-1), /P3 · NQ · 15m/);
 assert.match(feedback.at(-1), /no unrelated candle was selected/);
-assert.equal(workspace.activePaneId, 'pane-secondary', 'time location never changes the active source Pane');
+assert.equal(
+  workspaceState.read(readWorkspaceStateSnapshot(workspaceState.snapshot()).paneWorkspace).activePaneId,
+  'pane-secondary',
+  'time location never changes the active source Pane',
+);
 
 selectionObservation = null;
 assert.equal(controller.open({ clientX: 1, clientY: 1, coordinateX: 1, paneId: 'pane-main' }), false,
   'future whitespace or an inter-bar gap must leave the native context menu untouched');
 assert.equal(controller.open({ clientX: 1, clientY: 1, coordinateX: 1, paneId: 'unknown' }), false);
 controller.dispose();
+workspaceState.dispose();
 assert.equal(controller.open({ clientX: 1, clientY: 1, coordinateX: 1, paneId: 'pane-main' }), false);
 
 console.log('v7 Pane Time Location Controller harness passed (explicit/partial/history controls)');

@@ -19,7 +19,7 @@ review. Preserve rejected commits and assign a new delivery id to replacements.
 - [x] `R8.4` define the transaction-scoped bounded Raw Coverage Lease contract;
 - [x] `R8.5` make Bar Data Runtime the sole raw retention/cache owner and
   remove UI source ledgers;
-- [ ] `R8.6` make one Workspace State runtime the sole accepted semantic-state
+- [x] `R8.6` make one Workspace State runtime the sole accepted semantic-state
   owner with complete identity;
 - [ ] `R8.7` define prepared commit/rollback/finalize participant contracts;
 - [ ] `R8.8` make Chart application staged and reversible;
@@ -44,12 +44,13 @@ Tracked recovery regressions:
 - `BUG-V7-0005`: fixture/inventory gates can remain green while production
   violates the architecture.
 
-R8.5 production baseline binds 43 modules, 105 actual dependency edges, 109
+R8.6 production baseline binds 44 modules, 113 actual dependency edges, 112
 construction sites, two production roots, 15 declared writer surfaces, nine
-critical writer sites, and four blocking findings. Raw Coverage Lease is active
-through the sole Bar Data raw-retention owner; H074 is accepted after bounded
-LRU/coverage reuse, delayed cancellation, inactive-Pane release, and disposal
-evidence. No later recovery rule is cleared early.
+critical writer sites, and three blocking findings. Workspace State Runtime is
+the sole accepted Pane/Session Hours/Viewport/checkpoint owner; H007 is
+recovered and H075 is accepted after complete identity/revision, stale,
+cross-scope, restore, and disposal evidence. No later recovery rule is cleared
+early.
 
 ## Established Foundation Governance
 

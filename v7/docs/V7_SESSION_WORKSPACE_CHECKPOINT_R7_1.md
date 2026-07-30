@@ -60,10 +60,13 @@ serializes Pane Layout, Layout Sync, and checkpoint together under one Session
 revision and one repository compare-and-swap. Partial legacy layout writes may
 not split a schema-6 layout from a checkpoint with a different Pane count.
 
-Replay Workspace UI delegates semantic capture, serialized equality
-suppression, and persistence feedback to its focused
-`workspace-checkpoint-persistence.js` boundary; the route/controller only
-orchestrates when accepted transitions ask that boundary to save.
+R8.6 makes Workspace State Runtime construct the checkpoint inside the same
+publication as accepted Pane, Session Hours, and Viewport state. Replay
+Workspace UI delegates serialized equality suppression and persistence
+feedback to its focused `workspace-checkpoint-persistence.js` boundary, which
+reads that accepted checkpoint directly; it cannot reconstruct semantic state
+from separate UI getters. The route/controller only orchestrates when accepted
+transitions ask that boundary to save.
 
 Replay/Pane/Session Hours changes save only after the matching visible
 Workspace commit. Layout, focus, and completed Viewport intents save after
@@ -115,8 +118,9 @@ rules.
   atomic save, reconstruction, and partial-write rejection.
 - `tests/viewport-runtime-harness.js` binds activation rebranding and revision
   reset.
-- `tests/pane-workspace-state-harness.js` binds active Pane, per-Pane
-  configuration, stable priority identity, and semantic Viewport restore.
+- `tests/workspace-state-runtime-harness.js` binds active Pane, per-Pane
+  configuration, stable priority identity, semantic Viewport restore, complete
+  transaction/revision identity, and sole checkpoint construction.
 - `tests/workspace-checkpoint-restore-browser-harness.js` proves first-save,
   Next and Autoplay persistence, soft re-entry, and hard refresh against real
   Lightweight Charts with an unrelated earlier Session, mixed Pane

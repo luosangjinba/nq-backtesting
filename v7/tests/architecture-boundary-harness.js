@@ -97,7 +97,7 @@ assert.deepEqual(manifest.writerInventories, {
   replayWorkspaceDom: ['adapter.replay-workspace-ui'],
   chartSeries: ['adapter.lightweight-chart'],
   viewportIntent: ['core.viewport-runtime'],
-  paneWorkspace: ['core.pane-workspace-domain'],
+  paneWorkspace: ['core.workspace-state-runtime'],
   workspaceSnapshot: ['core.workspace-transaction-runtime'],
   rawMarketDataRetention: ['core.bar-data-runtime'],
   rawBarRequest: ['core.bar-data-runtime'],

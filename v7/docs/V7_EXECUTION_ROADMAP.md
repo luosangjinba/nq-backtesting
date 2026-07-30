@@ -492,7 +492,10 @@ live in `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
 - `R8.5`: sole Bar Data raw retention owner; completed with transaction-bound
   lease activation, deletion of both UI ledgers, bounded accepted-coverage/LRU
   reuse, delayed cancellation, inactive-Pane release, and disposal evidence;
-- `R8.6`: sole semantic Workspace State owner;
+- `R8.6`: sole semantic Workspace State owner; completed with one branded,
+  revisioned Pane/Session Hours/Viewport/checkpoint snapshot, current complete
+  transaction identity enforcement, UI ledger deletion, restore rebranding,
+  and ten negative controls;
 - `R8.7`: prepared commit participant contract;
 - `R8.8`: reversible Chart application;
 - `R8.9`: globally atomic Workspace transaction and removal of UI second commit;

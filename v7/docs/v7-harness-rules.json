@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "currentStep": "R8.5",
+  "currentStep": "R8.6",
   "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
@@ -10,7 +10,7 @@
     "checkpointCommit": "fa561599",
     "allowedWork": "architecture-conformance-recovery-only",
     "freezeFeatureDelivery": true,
-    "regressedRuleIds": ["H007", "H009", "H010", "H018", "H019", "H021", "H022", "H023", "H024", "H025", "H049", "H050", "H056", "H066", "H069"]
+    "regressedRuleIds": ["H009", "H010", "H018", "H019", "H021", "H022", "H023", "H024", "H025", "H049", "H050", "H056", "H066", "H069"]
   },
   "rules": [
     {
@@ -107,17 +107,25 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "sessions shared bars, cursor, panes, and persisted state",
       "activationStep": "R1.3",
-      "state": "regressed",
-      "harness": "tests/workspace-transaction-contract-harness.js",
+      "state": "accepted",
+      "harness": "tests/workspace-state-runtime-harness.js",
       "positiveEvidence": [
         "src/transaction-identity/public.js",
-        "src/workspace-transaction-contract/public.js"
+        "src/workspace-transaction-contract/public.js",
+        "src/workspace-state-runtime/public.js",
+        "src/workspace-state-runtime/workspace-state-runtime.js",
+        "tests/workspace-state-runtime-harness.js",
+        "docs/V7_SOLE_WORKSPACE_STATE_OWNER_R8_6.md"
       ],
-      "negativeFixtures": ["tests/fixtures/workspace-transaction-contract/negative/cases.json"],
-      "humanReviewRequired": true,
+      "negativeFixtures": [
+        "tests/fixtures/workspace-transaction-contract/negative/cases.json",
+        "tests/fixtures/workspace-state-runtime/negative/cases.json"
+      ],
+      "humanReviewRequired": false,
       "acceptanceEvidence": "sessions/session_20260719_r1_3_transaction_contract.md",
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.6"
+      "recoveryStep": "R8.6",
+      "recoveryEvidence": "sessions/session_20260730_r8_6_sole_workspace_state_owner.md"
     },
     {
       "id": "H008",
@@ -1252,10 +1260,10 @@
       "positiveEvidence": [
         "src/pane-layout-domain/pane-layout.js",
         "src/replay-workspace-ui/pane-identity.js",
-        "src/replay-workspace-ui/pane-workspace-state.js",
+        "src/workspace-state-runtime/owned-pane-state.js",
         "tests/pane-layout-domain-harness.js",
         "tests/pane-identity-harness.js",
-        "tests/pane-workspace-state-harness.js",
+        "tests/workspace-state-runtime-harness.js",
         "tests/replay-layout-workspace-browser-harness.js",
         "tests/fixtures/replay-workspace/layout-four-left-stack-1440x900.png",
         "docs/V7_PANE_PRIORITY_IDENTITY_R6_10C1.md"
@@ -1353,11 +1361,11 @@
         "src/session-store/session-store.js",
         "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
         "src/replay-workspace-ui/workspace-controller.js",
-        "src/replay-workspace-ui/pane-workspace-state.js",
+        "src/workspace-state-runtime/workspace-state-runtime.js",
         "tests/workspace-checkpoint-domain-harness.js",
         "tests/session-store-harness.js",
         "tests/viewport-runtime-harness.js",
-        "tests/pane-workspace-state-harness.js",
+        "tests/workspace-state-runtime-harness.js",
         "tests/workspace-checkpoint-restore-browser-harness.js",
         "docs/V7_SESSION_WORKSPACE_CHECKPOINT_R7_1.md"
       ],
@@ -1529,15 +1537,29 @@
     {
       "id": "H075",
       "name": "sole-semantic-workspace-state-owner",
-      "owner": "workspace-transaction-runtime",
+      "owner": "workspace-state-runtime",
       "v6FailurePrevented": "UI ledgers formed a second accepted-state commit domain without complete transaction identity",
       "activationStep": "R8.6",
-      "state": "declared",
-      "harness": null,
-      "positiveEvidence": [],
-      "negativeFixtures": [],
-      "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "state": "accepted",
+      "harness": "tests/workspace-state-runtime-harness.js",
+      "positiveEvidence": [
+        "src/workspace-state-runtime/public.js",
+        "src/workspace-state-runtime/workspace-state-runtime.js",
+        "src/workspace-state-runtime/owned-pane-state.js",
+        "src/workspace-state-runtime/state-snapshot.js",
+        "src/replay-workspace-ui/workspace-controller.js",
+        "src/replay-workspace-ui/workspace-execution.js",
+        "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
+        "tests/workspace-state-runtime-harness.js",
+        "tests/production-architecture-harness.js",
+        "docs/V7_SOLE_WORKSPACE_STATE_OWNER_R8_6.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/workspace-state-runtime/negative/cases.json",
+        "tests/fixtures/production-architecture/negative/cases.json"
+      ],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260730_r8_6_sole_workspace_state_owner.md"
     },
     {
       "id": "H076",

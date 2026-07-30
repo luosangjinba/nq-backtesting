@@ -1,0 +1,20 @@
+{
+  "id": "core.workspace-state-runtime",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "workspace-state-runtime",
+  "publicEntry": "src/workspace-state-runtime/public.js",
+  "requiredPorts": [
+    "core.activation-generation",
+    "core.pane-workspace-domain",
+    "core.session-identity",
+    "core.transaction-identity",
+    "core.viewport-runtime",
+    "core.workspace-checkpoint-domain",
+    "core.workspace-transaction-contract"
+  ],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/workspace-state-runtime-harness.js",
+  "removable": false
+}

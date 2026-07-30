@@ -1,10 +1,6 @@
 import { serializeLayoutSync } from '../layout-sync-domain/public.js';
 import { serializePaneLayout } from '../pane-layout-domain/public.js';
-import { readViewportIntent } from '../viewport-runtime/public.js';
-import {
-  createWorkspaceCheckpoint,
-  serializeWorkspaceCheckpoint,
-} from '../workspace-checkpoint-domain/public.js';
+import { serializeWorkspaceCheckpoint } from '../workspace-checkpoint-domain/public.js';
 
 function persistenceKey({ checkpoint, layout, layoutSync }) {
   return JSON.stringify({
@@ -19,13 +15,10 @@ export function createWorkspaceCheckpointPersistence({
   initialCheckpoint = null,
   initialLayout,
   initialLayoutSync,
-  paneState,
+  workspaceState,
   persist,
-  readCursorEpochMs,
   readLayout,
   readLayoutSync,
-  readSessionHoursMode,
-  record,
   view,
 }) {
   let persistedKey = initialCheckpoint === null ? null : persistenceKey({
@@ -34,36 +27,15 @@ export function createWorkspaceCheckpointPersistence({
     layoutSync: initialLayoutSync,
   });
 
-  function capture(sessionHoursMode = readSessionHoursMode()) {
-    const workspace = paneState.read();
-    return createWorkspaceCheckpoint({
-      activePaneId: workspace.activePaneId,
-      cursorEpochMs: readCursorEpochMs(),
-      panes: workspace.panes.map((pane) => {
-        const viewport = readViewportIntent(paneState.viewportPort(pane.paneId).snapshot());
-        return {
-          instrumentId: pane.instrumentId,
-          paneId: pane.paneId,
-          timeframeId: pane.timeframeId,
-          viewport: {
-            latestOffsetBars: viewport.latestOffsetBars,
-            origin: viewport.origin,
-            spanBars: viewport.spanBars,
-          },
-        };
-      }),
-      sessionHoursMode,
-    }, record.configuration);
-  }
+  function capture() { return workspaceState.checkpoint(); }
 
   function save({
     layout = readLayout(),
     layoutSync = readLayoutSync(),
     message = 'Workspace changes could not be saved locally.',
     rethrow = false,
-    sessionHoursMode,
   } = {}) {
-    const checkpoint = capture(sessionHoursMode);
+    const checkpoint = capture();
     const key = persistenceKey({ checkpoint, layout, layoutSync });
     if (key === persistedKey) return true;
     try {

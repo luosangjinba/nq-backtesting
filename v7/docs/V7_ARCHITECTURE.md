@@ -267,6 +267,18 @@ it only through synchronous transaction-bound callbacks. UI source/display
 ledgers and cached source reads are removed; only derived immutable snapshots
 escape the owner.
 
+R8.6 activates `core.workspace-state-runtime` as the sole accepted semantic
+Workspace State owner. One branded revision now contains the accepted Pane
+Workspace, Session Hours capability/revision, semantic Viewport values, and
+persistence-facing checkpoint under complete Session, activation, and
+transaction identity. The runtime privately owns Pane construction and mutable
+Viewport controllers. Replay Workspace UI dispatches proposals and reads the
+accepted snapshot; it no longer owns an accepted Pane ledger, Session Hours
+revision, or checkpoint reconstruction path. A materialized proposal may
+publish only for the exact still-current begun identity. Focus and native
+Viewport completions receive runtime-local complete identities and new
+aggregate revisions. Global prepared/rollback coordination remains R8.7–R8.9.
+
 R3.2b1 adds `core.provider-policy-contract` as a pure transport-neutral policy
 boundary. Provider revision freshness, request limits, failure deadline,
 bounded retries, stable error kinds, and the adapter port are declared before

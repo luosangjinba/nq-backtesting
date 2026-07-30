@@ -1,13 +1,15 @@
 # V7 Viewport Runtime
 
-Status: R4.4 pure pane-local intent foundation (2026-07-20)
+Status: R4.4 pane-local mechanics enclosed by R8.6 semantic owner (2026-07-30)
 
 ## Ownership
 
-`core.viewport-runtime` owns the semantic replay-wall intent for one pane in one
-branded Session activation. R4.4 established its pure values and projections;
-R4.5 adds a small mutable controller used only through the real adapter port.
-It still owns no chart instance.
+`core.viewport-runtime` defines the semantic replay-wall value, projection, and
+mutable controller mechanics for one Pane in one branded Session activation.
+R8.6 encloses every production controller inside
+`core.workspace-state-runtime`, which is the sole owner of the accepted
+aggregate semantic revision exposed to UI and persistence. Viewport Runtime
+still owns no chart instance or independently published Workspace state.
 
 It performs no chart write, Replay mutation, Bar Data request, candle projection,
 persistence, DOM work, notification, or Lightweight Charts call.
@@ -86,3 +88,6 @@ executable but remains pending human browser acceptance; H041 records the pure
 contract's automated acceptance. The real adapter and RTH multi-Pane browser
 Harnesses additionally prove transient left-clamp span preservation, rapid
 drag stability, two-to-one Pane survival, and immediate subsequent extension.
+`tests/workspace-state-runtime-harness.js` additionally proves that manual
+capture and Reset publish a new complete-identity aggregate state/checkpoint
+revision and cannot escape the runtime after disposal.

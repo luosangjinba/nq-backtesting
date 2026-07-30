@@ -25,7 +25,7 @@
         "surface": "paneWorkspace",
         "detectorId": "pane-workspace-accepted-state",
         "allowedModuleIds": [
-          "core.pane-workspace-domain"
+          "core.workspace-state-runtime"
         ]
       },
       {
@@ -58,7 +58,7 @@
       }
     ]
   },
-  "deliveryStep": "R8.5",
+  "deliveryStep": "R8.6",
   "knownViolations": [
     {
       "code": "production-composition-bypasses-module-host",
@@ -73,13 +73,6 @@
       "subject": "app/main.js",
       "bugId": "BUG-V7-0004",
       "recoveryStep": "R8.11"
-    },
-    {
-      "code": "writer-outside-declared-owner",
-      "detail": "adapter.replay-workspace-ui writes paneWorkspace; allowed: core.pane-workspace-domain",
-      "subject": "paneWorkspace:src/replay-workspace-ui/pane-workspace-state.js",
-      "bugId": "BUG-V7-0001",
-      "recoveryStep": "R8.6"
     },
     {
       "code": "writer-outside-declared-owner",
@@ -215,8 +208,8 @@
       {
         "callCount": 1,
         "factory": "createInitialViewportIntent",
-        "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/workspace-state-runtime/owned-pane-state.js",
+        "sourceModuleId": "core.workspace-state-runtime",
         "targetModuleId": "core.viewport-runtime"
       },
       {
@@ -327,8 +320,8 @@
       {
         "callCount": 1,
         "factory": "createPaneWorkspace",
-        "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/workspace-state-runtime/owned-pane-state.js",
+        "sourceModuleId": "core.workspace-state-runtime",
         "targetModuleId": "core.pane-workspace-domain"
       },
       {
@@ -684,15 +677,15 @@
       {
         "callCount": 1,
         "factory": "createViewportController",
-        "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/workspace-state-runtime/owned-pane-state.js",
+        "sourceModuleId": "core.workspace-state-runtime",
         "targetModuleId": "core.viewport-runtime"
       },
       {
         "callCount": 1,
         "factory": "createWorkspaceCheckpoint",
-        "sourceFile": "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/workspace-state-runtime/workspace-state-runtime.js",
+        "sourceModuleId": "core.workspace-state-runtime",
         "targetModuleId": "core.workspace-checkpoint-domain"
       },
       {
@@ -701,6 +694,13 @@
         "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
         "sourceModuleId": "adapter.replay-workspace-ui",
         "targetModuleId": "core.workspace-replacement-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkspaceStateRuntime",
+        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workspace-state-runtime"
       },
       {
         "callCount": 1,
@@ -858,6 +858,20 @@
       },
       {
         "callCount": 2,
+        "factory": "createTransactionId",
+        "sourceFile": "src/workspace-state-runtime/workspace-state-runtime.js",
+        "sourceModuleId": "core.workspace-state-runtime",
+        "targetModuleId": "core.transaction-identity"
+      },
+      {
+        "callCount": 2,
+        "factory": "createWorkspaceTransactionIdentity",
+        "sourceFile": "src/workspace-state-runtime/workspace-state-runtime.js",
+        "sourceModuleId": "core.workspace-state-runtime",
+        "targetModuleId": "core.workspace-transaction-contract"
+      },
+      {
+        "callCount": 2,
         "factory": "createWorkstationSettings",
         "sourceFile": "src/lightweight-chart-adapter/chart-options.js",
         "sourceModuleId": "adapter.lightweight-chart",
@@ -931,12 +945,6 @@
       },
       {
         "moduleIds": [
-          "core.pane-workspace-domain"
-        ],
-        "surface": "paneWorkspace"
-      },
-      {
-        "moduleIds": [
           "core.replay-navigation-preference-store"
         ],
         "surface": "replayNavigationPreferences"
@@ -970,6 +978,12 @@
           "core.viewport-runtime"
         ],
         "surface": "viewportIntent"
+      },
+      {
+        "moduleIds": [
+          "core.workspace-state-runtime"
+        ],
+        "surface": "paneWorkspace"
       },
       {
         "moduleIds": [
@@ -1013,6 +1027,7 @@
           "core.viewport-runtime",
           "core.workspace-checkpoint-domain",
           "core.workspace-replacement-runtime",
+          "core.workspace-state-runtime",
           "core.workspace-transaction-contract",
           "core.workspace-transaction-runtime",
           "core.workstation-settings"
@@ -1050,6 +1065,7 @@
           "core.viewport-runtime",
           "core.workspace-checkpoint-domain",
           "core.workspace-replacement-runtime",
+          "core.workspace-state-runtime",
           "core.workspace-transaction-contract",
           "core.workspace-transaction-runtime",
           "core.workstation-settings"
@@ -1057,20 +1073,6 @@
         "descriptorPath": "src/replay-workspace-ui/module.json",
         "id": "adapter.replay-workspace-ui",
         "importSites": [
-          {
-            "importedNames": [
-              "changePaneInstrument",
-              "changePaneTimeframe",
-              "createPaneWorkspace",
-              "focusPane",
-              "readPaneWorkspace",
-              "setPaneInstrumentSync"
-            ],
-            "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
-            "targetFile": "src/pane-workspace-domain/public.js",
-            "targetModuleId": "core.pane-workspace-domain",
-            "throughPublicEntry": true
-          },
           {
             "importedNames": [
               "createBarDataRuntime",
@@ -1116,18 +1118,6 @@
             "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
             "targetFile": "src/fixed-timeframe-domain/public.js",
             "targetModuleId": "core.fixed-timeframe-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createInitialViewportIntent",
-              "createViewportController",
-              "readViewportIntent",
-              "restoreViewportIntent"
-            ],
-            "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
-            "targetFile": "src/viewport-runtime/public.js",
-            "targetModuleId": "core.viewport-runtime",
             "throughPublicEntry": true
           },
           {
@@ -1345,21 +1335,21 @@
           },
           {
             "importedNames": [
-              "createWorkspaceCheckpoint",
-              "serializeWorkspaceCheckpoint"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
-            "targetFile": "src/workspace-checkpoint-domain/public.js",
-            "targetModuleId": "core.workspace-checkpoint-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
               "createWorkspaceReplacementCatalog"
             ],
             "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
             "targetFile": "src/workspace-replacement-runtime/public.js",
             "targetModuleId": "core.workspace-replacement-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceStateRuntime",
+              "readWorkspaceStateSnapshot"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
+            "targetFile": "src/workspace-state-runtime/public.js",
+            "targetModuleId": "core.workspace-state-runtime",
             "throughPublicEntry": true
           },
           {
@@ -1554,15 +1544,6 @@
             "importedNames": [
               "readViewportIntent"
             ],
-            "sourceFile": "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
-            "targetFile": "src/viewport-runtime/public.js",
-            "targetModuleId": "core.viewport-runtime",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "readViewportIntent"
-            ],
             "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
             "targetFile": "src/viewport-runtime/public.js",
             "targetModuleId": "core.viewport-runtime",
@@ -1572,18 +1553,27 @@
             "importedNames": [
               "readWorkspaceCheckpoint"
             ],
-            "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
+            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
             "targetFile": "src/workspace-checkpoint-domain/public.js",
             "targetModuleId": "core.workspace-checkpoint-domain",
             "throughPublicEntry": true
           },
           {
             "importedNames": [
-              "readWorkspaceCheckpoint"
+              "readWorkspaceStateSnapshot"
             ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/workspace-checkpoint-domain/public.js",
-            "targetModuleId": "core.workspace-checkpoint-domain",
+            "sourceFile": "src/replay-workspace-ui/pane-time-location-controller.js",
+            "targetFile": "src/workspace-state-runtime/public.js",
+            "targetModuleId": "core.workspace-state-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceStateSnapshot"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+            "targetFile": "src/workspace-state-runtime/public.js",
+            "targetModuleId": "core.workspace-state-runtime",
             "throughPublicEntry": true
           },
           {
@@ -1624,6 +1614,15 @@
           },
           {
             "importedNames": [
+              "serializeWorkspaceCheckpoint"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
+            "targetFile": "src/workspace-checkpoint-domain/public.js",
+            "targetModuleId": "core.workspace-checkpoint-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
               "V4_BARS_DATASET_REVISION",
               "V4_PROJECTED_HISTORY_PROVIDER_ID",
               "createV4BarsProvider",
@@ -1660,7 +1659,6 @@
           "src/replay-workspace-ui/pane-layout-menu.js",
           "src/replay-workspace-ui/pane-time-location-controller.js",
           "src/replay-workspace-ui/pane-time-location-menu.js",
-          "src/replay-workspace-ui/pane-workspace-state.js",
           "src/replay-workspace-ui/refresh-feedback.js",
           "src/replay-workspace-ui/replay-transport.js",
           "src/replay-workspace-ui/replay-workspace-surface.js",
@@ -1982,6 +1980,191 @@
         "observedDisposeSites": [],
         "owner": "session-store",
         "publicEntry": "src/session-store/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.activation-generation",
+          "core.pane-workspace-domain",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.viewport-runtime",
+          "core.workspace-checkpoint-domain",
+          "core.workspace-transaction-contract"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.activation-generation",
+          "core.pane-workspace-domain",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.viewport-runtime",
+          "core.workspace-checkpoint-domain",
+          "core.workspace-transaction-contract"
+        ],
+        "descriptorPath": "src/workspace-state-runtime/module.json",
+        "id": "core.workspace-state-runtime",
+        "importSites": [
+          {
+            "importedNames": [
+              "activationGenerationsEqual",
+              "requireActivationGeneration"
+            ],
+            "sourceFile": "src/workspace-state-runtime/workspace-state-runtime.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "activationGenerationsEqual"
+            ],
+            "sourceFile": "src/workspace-state-runtime/owned-pane-state.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "changePaneInstrument",
+              "changePaneTimeframe",
+              "createPaneWorkspace",
+              "focusPane",
+              "readPaneWorkspace",
+              "setPaneInstrumentSync"
+            ],
+            "sourceFile": "src/workspace-state-runtime/owned-pane-state.js",
+            "targetFile": "src/pane-workspace-domain/public.js",
+            "targetModuleId": "core.pane-workspace-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createInitialViewportIntent",
+              "createViewportController",
+              "readViewportIntent",
+              "restoreViewportIntent"
+            ],
+            "sourceFile": "src/workspace-state-runtime/owned-pane-state.js",
+            "targetFile": "src/viewport-runtime/public.js",
+            "targetModuleId": "core.viewport-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createTransactionId",
+              "serializeTransactionId"
+            ],
+            "sourceFile": "src/workspace-state-runtime/workspace-state-runtime.js",
+            "targetFile": "src/transaction-identity/public.js",
+            "targetModuleId": "core.transaction-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceCheckpoint"
+            ],
+            "sourceFile": "src/workspace-state-runtime/workspace-state-runtime.js",
+            "targetFile": "src/workspace-checkpoint-domain/public.js",
+            "targetModuleId": "core.workspace-checkpoint-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceTransactionIdentity",
+              "readWorkspaceTransactionIdentity",
+              "workspaceTransactionIdentitiesEqual"
+            ],
+            "sourceFile": "src/workspace-state-runtime/workspace-state-runtime.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readPaneWorkspace"
+            ],
+            "sourceFile": "src/workspace-state-runtime/state-snapshot.js",
+            "targetFile": "src/pane-workspace-domain/public.js",
+            "targetModuleId": "core.pane-workspace-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readPaneWorkspace"
+            ],
+            "sourceFile": "src/workspace-state-runtime/workspace-state-runtime.js",
+            "targetFile": "src/pane-workspace-domain/public.js",
+            "targetModuleId": "core.pane-workspace-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readViewportIntent"
+            ],
+            "sourceFile": "src/workspace-state-runtime/workspace-state-runtime.js",
+            "targetFile": "src/viewport-runtime/public.js",
+            "targetModuleId": "core.viewport-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceCheckpoint"
+            ],
+            "sourceFile": "src/workspace-state-runtime/owned-pane-state.js",
+            "targetFile": "src/workspace-checkpoint-domain/public.js",
+            "targetModuleId": "core.workspace-checkpoint-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceCheckpoint"
+            ],
+            "sourceFile": "src/workspace-state-runtime/state-snapshot.js",
+            "targetFile": "src/workspace-checkpoint-domain/public.js",
+            "targetModuleId": "core.workspace-checkpoint-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireSessionId",
+              "sessionIdsEqual"
+            ],
+            "sourceFile": "src/workspace-state-runtime/workspace-state-runtime.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireWorkspaceTransactionIdentity"
+            ],
+            "sourceFile": "src/workspace-state-runtime/state-snapshot.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "sessionIdsEqual"
+            ],
+            "sourceFile": "src/workspace-state-runtime/owned-pane-state.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/workspace-state-runtime-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [
+          "src/workspace-state-runtime/owned-pane-state.js",
+          "src/workspace-state-runtime/workspace-state-runtime.js"
+        ],
+        "owner": "workspace-state-runtime",
+        "publicEntry": "src/workspace-state-runtime/public.js"
       },
       {
         "actualDependencies": [
@@ -3694,8 +3877,8 @@
       },
       {
         "detectorId": "pane-workspace-accepted-state",
-        "sourceFile": "src/replay-workspace-ui/pane-workspace-state.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/workspace-state-runtime/workspace-state-runtime.js",
+        "sourceModuleId": "core.workspace-state-runtime",
         "surface": "paneWorkspace"
       },
       {

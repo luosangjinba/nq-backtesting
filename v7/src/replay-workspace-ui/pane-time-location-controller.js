@@ -4,6 +4,7 @@ import {
   readPaneTimeLocationCommand,
 } from '../pane-time-location-domain/public.js';
 import { createTimePresentation } from '../workstation-settings/public.js';
+import { readWorkspaceStateSnapshot } from '../workspace-state-runtime/public.js';
 import { readWorkspacePaneIdentity } from './pane-identity.js';
 
 const MAXIMUM_HISTORY_WINDOWS = 16;
@@ -13,13 +14,17 @@ export function createPaneTimeLocationController({
   adapter,
   execution,
   market,
-  paneState,
+  workspaceState,
   readSettings,
   view,
 }) {
   const instrumentLabels = new Map(market.instrumentOptions.map(({ id, label }) => [id, label]));
   const timeframeLabels = new Map(market.timeframes.map(({ id, label }) => [id, label]));
   let disposed = false;
+
+  function acceptedWorkspace() {
+    return readWorkspaceStateSnapshot(workspaceState.snapshot()).paneWorkspace;
+  }
 
   function paneLabel(pane) {
     const identity = readWorkspacePaneIdentity(pane.paneId);
@@ -54,7 +59,7 @@ export function createPaneTimeLocationController({
         return null;
       }
       const value = readPaneTimeLocationCommand(command);
-      const workspace = paneState.read();
+      const workspace = workspaceState.read(acceptedWorkspace());
       const visiblePaneIds = new Set(workspace.panes.map(({ paneId }) => paneId));
       const validTargets = value.targetPaneIds.filter((paneId) => (
         visiblePaneIds.has(paneId) && paneId !== value.selection.sourcePaneId
@@ -81,7 +86,7 @@ export function createPaneTimeLocationController({
     },
     open({ clientX, clientY, coordinateX, paneId }) {
       if (disposed || execution.isPending()) return false;
-      const workspace = paneState.read();
+      const workspace = workspaceState.read(acceptedWorkspace());
       if (workspace.panes.length < 2 || !workspace.panes.some((pane) => pane.paneId === paneId)) return false;
       const observation = adapter.resolveTimeLocationSelection(paneId, coordinateX);
       if (!observation) return false;

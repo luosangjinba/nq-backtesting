@@ -5,7 +5,7 @@ import { validateProductionArchitectureSnapshot } from './production-architectur
 const WRITER_DETECTORS = Object.freeze({
   'market-data-retention-ledger': /export\s+function\s+createRawCoverageStore\s*\(/,
   'native-chart-series': /\b(?:series|futureTimeAxisSeries)\.(?:setData|update)\s*\(/,
-  'pane-workspace-accepted-state': /export\s+function\s+createPaneWorkspaceState\s*\(/,
+  'pane-workspace-accepted-state': /export\s+function\s+createWorkspaceStateRuntime\s*\(/,
   'post-terminal-workspace-commit': /\bpaneData\.accept\s*\(/,
   'raw-provider-request': /\bprovider\.(?:requestRawBars|requestProjectedHistory)\s*\(/,
   'replay-cursor-commit': /\bcursorEpochMs\s*=\s*value\.targetEpochMs\b/,

@@ -22,6 +22,7 @@
     "core.pane-time-location-domain",
     "core.layout-sync-domain",
     "core.workspace-checkpoint-domain",
+    "core.workspace-state-runtime",
     "core.pane-workspace-domain",
     "core.pane-set-materialization",
     "core.projection-domain",
