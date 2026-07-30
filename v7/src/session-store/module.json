@@ -10,6 +10,7 @@
     "core.pane-layout-domain",
     "core.layout-sync-domain",
     "core.workspace-checkpoint-domain",
+    "core.replay-navigation-settings",
     "adapter.session-persistence"
   ],
   "optionalPorts": [],

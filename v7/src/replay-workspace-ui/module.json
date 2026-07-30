@@ -39,6 +39,6 @@
   ],
   "optionalPorts": [],
   "lifecycle": ["dispose"],
-  "independentHarness": "tests/replay-pane-workspace-browser-harness.js",
+  "independentHarness": "tests/replay-workspace-ui-independent-harness.js",
   "removable": false
 }

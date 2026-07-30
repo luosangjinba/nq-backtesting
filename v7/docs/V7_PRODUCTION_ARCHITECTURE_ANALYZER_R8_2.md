@@ -42,7 +42,8 @@ outside the declared owner are violations.
 
 ## Exact Baseline
 
-The committed snapshot currently contains:
+The exact snapshot was refreshed by R8.3 after repairing the findings assigned
+to that step. It currently contains:
 
 - 42 active production modules;
 - 100 actual module dependency edges;
@@ -50,7 +51,7 @@ The committed snapshot currently contains:
 - two production HTML/JavaScript composition roots;
 - all 14 declared writer surfaces;
 - 10 directly observed critical writer sites;
-- 13 blocking production findings.
+- six blocking production findings, down from the 13 first recorded by R8.2.
 
 The full arrays are committed, not summarized away behind counts. Any module,
 owner, import site, public boundary, construction site, lifecycle observation,
@@ -66,20 +67,6 @@ the full finding objects are compared.
 
 ## Current Blocking Findings
 
-### R8.3 — Descriptor, Lifecycle, Independent Harness
-
-- `core.calendar-timeframe-domain` imports `core.bar-data-contract` without a
-  declared port;
-- `core.fixed-timeframe-domain` imports `core.bar-data-contract` without a
-  declared port;
-- `core.session-store` imports `core.replay-navigation-settings` without a
-  declared port;
-- `core.bar-data-runtime` returns `dispose()` while declaring no lifecycle;
-- `core.provider-execution-runtime` returns `dispose()` while declaring no
-  lifecycle;
-- Replay Workspace UI and Session Browser UI name browser harnesses that boot
-  `/v7/app/` instead of independently booting their public modules.
-
 ### R8.5–R8.9 — Writer Ownership
 
 - Replay Workspace UI owns `display-history-ledger.js` and
@@ -93,7 +80,27 @@ the full finding objects are compared.
 - `app/main.js` manually constructs its graph without ModuleHost;
 - `app/data-acquisition.js` manually constructs its surface without ModuleHost.
 
-No item above is repaired or accepted by R8.2.
+No item above is repaired or accepted by R8.3.
+
+## R8.3 Repair Result
+
+R8.3 removed all seven findings assigned to it:
+
+- Fixed Timeframe and Calendar Timeframe now declare their Bar Data contract
+  dependency;
+- Session Store now declares its Replay Navigation Settings dependency;
+- Bar Data Runtime and Provider Execution Runtime now declare their returned
+  `dispose()` lifecycle;
+- Replay Workspace UI boots its public entry directly in a headless harness;
+- Session Browser UI boots its public entry through a dedicated fixture with
+  Replay Workspace UI absent.
+
+The production descriptor assembly imports all 42 real public entries, boots
+the descriptor graph through ModuleHost, disposes all 10 declared lifecycle
+modules exactly once in reverse assembly order, and proves the complete current
+optional-removal matrix. There is one declared optional edge: Session Browser
+UI must boot without Replay Workspace UI. Production application factories and
+the two real HTML composition roots remain deliberately assigned to R8.11.
 
 ## Negative Controls
 
@@ -120,8 +127,7 @@ named critical writer probes. Dynamic runtime failure atomicity remains owned
 by R8.7–R8.9 and the production cross-product/browser matrix remains owned by
 R8.14–R8.15.
 
-R8.3 must reduce the seven findings assigned to it to zero and update the same
-snapshot in its single commit. Later steps do the same for their assigned
-writer/composition findings. Expanding `knownViolations` requires a new stable
-bug identity and explicit human review; it can never be an incidental baseline
-refresh.
+R8.3 reduced its seven assigned findings to zero and updated the same snapshot
+in its single commit. Later steps must do the same for their assigned writer
+and composition findings. Expanding `knownViolations` requires a new stable bug
+identity and explicit review; it can never be an incidental baseline refresh.

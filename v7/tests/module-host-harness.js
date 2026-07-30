@@ -11,6 +11,7 @@ import {
   ModuleHostError,
   normalizeModuleDescriptor,
 } from '../src/module-host/public.js';
+import { verifyProductionModuleAssembly } from './support/production-module-assembly.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const V7_ROOT = path.resolve(TEST_DIR, '..');
@@ -225,4 +226,16 @@ for (const fixture of negativeCases) {
 }
 assert.equal(liveResources, 0, 'negative controls must not strand resources');
 
-console.log(`v7 module host harness passed (${negativeCases.length} negative controls)`);
+const manifest = JSON.parse(fs.readFileSync(
+  path.join(V7_ROOT, 'docs/v7-architecture-manifest.json'),
+  'utf8',
+));
+const productionAssembly = await verifyProductionModuleAssembly({ manifest, v7Root: V7_ROOT });
+assert.equal(productionAssembly.moduleIds.length, manifest.activeProductionModules.length);
+assert.equal(productionAssembly.optionalRemovalMatrix.length, 1);
+
+console.log(
+  `v7 module host harness passed (${negativeCases.length} negative controls, `
+  + `${productionAssembly.moduleIds.length} production descriptors, `
+  + `${productionAssembly.optionalRemovalMatrix.length} optional-removal case)`,
+);

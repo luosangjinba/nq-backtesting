@@ -13,6 +13,6 @@
   ],
   "optionalPorts": ["adapter.replay-workspace-ui"],
   "lifecycle": ["dispose"],
-  "independentHarness": "tests/session-browser-browser-harness.js",
+  "independentHarness": "tests/session-browser-ui-independent-browser-harness.js",
   "removable": false
 }

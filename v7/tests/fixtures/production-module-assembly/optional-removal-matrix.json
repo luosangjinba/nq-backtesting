@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "consumerModuleId": "adapter.session-browser-ui",
+      "omittedModuleId": "adapter.replay-workspace-ui"
+    }
+  ]
+}

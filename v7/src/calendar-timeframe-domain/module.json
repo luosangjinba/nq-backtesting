@@ -4,7 +4,7 @@
   "kind": "core",
   "owner": "projection-domain",
   "publicEntry": "src/calendar-timeframe-domain/public.js",
-  "requiredPorts": [],
+  "requiredPorts": ["core.bar-data-contract"],
   "optionalPorts": [],
   "lifecycle": [],
   "independentHarness": "tests/calendar-timeframe-domain-harness.js",

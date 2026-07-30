@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-30 by R8.2 production architecture analyzer
+Last updated: 2026-07-30 by R8.3 descriptor/lifecycle/independent-harness repair
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -14,11 +14,16 @@ required for normal startup.
 - active delivery: R8 architecture conformance recovery only; new feature work
   and R7.3n/R7.3o acceptance are frozen;
 - R8.1 recovery constitution is commit `7dbabbed`;
-- R8.2 now scans 42 production modules, 100 actual dependency edges, 101
-  construction sites, two production roots, and 10 critical writer sites; its
-  exact baseline contains 13 blocking findings and accepts none of them;
-- next step after this commit is R8.3, but it must not begin until the R8.2
-  commit and evidence have been reported for review;
+- R8.2 production architecture analyzer is commit `f19b7f32`;
+- R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
+  the refreshed exact baseline scans 42 production modules, 100 actual
+  dependency edges, 101 construction sites, two production roots, and 10
+  critical writer sites, with six blocking findings assigned to later steps;
+- R8.3 boots all 42 production public entries through the descriptor graph,
+  proves reverse disposal for all 10 lifecycle modules, and proves the complete
+  one-case optional-removal matrix without booting the application shell;
+- next step after this commit is R8.4, but it must not begin until the R8.3
+  commit and evidence have been reported;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
   bar-step interaction gate; R6.7 continuous Autoplay implemented; R6.7a
@@ -77,12 +82,13 @@ listed above.
 3. `docs/V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`;
 4. `docs/V7_PRODUCTION_ARCHITECTURE_ANALYZER_R8_2.md`;
 5. `docs/v7-production-architecture-baseline.json`;
-6. `docs/INDEX.md`;
-7. `TODO.md`;
-8. `docs/V7_ARCHITECTURE.md`;
-9. `docs/V7_HARNESS_STANDARD.md`;
-10. `docs/V7_EXECUTION_ROADMAP.md`;
-11. only the documents directly relevant to the next bounded R8 step.
+6. `docs/V7_DESCRIPTOR_LIFECYCLE_INDEPENDENT_HARNESS_REPAIR_R8_3.md`;
+7. `docs/INDEX.md`;
+8. `TODO.md`;
+9. `docs/V7_ARCHITECTURE.md`;
+10. `docs/V7_HARNESS_STANDARD.md`;
+11. `docs/V7_EXECUTION_ROADMAP.md`;
+12. only the documents directly relevant to the next bounded R8 step.
 
 Do not resume from the historical status narrative alone. The R8 plan and the
 machine-readable recovery mode override earlier statements that phase-one
@@ -544,31 +550,11 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R6.10b Symbol/Interval synchronization was human accepted on 2026-07-23.
-R6.10c1 stable Pane identity and count-reduction priority were human accepted
-on 2026-07-23: right before left, and top before bottom when right edges match.
-R6.10c2 removes the rejected real-time ordinary-click Time projection while
-retaining the persisted field as inert compatibility data; human interaction
-and visual review accepted the rollback on 2026-07-23. R6.10c3 explicit
-right-click market-time location using stable P1-P4 targets is also accepted
-after correcting automatic post-location left-history fill. R6 interaction
-work is closed. Date-range synchronization is deliberately deferred and is not
-an R7 prerequisite.
-
-R7.1's versioned Session Workspace checkpoint and atomic restore path for
-UX-FND-004 are human accepted. R7.2's restored mixed-Pane cache-hit,
-delayed/reordered-response, and full foundation-axis performance gates are
-automatically accepted with no visual/interaction change. The chart/Replay
-foundation is closed.
-
-Exact next step: R7.3k one-pass loading, R7.3l premarket RTH entry, and R7.3m
-dense replacement prefill are human accepted. R7.3n implements the reported
-disabled `1D`/`1W`/`1M` choices through a Projection-owned session-aware
-calendar policy and passes automated domain/API/real-Chrome gates. R7.3o fixes
-the newly reported dense RTH non-target Pane collapse during explicit location.
-Obtain human confirmation for both pending interaction gates, then commit the
-bounded work. After the remaining R7.3 human gates, decide whether phase one
-closes before specifying Backtesting/Journal boundaries.
+R8.4 is the exact next step: define the pure, transaction-scoped bounded Raw
+Coverage Lease/read-view contract, including identity, bounded windows,
+lifetime, cancellation, and disposal. It must not yet move raw retention out
+of Replay Workspace UI; activation and removal of those ledgers belong to
+R8.5. R7.3n/R7.3o acceptance and all feature work remain frozen until R8.15.
 
 ## Standing Workflow
 

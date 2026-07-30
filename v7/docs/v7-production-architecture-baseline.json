@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R8.2",
+  "deliveryStep": "R8.3",
   "status": "blocking-recovery-baseline",
   "analysisPolicy": {
     "lifecycleFactoryExemptions": [
@@ -62,55 +62,6 @@
     ]
   },
   "knownViolations": [
-    {
-      "code": "descriptor-lifecycle-missing",
-      "detail": "production exposes dispose() in src/bar-data-runtime/bar-data-runtime.js, src/bar-data-runtime/projected-history-runtime.js",
-      "subject": "core.bar-data-runtime",
-      "bugId": "BUG-V7-0004",
-      "recoveryStep": "R8.3"
-    },
-    {
-      "code": "descriptor-lifecycle-missing",
-      "detail": "production exposes dispose() in src/provider-execution-runtime/policy-bound-provider.js",
-      "subject": "core.provider-execution-runtime",
-      "bugId": "BUG-V7-0004",
-      "recoveryStep": "R8.3"
-    },
-    {
-      "code": "descriptor-undeclared-import",
-      "detail": "production imports a module absent from requiredPorts and optionalPorts",
-      "subject": "core.calendar-timeframe-domain->core.bar-data-contract",
-      "bugId": "BUG-V7-0004",
-      "recoveryStep": "R8.3"
-    },
-    {
-      "code": "descriptor-undeclared-import",
-      "detail": "production imports a module absent from requiredPorts and optionalPorts",
-      "subject": "core.fixed-timeframe-domain->core.bar-data-contract",
-      "bugId": "BUG-V7-0004",
-      "recoveryStep": "R8.3"
-    },
-    {
-      "code": "descriptor-undeclared-import",
-      "detail": "production imports a module absent from requiredPorts and optionalPorts",
-      "subject": "core.session-store->core.replay-navigation-settings",
-      "bugId": "BUG-V7-0004",
-      "recoveryStep": "R8.3"
-    },
-    {
-      "code": "independent-harness-app-shell",
-      "detail": "tests/replay-pane-workspace-browser-harness.js boots /v7/app instead of the module public entry",
-      "subject": "adapter.replay-workspace-ui",
-      "bugId": "BUG-V7-0004",
-      "recoveryStep": "R8.3"
-    },
-    {
-      "code": "independent-harness-app-shell",
-      "detail": "tests/session-browser-browser-harness.js boots /v7/app instead of the module public entry",
-      "subject": "adapter.session-browser-ui",
-      "bugId": "BUG-V7-0004",
-      "recoveryStep": "R8.3"
-    },
     {
       "code": "production-composition-bypasses-module-host",
       "detail": "app/data-acquisition.html boots production without core.module-host",
@@ -1663,8 +1614,8 @@
             "throughPublicEntry": true
           }
         ],
-        "independentHarness": "tests/replay-pane-workspace-browser-harness.js",
-        "independentHarnessMode": "app-shell",
+        "independentHarness": "tests/replay-workspace-ui-independent-harness.js",
+        "independentHarnessMode": "public-entry-direct",
         "kind": "adapter",
         "observedDisposeSites": [
           "src/replay-workspace-ui/autoplay-scheduler.js",
@@ -1751,8 +1702,8 @@
             "throughPublicEntry": true
           }
         ],
-        "independentHarness": "tests/session-browser-browser-harness.js",
-        "independentHarnessMode": "app-shell",
+        "independentHarness": "tests/session-browser-ui-independent-browser-harness.js",
+        "independentHarnessMode": "public-entry-fixture",
         "kind": "adapter",
         "observedDisposeSites": [
           "src/session-browser-ui/create-dialog.js",
@@ -1872,6 +1823,7 @@
           "core.activation-generation",
           "core.layout-sync-domain",
           "core.pane-layout-domain",
+          "core.replay-navigation-settings",
           "core.session-identity",
           "core.workspace-checkpoint-domain"
         ],
@@ -2580,7 +2532,9 @@
           "core.coverage-planning-contract",
           "core.provider-policy-contract"
         ],
-        "declaredLifecycle": [],
+        "declaredLifecycle": [
+          "dispose"
+        ],
         "declaredOptionalPorts": [],
         "declaredRequiredPorts": [
           "core.bar-data-contract",
@@ -2655,7 +2609,9 @@
           "core.bar-data-contract",
           "core.projected-history-contract"
         ],
-        "declaredLifecycle": [],
+        "declaredLifecycle": [
+          "dispose"
+        ],
         "declaredOptionalPorts": [],
         "declaredRequiredPorts": [
           "core.bar-data-contract",
@@ -2754,7 +2710,9 @@
         ],
         "declaredLifecycle": [],
         "declaredOptionalPorts": [],
-        "declaredRequiredPorts": [],
+        "declaredRequiredPorts": [
+          "core.bar-data-contract"
+        ],
         "descriptorPath": "src/calendar-timeframe-domain/module.json",
         "id": "core.calendar-timeframe-domain",
         "importSites": [
@@ -2781,7 +2739,9 @@
         ],
         "declaredLifecycle": [],
         "declaredOptionalPorts": [],
-        "declaredRequiredPorts": [],
+        "declaredRequiredPorts": [
+          "core.bar-data-contract"
+        ],
         "descriptorPath": "src/fixed-timeframe-domain/module.json",
         "id": "core.fixed-timeframe-domain",
         "importSites": [

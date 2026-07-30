@@ -4,7 +4,7 @@
   "kind": "core",
   "owner": "projection-domain",
   "publicEntry": "src/fixed-timeframe-domain/public.js",
-  "requiredPorts": [],
+  "requiredPorts": ["core.bar-data-contract"],
   "optionalPorts": [],
   "lifecycle": [],
   "independentHarness": "tests/fixed-timeframe-domain-harness.js",

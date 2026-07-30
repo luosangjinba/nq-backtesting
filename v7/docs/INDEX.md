@@ -6,8 +6,9 @@ read-only product, interaction, data-contract, and failure-evidence reference.
 While R8 recovery mode is active, read
 `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md` immediately after the restart
 handoff, followed by `V7_PRODUCTION_ARCHITECTURE_ANALYZER_R8_2.md` and its
-machine-readable baseline, before the normal implementation reading order
-below.
+machine-readable baseline, then
+`V7_DESCRIPTOR_LIFECYCLE_INDEPENDENT_HARNESS_REPAIR_R8_3.md`, before the normal
+implementation reading order below.
 
 Read in this order before V7 implementation work:
 

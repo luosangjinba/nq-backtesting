@@ -11,7 +11,7 @@
     "core.bar-data-runtime"
   ],
   "optionalPorts": [],
-  "lifecycle": [],
+  "lifecycle": ["dispose"],
   "independentHarness": "tests/provider-execution-runtime-harness.js",
   "removable": false
 }

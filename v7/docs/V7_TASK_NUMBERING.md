@@ -20,11 +20,12 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current delivery step is `R8.2`, the production architecture analyzer.
-R8 follows immutable pre-remediation checkpoint `fa561599`; R8.1 is commit
-`7dbabbed`. R8.3 may not begin until the R8.2 commit has been reported for
-review. Every R8 step is one commit and stops after that commit; broad `R<n>`
-headings remain milestones only.
+The current delivery step is `R8.3`, descriptor, lifecycle, and independent-
+harness repair. R8 follows immutable pre-remediation checkpoint `fa561599`;
+R8.1 is commit `7dbabbed` and R8.2 is commit `f19b7f32`. R8.4 may not begin
+until the R8.3 commit and evidence have been reported. Every R8 step is one
+commit and stops after that commit; broad `R<n>` headings remain milestones
+only.
 
 ## Other Stable IDs
 

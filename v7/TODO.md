@@ -14,7 +14,7 @@ review. Preserve rejected commits and assign a new delivery id to replacements.
   continuity, and executable `regressed` rule lifecycle;
 - [x] `R8.2` make architecture gates analyze production imports,
   construction, writers, lifecycle, and independent boot;
-- [ ] `R8.3` repair descriptors, lifecycle declarations, independent
+- [x] `R8.3` repair descriptors, lifecycle declarations, independent
   harnesses, and the real optional-removal matrix;
 - [ ] `R8.4` define the transaction-scoped bounded Raw Coverage Lease contract;
 - [ ] `R8.5` make Bar Data Runtime the sole raw retention/cache owner and
@@ -44,11 +44,11 @@ Tracked recovery regressions:
 - `BUG-V7-0005`: fixture/inventory gates can remain green while production
   violates the architecture.
 
-R8.2 production baseline now binds 42 modules, 100 actual dependency edges,
-101 construction sites, two production roots, 10 critical writer sites, and 13
-blocking findings. Seven descriptor/lifecycle/independent-harness findings are
-assigned to R8.3; the other six remain assigned to R8.5, R8.6, R8.9, and R8.11.
-Passing the analyzer confirms exact detection only; it accepts none of them.
+R8.3 production baseline binds 42 modules, 100 actual dependency edges, 101
+construction sites, two production roots, 10 critical writer sites, and six
+blocking findings. All seven descriptor/lifecycle/independent-harness findings
+assigned to R8.3 are closed. The remaining six stay assigned to R8.5, R8.6,
+R8.9, and R8.11; no later recovery rule is cleared early.
 
 ## Established Foundation Governance
 

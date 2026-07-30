@@ -22,7 +22,7 @@ const baseline = JSON.parse(fs.readFileSync(
 ));
 
 assert.equal(baseline.schemaVersion, 1);
-assert.equal(baseline.deliveryStep, 'R8.2');
+assert.equal(baseline.deliveryStep, 'R8.3');
 assert.equal(baseline.status, 'blocking-recovery-baseline');
 const report = analyzeProductionArchitecture({
   manifest,
@@ -48,6 +48,18 @@ for (const finding of baseline.knownViolations) {
   assert.match(finding.recoveryStep, /^R8\.\d+$/);
   assert.equal(finding.blocking, undefined, 'known violations are intrinsically blocking');
 }
+assert.equal(
+  baseline.knownViolations.filter(({ recoveryStep }) => recoveryStep === 'R8.3').length,
+  0,
+  'R8.3 must close every descriptor, lifecycle, and independent-harness finding assigned to it',
+);
+assert.equal(baseline.knownViolations.length, 6);
+const independentModes = new Map(report.snapshot.modules.map((module) => [
+  module.id,
+  module.independentHarnessMode,
+]));
+assert.equal(independentModes.get('adapter.replay-workspace-ui'), 'public-entry-direct');
+assert.equal(independentModes.get('adapter.session-browser-ui'), 'public-entry-fixture');
 assert.equal(report.snapshot.modules.length, manifest.activeProductionModules.length);
 assert.deepEqual(
   report.snapshot.modules.map(({ id }) => id).sort(),

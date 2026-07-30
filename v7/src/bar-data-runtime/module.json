@@ -6,7 +6,7 @@
   "publicEntry": "src/bar-data-runtime/public.js",
   "requiredPorts": ["core.bar-data-contract", "core.projected-history-contract"],
   "optionalPorts": [],
-  "lifecycle": [],
+  "lifecycle": ["dispose"],
   "independentHarness": "tests/bar-data-runtime-harness.js",
   "removable": false
 }
