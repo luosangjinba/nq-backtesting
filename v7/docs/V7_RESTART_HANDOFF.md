@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-30 by R8.7 prepared commit participant contract
+Last updated: 2026-07-30 by R8.8 reversible Chart application
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -19,6 +19,7 @@ required for normal startup.
 - R8.4 Raw Coverage Lease contract is commit `f3d0feed`;
 - R8.5 sole Bar Data retention owner is commit `23d2b17a`;
 - R8.6 sole semantic Workspace State owner is commit `a4576e13`;
+- R8.7 prepared commit participant contract is commit `518eab82`;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10
@@ -39,10 +40,15 @@ required for normal startup.
   reversible apply, exact rollback, and irreversible finalize receipts;
 - H076 advances from declared to executable but is not accepted until real
   participant activation and global coordination complete in R8.8–R8.9;
-- the exact production baseline now scans 45 modules, 114 dependency edges,
-  112 construction sites, 15 declared writer surfaces, and nine critical writer
+- R8.8 makes Chart a real prepared participant, preserves prior series/scales/
+  OHLC/Pane surface through reversible painted apply, and releases old Panes
+  only on exact finalize;
+- H056 is recovered through real-canvas rollback plus Replay, Workspace State,
+  and publication failure restoration; H076 remains executable for R8.9;
+- the exact production baseline now scans 45 modules, 115 dependency edges,
+  113 construction sites, 15 declared writer surfaces, and nine critical writer
   sites; three blocking findings remain assigned to R8.9 and R8.11;
-- next step after this commit is R8.8, but it must not begin until the R8.7
+- next step after this commit is R8.9, but it must not begin until the R8.8
   commit and evidence have been reported;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
@@ -107,12 +113,13 @@ listed above.
 8. `docs/V7_SOLE_BAR_DATA_RETENTION_OWNER_R8_5.md`;
 9. `docs/V7_SOLE_WORKSPACE_STATE_OWNER_R8_6.md`;
 10. `docs/V7_PREPARED_COMMIT_CONTRACT_R8_7.md`;
-11. `docs/INDEX.md`;
-12. `TODO.md`;
-13. `docs/V7_ARCHITECTURE.md`;
-14. `docs/V7_HARNESS_STANDARD.md`;
-15. `docs/V7_EXECUTION_ROADMAP.md`;
-16. only the documents directly relevant to the next bounded R8 step.
+11. `docs/V7_REVERSIBLE_CHART_APPLICATION_R8_8.md`;
+12. `docs/INDEX.md`;
+13. `TODO.md`;
+14. `docs/V7_ARCHITECTURE.md`;
+15. `docs/V7_HARNESS_STANDARD.md`;
+16. `docs/V7_EXECUTION_ROADMAP.md`;
+17. only the documents directly relevant to the next bounded R8 step.
 
 Do not resume from the historical status narrative alone. The R8 plan and the
 machine-readable recovery mode override earlier statements that phase-one
@@ -574,10 +581,11 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R8.8 is the exact next step: adapt the sole Chart writer to the R8.7 protocol,
-retain an exact prior visible Chart state until finalize, and prove restoration
-after any later participant failure. R7.3n/R7.3o acceptance and all feature
-work remain frozen until R8.15.
+R8.9 is the exact next step: make Workspace Transaction Runtime coordinate
+prepared Chart, Replay, Workspace State, and publication, remove the
+post-terminal UI commit, and prove every failure permutation restores one prior
+accepted revision. R7.3n/R7.3o acceptance and all feature work remain frozen
+until R8.15.
 
 ## Standing Workflow
 

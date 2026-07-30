@@ -6,6 +6,7 @@ import { createActivationGeneration } from '../src/activation-generation/public.
 import {
   createChartAdapterVisibleReceipt,
   createChartSnapshotApplication,
+  requirePreparedChartApplication,
   requireMatchingVisibleCompletion,
 } from '../src/chart-snapshot-application/public.js';
 import { createReplayAdvanceInput, createReplayCursorProposal } from '../src/replay-contract/public.js';
@@ -64,6 +65,7 @@ function fakeAdapter({ applyGate = null, failApply = false, forgedReceipt = null
   let adapterRevision = 0;
   let visibleSnapshot = null;
   const trace = [];
+  const stages = new WeakMap();
   return Object.freeze({
     adapter: Object.freeze({
       async applyVisible(context) {
@@ -75,6 +77,10 @@ function fakeAdapter({ applyGate = null, failApply = false, forgedReceipt = null
         if (!context.isCurrent()) throw Object.assign(new Error('stale before mutation'), {
           code: 'CHART_ADAPTER_STALE',
         });
+        const record = stages.get(context.staged);
+        record.previousRevision = adapterRevision;
+        record.previousSnapshot = visibleSnapshot;
+        record.state = 'applied';
         adapterRevision += 1;
         visibleSnapshot = context.workspaceSnapshot;
         if (forgedReceipt) return forgedReceipt(context, adapterRevision);
@@ -84,11 +90,23 @@ function fakeAdapter({ applyGate = null, failApply = false, forgedReceipt = null
           workspaceSnapshot: context.workspaceSnapshot,
         });
       },
-      async discard() { trace.push('discard'); },
+      finalizeVisible(staged) { stages.get(staged).state = 'finalized'; },
+      async rollbackVisible(staged) {
+        trace.push('rollback');
+        const record = stages.get(staged);
+        if (!record || record.state === 'rolled-back') return;
+        if (record.state === 'applied') {
+          adapterRevision = record.previousRevision;
+          visibleSnapshot = record.previousSnapshot;
+        }
+        record.state = 'rolled-back';
+      },
       async stage(context) {
         trace.push(`stage:${context.workspaceSnapshot.paneId}`);
         if (stageGate) await stageGate.promise;
-        return Object.freeze({ paneId: context.workspaceSnapshot.paneId });
+        const staged = Object.freeze({ paneId: context.workspaceSnapshot.paneId });
+        stages.set(staged, { state: 'staged' });
+        return staged;
       },
     }),
     read: () => Object.freeze({ adapterRevision, trace: Object.freeze([...trace]), visibleSnapshot }),
@@ -119,6 +137,69 @@ requireMatchingVisibleCompletion(acknowledgement, {
 assert.equal(normalAdapter.read().visibleSnapshot, normalSnapshot);
 assert.equal(normal.snapshot().acceptedSnapshot.workspaceSnapshot, normalSnapshot);
 assert.deepEqual(normalAdapter.read().trace, ['stage:pane-normal', 'apply:pane-normal']);
+
+const reversibleAdapter = fakeAdapter();
+const reversible = application(reversibleAdapter.adapter);
+const reversibleIdentity = identity('reversible');
+const reversibleSnapshot = snapshot(reversibleIdentity, 'reversible');
+const prepared = await reversible.prepare({
+  identity: reversibleIdentity,
+  signal: new AbortController().signal,
+  workspaceSnapshot: reversibleSnapshot,
+});
+assert.equal(requirePreparedChartApplication(prepared), prepared);
+assert.equal(prepared.snapshot().status, 'prepared');
+assert.equal(prepared.snapshot().mutationPolicy, 'none');
+assert.equal(reversible.snapshot().acceptedSnapshot, null);
+assert.equal(reversibleAdapter.read().visibleSnapshot, null);
+const reversibleCommit = await prepared.apply();
+assert.equal(prepared.snapshot().status, 'applied');
+assert.equal(prepared.snapshot().mutationPolicy, 'reversible-only');
+assert.equal(reversible.snapshot().acceptedSnapshot, null,
+  'reversible visible apply must not publish accepted Chart state');
+assert.equal(reversibleAdapter.read().visibleSnapshot, reversibleSnapshot);
+await assert.rejects(prepared.dispose(), (error) => error?.code === 'PREPARED_COMMIT_ROLLBACK_REQUIRED');
+await prepared.rollback(reversibleCommit);
+assert.equal(prepared.snapshot().status, 'rolled-back');
+assert.equal(reversibleAdapter.read().visibleSnapshot, null);
+assert.equal(reversible.snapshot().revision, 0);
+assert.throws(
+  () => requirePreparedChartApplication(Object.freeze({ apply() {} })),
+  (error) => error?.code === 'PREPARED_CHART_APPLICATION_REQUIRED',
+);
+
+const finalizeIdentity = identity('reversible-finalize');
+const finalizeSnapshot = snapshot(finalizeIdentity, 'reversible-finalize');
+const finalizing = await reversible.prepare({
+  identity: finalizeIdentity,
+  signal: new AbortController().signal,
+  workspaceSnapshot: finalizeSnapshot,
+});
+const finalizeCommit = await finalizing.apply();
+finalizing.finalize(finalizeCommit);
+assert.equal(finalizing.snapshot().status, 'finalized');
+assert.equal(reversible.snapshot().acceptedSnapshot.workspaceSnapshot, finalizeSnapshot);
+assert.equal(reversible.snapshot().revision, 1);
+
+const abortAfterApplyAdapter = fakeAdapter();
+const abortAfterApply = application(abortAfterApplyAdapter.adapter);
+const abortAfterApplyIdentity = identity('abort-after-apply');
+const abortAfterApplySnapshot = snapshot(abortAfterApplyIdentity, 'abort-after-apply');
+const afterApplyController = new AbortController();
+const abortablePrepared = await abortAfterApply.prepare({
+  identity: abortAfterApplyIdentity,
+  signal: afterApplyController.signal,
+  workspaceSnapshot: abortAfterApplySnapshot,
+});
+const abortableCommit = await abortablePrepared.apply();
+afterApplyController.abort('later-participant-failed');
+assert.throws(
+  () => abortablePrepared.finalize(abortableCommit),
+  (error) => error?.code === 'CHART_APPLICATION_STALE',
+);
+await abortablePrepared.rollback(abortableCommit);
+assert.equal(abortAfterApplyAdapter.read().visibleSnapshot, null);
+assert.equal(abortAfterApply.snapshot().revision, 0);
 
 let rejectAdapterApply = false;
 const failedAdapter = fakeAdapter({ failApply: () => rejectAdapterApply });
@@ -190,7 +271,7 @@ const newPromise = applyRace.present({
   workspaceSnapshot: snapshot(newIdentity, 'new-apply'),
 });
 applyGate.resolve();
-await assert.rejects(oldPromise, (error) => error?.code === 'CHART_ADAPTER_STALE');
+await assert.rejects(oldPromise, (error) => error?.code === 'CHART_APPLICATION_STALE');
 await newPromise;
 assert.equal(applyRaceAdapter.read().visibleSnapshot.paneId, 'pane-new-apply');
 

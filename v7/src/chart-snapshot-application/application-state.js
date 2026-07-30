@@ -44,10 +44,25 @@ export function createChartApplicationState({ activationGeneration, sessionId })
     begin,
     dispose: () => { disposed = true; },
     isCurrent,
-    publish(identity, workspaceSnapshot, adapterRevision) {
+    publish(identity, workspaceSnapshot, adapterRevision, expectedRevision) {
       if (!isCurrent(identity)) failChartApplication('CHART_APPLICATION_STALE', 'Transaction is stale.');
-      revision += 1;
+      if (revision + 1 !== expectedRevision || adapterRevision !== expectedRevision) {
+        failChartApplication(
+          'CHART_APPLICATION_REVISION_INVALID',
+          'Chart application must publish its exact prepared target revision.',
+        );
+      }
+      revision = expectedRevision;
       accepted = Object.freeze({ adapterRevision, identity, revision, workspaceSnapshot });
+    },
+    requirePublishable(identity, baseRevision) {
+      if (!isCurrent(identity)) failChartApplication('CHART_APPLICATION_STALE', 'Transaction is stale.');
+      if (revision !== baseRevision) {
+        failChartApplication(
+          'CHART_APPLICATION_BASE_REVISION_STALE',
+          'Chart preparation no longer matches the accepted base revision.',
+        );
+      }
     },
     snapshot() {
       if (disposed) failChartApplication('CHART_APPLICATION_DISPOSED', 'Chart application is disposed.');

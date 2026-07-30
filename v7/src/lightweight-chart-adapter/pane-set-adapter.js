@@ -28,7 +28,10 @@ export function createLightweightPaneSetAdapter({
   surfacePort,
 }) {
   const preparePane = method(surfacePort, 'preparePane', 'Pane surface port');
-  const commitPaneSet = method(surfacePort, 'commitPaneSet', 'Pane surface port');
+  const applyPaneSet = method(surfacePort, 'applyPaneSet', 'Pane surface port');
+  const finalizePaneSet = method(surfacePort, 'finalizePaneSet', 'Pane surface port');
+  const releasePane = method(surfacePort, 'releasePane', 'Pane surface port');
+  const rollbackPaneSurface = method(surfacePort, 'rollbackPaneSet', 'Pane surface port');
   const viewportFor = typeof resolveViewportPort === 'function'
     ? resolveViewportPort
     : () => failLightweightAdapter(
@@ -57,6 +60,8 @@ export function createLightweightPaneSetAdapter({
   let workstationSettings = createWorkstationSettings();
   let settingsRevision = 0;
   const settingsStages = new WeakMap();
+  const paneSetStages = new WeakMap();
+  let acceptedPaneSet = Object.freeze({ activePaneId: null, panes: Object.freeze([]) });
 
   function latestFor(paneId) {
     return adapters.get(paneId)?.crosshairObservation() ?? Object.freeze({
@@ -136,10 +141,10 @@ export function createLightweightPaneSetAdapter({
     return adapter;
   }
 
-  async function discardEntries(entries) {
+  async function rollbackEntries(entries) {
     const results = await Promise.allSettled(entries
       .filter((entry) => entry.adapter && entry.staged)
-      .map((entry) => entry.adapter.discard(entry.staged)));
+      .map((entry) => entry.adapter.rollbackVisible(entry.staged)));
     const failures = results.filter(({ status }) => status === 'rejected').map(({ reason }) => reason);
     if (failures.length > 0) throw new AggregateError(failures, 'Pane rollback failed.');
   }
@@ -157,9 +162,35 @@ export function createLightweightPaneSetAdapter({
       else await entry.adapter.applyVisible(childContext);
     }));
     const failure = results.find(({ status }) => status === 'rejected');
-    if (!failure) return;
-    try { await discardEntries(context.staged.entries); } catch { /* Preserve the first apply failure. */ }
-    throw failure.reason;
+    if (failure) throw failure.reason;
+  }
+
+  function paneSetValue(workspaceSnapshot) {
+    return Object.freeze({
+      activePaneId: workspaceSnapshot.responsePlan.activePaneId,
+      panes: Object.freeze(workspaceSnapshot.panes.map((entry) => Object.freeze({
+        paneId: entry.paneId,
+        reason: entry.reason,
+        status: entry.status,
+      }))),
+    });
+  }
+
+  async function rollbackPaneSet(staged) {
+    const record = paneSetStages.get(staged);
+    if (!record || record.state === 'rolled-back') return;
+    if (record.state === 'finalized') {
+      failLightweightAdapter(
+        'CHART_PANE_SET_STAGE_INVALID',
+        'A finalized Pane-set stage cannot roll back.',
+      );
+    }
+    await rollbackEntries(staged.entries);
+    if (record.surfaceReceipt !== null) rollbackPaneSurface(record.surfaceReceipt);
+    visiblePaneIds = record.previousPaneSet.panes.map(({ paneId }) => paneId);
+    adapterRevision = record.previousAdapterRevision;
+    record.state = 'rolled-back';
+    refreshCrosshair();
   }
 
   function settingsRecord(staged, expectedState) {
@@ -227,35 +258,58 @@ export function createLightweightPaneSetAdapter({
   return Object.freeze({
     async applyVisible(context) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Pane-set adapter is disposed.');
-      await applyEntries(context);
-      if (!context.isCurrent()) {
-        failLightweightAdapter('CHART_ADAPTER_STALE', 'Pane-set chart application is stale.');
+      const record = paneSetStages.get(context.staged);
+      if (!record || record.state !== 'staged') {
+        failLightweightAdapter(
+          'CHART_PANE_SET_STAGE_INVALID',
+          'Pane-set stage is missing or already applied.',
+        );
       }
-      visiblePaneIds = context.staged.entries.map(({ paneId }) => paneId);
-      const acceptedPaneIds = new Set(context.staged.entries.map(({ paneId }) => paneId));
-      commitPaneSet(Object.freeze({
-        activePaneId: context.workspaceSnapshot.responsePlan.activePaneId,
-        panes: Object.freeze(context.staged.entries.map((entry) => Object.freeze({
-          paneId: entry.paneId,
-          reason: entry.reason,
-          status: entry.status,
-        }))),
-      }));
+      record.state = 'applying';
+      try {
+        await applyEntries(context);
+        if (!context.isCurrent()) {
+          failLightweightAdapter('CHART_ADAPTER_STALE', 'Pane-set chart application is stale.');
+        }
+        record.candidatePaneSet = paneSetValue(context.workspaceSnapshot);
+        record.surfaceReceipt = applyPaneSet(record.candidatePaneSet);
+        visiblePaneIds = record.candidatePaneSet.panes.map(({ paneId }) => paneId);
+        refreshCrosshair();
+        adapterRevision = record.previousAdapterRevision + 1;
+        record.state = 'applied';
+        return createChartAdapterVisibleReceipt({
+          adapterRevision,
+          identity: context.identity,
+          workspaceSnapshot: context.workspaceSnapshot,
+        });
+      } catch (error) {
+        try { await rollbackPaneSet(context.staged); } catch { /* Preserve first apply failure. */ }
+        throw error;
+      }
+    },
+    finalizeVisible(staged) {
+      const record = paneSetStages.get(staged);
+      if (!record || record.state !== 'applied') {
+        failLightweightAdapter(
+          'CHART_PANE_SET_STAGE_INVALID',
+          'Only an applied Pane-set stage can finalize.',
+        );
+      }
+      for (const entry of staged.entries) entry.adapter.finalizeVisible(entry.staged);
+      finalizePaneSet(record.surfaceReceipt);
+      acceptedPaneSet = record.candidatePaneSet;
+      const acceptedPaneIds = new Set(acceptedPaneSet.panes.map(({ paneId }) => paneId));
       for (const [paneId, adapter] of adapters) {
         if (acceptedPaneIds.has(paneId)) continue;
-        adapter.dispose();
+        try { adapter.dispose(); } catch { /* Accepted visibility remains authoritative. */ }
         adapters.delete(paneId);
+        try { releasePane(paneId); } catch { /* Detached Pane cleanup is best effort. */ }
       }
       if (crosshairSource && !adapters.has(crosshairSource.paneId)) crosshairSource = null;
+      record.state = 'finalized';
       refreshCrosshair();
-      adapterRevision += 1;
-      return createChartAdapterVisibleReceipt({
-        adapterRevision,
-        identity: context.identity,
-        workspaceSnapshot: context.workspaceSnapshot,
-      });
     },
-    async discard(staged) { await discardEntries(staged.entries); },
+    async rollbackVisible(staged) { await rollbackPaneSet(staged); },
     dispose() {
       if (disposed) return;
       disposed = true;
@@ -301,6 +355,7 @@ export function createLightweightPaneSetAdapter({
     },
     snapshot() {
       return Object.freeze({
+        acceptedPaneIds: Object.freeze(acceptedPaneSet.panes.map(({ paneId }) => paneId)),
         adapterRevision,
         crosshairSync,
         gridVisible: readWorkstationSettings(workstationSettings).canvas.gridVisible,
@@ -350,7 +405,17 @@ export function createLightweightPaneSetAdapter({
           status: 'ready',
         });
       }));
-      return Object.freeze({ entries: Object.freeze(entries), identity, signal, workspaceSnapshot });
+      const staged = Object.freeze({
+        entries: Object.freeze(entries), identity, signal, workspaceSnapshot,
+      });
+      paneSetStages.set(staged, {
+        candidatePaneSet: null,
+        previousAdapterRevision: adapterRevision,
+        previousPaneSet: acceptedPaneSet,
+        state: 'staged',
+        surfaceReceipt: null,
+      });
+      return staged;
     },
     workstationSettingsConsumer,
   });

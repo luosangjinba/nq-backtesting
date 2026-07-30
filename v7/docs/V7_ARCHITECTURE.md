@@ -290,6 +290,16 @@ cross-preparation, stale, duplicate, out-of-order, and unsafe-disposal paths
 fail. R8.7 changes no participant implementation: Chart activates the protocol
 in R8.8 and global coordination/publication activates it in R8.9.
 
+R8.8 activates Chart as the first real prepared participant. Chart Snapshot
+Application now stages the exact candidate, applies it visibly while retaining
+the prior accepted revision, and returns the R8.7 reversible receipt. Rollback
+restores every child series, future axis, OHLC index, time/price scale, host
+metadata, complete Pane membership/status, and Pane-surface maximize state.
+Finalize alone publishes the target Chart revision and releases removed child
+charts/hosts. The legacy `present()` port delegates through the same lifecycle
+until Workspace Transaction Runtime coordinates Chart, Replay, Workspace State,
+and publication in R8.9.
+
 R3.2b1 adds `core.provider-policy-contract` as a pure transport-neutral policy
 boundary. Provider revision freshness, request limits, failure deadline,
 bounded retries, stable error kinds, and the adapter port are declared before

@@ -1,7 +1,7 @@
 # V7 Chart Snapshot Application
 
-Status: R4.3 single-Pane boundary plus R6.3 complete Pane-set extension and
-2026-07-22 post-mutation rollback hardening
+Status: R4.3 single-Pane boundary, R6.3 complete Pane-set extension, and R8.8
+prepared/reversible Chart participant
 
 ## Ownership
 
@@ -83,3 +83,17 @@ It does not change this Chart implementation or claim that its current visible
 completion is a globally coordinated prepared participant. R8.8 must adapt the
 sole Chart writer to that protocol, retain an exact prior visible state until
 finalize, and prove restoration after any later participant failure.
+
+## R8.8 Reversible Activation
+
+R8.8 completes that Chart activation. `prepare()` stages the exact immutable
+Pane snapshot/Pane-set without visible mutation. `apply()` paints the candidate
+and returns the exact R8.7 Prepared Commit receipt but does not advance accepted
+Chart state. `rollback()` restores the prior series, future axis, OHLC index,
+time/price scales, metadata, Pane membership/status, and surface maximize state.
+`finalize()` alone advances the accepted Chart and adapter revision and releases
+removed child charts.
+
+The compatibility `present()` port now delegates through this lifecycle. R8.9
+will replace its immediate finalize decision with the global four-participant
+coordinator.

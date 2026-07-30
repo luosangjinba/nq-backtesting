@@ -230,6 +230,7 @@ for (const rule of [
   'replay-prefetch-advice-bounded-and-io-free',
   'workspace-transaction-runtime-visible-gated-and-stale-safe',
   'prepared-participants-reversible-until-finalize',
+  'chart-application-reversible-until-exact-finalize',
   'projection-domain-provider-neutral-exclusive-no-future',
   'chart-snapshot-application-exact-visible-receipt',
   'viewport-intent-pane-local-and-data-independent',

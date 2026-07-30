@@ -99,3 +99,7 @@ participant activation.
 
 No manual UI review is required because this step changes no UI, visual, chart,
 or interaction behavior.
+
+R8.8 subsequently activates the Chart role through this exact contract. H076
+remains executable until Replay, Workspace State, publication, and the global
+decision owner are activated in R8.9.

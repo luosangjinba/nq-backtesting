@@ -9,6 +9,7 @@ import {
 } from '../src/chart-snapshot-application/public.js';
 import { createLightweightPaneSetAdapter } from '../src/lightweight-chart-adapter/public.js';
 import { createPaneWorkspace } from '../src/pane-workspace-domain/public.js';
+import { readPreparedRollbackReceipt } from '../src/prepared-commit-contract/public.js';
 import {
   createEmptyPaneProjection,
   createPaneSetMaterializationPorts,
@@ -39,6 +40,10 @@ const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const negativeCases = JSON.parse(fs.readFileSync(path.join(
   TEST_DIR,
   'fixtures/pane-set-materialization/negative/cases.json',
+), 'utf8'));
+const reversibleCases = JSON.parse(fs.readFileSync(path.join(
+  TEST_DIR,
+  'fixtures/chart-snapshot-application/negative/reversible-cases.json',
 ), 'utf8'));
 
 const sessionId = createSessionId('session-pane-set');
@@ -82,35 +87,40 @@ function viewport(paneId, cursorEpochMs) {
   });
 }
 
-function paneWorkspace(cursorEpochMs) {
+function paneWorkspace(cursorEpochMs, paneCount = 2) {
+  const panes = [
+    {
+      instrumentId: NQ,
+      paneId: 'pane-nq',
+      timeframeId: 'timeframe.fixed.1-minute',
+      viewportIntent: viewport('pane-nq', cursorEpochMs),
+    },
+    {
+      instrumentId: ES,
+      paneId: 'pane-es',
+      timeframeId: 'timeframe.fixed.4-hour',
+      viewportIntent: viewport('pane-es', cursorEpochMs),
+    },
+  ].slice(0, paneCount);
   return createPaneWorkspace({
     activationGeneration: generation,
-    activePaneId: 'pane-es',
+    activePaneId: panes.at(-1).paneId,
     allowedInstrumentIds: [NQ, ES],
     instrumentSync: 'pane',
-    panes: [
-      {
-        instrumentId: NQ,
-        paneId: 'pane-nq',
-        timeframeId: 'timeframe.fixed.1-minute',
-        viewportIntent: viewport('pane-nq', cursorEpochMs),
-      },
-      {
-        instrumentId: ES,
-        paneId: 'pane-es',
-        timeframeId: 'timeframe.fixed.4-hour',
-        viewportIntent: viewport('pane-es', cursorEpochMs),
-      },
-    ],
+    panes,
     primaryInstrumentId: NQ,
     sessionId,
   });
 }
 
-function responsePlan(cursorEpochMs = 2_000, action = createReplayPaneAction({ kind: 'manual-next' })) {
+function responsePlan(
+  cursorEpochMs = 2_000,
+  action = createReplayPaneAction({ kind: 'manual-next' }),
+  paneCount = 2,
+) {
   return planReplayPaneResponse({
     action,
-    paneWorkspace: paneWorkspace(cursorEpochMs),
+    paneWorkspace: paneWorkspace(cursorEpochMs, paneCount),
     replayRange: RANGE,
     replayStep,
     sessionHours: HOURS,
@@ -156,11 +166,16 @@ function fakeAdapter({ applyFailure = () => false, stageGate = null } = {}) {
   let applyCount = 0;
   let visibleSnapshot = null;
   const stagedSnapshots = [];
+  const stages = new WeakMap();
   return Object.freeze({
     adapter: Object.freeze({
       async applyVisible(context) {
         if (applyFailure(context)) throw new Error('pane-set adapter failed before visible mutation');
         if (!context.isCurrent()) throw Object.assign(new Error('stale'), { code: 'CHART_ADAPTER_STALE' });
+        const record = stages.get(context.staged);
+        record.previousRevision = adapterRevision;
+        record.previousSnapshot = visibleSnapshot;
+        record.state = 'applied';
         applyCount += 1;
         adapterRevision += 1;
         visibleSnapshot = context.workspaceSnapshot;
@@ -170,11 +185,22 @@ function fakeAdapter({ applyFailure = () => false, stageGate = null } = {}) {
           workspaceSnapshot: context.workspaceSnapshot,
         });
       },
-      async discard() {},
+      finalizeVisible(staged) { stages.get(staged).state = 'finalized'; },
+      async rollbackVisible(staged) {
+        const record = stages.get(staged);
+        if (!record || record.state === 'rolled-back') return;
+        if (record.state === 'applied') {
+          adapterRevision = record.previousRevision;
+          visibleSnapshot = record.previousSnapshot;
+        }
+        record.state = 'rolled-back';
+      },
       async stage(context) {
         stagedSnapshots.push(context.workspaceSnapshot);
         if (stageGate) await stageGate.promise;
-        return Object.freeze({ workspaceSnapshot: context.workspaceSnapshot });
+        const staged = Object.freeze({ workspaceSnapshot: context.workspaceSnapshot });
+        stages.set(staged, { state: 'staged' });
+        return staged;
       },
     }),
     read: () => Object.freeze({
@@ -355,6 +381,25 @@ async function completeSnapshot(customPorts = directPorts()) {
   return customPorts.projectionPort.project(Object.freeze({ ...directContext, acquired }));
 }
 
+async function completeSnapshotFor(transactionIdentity, plan, customPorts = directPorts()) {
+  const proposal = createReplayCursorProposal({
+    advance,
+    baseRevision: 0,
+    cursorEpochMs: 2_000,
+    identity: transactionIdentity,
+    range: RANGE,
+  });
+  const context = Object.freeze({
+    identity: transactionIdentity,
+    input: transactionInput(plan, 'prepared-chart'),
+    operation: 'manual-next',
+    proposal,
+    signal: new AbortController().signal,
+  });
+  const acquired = await customPorts.acquisitionPort.acquire(context);
+  return customPorts.projectionPort.project(Object.freeze({ ...context, acquired }));
+}
+
 async function presentSnapshot(snapshot, transactionIdentity = directIdentity) {
   const target = createPaneSetChartSnapshotApplication({
     activationGeneration: generation,
@@ -370,30 +415,57 @@ async function presentSnapshot(snapshot, transactionIdentity = directIdentity) {
 
 const validSnapshot = await completeSnapshot();
 
-function rollbackProbeAdapter() {
+function rollbackProbeAdapter(initialFailingPaneId = 'pane-es') {
   const children = new Map();
   const commits = [];
-  let failingPaneId = 'pane-es';
+  const released = [];
+  const surfaceStages = new WeakMap();
+  let failingPaneId = initialFailingPaneId;
+  let surface = Object.freeze({ activePaneId: null, panes: Object.freeze([]) });
   const adapter = createLightweightPaneSetAdapter({
     createPaneAdapter: ({ host }) => {
       const state = { discards: 0, value: 'accepted' };
+      const stages = new WeakMap();
       children.set(host.paneId, state);
       return Object.freeze({
-        async applyEmpty() { state.value = 'empty'; },
-        async applyVisible() {
-          state.value = 'candidate';
+        async applyEmpty(context) {
+          const record = stages.get(context.staged);
+          record.previous = state.value;
+          record.state = 'applied';
+          state.value = 'empty';
+        },
+        async applyVisible(context) {
+          const record = stages.get(context.staged);
+          record.previous = state.value;
+          record.state = 'applied';
+          state.value = `candidate:${context.workspaceSnapshot.bars.at(-1).close}`;
           if (host.paneId === failingPaneId) throw new Error('child failed after visible mutation');
         },
         clearCrosshairPosition() {},
         crosshairObservation: () => Object.freeze({ bar: null, state: 'empty' }),
-        async discard() { state.discards += 1; state.value = 'accepted'; },
+        finalizeVisible(staged) { stages.get(staged).state = 'finalized'; },
+        async rollbackVisible(staged) {
+          const record = stages.get(staged);
+          if (!record || record.state === 'rolled-back') return;
+          state.discards += 1;
+          if (record.state === 'applied') state.value = record.previous;
+          record.state = 'rolled-back';
+        },
         dispose() {},
         projectCrosshair: () => Object.freeze({ bar: null, state: 'empty' }),
         applyWorkstationSettings(value) { state.workstationSettings = value; },
         setTruncationSelection() {},
         snapshot: () => Object.freeze({ value: state.value }),
-        async stage(context) { return Object.freeze({ workspaceSnapshot: context.workspaceSnapshot }); },
-        async stageEmpty() { return Object.freeze({ empty: true }); },
+        async stage(context) {
+          const staged = Object.freeze({ workspaceSnapshot: context.workspaceSnapshot });
+          stages.set(staged, { previous: null, state: 'staged' });
+          return staged;
+        },
+        async stageEmpty() {
+          const staged = Object.freeze({ empty: true });
+          stages.set(staged, { previous: null, state: 'staged' });
+          return staged;
+        },
       });
     },
     requestFrame: (callback) => callback(),
@@ -401,14 +473,29 @@ function rollbackProbeAdapter() {
     resolvePriceIncrement: () => '0.25',
     resolveViewportPort: () => Object.freeze({}),
     surfacePort: Object.freeze({
-      commitPaneSet(value) { commits.push(value); },
+      applyPaneSet(value) {
+        const receipt = Object.freeze({});
+        surfaceStages.set(receipt, { previous: surface, state: 'applied' });
+        surface = value;
+        commits.push(value);
+        return receipt;
+      },
+      finalizePaneSet(receipt) { surfaceStages.get(receipt).state = 'finalized'; },
       preparePane: (paneId) => Object.freeze({ paneId }),
+      releasePane(paneId) { released.push(paneId); },
+      rollbackPaneSet(receipt) {
+        const record = surfaceStages.get(receipt);
+        surface = record.previous;
+        record.state = 'rolled-back';
+      },
     }),
   });
   return Object.freeze({
     adapter,
     children,
     commits,
+    readSurface: () => surface,
+    released,
     stopFailing: () => { failingPaneId = null; },
   });
 }
@@ -442,8 +529,8 @@ await rollbackProbe.adapter.applyVisible({
   staged: successfulStage,
   workspaceSnapshot: validSnapshot,
 });
-assert.deepEqual([...rollbackProbe.children.values()].map(({ value }) => value), ['candidate', 'candidate']);
-await rollbackProbe.adapter.discard(successfulStage);
+assert.deepEqual([...rollbackProbe.children.values()].map(({ value }) => value), ['candidate:2', 'candidate:2']);
+await rollbackProbe.adapter.rollbackVisible(successfulStage);
 assert.deepEqual([...rollbackProbe.children.values()].map(({ value }) => value), ['accepted', 'accepted'],
   'outer receipt rejection must roll back every successfully applied child');
 
@@ -476,10 +563,104 @@ await rollbackProbe.adapter.applyVisible({
   staged: restoredReadyStage,
   workspaceSnapshot: validSnapshot,
 });
-assert.equal(rollbackProbe.children.get('pane-es').value, 'candidate',
+assert.equal(rollbackProbe.children.get('pane-es').value, 'candidate:2',
   'empty→ready must reuse the same child ownership boundary and accept fresh data');
 assert.equal(rollbackProbe.children.size, 2, 'empty transitions must not leak replacement child adapters');
 rollbackProbe.adapter.dispose();
+
+function projectionWithClose(close) {
+  return directPorts({
+    projectPane: async (context) => projectedPane(context, {
+      snapshot: {
+        bars: Object.freeze([Object.freeze({
+          close,
+          displayEpochMs: 1_000,
+          high: close + 1,
+          low: close - 1,
+          open: close - 0.5,
+          startEpochMs: 1_000,
+          volume: 10,
+        })]),
+      },
+    }),
+  });
+}
+
+const reversibleProbe = rollbackProbeAdapter(null);
+const reversibleApplication = createPaneSetChartSnapshotApplication({
+  activationGeneration: generation,
+  adapter: reversibleProbe.adapter,
+  sessionId,
+});
+const acceptedIdentity = identity('prepared-chart-accepted');
+const acceptedSnapshot = await completeSnapshotFor(
+  acceptedIdentity,
+  responsePlan(2_000, createReplayPaneAction({ kind: 'manual-next' }), 1),
+  projectionWithClose(10),
+);
+const acceptedPrepared = await reversibleApplication.prepare({
+  identity: acceptedIdentity,
+  signal: new AbortController().signal,
+  workspaceSnapshot: acceptedSnapshot,
+});
+const acceptedCommit = await acceptedPrepared.apply();
+acceptedPrepared.finalize(acceptedCommit);
+const priorSurface = reversibleProbe.readSurface();
+assert.deepEqual(priorSurface.panes.map(({ paneId, status }) => [paneId, status]), [
+  ['pane-nq', 'ready'],
+]);
+assert.equal(reversibleApplication.snapshot().revision, 1);
+
+assert.equal(reversibleCases.length, 3);
+for (const [index, fixtureCase] of reversibleCases.entries()) {
+  const { boundary: laterBoundary } = fixtureCase;
+  const candidateIdentity = identity(`prepared-chart-${laterBoundary}`);
+  const candidateSnapshot = await completeSnapshotFor(
+    candidateIdentity,
+    responsePlan(),
+    projectionWithClose(20 + index),
+  );
+  const preparedChart = await reversibleApplication.prepare({
+    identity: candidateIdentity,
+    signal: new AbortController().signal,
+    workspaceSnapshot: candidateSnapshot,
+  });
+  const commitReceipt = await preparedChart.apply();
+  assert.deepEqual(reversibleProbe.readSurface().panes.map(({ paneId }) => paneId), [
+    'pane-nq', 'pane-es',
+  ], `${laterBoundary} failure must occur after the complete candidate Pane set is visible`);
+  assert.equal(reversibleApplication.snapshot().revision, 1,
+    'reversible Chart apply must not publish accepted Chart state');
+  const rollbackReceipt = await preparedChart.rollback(commitReceipt);
+  assert.equal(readPreparedRollbackReceipt(rollbackReceipt).applied, true);
+  assert.deepEqual(reversibleProbe.readSurface(), priorSurface,
+    `${laterBoundary} failure must restore the exact prior Pane surface`);
+  assert.equal(reversibleProbe.children.get('pane-nq').value, 'candidate:10');
+  assert.equal(reversibleProbe.children.get('pane-es').value, 'accepted');
+  assert.equal(reversibleProbe.adapter.snapshot().adapterRevision, 1);
+  assert.equal(reversibleApplication.snapshot().acceptedSnapshot.workspaceSnapshot, acceptedSnapshot);
+}
+
+const finalizedIdentity = identity('prepared-chart-finalize');
+const finalizedSnapshot = await completeSnapshotFor(
+  finalizedIdentity,
+  responsePlan(),
+  projectionWithClose(30),
+);
+const finalizedPrepared = await reversibleApplication.prepare({
+  identity: finalizedIdentity,
+  signal: new AbortController().signal,
+  workspaceSnapshot: finalizedSnapshot,
+});
+const finalizedCommit = await finalizedPrepared.apply();
+finalizedPrepared.finalize(finalizedCommit);
+assert.equal(reversibleApplication.snapshot().revision, 2);
+assert.deepEqual(reversibleProbe.adapter.snapshot().acceptedPaneIds, ['pane-nq', 'pane-es']);
+assert.deepEqual([...reversibleProbe.children.values()].map(({ value }) => value), [
+  'candidate:30', 'candidate:30',
+]);
+reversibleApplication.dispose();
+reversibleProbe.adapter.dispose();
 
 const mutableRequestEntries = plan.affectedPaneIds.map((paneId) => Object.freeze({
   paneId,
@@ -569,8 +750,11 @@ const negative = {
     resolvePriceIncrement: () => '0.25',
     resolveViewportPort: () => Object.freeze({}),
     surfacePort: Object.freeze({
-      commitPaneSet() {},
+      applyPaneSet: () => Object.freeze({}),
+      finalizePaneSet() {},
       preparePane: (paneId) => Object.freeze({ paneId }),
+      releasePane() {},
+      rollbackPaneSet() {},
     }),
   }).stage({ identity: directIdentity, signal: directSignal, workspaceSnapshot: validSnapshot }),
   'chart-target-mismatch': async () => {
@@ -598,4 +782,4 @@ for (const fixtureCase of negativeCases) {
   );
 }
 
-console.log(`v7 Pane-set Materialization harness passed (${negativeCases.length} negative/race controls)`);
+console.log(`v7 Pane-set Materialization harness passed (${negativeCases.length} negative/race controls + ${reversibleCases.length} later-boundary rollbacks)`);

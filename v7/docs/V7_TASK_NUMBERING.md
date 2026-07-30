@@ -20,11 +20,12 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current delivery step is `R8.7`, the prepared commit participant contract.
+The current delivery step is `R8.8`, the reversible Chart application.
 R8 follows immutable pre-remediation checkpoint `fa561599`; R8.1 is commit
 `7dbabbed`, R8.2 is commit `f19b7f32`, R8.3 is commit `60b92d93`, R8.4 is
 commit `f3d0feed`, R8.5 is commit `23d2b17a`, and R8.6 is commit `a4576e13`.
-R8.8 may not begin until the R8.7 commit and evidence have been reported. Every
+R8.7 is commit `518eab82`. R8.9 may not begin until the R8.8 commit and evidence
+have been reported. Every
 R8 step is one commit and stops after that commit; broad `R<n>` headings remain
 milestones only.
 

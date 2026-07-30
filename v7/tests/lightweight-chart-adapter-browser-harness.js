@@ -473,6 +473,16 @@ try {
   assert.equal(rollback.afterDiscard.adapterRevision, rollback.before.adapterRevision);
   assert.deepEqual(rollback.afterDiscard.logicalRange, rollback.before.logicalRange);
   assert.equal(rollback.latestAfterDiscard.displayEpochMs, 2_170_000);
+  assert.equal(rollback.beforePreparedRollback.barCount, 21,
+    'prepared Chart apply must expose the exact candidate before finalize');
+  assert.equal(rollback.afterPreparedRollback.barCount, 20,
+    'a later participant failure must restore the real prior series');
+  assert.equal(rollback.afterPreparedRollback.adapterRevision, rollback.before.adapterRevision);
+  assert.deepEqual(rollback.afterPreparedRollback.logicalRange, rollback.before.logicalRange);
+  assert.equal(rollback.applicationBeforePreparedRollback.revision, 1,
+    'reversible apply must not publish the accepted Chart revision');
+  assert.equal(rollback.applicationAfterPreparedRollback.revision, 1);
+  assert.equal(rollback.preparedStatus, 'rolled-back');
 
   const emptyTransition = await evaluate(cdp, `globalThis.__probeEmptyTransition()`);
   assert.equal(emptyTransition.empty.barCount, 0);

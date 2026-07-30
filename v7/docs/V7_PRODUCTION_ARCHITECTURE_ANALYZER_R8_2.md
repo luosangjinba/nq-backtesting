@@ -42,12 +42,12 @@ outside the declared owner are violations.
 
 ## Exact Baseline
 
-The exact snapshot was refreshed by R8.7 after activating the prepared commit
-contract descriptor. It currently contains:
+The exact snapshot was refreshed by R8.8 after activating Chart as a prepared
+participant. It currently contains:
 
 - 45 active production modules;
-- 114 actual module dependency edges;
-- 112 cross-module construction sites;
+- 115 actual module dependency edges;
+- 113 cross-module construction sites;
 - two production HTML/JavaScript composition roots;
 - all 15 declared writer surfaces;
 - nine directly observed critical writer sites;
@@ -130,6 +130,16 @@ complete Workspace Transaction identity contract. It defines exact branded
 prepare/apply/rollback/finalize evidence for Chart, Replay, Workspace State,
 and publication, but does not yet activate any participant or add a production
 writer. The three R8.9/R8.11 findings therefore remain unchanged, as required.
+
+## R8.8 Reversible Chart Result
+
+R8.8 adds the prepared contract as an actual Chart Snapshot Application
+dependency and constructs one prepared lifecycle for every exact Chart
+candidate. The sole Lightweight Charts adapter retains prior series, scale,
+OHLC, Pane membership, and DOM-surface state through reversible apply and
+releases it only on finalize. This adds one real dependency edge and one
+construction site without adding a writer or changing the three R8.9/R8.11
+findings.
 
 ## Negative Controls
 

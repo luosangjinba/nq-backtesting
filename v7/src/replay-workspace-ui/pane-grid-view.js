@@ -35,6 +35,8 @@ export function createPaneGridView({
   let maximizedPaneId = null;
   let pending = false;
   let workstationSettings = initialWorkstationSettings;
+  let visiblePaneSet = Object.freeze({ activePaneId: null, panes: Object.freeze([]) });
+  const paneSetApplications = new WeakMap();
 
   function updatePresentation(record) {
     const { candles, interface: interfaceSettings, paneReadout }
@@ -246,41 +248,65 @@ export function createPaneGridView({
     return (records.get(paneId) ?? createPane(paneId)).host;
   }
 
+  function renderPaneSet({ activePaneId, panes }) {
+    const nextPaneIds = panes.map(({ paneId }) => paneId);
+    const membershipChanged = nextPaneIds.length !== paneIds.length
+      || nextPaneIds.some((paneId, index) => paneId !== paneIds[index]);
+    paneIds = nextPaneIds;
+    if (maximizedPaneId && (!nextPaneIds.includes(maximizedPaneId) || nextPaneIds.length < 2)) {
+      setMaximizedPane(null, false);
+    }
+    root.dataset.count = String(panes.length);
+    const accepted = new Set(paneIds);
+    let recordChanged = false;
+    for (const pane of panes) {
+      let record = records.get(pane.paneId);
+      if (!record) {
+        record = createPane(pane.paneId);
+        recordChanged = true;
+      }
+      record.shell.classList.remove('is-prepared');
+      record.shell.classList.toggle('is-active', pane.paneId === activePaneId);
+      record.shell.setAttribute('aria-hidden', 'false');
+      record.empty.hidden = pane.status !== 'empty';
+      record.empty.textContent = pane.reason === 'no-source-data'
+        ? 'No source data for this Pane' : 'No eligible bars at this Replay time';
+    }
+    for (const [paneId, record] of records) {
+      if (accepted.has(paneId)) continue;
+      record.shell.classList.add('is-prepared');
+      record.shell.classList.remove('is-active');
+      record.shell.setAttribute('aria-hidden', 'true');
+    }
+    if (membershipChanged || recordChanged) renderLayout();
+    else setMaximizedPane(maximizedPaneId, false);
+    visiblePaneSet = Object.freeze({ activePaneId, panes });
+  }
+
   renderLayout();
 
   return Object.freeze({
-    commitPaneSet({ activePaneId, panes }) {
-      const nextPaneIds = panes.map(({ paneId }) => paneId);
-      const membershipChanged = nextPaneIds.length !== paneIds.length
-        || nextPaneIds.some((paneId, index) => paneId !== paneIds[index]);
-      paneIds = nextPaneIds;
-      if (maximizedPaneId && (!nextPaneIds.includes(maximizedPaneId) || nextPaneIds.length < 2)) {
-        setMaximizedPane(null, false);
+    applyPaneSet(value) {
+      const receipt = Object.freeze({});
+      const record = {
+        candidate: value,
+        previous: visiblePaneSet,
+        previousMaximizedPaneId: maximizedPaneId,
+        state: 'applying',
+      };
+      paneSetApplications.set(receipt, record);
+      try {
+        renderPaneSet(value);
+        record.state = 'applied';
+        return receipt;
+      } catch (error) {
+        try {
+          renderPaneSet(record.previous);
+          setMaximizedPane(record.previousMaximizedPaneId, false);
+        } catch { /* Preserve the first DOM application failure. */ }
+        record.state = 'failed';
+        throw error;
       }
-      root.dataset.count = String(panes.length);
-      const accepted = new Set(paneIds);
-      let recordChanged = false;
-      for (const pane of panes) {
-        let record = records.get(pane.paneId);
-        if (!record) {
-          record = createPane(pane.paneId);
-          recordChanged = true;
-        }
-        record.shell.classList.remove('is-prepared');
-        record.shell.classList.toggle('is-active', pane.paneId === activePaneId);
-        record.shell.setAttribute('aria-hidden', 'false');
-        record.empty.hidden = pane.status !== 'empty';
-        record.empty.textContent = pane.reason === 'no-source-data'
-          ? 'No source data for this Pane' : 'No eligible bars at this Replay time';
-      }
-      for (const [paneId, record] of records) {
-        if (accepted.has(paneId)) continue;
-        record.shell.remove();
-        records.delete(paneId);
-        recordChanged = true;
-      }
-      if (membershipChanged || recordChanged) renderLayout();
-      else setMaximizedPane(maximizedPaneId, false);
     },
     dispose() {
       records.clear();
@@ -288,6 +314,32 @@ export function createPaneGridView({
       root.remove();
     },
     preparePane,
+    finalizePaneSet(receipt) {
+      const record = paneSetApplications.get(receipt);
+      if (!record || record.state !== 'applied') {
+        throw new TypeError('Only an applied Pane surface can finalize.');
+      }
+      record.state = 'finalized';
+    },
+    releasePane(paneId) {
+      if (paneIds.includes(paneId)) {
+        throw new TypeError('A visible Pane cannot be released before Chart finalize.');
+      }
+      const record = records.get(paneId);
+      if (!record) return;
+      record.shell.remove();
+      records.delete(paneId);
+      updateOverlayControls();
+    },
+    rollbackPaneSet(receipt) {
+      const record = paneSetApplications.get(receipt);
+      if (!record || record.state !== 'applied') {
+        throw new TypeError('Only an applied Pane surface can roll back.');
+      }
+      renderPaneSet(record.previous);
+      setMaximizedPane(record.previousMaximizedPaneId, false);
+      record.state = 'rolled-back';
+    },
     root,
     setLayout(nextLayout, nextPaneIds = paneIds) {
       const value = readPaneLayout(nextLayout);

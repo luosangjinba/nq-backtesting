@@ -276,9 +276,21 @@ export function createLightweightChartAdapter({
 
   async function rollback(staged) {
     const record = stagedApplications.get(staged);
-    if (!record || !record.mutated || record.rolledBack) return;
-    record.rolledBack = true;
-    if (disposed || record.token !== visibleMutationToken) return;
+    if (!record || record.state === 'rolled-back') return;
+    if (record.state === 'finalized') {
+      failLightweightAdapter(
+        'CHART_ADAPTER_STAGE_INVALID',
+        'A finalized Chart stage cannot roll back.',
+      );
+    }
+    if (record.state === 'staged') {
+      record.state = 'rolled-back';
+      return;
+    }
+    if (disposed || record.token !== visibleMutationToken) {
+      record.state = 'rolled-back';
+      return;
+    }
     const dataRevisionBefore = seriesDataRevision;
     const restored = restoreAdapterVisibleState({
       chart,
@@ -306,8 +318,12 @@ export function createLightweightChartAdapter({
     truncationInteraction.setBars(appliedBars);
     crosshairPresentation.setBars(appliedBars);
     await requireTailUpdatePaint({ changed: () => seriesDataRevision > dataRevisionBefore, requestFrame });
-    if (disposed || record.token !== visibleMutationToken) return;
+    if (disposed || record.token !== visibleMutationToken) {
+      record.state = 'rolled-back';
+      return;
+    }
     restoreAdapterScaleState({ chart, priceScale, state: record.previous });
+    record.state = 'rolled-back';
   }
 
   async function mutateAndPaint(data, futureTimeAxisData, expectCandles = true) {
@@ -404,7 +420,7 @@ export function createLightweightChartAdapter({
 
   function registerStage(value) {
     const staged = Object.freeze(value);
-    stagedApplications.set(staged, { mutated: false, previous: null, rolledBack: false, token: null });
+    stagedApplications.set(staged, { previous: null, state: 'staged', token: null });
     return staged;
   }
 
@@ -412,7 +428,7 @@ export function createLightweightChartAdapter({
     if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
     if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
     const record = stagedApplications.get(context.staged);
-    if (!record || record.mutated || context.staged.kind !== kind) {
+    if (!record || record.state !== 'staged' || context.staged.kind !== kind) {
       failLightweightAdapter('CHART_ADAPTER_STAGE_INVALID', 'Chart stage is missing, mismatched, or already applied.');
     }
     record.previous = captureVisibleState();
@@ -421,7 +437,7 @@ export function createLightweightChartAdapter({
     record.previousSettings = presentationSettings;
     record.previousTimeframeDurationMs = appliedTimeframeDurationMs;
     record.token = ++visibleMutationToken;
-    record.mutated = true;
+    record.state = 'applying';
     try {
       record.presentationMutated = context.staged.priceIncrement !== null
         && (context.staged.priceIncrement !== presentationPriceIncrement
@@ -440,6 +456,7 @@ export function createLightweightChartAdapter({
       );
       if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
       const result = commit(context, timing);
+      record.state = 'applied';
       delete host.dataset.lastApplyError;
       return result;
     } catch (error) {
@@ -529,7 +546,18 @@ export function createLightweightChartAdapter({
     applyVisible: (context) => applyStaged(context, {
       commit: commitVisible, expectCandles: true, kind: 'ready',
     }),
-    async discard(staged) { await rollback(staged); },
+    finalizeVisible(staged) {
+      const record = stagedApplications.get(staged);
+      if (!record || record.state !== 'applied') {
+        failLightweightAdapter(
+          'CHART_ADAPTER_STAGE_INVALID',
+          'Only an applied Chart stage can finalize.',
+        );
+      }
+      record.state = 'finalized';
+      record.previous = null;
+    },
+    async rollbackVisible(staged) { await rollback(staged); },
     dispose() {
       if (disposed) return;
       disposed = true;

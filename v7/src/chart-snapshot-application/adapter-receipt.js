@@ -28,7 +28,7 @@ export function createChartAdapterVisibleReceipt({ adapterRevision, identity, wo
   return new AdapterVisibleReceiptValue({ adapterRevision, identity, workspaceSnapshot });
 }
 
-export function requireMatchingAdapterReceipt(candidate, expected, previousRevision) {
+export function requireMatchingAdapterReceipt(candidate, expected, targetRevision) {
   if (!(candidate instanceof AdapterVisibleReceiptValue)) {
     failChartApplication('CHART_ADAPTER_RECEIPT_REQUIRED', 'A branded adapter receipt is required.');
   }
@@ -39,8 +39,11 @@ export function requireMatchingAdapterReceipt(candidate, expected, previousRevis
   if (value.workspaceSnapshot !== expected.workspaceSnapshot) {
     failChartApplication('CHART_ADAPTER_RECEIPT_SNAPSHOT', 'Adapter receipt snapshot does not match.');
   }
-  if (value.adapterRevision <= previousRevision) {
-    failChartApplication('CHART_ADAPTER_REVISION_STALE', 'Adapter revision must advance monotonically.');
+  if (value.adapterRevision !== targetRevision) {
+    failChartApplication(
+      'CHART_ADAPTER_REVISION_INVALID',
+      `Adapter revision must equal prepared target revision ${targetRevision}.`,
+    );
   }
   return value;
 }

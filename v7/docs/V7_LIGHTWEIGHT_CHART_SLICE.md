@@ -151,6 +151,13 @@ one-step Autoplay, Previous, Restart, Session-wide ETH/RTH, quick New York
 GoTo, exact New York GoTo, one/two-Pane transitions, and a fixed `1440x900`
 mixed-Pane visual fixture.
 
+R8.8 adds real-canvas prepared rollback evidence. A candidate is painted and
+observable while the accepted Chart revision remains unchanged; a simulated
+later-participant failure then restores the exact prior candlestick/future-axis
+data, OHLC index, logical range, scale state, host metadata, and adapter
+revision. Removed Pane charts remain alive until finalize because Lightweight
+Charts documents `removeSeries()` and `chart.remove()` as irreversible.
+
 Automated evidence did not grant acceptance. Human review exercised the actual
 chart interaction and visual quality and accepted R4.5 on 2026-07-20 after the
 immersive-layout and candle-structure corrections.

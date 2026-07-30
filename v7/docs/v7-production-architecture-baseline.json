@@ -58,7 +58,7 @@
       }
     ]
   },
-  "deliveryStep": "R8.7",
+  "deliveryStep": "R8.8",
   "knownViolations": [
     {
       "code": "production-composition-bypasses-module-host",
@@ -330,6 +330,13 @@
         "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
         "sourceModuleId": "adapter.v4-bars-provider",
         "targetModuleId": "core.provider-execution-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPreparedCommit",
+        "sourceFile": "src/chart-snapshot-application/prepared-chart-application.js",
+        "sourceModuleId": "core.chart-snapshot-application",
+        "targetModuleId": "core.prepared-commit-contract"
       },
       {
         "callCount": 1,
@@ -2169,6 +2176,7 @@
       {
         "actualDependencies": [
           "core.activation-generation",
+          "core.prepared-commit-contract",
           "core.projection-domain",
           "core.replay-contract",
           "core.replay-pane-response-contract",
@@ -2182,6 +2190,7 @@
         "declaredOptionalPorts": [],
         "declaredRequiredPorts": [
           "core.activation-generation",
+          "core.prepared-commit-contract",
           "core.projection-domain",
           "core.replay-contract",
           "core.replay-pane-response-contract",
@@ -2200,6 +2209,16 @@
             "sourceFile": "src/chart-snapshot-application/application-state.js",
             "targetFile": "src/activation-generation/public.js",
             "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPreparedCommit",
+              "requireMatchingPreparedCommitReceipt"
+            ],
+            "sourceFile": "src/chart-snapshot-application/prepared-chart-application.js",
+            "targetFile": "src/prepared-commit-contract/public.js",
+            "targetModuleId": "core.prepared-commit-contract",
             "throughPublicEntry": true
           },
           {
@@ -2311,7 +2330,8 @@
         "kind": "core",
         "observedDisposeSites": [
           "src/chart-snapshot-application/application-state.js",
-          "src/chart-snapshot-application/chart-snapshot-application.js"
+          "src/chart-snapshot-application/chart-snapshot-application.js",
+          "src/chart-snapshot-application/prepared-chart-application.js"
         ],
         "owner": "chart-runtime-adapter",
         "publicEntry": "src/chart-snapshot-application/public.js"

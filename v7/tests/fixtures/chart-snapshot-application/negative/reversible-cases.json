@@ -1,0 +1,5 @@
+[
+  { "boundary": "replay", "case": "replay-commit-failure-restores-prior-pane-set" },
+  { "boundary": "workspace-state", "case": "workspace-state-commit-failure-restores-prior-pane-set" },
+  { "boundary": "publication", "case": "publication-failure-restores-prior-pane-set" }
+]

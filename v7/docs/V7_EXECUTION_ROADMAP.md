@@ -501,7 +501,10 @@ live in `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
   and complete transaction identity provenance, no-mutation prepare,
   reversible apply, exact rollback/finalize receipts, and exhaustive forged,
   stale, duplicate, partial, revision, ordering, and disposal controls;
-- `R8.8`: reversible Chart application;
+- `R8.8`: reversible Chart application; completed with a branded prepared
+  Chart handle, exact target revision receipts, real painted series/scale/OHLC
+  restoration, retained prior Pane membership until finalize, and independent
+  Replay/Workspace State/publication failure rollback evidence;
 - `R8.9`: globally atomic Workspace transaction and removal of UI second commit;
 - `R8.10`: UI/composition responsibility split;
 - `R8.11`: production ModuleHost boot and removal matrix;

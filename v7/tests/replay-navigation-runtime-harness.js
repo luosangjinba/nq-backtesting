@@ -335,7 +335,8 @@ const application = createPaneSetChartSnapshotApplication({
         adapterRevision, identity: context.identity, workspaceSnapshot: context.workspaceSnapshot,
       });
     },
-    async discard() {},
+    finalizeVisible() {},
+    async rollbackVisible() {},
     async stage(context) { return Object.freeze({ snapshot: context.workspaceSnapshot }); },
   }),
   sessionId,

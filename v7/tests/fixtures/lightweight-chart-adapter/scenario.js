@@ -22,8 +22,9 @@ const identity = createWorkspaceTransactionIdentity({
   sessionId,
   transactionId: createTransactionId('adapter-transaction'),
 });
+const advance = createReplayAdvanceInput({ durationMs: 60_000, source: 'manual' });
 const proposal = createReplayCursorProposal({
-  advance: createReplayAdvanceInput({ durationMs: 60_000, source: 'manual' }),
+  advance,
   baseRevision: 0,
   cursorEpochMs: 2_200_000,
   identity,
@@ -132,13 +133,43 @@ globalThis.__probeVisibleRollback = async () => {
   });
   await apply(discardedStage, () => true);
   const beforeDiscard = adapter.snapshot();
-  await adapter.discard(discardedStage);
+  await adapter.rollbackVisible(discardedStage);
+  const preparedIdentity = createWorkspaceTransactionIdentity({
+    activationGeneration,
+    sessionId,
+    transactionId: createTransactionId('adapter-prepared-rollback'),
+  });
+  const preparedProposal = createReplayCursorProposal({
+    advance,
+    baseRevision: 0,
+    cursorEpochMs: 2_200_000,
+    identity: preparedIdentity,
+    range: { endEpochMs: 3_000_000, startEpochMs: 1_000_000 },
+  });
+  const preparedCandidate = Object.freeze({
+    ...candidate,
+    provenance: Object.freeze({ ...candidate.provenance, cursorProposal: preparedProposal }),
+  });
+  const prepared = await application.prepare({
+    identity: preparedIdentity,
+    signal: new AbortController().signal,
+    workspaceSnapshot: preparedCandidate,
+  });
+  const preparedCommit = await prepared.apply();
+  const beforePreparedRollback = adapter.snapshot();
+  const applicationBeforePreparedRollback = application.snapshot();
+  await prepared.rollback(preparedCommit);
   return {
     afterDiscard: adapter.snapshot(),
     afterStale,
+    afterPreparedRollback: adapter.snapshot(),
+    applicationAfterPreparedRollback: application.snapshot(),
+    applicationBeforePreparedRollback,
     before,
     beforeDiscard,
+    beforePreparedRollback,
     latestAfterDiscard: adapter.crosshairObservation(),
+    preparedStatus: prepared.snapshot().status,
     latestAfterStale,
     staleCode,
   };
@@ -156,7 +187,7 @@ globalThis.__probeEmptyTransition = async () => {
     instrumentId: host.dataset.instrumentId ?? null,
     latestDisplayEpochMs: host.dataset.latestDisplayEpochMs ?? null,
   };
-  await adapter.discard(staged);
+  await adapter.rollbackVisible(staged);
   return {
     empty,
     emptyDataset,

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "currentStep": "R8.7",
+  "currentStep": "R8.8",
   "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
@@ -10,7 +10,7 @@
     "checkpointCommit": "fa561599",
     "allowedWork": "architecture-conformance-recovery-only",
     "freezeFeatureDelivery": true,
-    "regressedRuleIds": ["H009", "H010", "H018", "H019", "H021", "H022", "H023", "H024", "H025", "H049", "H050", "H056", "H066", "H069"]
+    "regressedRuleIds": ["H009", "H010", "H018", "H019", "H021", "H022", "H023", "H024", "H025", "H049", "H050", "H066", "H069"]
   },
   "rules": [
     {
@@ -1050,26 +1050,31 @@
       "owner": "chart-runtime-adapter",
       "v6FailurePrevented": "Unknown symbols silently displayed NQ data, failed child charts left a mixed old/new Pane set, or empty Panes retained stale OHLC behind their overlay",
       "activationStep": "R6",
-      "state": "regressed",
+      "state": "accepted",
       "harness": "tests/lightweight-chart-adapter-browser-harness.js",
       "positiveEvidence": [
         "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
         "src/lightweight-chart-adapter/visible-state-rollback.js",
         "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
         "src/lightweight-chart-adapter/pane-set-adapter.js",
+        "src/chart-snapshot-application/prepared-chart-application.js",
+        "src/replay-workspace-ui/pane-grid-view.js",
         "tests/v4-bars-provider-adapter-harness.js",
         "tests/pane-set-materialization-harness.js",
         "tests/lightweight-chart-adapter-browser-harness.js",
-        "docs/V7_CHART_SNAPSHOT_APPLICATION.md"
+        "docs/V7_CHART_SNAPSHOT_APPLICATION.md",
+        "docs/V7_REVERSIBLE_CHART_APPLICATION_R8_8.md"
       ],
       "negativeFixtures": [
         "tests/fixtures/v4-bars-provider-adapter/negative/cases.json",
-        "tests/fixtures/lightweight-chart-adapter/negative/crosshair-cases.json"
+        "tests/fixtures/lightweight-chart-adapter/negative/crosshair-cases.json",
+        "tests/fixtures/chart-snapshot-application/negative/reversible-cases.json"
       ],
       "humanReviewRequired": false,
       "acceptanceEvidence": "sessions/session_20260722_stage_review_p1_corrections.md",
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.8"
+      "recoveryStep": "R8.8",
+      "recoveryEvidence": "sessions/session_20260730_r8_8_reversible_chart_application.md"
     },
     {
       "id": "H057",
@@ -1573,7 +1578,10 @@
         "src/prepared-commit-contract/public.js",
         "src/prepared-commit-contract/prepared-commit.js",
         "src/prepared-commit-contract/receipt-contract.js",
+        "src/chart-snapshot-application/prepared-chart-application.js",
+        "src/lightweight-chart-adapter/pane-set-adapter.js",
         "tests/prepared-commit-contract-harness.js",
+        "tests/pane-set-materialization-harness.js",
         "docs/V7_PREPARED_COMMIT_CONTRACT_R8_7.md"
       ],
       "negativeFixtures": [

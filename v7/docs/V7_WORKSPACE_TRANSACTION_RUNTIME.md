@@ -88,6 +88,12 @@ the target revision. R8.7 activates only that contract and its failure matrix.
 The coordinator still follows the R4.1 production path above until R8.9 wires
 all four participants and removes the post-terminal UI commit.
 
+R8.8 makes the injected Chart application independently prepared and
+reversible. The legacy `present()` method delegates through that lifecycle but
+still finalizes immediately for compatibility. R8.9 must call the prepared
+port directly and delay Chart finalize until Replay, Workspace State, and
+publication have all applied successfully.
+
 ## Explicit R4.1 Exclusions
 
 - real provider or V4/DuckDB access;

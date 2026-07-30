@@ -479,8 +479,11 @@ export function createReplayWorkspaceView({
       });
     },
     surfacePort: Object.freeze({
-      commitPaneSet: paneGrid.commitPaneSet,
+      applyPaneSet: paneGrid.applyPaneSet,
+      finalizePaneSet: paneGrid.finalizePaneSet,
       preparePane: paneGrid.preparePane,
+      releasePane: paneGrid.releasePane,
+      rollbackPaneSet: paneGrid.rollbackPaneSet,
     }),
   });
 }
