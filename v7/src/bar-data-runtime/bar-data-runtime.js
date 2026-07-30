@@ -4,7 +4,11 @@ import {
   rawBarRequestKey,
 } from '../bar-data-contract/public.js';
 import { createExactWindowCache } from './exact-window-cache.js';
+import { createCoverageLeaseRuntime } from './coverage-lease-runtime.js';
+import { createRawCoverageStore } from './raw-coverage-store.js';
 import { BarDataRuntimeError, failBarDataRuntime } from './runtime-error.js';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 function requirePositiveSafeInteger(value, field) {
   if (!Number.isSafeInteger(value) || value <= 0) {
@@ -51,6 +55,10 @@ export function createBarDataRuntime({
   resolveProvider,
   maxCacheEntries = 64,
   maxConcurrentRequests = 4,
+  maxCoverageConsumers = 16,
+  maxCoverageTotalWindowSpanMs = 10 * 366 * DAY_MS,
+  maxCoverageWindowCount = 512,
+  maxCoverageWindowSpanMs = 366 * DAY_MS,
 }) {
   const resolver = requireProviderResolver(resolveProvider);
   const cache = createExactWindowCache(requirePositiveSafeInteger(maxCacheEntries, 'maxCacheEntries'));
@@ -58,8 +66,22 @@ export function createBarDataRuntime({
   const queue = [];
   const inFlight = new Map();
   const activeTasks = new Set();
+  const coverageLimits = Object.freeze({
+    maxConsumers: requirePositiveSafeInteger(maxCoverageConsumers, 'maxCoverageConsumers'),
+    maxTotalWindowSpanMs: requirePositiveSafeInteger(
+      maxCoverageTotalWindowSpanMs,
+      'maxCoverageTotalWindowSpanMs',
+    ),
+    maxWindowCount: requirePositiveSafeInteger(maxCoverageWindowCount, 'maxCoverageWindowCount'),
+    maxWindowSpanMs: requirePositiveSafeInteger(maxCoverageWindowSpanMs, 'maxCoverageWindowSpanMs'),
+  });
+  const coverage = createRawCoverageStore(coverageLimits);
   let activeCount = 0;
   let disposed = false;
+
+  function assertActive() {
+    if (disposed) throw disposedError();
+  }
 
   function pump() {
     if (disposed) return;
@@ -98,6 +120,8 @@ export function createBarDataRuntime({
   function acquire(value) {
     if (disposed) return Promise.reject(disposedError());
     const request = createRawBarRequest(value);
+    const covered = coverage.batchForRequest(request);
+    if (covered) return Promise.resolve(covered);
     const key = rawBarRequestKey(request);
     const cached = cache.get(key);
     if (cached) return Promise.resolve(cached);
@@ -126,9 +150,12 @@ export function createBarDataRuntime({
     return task.promise;
   }
 
+  const coverageLeases = createCoverageLeaseRuntime({ acquire, assertActive, coverage, limits: coverageLimits });
+
   function dispose() {
     if (disposed) return;
     disposed = true;
+    coverageLeases.dispose();
     const error = disposedError();
     for (const task of queue.splice(0)) task.rejectOnce(error);
     for (const task of activeTasks) {
@@ -137,7 +164,16 @@ export function createBarDataRuntime({
     }
     inFlight.clear();
     cache.clear();
+    coverage.dispose();
   }
 
-  return Object.freeze({ acquire, dispose });
+  return Object.freeze({
+    acquire,
+    acquireCoverageLease: coverageLeases.acquireCoverageLease,
+    commitCoverageLeases: coverageLeases.commitCoverageLeases,
+    dispose,
+    oldestCoverageEpochMs: coverage.oldestEpochMs,
+    rejectCoverageLeases: coverageLeases.rejectCoverageLeases,
+    withAcquiredCoverage: coverageLeases.withAcquiredCoverage,
+  });
 }

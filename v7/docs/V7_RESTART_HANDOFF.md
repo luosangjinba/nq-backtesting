@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-30 by R8.4 Raw Coverage Lease contract
+Last updated: 2026-07-30 by R8.5 sole Bar Data retention owner
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -16,6 +16,7 @@ required for normal startup.
 - R8.1 recovery constitution is commit `7dbabbed`;
 - R8.2 production architecture analyzer is commit `f19b7f32`;
 - R8.3 descriptor/lifecycle/independent-harness repair is commit `60b92d93`;
+- R8.4 Raw Coverage Lease contract is commit `f3d0feed`;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10
@@ -23,14 +24,13 @@ required for normal startup.
 - R8.3 boots all 42 production public entries through the descriptor graph,
   proves reverse disposal for all 10 lifecycle modules, and proves the complete
   one-case optional-removal matrix without booting the application shell;
-- R8.4 adds the independently runnable pure Raw Coverage Lease contract with
-  complete transaction identity, finite windows, synchronous callback-scoped
-  reads, cancellation, and disposal; H074 is executable but stays unaccepted
-  until R8.5 removes the two UI retention paths;
-- the exact production baseline now scans 43 modules, 102 dependency edges,
-  103 construction sites, 15 declared writer surfaces, and 10 critical writer
-  sites; the same six blocking findings remain assigned to later steps;
-- next step after this commit is R8.5, but it must not begin until the R8.4
+- R8.5 activates that lease through Bar Data Runtime, removes both UI market-
+  data ledgers and cached source reads, and accepts H074 after bounded LRU/
+  coverage reuse, delayed cancellation, inactive-Pane release, and disposal;
+- the exact production baseline now scans 43 modules, 105 dependency edges,
+  109 construction sites, 15 declared writer surfaces, and nine critical writer
+  sites; four blocking findings remain assigned to R8.6, R8.9, and R8.11;
+- next step after this commit is R8.6, but it must not begin until the R8.5
   commit and evidence have been reported;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
@@ -559,13 +559,11 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R8.5 is the exact next step: activate Raw Coverage Lease through Bar Data
-Runtime, keep request/cache/retention/eviction authority inside that owner, and
-remove `SourceBatchLedger` plus every Replay Workspace UI raw-retention path.
-It must preserve current projection, history, Replay, dense-Pane, cancellation,
-and last-accepted behavior while proving bounded LRU/coverage reuse and cleanup
-against production. R7.3n/R7.3o acceptance and all feature work remain frozen
-until R8.15.
+R8.6 is the exact next step: introduce one runtime owner for accepted Pane
+Workspace, Session Hours, Viewport, and persistence-facing semantic state with
+complete transaction/revision identity, then remove UI-side accepted ledgers
+and direct mutable ownership. R7.3n/R7.3o acceptance and all feature work remain
+frozen until R8.15.
 
 ## Standing Workflow
 

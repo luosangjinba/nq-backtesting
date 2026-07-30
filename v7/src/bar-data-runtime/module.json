@@ -4,7 +4,12 @@
   "kind": "core",
   "owner": "bar-data-runtime",
   "publicEntry": "src/bar-data-runtime/public.js",
-  "requiredPorts": ["core.bar-data-contract", "core.projected-history-contract"],
+  "requiredPorts": [
+    "core.bar-data-contract",
+    "core.projected-history-contract",
+    "core.raw-coverage-lease-contract",
+    "core.workspace-transaction-contract"
+  ],
   "optionalPorts": [],
   "lifecycle": ["dispose"],
   "independentHarness": "tests/bar-data-runtime-harness.js",

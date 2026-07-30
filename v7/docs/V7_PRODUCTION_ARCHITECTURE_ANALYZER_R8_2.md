@@ -67,10 +67,8 @@ the full finding objects are compared.
 
 ## Current Blocking Findings
 
-### R8.5–R8.9 — Writer Ownership
+### R8.6–R8.9 — Writer Ownership
 
-- Replay Workspace UI owns `display-history-ledger.js` and
-  `source-batch-ledger.js`, retaining market data outside Bar Data Runtime;
 - Replay Workspace UI owns mutable accepted Pane Workspace state;
 - `workspace-execution.js` accepts Pane data and semantic visible state after
   the Workspace transaction has already returned `committed`.
@@ -80,7 +78,8 @@ the full finding objects are compared.
 - `app/main.js` manually constructs its graph without ModuleHost;
 - `app/data-acquisition.js` manually constructs its surface without ModuleHost.
 
-No item above is repaired or accepted by R8.4.
+R8.5 removes both UI market-data ledgers and leaves one detected raw-retention
+writer inside `core.bar-data-runtime`. The four items above remain blocking.
 
 ## R8.3 Repair Result
 

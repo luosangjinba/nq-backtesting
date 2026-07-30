@@ -116,3 +116,10 @@ preservation with changed-policy/forged-chain rejection, 20 fixture negative
 controls, and the absence of concrete capability-id branches.
 `tests/calendar-timeframe-domain-harness.js` separately proves calendar-policy
 alignment and Projection integration without adding concrete ids to the core.
+
+R8.5 moves projected display-history composition out of the UI ledger and into
+pure Projection Domain helpers. Compatible projected prefixes are reconstructed
+from the accepted immutable Pane snapshot and explicit request/window
+provenance; a changed selection cannot inherit them. Raw source batches still
+enter Projection only inside a synchronous Bar Data-owned lease callback and
+never become Projection state.

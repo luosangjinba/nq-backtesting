@@ -95,3 +95,8 @@ R8.4 changes no existing runtime integration, production composition, browser
 UI, or interaction. It does not remove `SourceBatchLedger` or
 `DisplayHistoryLedger`, alter provider behavior, or clear any R8.1 regressed
 rule. Those changes remain assigned to their numbered later recovery steps.
+
+R8.5 subsequently activated this contract through Bar Data Runtime, removed
+both ledgers and every cached UI raw-source path, and accepted H074. See
+`V7_SOLE_BAR_DATA_RETENTION_OWNER_R8_5.md` for the production boundary and
+evidence; this R8.4 document remains the historical pure-contract record.

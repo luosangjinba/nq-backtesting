@@ -50,15 +50,13 @@ function latestSourceBefore(bars, targetEpochMs) {
   let sourceEpochMs = null;
   for (const bar of bars) {
     if (bar.startEpochMs >= targetEpochMs) continue;
-    if (sourceEpochMs === null || bar.startEpochMs > sourceEpochMs) {
-      sourceEpochMs = bar.startEpochMs;
-    }
+    if (sourceEpochMs === null || bar.startEpochMs > sourceEpochMs) sourceEpochMs = bar.startEpochMs;
   }
   return sourceEpochMs;
 }
 
-/** Resolve Replay targets from real primary-instrument bars via Bar Data Runtime. */
-export function createFoundationSourceTraversal({ barData, market, readCachedSourceBars = () => [] }) {
+/** Resolve Replay targets through callback-scoped Bar Data Runtime coverage. */
+export function createFoundationSourceTraversal({ barData, market }) {
   function selection(context) {
     return market.catalog.get({
       instrumentId: context.instrumentId,
@@ -75,73 +73,68 @@ export function createFoundationSourceTraversal({ barData, market, readCachedSou
     }));
   }
 
-  function cached(context, startEpochMs, endEpochMs) {
+  async function withWindow(context, startEpochMs, endEpochMs, visit) {
+    active(context.signal);
     const selected = selection(context);
-    return readCachedSourceBars(context.instrumentId)
-      .filter((bar) => bar.startEpochMs >= startEpochMs && bar.startEpochMs < endEpochMs)
-      .filter((bar) => selected.sessionHoursPolicy.isEligible(bar, {
-        calendar: selected.calendar,
-        instrument: selected.instrument,
-        sessionHoursMode: selected.sessionHoursMode,
-      }));
+    const result = await barData.withAcquiredCoverage({
+      identity: context.identity,
+      request: market.requestWindow({
+        instrumentId: context.instrumentId,
+        windowEndEpochMs: endEpochMs,
+        windowStartEpochMs: startEpochMs,
+      }),
+      signal: context.signal,
+      visit: (batch) => visit(eligibleBars(batch, selected)),
+    });
+    active(context.signal);
+    return result;
   }
 
-  async function acquire(context, startEpochMs, endEpochMs) {
-    active(context.signal);
-    const batch = await barData.acquire(market.requestWindow({
-      instrumentId: context.instrumentId,
-      windowEndEpochMs: endEpochMs,
-      windowStartEpochMs: startEpochMs,
-    }));
-    active(context.signal);
-    return eligibleBars(batch, selection(context));
-  }
-
-  async function acquireForwardBucket(context, exclusiveEndEpochMs) {
+  async function withForwardBucket(context, exclusiveEndEpochMs, visit) {
     if (typeof market.requestThrough !== 'function') return null;
     active(context.signal);
     const selected = selection(context);
-    const batch = await barData.acquire(market.requestThrough(exclusiveEndEpochMs, selected));
-    active(context.signal);
-    return Object.freeze({
-      bars: eligibleBars(batch, selected),
-      windowEndEpochMs: batch.request.windowEndEpochMs,
+    const request = market.requestThrough(exclusiveEndEpochMs, selected);
+    const result = await barData.withAcquiredCoverage({
+      identity: context.identity,
+      request,
+      signal: context.signal,
+      visit: (batch) => visit(
+        eligibleBars(batch, selected),
+        batch.request.windowEndEpochMs,
+      ),
     });
+    active(context.signal);
+    return result;
   }
 
   return Object.freeze({
     async eligibleAtOrAfter(context) {
-      const cachedBars = cached(context, context.anchorEpochMs, context.windowEndEpochMs);
-      const bars = cachedBars.length > 0
-        ? cachedBars : await acquire(context, context.anchorEpochMs, context.windowEndEpochMs);
-      const source = bars.find(({ startEpochMs }) => startEpochMs >= context.anchorEpochMs);
-      if (!source) return null;
-      return Object.freeze({
-        sourceEpochMs: source.startEpochMs,
-        targetEpochMs: Math.min(context.range.endEpochMs, source.startEpochMs + MINUTE),
-      });
+      return withWindow(
+        context,
+        context.anchorEpochMs,
+        context.windowEndEpochMs,
+        (bars) => {
+          const source = bars.find(({ startEpochMs }) => startEpochMs >= context.anchorEpochMs);
+          if (!source) return null;
+          return Object.freeze({
+            sourceEpochMs: source.startEpochMs,
+            targetEpochMs: Math.min(context.range.endEpochMs, source.startEpochMs + MINUTE),
+          });
+        },
+      );
     },
     async nextEligible(context) {
       const currentBucketStart = stepBucketEnd(context.cursorEpochMs, context.replayStep)
         - context.replayStep.durationMs;
       const searchStart = Math.max(context.range.startEpochMs, currentBucketStart);
-      const cachedTarget = nextCompletedStep(
-        cached(context, searchStart, context.range.endEpochMs),
-        context,
-      );
-      if (cachedTarget) return cachedTarget;
-
-      // Pane projection and Replay clock traversal share one exact-window Bar
-      // Data Runtime. Probe the same buffered request identity used by pane
-      // materialization so repeated Next/Autoplay actions stay cache hits.
-      // Advancing by the accepted request end still skips weekends/holidays
-      // without creating a new current-minute-to-range-end request each step.
       if (typeof market.requestThrough === 'function') {
         let probeEpochMs = Math.min(context.range.endEpochMs, context.cursorEpochMs + MINUTE);
         while (probeEpochMs <= context.range.endEpochMs) {
-          const acquired = await acquireForwardBucket(context, probeEpochMs);
-          const target = nextCompletedStep(acquired.bars, context);
-          if (target) return target;
+          const acquired = await withForwardBucket(context, probeEpochMs, (bars, windowEndEpochMs) => (
+            Object.freeze({ target: nextCompletedStep(bars, context), windowEndEpochMs })
+          ));
+          if (acquired.target) return acquired.target;
           if (acquired.windowEndEpochMs >= context.range.endEpochMs) return null;
           if (acquired.windowEndEpochMs < probeEpochMs) {
             throw new TypeError('Buffered Replay source request did not advance its window.');
@@ -152,22 +145,22 @@ export function createFoundationSourceTraversal({ barData, market, readCachedSou
       }
       for (let start = searchStart; start < context.range.endEpochMs;) {
         const end = Math.min(context.range.endEpochMs, start + SEARCH_WINDOW_MS);
-        const bars = await acquire(context, start, end);
-        const target = nextCompletedStep(bars, context);
+        const target = await withWindow(context, start, end, (bars) => nextCompletedStep(bars, context));
         if (target) return target;
         start = end;
       }
       return null;
     },
     async previousEligible(context) {
-      const cachedBars = cached(context, context.range.startEpochMs, context.cursorEpochMs);
-      const cachedTarget = previousCompletedStep(cachedBars, context);
-      if (cachedTarget) return cachedTarget;
       let end = context.cursorEpochMs;
       while (end > context.range.startEpochMs) {
         const start = Math.max(context.range.startEpochMs, end - SEARCH_WINDOW_MS);
-        const bars = await acquire(context, start, end);
-        const target = previousCompletedStep(bars, context);
+        const target = await withWindow(
+          context,
+          start,
+          end,
+          (bars) => previousCompletedStep(bars, context),
+        );
         if (target) return target;
         end = start;
       }
@@ -180,13 +173,6 @@ export function createFoundationSourceTraversal({ barData, market, readCachedSou
       if (targetEpochMs <= context.range.startEpochMs) {
         return Object.freeze({ sourceEpochMs: null, targetEpochMs });
       }
-      const cachedSourceEpochMs = latestSourceBefore(
-        cached(context, context.range.startEpochMs, targetEpochMs),
-        targetEpochMs,
-      );
-      if (cachedSourceEpochMs !== null && cachedSourceEpochMs >= targetEpochMs - MINUTE) {
-        return Object.freeze({ sourceEpochMs: cachedSourceEpochMs, targetEpochMs });
-      }
       let end = Math.min(targetEpochMs, context.range.endEpochMs);
       while (end > context.range.startEpochMs) {
         const start = Math.max(context.range.startEpochMs, end - SEARCH_WINDOW_MS);
@@ -194,8 +180,12 @@ export function createFoundationSourceTraversal({ barData, market, readCachedSou
           ? Math.min(context.range.endEpochMs, end + MINUTE)
           : end;
         if (requestEnd <= start) break;
-        const bars = await acquire(context, start, requestEnd);
-        const sourceEpochMs = latestSourceBefore(bars, targetEpochMs);
+        const sourceEpochMs = await withWindow(
+          context,
+          start,
+          requestEnd,
+          (bars) => latestSourceBefore(bars, targetEpochMs),
+        );
         if (sourceEpochMs !== null) return Object.freeze({ sourceEpochMs, targetEpochMs });
         end = start;
       }

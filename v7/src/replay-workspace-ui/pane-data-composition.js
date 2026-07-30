@@ -1,39 +1,35 @@
-import { rawBarRequestKey } from '../bar-data-contract/public.js';
 import { createEmptyPaneProjection } from '../pane-set-materialization/public.js';
 import { readReplayCursorProposal } from '../replay-contract/public.js';
 import {
+  extendPaneProjectedHistory,
+  preservePaneProjectedHistory,
   projectPaneHistoryExtension,
   projectPaneReplayAdvance,
   projectPaneSnapshot,
+  projectedHistoryOldestEpochMs,
   ProjectionDomainError,
 } from '../projection-domain/public.js';
-import { createDisplayHistoryLedger } from './display-history-ledger.js';
-import { createSourceBatchLedger } from './source-batch-ledger.js';
 
 const EMPTY_PROJECTION_CODES = new Set(['PROJECTION_SOURCE_EMPTY', 'PROJECTION_VISIBLE_EMPTY']);
 
-/** Compose Pane-local ledgers over the sole Bar Data Runtime and pure Projection Domain. */
+function withLeaseBatches(lease, identity, visit, index = 0, batches = []) {
+  if (index === lease.requests.length) return visit(batches);
+  const request = lease.requests[index];
+  return lease.withReadView({
+    identity,
+    request,
+    visit: (batch) => withLeaseBatches(lease, identity, visit, index + 1, [...batches, batch]),
+  });
+}
+
+/** Compose transaction-scoped raw leases with pure Projection Domain functions. */
 export function createPaneDataComposition({
   barData,
   market,
   projectedHistoryData,
   readAcceptedSnapshot,
 }) {
-  const ledgers = new Map();
-  const displayHistoryLedgers = new Map();
-  const stagedPaneIds = new Set();
-
-  function ledger(paneId) {
-    if (!ledgers.has(paneId)) ledgers.set(paneId, createSourceBatchLedger());
-    return ledgers.get(paneId);
-  }
-
-  function displayHistoryLedger(paneId) {
-    if (!displayHistoryLedgers.has(paneId)) {
-      displayHistoryLedgers.set(paneId, createDisplayHistoryLedger());
-    }
-    return displayHistoryLedgers.get(paneId);
-  }
+  const stagedLeases = new Set();
 
   function selection(paneResponse, responsePlan) {
     return market.catalog.get({
@@ -49,16 +45,11 @@ export function createPaneDataComposition({
 
   return Object.freeze({
     accept(activePaneIds) {
-      for (const paneId of stagedPaneIds) {
-        ledger(paneId).accept();
-        displayHistoryLedger(paneId).accept();
-      }
-      stagedPaneIds.clear();
-      const active = new Set(activePaneIds);
-      for (const paneId of ledgers.keys()) if (!active.has(paneId)) ledgers.delete(paneId);
-      for (const paneId of displayHistoryLedgers.keys()) {
-        if (!active.has(paneId)) displayHistoryLedgers.delete(paneId);
-      }
+      barData.commitCoverageLeases({
+        activeConsumerIds: activePaneIds,
+        leases: [...stagedLeases],
+      });
+      stagedLeases.clear();
     },
     acquisitionPort: Object.freeze({
       async acquirePane(context) {
@@ -104,31 +95,35 @@ export function createPaneDataComposition({
             selected,
             descriptor.historyDisplayBars,
           ) : null;
-        // An accepted Pane source batch is already validated projection state,
-        // so reuse its exact request identity before asking the bounded Bar
-        // Data cache. This keeps restored workspaces cache-hit even when deep
-        // automatic history has legitimately evicted the forward batch from
-        // the runtime LRU.
-        const paneLedger = ledger(context.paneResponse.paneId);
-        let batch;
+
+        let lease = null;
+        let projectedBatch = null;
         let replacementProjectedBatch = null;
         if (projectedHistoryRequest) {
-          batch = await projectedHistoryData.acquire(request);
+          projectedBatch = await projectedHistoryData.acquire(request);
         } else {
-          const rawBatch = paneLedger.acceptedBatch(rawBarRequestKey(request))
-            ?? barData.acquire(request);
+          const operation = historyRequest
+            ? 'history-extension'
+            : descriptor.kind === 'instrument-replacement'
+                || descriptor.kind === 'timeframe-replacement'
+                || descriptor.kind === 'session-hours-replacement'
+              ? 'source-replacement' : 'navigation';
+          lease = await barData.acquireCoverageLease({
+            consumerId: context.paneResponse.paneId,
+            identity: context.identity,
+            operation,
+            request,
+            signal: context.signal,
+          });
+          stagedLeases.add(lease);
           if (replacementProjectedRequest) {
-            [batch, replacementProjectedBatch] = await Promise.all([
-              rawBatch,
-              projectedHistoryData.acquire(replacementProjectedRequest),
-            ]);
-          } else {
-            batch = await rawBatch;
+            replacementProjectedBatch = await projectedHistoryData.acquire(replacementProjectedRequest);
           }
         }
         return Object.freeze({
-          batch,
           descriptor,
+          lease,
+          projectedBatch,
           projectedHistoryRequest,
           replacementProjectedBatch,
           selection: selected,
@@ -147,104 +142,99 @@ export function createPaneDataComposition({
     projectionPort: Object.freeze({
       projectPane(context) {
         const {
-          batch,
           descriptor,
+          lease,
+          projectedBatch,
           projectedHistoryRequest,
           replacementProjectedBatch,
           selection: selected,
         } = context.acquired;
-        const paneLedger = ledger(context.paneResponse.paneId);
-        const historyLedger = displayHistoryLedger(context.paneResponse.paneId);
+        const accepted = acceptedPane(context.paneResponse.paneId);
         if (projectedHistoryRequest) {
-          const accepted = acceptedPane(context.paneResponse.paneId);
           if (!accepted || accepted.status !== 'ready') {
             throw new TypeError('Projected History requires an accepted visible Pane.');
           }
-          paneLedger.stageRetained();
-          historyLedger.stageExtension(batch, selected);
-          stagedPaneIds.add(context.paneResponse.paneId);
-          return historyLedger.merge(accepted.snapshot, context.proposal);
-        }
-        const historyRequest = descriptor.kind === 'history-extension'
-          || descriptor.kind === 'time-location-history';
-        const ledgerOperation = historyRequest
-          ? 'history-extension'
-          : descriptor.kind === 'instrument-replacement'
-              || descriptor.kind === 'timeframe-replacement'
-              || descriptor.kind === 'session-hours-replacement'
-            ? 'pane-source-replacement' : 'navigation';
-        const batches = paneLedger.stage(batch, ledgerOperation);
-        historyLedger.stageSelection(selected);
-        stagedPaneIds.add(context.paneResponse.paneId);
-        const input = {
-          aggregationPolicy: selected.aggregationPolicy,
-          calendar: selected.calendar,
-          cursorProposal: context.proposal,
-          displayTimeframe: selected.displayTimeframe,
-          instrument: selected.instrument,
-          paneId: context.paneResponse.paneId,
-          schemaVersion: 1,
-          sessionHoursPolicy: selected.sessionHoursPolicy,
-          sourceBatches: batches,
-        };
-        try {
-          const accepted = acceptedPane(context.paneResponse.paneId);
-          const replayAdvance = descriptor.kind === 'navigation'
-            && ['autoplay-next', 'manual-next'].includes(descriptor.responsePlan.actionKind);
-          if (!historyRequest && replayAdvance && accepted?.status === 'ready') {
-            return historyLedger.merge(projectPaneReplayAdvance({
-              ...input, acceptedSnapshot: accepted.snapshot,
-            }));
-          }
-          if (!historyRequest) {
-            const snapshot = projectPaneSnapshot(input);
-            if (replacementProjectedBatch) {
-              historyLedger.stageExtension(replacementProjectedBatch, selected);
-            }
-            return historyLedger.merge(snapshot, context.proposal);
-          }
-          if (!accepted || accepted.status !== 'ready') {
-            return historyLedger.merge(projectPaneSnapshot(input));
-          }
-          return historyLedger.merge(projectPaneHistoryExtension({
-            ...input,
+          return extendPaneProjectedHistory({
             acceptedSnapshot: accepted.snapshot,
-            sourceBatches: batches.slice(0, 2),
-            sourceRequestKeys: batches.map((entry) => entry.requestKey),
-          }));
-        } catch (error) {
-          if (error instanceof ProjectionDomainError && EMPTY_PROJECTION_CODES.has(error.code)) {
-            return createEmptyPaneProjection({
-              reason: error.code === 'PROJECTION_SOURCE_EMPTY' ? 'no-source-data' : 'no-eligible-source',
-            });
-          }
-          throw error;
+            cursorProposal: context.proposal,
+            projectedBatch,
+            selection: selected,
+            snapshot: accepted.snapshot,
+          });
         }
+
+        return withLeaseBatches(lease, context.identity, (batches) => {
+          const historyRequest = descriptor.kind === 'history-extension'
+            || descriptor.kind === 'time-location-history';
+          const input = {
+            aggregationPolicy: selected.aggregationPolicy,
+            calendar: selected.calendar,
+            cursorProposal: context.proposal,
+            displayTimeframe: selected.displayTimeframe,
+            instrument: selected.instrument,
+            paneId: context.paneResponse.paneId,
+            schemaVersion: 1,
+            sessionHoursPolicy: selected.sessionHoursPolicy,
+            sourceBatches: batches,
+          };
+          try {
+            const replayAdvance = descriptor.kind === 'navigation'
+              && ['autoplay-next', 'manual-next'].includes(descriptor.responsePlan.actionKind);
+            let snapshot;
+            if (!historyRequest && replayAdvance && accepted?.status === 'ready') {
+              snapshot = projectPaneReplayAdvance({
+                ...input, acceptedSnapshot: accepted.snapshot,
+              });
+            } else if (!historyRequest) {
+              snapshot = projectPaneSnapshot(input);
+            } else if (!accepted || accepted.status !== 'ready') {
+              snapshot = projectPaneSnapshot(input);
+            } else {
+              snapshot = projectPaneHistoryExtension({
+                ...input,
+                acceptedSnapshot: accepted.snapshot,
+                sourceBatches: batches.slice(0, 2),
+                sourceRequestKeys: batches.map((entry) => entry.requestKey),
+              });
+            }
+            if (replacementProjectedBatch) {
+              return extendPaneProjectedHistory({
+                acceptedSnapshot: accepted?.snapshot ?? null,
+                cursorProposal: context.proposal,
+                projectedBatch: replacementProjectedBatch,
+                selection: selected,
+                snapshot,
+              });
+            }
+            return preservePaneProjectedHistory({
+              acceptedSnapshot: accepted?.snapshot ?? null,
+              cursorProposal: context.proposal,
+              selection: selected,
+              snapshot,
+            });
+          } catch (error) {
+            if (error instanceof ProjectionDomainError && EMPTY_PROJECTION_CODES.has(error.code)) {
+              return createEmptyPaneProjection({
+                reason: error.code === 'PROJECTION_SOURCE_EMPTY' ? 'no-source-data' : 'no-eligible-source',
+              });
+            }
+            throw error;
+          }
+        });
       },
     }),
     reject() {
-      for (const paneId of stagedPaneIds) {
-        ledger(paneId).reject();
-        displayHistoryLedger(paneId).reject();
-      }
-      stagedPaneIds.clear();
+      barData.rejectCoverageLeases([...stagedLeases]);
+      stagedLeases.clear();
     },
     oldestEpochMs(paneId) {
-      const rawOldest = ledger(paneId).oldestEpochMs();
-      const displayOldest = displayHistoryLedger(paneId).oldestEpochMs();
+      const rawOldest = barData.oldestCoverageEpochMs(paneId);
+      const accepted = acceptedPane(paneId);
+      const displayOldest = accepted?.status === 'ready'
+        ? projectedHistoryOldestEpochMs(accepted.snapshot) : null;
       if (rawOldest === null) return displayOldest;
       if (displayOldest === null) return rawOldest;
       return Math.min(rawOldest, displayOldest);
-    },
-    sourceBars(instrumentId) {
-      const byEpoch = new Map();
-      for (const paneLedger of ledgers.values()) {
-        for (const batch of paneLedger.acceptedBatches()) {
-          if (batch.request.instrumentId !== instrumentId) continue;
-          for (const bar of batch.bars) byEpoch.set(bar.startEpochMs, bar);
-        }
-      }
-      return Object.freeze([...byEpoch.values()].sort((left, right) => left.startEpochMs - right.startEpochMs));
     },
   });
 }

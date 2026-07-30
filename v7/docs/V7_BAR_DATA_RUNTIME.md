@@ -1,6 +1,6 @@
 # V7 Bounded Bar Data Runtime
 
-Status: R3.2a fake-provider runtime boundary (2026-07-20)
+Status: R8.5 sole raw-retention owner (2026-07-30)
 
 ## Responsibility
 
@@ -51,6 +51,15 @@ R8.4 introduces the pure `core.raw-coverage-lease-contract`: complete Workspace
 identity plus explicitly bounded raw request windows and a revocable
 synchronous read view. The contract owns no raw batch or provider work.
 
-R8.5 must activate that contract through this runtime, keep cache lookup and
-retention private to this owner, and remove the Replay Workspace UI source
-ledgers. Until then, the two production retention findings remain blocking.
+R8.5 activates that contract through this runtime. One private bounded coverage
+store now owns accepted, staged, and callback-transient raw batches in addition
+to the exact LRU. Transaction-bound Pane leases promote or reject staged
+coverage; removed Panes release coverage; Replay traversal uses an ephemeral
+lease and returns only derived target evidence. Caller cancellation cannot
+obtain a stale lease, and runtime disposal revokes every live read and clears
+all raw state.
+
+Replay Workspace UI now retains only lease capabilities during a transaction
+and immutable projected snapshots after commit. Its source/display ledgers and
+cached raw-source reader are deleted. H074 is accepted and the production
+writer scan identifies this module as the only raw-retention writer.

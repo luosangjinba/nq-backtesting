@@ -1,7 +1,4 @@
 {
-  "schemaVersion": 1,
-  "deliveryStep": "R8.4",
-  "status": "blocking-recovery-baseline",
   "analysisPolicy": {
     "lifecycleFactoryExemptions": [
       {
@@ -61,6 +58,7 @@
       }
     ]
   },
+  "deliveryStep": "R8.5",
   "knownViolations": [
     {
       "code": "production-composition-bypasses-module-host",
@@ -85,26 +83,13 @@
     },
     {
       "code": "writer-outside-declared-owner",
-      "detail": "adapter.replay-workspace-ui writes rawMarketDataRetention; allowed: core.bar-data-runtime",
-      "subject": "rawMarketDataRetention:src/replay-workspace-ui/display-history-ledger.js",
-      "bugId": "BUG-V7-0002",
-      "recoveryStep": "R8.5"
-    },
-    {
-      "code": "writer-outside-declared-owner",
-      "detail": "adapter.replay-workspace-ui writes rawMarketDataRetention; allowed: core.bar-data-runtime",
-      "subject": "rawMarketDataRetention:src/replay-workspace-ui/source-batch-ledger.js",
-      "bugId": "BUG-V7-0002",
-      "recoveryStep": "R8.5"
-    },
-    {
-      "code": "writer-outside-declared-owner",
       "detail": "adapter.replay-workspace-ui writes workspaceSemanticCommit; allowed: core.workspace-transaction-runtime",
       "subject": "workspaceSemanticCommit:src/replay-workspace-ui/workspace-execution.js",
       "bugId": "BUG-V7-0001",
       "recoveryStep": "R8.9"
     }
   ],
+  "schemaVersion": 1,
   "snapshot": {
     "compositionRoots": [
       {
@@ -377,8 +362,8 @@
       {
         "callCount": 1,
         "factory": "createProjectedHistoryBatch",
-        "sourceFile": "src/replay-workspace-ui/display-history-ledger.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/projection-domain/projected-history-composition.js",
+        "sourceModuleId": "core.projection-domain",
         "targetModuleId": "core.projected-history-contract"
       },
       {
@@ -478,6 +463,13 @@
         "sourceFile": "src/workspace-replacement-runtime/replacement-input.js",
         "sourceModuleId": "core.workspace-replacement-runtime",
         "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createRawCoverageLeasePolicy",
+        "sourceFile": "src/bar-data-runtime/coverage-lease-runtime.js",
+        "sourceModuleId": "core.bar-data-runtime",
+        "targetModuleId": "core.raw-coverage-lease-contract"
       },
       {
         "callCount": 1,
@@ -783,6 +775,20 @@
       {
         "callCount": 2,
         "factory": "createRawBarRequest",
+        "sourceFile": "src/bar-data-runtime/coverage-lease-runtime.js",
+        "sourceModuleId": "core.bar-data-runtime",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 2,
+        "factory": "createRawBarRequest",
+        "sourceFile": "src/bar-data-runtime/raw-coverage-store.js",
+        "sourceModuleId": "core.bar-data-runtime",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 2,
+        "factory": "createRawBarRequest",
         "sourceFile": "src/coverage-planning-contract/coverage-report.js",
         "sourceModuleId": "core.coverage-planning-contract",
         "targetModuleId": "core.bar-data-contract"
@@ -807,6 +813,20 @@
         "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
         "sourceModuleId": "adapter.v4-bars-provider",
         "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 2,
+        "factory": "createRawCoverageLease",
+        "sourceFile": "src/bar-data-runtime/coverage-lease-runtime.js",
+        "sourceModuleId": "core.bar-data-runtime",
+        "targetModuleId": "core.raw-coverage-lease-contract"
+      },
+      {
+        "callCount": 2,
+        "factory": "createRawCoverageLeaseScope",
+        "sourceFile": "src/bar-data-runtime/coverage-lease-runtime.js",
+        "sourceModuleId": "core.bar-data-runtime",
+        "targetModuleId": "core.raw-coverage-lease-contract"
       },
       {
         "callCount": 2,
@@ -856,6 +876,13 @@
         "sourceFile": "src/session-browser-ui/dom-primitives.js",
         "sourceModuleId": "adapter.session-browser-ui",
         "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 3,
+        "factory": "createRawBarBatch",
+        "sourceFile": "src/bar-data-runtime/raw-coverage-store.js",
+        "sourceModuleId": "core.bar-data-runtime",
+        "targetModuleId": "core.bar-data-contract"
       },
       {
         "callCount": 3,
@@ -1214,15 +1241,6 @@
           },
           {
             "importedNames": [
-              "createProjectedHistoryBatch"
-            ],
-            "sourceFile": "src/replay-workspace-ui/display-history-ledger.js",
-            "targetFile": "src/projected-history-contract/public.js",
-            "targetModuleId": "core.projected-history-contract",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
               "createProjectedHistoryRequest"
             ],
             "sourceFile": "src/replay-workspace-ui/foundation-market.js",
@@ -1466,22 +1484,16 @@
           {
             "importedNames": [
               "ProjectionDomainError",
+              "extendPaneProjectedHistory",
+              "preservePaneProjectedHistory",
               "projectPaneHistoryExtension",
               "projectPaneReplayAdvance",
-              "projectPaneSnapshot"
+              "projectPaneSnapshot",
+              "projectedHistoryOldestEpochMs"
             ],
             "sourceFile": "src/replay-workspace-ui/pane-data-composition.js",
             "targetFile": "src/projection-domain/public.js",
             "targetModuleId": "core.projection-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "rawBarRequestKey"
-            ],
-            "sourceFile": "src/replay-workspace-ui/pane-data-composition.js",
-            "targetFile": "src/bar-data-contract/public.js",
-            "targetModuleId": "core.bar-data-contract",
             "throughPublicEntry": true
           },
           {
@@ -2356,6 +2368,7 @@
         "actualDependencies": [
           "core.bar-data-contract",
           "core.capability-contract",
+          "core.projected-history-contract",
           "core.replay-contract"
         ],
         "declaredLifecycle": [],
@@ -2363,11 +2376,21 @@
         "declaredRequiredPorts": [
           "core.bar-data-contract",
           "core.capability-contract",
+          "core.projected-history-contract",
           "core.replay-contract"
         ],
         "descriptorPath": "src/projection-domain/module.json",
         "id": "core.projection-domain",
         "importSites": [
+          {
+            "importedNames": [
+              "createProjectedHistoryBatch"
+            ],
+            "sourceFile": "src/projection-domain/projected-history-composition.js",
+            "targetFile": "src/projected-history-contract/public.js",
+            "targetModuleId": "core.projected-history-contract",
+            "throughPublicEntry": true
+          },
           {
             "importedNames": [
               "createRawBarBatch"
@@ -2627,7 +2650,9 @@
       {
         "actualDependencies": [
           "core.bar-data-contract",
-          "core.projected-history-contract"
+          "core.projected-history-contract",
+          "core.raw-coverage-lease-contract",
+          "core.workspace-transaction-contract"
         ],
         "declaredLifecycle": [
           "dispose"
@@ -2635,7 +2660,9 @@
         "declaredOptionalPorts": [],
         "declaredRequiredPorts": [
           "core.bar-data-contract",
-          "core.projected-history-contract"
+          "core.projected-history-contract",
+          "core.raw-coverage-lease-contract",
+          "core.workspace-transaction-contract"
         ],
         "descriptorPath": "src/bar-data-runtime/module.json",
         "id": "core.bar-data-runtime",
@@ -2661,6 +2688,46 @@
             "targetFile": "src/bar-data-contract/public.js",
             "targetModuleId": "core.bar-data-contract",
             "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createRawBarBatch",
+              "createRawBarRequest",
+              "rawBarRequestKey"
+            ],
+            "sourceFile": "src/bar-data-runtime/raw-coverage-store.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createRawBarRequest"
+            ],
+            "sourceFile": "src/bar-data-runtime/coverage-lease-runtime.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createRawCoverageLease",
+              "createRawCoverageLeasePolicy",
+              "createRawCoverageLeaseScope"
+            ],
+            "sourceFile": "src/bar-data-runtime/coverage-lease-runtime.js",
+            "targetFile": "src/raw-coverage-lease-contract/public.js",
+            "targetModuleId": "core.raw-coverage-lease-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireWorkspaceTransactionIdentity"
+            ],
+            "sourceFile": "src/bar-data-runtime/coverage-lease-runtime.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
           }
         ],
         "independentHarness": "tests/bar-data-runtime-harness.js",
@@ -2668,7 +2735,9 @@
         "kind": "core",
         "observedDisposeSites": [
           "src/bar-data-runtime/bar-data-runtime.js",
-          "src/bar-data-runtime/projected-history-runtime.js"
+          "src/bar-data-runtime/coverage-lease-runtime.js",
+          "src/bar-data-runtime/projected-history-runtime.js",
+          "src/bar-data-runtime/raw-coverage-store.js"
         ],
         "owner": "bar-data-runtime",
         "publicEntry": "src/bar-data-runtime/public.js"
@@ -3607,14 +3676,8 @@
     "writerSites": [
       {
         "detectorId": "market-data-retention-ledger",
-        "sourceFile": "src/replay-workspace-ui/display-history-ledger.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
-        "surface": "rawMarketDataRetention"
-      },
-      {
-        "detectorId": "market-data-retention-ledger",
-        "sourceFile": "src/replay-workspace-ui/source-batch-ledger.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/bar-data-runtime/raw-coverage-store.js",
+        "sourceModuleId": "core.bar-data-runtime",
         "surface": "rawMarketDataRetention"
       },
       {
@@ -3666,5 +3729,6 @@
         "surface": "workspaceSnapshot"
       }
     ]
-  }
+  },
+  "status": "blocking-recovery-baseline"
 }

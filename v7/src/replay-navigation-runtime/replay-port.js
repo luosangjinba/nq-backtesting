@@ -85,6 +85,7 @@ export function createReplayNavigationReplayPort({ replayRuntime, targetResolver
       let targetEpochMs = plan.target.requestedTargetEpochMs;
       if (targetEpochMs === null || !hasCursorAuthorityPane) {
         const resolution = await resolveTarget({
+          identity,
           range: replay.range,
           requireSourceEvidence: !hasCursorAuthorityPane,
           responsePlan: plan,

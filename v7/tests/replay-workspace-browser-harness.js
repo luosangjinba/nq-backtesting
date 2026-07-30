@@ -8,7 +8,6 @@ import { createStaticServer } from '../scripts/static-server.mjs';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
 import { createFoundationMarket } from '../src/replay-workspace-ui/foundation-market.js';
 import { createRefreshFeedback } from '../src/replay-workspace-ui/refresh-feedback.js';
-import { createSourceBatchLedger } from '../src/replay-workspace-ui/source-batch-ledger.js';
 import { REPLAY_WORKSPACE_STATES } from '../src/replay-workspace-ui/public.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -23,30 +22,6 @@ assert.equal(new Set(negativeCases).size, 6);
 assert.deepEqual(REPLAY_WORKSPACE_STATES, [
   'loading', 'empty', 'unavailable', 'stale', 'error', 'ready',
 ]);
-const sourceWindow = (windowStartEpochMs, windowEndEpochMs, requestKey = null) => Object.freeze({
-  request: Object.freeze({ windowEndEpochMs, windowStartEpochMs }),
-  requestKey,
-});
-const sourceLedger = createSourceBatchLedger();
-const firstWindow = sourceWindow(100, 200, 'accepted-forward-window');
-sourceLedger.stage(firstWindow, 'chart-entry');
-sourceLedger.accept();
-assert.equal(sourceLedger.acceptedBatch('accepted-forward-window'), firstWindow,
-  'an accepted exact source identity remains reusable independently of the Bar Data LRU');
-assert.equal(sourceLedger.acceptedBatch('not-accepted'), null);
-const earlierWindow = sourceWindow(0, 100);
-sourceLedger.stage(earlierWindow, 'history-extension');
-sourceLedger.accept();
-const overlappingReplacement = sourceWindow(150, 300);
-assert.deepEqual(sourceLedger.stage(overlappingReplacement, 'timeframe-replacement'), [
-  overlappingReplacement,
-], 'replacement must drop old windows that would leave an internal coverage gap');
-sourceLedger.reject();
-const adjacentReplacement = sourceWindow(100, 300);
-assert.deepEqual(sourceLedger.stage(adjacentReplacement, 'session-hours-replacement'), [
-  earlierWindow, adjacentReplacement,
-], 'replacement may retain only the contiguous accepted prefix ending at its exact start');
-sourceLedger.reject();
 const feedbackTrace = [];
 let delayedFeedback = null;
 const feedback = createRefreshFeedback({

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { validateProductionArchitectureSnapshot } from './production-architecture-validator.js';
 
 const WRITER_DETECTORS = Object.freeze({
-  'market-data-retention-ledger': /export\s+function\s+create(?:SourceBatch|DisplayHistory)Ledger\s*\(/,
+  'market-data-retention-ledger': /export\s+function\s+createRawCoverageStore\s*\(/,
   'native-chart-series': /\b(?:series|futureTimeAxisSeries)\.(?:setData|update)\s*\(/,
   'pane-workspace-accepted-state': /export\s+function\s+createPaneWorkspaceState\s*\(/,
   'post-terminal-workspace-commit': /\bpaneData\.accept\s*\(/,

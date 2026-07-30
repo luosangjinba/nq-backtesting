@@ -230,7 +230,6 @@ export function createReplayWorkspaceController({
   const traversal = createFoundationSourceTraversal({
     barData,
     market,
-    readCachedSourceBars: (instrumentId) => paneData.sourceBars(instrumentId),
   });
   const targetResolver = createReplayNavigationTargetResolver({
     resolveSchedule: () => navigationSchedule,

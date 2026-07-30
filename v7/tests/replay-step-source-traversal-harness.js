@@ -49,14 +49,14 @@ const market = Object.freeze({
 });
 const traversal = createFoundationSourceTraversal({
   barData: Object.freeze({
-    async acquire(request) {
+    async withAcquiredCoverage({ request, visit }) {
       requests.push(request);
-      return Object.freeze({
+      return visit(Object.freeze({
         bars: Object.freeze(bars.filter(({ startEpochMs }) => (
           startEpochMs >= request.windowStartEpochMs && startEpochMs < request.windowEndEpochMs
         ))),
         request,
-      });
+      }));
     },
   }),
   market,
@@ -141,18 +141,8 @@ assert.deepEqual(resolved, {
   targetEpochMs: epoch('2026-05-04T13:32:00.000Z'),
 }, 'hidden clock authority evidence resolves the latest eligible source before an exact cutoff');
 
-const cachedEvidenceTraversal = createFoundationSourceTraversal({
-  barData: Object.freeze({
-    async acquire(request) {
-      requests.push(request);
-      return Object.freeze({ bars: Object.freeze([]) });
-    },
-  }),
-  market,
-  readCachedSourceBars: () => Object.freeze([bar('2026-05-01T12:00:00.000Z')]),
-});
-const requestsBeforeCachedEvidence = requests.length;
-resolved = await cachedEvidenceTraversal.visibleBefore(Object.freeze({
+setBars(['2026-05-01T12:00:00.000Z']);
+resolved = await traversal.visibleBefore(Object.freeze({
   ...context({
     cursor: '2026-05-01T12:01:00.000Z',
     durationMinutes: 1,
@@ -164,8 +154,6 @@ assert.deepEqual(resolved, {
   sourceEpochMs: epoch('2026-05-01T12:00:00.000Z'),
   targetEpochMs: epoch('2026-05-01T12:01:00.000Z'),
 });
-assert.equal(requests.length, requestsBeforeCachedEvidence,
-  'the first Session cutoff reuses accepted authority evidence instead of issuing a one-minute provider window');
 
 setBars(['2026-05-01T20:14:00.000Z']);
 resolved = await traversal.nextEligible(context({

@@ -260,8 +260,12 @@ retention domain even when it does not invoke a provider. R8.4 therefore adds
 `core.raw-coverage-lease-contract`. It binds finite same-source request windows
 to complete Workspace transaction identity and permits only synchronous,
 revocable callback-scoped reads from a Bar Data-owned cache capability. The
-scope, lease, and lifecycle snapshot contain no raw batches. R8.5 must activate
-this boundary in Bar Data Runtime and remove the UI source ledgers.
+scope, lease, and lifecycle snapshot contain no raw batches. R8.5 activates
+this boundary: Bar Data Runtime privately owns bounded accepted/staged/
+transient raw coverage, while Pane Projection and Replay traversal can observe
+it only through synchronous transaction-bound callbacks. UI source/display
+ledgers and cached source reads are removed; only derived immutable snapshots
+escape the owner.
 
 R3.2b1 adds `core.provider-policy-contract` as a pure transport-neutral policy
 boundary. Provider revision freshness, request limits, failure deadline,

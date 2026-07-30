@@ -37,9 +37,10 @@ function result(value, range) {
   return Object.freeze({ sourceEpochMs, targetEpochMs });
 }
 
-function context(plan, range, signal, extra = {}) {
+function context(identity, plan, range, signal, extra = {}) {
   return Object.freeze({
     cursorEpochMs: plan.fromCursorEpochMs,
+    identity,
     instrumentId: plan.cursorAuthorityInstrumentId,
     range,
     replayStep: readReplayStep(plan.replayStep),
@@ -89,7 +90,7 @@ export function createReplayNavigationTargetResolver({ resolveSchedule = null, s
   const eligibleAtOrAfter = requireMethod(sourceTraversalPort, 'eligibleAtOrAfter');
   const visibleBefore = requireMethod(sourceTraversalPort, 'visibleBefore');
 
-  async function resolve({ requireSourceEvidence = false, responsePlan, range, signal }) {
+  async function resolve({ identity = null, requireSourceEvidence = false, responsePlan, range, signal }) {
     const plan = requireReplayPaneResponsePlan(responsePlan);
     if (typeof requireSourceEvidence !== 'boolean') {
       failReplayNavigation(
@@ -100,9 +101,9 @@ export function createReplayNavigationTargetResolver({ resolveSchedule = null, s
     requireSignal(signal);
     let resolved = null;
     if (plan.actionKind === 'manual-next' || plan.actionKind === 'autoplay-next') {
-      resolved = await nextEligible(context(plan, range, signal));
+      resolved = await nextEligible(context(identity, plan, range, signal));
     } else if (plan.actionKind === 'manual-previous') {
-      resolved = await previousEligible(context(plan, range, signal));
+      resolved = await previousEligible(context(identity, plan, range, signal));
     } else if (plan.actionKind === 'goto-anchor') {
       const acceptedSchedule = currentSchedule();
       for (const candidate of acceptedSchedule.candidates({
@@ -115,7 +116,7 @@ export function createReplayNavigationTargetResolver({ resolveSchedule = null, s
           range.endEpochMs,
           candidate.targetEpochMs + acceptedSchedule.maxAnchorDistanceMs + 1,
         );
-        const candidateResult = await eligibleAtOrAfter(context(plan, range, signal, {
+        const candidateResult = await eligibleAtOrAfter(context(identity, plan, range, signal, {
           anchorEpochMs: candidate.targetEpochMs,
           windowEndEpochMs,
         }));
@@ -130,13 +131,13 @@ export function createReplayNavigationTargetResolver({ resolveSchedule = null, s
         // an exclusive cutoff at the configured wall time, so that anchor bar
         // and every later bar remain hidden until a subsequent Replay step.
         resolved = requireSourceEvidence
-          ? await visibleBefore(context(plan, range, signal, { targetEpochMs: candidate.targetEpochMs }))
+          ? await visibleBefore(context(identity, plan, range, signal, { targetEpochMs: candidate.targetEpochMs }))
           : Object.freeze({ sourceEpochMs: null, targetEpochMs: candidate.targetEpochMs });
         break;
       }
     } else if ((plan.actionKind === 'goto-exact' || plan.actionKind === 'restart-back-to')
       && requireSourceEvidence) {
-      resolved = await visibleBefore(context(plan, range, signal, {
+      resolved = await visibleBefore(context(identity, plan, range, signal, {
         targetEpochMs: plan.target.requestedTargetEpochMs,
       }));
     } else {

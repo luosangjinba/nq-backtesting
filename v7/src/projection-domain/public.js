@@ -3,3 +3,8 @@ export { projectPaneReplayAdvance, projectPaneSnapshot } from './pane-projection
 export { projectPaneHistoryExtension } from './pane-history-extension.js';
 export { createProjectedBar } from './projected-bar.js';
 export { ProjectionDomainError } from './projection-error.js';
+export {
+  extendPaneProjectedHistory,
+  preservePaneProjectedHistory,
+  projectedHistoryOldestEpochMs,
+} from './projected-history-composition.js';

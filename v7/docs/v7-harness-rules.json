@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "currentStep": "R8.4",
+  "currentStep": "R8.5",
   "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
@@ -1498,16 +1498,22 @@
       "owner": "bar-data-runtime",
       "v6FailurePrevented": "UI or feature modules retained raw batches outside the bounded Bar Data cache owner",
       "activationStep": "R8.4",
-      "state": "executable",
-      "harness": "tests/raw-coverage-lease-contract-harness.js",
+      "state": "accepted",
+      "harness": "tests/bar-data-coverage-lease-harness.js",
       "positiveEvidence": [
         "docs/V7_RAW_COVERAGE_LEASE_CONTRACT_R8_4.md",
+        "docs/V7_SOLE_BAR_DATA_RETENTION_OWNER_R8_5.md",
         "sessions/session_20260730_r8_4_raw_coverage_lease_contract.md",
+        "sessions/session_20260730_r8_5_sole_bar_data_retention_owner.md",
+        "src/bar-data-runtime/bar-data-runtime.js",
+        "src/bar-data-runtime/coverage-lease-runtime.js",
+        "src/bar-data-runtime/raw-coverage-store.js",
         "src/raw-coverage-lease-contract/public.js",
         "src/raw-coverage-lease-contract/module.json",
         "src/raw-coverage-lease-contract/scope-contract.js",
         "src/raw-coverage-lease-contract/lease-contract.js",
         "tests/raw-coverage-lease-contract-harness.js",
+        "tests/bar-data-coverage-lease-harness.js",
         "docs/v7-architecture-manifest.json",
         "docs/v7-production-architecture-baseline.json",
         "tests/production-architecture-harness.js",
@@ -1518,7 +1524,7 @@
         "tests/fixtures/production-architecture/negative/cases.json"
       ],
       "humanReviewRequired": false,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260730_r8_5_sole_bar_data_retention_owner.md"
     },
     {
       "id": "H075",

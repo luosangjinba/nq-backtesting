@@ -7,7 +7,8 @@
   "requiredPorts": [
     "core.bar-data-contract",
     "core.replay-contract",
-    "core.capability-contract"
+    "core.capability-contract",
+    "core.projected-history-contract"
   ],
   "optionalPorts": [],
   "lifecycle": [],

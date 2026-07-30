@@ -489,7 +489,9 @@ live in `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
   transaction identity, finite window-count/per-window/aggregate budgets,
   callback-scoped synchronous reads, cancellation, disposal, and an executable
   sole-retention rule awaiting R8.5 activation;
-- `R8.5`: sole Bar Data raw retention owner;
+- `R8.5`: sole Bar Data raw retention owner; completed with transaction-bound
+  lease activation, deletion of both UI ledgers, bounded accepted-coverage/LRU
+  reuse, delayed cancellation, inactive-Pane release, and disposal evidence;
 - `R8.6`: sole semantic Workspace State owner;
 - `R8.7`: prepared commit participant contract;
 - `R8.8`: reversible Chart application;
