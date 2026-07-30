@@ -6,7 +6,7 @@ const selection = Object.freeze({
   aggregationPolicy: Object.freeze({ revision: 'fixed-60m-eth-r1' }),
   calendar: Object.freeze({ revision: 'calendar-r1' }),
   displayTimeframe: Object.freeze({
-    alignment: Object.freeze({ durationMs: 3_600_000 }),
+    alignment: Object.freeze({ durationMs: 3_600_000, kind: 'fixed-duration' }),
     id: 'timeframe.display-1-hour',
   }),
   instrument: Object.freeze({ id: 'instrument.cme.nq' }),
@@ -14,6 +14,8 @@ const selection = Object.freeze({
 });
 const request = Object.freeze({
   aggregationPolicyRevision: selection.aggregationPolicy.revision,
+  alignmentKind: 'fixed-duration',
+  alignmentPolicyId: null,
   calendarRevision: selection.calendar.revision,
   datasetRevision: 'dataset-r1',
   displayTimeframeId: selection.displayTimeframe.id,

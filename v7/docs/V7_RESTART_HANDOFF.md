@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-29 after R7.3m dense replacement prefill correction
+Last updated: 2026-07-30 after R7.3o dense RTH time-location correction
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -45,7 +45,12 @@ required for normal startup.
   screenshot-scale history; R7.3l corrects empty premarket RTH entry/restore
   while preserving forward cache identity; both are human accepted. R7.3m
   preplans dense TF/ETH-RTH replacements without native input and is also human
-  accepted after the filled dense-workspace review; R2.4
+  accepted after the filled dense-workspace review; R7.3n activates
+  Projection-owned session-aware `1D`/`1W`/`1M` and is awaiting human review;
+  R7.3o preserves a dense non-target RTH Pane when an explicit location in
+  another Pane materializes a narrower contained navigation window and is
+  awaiting human review;
+  R2.4
   Session Browser
   readability and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
@@ -463,6 +468,10 @@ Corrective implementation, in order:
     shared conservative raw window; capped `1h`–`12h` targets merge separately
     provenanced projected context with the authoritative raw tail. No native
     history event or second visible transaction is required.
+18. A complete-Pane time-location transaction cannot narrow an unchanged
+    Pane's accepted source wall when its ordinary navigation request is already
+    fully covered by same-scope accepted raw batches. The target Pane locates
+    normally while the dense non-target Pane retains its bar count and span.
 
 Use V6 source/docs/tests as binding interaction evidence for items 1–4. Do not
 restart product interviews or copy V6 runtime ownership.
@@ -477,9 +486,10 @@ R4.1–R4.5 are the commits after this handoff's original R3.3 baseline.
 
 ## Deliberately Not Implemented
 
-There is still no production-complete CME holiday dataset, calendar-aligned
-day/week/month policy, or Date-range sync. Active Layout Sync is intentionally
-limited to Symbol, Interval, and Crosshair.
+There is still no production-complete CME holiday dataset or Date-range sync.
+The registered day/week/month policy uses the current weekly ETH/RTH calendar
+and real source gaps; it does not imply holiday completeness. Active Layout
+Sync is intentionally limited to Symbol, Interval, and Crosshair.
 V7 now uses real local V4/DuckDB NQ history, but this does not imply complete
 exchange-calendar or tick-level coverage.
 
@@ -535,12 +545,13 @@ automatically accepted with no visual/interaction change. The chart/Replay
 foundation is closed.
 
 Exact next step: R7.3k one-pass loading, R7.3l premarket RTH entry, and R7.3m
-dense replacement prefill are human accepted. Resolve the newly reported
-disabled `1D`/`1W`/`1M` Calendar choices through a session-aware aggregation
-owner before the remaining R7.3 human gates and complete foundation walkthrough.
-Do not merely enable unsupported controls or move calendar aggregation into the
-Chart/UI owner. After those gates, decide whether phase one closes before
-specifying Backtesting/Journal boundaries.
+dense replacement prefill are human accepted. R7.3n implements the reported
+disabled `1D`/`1W`/`1M` choices through a Projection-owned session-aware
+calendar policy and passes automated domain/API/real-Chrome gates. R7.3o fixes
+the newly reported dense RTH non-target Pane collapse during explicit location.
+Obtain human confirmation for both pending interaction gates, then commit the
+bounded work. After the remaining R7.3 human gates, decide whether phase one
+closes before specifying Backtesting/Journal boundaries.
 
 ## Standing Workflow
 

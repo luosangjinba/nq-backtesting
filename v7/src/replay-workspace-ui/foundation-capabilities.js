@@ -1,19 +1,19 @@
 import {
   defineInstrument,
-  defineTimeframe,
   defineTradingCalendar,
 } from '../capability-contract/public.js';
-import { createFixedDurationAggregationPolicy } from '../fixed-timeframe-domain/public.js';
-import { createReplayStep } from '../replay-contract/public.js';
 import { createSessionHoursCalendar, createSessionHoursPolicy } from '../session-hours-domain/public.js';
 import { createWorkspaceReplacementCatalog } from '../workspace-replacement-runtime/public.js';
 import {
   createNewYorkWallEpochConverter,
+  newYorkWallEpochToInstantMs,
   V4_BARS_PROVIDER_ID,
 } from '../v4-bars-provider-adapter/public.js';
+import {
+  createFoundationTimeframeRegistry,
+  FOUNDATION_CALENDAR_ALIGNMENT_POLICY_IDS,
+} from './foundation-timeframe-registry.js';
 
-const MINUTE = 60_000;
-const FIXED_GRID_OFFSET_MS = 0;
 export const FOUNDATION_IDS = Object.freeze({
   calendar: 'calendar.cme-equity-index',
   instrument: 'instrument.cme.nq',
@@ -43,41 +43,6 @@ const INSTRUMENTS = Object.freeze({
     symbol: 'ES',
   }),
 });
-
-const TIMEFRAMES = Object.freeze([
-  Object.freeze({ durationMinutes: 1, id: 'timeframe.display-1-minute', label: '1m', menuLabel: '1 minute' }),
-  Object.freeze({ durationMinutes: 2, id: 'timeframe.display-2-minute', label: '2m', menuLabel: '2 minutes' }),
-  Object.freeze({ durationMinutes: 3, id: 'timeframe.display-3-minute', label: '3m', menuLabel: '3 minutes' }),
-  Object.freeze({ durationMinutes: 4, id: 'timeframe.display-4-minute', label: '4m', menuLabel: '4 minutes' }),
-  Object.freeze({ durationMinutes: 5, id: 'timeframe.display-5-minute', label: '5m', menuLabel: '5 minutes' }),
-  Object.freeze({ durationMinutes: 10, id: 'timeframe.display-10-minute', label: '10m', menuLabel: '10 minutes' }),
-  Object.freeze({ durationMinutes: 15, id: 'timeframe.display-15-minute', label: '15m', menuLabel: '15 minutes' }),
-  Object.freeze({ durationMinutes: 30, id: 'timeframe.display-30-minute', label: '30m', menuLabel: '30 minutes' }),
-  Object.freeze({ durationMinutes: 60, id: 'timeframe.display-1-hour', label: '1h', menuLabel: '1 hour' }),
-  Object.freeze({ durationMinutes: 120, id: 'timeframe.display-2-hour', label: '2h', menuLabel: '2 hours' }),
-  Object.freeze({ durationMinutes: 240, id: 'timeframe.display-4-hour', label: '4h', menuLabel: '4 hours' }),
-  Object.freeze({ durationMinutes: 480, id: 'timeframe.display-8-hour', label: '8h', menuLabel: '8 hours' }),
-  Object.freeze({ durationMinutes: 720, id: 'timeframe.display-12-hour', label: '12h', menuLabel: '12 hours' }),
-]);
-
-const TIMEFRAME_MENU_GROUPS = Object.freeze([
-  Object.freeze({
-    label: 'Minutes',
-    items: Object.freeze(TIMEFRAMES.filter(({ durationMinutes }) => durationMinutes < 60)),
-  }),
-  Object.freeze({
-    label: 'Hours',
-    items: Object.freeze(TIMEFRAMES.filter(({ durationMinutes }) => durationMinutes >= 60)),
-  }),
-  Object.freeze({
-    label: 'Calendar',
-    items: Object.freeze([
-      Object.freeze({ id: 'timeframe.display-1-day', label: '1D', menuLabel: '1 day', unavailable: true }),
-      Object.freeze({ id: 'timeframe.display-1-week', label: '1W', menuLabel: '1 week', unavailable: true }),
-      Object.freeze({ id: 'timeframe.display-1-month', label: '1M', menuLabel: '1 month', unavailable: true }),
-    ]),
-  }),
-]);
 
 function base(kind, contract, id, label) {
   return {
@@ -125,7 +90,10 @@ export function createFoundationCapabilities(instrumentIds = undefined) {
   const instrument = instruments[0];
   const calendar = defineTradingCalendar({
     ...base('calendar', 'TradingCalendar', FOUNDATION_IDS.calendar, 'CME Equity Index'),
-    alignmentPolicyIds: ['alignment.fixed-duration'],
+    alignmentPolicyIds: [
+      'alignment.fixed-duration',
+      ...FOUNDATION_CALENDAR_ALIGNMENT_POLICY_IDS,
+    ],
     revision: 'foundation-2026-r1',
     sessionHoursPolicyIds: Object.values(FOUNDATION_IDS.sessionHours),
     timeZone: 'America/New_York',
@@ -147,83 +115,51 @@ export function createFoundationCapabilities(instrumentIds = undefined) {
       rth: [closed(), ...Array.from({ length: 5 }, () => interval(570, 975)), closed()],
     },
   });
-  const sessionPolicies = Object.freeze(Object.fromEntries(['eth', 'rth'].map((mode) => {
+  const wallPolicies = Object.freeze(Object.fromEntries(['eth', 'rth'].map((mode) => {
     const wallPolicy = createSessionHoursPolicy({
       calendar: sessionCalendar, id: FOUNDATION_IDS.sessionHours[mode], mode,
     });
-    return [mode, Object.freeze({
-      ...wallPolicy,
-      isEligible: (bar, context) => wallPolicy.isEligible(
+    return [mode, wallPolicy];
+  })));
+  const sessionPolicies = Object.freeze(Object.fromEntries(['eth', 'rth'].map((mode) => (
+    [mode, Object.freeze({
+      ...wallPolicies[mode],
+      isEligible: (bar, context) => wallPolicies[mode].isEligible(
         { startEpochMs: exchangeWallEpoch(bar.startEpochMs) }, context,
       ),
-      revision: `${wallPolicy.revision}-instant-adapter-r1`,
-    })];
-  })));
-  const definitions = Object.freeze(TIMEFRAMES.map((item) => {
-    const aggregationPolicyId = `projection.fixed-${item.durationMinutes}-minute`;
-    return Object.freeze({
-      ...item,
-      definition: defineTimeframe({
-        ...base('timeframe', 'TimeframeDefinition', item.id, item.label),
-        aggregationPolicyId,
-        alignment: { durationMs: item.durationMinutes * MINUTE, kind: 'fixed-duration' },
-        sourceResolutionIds: [FOUNDATION_IDS.resolution],
-      }),
-      aggregationPolicyId,
-    });
-  }));
-  const entries = instruments.flatMap((entryInstrument) => definitions.flatMap((timeframe) => (
-    ['eth', 'rth'].map((mode) => ({
-      aggregationPolicy: createFixedDurationAggregationPolicy({
-        durationMs: timeframe.durationMinutes * MINUTE,
-        id: timeframe.aggregationPolicyId,
-        offsetMs: FIXED_GRID_OFFSET_MS,
-        revision: `fixed-${timeframe.durationMinutes}m-${mode}-exchange-grid-r2`,
-        schemaVersion: 1,
-        sourceDurationMs: MINUTE,
-      }),
-      calendar,
-      displayTimeframe: timeframe.definition,
-      instrument: entryInstrument,
-      paneId: 'pane-template',
-      sessionHoursMode: mode,
-      sessionHoursPolicy: sessionPolicies[mode],
-    }))
-  )));
+      revision: `${wallPolicies[mode].revision}-instant-adapter-r1`,
+    })]
+  ))));
+  const timeframeRegistry = createFoundationTimeframeRegistry({
+    calendar,
+    exchangeWallEpoch,
+    instruments,
+    resolutionId: FOUNDATION_IDS.resolution,
+    sessionPolicies,
+    toInstantEpochMs: newYorkWallEpochToInstantMs,
+    wallPolicies,
+  });
+  const { definitions, entries, historyPlanning } = timeframeRegistry;
   const defaultTarget = Object.freeze({
     instrumentId: instrument.id,
     sessionHoursMode: 'eth',
     timeframeId: definitions[0].id,
   });
-  const replayStepOptions = Object.freeze(TIMEFRAMES
-    .map(({ durationMinutes, label }) => Object.freeze({
-      id: `replay-step.fixed-${durationMinutes}-minute`,
-      label,
-      step: createReplayStep({
-        durationMs: durationMinutes * MINUTE,
-        id: `replay-step.fixed-${durationMinutes}-minute`,
-        offsetMs: FIXED_GRID_OFFSET_MS,
-        sourceDurationMs: MINUTE,
-      }),
-    })));
   const catalog = createWorkspaceReplacementCatalog(entries);
   return Object.freeze({
     calendar,
     catalog,
     defaultSelection: catalog.get(defaultTarget),
     defaultTarget,
+    historyPlanning,
     instrument,
     instrumentOptions: Object.freeze(instruments.map(({ id, priceIncrement, symbol }) => Object.freeze({
       id, label: symbol, priceIncrement,
     }))),
     instruments,
-    replayStepOptions,
+    replayStepOptions: timeframeRegistry.replayStepOptions,
     sessionHoursModes: Object.freeze(['eth', 'rth']),
-    timeframes: Object.freeze(definitions.map(({ durationMinutes, id, label }) => Object.freeze({
-      id,
-      label,
-      replayStepId: `replay-step.fixed-${durationMinutes}-minute`,
-    }))),
-    timeframeMenuGroups: TIMEFRAME_MENU_GROUPS,
+    timeframes: timeframeRegistry.timeframes,
+    timeframeMenuGroups: timeframeRegistry.timeframeMenuGroups,
   });
 }

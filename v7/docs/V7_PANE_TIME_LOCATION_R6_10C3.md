@@ -79,6 +79,23 @@ Date-range synchronization remains absent. The R6 closure decision deliberately
 defers it beyond the chart foundation; its persisted key remains inert
 compatibility data only.
 
+## R7.3o Dense RTH Preservation Correction
+
+A later two-Pane review exposed a source-ledger regression outside the
+time-location owner. After a dense RTH replacement, locating P1 history in P2
+materialized the complete Pane set. P2 correctly received
+`time-location-history`, while unchanged P1 received an ordinary navigation
+request whose window was narrower than P1's already accepted RTH source wall.
+Replacing P1 with only that acquired window collapsed its candles against the
+retained wide logical span.
+
+The Pane-local source ledger now retains ordered accepted raw batches when they
+fully cover that smaller request under the exact same raw source scope. P2
+still loads and locates through the bounded Workspace/Bar Data path; P1 keeps
+its independent Viewport and source history. A real-Chrome regression recreates
+the dense RTH source Pane, invokes the actual right-click `Locate in P2`
+command, and proves P1 bar count and logical span do not collapse.
+
 ## Automated Gate
 
 - domain Harness covers branded selections/commands, span-preserving plans,

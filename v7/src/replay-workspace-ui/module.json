@@ -25,6 +25,7 @@
     "core.pane-workspace-domain",
     "core.pane-set-materialization",
     "core.projection-domain",
+    "core.calendar-timeframe-domain",
     "core.fixed-timeframe-domain",
     "core.session-hours-domain",
     "core.chart-snapshot-application",

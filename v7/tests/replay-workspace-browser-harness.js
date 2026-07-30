@@ -210,6 +210,12 @@ try {
   await cdp.send('Page.addScriptToEvaluateOnNewDocument', {
     source: `{
       globalThis.__browserErrors = [];
+      globalThis.__fetchUrls = [];
+      const nativeFetch = globalThis.fetch.bind(globalThis);
+      globalThis.fetch = (input, init) => {
+        globalThis.__fetchUrls.push(typeof input === 'string' ? input : input.url);
+        return nativeFetch(input, init);
+      };
       addEventListener('error', (event) => globalThis.__browserErrors.push(event.message));
       addEventListener('unhandledrejection', (event) => globalThis.__browserErrors.push(String(event.reason)));
       const NativeDate = Date;
@@ -327,8 +333,8 @@ try {
     return { disabled, enabled, expanded: toggle.getAttribute('aria-expanded'), hidden: menu.hidden };
   })()`);
   assert.deepEqual(timeframeMenu, {
-    disabled: ['1 day', '1 week', '1 month'],
-    enabled: ['1 minute', '2 minutes', '3 minutes', '4 minutes', '5 minutes', '10 minutes', '15 minutes', '30 minutes', '1 hour', '2 hours', '4 hours', '8 hours', '12 hours'],
+    disabled: [],
+    enabled: ['1 minute', '2 minutes', '3 minutes', '4 minutes', '5 minutes', '10 minutes', '15 minutes', '30 minutes', '1 hour', '2 hours', '4 hours', '8 hours', '12 hours', '1 day', '1 week', '1 month'],
     expanded: 'false',
     hidden: true,
   });
@@ -340,7 +346,7 @@ try {
 
   const startedAt = performance.now();
   const providerRequestsAtEntry = await evaluate(cdp,
-    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`);
+    `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`);
   await evaluate(cdp, `(() => {
     const root = document.querySelector('.replay-workspace');
     const toolbar = document.querySelector('.replay-workspace-toolbar');
@@ -395,7 +401,7 @@ try {
   assert.equal(await evaluate(cdp, `document.querySelector('.lightweight-chart-host').dataset.lastMutationMode`),
     'tail-update', 'cache-hit 1m Next must use the adapter tail-update path');
   assert.equal(await evaluate(cdp,
-    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`),
+    `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`),
     providerRequestsAtEntry, 'buffered cache-hit Next must not issue another provider request');
   assert.equal(await evaluate(cdp, `document.querySelector('.replay-visible-through').textContent`),
     'Visible through · 05/01/2026, 12:41 EDT · 122 bars');
@@ -458,7 +464,7 @@ try {
   assert.equal(await evaluate(cdp, `document.querySelector('.lightweight-chart-host').dataset.lastMutationMode`),
     'full-replace', 'timeframe replacement must remain one complete series mutation');
   const providerRequestsAfterTimeframe = await evaluate(cdp,
-    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`);
+    `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`);
   assert.equal(providerRequestsAfterTimeframe, providerRequestsAtEntry + 1,
     'first target-history expansion must use one bounded provider request');
   assert.equal(
@@ -510,7 +516,7 @@ try {
   assert.equal(await evaluate(cdp, `document.querySelector('.lightweight-chart-host').dataset.lastMutationMode`),
     'tail-update', 'aggregate Next must update only the active or newly appended candle');
   assert.equal(await evaluate(cdp,
-    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`),
+    `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`),
     providerRequestsAfterTimeframe, 'cache-hit aggregate Next must not issue another provider request');
   assert.equal(manualAfter.wall, 'manual');
   assert.ok(Math.abs(manualAfter.offset - manualBefore.offset) < 0.001);
@@ -976,7 +982,7 @@ try {
   })()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '2'`);
   const requestsBeforeCadence = await evaluate(cdp,
-    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`);
+    `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`);
   let cadenceRevision = 2;
   const cadenceSamples = [];
   const adapterApplySamples = [];
@@ -1021,7 +1027,7 @@ try {
   assert.ok(latencySummary.p99Ms < 150, `aggregate Next p99 exceeded budget: ${latencySummary.p99Ms}ms`);
   assert.ok(latencySummary.maxMs < 250, `aggregate Next max exceeded budget: ${latencySummary.maxMs}ms`);
   assert.equal(await evaluate(cdp,
-    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`),
+    `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`),
     requestsBeforeCadence, '100 cache-hit aggregate Next actions must issue zero provider requests');
 } finally {
   cdp?.close();

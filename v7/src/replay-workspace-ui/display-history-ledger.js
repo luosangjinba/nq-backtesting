@@ -1,10 +1,12 @@
 import { createProjectedHistoryBatch } from '../projected-history-contract/public.js';
 
 function selectionIdentity(selection) {
+  const alignment = selection.displayTimeframe.alignment;
   return JSON.stringify([
     selection.instrument.id,
     selection.displayTimeframe.id,
-    selection.displayTimeframe.alignment.durationMs,
+    alignment.kind,
+    alignment.kind === 'fixed-duration' ? alignment.durationMs : alignment.policyId,
     selection.sessionHoursMode,
     selection.calendar.revision,
     selection.aggregationPolicy.revision,
@@ -13,9 +15,12 @@ function selectionIdentity(selection) {
 
 function batchMatchesSelection(batch, selection) {
   const request = batch.request;
+  const alignment = selection.displayTimeframe.alignment;
   return request.instrumentId === selection.instrument.id
     && request.displayTimeframeId === selection.displayTimeframe.id
-    && request.durationMs === selection.displayTimeframe.alignment.durationMs
+    && request.alignmentKind === alignment.kind
+    && request.durationMs === (alignment.kind === 'fixed-duration' ? alignment.durationMs : null)
+    && request.alignmentPolicyId === (alignment.kind === 'calendar' ? alignment.policyId : null)
     && request.sessionHoursMode === selection.sessionHoursMode
     && request.calendarRevision === selection.calendar.revision
     && request.aggregationPolicyRevision === selection.aggregationPolicy.revision;

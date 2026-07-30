@@ -94,6 +94,73 @@ async function extendHistory(cdp, paneId) {
   return readState(cdp);
 }
 
+async function zoomOutDense(cdp, paneId, minimumSpanBars = 900) {
+  const point = await evaluate(cdp, `(() => {
+    const rect = document.querySelector('[data-pane-id="${paneId}"] .lightweight-chart-host')
+      .getBoundingClientRect();
+    return { x: rect.left + rect.width * .3, y: rect.top + rect.height * .5 };
+  })()`);
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseWheel', x: point.x, y: point.y, deltaX: 0, deltaY: 300,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 35));
+    const span = Number(await evaluate(cdp,
+      `document.querySelector('[data-pane-id="${paneId}"] .lightweight-chart-host').dataset.spanBars`));
+    if (span >= minimumSpanBars) break;
+  }
+  await waitFor(cdp, `Number(document.querySelector('[data-pane-id="${paneId}"]'
+    + ' .lightweight-chart-host')?.dataset.spanBars) >= ${minimumSpanBars}`, 5_000);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 20_000);
+  return readState(cdp);
+}
+
+async function locateFromSourceToTarget(cdp, sourcePaneId, targetPaneId) {
+  const target = await evaluate(cdp, `(() => {
+    const sourceRect = document.querySelector('[data-pane-id="${sourcePaneId}"] .lightweight-chart-host')
+      .getBoundingClientRect();
+    const targetPane = document.querySelector('[data-pane-id="${targetPaneId}"]');
+    return {
+      bounds: { bottom: sourceRect.bottom, left: sourceRect.left,
+        right: sourceRect.right, top: sourceRect.top },
+      label: 'Locate in P' + targetPane.dataset.paneNumber,
+    };
+  })()`);
+  let point = null;
+  for (const ratio of [.12, .2, .28, .36, .44, .52]) {
+    const candidate = {
+      x: target.bounds.left + ((target.bounds.right - target.bounds.left) * ratio),
+      y: target.bounds.top + ((target.bounds.bottom - target.bounds.top) * .45),
+    };
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved', x: candidate.x, y: candidate.y, button: 'none', buttons: 0,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    const selected = await evaluate(cdp,
+      `document.querySelector('[data-pane-id="${sourcePaneId}"]')?.dataset.ohlcState === 'selected'`);
+    if (selected) {
+      point = candidate;
+      break;
+    }
+  }
+  assert.ok(point, `a real source candle must be available in ${sourcePaneId}`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed', x: point.x, y: point.y, button: 'right', buttons: 2, clickCount: 1,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased', x: point.x, y: point.y, button: 'right', buttons: 0, clickCount: 1,
+  });
+  await waitFor(cdp, `document.querySelector('.pane-time-location-menu')?.hidden === false`);
+  await evaluate(cdp, `((label) => {
+    const action = [...document.querySelectorAll('.pane-time-location-action')]
+      .find((button) => button.textContent.startsWith(label));
+    action.click();
+  })(${JSON.stringify(target.label)})`);
+  await waitFor(cdp, `document.querySelector('[data-pane-id="${targetPaneId}"] .lightweight-chart-host')
+    ?.dataset.lastLocatedMarketEpochMs`, 20_000);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 20_000);
+}
+
 let cdp;
 try {
   const debugPort = await waitForDevtools();
@@ -133,6 +200,10 @@ try {
   assert.ok(state.panes.every(({ bars, empty }) => bars > 0 && !empty),
     `ETH extension must preserve both Panes: ${JSON.stringify(state)}`);
 
+  state = await zoomOutDense(cdp, 'pane-main');
+  assert.ok(state.panes[0].spanBars >= 900 && state.panes[0].bars > state.panes[1].bars,
+    `the source Pane must own genuinely denser history before RTH replacement: ${JSON.stringify(state)}`);
+
   await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="rth"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'rth'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
@@ -141,6 +212,18 @@ try {
     `premarket RTH replacement must retain prior-session context: ${JSON.stringify(beforeFirstRthHistory)}`);
   assert.ok(beforeFirstRthHistory.panes.every(({ bars, empty }) => bars >= 200 && !empty),
     `premarket RTH replacement must paint eligible prior-session bars: ${JSON.stringify(beforeFirstRthHistory)}`);
+  assert.ok(beforeFirstRthHistory.panes[0].bars > beforeFirstRthHistory.panes[1].bars,
+    `dense RTH replacement must retain a wider source Pane: ${JSON.stringify(beforeFirstRthHistory)}`);
+  await locateFromSourceToTarget(cdp, 'pane-main', 'pane-secondary');
+  const afterRthTimeLocation = await readState(cdp);
+  assert.ok(afterRthTimeLocation.panes[0].bars >= beforeFirstRthHistory.panes[0].bars,
+    `RTH target-history location must not collapse the non-target source Pane: ${JSON.stringify({
+      beforeFirstRthHistory, afterRthTimeLocation,
+    })}`);
+  assert.ok(afterRthTimeLocation.panes[0].spanBars >= beforeFirstRthHistory.panes[0].spanBars * .9,
+    `RTH target-history location must preserve the non-target source wall: ${JSON.stringify({
+      beforeFirstRthHistory, afterRthTimeLocation,
+    })}`);
   await cdp.send('Page.reload', { ignoreCache: true });
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'rth'
     && document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
@@ -217,5 +300,5 @@ try {
 }
 
 console.log('v7 multi-Pane RTH history browser harness passed', {
-  scope: 'premarket RTH warmup, rapid RTH span, two-to-one Pane wall, first-drag extension, ETH recovery',
+  scope: 'premarket RTH warmup, dense RTH Locate preservation, rapid span, Pane reduction, ETH recovery',
 });

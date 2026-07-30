@@ -137,6 +137,8 @@ const projectedCalls = [];
 const projectedStartEpochMs = Date.parse('2026-05-01T12:00:00Z');
 const projectedRequest = createProjectedHistoryRequest({
   aggregationPolicyRevision: 'fixed-240m-eth-r1',
+  alignmentKind: 'fixed-duration',
+  alignmentPolicyId: null,
   calendarRevision: 'calendar-r1',
   datasetRevision: V4_BARS_DATASET_REVISION,
   displayTimeframeId: 'timeframe.display-4-hour',
@@ -169,6 +171,7 @@ const projectedProvider = createV4ProjectedHistoryProvider({
           datasetRevision: V4_BARS_DATASET_REVISION,
           sessionHoursMode: 'eth',
           targetDurationMinutes: 240,
+          targetTimeframe: '240',
         };
       },
     };

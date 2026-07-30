@@ -1,8 +1,9 @@
 const ID_PATTERN = /^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$/;
 const REQUEST_FIELDS = Object.freeze([
-  'aggregationPolicyRevision', 'calendarRevision', 'datasetRevision',
-  'displayTimeframeId', 'durationMs', 'instrumentId', 'providerId',
-  'schemaVersion', 'sessionHoursMode', 'windowEndEpochMs', 'windowStartEpochMs',
+  'aggregationPolicyRevision', 'alignmentKind', 'alignmentPolicyId',
+  'calendarRevision', 'datasetRevision', 'displayTimeframeId', 'durationMs',
+  'instrumentId', 'providerId', 'schemaVersion', 'sessionHoursMode',
+  'windowEndEpochMs', 'windowStartEpochMs',
 ]);
 
 function requireString(value, label) {
@@ -46,8 +47,14 @@ export function createProjectedHistoryRequest(value) {
     || Object.keys(value).sort().join(',') !== [...REQUEST_FIELDS].sort().join(',')) {
     throw new TypeError('Projected History request fields are invalid.');
   }
+  const fixed = value.alignmentKind === 'fixed-duration';
+  const calendar = value.alignmentKind === 'calendar';
   if (value.schemaVersion !== 1 || !['eth', 'rth'].includes(value.sessionHoursMode)
-    || !Number.isSafeInteger(value.durationMs) || value.durationMs < 60_000
+    || (!fixed && !calendar)
+    || (fixed && (!Number.isSafeInteger(value.durationMs) || value.durationMs < 60_000
+      || value.alignmentPolicyId !== null))
+    || (calendar && (value.durationMs !== null
+      || typeof value.alignmentPolicyId !== 'string'))
     || !Number.isSafeInteger(value.windowStartEpochMs) || value.windowStartEpochMs < 0
     || !Number.isSafeInteger(value.windowEndEpochMs)
     || value.windowEndEpochMs <= value.windowStartEpochMs) {
@@ -55,6 +62,9 @@ export function createProjectedHistoryRequest(value) {
   }
   return Object.freeze({
     aggregationPolicyRevision: requireString(value.aggregationPolicyRevision, 'Aggregation revision'),
+    alignmentKind: value.alignmentKind,
+    alignmentPolicyId: calendar
+      ? requireId(value.alignmentPolicyId, 'Alignment policy') : null,
     calendarRevision: requireString(value.calendarRevision, 'Calendar revision'),
     datasetRevision: requireString(value.datasetRevision, 'Dataset revision'),
     displayTimeframeId: requireId(value.displayTimeframeId, 'Display timeframe'),
@@ -72,9 +82,9 @@ export function projectedHistoryRequestKey(value) {
   const request = createProjectedHistoryRequest(value);
   return JSON.stringify([
     request.providerId, request.instrumentId, request.displayTimeframeId,
-    request.durationMs, request.sessionHoursMode, request.windowStartEpochMs,
-    request.windowEndEpochMs, request.datasetRevision, request.calendarRevision,
-    request.aggregationPolicyRevision,
+    request.alignmentKind, request.alignmentPolicyId, request.durationMs,
+    request.sessionHoursMode, request.windowStartEpochMs, request.windowEndEpochMs,
+    request.datasetRevision, request.calendarRevision, request.aggregationPolicyRevision,
   ]);
 }
 

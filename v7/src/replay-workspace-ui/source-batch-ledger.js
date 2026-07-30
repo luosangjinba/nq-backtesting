@@ -3,6 +3,31 @@ export function createSourceBatchLedger() {
   let accepted = Object.freeze([]);
   let staged = null;
 
+  function sameSourceScope(left, right) {
+    return left.schemaVersion === right.schemaVersion
+      && left.providerId === right.providerId
+      && left.instrumentId === right.instrumentId
+      && left.sourceResolutionId === right.sourceResolutionId
+      && left.datasetRevision === right.datasetRevision;
+  }
+
+  function acceptedCovers(acquired) {
+    const request = acquired.request;
+    let coveredThroughEpochMs = request.windowStartEpochMs;
+    // Complete-Pane transactions can acquire a smaller navigation window for
+    // an unchanged Pane. Keep its wider accepted source wall when that wall
+    // already covers the complete same-source request.
+    for (const candidate of accepted) {
+      const candidateRequest = candidate.request;
+      if (!sameSourceScope(candidateRequest, request)) continue;
+      if (candidateRequest.windowEndEpochMs <= coveredThroughEpochMs) continue;
+      if (candidateRequest.windowStartEpochMs > coveredThroughEpochMs) return false;
+      coveredThroughEpochMs = candidateRequest.windowEndEpochMs;
+      if (coveredThroughEpochMs >= request.windowEndEpochMs) return true;
+    }
+    return false;
+  }
+
   function contiguousAcceptedPrefix(acquired) {
     const prefix = [];
     let requiredEndEpochMs = acquired.request.windowStartEpochMs;
@@ -17,11 +42,11 @@ export function createSourceBatchLedger() {
   }
 
   function stage(acquired, operation) {
-    const batches = operation === 'history-extension'
-      ? [acquired, ...accepted]
-      : operation === 'pane-source-replacement'
-        ? [acquired]
-        : [...contiguousAcceptedPrefix(acquired), acquired];
+    let batches;
+    if (operation === 'history-extension') batches = [acquired, ...accepted];
+    else if (operation === 'pane-source-replacement') batches = [acquired];
+    else if (acceptedCovers(acquired)) batches = accepted;
+    else batches = [...contiguousAcceptedPrefix(acquired), acquired];
     staged = Object.freeze(batches);
     return staged;
   }

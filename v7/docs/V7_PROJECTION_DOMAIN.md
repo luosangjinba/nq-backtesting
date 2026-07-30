@@ -1,6 +1,6 @@
 # V7 Projection Domain
 
-Status: R4.2 provider-neutral identity projection foundation (2026-07-20)
+Status: R7.3n fixed and calendar projection policies active (2026-07-29)
 
 ## Ownership
 
@@ -101,10 +101,11 @@ The accepted fixture uses NQ capability data, a one-minute source/display
 definition, ETH policy identity, and an identity aggregation policy. Those ids
 exist only in the independent Harness. Production code is capability-generic.
 
-R5.2 and R5.3 now supply registered actual CME ETH/RTH eligibility and generic
-fixed-duration aggregation policies behind these contracts. Calendar-aligned
-day/week/month projection, runtime selection, multiple panes, and UI remain
-separate roadmap steps.
+R5.2 and R5.3 supply registered actual CME ETH/RTH eligibility and generic
+fixed-duration aggregation policies behind these contracts. R7.3n adds the
+separate registered calendar-alignment owner for trading day/week/month. Both
+policy families use the same Projection order and provenance contract; neither
+the UI nor Chart Runtime aggregates bars.
 
 ## Gate
 
@@ -113,3 +114,5 @@ all intermediate `1m` bars, exclusive no-future behavior, eligibility before
 aggregation, contiguous multi-window provenance, closed-session prefix
 preservation with changed-policy/forged-chain rejection, 20 fixture negative
 controls, and the absence of concrete capability-id branches.
+`tests/calendar-timeframe-domain-harness.js` separately proves calendar-policy
+alignment and Projection integration without adding concrete ids to the core.

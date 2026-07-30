@@ -7,6 +7,8 @@ import {
 
 const request = createProjectedHistoryRequest({
   aggregationPolicyRevision: 'fixed-240m-eth-r1',
+  alignmentKind: 'fixed-duration',
+  alignmentPolicyId: null,
   calendarRevision: 'calendar-r1',
   datasetRevision: 'dataset-r1',
   displayTimeframeId: 'timeframe.display-4-hour',

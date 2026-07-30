@@ -238,6 +238,22 @@ context is separately provenanced, never enters the raw source ledger, and is
 invisible to Replay source traversal. It is a compact view of the same
 immutable `1m` dataset, not an alternative source of replay evidence.
 
+R7.3n extends that boundary with alignment kind/policy identity and registers
+`core.calendar-timeframe-domain` for `1D`/`1W`/`1M`. Session Hours eligibility
+and the exclusive Replay cutoff still precede calendar aggregation. Calendar
+projected prefix and raw tail are composed before one visible Workspace commit,
+so selecting a calendar period cannot expose a short series that waits for a
+later native history event.
+
+R7.3o tightens the Pane-local raw source ledger for complete-Pane
+materializations. When an ordinary navigation request is wholly covered by the
+ordered accepted batches of the same provider, instrument, source resolution,
+dataset revision, and schema, the ledger retains that wider accepted source
+wall instead of replacing it with the narrower acquired window. Target-history
+location still uses the existing bounded history path; this rule protects only
+unchanged non-target Panes. It introduces no second Bar Data cache, Projection
+writer, Chart writer, or Replay owner.
+
 R3.2b1 adds `core.provider-policy-contract` as a pure transport-neutral policy
 boundary. Provider revision freshness, request limits, failure deadline,
 bounded retries, stable error kinds, and the adapter port are declared before

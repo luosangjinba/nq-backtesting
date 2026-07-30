@@ -23,9 +23,10 @@ for (const [selection, code] of [
 
 const capabilities = createFoundationCapabilities();
 const replayStepIds = new Set(capabilities.replayStepOptions.map(({ id }) => id));
-assert.equal(capabilities.timeframes.length, 13);
-assert.ok(capabilities.timeframes.every(({ replayStepId }) => replayStepIds.has(replayStepId)),
-  'Sync timeframe must resolve every supported fixed display TF to a real Replay step');
+assert.equal(capabilities.timeframes.length, 16);
+assert.ok(capabilities.timeframes.every(({ replayStepId }, index) => (
+  index < 13 ? replayStepIds.has(replayStepId) : replayStepId === null
+)), 'fixed display TFs resolve real Replay steps while calendar display keeps Replay independently owned');
 assert.deepEqual(capabilities.replayStepOptions.map(({ label }) => label), [
   '1m', '2m', '3m', '4m', '5m', '10m', '15m', '30m', '1h', '2h', '4h', '8h', '12h',
 ]);

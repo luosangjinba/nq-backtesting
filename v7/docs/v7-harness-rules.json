@@ -1380,6 +1380,30 @@
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
+    },
+    {
+      "id": "H071",
+      "name": "calendar-timeframe-trading-alignment",
+      "owner": "projection-domain",
+      "v6FailurePrevented": "day, week, and month controls were enabled without Session Hours trading-date alignment or waited for a later pointer event to load chart context",
+      "activationStep": "R7.3",
+      "state": "executable",
+      "harness": "tests/calendar-timeframe-domain-harness.js",
+      "positiveEvidence": [
+        "src/calendar-timeframe-domain/public.js",
+        "src/calendar-timeframe-domain/module.json",
+        "src/calendar-timeframe-domain/calendar-alignment.js",
+        "src/calendar-timeframe-domain/calendar-aggregation.js",
+        "src/calendar-timeframe-domain/aggregation-policy.js",
+        "tests/calendar-timeframe-domain-harness.js",
+        "tests/calendar-timeframe-browser-harness.js",
+        "docs/V7_CALENDAR_TIMEFRAME_DOMAIN.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/calendar-timeframe-domain/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
     }
   ]
 }

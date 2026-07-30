@@ -67,7 +67,7 @@ small series and wait for a later native mouse/wheel event to discover the
 negative logical gap.
 
 Sub-hour replacements acquire one raw window sized for that target. When a
-`1h`–`12h` target exceeds the bounded raw entry window, Bar Data concurrently
+`1h`–`12h` or calendar target exceeds the bounded raw entry window, Bar Data concurrently
 acquires compact projected context before the authoritative raw tail;
 Projection/Pane composition merges them into one separately provenanced
 snapshot and Chart Runtime still performs one visible replacement. Raw entry
@@ -77,6 +77,16 @@ identity remains shared; Session Hours Projection alone decides visibility.
 The chart never clears to an empty series and never exposes a partially rebuilt
 target. A cache hit has an end-to-end budget. A cache miss has an immediate
 feedback budget and a separate post-provider-response budget.
+
+A complete-Pane transaction may issue a smaller ordinary navigation request
+for an unchanged non-target Pane, including while another Pane receives
+explicit time-location history. If that request is already fully covered by
+the Pane's ordered accepted raw batches under the exact same raw source scope,
+Pane composition retains the wider accepted source wall. The narrower acquired
+batch must not discard valid visible history or collapse a dense manual
+Viewport. This is accepted projection-input retention only: Bar Data keeps its
+exact-window request/cache identity, and target history still uses the normal
+bounded acquisition path.
 
 The accepted toolbar subtree and its visual opacity remain stable across that
 refresh boundary. Transaction-conflicting inputs may be functionally locked,
@@ -113,17 +123,17 @@ Acquisition has two explicit Bar Data-owned tiers:
 
 - display timeframes below `1h` retain the exact raw-`1m` history path, including
   its 210-day safety bound and invisible seven-day transport partitioning;
-- `1h` through `12h` use the read-only V4 projected-history service for left
+- `1h` through `12h` and `1D`/`1W`/`1M` use the read-only V4 projected-history service for left
   chart context, including pre-commit projection replacements whose dense
   retained Viewport exceeds the raw entry window. The service filters the
   immutable `1m` source under the exact ETH/RTH schedule and aggregates on
   V7's real-instant fixed grid before returning one compact projected batch. A
-  single request may cover up to ten years, so a screenshot-scale
+  single request may cover up to twenty-five years, so a screenshot-scale
   high-timeframe gap does not become dozens of foreground raw transfers.
 
 Projected context has a separate, bounded cache identity containing instrument,
-timeframe, duration, ETH/RTH mode, calendar revision, aggregation revision,
-window, provider, and dataset revision. Its provenance is attached separately
+timeframe, alignment kind/policy, nullable fixed duration, ETH/RTH mode,
+calendar revision, aggregation revision, window, provider, and dataset revision. Its provenance is attached separately
 to the Pane snapshot. It never enters Replay source traversal or impersonates
 raw `1m` evidence; lower-timeframe navigation still acquires the authoritative
 raw bars when needed.

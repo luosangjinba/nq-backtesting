@@ -36,10 +36,10 @@ and interaction acceptance.
 
 The visible slice remains NQ and now uses the real local V4/DuckDB one-minute source. The
 capability catalog registers V6's fixed minute/hour set (`1m` through `12h`)
-crossed with ETH/RTH. Calendar `1D`/`1W`/`1M` entries remain visibly disabled
-until their session-aware aggregation owner is migrated. The adapter
+and the session-aware calendar set (`1D`, `1W`, `1M`), crossed with ETH/RTH.
+Calendar aggregation is owned by `core.calendar-timeframe-domain`; the adapter
 converts real instants to New York exchange wall-clock labels before invoking
-the R5.2 calendar policy; chart timestamps themselves remain unchanged.
+the Session Hours policy, and chart timestamps themselves remain real instants.
 
 This step does not add multi-pane, persistence,
 Auto Replay, Previous, Restart, or Go-to.
@@ -51,6 +51,10 @@ ETH to RTH replacement, cursor retention, accepted-state UI synchronization,
 no centered refresh overlay, manual-wall preservation, and Reset View. The
 fixed `1440x900` ready-state and open-timeframe-menu visual fixtures are
 intentional regression gates.
+
+R7.3n adds a focused real-Chrome gate for enabled `1D`/`1W`/`1M` selection,
+pre-commit projected left history without a native pointer trigger, unchanged
+Replay, and premarket RTH calendar materialization.
 
 The latest R5.6 review correction makes Session creation, Session cards,
 Replay metadata, and chart timestamps use the same explicit New York exchange

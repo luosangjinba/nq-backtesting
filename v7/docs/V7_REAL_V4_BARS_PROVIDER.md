@@ -9,7 +9,7 @@ existing V4 `/v4/bars` service backed by `v4/data/trading_data.duckdb`.
 Production no longer generates sine-wave prices, pseudo-random candles, or
 artificial wicks, and it has no silent synthetic fallback.
 
-Dense `1h`–`12h` left-history context additionally uses the read-only
+Dense `1h`–`12h` and `1D`/`1W`/`1M` left-history context additionally uses the read-only
 `/v4/projected_history` endpoint. It derives compact target-period candles from
 the same immutable `1m` table; it is not a second market-data source.
 
@@ -46,11 +46,12 @@ instants, Projection provenance, or Replay's exclusive cursor.
 - transport parts never become separate Bar Data identities, Projection
   results, Workspace revisions, or chart `setData()` calls;
 - projected-history requests explicitly key instrument, display timeframe,
-  duration, ETH/RTH mode, calendar and aggregation revisions, window, and
-  dataset revision; their cache is separately bounded by Bar Data ownership;
-- the projected service uses the exact V7 real-instant bucket grid, filters ETH
-  or RTH before aggregation, caps a request at ten years, and keeps at most 64
-  service cache entries;
+  alignment kind/policy, nullable fixed duration, ETH/RTH mode, calendar and
+  aggregation revisions, window, and dataset revision; their cache is
+  separately bounded by Bar Data ownership;
+- the projected service uses the exact V7 real-instant fixed grid or registered
+  exchange-wall calendar period, filters ETH or RTH before aggregation, caps a
+  request at twenty-five years, and keeps at most 64 service cache entries;
 - projected history carries separate snapshot provenance and is excluded from
   Replay raw-source traversal; dense high-timeframe projection replacements
   may merge that compact prefix with an authoritative raw tail before one
@@ -66,8 +67,8 @@ instants, Projection provenance, or Replay's exclusive cursor.
 - the independent adapter harness proves DST-aware request conversion,
   response conversion, projected-response identity, padding removal, exact
   identity, coverage, and failure;
-- the real API parity gate proves `4h` ETH and RTH projected output equals raw
-  `1m` client aggregation across the November DST boundary;
+- the real API parity gate proves `4h` plus day/week/month ETH and RTH projected
+  output equals raw `1m` client aggregation across the November DST boundary;
 - chart entry requests one bounded prefix-plus-forward window while Projection
   still reveals exactly the 121-bar prefix-plus-start baseline;
 - the real-Chrome workspace harness proves entry, Next bar, TF/ETH-RTH atomic

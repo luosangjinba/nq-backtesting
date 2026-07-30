@@ -16,7 +16,7 @@ const TARGET_HISTORY_DISPLAY_BARS = 240;
 const MAXIMUM_REQUEST_SOURCE_BARS = 35 * 24 * 60;
 const MAXIMUM_SINGLE_HISTORY_DAYS = 210;
 const MAXIMUM_SINGLE_HISTORY_WINDOW_MS = MAXIMUM_SINGLE_HISTORY_DAYS * 24 * 60 * MINUTE;
-const MAXIMUM_PROJECTED_HISTORY_WINDOW_MS = 10 * 366 * 24 * 60 * MINUTE;
+const MAXIMUM_PROJECTED_HISTORY_WINDOW_MS = 24 * 366 * 24 * 60 * MINUTE;
 const PROJECTED_HISTORY_MINIMUM_DURATION_MS = 60 * MINUTE;
 
 /** Concrete NQ-primary Session market composition, isolated outside all core owners. */
@@ -36,7 +36,7 @@ export function createFoundationMarket(record, {
     return value;
   }
   function historySourceBars(selection, displayBars = TARGET_HISTORY_DISPLAY_BARS) {
-    const durationMs = selection?.displayTimeframe?.alignment?.durationMs ?? MINUTE;
+    const durationMs = capabilities.historyPlanning(selection).durationMs;
     return Math.min(
       MAXIMUM_REQUEST_SOURCE_BARS,
       Math.max(
@@ -67,6 +67,13 @@ export function createFoundationMarket(record, {
       sessionHoursMode: selection.sessionHoursMode,
     });
   }
+  function latestEligibleMinute(epochMs, selection) {
+    const minimumEpochMs = Math.max(0, epochMs - (14 * 24 * 60 * MINUTE));
+    for (let candidate = epochMs; candidate >= minimumEpochMs; candidate -= MINUTE) {
+      if (isEligibleMinute(candidate, selection)) return candidate;
+    }
+    throw new TypeError('Calendar history planning found no eligible source minute.');
+  }
   function plannedEntryHistoryStart(selection, displayBars) {
     // Raw Bar identity is intentionally independent of ETH/RTH. Plan the
     // shared entry window against the sparser RTH policy so either projection
@@ -77,8 +84,23 @@ export function createFoundationMarket(record, {
       sessionHoursMode: 'rth',
       timeframeId: selection.displayTimeframe.id,
     });
+    if (selection.displayTimeframe.alignment.kind === 'calendar') {
+      const ethSelection = capabilities.catalog.get({
+        instrumentId: selection.instrument.id,
+        sessionHoursMode: 'eth',
+        timeframeId: selection.displayTimeframe.id,
+      });
+      return Math.min(
+        capabilities.historyPlanning(ethSelection).alignStartEpochMs(
+          latestEligibleMinute(entryHistoryEndEpochMs - MINUTE, ethSelection),
+        ),
+        capabilities.historyPlanning(planningSelection).alignStartEpochMs(
+          latestEligibleMinute(entryHistoryEndEpochMs - MINUTE, planningSelection),
+        ),
+      );
+    }
     return planSingleHistoryWindow({
-      durationMs: planningSelection.displayTimeframe.alignment.durationMs,
+      durationMs: capabilities.historyPlanning(planningSelection).durationMs,
       isEligibleMinute: (epochMs) => isEligibleMinute(epochMs, planningSelection),
       maximumWindowMs: MAXIMUM_REQUEST_SOURCE_BARS * MINUTE,
       targetDisplayBars: targetDisplayBars(displayBars),
@@ -111,12 +133,12 @@ export function createFoundationMarket(record, {
     targetDisplayBars = TARGET_HISTORY_DISPLAY_BARS,
   ) {
     const windowEndEpochMs = Math.max(MINUTE, oldestEpochMs);
-    const durationMs = selection?.displayTimeframe?.alignment?.durationMs ?? MINUTE;
+    const planning = capabilities.historyPlanning(selection);
     return rawRequest({
       instrumentId: selection.instrument.id,
       windowEndEpochMs,
       windowStartEpochMs: planSingleHistoryWindow({
-        durationMs,
+        durationMs: planning.durationMs,
         isEligibleMinute: (epochMs) => isEligibleMinute(epochMs, selection),
         maximumWindowMs: MAXIMUM_SINGLE_HISTORY_WINDOW_MS,
         targetDisplayBars: Math.ceil(targetDisplayBars ?? TARGET_HISTORY_DISPLAY_BARS),
@@ -125,11 +147,13 @@ export function createFoundationMarket(record, {
     });
   }
   function supportsProjectedHistory(selection = capabilities.defaultSelection) {
-    return selection?.displayTimeframe?.alignment?.kind === 'fixed-duration'
-      && selection.displayTimeframe.alignment.durationMs >= PROJECTED_HISTORY_MINIMUM_DURATION_MS;
+    return selection?.displayTimeframe?.alignment?.kind === 'calendar'
+      || (selection?.displayTimeframe?.alignment?.kind === 'fixed-duration'
+        && selection.displayTimeframe.alignment.durationMs >= PROJECTED_HISTORY_MINIMUM_DURATION_MS);
   }
   function requiresProjectedReplacementHistory(request, selection, displayBars) {
     if (!supportsProjectedHistory(selection)) return false;
+    if (selection.displayTimeframe.alignment.kind === 'calendar') return true;
     const plannedStart = plannedEntryHistoryStart(selection, displayBars);
     const hardStart = Math.max(
       0,
@@ -143,28 +167,41 @@ export function createFoundationMarket(record, {
     targetDisplayBars = TARGET_HISTORY_DISPLAY_BARS,
   ) {
     if (!supportsProjectedHistory(selection)) {
-      throw new TypeError('Projected History requires a fixed timeframe of at least one hour.');
+      throw new TypeError('Projected History requires a registered higher timeframe.');
     }
     const windowEndEpochMs = Math.max(MINUTE, oldestEpochMs);
-    const durationMs = selection.displayTimeframe.alignment.durationMs;
+    const alignment = selection.displayTimeframe.alignment;
+    const planning = capabilities.historyPlanning(selection);
+    const displayBars = Math.ceil(targetDisplayBars ?? TARGET_HISTORY_DISPLAY_BARS);
+    const windowStartEpochMs = alignment.kind === 'calendar'
+      ? planning.alignStartEpochMs(Math.max(
+        0,
+        windowEndEpochMs - Math.min(
+          MAXIMUM_PROJECTED_HISTORY_WINDOW_MS,
+          planning.durationMs * displayBars,
+        ),
+      ))
+      : planSingleHistoryWindow({
+        durationMs: planning.durationMs,
+        isEligibleMinute: (epochMs) => isEligibleMinute(epochMs, selection),
+        maximumWindowMs: MAXIMUM_PROJECTED_HISTORY_WINDOW_MS,
+        targetDisplayBars: displayBars,
+        windowEndEpochMs,
+      });
     return createProjectedHistoryRequest({
       aggregationPolicyRevision: selection.aggregationPolicy.revision,
+      alignmentKind: alignment.kind,
+      alignmentPolicyId: alignment.kind === 'calendar' ? alignment.policyId : null,
       calendarRevision: selection.calendar.revision,
       datasetRevision: V4_BARS_DATASET_REVISION,
       displayTimeframeId: selection.displayTimeframe.id,
-      durationMs,
+      durationMs: alignment.kind === 'fixed-duration' ? alignment.durationMs : null,
       instrumentId: selection.instrument.id,
       providerId: V4_PROJECTED_HISTORY_PROVIDER_ID,
       schemaVersion: 1,
       sessionHoursMode: selection.sessionHoursMode,
       windowEndEpochMs,
-      windowStartEpochMs: planSingleHistoryWindow({
-        durationMs,
-        isEligibleMinute: (epochMs) => isEligibleMinute(epochMs, selection),
-        maximumWindowMs: MAXIMUM_PROJECTED_HISTORY_WINDOW_MS,
-        targetDisplayBars: Math.ceil(targetDisplayBars ?? TARGET_HISTORY_DISPLAY_BARS),
-        windowEndEpochMs,
-      }),
+      windowStartEpochMs,
     });
   }
   function requestForTimeLocation(

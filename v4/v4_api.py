@@ -505,9 +505,10 @@ class V4Handler(BaseHTTPRequestHandler):
                     "targetBars": True,
                     "targetTimeframes": list(target_bars_service.SUPPORTED_TARGET_TIMEFRAMES),
                     "projectedHistory": True,
-                    "projectedHistoryTimeframes": sorted(
-                        projected_history_service.SUPPORTED_TIMEFRAME_MINUTES
-                    ),
+                    "projectedHistoryTimeframes": [
+                        *sorted(projected_history_service.SUPPORTED_TIMEFRAME_MINUTES),
+                        *projected_history_service.SUPPORTED_CALENDAR_TIMEFRAMES.keys(),
+                    ],
                 },
             })
         elif path == "/v4/bars":

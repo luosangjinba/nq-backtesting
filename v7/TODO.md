@@ -1740,6 +1740,53 @@ writer, Viewport owns the drag wall, and Replay does not move.
   user supplied the filled dense-workspace screenshot and explicitly requested
   the accepted correction be committed).
 
+### R7.3n Session-Aware Calendar Timeframes — Awaiting Human Review
+
+- [x] confirm from Lightweight Charts and awesome-tradingview primary sources
+  that the chart library accepts timestamps but does not own source OHLC
+  aggregation or exchange-timezone conversion;
+- [x] add a pure Projection-owned calendar timeframe module with registered
+  day/week/month alignment rather than enabling placeholder UI controls;
+- [x] define ETH trading-date rollover at `18:00`, RTH same-date `09:30`,
+  Monday trading weeks, calendar trading months, and stable eligible
+  completion-minute display placement;
+- [x] preserve Session Hours-before-aggregation, exclusive no-future source,
+  immutable OHLCV, exact calendar/policy provenance, and Replay independence;
+- [x] extend the Bar Data-owned projected-history contract, adapter, cache
+  identity, and V4 read-only service to `1D`/`1W`/`1M` × ETH/RTH;
+- [x] prefill calendar replacements with compact projected history plus an
+  authoritative raw tail before one visible Chart commit, without waiting for
+  a mouse/wheel boundary event;
+- [x] prove frontend/API parity for day/week/month × ETH/RTH across DST and add
+  five pure negative controls;
+- [x] prove in real Chrome that all three menu choices are enabled, each arrives
+  with at least 100 bars without a native history event, Replay does not move,
+  and premarket RTH month history stays ready;
+- [x] visually inspect and rebaseline the intentional enabled-state change in
+  the open-timeframe-menu fixture;
+- [ ] obtain explicit human confirmation after a hard reload that `1D`, `1W`,
+  and `1M` are clickable and fill their left context without pointer input.
+
+### R7.3o Dense RTH Time-Location Source Preservation — Awaiting Human Review
+
+- [x] reproduce the reported two-Pane sequence with a genuinely dense P1,
+  RTH replacement, and the real right-click `Locate in P2` action;
+- [x] isolate the failure to the non-target P1 source ledger replacing a wide
+  accepted RTH wall with a fully contained ordinary navigation window;
+- [x] retain wider ordered accepted batches only when they completely cover
+  the acquired window under the exact same raw source scope;
+- [x] preserve the existing target-history, Workspace Transaction, Bar Data,
+  Projection, Chart-writer, and Replay ownership boundaries;
+- [x] add pure controls for covered-window retention and foreign-instrument
+  rejection;
+- [x] extend the real multi-Pane RTH browser gate through dense zoom, Session
+  Hours replacement, actual context-menu location, and non-target bar/span
+  preservation;
+- [x] pass focused domain/runtime/architecture gates plus the real Workspace,
+  Pane Workspace, and exact multi-Pane RTH browser regressions;
+- [ ] obtain explicit human confirmation after a hard reload by repeating the
+  reported ETH/RTH drag-and-Locate sequence.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

@@ -1,0 +1,7 @@
+[
+  { "case": "empty-source", "expectedCode": "CALENDAR_TIMEFRAME_SOURCE_EMPTY" },
+  { "case": "unordered-source", "expectedCode": "CALENDAR_TIMEFRAME_SOURCE_NOT_ORDERED" },
+  { "case": "unsupported-period", "expectedCode": "CALENDAR_TIMEFRAME_PERIOD_INVALID" },
+  { "case": "unsupported-version", "expectedCode": "CALENDAR_TIMEFRAME_VERSION_UNSUPPORTED" },
+  { "case": "alignment-context-mismatch", "expectedCode": "CALENDAR_TIMEFRAME_CONTEXT_MISMATCH" }
+]

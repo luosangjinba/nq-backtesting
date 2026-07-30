@@ -7,14 +7,26 @@ import { formatExchangeWallMinute } from './time-codec.js';
 
 export const V4_PROJECTED_HISTORY_PROVIDER_ID = 'provider.local-v4-projected-history';
 const PROJECTED_HISTORY_DEADLINE_MS = 3_000;
+const CALENDAR_TIMEFRAME_CODES = Object.freeze({
+  'alignment.calendar-day': '1D',
+  'alignment.calendar-month': '1M',
+  'alignment.calendar-week': '1W',
+});
+
+function targetTimeframe(request) {
+  if (request.alignmentKind === 'fixed-duration') return String(request.durationMs / 60_000);
+  return CALENDAR_TIMEFRAME_CODES[request.alignmentPolicyId] ?? null;
+}
 
 function requestUrl(request, apiBase) {
+  const timeframe = targetTimeframe(request);
+  if (timeframe === null) throw new TypeError('V4 Projected History does not map this calendar alignment.');
   const parameters = new URLSearchParams({
     end: formatExchangeWallMinute(request.windowEndEpochMs),
     instrument: resolveV4InstrumentCode(request.instrumentId),
     session: request.sessionHoursMode,
     start: formatExchangeWallMinute(request.windowStartEpochMs),
-    tf: String(request.durationMs / 60_000),
+    tf: timeframe,
   });
   return `${apiBase}/v4/projected_history?${parameters}`;
 }
@@ -33,7 +45,8 @@ export function createV4ProjectedHistoryProvider({
     async requestProjectedHistory(requestValue, { signal } = {}) {
       const request = createProjectedHistoryRequest(requestValue);
       if (request.providerId !== V4_PROJECTED_HISTORY_PROVIDER_ID
-        || resolveV4InstrumentCode(request.instrumentId) === null) {
+        || resolveV4InstrumentCode(request.instrumentId) === null
+        || targetTimeframe(request) === null) {
         throw failure('Projected History provider does not support this request identity.');
       }
       let response;
@@ -58,7 +71,7 @@ export function createV4ProjectedHistoryProvider({
       }
       if (payload.datasetRevision !== request.datasetRevision
         || payload.sessionHoursMode !== request.sessionHoursMode
-        || payload.targetDurationMinutes * 60_000 !== request.durationMs) {
+        || payload.targetTimeframe !== targetTimeframe(request)) {
         throw failure('Projected History response provenance differs from its request.');
       }
       return createProjectedHistoryBatch({
