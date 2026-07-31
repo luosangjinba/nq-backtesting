@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-31 by R8.15 human acceptance and zero-debt closure
+Last updated: 2026-07-31 by R8.16 audit evidence consistency correction
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -28,7 +28,8 @@ required for normal startup.
 - R8.12 source/documentation closure is commit `f62db2b9`;
 - R8.13 Calendar capability and RTH Locate re-derivation is commit `37db33bb`;
 - R8.14 full production regression matrix is commit `9433c823`;
-- R8.15 human acceptance and zero-debt closure is the current handoff commit;
+- R8.15 human acceptance and zero-debt closure is commit `be15a15d`;
+- R8.16 audit evidence consistency correction is the current handoff commit;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10
@@ -89,6 +90,9 @@ required for normal startup.
   and dense two-Pane ETH/RTH sequence, accepts H019/H021/H025/H066/H071/H072/
   H077/H078/H079, closes the recovery inventory with zero regressed rules, and
   deactivates recovery mode without production behavior changes;
+- R8.16 closes `BUG-V7-0006` by reconciling six current prose source summaries
+  with the canonical baseline and adding fail-closed H023 summary validation;
+  recovery remains inactive and production behavior is unchanged;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
   bar-step interaction gate; R6.7 continuous Autoplay implemented; R6.7a
@@ -627,7 +631,7 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-There is no automatic next R8 step. R8 is human accepted, zero-debt, and
+There is no automatic step after R8.16. R8 recovery remains human accepted and
 inactive; wait for explicit product direction before selecting the next bounded
 delivery. The separate R7.3/R7.3c Data Acquisition admin human gate remains
 open and must not be inferred complete from the R8.15 chart-workstation review.

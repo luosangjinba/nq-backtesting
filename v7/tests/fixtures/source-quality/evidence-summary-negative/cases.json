@@ -1,0 +1,20 @@
+{
+  "cases": [
+    {
+      "name": "human-readable source summary drifts from machine baseline",
+      "operation": "replace-text",
+      "path": "docs/V7_HUMAN_ACCEPTANCE_ZERO_DEBT_CLOSURE_R8_15.md",
+      "replace": {
+        "from": "22,405 effective lines",
+        "to": "22,404 effective lines"
+      },
+      "expectedFailureCode": "production-source-summary-drift"
+    },
+    {
+      "name": "current source summary is omitted from policy inventory",
+      "operation": "remove-policy-entry",
+      "path": "sessions/session_20260731_r8_16_audit_evidence_consistency.md",
+      "expectedFailureCode": "production-source-summary-policy-omission"
+    }
+  ]
+}

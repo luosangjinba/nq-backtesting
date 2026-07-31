@@ -93,3 +93,20 @@ Host, Replay Workspace composition/UI, Lightweight Charts browser, production
 application-host browser, and full Replay Workspace browser Harnesses pass.
 The complete `tests/*-harness.js` repository sweep also passes; a final
 `git diff --check` remains mandatory immediately before the R8.12 commit.
+
+## R8.16 Post-Closure Evidence Consistency
+
+An independent audit after R8.15 found `BUG-V7-0006`: the exact machine
+baseline recorded 303 files, 22,405 effective lines, 2,400 functions, and 304
+public exports, while six current human-readable summaries reported 22,404
+lines. The production snapshot itself was correct and all source rules passed;
+the missing boundary was reconciliation between that snapshot and prose.
+
+R8.16 declares the seven current summary-evidence files and eight required
+occurrences in `v7-production-source-quality-policy.json`. The production
+source-quality validator discovers real Markdown evidence, extracts each
+current tuple, compares all four totals with the canonical baseline, rejects
+missing/duplicate/omitted declarations, and fails closed when one negative
+mutation restores the incorrect line total or another removes a policy entry.
+H023 remains accepted with stronger evidence; recovery mode remains inactive
+and production behavior is unchanged.

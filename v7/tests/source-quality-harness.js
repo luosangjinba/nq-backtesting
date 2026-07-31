@@ -6,7 +6,10 @@ import {
   analyzeProductionSourceQuality,
   compareProductionSourceQualitySnapshots,
 } from './support/production-source-quality-analyzer.js';
-import { validateProductionSourceQualitySnapshot } from './support/production-source-quality-validator.js';
+import {
+  validateProductionSourceQualitySnapshot,
+  validateProductionSourceSummaryEvidence,
+} from './support/production-source-quality-validator.js';
 import { validateSourceQuality } from './support/source-quality-validator.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -40,6 +43,16 @@ const baseline = JSON.parse(fs.readFileSync(
   path.join(V7_ROOT, 'docs/v7-production-source-quality-baseline.json'),
   'utf8',
 ));
+const summaryEvidencePaths = Object.freeze([
+  'TODO.md',
+  ...['docs', 'sessions'].flatMap((directory) => fs.readdirSync(path.join(V7_ROOT, directory))
+    .filter((file) => file.endsWith('.md'))
+    .map((file) => `${directory}/${file}`)),
+].sort());
+const summaryEvidencePorts = Object.freeze({
+  listPaths: () => summaryEvidencePaths,
+  readText: (relativePath) => fs.readFileSync(path.join(V7_ROOT, relativePath), 'utf8'),
+});
 const production = analyzeProductionSourceQuality({ manifest, policy, v7Root: V7_ROOT });
 assert.deepEqual(
   validateProductionSourceQualitySnapshot(production, policy),
@@ -51,6 +64,39 @@ assert.deepEqual(
   [],
   'production source-quality evidence must match the committed baseline',
 );
+assert.deepEqual(
+  validateProductionSourceSummaryEvidence(baseline, policy, summaryEvidencePorts),
+  [],
+  'human-readable production source summaries must match the committed baseline',
+);
+
+const summaryNegative = JSON.parse(fs.readFileSync(
+  path.join(fixtureRoot, 'evidence-summary-negative/cases.json'),
+  'utf8',
+));
+for (const testCase of summaryNegative.cases) {
+  const candidatePolicy = structuredClone(policy);
+  const candidatePorts = { ...summaryEvidencePorts };
+  if (testCase.operation === 'replace-text') {
+    const original = summaryEvidencePorts.readText(testCase.path);
+    const mutated = original.replace(testCase.replace.from, testCase.replace.to);
+    assert.notEqual(mutated, original, `${testCase.name} must mutate declared evidence`);
+    candidatePorts.readText = (relativePath) => (relativePath === testCase.path
+      ? mutated
+      : summaryEvidencePorts.readText(relativePath));
+  } else if (testCase.operation === 'remove-policy-entry') {
+    candidatePolicy.summaryEvidence = candidatePolicy.summaryEvidence
+      .filter(({ path: evidencePath }) => evidencePath !== testCase.path);
+  } else {
+    assert.fail(`unknown evidence-summary negative operation ${testCase.operation}`);
+  }
+  const codes = validateProductionSourceSummaryEvidence(baseline, candidatePolicy, candidatePorts)
+    .map(({ code }) => code);
+  assert.ok(
+    codes.includes(testCase.expectedFailureCode),
+    `${testCase.name} must fail with ${testCase.expectedFailureCode}; got ${codes.join(', ')}`,
+  );
+}
 
 function expectProductionFailure(name, mutate, expectedCode) {
   const candidate = structuredClone(production);
@@ -108,5 +154,6 @@ assert.deepEqual(
 
 console.log(
   `v7 source quality harness passed (${production.summary.files} production files, `
-    + `${production.summary.publicExports} public exports, ${files.length + 8} negative controls)`,
+    + `${production.summary.publicExports} public exports, `
+    + `${files.length + 8 + summaryNegative.cases.length} negative controls)`,
 );

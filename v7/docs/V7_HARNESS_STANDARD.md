@@ -163,6 +163,12 @@ Comments that only translate syntax are not accepted as contract evidence.
 owner, and removal condition. Comments remain secondary to executable contracts
 and harnesses; prose cannot override runtime truth.
 
+Current human-readable source totals must be declared in the source-quality
+policy with exact occurrence counts and reconciled against the canonical
+machine baseline. Historical step-local totals remain valid history, but a
+current summary that is missing, duplicated, or numerically different must fail
+closed rather than coexist with a green production-source Harness.
+
 ## Commit And Human Gate
 
 The rule catalog, manifest, harness, fixtures, and implementation change in the

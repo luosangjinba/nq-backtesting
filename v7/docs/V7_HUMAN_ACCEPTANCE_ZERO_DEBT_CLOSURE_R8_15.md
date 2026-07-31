@@ -56,7 +56,7 @@ for-byte unchanged. Production-owner evidence independently covers Chart,
 Replay, Workspace State, publication, and persistence failure boundaries plus
 delayed, reordered, stale, and late work.
 
-Production evidence remains unchanged at 303 files, 22,404 effective lines,
+Production evidence remains unchanged at 303 files, 22,405 effective lines,
 2,400 functions, 304 public exports, 48 modules, 125 dependency edges, 115
 construction sites, seven writer sites, and zero findings. Source policy has
 zero file/function exceptions and the source baseline has zero debt comments.
@@ -82,6 +82,7 @@ by inference.
 ## Delivery Boundary
 
 R8.15 changes governance and evidence only; production behavior is unchanged.
-No further R8 step exists. Later work may resume normal delivery but must be
-selected explicitly; the separate R7.3/R7.3c Data Acquisition human gate
-remains open.
+No further recovery work was planned at closure. The later R8.16 audit-evidence
+correction fixes a prose total and strengthens H023 without reactivating
+recovery. Normal product delivery still must be selected explicitly; the
+separate R7.3/R7.3c Data Acquisition human gate remains open.

@@ -33,6 +33,9 @@ rejected commits and assign a new delivery id to replacements.
 - [x] `R8.14` pass the full production failure/concurrency/cross-product matrix;
 - [x] `R8.15` obtain human acceptance of the exact reported workflow and close
   every regression/debt item before disabling recovery mode.
+- [x] `R8.16` correct post-closure audit evidence summaries and bind all current
+  human-readable source totals to the canonical machine baseline without
+  reactivating recovery mode.
 
 Closed recovery regressions:
 
@@ -52,6 +55,13 @@ findings, zero source exceptions, and zero debt comments. H001/H003/H004 remain
 at their pre-recovery executable governance status. The separately unreviewed
 Data Acquisition H070 and R7.3/R7.3c administrator human gate remain open.
 
+The independent post-closure audit found `BUG-V7-0006`: six current prose
+summaries reported one fewer effective source line than the canonical machine
+baseline. R8.16 corrects those summaries and adds a fail-closed H023 policy,
+validator, real-document discovery, exact occurrence inventory, and two
+negative mutations. Recovery remains inactive and no production source or
+browser behavior changes.
+
 R8.12 production source evidence binds 301 files, 22,279 effective lines, 2,370
 functions, 302 public exports, six protected invariants, zero tracked-debt
 comments, and zero source exceptions or findings. The architecture baseline
@@ -67,7 +77,7 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The refreshed production source baseline contains 303 files, 22,404 effective
+The refreshed production source baseline contains 303 files, 22,405 effective
 lines, 2,400 functions, and 304 public exports; the architecture baseline
 remains 48 modules, 125 edges, 115 construction sites, seven writers, and zero
 findings.
@@ -80,7 +90,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-unchanged at 303 files, 22,404 effective lines, 2,400 functions, 304 public
+unchanged at 303 files, 22,405 effective lines, 2,400 functions, 304 public
 exports, 48 modules, 125 edges, 115 construction sites, seven writers, and zero
 findings.
 

@@ -526,7 +526,11 @@ the final hard-reloaded workflow on 2026-07-31; recovery mode is now inactive.
 - `R8.15`: human acceptance and zero-debt recovery closure; completed after
   explicit user acceptance of the binding dense two-Pane Calendar/ETH/RTH
   workflow, a clean 78-Harness gate, zero regressed rules, and recovery-mode
-  deactivation.
+  deactivation;
+- `R8.16`: post-closure audit evidence consistency correction; completed by
+  reconciling six human-readable source summaries with the canonical baseline
+  and adding two fail-closed negative controls without reactivating recovery or
+  changing production behavior.
 
 Each item is exactly one commit and stops for review. R7.3n and R7.3o were
 accepted only through the combined R8.15 human gate, not independently of

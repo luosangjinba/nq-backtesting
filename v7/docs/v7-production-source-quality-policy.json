@@ -78,6 +78,36 @@
     "projection-alignment",
     "viewport-wall"
   ],
+  "summaryEvidence": [
+    {
+      "path": "TODO.md",
+      "expectedOccurrences": 2
+    },
+    {
+      "path": "docs/V7_CALENDAR_CAPABILITY_RTH_LOCATE_REDERIVATION_R8_13.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "docs/V7_HUMAN_ACCEPTANCE_ZERO_DEBT_CLOSURE_R8_15.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "docs/V7_SOURCE_AND_DOCUMENTATION_CLOSURE_R8_12.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260731_r8_13_calendar_rth_locate_rederivation.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260731_r8_15_human_acceptance_zero_debt.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260731_r8_16_audit_evidence_consistency.md",
+      "expectedOccurrences": 1
+    }
+  ],
   "sizeExceptions": [],
   "functionExceptions": []
 }
