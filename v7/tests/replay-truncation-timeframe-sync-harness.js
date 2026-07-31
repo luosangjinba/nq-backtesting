@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
-import { createFoundationCapabilities } from '../src/replay-workspace-ui/foundation-capabilities.js';
-import { resolveReplayTruncationTarget } from '../src/replay-workspace-ui/replay-truncation.js';
+import {
+  createFoundationCapabilities,
+  resolveReplayTruncationTarget,
+} from '../src/replay-workspace-composition/public.js';
 
 const range = Object.freeze({ endEpochMs: 20_000, startEpochMs: 10_000 });
 assert.equal(resolveReplayTruncationTarget({

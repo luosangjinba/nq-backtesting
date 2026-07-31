@@ -6,8 +6,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createStaticServer } from '../scripts/static-server.mjs';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
-import { createFoundationMarket } from '../src/replay-workspace-ui/foundation-market.js';
-import { createRefreshFeedback } from '../src/replay-workspace-ui/refresh-feedback.js';
+import { createFoundationMarket } from '../src/replay-workspace-composition/public.js';
+import { createRefreshFeedback } from '../src/replay-workspace-composition/public.js';
 import { REPLAY_WORKSPACE_STATES } from '../src/replay-workspace-ui/public.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));

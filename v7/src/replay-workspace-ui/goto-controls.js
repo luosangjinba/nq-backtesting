@@ -1,5 +1,5 @@
 import { setControlDisabled, setControlsDisabled } from './control-availability.js';
-import { QUICK_GOTO_ACTIONS } from './goto-quick-actions.js';
+import { QUICK_GOTO_ACTIONS } from '../replay-workspace-composition/public.js';
 import { createGotoSettingsDialog } from './goto-settings-dialog.js';
 
 function element(tag, options = {}, children = []) {

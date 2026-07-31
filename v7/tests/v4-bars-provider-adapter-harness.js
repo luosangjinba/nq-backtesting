@@ -20,7 +20,7 @@ const negativeCases = JSON.parse(fs.readFileSync(path.join(
 ), 'utf8'));
 assert.deepEqual(negativeCases, ['http-source-unavailable', 'unsupported-instrument']);
 const productionMarketSource = fs.readFileSync(path.join(
-  TEST_DIR, '../src/replay-workspace-ui/foundation-market.js',
+  TEST_DIR, '../src/replay-workspace-composition/foundation-market.js',
 ), 'utf8');
 assert.doesNotMatch(productionMarketSource, /Math\.sin|generateBars|sampleMinute/,
   'production workspace must not retain a synthetic market generator');

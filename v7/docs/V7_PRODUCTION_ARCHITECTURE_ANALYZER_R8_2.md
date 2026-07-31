@@ -42,12 +42,12 @@ outside the declared owner are violations.
 
 ## Exact Baseline
 
-The exact snapshot was refreshed by R8.9 after activating all prepared
-participants and the global coordinator. It currently contains:
+The exact snapshot was refreshed by R8.10 after separating Replay Workspace UI
+from owner construction and orchestration. It currently contains:
 
-- 45 active production modules;
-- 118 actual module dependency edges;
-- 118 cross-module construction sites;
+- 46 active production modules;
+- 125 actual module dependency edges;
+- 122 cross-module construction sites;
 - two production HTML/JavaScript composition roots;
 - all 15 declared writer surfaces;
 - seven directly observed critical writer sites;
@@ -145,6 +145,19 @@ The writer probe therefore closes the R8.9 finding and records seven critical
 writer sites. New real participant dependencies and constructions bring the
 exact baseline to 118 dependency edges and 118 construction sites; the two
 R8.11 ModuleHost composition findings remain unchanged.
+
+## R8.10 UI And Composition Result
+
+R8.10 adds `core.replay-workspace-composition`, moves owner construction and
+orchestration out of Replay Workspace UI, and replaces the former mixed UI
+controller with focused composition and command-port boundaries. UI now owns
+only DOM presentation, command dispatch, and mount/unmount. A dedicated
+production-derived Harness proves six boundary violations fail.
+
+The exact baseline now contains 46 modules, 125 dependency edges, 122
+construction sites, and seven writer sites. No writer finding is added or
+hidden. H024 is recovered; only the two R8.11 ModuleHost composition roots
+remain as production architecture findings.
 
 ## Negative Controls
 

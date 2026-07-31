@@ -617,6 +617,14 @@ state. A presentation system module owns design tokens and reusable interaction
 states; feature surfaces compose those primitives without owning global CSS or
 chart lifecycle.
 
+R8.10 activates `core.replay-workspace-composition` between the Replay
+Workspace UI adapter and the existing runtime owners. The UI surface constructs
+only its view and explicit presentation adapter, then dispatches controls to the
+composition command port. The composition constructs Session-scoped owners,
+wires only public ports, and disposes them in reverse order; it imports no DOM
+surface internals and owns no semantic state held by those owners. Production
+HTML boot remains separately assigned to R8.11 ModuleHost composition.
+
 Every browser-visible module declares:
 
 - supported viewport/container constraints;

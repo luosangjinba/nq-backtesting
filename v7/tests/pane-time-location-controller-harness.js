@@ -8,7 +8,7 @@ import {
   createWorkspaceStateRuntime,
   readWorkspaceStateSnapshot,
 } from '../src/workspace-state-runtime/public.js';
-import { createPaneTimeLocationController } from '../src/replay-workspace-ui/pane-time-location-controller.js';
+import { createPaneTimeLocationController } from '../src/replay-workspace-composition/public.js';
 
 const sessionId = createSessionId('pane-time-location');
 const activationGeneration = createActivationGeneration(1);

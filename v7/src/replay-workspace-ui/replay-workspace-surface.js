@@ -1,8 +1,12 @@
-import { supportsFoundationWorkspace } from './foundation-market.js';
-import { createReplayWorkspaceController } from './workspace-controller.js';
+import {
+  AUTOPLAY_SPEED_OPTIONS,
+  createFoundationCapabilities,
+  createReplayWorkspaceComposition,
+  supportsFoundationWorkspace,
+} from '../replay-workspace-composition/public.js';
 import { createReplayWorkspaceView } from './workspace-view.js';
-import { createFoundationCapabilities } from './foundation-capabilities.js';
-import { AUTOPLAY_SPEED_OPTIONS } from './autoplay-speed.js';
+import { createWorkspacePresentationPort } from './workspace-presentation-port.js';
+import { createWorkstationSettingsViewConsumer } from './workstation-settings-view-consumer.js';
 import {
   createPaneLayout,
   deserializePaneLayout,
@@ -121,7 +125,7 @@ export function createReplayWorkspaceSurface() {
           : readWorkspaceCheckpoint(initialCheckpoint).sessionHoursMode,
       });
       root.replaceChildren(view.root);
-      const controller = createReplayWorkspaceController({
+      const commands = createReplayWorkspaceComposition({
         initialLayout,
         initialLayoutSync,
         initialCheckpoint,
@@ -129,37 +133,38 @@ export function createReplayWorkspaceSurface() {
         persistWorkspaceCheckpoint: onPersistWorkspaceCheckpoint,
         persistReplayNavigationSettings: onPersistReplayNavigationSettings,
         record,
-        view,
+        presentation: createWorkspacePresentationPort(view),
         workstationSettings,
+        workstationSettingsViewConsumer: createWorkstationSettingsViewConsumer({ view }),
       });
-      callbacks.autoplay = () => controller.autoplay();
-      callbacks.cancelWorkstationSettingsPreview = () => controller.cancelWorkstationSettingsPreview();
-      callbacks.layoutSync = (key, enabled) => controller.changeLayoutSync(key, enabled);
-      callbacks.exactGoto = (epochMs) => controller.gotoExact(epochMs);
-      callbacks.focusPane = (paneId) => controller.focusPane(paneId);
-      callbacks.instrument = (instrumentId) => controller.replaceInstrument(instrumentId);
-      callbacks.layout = (layoutId) => controller.changePaneLayout(layoutId);
-      callbacks.layoutResize = (layout) => controller.resizePaneLayout(layout);
-      callbacks.next = () => controller.next();
-      callbacks.pause = () => controller.pause();
-      callbacks.paneContext = (request) => controller.openPaneTimeLocation(request);
-      callbacks.paneTimeLocation = (request) => controller.locatePaneTime(request);
-      callbacks.playbackSpeed = (speedId) => controller.changePlaybackSpeed(speedId);
-      callbacks.previous = () => controller.previous();
-      callbacks.previewWorkstationSettings = (settings) => controller.previewWorkstationSettings(settings);
-      callbacks.quickGoto = (anchor) => controller.gotoQuick(anchor);
-      callbacks.reset = (paneId) => controller.resetView(paneId);
-      callbacks.replayStep = (replayStepId) => controller.changeReplayStep(replayStepId);
-      callbacks.restart = () => controller.restart();
-      callbacks.saveGotoSettings = (settings) => controller.saveGotoSettings(settings);
-      callbacks.saveWorkstationSettings = (settings) => controller.saveWorkstationSettings(settings);
-      callbacks.sessionHours = (mode) => controller.replaceSessionHours(mode);
-      callbacks.timeframeSync = (enabled) => controller.changeTimeframeSync(enabled);
-      callbacks.timeframe = (timeframeId) => controller.replaceTimeframe(timeframeId);
-      callbacks.truncation = () => controller.toggleTruncationSelection();
-      active = { controller, view };
-      void controller.start();
-      return controller;
+      callbacks.autoplay = () => commands.autoplay();
+      callbacks.cancelWorkstationSettingsPreview = () => commands.cancelWorkstationSettingsPreview();
+      callbacks.layoutSync = (key, enabled) => commands.changeLayoutSync(key, enabled);
+      callbacks.exactGoto = (epochMs) => commands.gotoExact(epochMs);
+      callbacks.focusPane = (paneId) => commands.focusPane(paneId);
+      callbacks.instrument = (instrumentId) => commands.replaceInstrument(instrumentId);
+      callbacks.layout = (layoutId) => commands.changePaneLayout(layoutId);
+      callbacks.layoutResize = (layout) => commands.resizePaneLayout(layout);
+      callbacks.next = () => commands.next();
+      callbacks.pause = () => commands.pause();
+      callbacks.paneContext = (request) => commands.openPaneTimeLocation(request);
+      callbacks.paneTimeLocation = (request) => commands.locatePaneTime(request);
+      callbacks.playbackSpeed = (speedId) => commands.changePlaybackSpeed(speedId);
+      callbacks.previous = () => commands.previous();
+      callbacks.previewWorkstationSettings = (settings) => commands.previewWorkstationSettings(settings);
+      callbacks.quickGoto = (anchor) => commands.gotoQuick(anchor);
+      callbacks.reset = (paneId) => commands.resetView(paneId);
+      callbacks.replayStep = (replayStepId) => commands.changeReplayStep(replayStepId);
+      callbacks.restart = () => commands.restart();
+      callbacks.saveGotoSettings = (settings) => commands.saveGotoSettings(settings);
+      callbacks.saveWorkstationSettings = (settings) => commands.saveWorkstationSettings(settings);
+      callbacks.sessionHours = (mode) => commands.replaceSessionHours(mode);
+      callbacks.timeframeSync = (enabled) => commands.changeTimeframeSync(enabled);
+      callbacks.timeframe = (timeframeId) => commands.replaceTimeframe(timeframeId);
+      callbacks.truncation = () => commands.toggleTruncationSelection();
+      active = { controller: commands, view };
+      void commands.start();
+      return commands;
     },
     supports: supportsFoundationWorkspace,
     unmount,

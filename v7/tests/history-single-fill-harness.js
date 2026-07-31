@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import {
   planReplacementHistoryFill,
   planSingleHistoryFill,
-} from '../src/replay-workspace-ui/history-fill-plan.js';
-import { planSingleHistoryWindow } from '../src/replay-workspace-ui/history-window-plan.js';
+} from '../src/replay-workspace-composition/public.js';
+import { planSingleHistoryWindow } from '../src/replay-workspace-composition/public.js';
 
 const state = (barCount, from, to) => Object.freeze({
   barCount,

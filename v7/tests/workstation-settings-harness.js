@@ -17,7 +17,7 @@ import {
   WorkstationSettingsError,
 } from '../src/workstation-settings/public.js';
 import { createMemoryWebStorage } from './support/memory-web-storage.js';
-import { createViewportSettingsConsumer } from '../src/replay-workspace-ui/viewport-settings-consumer.js';
+import { createViewportSettingsConsumer } from '../src/replay-workspace-composition/public.js';
 import {
   createWorkstationSettingsViewConsumer,
 } from '../src/replay-workspace-ui/workstation-settings-view-consumer.js';

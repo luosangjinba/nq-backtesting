@@ -4,7 +4,7 @@ import { createProjectedHistoryRequest } from '../src/projected-history-contract
 import {
   createFoundationCapabilities,
   FOUNDATION_IDS,
-} from '../src/replay-workspace-ui/foundation-capabilities.js';
+} from '../src/replay-workspace-composition/public.js';
 import {
   createV4BarsAdapter,
   createV4ProjectedHistoryProvider,

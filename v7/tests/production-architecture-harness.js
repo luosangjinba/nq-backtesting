@@ -22,7 +22,7 @@ const baseline = JSON.parse(fs.readFileSync(
 ));
 
 assert.equal(baseline.schemaVersion, 1);
-assert.equal(baseline.deliveryStep, 'R8.9');
+assert.equal(baseline.deliveryStep, 'R8.10');
 assert.equal(baseline.status, 'blocking-recovery-baseline');
 const report = analyzeProductionArchitecture({
   manifest,
@@ -83,12 +83,18 @@ assert.equal(
   0,
   'R8.9 must close the post-terminal UI commit and global atomicity finding',
 );
+assert.equal(
+  baseline.knownViolations.filter(({ recoveryStep }) => recoveryStep === 'R8.10').length,
+  0,
+  'R8.10 must close UI/composition responsibility findings without claiming R8.11 boot',
+);
 assert.equal(baseline.knownViolations.length, 2);
 const independentModes = new Map(report.snapshot.modules.map((module) => [
   module.id,
   module.independentHarnessMode,
 ]));
 assert.equal(independentModes.get('adapter.replay-workspace-ui'), 'public-entry-direct');
+assert.equal(independentModes.get('core.replay-workspace-composition'), 'public-entry-direct');
 assert.equal(independentModes.get('adapter.session-browser-ui'), 'public-entry-fixture');
 assert.equal(report.snapshot.modules.length, manifest.activeProductionModules.length);
 assert.deepEqual(

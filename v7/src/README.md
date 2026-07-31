@@ -74,8 +74,9 @@ transient adapter projections only. No chart, DOM, persistence, or vertical-
 scale behavior is added.
 
 R4.5 activates the first browser-visible chart slice. The pinned official
-Lightweight Charts adapter is the only concrete series writer; a separate
-Replay Workspace UI composes all core owners through public ports for one
-disclosed deterministic NQ/`1m`/ETH foundation flow. R4.5 awaits human review.
+Lightweight Charts adapter is the only concrete series writer. R8.10 separates
+the Replay Workspace DOM/command adapter from a dedicated Session-scoped
+composition module that constructs and orchestrates core owners through public
+ports for the disclosed deterministic foundation flow.
 
 Do not import runtime code from V4, V5, or V6.

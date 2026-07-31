@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
-import { createReplayAutoplayScheduler } from '../src/replay-workspace-ui/autoplay-scheduler.js';
+import { createReplayAutoplayScheduler } from '../src/replay-workspace-composition/public.js';
 import {
   AUTOPLAY_SPEED_OPTIONS,
   DEFAULT_AUTOPLAY_SPEED,
   readAutoplaySpeed,
-} from '../src/replay-workspace-ui/autoplay-speed.js';
+} from '../src/replay-workspace-composition/public.js';
 
 function deferred() {
   let resolve;

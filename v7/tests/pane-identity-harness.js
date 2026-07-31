@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   readWorkspacePaneIdentity,
   WORKSPACE_PANE_IDS,
-} from '../src/replay-workspace-ui/pane-identity.js';
+} from '../src/replay-workspace-composition/public.js';
 
 assert.deepEqual(WORKSPACE_PANE_IDS, [
   'pane-main', 'pane-secondary', 'pane-tertiary', 'pane-quaternary',

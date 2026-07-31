@@ -25,7 +25,7 @@ review. Preserve rejected commits and assign a new delivery id to replacements.
 - [x] `R8.8` make Chart application staged and reversible;
 - [x] `R8.9` make Workspace Transaction Runtime the only global atomic commit
   coordinator and remove post-terminal UI commits;
-- [ ] `R8.10` split UI command/presentation from composition and orchestration;
+- [x] `R8.10` split UI command/presentation from composition and orchestration;
 - [ ] `R8.11` boot production through ModuleHost and prove isolation/removal;
 - [ ] `R8.12` close real source size, responsibility, contract documentation,
   and tracked-debt gates;
@@ -44,15 +44,14 @@ Tracked recovery regressions:
 - `BUG-V7-0005`: fixture/inventory gates can remain green while production
   violates the architecture.
 
-R8.9 production baseline binds 45 modules, 118 actual dependency edges, 118
+R8.10 production baseline binds 46 modules, 125 actual dependency edges, 122
 construction sites, two production roots, 15 declared writer surfaces, seven
 critical writer sites, and two blocking findings, both assigned to R8.11.
-Workspace Transaction Runtime now prepares Chart, Replay, Workspace State, and
-publication under one candidate, applies them reversibly, and alone decides
-rollback/finalize. UI post-terminal semantic/publication/persistence commits
-and the Chart `present()` migration bridge are removed. H009, H010, H049, and
-H050 are recovered; H076 is accepted; nine recovery regressions remain. No
-later recovery rule is cleared early.
+Replay Workspace UI now owns only DOM presentation, command dispatch, and its
+surface lifecycle; `core.replay-workspace-composition` owns Session-scoped
+owner construction, orchestration, and reverse cleanup through public ports.
+H024 is recovered with six negative boundary controls; eight recovery
+regressions remain. No later recovery rule is cleared early.
 
 ## Established Foundation Governance
 

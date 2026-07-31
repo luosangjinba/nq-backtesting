@@ -58,7 +58,7 @@
       }
     ]
   },
-  "deliveryStep": "R8.9",
+  "deliveryStep": "R8.10",
   "knownViolations": [
     {
       "code": "production-composition-bypasses-module-host",
@@ -124,15 +124,15 @@
       {
         "callCount": 1,
         "factory": "createBarDataRuntime",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-data-assembly.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.bar-data-runtime"
       },
       {
         "callCount": 1,
         "factory": "createCalendarAggregationPolicy",
-        "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.calendar-timeframe-domain"
       },
       {
@@ -187,16 +187,23 @@
       {
         "callCount": 1,
         "factory": "createEmptyPaneProjection",
-        "sourceFile": "src/replay-workspace-ui/pane-data-composition.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/pane-data-composition.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.pane-set-materialization"
       },
       {
         "callCount": 1,
         "factory": "createFixedDurationAggregationPolicy",
-        "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.fixed-timeframe-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createFoundationCapabilities",
+        "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.replay-workspace-composition"
       },
       {
         "callCount": 1,
@@ -208,8 +215,8 @@
       {
         "callCount": 1,
         "factory": "createLayoutSync",
-        "sourceFile": "src/replay-workspace-ui/layout-sync-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/layout-sync-controller.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.layout-sync-domain"
       },
       {
@@ -229,16 +236,30 @@
       {
         "callCount": 1,
         "factory": "createLightweightPaneSetAdapter",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-chart-assembly.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "adapter.lightweight-chart"
       },
       {
         "callCount": 1,
         "factory": "createNewYorkWallEpochConverter",
-        "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "adapter.v4-bars-provider"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPaneLayout",
+        "sourceFile": "src/replay-workspace-composition/pane-layout-commands.js",
+        "sourceModuleId": "core.replay-workspace-composition",
+        "targetModuleId": "core.pane-layout-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPaneLayout",
+        "sourceFile": "src/replay-workspace-composition/workspace-session-state.js",
+        "sourceModuleId": "core.replay-workspace-composition",
+        "targetModuleId": "core.pane-layout-domain"
       },
       {
         "callCount": 1,
@@ -271,15 +292,15 @@
       {
         "callCount": 1,
         "factory": "createPaneSetChartSnapshotApplication",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-chart-assembly.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.chart-snapshot-application"
       },
       {
         "callCount": 1,
         "factory": "createPaneSetMaterializationPorts",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-data-assembly.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.pane-set-materialization"
       },
       {
@@ -292,22 +313,22 @@
       {
         "callCount": 1,
         "factory": "createPaneSetTransactionInput",
-        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-execution.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.pane-set-materialization"
       },
       {
         "callCount": 1,
         "factory": "createPaneTimeLocationCommand",
-        "sourceFile": "src/replay-workspace-ui/pane-time-location-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/pane-time-location-controller.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.pane-time-location-domain"
       },
       {
         "callCount": 1,
         "factory": "createPaneTimeLocationSelection",
-        "sourceFile": "src/replay-workspace-ui/pane-time-location-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/pane-time-location-controller.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.pane-time-location-domain"
       },
       {
@@ -390,8 +411,8 @@
       {
         "callCount": 1,
         "factory": "createProjectedHistoryRequest",
-        "sourceFile": "src/replay-workspace-ui/foundation-market.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.projected-history-contract"
       },
       {
@@ -404,8 +425,8 @@
       {
         "callCount": 1,
         "factory": "createProjectedHistoryRuntime",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-data-assembly.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.bar-data-runtime"
       },
       {
@@ -460,8 +481,8 @@
       {
         "callCount": 1,
         "factory": "createRawBarRequest",
-        "sourceFile": "src/replay-workspace-ui/foundation-market.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.bar-data-contract"
       },
       {
@@ -502,8 +523,8 @@
       {
         "callCount": 1,
         "factory": "createReplayNavigationExecutor",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-runtime-assembly.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.replay-navigation-runtime"
       },
       {
@@ -516,8 +537,22 @@
       {
         "callCount": 1,
         "factory": "createReplayNavigationReplayPort",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-data-assembly.js",
+        "sourceModuleId": "core.replay-workspace-composition",
+        "targetModuleId": "core.replay-navigation-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayNavigationSchedule",
+        "sourceFile": "src/replay-workspace-composition/workspace-session-state.js",
+        "sourceModuleId": "core.replay-workspace-composition",
+        "targetModuleId": "core.replay-navigation-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayNavigationSchedule",
+        "sourceFile": "src/replay-workspace-composition/workspace-settings-commands.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.replay-navigation-runtime"
       },
       {
@@ -537,8 +572,8 @@
       {
         "callCount": 1,
         "factory": "createReplayNavigationTargetResolver",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-data-assembly.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.replay-navigation-runtime"
       },
       {
@@ -565,16 +600,23 @@
       {
         "callCount": 1,
         "factory": "createReplayRuntime",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-session-state.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.replay-runtime"
       },
       {
         "callCount": 1,
         "factory": "createReplayStep",
-        "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.replay-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createReplayWorkspaceComposition",
+        "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.replay-workspace-composition"
       },
       {
         "callCount": 1,
@@ -593,15 +635,15 @@
       {
         "callCount": 1,
         "factory": "createSessionHoursCalendar",
-        "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.session-hours-domain"
       },
       {
         "callCount": 1,
         "factory": "createSessionHoursPolicy",
-        "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.session-hours-domain"
       },
       {
@@ -635,15 +677,15 @@
       {
         "callCount": 1,
         "factory": "createTimePresentation",
-        "sourceFile": "src/replay-workspace-ui/pane-time-location-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/pane-time-location-controller.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.workstation-settings"
       },
       {
         "callCount": 1,
         "factory": "createTimePresentation",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-replay-commands.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.workstation-settings"
       },
       {
@@ -663,15 +705,15 @@
       {
         "callCount": 1,
         "factory": "createTransactionId",
-        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-execution.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.transaction-identity"
       },
       {
         "callCount": 1,
         "factory": "createV4BarsProvider",
-        "sourceFile": "src/replay-workspace-ui/foundation-market.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "adapter.v4-bars-provider"
       },
       {
@@ -684,8 +726,8 @@
       {
         "callCount": 1,
         "factory": "createV4ProjectedHistoryProvider",
-        "sourceFile": "src/replay-workspace-ui/foundation-market.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "adapter.v4-bars-provider"
       },
       {
@@ -705,8 +747,8 @@
       {
         "callCount": 1,
         "factory": "createWorkspaceReplacementCatalog",
-        "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.workspace-replacement-runtime"
       },
       {
@@ -719,29 +761,29 @@
       {
         "callCount": 1,
         "factory": "createWorkspaceSemanticCandidate",
-        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-execution.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.workspace-transaction-runtime"
       },
       {
         "callCount": 1,
         "factory": "createWorkspaceStateRuntime",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-session-state.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.workspace-state-runtime"
       },
       {
         "callCount": 1,
         "factory": "createWorkspaceTransactionIdentity",
-        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-execution.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.workspace-transaction-contract"
       },
       {
         "callCount": 1,
         "factory": "createWorkspaceTransactionIntent",
-        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-execution.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.workspace-transaction-contract"
       },
       {
@@ -754,8 +796,8 @@
       {
         "callCount": 1,
         "factory": "createWorkspaceTransactionRuntime",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-runtime-assembly.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.workspace-transaction-runtime"
       },
       {
@@ -785,13 +827,6 @@
         "sourceFile": "src/session-browser-ui/create-dialog.js",
         "sourceModuleId": "adapter.session-browser-ui",
         "targetModuleId": "adapter.calendar-surface"
-      },
-      {
-        "callCount": 2,
-        "factory": "createPaneLayout",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
-        "targetModuleId": "core.pane-layout-domain"
       },
       {
         "callCount": 2,
@@ -865,13 +900,6 @@
       },
       {
         "callCount": 2,
-        "factory": "createReplayNavigationSchedule",
-        "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
-        "targetModuleId": "core.replay-navigation-runtime"
-      },
-      {
-        "callCount": 2,
         "factory": "createReplayNavigationSettings",
         "sourceFile": "src/replay-workspace-ui/goto-settings-dialog.js",
         "sourceModuleId": "adapter.replay-workspace-ui",
@@ -880,8 +908,8 @@
       {
         "callCount": 2,
         "factory": "createReplayPaneAction",
-        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
+        "sourceFile": "src/replay-workspace-composition/workspace-execution.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.replay-pane-response-contract"
       },
       {
@@ -1037,34 +1065,13 @@
       {
         "actualDependencies": [
           "adapter.calendar-surface",
-          "adapter.lightweight-chart",
-          "adapter.v4-bars-provider",
-          "core.bar-data-contract",
-          "core.bar-data-runtime",
-          "core.calendar-timeframe-domain",
-          "core.capability-contract",
-          "core.chart-snapshot-application",
-          "core.fixed-timeframe-domain",
           "core.layout-sync-domain",
           "core.pane-layout-domain",
-          "core.pane-set-materialization",
-          "core.pane-time-location-domain",
           "core.pane-workspace-domain",
-          "core.projected-history-contract",
-          "core.projection-domain",
           "core.replay-contract",
-          "core.replay-navigation-runtime",
           "core.replay-navigation-settings",
-          "core.replay-pane-response-contract",
-          "core.replay-runtime",
-          "core.session-hours-domain",
-          "core.transaction-identity",
-          "core.viewport-runtime",
+          "core.replay-workspace-composition",
           "core.workspace-checkpoint-domain",
-          "core.workspace-replacement-runtime",
-          "core.workspace-state-runtime",
-          "core.workspace-transaction-contract",
-          "core.workspace-transaction-runtime",
           "core.workstation-settings"
         ],
         "declaredLifecycle": [
@@ -1073,36 +1080,13 @@
         "declaredOptionalPorts": [],
         "declaredRequiredPorts": [
           "adapter.calendar-surface",
-          "adapter.lightweight-chart",
-          "adapter.v4-bars-provider",
-          "core.activation-generation",
-          "core.bar-data-contract",
-          "core.bar-data-runtime",
-          "core.calendar-timeframe-domain",
-          "core.capability-contract",
-          "core.chart-snapshot-application",
-          "core.fixed-timeframe-domain",
           "core.layout-sync-domain",
           "core.pane-layout-domain",
-          "core.pane-set-materialization",
-          "core.pane-time-location-domain",
           "core.pane-workspace-domain",
-          "core.projected-history-contract",
-          "core.projection-domain",
           "core.replay-contract",
-          "core.replay-navigation-runtime",
           "core.replay-navigation-settings",
-          "core.replay-pane-response-contract",
-          "core.replay-runtime",
-          "core.session-hours-domain",
-          "core.session-identity",
-          "core.transaction-identity",
-          "core.viewport-runtime",
+          "core.replay-workspace-composition",
           "core.workspace-checkpoint-domain",
-          "core.workspace-replacement-runtime",
-          "core.workspace-state-runtime",
-          "core.workspace-transaction-contract",
-          "core.workspace-transaction-runtime",
           "core.workstation-settings"
         ],
         "descriptorPath": "src/replay-workspace-ui/module.json",
@@ -1110,22 +1094,14 @@
         "importSites": [
           {
             "importedNames": [
-              "createBarDataRuntime",
-              "createProjectedHistoryRuntime"
+              "AUTOPLAY_SPEED_OPTIONS",
+              "createFoundationCapabilities",
+              "createReplayWorkspaceComposition",
+              "supportsFoundationWorkspace"
             ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/bar-data-runtime/public.js",
-            "targetModuleId": "core.bar-data-runtime",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createCalendarAggregationPolicy",
-              "resolveCalendarPeriod"
-            ],
-            "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
-            "targetFile": "src/calendar-timeframe-domain/public.js",
-            "targetModuleId": "core.calendar-timeframe-domain",
+            "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+            "targetFile": "src/replay-workspace-composition/public.js",
+            "targetModuleId": "core.replay-workspace-composition",
             "throughPublicEntry": true
           },
           {
@@ -1139,50 +1115,12 @@
           },
           {
             "importedNames": [
-              "createEmptyPaneProjection"
-            ],
-            "sourceFile": "src/replay-workspace-ui/pane-data-composition.js",
-            "targetFile": "src/pane-set-materialization/public.js",
-            "targetModuleId": "core.pane-set-materialization",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createFixedDurationAggregationPolicy"
-            ],
-            "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
-            "targetFile": "src/fixed-timeframe-domain/public.js",
-            "targetModuleId": "core.fixed-timeframe-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
               "createLayoutSync",
               "deserializeLayoutSync"
             ],
             "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
             "targetFile": "src/layout-sync-domain/public.js",
             "targetModuleId": "core.layout-sync-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createLayoutSync",
-              "readLayoutSync",
-              "setLayoutSync"
-            ],
-            "sourceFile": "src/replay-workspace-ui/layout-sync-controller.js",
-            "targetFile": "src/layout-sync-domain/public.js",
-            "targetModuleId": "core.layout-sync-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createLightweightPaneSetAdapter"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/lightweight-chart-adapter/public.js",
-            "targetModuleId": "adapter.lightweight-chart",
             "throughPublicEntry": true
           },
           {
@@ -1208,116 +1146,12 @@
           },
           {
             "importedNames": [
-              "createPaneLayout",
-              "readPaneLayout"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/pane-layout-domain/public.js",
-            "targetModuleId": "core.pane-layout-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createPaneSetChartSnapshotApplication"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/chart-snapshot-application/public.js",
-            "targetModuleId": "core.chart-snapshot-application",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createPaneSetMaterializationPorts"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/pane-set-materialization/public.js",
-            "targetModuleId": "core.pane-set-materialization",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createPaneSetTransactionInput"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-            "targetFile": "src/pane-set-materialization/public.js",
-            "targetModuleId": "core.pane-set-materialization",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createPaneTimeLocationCommand",
-              "createPaneTimeLocationSelection",
-              "readPaneTimeLocationCommand"
-            ],
-            "sourceFile": "src/replay-workspace-ui/pane-time-location-controller.js",
-            "targetFile": "src/pane-time-location-domain/public.js",
-            "targetModuleId": "core.pane-time-location-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
               "createPricePresentation",
               "readWorkstationSettings"
             ],
             "sourceFile": "src/replay-workspace-ui/pane-grid-view.js",
             "targetFile": "src/workstation-settings/public.js",
             "targetModuleId": "core.workstation-settings",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createProjectedHistoryRequest"
-            ],
-            "sourceFile": "src/replay-workspace-ui/foundation-market.js",
-            "targetFile": "src/projected-history-contract/public.js",
-            "targetModuleId": "core.projected-history-contract",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createRawBarRequest"
-            ],
-            "sourceFile": "src/replay-workspace-ui/foundation-market.js",
-            "targetFile": "src/bar-data-contract/public.js",
-            "targetModuleId": "core.bar-data-contract",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createReplayPaneAction",
-              "planReplayPaneResponse"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-            "targetFile": "src/replay-pane-response-contract/public.js",
-            "targetModuleId": "core.replay-pane-response-contract",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createReplayRuntime"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/replay-runtime/public.js",
-            "targetModuleId": "core.replay-runtime",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createReplayStep"
-            ],
-            "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
-            "targetFile": "src/replay-contract/public.js",
-            "targetModuleId": "core.replay-contract",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createSessionHoursCalendar",
-              "createSessionHoursPolicy"
-            ],
-            "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
-            "targetFile": "src/session-hours-domain/public.js",
-            "targetModuleId": "core.session-hours-domain",
             "throughPublicEntry": true
           },
           {
@@ -1335,85 +1169,9 @@
               "createTimePresentation",
               "readWorkstationSettings"
             ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/workstation-settings/public.js",
-            "targetModuleId": "core.workstation-settings",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createTimePresentation",
-              "readWorkstationSettings"
-            ],
             "sourceFile": "src/replay-workspace-ui/workspace-view.js",
             "targetFile": "src/workstation-settings/public.js",
             "targetModuleId": "core.workstation-settings",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createTimePresentation"
-            ],
-            "sourceFile": "src/replay-workspace-ui/pane-time-location-controller.js",
-            "targetFile": "src/workstation-settings/public.js",
-            "targetModuleId": "core.workstation-settings",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createTransactionId"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-            "targetFile": "src/transaction-identity/public.js",
-            "targetModuleId": "core.transaction-identity",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createWorkspaceReplacementCatalog"
-            ],
-            "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
-            "targetFile": "src/workspace-replacement-runtime/public.js",
-            "targetModuleId": "core.workspace-replacement-runtime",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createWorkspaceSemanticCandidate"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-            "targetFile": "src/workspace-transaction-runtime/public.js",
-            "targetModuleId": "core.workspace-transaction-runtime",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createWorkspaceStateRuntime",
-              "readWorkspaceStateSnapshot"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/workspace-state-runtime/public.js",
-            "targetModuleId": "core.workspace-state-runtime",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createWorkspaceTransactionIdentity",
-              "createWorkspaceTransactionIntent",
-              "describeWorkspaceTransactionEnvelope"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-            "targetFile": "src/workspace-transaction-contract/public.js",
-            "targetModuleId": "core.workspace-transaction-contract",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createWorkspaceTransactionRuntime"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/workspace-transaction-runtime/public.js",
-            "targetModuleId": "core.workspace-transaction-runtime",
             "throughPublicEntry": true
           },
           {
@@ -1442,54 +1200,12 @@
           },
           {
             "importedNames": [
-              "defineInstrument",
-              "defineTradingCalendar"
-            ],
-            "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
-            "targetFile": "src/capability-contract/public.js",
-            "targetModuleId": "core.capability-contract",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "defineTimeframe"
-            ],
-            "sourceFile": "src/replay-workspace-ui/foundation-timeframe-registry.js",
-            "targetFile": "src/capability-contract/public.js",
-            "targetModuleId": "core.capability-contract",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
               "deserializeWorkspaceCheckpoint",
               "readWorkspaceCheckpoint"
             ],
             "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
             "targetFile": "src/workspace-checkpoint-domain/public.js",
             "targetModuleId": "core.workspace-checkpoint-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "GOTO_TARGET_UNAVAILABLE_IN_RANGE",
-              "createReplayNavigationExecutor",
-              "createReplayNavigationReplayPort",
-              "createReplayNavigationSchedule",
-              "createReplayNavigationTargetResolver"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/replay-navigation-runtime/public.js",
-            "targetModuleId": "core.replay-navigation-runtime",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "GOTO_TARGET_UNAVAILABLE_IN_RANGE",
-              "readReplayNavigationResult"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-            "targetFile": "src/replay-navigation-runtime/public.js",
-            "targetModuleId": "core.replay-navigation-runtime",
             "throughPublicEntry": true
           },
           {
@@ -1517,17 +1233,20 @@
           },
           {
             "importedNames": [
-              "ProjectionDomainError",
-              "extendPaneProjectedHistory",
-              "preservePaneProjectedHistory",
-              "projectPaneHistoryExtension",
-              "projectPaneReplayAdvance",
-              "projectPaneSnapshot",
-              "projectedHistoryOldestEpochMs"
+              "QUICK_GOTO_ACTIONS"
             ],
-            "sourceFile": "src/replay-workspace-ui/pane-data-composition.js",
-            "targetFile": "src/projection-domain/public.js",
-            "targetModuleId": "core.projection-domain",
+            "sourceFile": "src/replay-workspace-ui/goto-controls.js",
+            "targetFile": "src/replay-workspace-composition/public.js",
+            "targetModuleId": "core.replay-workspace-composition",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "QUICK_GOTO_SETTING_FIELDS"
+            ],
+            "sourceFile": "src/replay-workspace-ui/goto-settings-dialog.js",
+            "targetFile": "src/replay-workspace-composition/public.js",
+            "targetModuleId": "core.replay-workspace-composition",
             "throughPublicEntry": true
           },
           {
@@ -1559,24 +1278,6 @@
           },
           {
             "importedNames": [
-              "readReplayCursorProposal"
-            ],
-            "sourceFile": "src/replay-workspace-ui/pane-data-composition.js",
-            "targetFile": "src/replay-contract/public.js",
-            "targetModuleId": "core.replay-contract",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "readReplayNavigationSettings"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/replay-navigation-settings/public.js",
-            "targetModuleId": "core.replay-navigation-settings",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
               "readReplayStep"
             ],
             "sourceFile": "src/replay-workspace-ui/workspace-view.js",
@@ -1586,47 +1287,20 @@
           },
           {
             "importedNames": [
-              "readViewportIntent"
+              "readWorkspacePaneIdentity"
             ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/viewport-runtime/public.js",
-            "targetModuleId": "core.viewport-runtime",
+            "sourceFile": "src/replay-workspace-ui/pane-grid-view.js",
+            "targetFile": "src/replay-workspace-composition/public.js",
+            "targetModuleId": "core.replay-workspace-composition",
             "throughPublicEntry": true
           },
           {
             "importedNames": [
-              "readWorkspaceCheckpoint"
+              "readWorkspacePaneIdentity"
             ],
-            "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
-            "targetFile": "src/workspace-checkpoint-domain/public.js",
-            "targetModuleId": "core.workspace-checkpoint-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "readWorkspaceStateSnapshot"
-            ],
-            "sourceFile": "src/replay-workspace-ui/pane-time-location-controller.js",
-            "targetFile": "src/workspace-state-runtime/public.js",
-            "targetModuleId": "core.workspace-state-runtime",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "readWorkspaceStateSnapshot"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-            "targetFile": "src/workspace-state-runtime/public.js",
-            "targetModuleId": "core.workspace-state-runtime",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "readWorkstationSettings"
-            ],
-            "sourceFile": "src/replay-workspace-ui/viewport-settings-consumer.js",
-            "targetFile": "src/workstation-settings/public.js",
-            "targetModuleId": "core.workstation-settings",
+            "sourceFile": "src/replay-workspace-ui/pane-overlay-view.js",
+            "targetFile": "src/replay-workspace-composition/public.js",
+            "targetModuleId": "core.replay-workspace-composition",
             "throughPublicEntry": true
           },
           {
@@ -1637,78 +1311,22 @@
             "targetFile": "src/workstation-settings/public.js",
             "targetModuleId": "core.workstation-settings",
             "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "serializeLayoutSync"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
-            "targetFile": "src/layout-sync-domain/public.js",
-            "targetModuleId": "core.layout-sync-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "serializePaneLayout"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
-            "targetFile": "src/pane-layout-domain/public.js",
-            "targetModuleId": "core.pane-layout-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "serializeWorkspaceCheckpoint"
-            ],
-            "sourceFile": "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
-            "targetFile": "src/workspace-checkpoint-domain/public.js",
-            "targetModuleId": "core.workspace-checkpoint-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "V4_BARS_DATASET_REVISION",
-              "V4_PROJECTED_HISTORY_PROVIDER_ID",
-              "createV4BarsProvider",
-              "createV4ProjectedHistoryProvider"
-            ],
-            "sourceFile": "src/replay-workspace-ui/foundation-market.js",
-            "targetFile": "src/v4-bars-provider-adapter/public.js",
-            "targetModuleId": "adapter.v4-bars-provider",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "V4_BARS_PROVIDER_ID",
-              "createNewYorkWallEpochConverter",
-              "newYorkWallEpochToInstantMs"
-            ],
-            "sourceFile": "src/replay-workspace-ui/foundation-capabilities.js",
-            "targetFile": "src/v4-bars-provider-adapter/public.js",
-            "targetModuleId": "adapter.v4-bars-provider",
-            "throughPublicEntry": true
           }
         ],
         "independentHarness": "tests/replay-workspace-ui-independent-harness.js",
         "independentHarnessMode": "public-entry-direct",
         "kind": "adapter",
         "observedDisposeSites": [
-          "src/replay-workspace-ui/autoplay-scheduler.js",
           "src/replay-workspace-ui/color-picker-control.js",
           "src/replay-workspace-ui/exact-goto-dialog.js",
-          "src/replay-workspace-ui/foundation-market.js",
           "src/replay-workspace-ui/goto-controls.js",
           "src/replay-workspace-ui/goto-settings-dialog.js",
           "src/replay-workspace-ui/pane-grid-view.js",
           "src/replay-workspace-ui/pane-layout-menu.js",
-          "src/replay-workspace-ui/pane-time-location-controller.js",
           "src/replay-workspace-ui/pane-time-location-menu.js",
-          "src/replay-workspace-ui/refresh-feedback.js",
           "src/replay-workspace-ui/replay-transport.js",
           "src/replay-workspace-ui/replay-workspace-surface.js",
           "src/replay-workspace-ui/timeframe-menu.js",
-          "src/replay-workspace-ui/workspace-controller.js",
-          "src/replay-workspace-ui/workspace-execution.js",
           "src/replay-workspace-ui/workspace-view.js",
           "src/replay-workspace-ui/workstation-settings-dialog.js"
         ],
@@ -1785,6 +1403,575 @@
         ],
         "owner": "session-store",
         "publicEntry": "src/session-browser-ui/public.js"
+      },
+      {
+        "actualDependencies": [
+          "adapter.lightweight-chart",
+          "adapter.v4-bars-provider",
+          "core.bar-data-contract",
+          "core.bar-data-runtime",
+          "core.calendar-timeframe-domain",
+          "core.capability-contract",
+          "core.chart-snapshot-application",
+          "core.fixed-timeframe-domain",
+          "core.layout-sync-domain",
+          "core.pane-layout-domain",
+          "core.pane-set-materialization",
+          "core.pane-time-location-domain",
+          "core.projected-history-contract",
+          "core.projection-domain",
+          "core.replay-contract",
+          "core.replay-navigation-runtime",
+          "core.replay-navigation-settings",
+          "core.replay-pane-response-contract",
+          "core.replay-runtime",
+          "core.session-hours-domain",
+          "core.transaction-identity",
+          "core.viewport-runtime",
+          "core.workspace-checkpoint-domain",
+          "core.workspace-replacement-runtime",
+          "core.workspace-state-runtime",
+          "core.workspace-transaction-contract",
+          "core.workspace-transaction-runtime",
+          "core.workstation-settings"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "adapter.lightweight-chart",
+          "adapter.v4-bars-provider",
+          "core.bar-data-contract",
+          "core.bar-data-runtime",
+          "core.calendar-timeframe-domain",
+          "core.capability-contract",
+          "core.chart-snapshot-application",
+          "core.fixed-timeframe-domain",
+          "core.layout-sync-domain",
+          "core.pane-layout-domain",
+          "core.pane-set-materialization",
+          "core.pane-time-location-domain",
+          "core.projected-history-contract",
+          "core.projection-domain",
+          "core.replay-contract",
+          "core.replay-navigation-runtime",
+          "core.replay-navigation-settings",
+          "core.replay-pane-response-contract",
+          "core.replay-runtime",
+          "core.session-hours-domain",
+          "core.transaction-identity",
+          "core.viewport-runtime",
+          "core.workspace-checkpoint-domain",
+          "core.workspace-replacement-runtime",
+          "core.workspace-state-runtime",
+          "core.workspace-transaction-contract",
+          "core.workspace-transaction-runtime",
+          "core.workstation-settings"
+        ],
+        "descriptorPath": "src/replay-workspace-composition/module.json",
+        "id": "core.replay-workspace-composition",
+        "importSites": [
+          {
+            "importedNames": [
+              "createBarDataRuntime",
+              "createProjectedHistoryRuntime"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-data-assembly.js",
+            "targetFile": "src/bar-data-runtime/public.js",
+            "targetModuleId": "core.bar-data-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createCalendarAggregationPolicy",
+              "resolveCalendarPeriod"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+            "targetFile": "src/calendar-timeframe-domain/public.js",
+            "targetModuleId": "core.calendar-timeframe-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createEmptyPaneProjection"
+            ],
+            "sourceFile": "src/replay-workspace-composition/pane-data-composition.js",
+            "targetFile": "src/pane-set-materialization/public.js",
+            "targetModuleId": "core.pane-set-materialization",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createFixedDurationAggregationPolicy"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+            "targetFile": "src/fixed-timeframe-domain/public.js",
+            "targetModuleId": "core.fixed-timeframe-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createLayoutSync",
+              "readLayoutSync",
+              "setLayoutSync"
+            ],
+            "sourceFile": "src/replay-workspace-composition/layout-sync-controller.js",
+            "targetFile": "src/layout-sync-domain/public.js",
+            "targetModuleId": "core.layout-sync-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createLightweightPaneSetAdapter"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-chart-assembly.js",
+            "targetFile": "src/lightweight-chart-adapter/public.js",
+            "targetModuleId": "adapter.lightweight-chart",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneLayout",
+              "readPaneLayout"
+            ],
+            "sourceFile": "src/replay-workspace-composition/pane-layout-commands.js",
+            "targetFile": "src/pane-layout-domain/public.js",
+            "targetModuleId": "core.pane-layout-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneLayout",
+              "readPaneLayout"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-session-state.js",
+            "targetFile": "src/pane-layout-domain/public.js",
+            "targetModuleId": "core.pane-layout-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneSetChartSnapshotApplication"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-chart-assembly.js",
+            "targetFile": "src/chart-snapshot-application/public.js",
+            "targetModuleId": "core.chart-snapshot-application",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneSetMaterializationPorts"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-data-assembly.js",
+            "targetFile": "src/pane-set-materialization/public.js",
+            "targetModuleId": "core.pane-set-materialization",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneSetTransactionInput"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-execution.js",
+            "targetFile": "src/pane-set-materialization/public.js",
+            "targetModuleId": "core.pane-set-materialization",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPaneTimeLocationCommand",
+              "createPaneTimeLocationSelection",
+              "readPaneTimeLocationCommand"
+            ],
+            "sourceFile": "src/replay-workspace-composition/pane-time-location-controller.js",
+            "targetFile": "src/pane-time-location-domain/public.js",
+            "targetModuleId": "core.pane-time-location-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createProjectedHistoryRequest"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+            "targetFile": "src/projected-history-contract/public.js",
+            "targetModuleId": "core.projected-history-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createRawBarRequest"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+            "targetFile": "src/bar-data-contract/public.js",
+            "targetModuleId": "core.bar-data-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createReplayNavigationExecutor"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-runtime-assembly.js",
+            "targetFile": "src/replay-navigation-runtime/public.js",
+            "targetModuleId": "core.replay-navigation-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createReplayNavigationReplayPort",
+              "createReplayNavigationTargetResolver"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-data-assembly.js",
+            "targetFile": "src/replay-navigation-runtime/public.js",
+            "targetModuleId": "core.replay-navigation-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createReplayNavigationSchedule"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-session-state.js",
+            "targetFile": "src/replay-navigation-runtime/public.js",
+            "targetModuleId": "core.replay-navigation-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createReplayNavigationSchedule"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-settings-commands.js",
+            "targetFile": "src/replay-navigation-runtime/public.js",
+            "targetModuleId": "core.replay-navigation-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createReplayPaneAction",
+              "planReplayPaneResponse"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-execution.js",
+            "targetFile": "src/replay-pane-response-contract/public.js",
+            "targetModuleId": "core.replay-pane-response-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createReplayRuntime"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-session-state.js",
+            "targetFile": "src/replay-runtime/public.js",
+            "targetModuleId": "core.replay-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createReplayStep"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createSessionHoursCalendar",
+              "createSessionHoursPolicy"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
+            "targetFile": "src/session-hours-domain/public.js",
+            "targetModuleId": "core.session-hours-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createTimePresentation"
+            ],
+            "sourceFile": "src/replay-workspace-composition/pane-time-location-controller.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createTimePresentation"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-replay-commands.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createTransactionId"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-execution.js",
+            "targetFile": "src/transaction-identity/public.js",
+            "targetModuleId": "core.transaction-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceReplacementCatalog"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
+            "targetFile": "src/workspace-replacement-runtime/public.js",
+            "targetModuleId": "core.workspace-replacement-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceSemanticCandidate"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-execution.js",
+            "targetFile": "src/workspace-transaction-runtime/public.js",
+            "targetModuleId": "core.workspace-transaction-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceStateRuntime",
+              "readWorkspaceStateSnapshot"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-session-state.js",
+            "targetFile": "src/workspace-state-runtime/public.js",
+            "targetModuleId": "core.workspace-state-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceTransactionIdentity",
+              "createWorkspaceTransactionIntent",
+              "describeWorkspaceTransactionEnvelope"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-execution.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceTransactionRuntime"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-runtime-assembly.js",
+            "targetFile": "src/workspace-transaction-runtime/public.js",
+            "targetModuleId": "core.workspace-transaction-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineInstrument",
+              "defineTradingCalendar"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
+            "targetFile": "src/capability-contract/public.js",
+            "targetModuleId": "core.capability-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineTimeframe"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+            "targetFile": "src/capability-contract/public.js",
+            "targetModuleId": "core.capability-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "GOTO_TARGET_UNAVAILABLE_IN_RANGE",
+              "readReplayNavigationResult"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-execution.js",
+            "targetFile": "src/replay-navigation-runtime/public.js",
+            "targetModuleId": "core.replay-navigation-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "GOTO_TARGET_UNAVAILABLE_IN_RANGE"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-replay-commands.js",
+            "targetFile": "src/replay-navigation-runtime/public.js",
+            "targetModuleId": "core.replay-navigation-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "ProjectionDomainError",
+              "extendPaneProjectedHistory",
+              "preservePaneProjectedHistory",
+              "projectPaneHistoryExtension",
+              "projectPaneReplayAdvance",
+              "projectPaneSnapshot",
+              "projectedHistoryOldestEpochMs"
+            ],
+            "sourceFile": "src/replay-workspace-composition/pane-data-composition.js",
+            "targetFile": "src/projection-domain/public.js",
+            "targetModuleId": "core.projection-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readReplayCursorProposal"
+            ],
+            "sourceFile": "src/replay-workspace-composition/pane-data-composition.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readReplayNavigationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-session-state.js",
+            "targetFile": "src/replay-navigation-settings/public.js",
+            "targetModuleId": "core.replay-navigation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readReplayNavigationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-settings-commands.js",
+            "targetFile": "src/replay-navigation-settings/public.js",
+            "targetModuleId": "core.replay-navigation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readViewportIntent"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-publication-assembly.js",
+            "targetFile": "src/viewport-runtime/public.js",
+            "targetModuleId": "core.viewport-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readViewportIntent"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-replacement-commands.js",
+            "targetFile": "src/viewport-runtime/public.js",
+            "targetModuleId": "core.viewport-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceCheckpoint"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-session-state.js",
+            "targetFile": "src/workspace-checkpoint-domain/public.js",
+            "targetModuleId": "core.workspace-checkpoint-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceStateSnapshot"
+            ],
+            "sourceFile": "src/replay-workspace-composition/pane-time-location-controller.js",
+            "targetFile": "src/workspace-state-runtime/public.js",
+            "targetModuleId": "core.workspace-state-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceStateSnapshot"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-execution.js",
+            "targetFile": "src/workspace-state-runtime/public.js",
+            "targetModuleId": "core.workspace-state-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceStateSnapshot"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-focus-sync-commands.js",
+            "targetFile": "src/workspace-state-runtime/public.js",
+            "targetModuleId": "core.workspace-state-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-composition/viewport-settings-consumer.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-session-state.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeLayoutSync"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-checkpoint-persistence.js",
+            "targetFile": "src/layout-sync-domain/public.js",
+            "targetModuleId": "core.layout-sync-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializePaneLayout"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-checkpoint-persistence.js",
+            "targetFile": "src/pane-layout-domain/public.js",
+            "targetModuleId": "core.pane-layout-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeWorkspaceCheckpoint"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-checkpoint-persistence.js",
+            "targetFile": "src/workspace-checkpoint-domain/public.js",
+            "targetModuleId": "core.workspace-checkpoint-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "V4_BARS_DATASET_REVISION",
+              "V4_PROJECTED_HISTORY_PROVIDER_ID",
+              "createV4BarsProvider",
+              "createV4ProjectedHistoryProvider"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+            "targetFile": "src/v4-bars-provider-adapter/public.js",
+            "targetModuleId": "adapter.v4-bars-provider",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "V4_BARS_PROVIDER_ID",
+              "createNewYorkWallEpochConverter",
+              "newYorkWallEpochToInstantMs"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
+            "targetFile": "src/v4-bars-provider-adapter/public.js",
+            "targetModuleId": "adapter.v4-bars-provider",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/replay-workspace-composition-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [
+          "src/replay-workspace-composition/autoplay-scheduler.js",
+          "src/replay-workspace-composition/foundation-market.js",
+          "src/replay-workspace-composition/pane-time-location-controller.js",
+          "src/replay-workspace-composition/refresh-feedback.js",
+          "src/replay-workspace-composition/workspace-command-port.js",
+          "src/replay-workspace-composition/workspace-execution.js"
+        ],
+        "owner": "replay-workspace-composition",
+        "publicEntry": "src/replay-workspace-composition/public.js"
       },
       {
         "actualDependencies": [

@@ -1,4 +1,4 @@
-import { readWorkspacePaneIdentity } from './pane-identity.js';
+import { readWorkspacePaneIdentity } from '../replay-workspace-composition/public.js';
 
 function element(tag, options = {}, children = []) {
   const node = document.createElement(tag);

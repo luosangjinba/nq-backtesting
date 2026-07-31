@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readLayoutSync } from '../src/layout-sync-domain/public.js';
-import { createLayoutSyncController } from '../src/replay-workspace-ui/layout-sync-controller.js';
+import { createLayoutSyncController } from '../src/replay-workspace-composition/public.js';
 
 function makePorts({ failPersistence = false } = {}) {
   const calls = [];

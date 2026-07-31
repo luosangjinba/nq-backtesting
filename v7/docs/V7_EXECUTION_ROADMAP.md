@@ -510,7 +510,9 @@ live in `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
   Workspace State, and publication/persistence, reverse exact rollback for all
   five injected failure boundaries, coordinator-only finalize, and deletion of
   the Chart `present()` compatibility bridge;
-- `R8.10`: UI/composition responsibility split;
+- `R8.10`: UI/composition responsibility split; completed with one dedicated
+  composition module, a focused command port, an explicit UI presentation
+  adapter, six negative controls, and deletion of the mixed UI controller;
 - `R8.11`: production ModuleHost boot and removal matrix;
 - `R8.12`: source responsibility, size, documentation, and debt closure;
 - `R8.13`: Open/Closed Calendar re-derivation and dense RTH Locate repair;

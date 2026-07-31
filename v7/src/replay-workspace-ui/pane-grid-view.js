@@ -4,7 +4,7 @@ import {
   resizePaneLayout,
 } from '../pane-layout-domain/public.js';
 import { createPricePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
-import { readWorkspacePaneIdentity } from './pane-identity.js';
+import { readWorkspacePaneIdentity } from '../replay-workspace-composition/public.js';
 import { createPaneOverlayView } from './pane-overlay-view.js';
 
 function element(tag, options = {}, children = []) {

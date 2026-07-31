@@ -4,7 +4,7 @@ import {
   readReplayNavigationSettings,
 } from '../replay-navigation-settings/public.js';
 import { setControlsDisabled } from './control-availability.js';
-import { QUICK_GOTO_SETTING_FIELDS } from './goto-quick-actions.js';
+import { QUICK_GOTO_SETTING_FIELDS } from '../replay-workspace-composition/public.js';
 
 function element(tag, options = {}, children = []) {
   const node = document.createElement(tag);

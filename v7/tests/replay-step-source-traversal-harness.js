@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { createReplayStep, readReplayStep } from '../src/replay-contract/public.js';
-import { createFoundationCapabilities, FOUNDATION_IDS } from '../src/replay-workspace-ui/foundation-capabilities.js';
-import { createFoundationSourceTraversal } from '../src/replay-workspace-ui/foundation-source-traversal.js';
+import {
+  createFoundationCapabilities,
+  createFoundationSourceTraversal,
+  FOUNDATION_IDS,
+} from '../src/replay-workspace-composition/public.js';
 
 const MINUTE = 60_000;
 const FORWARD_BUFFER_MINUTES = 500;
