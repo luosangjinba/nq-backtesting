@@ -44,7 +44,7 @@ export function createPaneDataComposition({
   }
 
   return Object.freeze({
-    accept(activePaneIds) {
+    finalize(activePaneIds) {
       barData.commitCoverageLeases({
         activeConsumerIds: activePaneIds,
         leases: [...stagedLeases],

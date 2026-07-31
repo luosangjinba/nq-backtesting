@@ -9,6 +9,7 @@ import {
   requireReplayAdvanceInput,
 } from '../replay-contract/public.js';
 import { createReplayActivation, requireMatchingActivation } from './activation-match.js';
+import { createPreparedReplayCommit } from './prepared-replay-commit.js';
 import { ReplayRuntimeError } from './runtime-error.js';
 
 function rangesEqual(left, right) {
@@ -45,6 +46,10 @@ export function createReplayRuntime({
 
   function snapshot() {
     requireActive();
+    return snapshotValue();
+  }
+
+  function snapshotValue(overrides = {}) {
     return Object.freeze({
       activationGeneration: activation.activationGeneration,
       complete: cursorEpochMs === acceptedRange.endEpochMs,
@@ -55,6 +60,7 @@ export function createReplayRuntime({
       visibleThroughEpochMs,
       revision,
       sessionId: activation.sessionId,
+      ...overrides,
     });
   }
 
@@ -158,17 +164,82 @@ export function createReplayRuntime({
   }
 
   function commitVisible(proposal, visibility = undefined) {
+    const prepared = prepareVisible(proposal, visibility);
+    const receipt = prepared.apply();
+    prepared.finalize(receipt);
+    return snapshot();
+  }
+
+  function prepareVisible(proposal, visibility = undefined, nextReplayStep = replayStep) {
     const value = requireCommittable(proposal);
     const acceptedVisibility = requireVisibility(visibility, value.targetEpochMs);
+    readReplayStep(nextReplayStep);
     if (revision === Number.MAX_SAFE_INTEGER) {
       throw new ReplayRuntimeError('REPLAY_REVISION_EXHAUSTED', 'Replay revision is exhausted.');
     }
-    issuedProposals.delete(proposal);
-    cursorEpochMs = value.targetEpochMs;
-    visibleThroughEpochMs = acceptedVisibility;
-    if (cursorEpochMs === acceptedRange.endEpochMs) playback = 'paused';
-    revision += 1;
-    return snapshot();
+    const baseRevision = revision;
+    const previous = Object.freeze({
+      cursorEpochMs,
+      playback,
+      replayStep,
+      revision,
+      visibleThroughEpochMs,
+    });
+    const candidate = snapshotValue({
+      complete: value.targetEpochMs === acceptedRange.endEpochMs,
+      cursorEpochMs: value.targetEpochMs,
+      playback: value.targetEpochMs === acceptedRange.endEpochMs ? 'paused' : playback,
+      replayStep: nextReplayStep,
+      revision: baseRevision + 1,
+      visibleThroughEpochMs: acceptedVisibility,
+    });
+    let applied = false;
+    let released = false;
+
+    function release() {
+      if (released) return;
+      released = true;
+      issuedProposals.delete(proposal);
+    }
+
+    return createPreparedReplayCommit({
+      baseRevision,
+      candidate,
+      hooks: Object.freeze({
+        apply() {
+          requireCommittable(proposal);
+          cursorEpochMs = candidate.cursorEpochMs;
+          playback = candidate.playback;
+          replayStep = candidate.replayStep;
+          revision = candidate.revision;
+          visibleThroughEpochMs = candidate.visibleThroughEpochMs;
+          applied = true;
+        },
+        finalize() {
+          if (!applied || revision !== candidate.revision
+            || cursorEpochMs !== candidate.cursorEpochMs) {
+            throw new ReplayRuntimeError(
+              'REPLAY_PREPARED_COMMIT_STALE',
+              'Prepared Replay candidate is no longer the reversible applied state.',
+            );
+          }
+          release();
+        },
+        release,
+        rollback() {
+          if (applied) {
+            cursorEpochMs = previous.cursorEpochMs;
+            playback = previous.playback;
+            replayStep = previous.replayStep;
+            revision = previous.revision;
+            visibleThroughEpochMs = previous.visibleThroughEpochMs;
+            applied = false;
+          }
+          release();
+        },
+      }),
+      identity: value.identity,
+    });
   }
 
   function reject(proposal) {
@@ -186,6 +257,7 @@ export function createReplayRuntime({
     dispose,
     pause,
     play,
+    prepareVisible,
     proposeAdvance,
     proposeRetention,
     proposeTarget,

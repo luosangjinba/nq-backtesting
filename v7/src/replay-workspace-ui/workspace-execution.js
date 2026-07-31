@@ -10,13 +10,13 @@ import {
   createWorkspaceTransactionIntent,
   describeWorkspaceTransactionEnvelope,
 } from '../workspace-transaction-contract/public.js';
+import { createWorkspaceSemanticCandidate } from '../workspace-transaction-runtime/public.js';
 import { readWorkspaceStateSnapshot } from '../workspace-state-runtime/public.js';
 import { planSingleHistoryFill } from './history-fill-plan.js';
 import { createRefreshFeedback } from './refresh-feedback.js';
 
 /** Own transient UI dispatch/pending policy around the sole Workspace Transaction coordinator. */
 export function createWorkspaceExecution({
-  acceptVisibleState,
   historyPort,
   market,
   navigation,
@@ -24,6 +24,8 @@ export function createWorkspaceExecution({
   range,
   record,
   replay,
+  resolvePublication,
+  resolveReplayStep,
   runtime,
   view,
   workspaceState,
@@ -45,7 +47,6 @@ export function createWorkspaceExecution({
       }),
       operation,
     });
-    workspaceState.begin(describeWorkspaceTransactionEnvelope(intent).identity);
     return intent;
   }
 
@@ -61,7 +62,6 @@ export function createWorkspaceExecution({
     try {
       return await task();
     } catch (error) {
-      paneData.reject();
       if (!disposed) view.setState(loading ? 'unavailable' : 'error', { message: error?.message });
       return null;
     } finally {
@@ -74,34 +74,24 @@ export function createWorkspaceExecution({
     return run(async () => {
       const replayAction = createReplayPaneAction({ kind, ...options });
       const intent = identity(kind);
-      const intentIdentity = describeWorkspaceTransactionEnvelope(intent).identity;
-      try {
-        const state = semanticState();
-        const result = readReplayNavigationResult(await navigation.execute({
-          action: replayAction,
-          intent,
-          paneWorkspace: state.paneWorkspace,
-          replayRange: range,
-          sessionHours: state.sessionHours,
-        }));
-        if (result.status === 'committed') {
-          const terminalIdentity = describeWorkspaceTransactionEnvelope(result.terminal).identity;
-          paneData.accept(workspaceState.paneIds());
-          acceptVisibleState(state.paneWorkspace, state.sessionHours, terminalIdentity);
-        } else {
-          workspaceState.reject(intentIdentity);
-          paneData.reject();
-          view.setReplay(replay.snapshot());
-          if (result.status === 'rejected' && result.code === GOTO_TARGET_UNAVAILABLE_IN_RANGE) {
-            return result;
-          }
-          if (result.status !== 'noop') throw Object.assign(new Error(result.code), { code: result.code });
+      const state = semanticState();
+      const result = readReplayNavigationResult(await navigation.execute({
+        action: replayAction,
+        intent,
+        paneWorkspace: state.paneWorkspace,
+        publication: resolvePublication(),
+        replayRange: range,
+        replayStep: resolveReplayStep(state.paneWorkspace),
+        sessionHours: state.sessionHours,
+      }));
+      if (result.status !== 'committed') {
+        view.setReplay(replay.snapshot());
+        if (result.status === 'rejected' && result.code === GOTO_TARGET_UNAVAILABLE_IN_RANGE) {
+          return result;
         }
-        return result;
-      } catch (error) {
-        workspaceState.reject(intentIdentity);
-        throw error;
+        if (result.status !== 'noop') throw Object.assign(new Error(result.code), { code: result.code });
       }
+      return result;
     }, runOptions);
   }
 
@@ -132,22 +122,20 @@ export function createWorkspaceExecution({
         }),
       })));
       const intent = identity('goto-exact');
-      const intentIdentity = describeWorkspaceTransactionEnvelope(intent).identity;
-      try {
-        const terminal = describeWorkspaceTransactionEnvelope(await runtime.execute({
-          input: createPaneSetTransactionInput({ paneRequests, responsePlan }),
-          intent,
-        }));
-        if (terminal.status !== 'committed') {
-          throw Object.assign(new Error(terminal.code), { code: terminal.code });
-        }
-        paneData.accept(workspaceState.paneIds(desiredWorkspace));
-        acceptVisibleState(desiredWorkspace, desiredSessionHours, terminal.identity);
-        return terminal;
-      } catch (error) {
-        workspaceState.reject(intentIdentity);
-        throw error;
+      const terminal = describeWorkspaceTransactionEnvelope(await runtime.execute({
+        input: createPaneSetTransactionInput({ paneRequests, responsePlan }),
+        intent,
+        semanticCandidate: createWorkspaceSemanticCandidate({
+          paneWorkspace: desiredWorkspace,
+          publication: resolvePublication(),
+          replayStep: resolveReplayStep(desiredWorkspace),
+          sessionHours: desiredSessionHours,
+        }),
+      }));
+      if (terminal.status !== 'committed') {
+        throw Object.assign(new Error(terminal.code), { code: terminal.code });
       }
+      return terminal;
     }, runOptions);
   }
 

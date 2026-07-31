@@ -11,6 +11,7 @@ import { sessionIdsEqual } from '../session-identity/public.js';
 import {
   createInitialViewportIntent,
   createViewportController,
+  moveViewportIntentCursor,
   readViewportIntent,
   restoreViewportIntent,
 } from '../viewport-runtime/public.js';
@@ -197,6 +198,31 @@ export function createOwnedPaneState({
   }
 
   return Object.freeze({
+    candidate(workspace, cursorEpochMs) {
+      const value = requireCompatibleWorkspace(workspace);
+      return createPaneWorkspace({
+        activationGeneration,
+        activePaneId: value.activePaneId,
+        allowedInstrumentIds,
+        instrumentSync: value.instrumentSync,
+        panes: value.panes.map((pane) => ({
+          instrumentId: pane.instrumentId,
+          paneId: pane.paneId,
+          timeframeId: pane.timeframeId,
+          viewportIntent: moveViewportIntentCursor(pane.viewportIntent, cursorEpochMs),
+        })),
+        primaryInstrumentId,
+        sessionId,
+      });
+    },
+    capture() {
+      return Object.freeze({
+        accepted,
+        viewports: Object.freeze([...viewports].map(([paneId, controller]) => Object.freeze({
+          intent: controller.snapshot(), paneId,
+        }))),
+      });
+    },
     accept(workspace, cursorEpochMs) {
       const value = requireCompatibleWorkspace(workspace);
       for (const pane of value.panes) viewport(pane.paneId).moveCursor(cursorEpochMs);
@@ -275,6 +301,23 @@ export function createOwnedPaneState({
       }
       defaultRightMarginBars = value;
       for (const controller of viewports.values()) controller.setDefaultLatestOffsetBars(value);
+    },
+    replace(workspace) {
+      const value = requireCompatibleWorkspace(workspace);
+      for (const pane of value.panes) viewport(pane.paneId).replace(pane.viewportIntent);
+      accepted = workspace;
+      return accepted;
+    },
+    restore(state) {
+      const retainedPaneIds = new Set(state.viewports.map(({ paneId }) => paneId));
+      for (const paneId of viewports.keys()) {
+        if (retainedPaneIds.has(paneId)) continue;
+        viewports.delete(paneId);
+        viewportPorts.delete(paneId);
+      }
+      for (const entry of state.viewports) viewport(entry.paneId).replace(entry.intent);
+      accepted = state.accepted;
+      return accepted;
     },
     viewportPort,
     wallOrigin(paneId) { return readViewportIntent(viewport(paneId).snapshot()).origin; },

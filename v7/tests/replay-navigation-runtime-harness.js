@@ -8,6 +8,7 @@ import {
   createPaneSetChartSnapshotApplication,
 } from '../src/chart-snapshot-application/public.js';
 import { createPaneWorkspace } from '../src/pane-workspace-domain/public.js';
+import { createPreparedCommit } from '../src/prepared-commit-contract/public.js';
 import {
   createEmptyPaneProjection,
   createPaneSetMaterializationPorts,
@@ -37,7 +38,10 @@ import {
   createWorkspaceTransactionIntent,
   describeWorkspaceTransactionEnvelope,
 } from '../src/workspace-transaction-contract/public.js';
-import { createWorkspaceTransactionRuntime } from '../src/workspace-transaction-runtime/public.js';
+import {
+  createWorkspaceSemanticCandidate,
+  createWorkspaceTransactionRuntime,
+} from '../src/workspace-transaction-runtime/public.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const negativeCases = JSON.parse(fs.readFileSync(path.join(
@@ -342,13 +346,70 @@ const application = createPaneSetChartSnapshotApplication({
   sessionId,
 });
 const replayPort = createReplayNavigationReplayPort({ replayRuntime: replay, targetResolver });
+const workspaceOwner = { revision: 0, value: null };
+const publicationStages = new WeakMap();
+function preparedWorkspace(transactionIdentity, paneWorkspace, sessionHours) {
+  const previous = Object.freeze({ ...workspaceOwner });
+  const candidate = Object.freeze({
+    identity: transactionIdentity,
+    paneWorkspace,
+    revision: workspaceOwner.revision + 1,
+    schemaVersion: 1,
+    sessionHours,
+  });
+  const contract = createPreparedCommit({
+    baseRevision: workspaceOwner.revision,
+    candidate,
+    identity: transactionIdentity,
+    participant: 'workspace-state',
+    preparedRevision: workspaceOwner.revision,
+    schemaVersion: 1,
+  });
+  return Object.freeze({
+    apply() {
+      workspaceOwner.revision += 1;
+      workspaceOwner.value = candidate;
+      return contract.apply({ identity: transactionIdentity, resultingRevision: workspaceOwner.revision });
+    },
+    dispose: () => contract.dispose(),
+    finalize: (receipt) => contract.finalize({
+      commitReceipt: receipt, identity: transactionIdentity, resultingRevision: workspaceOwner.revision,
+    }),
+    rollback(receipt = null) {
+      if (contract.snapshot().status === 'applied') Object.assign(workspaceOwner, previous);
+      return contract.rollback({
+        commitReceipt: receipt, identity: transactionIdentity, resultingRevision: previous.revision,
+      });
+    },
+    snapshot: () => contract.snapshot(),
+  });
+}
+const publicationPort = Object.freeze({
+  apply(stage) { publicationStages.get(stage).state = 'applied'; },
+  finalize(stage) { publicationStages.get(stage).state = 'finalized'; },
+  reject() {},
+  rollback(stage) { publicationStages.get(stage).state = 'rolled-back'; },
+  stage() {
+    const stage = Object.freeze({});
+    publicationStages.set(stage, { state: 'staged' });
+    return stage;
+  },
+});
 const transactionRuntime = createWorkspaceTransactionRuntime({
   activationGeneration,
   acquisitionPort: materialization.acquisitionPort,
+  chartPort: application,
+  publicationPort,
   projectionPort: materialization.projectionPort,
   replayPort,
   sessionId,
-  visibleCompletionPort: application,
+  workspaceStatePort: Object.freeze({
+    begin() {},
+    prepare({ identity: transactionIdentity, paneWorkspace, sessionHours }) {
+      return preparedWorkspace(transactionIdentity, paneWorkspace, sessionHours);
+    },
+    reject() {},
+  }),
 });
 let paneRequestCount = 0;
 let mutablePaneRequest = false;
@@ -370,7 +431,9 @@ async function navigate(kind, options = {}, paneWorkspace = workspace(replay.sna
     action,
     intent: createWorkspaceTransactionIntent({ identity: identity(kind), operation: kind }),
     paneWorkspace,
+    publication: Object.freeze({ layout: 'test' }),
     replayRange: RANGE,
+    replayStep: replay.snapshot().replayStep,
     sessionHours: HOURS,
   }));
 }
@@ -506,6 +569,12 @@ traversalGate = deferred();
 const slowResolution = transactionRuntime.execute({
   input: staleInput,
   intent: createWorkspaceTransactionIntent({ identity: identity('slow-resolution'), operation: 'manual-next' }),
+  semanticCandidate: createWorkspaceSemanticCandidate({
+    paneWorkspace: workspace(replay.snapshot().cursorEpochMs),
+    publication: Object.freeze({ layout: 'test' }),
+    replayStep: replay.snapshot().replayStep,
+    sessionHours: HOURS,
+  }),
 });
 await Promise.resolve();
 const slowGate = traversalGate;
@@ -513,6 +582,12 @@ traversalGate = null;
 const fastResolution = describeWorkspaceTransactionEnvelope(await transactionRuntime.execute({
   input: staleInput,
   intent: createWorkspaceTransactionIntent({ identity: identity('fast-resolution'), operation: 'manual-next' }),
+  semanticCandidate: createWorkspaceSemanticCandidate({
+    paneWorkspace: workspace(replay.snapshot().cursorEpochMs),
+    publication: Object.freeze({ layout: 'test' }),
+    replayStep: replay.snapshot().replayStep,
+    sessionHours: HOURS,
+  }),
 }));
 assert.equal(fastResolution.status, 'committed');
 slowGate.resolve();
@@ -690,7 +765,9 @@ const negative = {
     action: nextAction,
     intent: createWorkspaceTransactionIntent({ identity: identity('extra'), operation: 'manual-next' }),
     paneWorkspace: workspace(replay.snapshot().cursorEpochMs),
+    publication: Object.freeze({ layout: 'test' }),
     replayRange: RANGE,
+    replayStep: replay.snapshot().replayStep,
     sessionHours: HOURS,
     paneId: 'pane-nq',
   }),
@@ -698,7 +775,9 @@ const negative = {
     action: nextAction,
     intent: createWorkspaceTransactionIntent({ identity: identity('wrong-operation'), operation: 'manual-previous' }),
     paneWorkspace: workspace(replay.snapshot().cursorEpochMs),
+    publication: Object.freeze({ layout: 'test' }),
     replayRange: RANGE,
+    replayStep: replay.snapshot().replayStep,
     sessionHours: HOURS,
   }),
   'executor-range-stale': () => {
@@ -708,7 +787,9 @@ const negative = {
       action: createReplayPaneAction({ kind: 'goto-exact', targetEpochMs: cursorEpochMs }),
       intent: createWorkspaceTransactionIntent({ identity: identity('range-stale'), operation: 'goto-exact' }),
       paneWorkspace: workspace(cursorEpochMs),
+      publication: Object.freeze({ layout: 'test' }),
       replayRange: staleRange,
+      replayStep: replay.snapshot().replayStep,
       sessionHours: HOURS,
     });
   },

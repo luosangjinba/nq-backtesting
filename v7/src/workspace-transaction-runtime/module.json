@@ -9,8 +9,10 @@
     "core.activation-generation",
     "core.transaction-identity",
     "core.workspace-transaction-contract",
+    "core.prepared-commit-contract",
     "core.chart-snapshot-application",
     "core.replay-runtime",
+    "core.workspace-state-runtime",
     "core.bar-data-runtime"
   ],
   "optionalPorts": [],

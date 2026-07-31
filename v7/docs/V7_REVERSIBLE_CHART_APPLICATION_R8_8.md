@@ -32,10 +32,9 @@ merely be greater than the last accepted revision. Structural lookalikes,
 foreign receipts, stale preparations, duplicate phases, and applied disposal
 fail before accepted Chart state can advance.
 
-The legacy `present()` port remains only as an R8.9 migration bridge. It invokes
-the same prepare/apply/finalize path so existing production behavior remains
-operational; Workspace Transaction Runtime will take over the four-participant
-finalize/rollback decision in R8.9.
+R8.9 subsequently removes the legacy `present()` migration bridge. Production
+now reaches visible Chart mutation only through the four-participant Workspace
+Transaction coordinator's prepare/apply/rollback/finalize lifecycle.
 
 ## Exact Adapter Restoration
 
@@ -93,9 +92,10 @@ References:
 
 ## Recovery Result
 
-H056 returns from `regressed` to `accepted`. H076 remains `executable`, not
-accepted: only Chart is a real prepared participant in R8.8; Replay, Workspace
-State, publication, persistence, and the global finalize decision remain R8.9.
+At the R8.8 checkpoint, H056 returned from `regressed` to `accepted` and H076
+remained `executable`: only Chart was a real prepared participant; Replay,
+Workspace State, publication, persistence, and the global finalize decision
+were assigned to R8.9.
 
 The exact production baseline contains 45 modules, 115 dependency edges, 113
 construction sites, nine critical writer sites, and the same three later-step
@@ -104,3 +104,6 @@ cleared by this step.
 
 No manual UI review is required because the accepted UI and interaction path
 does not materially change.
+
+R8.9 subsequently activates the remaining participants and the sole global
+decision owner. Its real-owner failure matrix advances H076 to `accepted`.

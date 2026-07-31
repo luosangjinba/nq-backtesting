@@ -9,7 +9,7 @@ import {
   defineTimeframe,
   defineTradingCalendar,
 } from '../src/capability-contract/public.js';
-import { createVisibleCompletionAcknowledgement } from '../src/chart-snapshot-application/public.js';
+import { createPreparedCommit } from '../src/prepared-commit-contract/public.js';
 import { createFixedDurationAggregationPolicy } from '../src/fixed-timeframe-domain/public.js';
 import { projectPaneSnapshot } from '../src/projection-domain/public.js';
 import { createReplayStep } from '../src/replay-contract/public.js';
@@ -27,7 +27,10 @@ import {
   createWorkspaceReplacementExecutor,
   createWorkspaceReplacementInput,
 } from '../src/workspace-replacement-runtime/public.js';
-import { createWorkspaceTransactionRuntime } from '../src/workspace-transaction-runtime/public.js';
+import {
+  createWorkspaceSemanticCandidate,
+  createWorkspaceTransactionRuntime,
+} from '../src/workspace-transaction-runtime/public.js';
 import { findConcreteCapabilityIdBranches } from './support/capability-source-validator.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -220,6 +223,44 @@ let presentGateKey = null;
 let visibleSnapshot = null;
 const selectionKey = (selection) => `${selection.sessionHoursMode}/${selection.displayTimeframe.id}`;
 
+function preparedOwner({ candidate, identity, participant, state }) {
+  const previous = Object.freeze({ ...state });
+  const contract = createPreparedCommit({
+    baseRevision: state.revision,
+    candidate,
+    identity,
+    participant,
+    preparedRevision: state.revision,
+    schemaVersion: 1,
+  });
+  return Object.freeze({
+    apply() {
+      state.revision += 1;
+      state.value = candidate;
+      if (participant === 'chart') visibleSnapshot = candidate;
+      return contract.apply({ identity, resultingRevision: state.revision });
+    },
+    dispose: () => contract.dispose(),
+    finalize: (receipt) => contract.finalize({
+      commitReceipt: receipt, identity, resultingRevision: state.revision,
+    }),
+    rollback(receipt = null) {
+      if (contract.snapshot().status === 'applied') {
+        Object.assign(state, previous);
+        if (participant === 'chart') visibleSnapshot = previous.value;
+      }
+      return contract.rollback({
+        commitReceipt: receipt, identity, resultingRevision: previous.revision,
+      });
+    },
+    snapshot: () => contract.snapshot(),
+  });
+}
+
+const chartState = { revision: 0, value: null };
+const workspaceState = { revision: 0, value: null };
+const publicationStages = new WeakMap();
+
 const transactionRuntime = createWorkspaceTransactionRuntime({
   activationGeneration,
   acquisitionPort: Object.freeze({
@@ -228,6 +269,29 @@ const transactionRuntime = createWorkspaceTransactionRuntime({
       if (targetKey === acquireFailureKey) throw Object.assign(new Error('acquisition failed'), { code: 'replacement-acquisition-failed' });
       if (targetKey === acquireGateKey) await acquireGate.promise;
       return batch;
+    },
+  }),
+  chartPort: Object.freeze({
+    async prepare(context) {
+      const targetKey = `${context.workspaceSnapshot.provenance.sessionHoursMode}/${context.workspaceSnapshot.provenance.displayTimeframeId}`;
+      if (targetKey === presentGateKey) await presentGate.promise;
+      return preparedOwner({
+        candidate: context.workspaceSnapshot,
+        identity: context.identity,
+        participant: 'chart',
+        state: chartState,
+      });
+    },
+  }),
+  publicationPort: Object.freeze({
+    apply(stage) { publicationStages.get(stage).state = 'applied'; },
+    finalize(stage) { publicationStages.get(stage).state = 'finalized'; },
+    reject() {},
+    rollback(stage) { publicationStages.get(stage).state = 'rolled-back'; },
+    stage() {
+      const stage = Object.freeze({});
+      publicationStages.set(stage, { state: 'staged' });
+      return stage;
     },
   }),
   projectionPort: Object.freeze({
@@ -247,8 +311,8 @@ const transactionRuntime = createWorkspaceTransactionRuntime({
     },
   }),
   replayPort: Object.freeze({
-    commitVisible(proposal, workspaceSnapshot) {
-      return replay.commitVisible(proposal, {
+    prepare(proposal, workspaceSnapshot) {
+      return replay.prepareVisible(proposal, {
         visibleThroughEpochMs: workspaceSnapshot.provenance.visibleThroughEpochMs,
       });
     },
@@ -256,17 +320,23 @@ const transactionRuntime = createWorkspaceTransactionRuntime({
     reject: (proposal) => replay.reject(proposal),
   }),
   sessionId,
-  visibleCompletionPort: Object.freeze({
-    async present(context) {
-      const targetKey = `${context.workspaceSnapshot.provenance.sessionHoursMode}/${context.workspaceSnapshot.provenance.displayTimeframeId}`;
-      if (targetKey === presentGateKey) await presentGate.promise;
-      if (context.signal.aborted) throw Object.assign(new Error('presentation stale'), { code: 'replacement-presentation-stale' });
-      visibleSnapshot = context.workspaceSnapshot;
-      return createVisibleCompletionAcknowledgement({
-        identity: context.identity,
-        workspaceSnapshot: context.workspaceSnapshot,
+  workspaceStatePort: Object.freeze({
+    begin() {},
+    prepare({ identity, paneWorkspace, sessionHours }) {
+      return preparedOwner({
+        candidate: Object.freeze({
+          identity,
+          paneWorkspace,
+          revision: workspaceState.revision + 1,
+          schemaVersion: 1,
+          sessionHours,
+        }),
+        identity,
+        participant: 'workspace-state',
+        state: workspaceState,
       });
     },
+    reject() {},
   }),
 });
 const executor = createWorkspaceReplacementExecutor({ catalog, transactionRuntime });
@@ -291,6 +361,12 @@ async function replace(timeframeId, sessionHoursMode, operation = 'session-hours
   return describeWorkspaceTransactionEnvelope(await executor.execute({
     intent: intent(operation),
     request,
+    semanticCandidate: createWorkspaceSemanticCandidate({
+      paneWorkspace: Object.freeze({ timeframeId }),
+      publication: Object.freeze({ layout: 'test' }),
+      replayStep,
+      sessionHours: Object.freeze({ mode: sessionHoursMode }),
+    }),
     target: target(timeframeId, sessionHoursMode),
   }));
 }
@@ -376,10 +452,20 @@ const negativeActions = {
     catalog, request: badRequest({ sourceResolutionId: 'resolution.other' }), target: target(IDS.oneMinute, 'eth'),
   }),
   'invalid-operation': () => executor.execute({
-    intent: intent('manual-next'), request, target: target(IDS.oneMinute, 'eth'),
+    intent: intent('manual-next'), request,
+    semanticCandidate: createWorkspaceSemanticCandidate({
+      paneWorkspace: Object.freeze({}), publication: Object.freeze({}), replayStep,
+      sessionHours: Object.freeze({}),
+    }),
+    target: target(IDS.oneMinute, 'eth'),
   }),
   'unknown-execution-field': () => executor.execute({
-    intent: replacementIntent, request, target: target(IDS.oneMinute, 'eth'), legacy: true,
+    intent: replacementIntent, request,
+    semanticCandidate: createWorkspaceSemanticCandidate({
+      paneWorkspace: Object.freeze({}), publication: Object.freeze({}), replayStep,
+      sessionHours: Object.freeze({}),
+    }),
+    target: target(IDS.oneMinute, 'eth'), legacy: true,
   }),
   'invalid-transaction-port': () => createWorkspaceReplacementExecutor({ catalog, transactionRuntime: {} }),
 };

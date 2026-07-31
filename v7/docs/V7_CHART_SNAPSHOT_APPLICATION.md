@@ -1,14 +1,14 @@
 # V7 Chart Snapshot Application
 
-Status: R4.3 single-Pane boundary, R6.3 complete Pane-set extension, and R8.8
-prepared/reversible Chart participant
+Status: R4.3 single-Pane boundary, R6.3 complete Pane-set extension, and
+R8.8/R8.9 globally coordinated prepared Chart participant
 
 ## Ownership
 
 `core.chart-snapshot-application` is the sole chart-series writer boundary. It
 accepts one immutable Projection Domain pane snapshot, stages adapter work,
 allows one current transaction to cross the visible mutation boundary, and
-returns a branded completion for that exact identity and snapshot.
+returns a branded reversible receipt for that exact identity and snapshot.
 
 R6.3 adds a constructor for one immutable complete Pane-set snapshot inside the
 same module. It validates all planned ready/empty Pane results and lets the
@@ -32,7 +32,7 @@ adapter is a deterministic fake only.
    adapter receipt;
 7. restore the prior accepted data, OHLC index, scales, and visible metadata if
    apply, paint, staleness, or outer receipt validation fails after mutation;
-8. publish accepted application metadata and return exact visible completion.
+8. retain the receipt until the global coordinator rolls back or finalizes it.
 
 Failed, stale, duplicate, foreign, forged, or disposed applications publish no
 completion. Cleanup cannot replace the original failure. The real adapter now
@@ -72,11 +72,12 @@ inventory with 15 deterministic negative/race controls.
 
 `tests/pane-set-materialization-harness.js` additionally proves exact complete
 Pane-set validation, one visible apply, ready/empty Pane handling, failure
-preservation, post-mutation child rollback, and stale-result isolation with 22
-negative/race controls. `tests/lightweight-chart-adapter-browser-harness.js`
+preservation, post-mutation child rollback, and stale-result isolation with 23
+negative/race controls plus three later-participant rollbacks.
+`tests/lightweight-chart-adapter-browser-harness.js`
 proves real-canvas rollback after paint-time staleness and after outer discard.
 
-## R8.7 Prepared Boundary
+## Historical R8.7 Prepared Boundary
 
 R8.7 defines the participant-neutral Prepared Commit lifecycle and receipts.
 It does not change this Chart implementation or claim that its current visible
@@ -94,6 +95,6 @@ time/price scales, metadata, Pane membership/status, and surface maximize state.
 `finalize()` alone advances the accepted Chart and adapter revision and releases
 removed child charts.
 
-The compatibility `present()` port now delegates through this lifecycle. R8.9
-will replace its immediate finalize decision with the global four-participant
-coordinator.
+R8.9 removes the compatibility `present()` port. Workspace Transaction Runtime
+now retains this receipt alongside prepared Replay, Workspace State, and
+publication receipts and alone chooses exact reverse rollback or finalize.

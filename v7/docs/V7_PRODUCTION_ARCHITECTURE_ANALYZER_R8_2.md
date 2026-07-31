@@ -42,16 +42,16 @@ outside the declared owner are violations.
 
 ## Exact Baseline
 
-The exact snapshot was refreshed by R8.8 after activating Chart as a prepared
-participant. It currently contains:
+The exact snapshot was refreshed by R8.9 after activating all prepared
+participants and the global coordinator. It currently contains:
 
 - 45 active production modules;
-- 115 actual module dependency edges;
-- 113 cross-module construction sites;
+- 118 actual module dependency edges;
+- 118 cross-module construction sites;
 - two production HTML/JavaScript composition roots;
 - all 15 declared writer surfaces;
-- nine directly observed critical writer sites;
-- three blocking production findings, down from the 13 first recorded by R8.2.
+- seven directly observed critical writer sites;
+- two blocking production findings, down from the 13 first recorded by R8.2.
 
 The full arrays are committed, not summarized away behind counts. Any module,
 owner, import site, public boundary, construction site, lifecycle observation,
@@ -67,19 +67,13 @@ the full finding objects are compared.
 
 ## Current Blocking Findings
 
-### R8.9 — Writer Ownership
-
-- `workspace-execution.js` accepts Pane data and semantic visible state after
-  the Workspace transaction has already returned `committed`.
-
 ### R8.11 — Production Composition
 
 - `app/main.js` manually constructs its graph without ModuleHost;
 - `app/data-acquisition.js` manually constructs its surface without ModuleHost.
 
-R8.6 removes the UI accepted Pane ledger and leaves one detected Pane Workspace
-writer inside `core.workspace-state-runtime`. The three items above remain
-blocking.
+R8.9 removes the UI post-terminal accepted Pane/semantic/publication writer.
+Only the two composition items above remain blocking.
 
 ## R8.3 Repair Result
 
@@ -120,8 +114,9 @@ R8.6 adds `core.workspace-state-runtime`, moves accepted Pane Workspace,
 Session Hours, semantic Viewport controllers, and checkpoint construction out
 of Replay Workspace UI, and binds each aggregate snapshot to complete Session,
 activation, transaction, and runtime revision identity. The Pane writer probe
-now identifies the runtime factory as the sole allowed writer. The R8.6
-finding is closed; the R8.9 post-terminal UI publication finding remains.
+now identifies the runtime factory as the sole allowed writer. At the R8.6
+checkpoint, its finding was closed while the R8.9 post-terminal UI publication
+finding remained.
 
 ## R8.7 Prepared Commit Contract Result
 
@@ -140,6 +135,16 @@ OHLC, Pane membership, and DOM-surface state through reversible apply and
 releases it only on finalize. This adds one real dependency edge and one
 construction site without adding a writer or changing the three R8.9/R8.11
 findings.
+
+## R8.9 Global Atomic Transaction Result
+
+R8.9 makes Workspace Transaction Runtime coordinate prepared Chart, Replay,
+Workspace State, and publication/persistence from one semantic candidate. The
+UI-side post-terminal acceptance path and Chart `present()` bridge are removed.
+The writer probe therefore closes the R8.9 finding and records seven critical
+writer sites. New real participant dependencies and constructions bring the
+exact baseline to 118 dependency edges and 118 construction sites; the two
+R8.11 ModuleHost composition findings remain unchanged.
 
 ## Negative Controls
 

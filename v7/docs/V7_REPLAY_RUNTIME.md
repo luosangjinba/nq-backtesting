@@ -1,6 +1,6 @@
 # V7 Replay Runtime
 
-Status: R3.3b clock owner with R5.4, R6.4, R6.6, and R6.7 integration
+Status: R3.3b clock owner with R5.4–R6.7 integration and R8.9 prepared commit
 
 ## Ownership
 
@@ -14,8 +14,9 @@ display timeframes, providers, and charts cannot own another clock.
 `proposeAdvance` validates the complete workspace transaction identity and
 returns an inert branded proposal. It changes no cursor or revision.
 
-`commitVisible` is the sole publishing port. A future Workspace Transaction
-Runtime may invoke it only after the corresponding chart snapshot is visible.
+`commitVisible` remains the direct compatibility publishing port. Workspace
+Transaction Runtime uses `prepareVisible()` after projecting the corresponding
+chart snapshot.
 The runtime rejects proposals from another instance, Session, activation,
 range, or accepted base revision. Rejected and superseded proposals have zero
 cursor side effects.
@@ -58,7 +59,9 @@ Disposal is idempotent and blocks later reads, proposals, and commits. This
 runtime requests no bars, performs no projection, writes no chart or viewport,
 persists no Session, imports no legacy runtime, and has no DOM/UI behavior.
 
-R8.7 defines the future Prepared Commit lifecycle shared by Replay, Chart,
-Workspace State, and publication. It does not change `commitVisible` or Replay
-state in this step. Replay becomes a real prepared participant only when
-Workspace Transaction Runtime coordinates the four owners in R8.9.
+R8.7 defines the Prepared Commit lifecycle shared by Replay, Chart, Workspace
+State, and publication. R8.9 activates Replay as a real participant:
+`prepareVisible()` retains the exact cursor, visible-through, playback, Replay
+Step, and revision base without mutation; apply publishes them reversibly;
+rollback restores the prior snapshot; finalize releases the proposal only
+after the other participants have applied successfully.

@@ -39,6 +39,11 @@ export function createViewportController({ defaultLatestOffsetBars = 12, default
       intent = resetViewportIntentToDefault(intent, { latestOffsetBars });
       return intent;
     },
+    replace(candidate) {
+      readViewportIntent(candidate);
+      intent = candidate;
+      return intent;
+    },
     setDefaultLatestOffsetBars(value) {
       if (!Number.isFinite(value) || value < 0) {
         failViewport('VIEWPORT_DEFAULT_OFFSET_INVALID', 'Default latest-bar offset must be non-negative.');

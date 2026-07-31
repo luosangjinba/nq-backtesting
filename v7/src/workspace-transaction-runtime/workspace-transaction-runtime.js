@@ -13,17 +13,19 @@ import { executeWorkspaceTransaction } from './transaction-executor.js';
 export function createWorkspaceTransactionRuntime({
   activationGeneration,
   acquisitionPort,
+  chartPort,
   initialAcceptedSnapshot = null,
+  publicationPort,
   projectionPort,
   replayPort,
   sessionId,
-  visibleCompletionPort,
+  workspaceStatePort,
 }) {
   const ports = requireWorkspaceTransactionPorts({
-    acquisitionPort,
+    acquisitionPort, chartPort, publicationPort,
     projectionPort,
     replayPort,
-    visibleCompletionPort,
+    workspaceStatePort,
   });
   const state = createWorkspaceTransactionRuntimeState({
     activationGeneration,

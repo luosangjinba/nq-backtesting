@@ -3,10 +3,12 @@ import {
   describeWorkspaceTransactionEnvelope,
   settleWorkspaceTransaction,
 } from '../workspace-transaction-contract/public.js';
-import { requireMatchingVisibleCompletion } from '../chart-snapshot-application/public.js';
 import { workspaceTransactionFailureCode } from './failure-code.js';
+import { requirePreparedParticipant } from './participant-contract.js';
+import { createPreparedPublication } from './prepared-publication.js';
 import { requireImmutableTransactionInput } from './port-contract.js';
 import { WorkspaceTransactionRuntimeError } from './runtime-error.js';
+import { readWorkspaceSemanticCandidate } from './semantic-candidate.js';
 
 class RuntimeInterruption extends Error {
   constructor(status, code) {
@@ -43,7 +45,21 @@ function safeReject(replayPort, proposal) {
   }
 }
 
-async function prepareVisibleResult({ description, immutableInput, ports, record, state }) {
+function safeCleanup(method, value) {
+  try { method(value); } catch { /* Cleanup cannot replace the terminal result. */ }
+}
+
+function requireSynchronous(result, participant, operation) {
+  if (result && typeof result.then === 'function') {
+    throw new WorkspaceTransactionRuntimeError(
+      'WORKSPACE_PARTICIPANT_MUST_BE_SYNCHRONOUS',
+      `${participant} ${operation} must complete in the final synchronous commit turn.`,
+    );
+  }
+  return result;
+}
+
+async function prepareTransaction({ description, immutableInput, ports, prepared, record, semantic, state }) {
   const proposal = await ports.replayPort.propose(Object.freeze({
     identity: description.identity,
     input: immutableInput,
@@ -76,33 +92,82 @@ async function prepareVisibleResult({ description, immutableInput, ports, record
     );
   }
   assertCurrent(state, description.identity);
-  const acknowledgement = await ports.visibleCompletionPort.present(Object.freeze({
+  const chart = requirePreparedParticipant(await ports.chartPort.prepare(Object.freeze({
     identity: description.identity,
     operation: description.operation,
     signal: record.controller.signal,
     workspaceSnapshot,
-  }));
-  requireMatchingVisibleCompletion(acknowledgement, {
+  })), 'chart', description.identity);
+  prepared.participants.push(Object.seal({ handle: chart, participant: 'chart', receipt: null }));
+  assertCurrent(state, description.identity);
+  const replay = requirePreparedParticipant(
+    ports.replayPort.prepare(proposal, workspaceSnapshot, Object.freeze({ replayStep: semantic.replayStep })),
+    'replay',
+    description.identity,
+  );
+  prepared.participants.push(Object.seal({ handle: replay, participant: 'replay', receipt: null }));
+  const replayCandidate = replay.snapshot().candidate;
+  ports.workspaceStatePort.begin(description.identity);
+  const workspaceState = requirePreparedParticipant(ports.workspaceStatePort.prepare(Object.freeze({
+    cursorEpochMs: replayCandidate.cursorEpochMs,
     identity: description.identity,
-    workspaceSnapshot,
-  });
-  return Object.freeze({ proposal, workspaceSnapshot });
-}
-
-function commitPreparedResult({ description, ports, prepared, state }) {
-  // Protected invariant: this is the final currency check immediately before
-  // the synchronous accepted-state publication turn.
-  const decision = state.preparePublication(description.identity);
-  if (decision.status !== 'current') {
-    throw new RuntimeInterruption(decision.status, decision.code);
-  }
-  const replay = ports.replayPort.commitVisible(prepared.proposal, prepared.workspaceSnapshot);
-  state.publish({
+    paneWorkspace: semantic.paneWorkspace,
+    sessionHours: semantic.sessionHours,
+  })), 'workspace-state', description.identity);
+  prepared.participants.push(Object.seal({
+    handle: workspaceState, participant: 'workspace-state', receipt: null,
+  }));
+  const publicationRevision = state.preparePublication(description.identity).targetRevision;
+  const publicationCandidate = Object.freeze({
     identity: description.identity,
     operation: description.operation,
-    replay,
-    workspace: prepared.workspaceSnapshot,
+    publication: semantic.publication,
+    replay: replayCandidate,
+    revision: publicationRevision,
+    schemaVersion: 1,
+    workspace: workspaceSnapshot,
+    workspaceState: workspaceState.snapshot().candidate,
   });
+  const publication = requirePreparedParticipant(createPreparedPublication({
+    candidate: publicationCandidate,
+    identity: description.identity,
+    port: ports.publicationPort,
+    state,
+  }), 'publication', description.identity);
+  prepared.participants.push(Object.seal({
+    handle: publication, participant: 'publication', receipt: null,
+  }));
+  prepared.proposal = proposal;
+  prepared.workspaceSnapshot = workspaceSnapshot;
+  return prepared;
+}
+
+async function applyPreparedTransaction({ description, prepared, state }) {
+  assertCurrent(state, description.identity);
+  const chart = prepared.participants[0];
+  chart.receipt = await chart.handle.apply();
+  assertCurrent(state, description.identity);
+  for (const entry of prepared.participants.slice(1)) {
+    entry.receipt = requireSynchronous(entry.handle.apply(), entry.participant, 'apply');
+  }
+  for (const entry of prepared.participants) {
+    requireSynchronous(entry.handle.finalize(entry.receipt), entry.participant, 'finalize');
+  }
+}
+
+async function rollbackPreparedTransaction(prepared) {
+  if (prepared === null) return;
+  for (const entry of [...prepared.participants].reverse()) {
+    const status = entry.handle.snapshot().status;
+    if (status !== 'prepared' && status !== 'applied') continue;
+    try {
+      const result = entry.handle.rollback(status === 'applied' ? entry.receipt : null);
+      if (entry.participant === 'chart') await result;
+      else requireSynchronous(result, entry.participant, 'rollback');
+    } catch {
+      // Continue restoring every other owner; the first transaction failure remains authoritative.
+    }
+  }
 }
 
 function failureTerminal({ description, error, plan, state }) {
@@ -122,20 +187,28 @@ function failureTerminal({ description, error, plan, state }) {
 }
 
 /** Execute one intent through injected owners and return exactly one terminal envelope. */
-export async function executeWorkspaceTransaction({ input, intent, ports, state }) {
+export async function executeWorkspaceTransaction({ input, intent, ports, semanticCandidate, state }) {
   const description = requireIntent(intent);
   const immutableInput = requireImmutableTransactionInput(input);
+  const semantic = readWorkspaceSemanticCandidate(semanticCandidate);
   const record = state.begin(description.identity);
   const plan = createWorkspaceTransactionPlan(intent);
-  let prepared = null;
+  let prepared = { participants: [], proposal: null, workspaceSnapshot: null };
   let committed = false;
   try {
-    prepared = await prepareVisibleResult({ description, immutableInput, ports, record, state });
-    commitPreparedResult({ description, ports, prepared, state });
+    await prepareTransaction({
+      description, immutableInput, ports, prepared, record, semantic, state,
+    });
+    await applyPreparedTransaction({ description, prepared, state });
     committed = true;
     return settleWorkspaceTransaction(plan, { status: 'committed' });
   } catch (error) {
-    if (!committed) safeReject(ports.replayPort, record.proposal);
+    if (!committed) {
+      await rollbackPreparedTransaction(prepared);
+      safeReject(ports.replayPort, record.proposal);
+      safeCleanup(ports.workspaceStatePort.reject.bind(ports.workspaceStatePort), description.identity);
+      safeCleanup(ports.publicationPort.reject.bind(ports.publicationPort), description.identity);
+    }
     return failureTerminal({ description, error, plan, state });
   } finally {
     state.finish(record);

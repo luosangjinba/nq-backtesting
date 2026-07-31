@@ -1,6 +1,6 @@
 # V7 Workspace Transaction Runtime
 
-Status: R4.1 headless coordinator foundation (2026-07-20)
+Status: R4.1 foundation with R8.9 global atomic activation (2026-07-30)
 
 ## Ownership
 
@@ -18,7 +18,27 @@ domain input. The intent contains the complete:
 Raw strings and cross-Session/cross-activation identities fail before any owner
 port is invoked. A transaction identity can enter one runtime only once.
 
-## Headless Stage Order
+## Current Global Stage Order
+
+R8.9 invokes injected public ports in one direction:
+
+1. request an inert Replay proposal, acquire, and project;
+2. build one branded immutable semantic candidate;
+3. prepare Chart, Replay, Workspace State, and publication without mutation;
+4. reversibly apply Chart and await its painted receipt;
+5. perform the final complete-identity currency check;
+6. synchronously apply Replay, Workspace State, and publication/persistence;
+7. finalize all four exact receipts and publish the accepted coordinator
+   revision;
+8. return exactly one committed terminal lifecycle envelope.
+
+Any preparation or application failure rolls back every retained participant
+in reverse order. Cleanup continues after an individual cleanup failure. The
+last accepted Chart, Replay clock, semantic Workspace State, publication model,
+persistence value, and coordinator revision therefore remain one coherent prior
+revision.
+
+## Historical R4.1 Stage Order
 
 The coordinator invokes injected public ports in one direction:
 
@@ -78,21 +98,20 @@ Chart Runtime/Adapter exists.
 No events orchestrate a second pipeline. Append, replace, cached, and uncached
 strategies remain future implementation details behind the same transaction.
 
-## R8.7 Prepared Participant Protocol
+## R8.7–R8.9 Prepared Participant Protocol
 
 `core.prepared-commit-contract` now defines the public protocol this runtime
 will coordinate: Chart, Replay, Workspace State, and publication each prepare
 an exact immutable candidate without mutation, apply reversibly with an exact
 receipt, roll back to the exact base revision, or finalize the same receipt at
 the target revision. R8.7 activates only that contract and its failure matrix.
-The coordinator still follows the R4.1 production path above until R8.9 wires
-all four participants and removes the post-terminal UI commit.
-
 R8.8 makes the injected Chart application independently prepared and
-reversible. The legacy `present()` method delegates through that lifecycle but
-still finalizes immediately for compatibility. R8.9 must call the prepared
-port directly and delay Chart finalize until Replay, Workspace State, and
-publication have all applied successfully.
+reversible. R8.9 wires all four participants, removes the Chart `present()`
+bridge and the UI post-terminal commit, and makes this runtime the sole
+rollback/finalize decision owner. Only Chart apply is asynchronous; after its
+paint and the final currency check, the remaining applies execute in one
+synchronous JavaScript turn so supersession cannot observe a reversible
+intermediate semantic revision.
 
 ## Explicit R4.1 Exclusions
 
@@ -105,9 +124,10 @@ publication have all applied successfully.
 
 ## Gate
 
-`tests/workspace-transaction-runtime-harness.js` proves normal stage ordering,
-visible-commit-only Replay progress, acquisition/projection/presentation
-failure preservation and classification, slow-old/fast-new response reordering,
-stale failure, disposal, foreign visible acknowledgement, duplicate identity,
-scope mismatch, immutable inputs/projections, initial revision validation, and
-revision-exhaustion preflight.
+`tests/workspace-transaction-runtime-harness.js` proves 18 negative/race
+controls across stage order, acquisition/projection failures, partial prepared
+sets, each later apply boundary, slow-old/fast-new reordering, stale failure,
+disposal, duplicate/scope identity, immutable inputs, and revision exhaustion.
+`tests/workspace-global-atomic-commit-harness.js` boots the real four owners and
+independently injects Chart, Replay, Workspace State, publication, and
+persistence failures while proving exact prior-state restoration.

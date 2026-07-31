@@ -1,6 +1,7 @@
 import { WorkspaceTransactionRuntimeError } from './runtime-error.js';
 
-const REQUIRED_REPLAY_METHODS = ['commitVisible', 'propose', 'reject'];
+const REQUIRED_REPLAY_METHODS = ['prepare', 'propose', 'reject'];
+const REQUIRED_PUBLICATION_METHODS = ['apply', 'finalize', 'reject', 'rollback', 'stage'];
 
 function requireMethod(port, method, code) {
   if (!port || typeof port[method] !== 'function') {
@@ -11,17 +12,32 @@ function requireMethod(port, method, code) {
 /** Validate only the public operations the headless coordinator is allowed to invoke. */
 export function requireWorkspaceTransactionPorts({
   acquisitionPort,
+  chartPort,
+  publicationPort,
   projectionPort,
   replayPort,
-  visibleCompletionPort,
+  workspaceStatePort,
 }) {
   for (const method of REQUIRED_REPLAY_METHODS) {
     requireMethod(replayPort, method, 'WORKSPACE_REPLAY_PORT');
   }
   requireMethod(acquisitionPort, 'acquire', 'WORKSPACE_ACQUISITION_PORT');
   requireMethod(projectionPort, 'project', 'WORKSPACE_PROJECTION_PORT');
-  requireMethod(visibleCompletionPort, 'present', 'WORKSPACE_VISIBLE_COMPLETION_PORT');
-  return Object.freeze({ acquisitionPort, projectionPort, replayPort, visibleCompletionPort });
+  requireMethod(chartPort, 'prepare', 'WORKSPACE_CHART_PORT');
+  for (const method of ['begin', 'prepare', 'reject']) {
+    requireMethod(workspaceStatePort, method, 'WORKSPACE_STATE_PORT');
+  }
+  for (const method of REQUIRED_PUBLICATION_METHODS) {
+    requireMethod(publicationPort, method, 'WORKSPACE_PUBLICATION_PORT');
+  }
+  return Object.freeze({
+    acquisitionPort,
+    chartPort,
+    projectionPort,
+    publicationPort,
+    replayPort,
+    workspaceStatePort,
+  });
 }
 
 /** Runtime payloads are opaque to the coordinator but must be immutable. */

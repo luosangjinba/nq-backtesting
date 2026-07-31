@@ -296,9 +296,18 @@ the prior accepted revision, and returns the R8.7 reversible receipt. Rollback
 restores every child series, future axis, OHLC index, time/price scale, host
 metadata, complete Pane membership/status, and Pane-surface maximize state.
 Finalize alone publishes the target Chart revision and releases removed child
-charts/hosts. The legacy `present()` port delegates through the same lifecycle
-until Workspace Transaction Runtime coordinates Chart, Replay, Workspace State,
-and publication in R8.9.
+charts/hosts.
+
+R8.9 removes the legacy `present()` port and makes Workspace Transaction Runtime
+the only owner of the four-participant decision. It prepares one immutable
+semantic candidate across Chart, Replay, Workspace State, and publication/
+persistence. After reversible Chart paint and a final currency check, the
+coordinator applies the remaining participants in one synchronous turn,
+finalizes exact receipts, and only then returns `committed`. Any preparation,
+Chart, Replay, Workspace State, publication, or persistence failure triggers
+reverse rollback to the exact prior accepted objects and revisions. Replay
+Workspace UI no longer commits semantic state, coverage, publication, or
+persistence after a terminal response.
 
 R3.2b1 adds `core.provider-policy-contract` as a pure transport-neutral policy
 boundary. Provider revision freshness, request limits, failure deadline,

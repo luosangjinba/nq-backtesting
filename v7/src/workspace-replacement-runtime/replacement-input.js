@@ -20,6 +20,6 @@ export function createWorkspaceReplacementInput(value) {
 }
 
 export function requireReplacementExecution(value) {
-  exactRecord(value, ['intent', 'request', 'target'], 'replacement execution');
+  exactRecord(value, ['intent', 'request', 'semanticCandidate', 'target'], 'replacement execution');
   return value;
 }

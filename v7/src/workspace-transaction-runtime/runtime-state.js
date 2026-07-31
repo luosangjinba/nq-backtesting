@@ -32,8 +32,8 @@ function requireScopedIdentity(identity, scope) {
   return identity;
 }
 
-function freezeAcceptedSnapshot({ identity, operation, replay, revision, workspace }) {
-  return Object.freeze({ identity, operation, replay, revision, workspace });
+function freezeAcceptedSnapshot({ identity, operation, replay, revision, workspace, workspaceState }) {
+  return Object.freeze({ identity, operation, replay, revision, workspace, workspaceState });
 }
 
 class WorkspaceTransactionRuntimeState {
@@ -118,19 +118,42 @@ class WorkspaceTransactionRuntimeState {
         'Accepted workspace revision is exhausted.',
       );
     }
-    return Object.freeze({ code: null, status: 'current' });
+    return Object.freeze({
+      baseRevision: this.#acceptedRevision,
+      code: null,
+      status: 'current',
+      targetRevision: this.#acceptedRevision + 1,
+    });
   }
 
-  publish({ identity, operation, replay, workspace }) {
-    this.#acceptedRevision += 1;
+  publish({ candidate, expectedRevision }) {
+    const decision = this.preparePublication(candidate.identity);
+    if (expectedRevision !== decision.targetRevision || candidate.revision !== expectedRevision) {
+      throw new WorkspaceTransactionRuntimeError(
+        'WORKSPACE_PUBLICATION_REVISION_INVALID',
+        'Publication must advance the exact prepared Workspace revision.',
+      );
+    }
+    this.#acceptedRevision = expectedRevision;
     this.#acceptedSnapshot = freezeAcceptedSnapshot({
-      identity,
-      operation,
-      replay,
+      identity: candidate.identity,
+      operation: candidate.operation,
+      replay: candidate.replay,
       revision: this.#acceptedRevision,
-      workspace,
+      workspace: candidate.workspace,
+      workspaceState: candidate.workspaceState,
     });
     return Object.freeze({ code: null, status: 'committed' });
+  }
+
+  requirePublishable(identity, baseRevision) {
+    const decision = this.preparePublication(identity);
+    if (decision.baseRevision !== baseRevision) {
+      throw new WorkspaceTransactionRuntimeError(
+        'WORKSPACE_PUBLICATION_BASE_REVISION_STALE',
+        'Publication preparation no longer matches the accepted Workspace revision.',
+      );
+    }
   }
 
   finish(record) {

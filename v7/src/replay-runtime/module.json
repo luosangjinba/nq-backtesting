@@ -7,6 +7,7 @@
   "requiredPorts": [
     "core.session-identity",
     "core.activation-generation",
+    "core.prepared-commit-contract",
     "core.workspace-transaction-contract",
     "core.replay-contract"
   ],

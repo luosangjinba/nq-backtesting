@@ -66,11 +66,12 @@ validates:
 - instrument, timeframe, Session Hours, calendar, and proposal provenance;
 - exact target and movement direction for resolved navigation actions.
 
-The injected adapter stages the complete set without visible mutation and calls
-`applyVisible()` once. Only one branded receipt for the exact complete snapshot
-can publish application completion. Any acquisition, projection, staging,
-application, stale, or cancellation failure leaves Replay, Workspace, and
-Chart accepted state unchanged.
+The injected adapter stages the complete set without visible mutation and
+crosses one reversible visible apply. R8.9 retains its branded receipt beside
+Replay, Workspace State, and publication receipts until the global coordinator
+finalizes or rolls back. Any acquisition, projection, staging, application,
+later-participant, stale, or cancellation failure leaves Replay, Workspace,
+publication, persistence, and Chart accepted state unchanged.
 
 The real multi-chart adapter waits for every child apply to settle. If any child
 fails after crossing its visible mutation boundary, all successful and failed

@@ -506,6 +506,10 @@ live in `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
   restoration, retained prior Pane membership until finalize, and independent
   Replay/Workspace State/publication failure rollback evidence;
 - `R8.9`: globally atomic Workspace transaction and removal of UI second commit;
+  completed with one prepared semantic candidate across Chart, Replay,
+  Workspace State, and publication/persistence, reverse exact rollback for all
+  five injected failure boundaries, coordinator-only finalize, and deletion of
+  the Chart `present()` compatibility bridge;
 - `R8.10`: UI/composition responsibility split;
 - `R8.11`: production ModuleHost boot and removal matrix;
 - `R8.12`: source responsibility, size, documentation, and debt closure;

@@ -198,11 +198,13 @@ globalThis.__probeEmptyTransition = async () => {
 };
 
 try {
-  await application.present({
+  const prepared = await application.prepare({
     identity,
     signal: new AbortController().signal,
     workspaceSnapshot: snapshot,
   });
+  const receipt = await prepared.apply();
+  prepared.finalize(receipt);
   host.dataset.applicationRevision = String(application.snapshot().revision);
   host.dataset.scenario = 'ready';
 } catch (error) {

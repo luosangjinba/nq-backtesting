@@ -13,6 +13,7 @@ import {
   workspaceTransactionIdentitiesEqual,
 } from '../workspace-transaction-contract/public.js';
 import { createOwnedPaneState } from './owned-pane-state.js';
+import { createPreparedWorkspaceStateCommit } from './prepared-workspace-state-commit.js';
 import { failWorkspaceState } from './runtime-error.js';
 import {
   createWorkspaceStateSnapshot,
@@ -159,6 +160,21 @@ export function createWorkspaceStateRuntime({
     return publish(localIdentity(operation), paneWorkspace, sessionHours);
   }
 
+  function beginTransaction(identity) {
+    requireActive();
+    const scopedIdentity = requireScopedIdentity(identity);
+    const key = transactionKey(scopedIdentity);
+    if (seenTransactionKeys.has(key)) {
+      failWorkspaceState(
+        'WORKSPACE_STATE_TRANSACTION_DUPLICATE',
+        'A Workspace State transaction identity may begin exactly once.',
+      );
+    }
+    seenTransactionKeys.add(key);
+    currentIdentity = scopedIdentity;
+    return scopedIdentity;
+  }
+
   const panes = createOwnedPaneState({
     activationGeneration: scope.activationGeneration,
     allowedInstrumentIds,
@@ -214,37 +230,98 @@ export function createWorkspaceStateRuntime({
     });
   }
 
+  function prepareAcceptance({ cursorEpochMs, identity, paneWorkspace, sessionHours: nextSessionHours }) {
+    requireActive();
+    const scopedIdentity = requireScopedIdentity(identity);
+    if (currentIdentity === null
+      || !workspaceTransactionIdentitiesEqual(scopedIdentity, currentIdentity)) {
+      failWorkspaceState(
+        'WORKSPACE_STATE_TRANSACTION_NOT_CURRENT',
+        'Only the current begun Workspace transaction may prepare semantic state.',
+      );
+    }
+    if (revision === Number.MAX_SAFE_INTEGER) {
+      failWorkspaceState('WORKSPACE_STATE_REVISION_EXHAUSTED', 'Workspace State revision is exhausted.');
+    }
+    const acceptedSessionHours = normalizeSessionHours(nextSessionHours);
+    const acceptedWorkspace = panes.candidate(paneWorkspace, cursorEpochMs);
+    const candidateSnapshot = createWorkspaceStateSnapshot({
+      checkpoint: checkpointFor(acceptedWorkspace, acceptedSessionHours),
+      identity: scopedIdentity,
+      paneWorkspace: acceptedWorkspace,
+      revision: revision + 1,
+      sessionHours: acceptedSessionHours,
+    });
+    const candidate = readWorkspaceStateSnapshot(candidateSnapshot);
+    const previous = Object.freeze({
+      paneState: panes.capture(),
+      revision,
+      sessionHours,
+      snapshot,
+    });
+    let applied = false;
+
+    function release() {
+      if (currentIdentity !== null
+        && workspaceTransactionIdentitiesEqual(scopedIdentity, currentIdentity)) {
+        currentIdentity = null;
+      }
+    }
+
+    return createPreparedWorkspaceStateCommit({
+      baseRevision: revision,
+      candidate,
+      hooks: Object.freeze({
+        apply() {
+          if (currentIdentity === null
+            || !workspaceTransactionIdentitiesEqual(scopedIdentity, currentIdentity)
+            || revision !== previous.revision) {
+            failWorkspaceState(
+              'WORKSPACE_STATE_TRANSACTION_NOT_CURRENT',
+              'Prepared Workspace State is stale.',
+            );
+          }
+          panes.replace(acceptedWorkspace);
+          sessionHours = acceptedSessionHours;
+          revision = previous.revision + 1;
+          snapshot = candidateSnapshot;
+          applied = true;
+        },
+        finalize() {
+          if (!applied || snapshot !== candidateSnapshot || revision !== previous.revision + 1) {
+            failWorkspaceState(
+              'WORKSPACE_STATE_PREPARED_COMMIT_STALE',
+              'Prepared Workspace State candidate is no longer applied.',
+            );
+          }
+          release();
+        },
+        release,
+        rollback() {
+          if (applied) {
+            panes.restore(previous.paneState);
+            revision = previous.revision;
+            sessionHours = previous.sessionHours;
+            snapshot = previous.snapshot;
+            applied = false;
+          }
+          release();
+        },
+      }),
+      identity: scopedIdentity,
+    });
+  }
+
   return Object.freeze({
     accept({ cursorEpochMs, identity, paneWorkspace, sessionHours: nextSessionHours }) {
-      requireActive();
-      const scopedIdentity = requireScopedIdentity(identity);
-      if (currentIdentity === null
-        || !workspaceTransactionIdentitiesEqual(scopedIdentity, currentIdentity)) {
-        failWorkspaceState(
-          'WORKSPACE_STATE_TRANSACTION_NOT_CURRENT',
-          'Only the current begun Workspace transaction may publish semantic state.',
-        );
-      }
-      const acceptedSessionHours = normalizeSessionHours(nextSessionHours);
-      const acceptedWorkspace = panes.accept(paneWorkspace, cursorEpochMs);
-      sessionHours = acceptedSessionHours;
-      currentIdentity = null;
-      return publish(scopedIdentity, acceptedWorkspace, sessionHours);
+      const prepared = prepareAcceptance({ cursorEpochMs, identity, paneWorkspace, sessionHours: nextSessionHours });
+      const receipt = prepared.apply();
+      prepared.finalize(receipt);
+      return snapshot;
     },
     activePaneId: panes.activePaneId,
     begin(identity) {
-      requireActive();
-      const scopedIdentity = requireScopedIdentity(identity);
-      const key = transactionKey(scopedIdentity);
-      if (seenTransactionKeys.has(key)) {
-        failWorkspaceState(
-          'WORKSPACE_STATE_TRANSACTION_DUPLICATE',
-          'A Workspace State transaction identity may begin exactly once.',
-        );
-      }
-      seenTransactionKeys.add(key);
-      currentIdentity = scopedIdentity;
-      return scopedIdentity;
+      return beginTransaction(identity);
     },
     checkpoint() {
       requireActive();
@@ -265,6 +342,7 @@ export function createWorkspaceStateRuntime({
       return commitLocal('focus', panes.current());
     },
     paneIds: panes.paneIds,
+    prepare: prepareAcceptance,
     proposeSessionHours(mode) {
       requireActive();
       if (!modes.includes(mode)) {

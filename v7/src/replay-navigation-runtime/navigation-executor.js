@@ -4,6 +4,7 @@ import {
   readReplayPaneAction,
 } from '../replay-pane-response-contract/public.js';
 import { describeWorkspaceTransactionEnvelope } from '../workspace-transaction-contract/public.js';
+import { createWorkspaceSemanticCandidate } from '../workspace-transaction-runtime/public.js';
 import { failReplayNavigation } from './navigation-error.js';
 import {
   createReplayNavigationResult,
@@ -11,7 +12,7 @@ import {
 } from './navigation-result.js';
 
 const EXECUTION_FIELDS = Object.freeze([
-  'action', 'intent', 'paneWorkspace', 'replayRange', 'sessionHours',
+  'action', 'intent', 'paneWorkspace', 'publication', 'replayRange', 'replayStep', 'sessionHours',
 ]);
 
 function method(port, name, owner) {
@@ -107,7 +108,16 @@ export function createReplayNavigationExecutor({ paneRequestPort, replayRuntime,
         paneRequests: paneRequests(plan, createRequest),
         responsePlan: plan,
       });
-      const terminal = await executeTransaction({ input, intent: execution.intent });
+      const terminal = await executeTransaction({
+        input,
+        intent: execution.intent,
+        semanticCandidate: createWorkspaceSemanticCandidate({
+          paneWorkspace: execution.paneWorkspace,
+          publication: execution.publication,
+          replayStep: execution.replayStep,
+          sessionHours: execution.sessionHours,
+        }),
+      });
       const terminalValue = describeWorkspaceTransactionEnvelope(terminal);
       if (terminalValue.status !== 'committed') pause();
       if (action.kind === 'goto-anchor' && terminalValue.status === 'failed'

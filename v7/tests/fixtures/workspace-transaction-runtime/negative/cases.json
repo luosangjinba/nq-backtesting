@@ -1,16 +1,20 @@
 [
   "acquisition-failure",
   "projection-failure",
-  "presentation-failure",
+  "chart-apply-failure",
+  "replay-apply-failure",
+  "workspace-state-apply-failure",
+  "publication-apply-failure",
+  "persistence-write-failure",
   "reordered-stale-success",
   "reordered-stale-failure",
   "dispose-cancellation",
-  "foreign-visible-completion",
   "duplicate-transaction",
   "session-mismatch",
   "activation-mismatch",
   "mutable-input",
   "mutable-projection",
+  "semantic-candidate-lookalike",
   "invalid-initial-revision",
   "revision-exhaustion"
 ]

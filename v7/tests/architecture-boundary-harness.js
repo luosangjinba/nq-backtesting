@@ -231,6 +231,7 @@ for (const rule of [
   'workspace-transaction-runtime-visible-gated-and-stale-safe',
   'prepared-participants-reversible-until-finalize',
   'chart-application-reversible-until-exact-finalize',
+  'workspace-transactions-finalize-all-participants-atomically',
   'projection-domain-provider-neutral-exclusive-no-future',
   'chart-snapshot-application-exact-visible-receipt',
   'viewport-intent-pane-local-and-data-independent',

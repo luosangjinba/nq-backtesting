@@ -23,7 +23,7 @@ review. Preserve rejected commits and assign a new delivery id to replacements.
   owner with complete identity;
 - [x] `R8.7` define prepared commit/rollback/finalize participant contracts;
 - [x] `R8.8` make Chart application staged and reversible;
-- [ ] `R8.9` make Workspace Transaction Runtime the only global atomic commit
+- [x] `R8.9` make Workspace Transaction Runtime the only global atomic commit
   coordinator and remove post-terminal UI commits;
 - [ ] `R8.10` split UI command/presentation from composition and orchestration;
 - [ ] `R8.11` boot production through ModuleHost and prove isolation/removal;
@@ -44,13 +44,14 @@ Tracked recovery regressions:
 - `BUG-V7-0005`: fixture/inventory gates can remain green while production
   violates the architecture.
 
-R8.8 production baseline binds 45 modules, 115 actual dependency edges, 113
-construction sites, two production roots, 15 declared writer surfaces, nine
-critical writer sites, and three blocking findings. Chart is now a real
-prepared participant: its painted Pane set remains reversible, restores exact
-series/scales/OHLC/surface state after every later-participant failure, and
-releases prior Panes only on finalize. H056 is recovered; H076 remains
-executable rather than accepted until R8.9 coordinates all participants. No
+R8.9 production baseline binds 45 modules, 118 actual dependency edges, 118
+construction sites, two production roots, 15 declared writer surfaces, seven
+critical writer sites, and two blocking findings, both assigned to R8.11.
+Workspace Transaction Runtime now prepares Chart, Replay, Workspace State, and
+publication under one candidate, applies them reversibly, and alone decides
+rollback/finalize. UI post-terminal semantic/publication/persistence commits
+and the Chart `present()` migration bridge are removed. H009, H010, H049, and
+H050 are recovered; H076 is accepted; nine recovery regressions remain. No
 later recovery rule is cleared early.
 
 ## Established Foundation Governance

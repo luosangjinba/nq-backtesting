@@ -50,11 +50,11 @@ activation. Only its explicit visible-commit port can publish cursor progress.
 R3.3c adds pure low/high-watermark prefetch advice. It emits bounded time
 windows only; Bar Data Runtime remains the sole raw requester/cache owner.
 
-R4.1 activates the headless Workspace Transaction Runtime. It coordinates
-injected Replay, acquisition, projection, and visible-completion ports under
-one complete identity; stale and failed work cannot replace the last accepted
-workspace snapshot or advance Replay. No chart, DOM, real provider, projection
-policy, pane, viewport, or concrete capability branch is active yet.
+R4.1 activates the headless Workspace Transaction Runtime foundation. R8.9
+makes it the global prepared coordinator for Chart, Replay, Workspace State,
+and publication/persistence under one complete identity; stale and failed work
+cannot replace any part of the last accepted workspace revision. It owns no
+DOM, raw data, projection policy, or participant state.
 
 R4.2 activates the pure Projection Domain boundary. It validates common raw
 source identity, applies exclusive Replay no-future filtering before injected

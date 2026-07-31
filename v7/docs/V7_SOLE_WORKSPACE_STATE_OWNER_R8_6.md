@@ -71,11 +71,10 @@ must return that identity before visible UI publication asks Workspace State
 Runtime to accept. Rejected, no-op, failed, or stale operations clear only
 their matching pending semantic identity.
 
-R8.6 does not claim global atomic rollback. The existing UI-side
-`paneData.accept()` publication after a committed Workspace transaction remains
-the single production finding assigned to R8.9. R8.7 now defines the generic
-prepared participant protocol; Workspace State activation remains R8.9, while
-reversible Chart application remains R8.8.
+R8.6 does not claim global atomic rollback. R8.7 subsequently defines the
+generic prepared participant protocol, R8.8 activates reversible Chart
+application, and R8.9 activates Workspace State within the global coordinator.
+The former UI-side `paneData.accept()` post-terminal publication is removed.
 
 ## Recovery Evidence
 
@@ -85,11 +84,14 @@ public runtime, proves stable Pane reduction, Session Hours replacement,
 Viewport publication, checkpoint identity, activation rebranding, disposal,
 and ten negative controls.
 
-The refreshed production analyzer finds the Pane Workspace writer only in
+At the R8.6 checkpoint, the refreshed production analyzer finds the Pane Workspace writer only in
 `core.workspace-state-runtime`. Its exact baseline contains 44 active modules,
 113 actual dependency edges, 112 construction sites, nine critical writer
 sites, and three remaining blocking findings: two ModuleHost composition roots
 for R8.11 and the post-terminal UI semantic publication for R8.9.
+
+R8.9 subsequently removes that post-terminal path and activates Workspace State
+as a prepared participant under the global coordinator.
 
 No manual UI review is required under the standing workflow because this step
 does not materially change UI or interaction behavior.

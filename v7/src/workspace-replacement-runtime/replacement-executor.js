@@ -21,7 +21,11 @@ export function createWorkspaceReplacementExecutor({ catalog, transactionRuntime
         request: execution.request,
         target: execution.target,
       });
-      return transactionRuntime.execute({ input, intent: execution.intent });
+      return transactionRuntime.execute({
+        input,
+        intent: execution.intent,
+        semanticCandidate: execution.semanticCandidate,
+      });
     },
   });
 }

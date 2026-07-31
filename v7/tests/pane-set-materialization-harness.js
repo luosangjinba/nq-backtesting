@@ -9,7 +9,7 @@ import {
 } from '../src/chart-snapshot-application/public.js';
 import { createLightweightPaneSetAdapter } from '../src/lightweight-chart-adapter/public.js';
 import { createPaneWorkspace } from '../src/pane-workspace-domain/public.js';
-import { readPreparedRollbackReceipt } from '../src/prepared-commit-contract/public.js';
+import { createPreparedCommit, readPreparedRollbackReceipt } from '../src/prepared-commit-contract/public.js';
 import {
   createEmptyPaneProjection,
   createPaneSetMaterializationPorts,
@@ -34,7 +34,10 @@ import {
   createWorkspaceTransactionIntent,
   describeWorkspaceTransactionEnvelope,
 } from '../src/workspace-transaction-contract/public.js';
-import { createWorkspaceTransactionRuntime } from '../src/workspace-transaction-runtime/public.js';
+import {
+  createWorkspaceSemanticCandidate,
+  createWorkspaceTransactionRuntime,
+} from '../src/workspace-transaction-runtime/public.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const negativeCases = JSON.parse(fs.readFileSync(path.join(
@@ -212,6 +215,84 @@ function fakeAdapter({ applyFailure = () => false, stageGate = null } = {}) {
   });
 }
 
+function preparedOwner({ candidate, identity: transactionIdentity, participant, state }) {
+  const previous = Object.freeze({ revision: state.revision, value: state.value });
+  const contract = createPreparedCommit({
+    baseRevision: state.revision,
+    candidate,
+    identity: transactionIdentity,
+    participant,
+    preparedRevision: state.revision,
+    schemaVersion: 1,
+  });
+  return Object.freeze({
+    apply() {
+      state.revision += 1;
+      state.value = candidate;
+      return contract.apply({ identity: transactionIdentity, resultingRevision: state.revision });
+    },
+    dispose: () => contract.dispose(),
+    finalize: (receipt) => contract.finalize({
+      commitReceipt: receipt, identity: transactionIdentity, resultingRevision: state.revision,
+    }),
+    rollback(receipt = null) {
+      if (contract.snapshot().status === 'applied') {
+        state.revision = previous.revision;
+        state.value = previous.value;
+      }
+      return contract.rollback({
+        commitReceipt: receipt, identity: transactionIdentity, resultingRevision: previous.revision,
+      });
+    },
+    snapshot: () => contract.snapshot(),
+  });
+}
+
+function transactionSupport() {
+  const workspaceState = { revision: 0, value: null };
+  const publicationStages = new WeakMap();
+  return Object.freeze({
+    publicationPort: Object.freeze({
+      apply(stage) { publicationStages.get(stage).state = 'applied'; },
+      finalize(stage) { publicationStages.get(stage).state = 'finalized'; },
+      reject() {},
+      rollback(stage) { publicationStages.get(stage).state = 'rolled-back'; },
+      stage() {
+        const stage = Object.freeze({});
+        publicationStages.set(stage, { state: 'staged' });
+        return stage;
+      },
+    }),
+    workspaceStatePort: Object.freeze({
+      begin() {},
+      prepare({ identity: transactionIdentity, paneWorkspace: workspace, sessionHours }) {
+        return preparedOwner({
+          candidate: Object.freeze({
+            identity: transactionIdentity,
+            paneWorkspace: workspace,
+            revision: workspaceState.revision + 1,
+            schemaVersion: 1,
+            sessionHours,
+          }),
+          identity: transactionIdentity,
+          participant: 'workspace-state',
+          state: workspaceState,
+        });
+      },
+      reject() {},
+    }),
+  });
+}
+
+function semanticFor(plan) {
+  return createWorkspaceSemanticCandidate({
+    paneWorkspace: paneWorkspace(plan.fromCursorEpochMs),
+    publication: Object.freeze({ layout: 'test' }),
+    replayStep,
+    sessionHours: HOURS,
+  });
+}
+
 function fixture({ acquirePane, adapterOptions, projectPane } = {}) {
   const trace = [];
   const clock = createReplayRuntime({
@@ -243,17 +324,20 @@ function fixture({ acquirePane, adapterOptions, projectPane } = {}) {
       },
     }),
   });
+  const support = transactionSupport();
   const runtime = createWorkspaceTransactionRuntime({
     activationGeneration: generation,
     acquisitionPort: ports.acquisitionPort,
+    chartPort: application,
+    publicationPort: support.publicationPort,
     projectionPort: ports.projectionPort,
     replayPort: Object.freeze({
-      commitVisible: (proposal) => clock.commitVisible(proposal),
+      prepare: (proposal) => clock.prepareVisible(proposal),
       propose: ({ identity: transactionIdentity }) => clock.proposeAdvance({ advance, identity: transactionIdentity }),
       reject: (proposal) => clock.reject(proposal),
     }),
     sessionId,
-    visibleCompletionPort: application,
+    workspaceStatePort: support.workspaceStatePort,
   });
   return { adapter, application, clock, ports, runtime, trace };
 }
@@ -263,6 +347,7 @@ async function execute(target, label, plan = responsePlan(target.clock.snapshot(
   const terminal = await target.runtime.execute({
     input: transactionInput(plan, label),
     intent: intent(transactionIdentity),
+    semanticCandidate: semanticFor(plan),
   });
   return describeWorkspaceTransactionEnvelope(terminal);
 }
@@ -337,12 +422,14 @@ const slowIdentity = identity('slow');
 const slowPromise = reordered.runtime.execute({
   input: transactionInput(responsePlan(), 'slow'),
   intent: intent(slowIdentity),
+  semanticCandidate: semanticFor(responsePlan()),
 });
 await Promise.resolve();
 const fastIdentity = identity('fast');
 const fastTerminal = describeWorkspaceTransactionEnvelope(await reordered.runtime.execute({
   input: transactionInput(responsePlan(), 'fast'),
   intent: intent(fastIdentity),
+  semanticCandidate: semanticFor(responsePlan()),
 }));
 assert.equal(fastTerminal.status, 'committed');
 slowGate.resolve();
@@ -406,11 +493,13 @@ async function presentSnapshot(snapshot, transactionIdentity = directIdentity) {
     adapter: fakeAdapter().adapter,
     sessionId,
   });
-  return target.present({
+  const prepared = await target.prepare({
     identity: transactionIdentity,
     signal: new AbortController().signal,
     workspaceSnapshot: snapshot,
   });
+  const receipt = await prepared.apply();
+  return prepared.finalize(receipt);
 }
 
 const validSnapshot = await completeSnapshot();

@@ -7,7 +7,6 @@ import {
   createChartAdapterVisibleReceipt,
   createChartSnapshotApplication,
   requirePreparedChartApplication,
-  requireMatchingVisibleCompletion,
 } from '../src/chart-snapshot-application/public.js';
 import { createReplayAdvanceInput, createReplayCursorProposal } from '../src/replay-contract/public.js';
 import { createSessionId } from '../src/session-identity/public.js';
@@ -114,10 +113,24 @@ function fakeAdapter({ applyGate = null, failApply = false, forgedReceipt = null
 }
 
 function application(adapter) {
-  return createChartSnapshotApplication({
+  const target = createChartSnapshotApplication({
     activationGeneration: generationOne,
     adapter,
     sessionId: sessionA,
+  });
+  return Object.freeze({
+    ...target,
+    async present(input) {
+      const prepared = await target.prepare(input);
+      let receipt = null;
+      try {
+        receipt = await prepared.apply();
+        return prepared.finalize(receipt);
+      } catch (error) {
+        try { await prepared.rollback(receipt); } catch { /* Preserve original failure. */ }
+        throw error;
+      }
+    },
   });
 }
 
@@ -125,13 +138,9 @@ const normalAdapter = fakeAdapter();
 const normal = application(normalAdapter.adapter);
 const normalIdentity = identity('normal');
 const normalSnapshot = snapshot(normalIdentity, 'normal');
-const acknowledgement = await normal.present({
+await normal.present({
   identity: normalIdentity,
   signal: new AbortController().signal,
-  workspaceSnapshot: normalSnapshot,
-});
-requireMatchingVisibleCompletion(acknowledgement, {
-  identity: normalIdentity,
   workspaceSnapshot: normalSnapshot,
 });
 assert.equal(normalAdapter.read().visibleSnapshot, normalSnapshot);

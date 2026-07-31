@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r8.8-reversible-chart-application",
+  "status": "r8.9-global-atomic-workspace-transaction",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -14,6 +14,7 @@
     "docs/V7_SOLE_WORKSPACE_STATE_OWNER_R8_6.md",
     "docs/V7_PREPARED_COMMIT_CONTRACT_R8_7.md",
     "docs/V7_REVERSIBLE_CHART_APPLICATION_R8_8.md",
+    "docs/V7_GLOBAL_ATOMIC_WORKSPACE_TRANSACTION_R8_9.md",
     "docs/v7-production-architecture-baseline.json",
     "docs/V7_PRODUCT_AND_SCOPE.md",
     "docs/V7_ARCHITECTURE.md",
@@ -266,6 +267,7 @@
     "workspace-transaction-runtime-visible-gated-and-stale-safe",
     "prepared-participants-reversible-until-finalize",
     "chart-application-reversible-until-exact-finalize",
+    "workspace-transactions-finalize-all-participants-atomically",
     "projection-domain-provider-neutral-exclusive-no-future",
     "chart-snapshot-application-exact-visible-receipt",
     "viewport-intent-pane-local-and-data-independent",

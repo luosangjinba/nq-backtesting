@@ -12,8 +12,9 @@ import {
   createWorkspaceTransactionIntent,
   describeWorkspaceTransactionEnvelope,
 } from '../src/workspace-transaction-contract/public.js';
-import { createVisibleCompletionAcknowledgement } from '../src/chart-snapshot-application/public.js';
+import { createPreparedCommit } from '../src/prepared-commit-contract/public.js';
 import {
+  createWorkspaceSemanticCandidate,
   createWorkspaceTransactionRuntime,
   WorkspaceTransactionRuntimeError,
 } from '../src/workspace-transaction-runtime/public.js';
@@ -32,8 +33,8 @@ const negativeCases = JSON.parse(fs.readFileSync(path.join(
   TEST_DIR,
   'fixtures/workspace-transaction-runtime/negative/cases.json',
 ), 'utf8'));
-assert.equal(negativeCases.length, 14);
-assert.equal(new Set(negativeCases).size, 14, 'negative/race controls must have stable unique names');
+assert.equal(negativeCases.length, 18);
+assert.equal(new Set(negativeCases).size, 18, 'negative/race controls must have stable unique names');
 
 function deferred() {
   let resolve;
@@ -65,14 +66,67 @@ function input(label = 'default') {
   return Object.freeze({ advance, label });
 }
 
+function semantic(label = 'default') {
+  return createWorkspaceSemanticCandidate({
+    paneWorkspace: Object.freeze({ label: `panes:${label}` }),
+    publication: Object.freeze({ label: `publication:${label}` }),
+    replayStep,
+    sessionHours: Object.freeze({ label: `hours:${label}` }),
+  });
+}
+
+function preparedOwner({ candidate, failApply = false, identity: transactionIdentity, participant, state, trace }) {
+  const previous = Object.freeze({ revision: state.revision, value: state.value });
+  const contract = createPreparedCommit({
+    baseRevision: state.revision,
+    candidate,
+    identity: transactionIdentity,
+    participant,
+    preparedRevision: state.revision,
+    schemaVersion: 1,
+  });
+  return Object.freeze({
+    apply() {
+      trace.push(`${participant}-apply`);
+      if (failApply) throw new Error(`${participant} apply failed`);
+      state.revision = contract.snapshot().targetRevision;
+      state.value = candidate;
+      return contract.apply({ identity: transactionIdentity, resultingRevision: state.revision });
+    },
+    dispose: () => contract.dispose(),
+    finalize(receipt) {
+      trace.push(`${participant}-finalize`);
+      return contract.finalize({
+        commitReceipt: receipt,
+        identity: transactionIdentity,
+        resultingRevision: state.revision,
+      });
+    },
+    rollback(receipt = null) {
+      trace.push(`${participant}-rollback`);
+      const applied = contract.snapshot().status === 'applied';
+      if (applied) {
+        state.revision = previous.revision;
+        state.value = previous.value;
+      }
+      return contract.rollback({
+        commitReceipt: receipt,
+        identity: transactionIdentity,
+        resultingRevision: previous.revision,
+      });
+    },
+    snapshot: () => contract.snapshot(),
+  });
+}
+
 function terminal(result) {
   return describeWorkspaceTransactionEnvelope(result);
 }
 
 function fixture({
   acquire = async ({ input: value }) => Object.freeze({ label: value.label }),
+  failParticipant = null,
   initialAcceptedSnapshot = null,
-  present,
   project = async ({ acquired }) => Object.freeze({ bars: Object.freeze([acquired.label]) }),
 } = {}) {
   const trace = [];
@@ -84,9 +138,20 @@ function fixture({
     sessionId: sessionA,
   });
   const replayPort = Object.freeze({
-    commitVisible(proposal) {
-      trace.push('replay-commit');
-      return clock.commitVisible(proposal);
+    prepare(proposal) {
+      trace.push('replay-prepare');
+      const prepared = clock.prepareVisible(proposal);
+      return Object.freeze({
+        apply() {
+          trace.push('replay-apply');
+          if (failParticipant === 'replay') throw new Error('replay apply failed');
+          return prepared.apply();
+        },
+        dispose: prepared.dispose.bind(prepared),
+        finalize(receipt) { trace.push('replay-finalize'); return prepared.finalize(receipt); },
+        rollback(receipt) { trace.push('replay-rollback'); return prepared.rollback(receipt); },
+        snapshot: prepared.snapshot.bind(prepared),
+      });
     },
     propose({ identity: transactionIdentity, input: value }) {
       trace.push(`propose:${value.label}`);
@@ -97,7 +162,11 @@ function fixture({
       return clock.reject(proposal);
     },
   });
-  const runtime = createWorkspaceTransactionRuntime({
+  const chartState = { revision: 0, value: null };
+  const workspaceState = { currentIdentity: null, revision: 0, value: null };
+  const publicationState = { persistenceRevision: 0, revision: 0, value: null };
+  const publicationStages = new WeakMap();
+  const coordinator = createWorkspaceTransactionRuntime({
     activationGeneration: generationOne,
     acquisitionPort: Object.freeze({
       async acquire(context) {
@@ -105,7 +174,58 @@ function fixture({
         return acquire(context);
       },
     }),
+    chartPort: Object.freeze({
+      async prepare(context) {
+        trace.push('chart-prepare');
+        return preparedOwner({
+          candidate: context.workspaceSnapshot,
+          failApply: failParticipant === 'chart',
+          identity: context.identity,
+          participant: 'chart',
+          state: chartState,
+          trace,
+        });
+      },
+    }),
     initialAcceptedSnapshot,
+    publicationPort: Object.freeze({
+      apply(stage) {
+        const record = publicationStages.get(stage);
+        trace.push('publication-apply');
+        if (failParticipant === 'publication') throw new Error('publication apply failed');
+        record.state = 'applying';
+        publicationState.revision += 1;
+        publicationState.value = record.candidate;
+        if (failParticipant === 'persistence') throw new Error('persistence write failed');
+        publicationState.persistenceRevision += 1;
+        record.state = 'applied';
+      },
+      finalize(stage) {
+        trace.push('publication-finalize');
+        publicationStages.get(stage).state = 'finalized';
+      },
+      reject() { trace.push('publication-reject'); },
+      rollback(stage) {
+        const record = publicationStages.get(stage);
+        trace.push('publication-rollback');
+        if (record.state === 'applying' || record.state === 'applied') {
+          publicationState.revision = record.previous.revision;
+          publicationState.persistenceRevision = record.previous.persistenceRevision;
+          publicationState.value = record.previous.value;
+        }
+        record.state = 'rolled-back';
+      },
+      stage({ candidate }) {
+        trace.push('publication-stage');
+        const stage = Object.freeze({});
+        publicationStages.set(stage, {
+          candidate,
+          previous: Object.freeze({ ...publicationState }),
+          state: 'staged',
+        });
+        return stage;
+      },
+    }),
     projectionPort: Object.freeze({
       async project(context) {
         trace.push(`project:${context.input.label}`);
@@ -114,23 +234,42 @@ function fixture({
     }),
     replayPort,
     sessionId: sessionA,
-    visibleCompletionPort: Object.freeze({
-      async present(context) {
-        trace.push(`present:${context.operation}`);
-        assert.equal(
-          clock.snapshot().cursorEpochMs,
-          2_000,
-          'Replay cursor must remain inert until visible completion returns',
-        );
-        if (present) return present(context);
-        return createVisibleCompletionAcknowledgement({
-          identity: context.identity,
-          workspaceSnapshot: context.workspaceSnapshot,
+    workspaceStatePort: Object.freeze({
+      begin(transactionIdentity) {
+        trace.push('workspace-state-begin');
+        workspaceState.currentIdentity = transactionIdentity;
+      },
+      prepare({ identity: transactionIdentity, paneWorkspace, sessionHours }) {
+        trace.push('workspace-state-prepare');
+        return preparedOwner({
+          candidate: Object.freeze({
+            identity: transactionIdentity,
+            paneWorkspace,
+            revision: workspaceState.revision + 1,
+            schemaVersion: 1,
+            sessionHours,
+          }),
+          failApply: failParticipant === 'workspace-state',
+          identity: transactionIdentity,
+          participant: 'workspace-state',
+          state: workspaceState,
+          trace,
         });
       },
+      reject() { workspaceState.currentIdentity = null; },
     }),
   });
-  return { clock, runtime, trace };
+  const runtime = Object.freeze({
+    dispose: coordinator.dispose,
+    execute(request) {
+      return coordinator.execute({
+        semanticCandidate: semantic(request.input?.label ?? 'default'),
+        ...request,
+      });
+    },
+    snapshot: coordinator.snapshot,
+  });
+  return { chartState, clock, publicationState, runtime, trace, workspaceState };
 }
 
 const success = fixture();
@@ -140,19 +279,30 @@ assert.deepEqual(success.trace, [
   'propose:success',
   'acquire:success',
   'project:success',
-  'present:manual-next',
-  'replay-commit',
+  'chart-prepare',
+  'replay-prepare',
+  'workspace-state-begin',
+  'workspace-state-prepare',
+  'publication-stage',
+  'chart-apply',
+  'replay-apply',
+  'workspace-state-apply',
+  'publication-apply',
+  'chart-finalize',
+  'replay-finalize',
+  'workspace-state-finalize',
+  'publication-finalize',
 ]);
 assert.equal(success.clock.snapshot().cursorEpochMs, 3_000);
 assert.equal(success.runtime.snapshot().acceptedRevision, 1);
 assert.deepEqual(success.runtime.snapshot().acceptedSnapshot.workspace.bars, ['success']);
 
 const previous = Object.freeze({ revision: 7, workspace: Object.freeze({ bars: Object.freeze(['old']) }) });
-for (const failingStage of ['acquire', 'project', 'present']) {
+for (const failingStage of ['acquire', 'project', 'chart']) {
   const failure = fixture({
     acquire: failingStage === 'acquire' ? async () => { throw new Error('acquire failed'); } : undefined,
     initialAcceptedSnapshot: previous,
-    present: failingStage === 'present' ? async () => { throw new Error('present failed'); } : undefined,
+    failParticipant: failingStage === 'chart' ? 'chart' : null,
     project: failingStage === 'project' ? async () => { throw new Error('project failed'); } : undefined,
   });
   const result = terminal(await failure.runtime.execute({
@@ -163,6 +313,33 @@ for (const failingStage of ['acquire', 'project', 'present']) {
   assert.equal(failure.runtime.snapshot().acceptedSnapshot, previous);
   assert.equal(failure.runtime.snapshot().acceptedRevision, 7);
   assert.equal(failure.clock.snapshot().cursorEpochMs, 2_000);
+}
+
+for (const failingParticipant of ['replay', 'workspace-state', 'publication', 'persistence']) {
+  const failure = fixture({ failParticipant: failingParticipant, initialAcceptedSnapshot: previous });
+  const result = terminal(await failure.runtime.execute({
+    input: input(`participant-${failingParticipant}`),
+    intent: intent(`participant-${failingParticipant}`),
+  }));
+  assert.equal(result.status, 'failed', `${failingParticipant} failure must terminate`);
+  assert.equal(failure.runtime.snapshot().acceptedSnapshot, previous);
+  assert.equal(failure.runtime.snapshot().acceptedRevision, 7);
+  assert.equal(failure.clock.snapshot().cursorEpochMs, 2_000);
+  assert.deepEqual(
+    { revision: failure.chartState.revision, value: failure.chartState.value },
+    { revision: 0, value: null },
+    `${failingParticipant} failure must restore Chart exactly`,
+  );
+  assert.deepEqual(
+    { revision: failure.workspaceState.revision, value: failure.workspaceState.value },
+    { revision: 0, value: null },
+    `${failingParticipant} failure must restore Workspace State exactly`,
+  );
+  assert.deepEqual(
+    failure.publicationState,
+    { persistenceRevision: 0, revision: 0, value: null },
+    `${failingParticipant} failure must restore publication and persistence exactly`,
+  );
 }
 
 const domainFailure = fixture({
@@ -239,18 +416,6 @@ disposeGate.resolve(Object.freeze({ label: 'dispose' }));
 assert.equal(terminal(await cancelledPromise).status, 'cancelled');
 assert.equal(disposing.clock.snapshot().cursorEpochMs, 2_000);
 
-const wrongVisibleIdentity = fixture({
-  present: async ({ workspaceSnapshot }) => createVisibleCompletionAcknowledgement({
-    identity: identity('foreign-visible'),
-    workspaceSnapshot,
-  }),
-});
-assert.equal(terminal(await wrongVisibleIdentity.runtime.execute({
-  input: input('wrong-visible'),
-  intent: intent('wrong-visible'),
-})).status, 'failed');
-assert.equal(wrongVisibleIdentity.clock.snapshot().cursorEpochMs, 2_000);
-
 const duplicate = fixture();
 const duplicateIntent = intent('duplicate');
 await duplicate.runtime.execute({ input: input('first'), intent: duplicateIntent });
@@ -284,6 +449,15 @@ assert.equal(terminal(await mutableProjection.runtime.execute({
   input: input('mutable-projection'),
   intent: intent('mutable-projection'),
 })).status, 'failed');
+
+await assert.rejects(
+  invalid.runtime.execute({
+    input: input('semantic-lookalike'),
+    intent: intent('semantic-lookalike'),
+    semanticCandidate: Object.freeze({}),
+  }),
+  (error) => error?.code === 'WORKSPACE_SEMANTIC_CANDIDATE_REQUIRED',
+);
 
 assert.throws(
   () => fixture({ initialAcceptedSnapshot: Object.freeze({ revision: -1 }) }),

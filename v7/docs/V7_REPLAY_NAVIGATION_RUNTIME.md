@@ -25,8 +25,8 @@ transient one-in-flight guard; it owns no accepted product state.
 Replay Contract and Replay Runtime now support an inert exact-target proposal.
 It may move forward, backward, or retain the accepted cursor and carries the
 complete covered span. Proposal creation has no accepted-state effect. The
-cursor and revision still publish only after the complete Pane set crosses the
-exact visible-completion boundary.
+cursor and revision publish only when the complete Pane set participates in
+the exact R8.9 global prepared commit boundary.
 
 Replay Runtime now exposes its real `playing`/`paused` state. Manual navigation
 and failure pause through that owner. An Autoplay Next action enters `playing`,

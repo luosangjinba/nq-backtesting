@@ -50,7 +50,7 @@ function primaryVisibleThrough(snapshot, plan, resolvedSourceEpochMs) {
  * Purpose: adapt one R6.2 response plan into a Replay-owned exact target
  * proposal and derive primary-source visibility after complete Pane-set paint.
  * Inputs: the sole Replay Runtime and injected target resolver.
- * Outputs: frozen propose/commitVisible/reject port for Workspace Transaction Runtime.
+ * Outputs: frozen propose/prepare/reject port for Workspace Transaction Runtime.
  * Side effects: target lookup delegation and Replay public API calls only.
  * Errors: stable navigation failures or delegated owner failures.
  * Concurrency/cancellation: target lookup receives the transaction AbortSignal;
@@ -59,7 +59,7 @@ function primaryVisibleThrough(snapshot, plan, resolvedSourceEpochMs) {
 export function createReplayNavigationReplayPort({ replayRuntime, targetResolver }) {
   const replaySnapshot = requireMethod(replayRuntime, 'snapshot', 'Replay Runtime');
   const proposeTarget = requireMethod(replayRuntime, 'proposeTarget', 'Replay Runtime');
-  const commitTarget = requireMethod(replayRuntime, 'commitVisible', 'Replay Runtime');
+  const prepareTarget = requireMethod(replayRuntime, 'prepareVisible', 'Replay Runtime');
   const rejectTarget = requireMethod(replayRuntime, 'reject', 'Replay Runtime');
   const resolveTarget = requireMethod(targetResolver, 'resolve', 'Target resolver');
   const resolvedSourceByProposal = new WeakMap();
@@ -102,15 +102,16 @@ export function createReplayNavigationReplayPort({ replayRuntime, targetResolver
       resolvedSourceByProposal.set(proposal, resolvedSourceEpochMs);
       return proposal;
     },
-    commitVisible(proposal, workspaceSnapshot) {
+    prepare(proposal, workspaceSnapshot, { replayStep }) {
       const proposalValue = readReplayCursorProposal(proposal);
       const snapshot = requireProjectedPaneSetSnapshot(workspaceSnapshot, proposalValue.identity);
       const plan = requireReplayPaneResponsePlan(snapshot.responsePlan);
       const resolvedSourceEpochMs = resolvedSourceByProposal.get(proposal) ?? null;
-      resolvedSourceByProposal.delete(proposal);
-      return commitTarget(proposal, {
+      const prepared = prepareTarget(proposal, {
         visibleThroughEpochMs: primaryVisibleThrough(snapshot, plan, resolvedSourceEpochMs),
-      });
+      }, replayStep);
+      resolvedSourceByProposal.delete(proposal);
+      return prepared;
     },
     reject(proposal) {
       resolvedSourceByProposal.delete(proposal);

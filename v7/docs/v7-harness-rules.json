@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "currentStep": "R8.8",
+  "currentStep": "R8.9",
   "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
@@ -10,7 +10,7 @@
     "checkpointCommit": "fa561599",
     "allowedWork": "architecture-conformance-recovery-only",
     "freezeFeatureDelivery": true,
-    "regressedRuleIds": ["H009", "H010", "H018", "H019", "H021", "H022", "H023", "H024", "H025", "H049", "H050", "H066", "H069"]
+    "regressedRuleIds": ["H018", "H019", "H021", "H022", "H023", "H024", "H025", "H066", "H069"]
   },
   "rules": [
     {
@@ -146,14 +146,15 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "multi-pane and Replay displayed mixed revisions",
       "activationStep": "R4",
-      "state": "regressed",
+      "state": "accepted",
       "harness": "tests/workspace-transaction-runtime-harness.js",
-      "positiveEvidence": ["src/workspace-transaction-runtime/runtime-state.js", "tests/workspace-transaction-runtime-harness.js"],
-      "negativeFixtures": ["tests/fixtures/workspace-transaction-runtime/negative/cases.json"],
+      "positiveEvidence": ["src/workspace-transaction-runtime/runtime-state.js", "src/workspace-transaction-runtime/transaction-executor.js", "tests/workspace-transaction-runtime-harness.js", "tests/workspace-global-atomic-commit-harness.js", "docs/V7_GLOBAL_ATOMIC_WORKSPACE_TRANSACTION_R8_9.md"],
+      "negativeFixtures": ["tests/fixtures/workspace-transaction-runtime/negative/cases.json", "tests/fixtures/workspace-transaction-runtime/negative/global-atomic-cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": "sessions/session_20260720_r4_5_lightweight_chart_slice.md",
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.9"
+      "recoveryStep": "R8.9",
+      "recoveryEvidence": "sessions/session_20260730_r8_9_global_atomic_workspace_transaction.md"
     },
     {
       "id": "H010",
@@ -161,14 +162,15 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "failed loads blanked or partially replaced charts",
       "activationStep": "R4",
-      "state": "regressed",
+      "state": "accepted",
       "harness": "tests/workspace-transaction-runtime-harness.js",
-      "positiveEvidence": ["src/workspace-transaction-runtime/runtime-state.js", "tests/workspace-transaction-runtime-harness.js"],
-      "negativeFixtures": ["tests/fixtures/workspace-transaction-runtime/negative/cases.json"],
+      "positiveEvidence": ["src/workspace-transaction-runtime/runtime-state.js", "src/workspace-transaction-runtime/transaction-executor.js", "tests/workspace-transaction-runtime-harness.js", "tests/workspace-global-atomic-commit-harness.js", "docs/V7_GLOBAL_ATOMIC_WORKSPACE_TRANSACTION_R8_9.md"],
+      "negativeFixtures": ["tests/fixtures/workspace-transaction-runtime/negative/cases.json", "tests/fixtures/workspace-transaction-runtime/negative/global-atomic-cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": "sessions/session_20260720_r4_5_lightweight_chart_slice.md",
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.9"
+      "recoveryStep": "R8.9",
+      "recoveryEvidence": "sessions/session_20260730_r8_9_global_atomic_workspace_transaction.md"
     },
     {
       "id": "H011",
@@ -902,7 +904,7 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "partial Pane acquisition or Projection became visible, an empty comparison Pane stalled Replay, or reordered and stale Pane work replaced the last accepted workspace",
       "activationStep": "R6.3",
-      "state": "regressed",
+      "state": "accepted",
       "harness": "tests/pane-set-materialization-harness.js",
       "positiveEvidence": [
         "src/pane-set-materialization/public.js",
@@ -910,14 +912,17 @@
         "src/pane-set-materialization/transaction-input.js",
         "src/pane-set-materialization/materialization-ports.js",
         "src/chart-snapshot-application/pane-set-snapshot-contract.js",
+        "src/workspace-transaction-runtime/transaction-executor.js",
         "tests/pane-set-materialization-harness.js",
+        "tests/workspace-global-atomic-commit-harness.js",
         "docs/V7_PANE_SET_MATERIALIZATION.md"
       ],
       "negativeFixtures": ["tests/fixtures/pane-set-materialization/negative/cases.json"],
       "humanReviewRequired": false,
       "acceptanceEvidence": "sessions/session_20260721_r6_3_pane_set_materialization.md",
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.9"
+      "recoveryStep": "R8.9",
+      "recoveryEvidence": "sessions/session_20260730_r8_9_global_atomic_workspace_transaction.md"
     },
     {
       "id": "H050",
@@ -925,7 +930,7 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "Previous deleted rendered candles, GoTo revealed only a destination fragment, Autoplay accumulated overlapping work, or a secondary Pane acquired a separate cursor",
       "activationStep": "R6.4",
-      "state": "regressed",
+      "state": "accepted",
       "harness": "tests/replay-navigation-runtime-harness.js",
       "positiveEvidence": [
         "src/replay-contract/cursor-proposal.js",
@@ -935,14 +940,17 @@
         "src/replay-navigation-runtime/target-resolver.js",
         "src/replay-navigation-runtime/replay-port.js",
         "src/replay-navigation-runtime/navigation-executor.js",
+        "src/workspace-transaction-runtime/transaction-executor.js",
         "tests/replay-navigation-runtime-harness.js",
+        "tests/workspace-global-atomic-commit-harness.js",
         "docs/V7_REPLAY_NAVIGATION_RUNTIME.md"
       ],
       "negativeFixtures": ["tests/fixtures/replay-navigation-runtime/negative/cases.json"],
       "humanReviewRequired": false,
       "acceptanceEvidence": "sessions/session_20260721_r6_4_replay_navigation_runtime.md",
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.9"
+      "recoveryStep": "R8.9",
+      "recoveryEvidence": "sessions/session_20260730_r8_9_global_atomic_workspace_transaction.md"
     },
     {
       "id": "H051",
@@ -1572,23 +1580,30 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "Chart became visible before later Replay Workspace or publication failure and could not roll back",
       "activationStep": "R8.7",
-      "state": "executable",
-      "harness": "tests/prepared-commit-contract-harness.js",
+      "state": "accepted",
+      "harness": "tests/workspace-global-atomic-commit-harness.js",
       "positiveEvidence": [
         "src/prepared-commit-contract/public.js",
         "src/prepared-commit-contract/prepared-commit.js",
         "src/prepared-commit-contract/receipt-contract.js",
         "src/chart-snapshot-application/prepared-chart-application.js",
+        "src/replay-runtime/prepared-replay-commit.js",
+        "src/workspace-state-runtime/prepared-workspace-state-commit.js",
+        "src/workspace-transaction-runtime/prepared-publication.js",
+        "src/workspace-transaction-runtime/transaction-executor.js",
         "src/lightweight-chart-adapter/pane-set-adapter.js",
         "tests/prepared-commit-contract-harness.js",
         "tests/pane-set-materialization-harness.js",
-        "docs/V7_PREPARED_COMMIT_CONTRACT_R8_7.md"
+        "tests/workspace-global-atomic-commit-harness.js",
+        "docs/V7_PREPARED_COMMIT_CONTRACT_R8_7.md",
+        "docs/V7_GLOBAL_ATOMIC_WORKSPACE_TRANSACTION_R8_9.md"
       ],
       "negativeFixtures": [
-        "tests/fixtures/prepared-commit-contract/negative/cases.json"
+        "tests/fixtures/prepared-commit-contract/negative/cases.json",
+        "tests/fixtures/workspace-transaction-runtime/negative/global-atomic-cases.json"
       ],
       "humanReviewRequired": false,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260730_r8_9_global_atomic_workspace_transaction.md"
     },
     {
       "id": "H077",

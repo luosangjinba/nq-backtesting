@@ -4,7 +4,6 @@ import { failChartApplication } from './application-error.js';
 import { requireProjectedPaneSetSnapshot } from './pane-set-snapshot-contract.js';
 import { createPreparedChartApplication } from './prepared-chart-application.js';
 import { requireProjectedPaneSnapshot } from './snapshot-contract.js';
-import { createVisibleCompletionAcknowledgement } from './visible-completion.js';
 
 async function safeRollback(adapter, staged) {
   if (staged === null) return;
@@ -46,26 +45,9 @@ function createApplication({ activationGeneration, adapter, sessionId }, require
     }
   }
 
-  async function present(input) {
-    const prepared = await prepare(input);
-    let commitReceipt = null;
-    try {
-      commitReceipt = await prepared.apply();
-      prepared.finalize(commitReceipt);
-      return createVisibleCompletionAcknowledgement({
-        identity: input.identity,
-        workspaceSnapshot: input.workspaceSnapshot,
-      });
-    } catch (error) {
-      try { await prepared.rollback(commitReceipt); } catch { /* Preserve transaction failure. */ }
-      throw error;
-    }
-  }
-
   return Object.freeze({
     dispose: () => state.dispose(),
     prepare,
-    present,
     snapshot: () => state.snapshot(),
   });
 }

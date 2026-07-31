@@ -41,6 +41,7 @@ import { WORKSPACE_PANE_IDS } from './pane-identity.js';
 import { resolveReplayTruncationTarget } from './replay-truncation.js';
 import { createWorkspaceCheckpointPersistence } from './workspace-checkpoint-persistence.js';
 import { createWorkspaceExecution } from './workspace-execution.js';
+import { createWorkspacePublicationPort } from './workspace-publication-port.js';
 import { createViewportSettingsConsumer } from './viewport-settings-consumer.js';
 import { createWorkstationSettingsViewConsumer } from './workstation-settings-view-consumer.js';
 
@@ -138,6 +139,13 @@ export function createReplayWorkspaceController({
     const value = workspaceState.read(workspace);
     const active = value.panes.find(({ paneId }) => paneId === value.activePaneId);
     return setReplayStep(replayStepIdByTimeframeId.get(active.timeframeId), publish);
+  }
+
+  function desiredReplayStep(workspace = acceptedPaneWorkspace()) {
+    if (!syncTimeframe) return replay.snapshot().replayStep;
+    const value = workspaceState.read(workspace);
+    const active = value.panes.find(({ paneId }) => paneId === value.activePaneId);
+    return replayStepById.get(replayStepIdByTimeframeId.get(active.timeframeId));
   }
 
   function setTruncationSelection(active, error = null) {
@@ -246,13 +254,81 @@ export function createReplayWorkspaceController({
     sourceTraversalPort: traversal,
   });
   const replayPort = createReplayNavigationReplayPort({ replayRuntime: replay, targetResolver });
+
+  function publicationValue() {
+    return Object.freeze({
+      layout: paneLayout,
+      layoutSync: layoutSyncController.snapshot(),
+    });
+  }
+
+  function renderAcceptedPublication(candidate) {
+    const state = candidate.workspaceState;
+    const replaySnapshot = candidate.replay;
+    const workspaceSnapshot = candidate.workspace;
+    paneLayout = candidate.publication.layout;
+    const semanticWorkspace = workspaceState.read(state.paneWorkspace);
+    const activePaneId = semanticWorkspace.activePaneId;
+    const activeSemanticPane = semanticWorkspace.panes.find(({ paneId }) => paneId === activePaneId);
+    const active = workspaceSnapshot?.panes.find(({ paneId }) => paneId === activePaneId)
+      ?? workspaceSnapshot?.panes[0] ?? null;
+    const readyPanes = workspaceSnapshot?.panes.filter(({ status }) => status === 'ready') ?? [];
+    view.setCursor(replaySnapshot.visibleThroughEpochMs);
+    view.setEvidence({
+      replayRevision: replaySnapshot.revision,
+      workspaceRevision: candidate.revision,
+    });
+    view.setReplay(replaySnapshot);
+    view.setSelection({ sessionHoursMode: state.sessionHours.mode });
+    view.setVisibleThrough({
+      barCount: active?.status === 'ready' ? active.snapshot.bars.length : 0,
+      paneCount: workspaceSnapshot?.panes.length ?? semanticWorkspace.panes.length,
+      visibleThroughEpochMs: replaySnapshot.visibleThroughEpochMs,
+    });
+    view.setLayout(paneLayout, semanticWorkspace.panes.map(({ paneId }) => paneId));
+    view.setWorkspace(state.paneWorkspace);
+    view.setWall(activePaneId, readViewportIntent(activeSemanticPane.viewportIntent).origin);
+    view.setState(workspaceSnapshot === null ? 'loading' : readyPanes.length === 0 ? 'empty' : 'ready');
+  }
+
+  const initialSemanticState = semanticState();
+  const initialPublication = Object.freeze({
+    identity: initialSemanticState.identity,
+    operation: 'initial',
+    publication: publicationValue(),
+    replay: replay.snapshot(),
+    revision: 0,
+    schemaVersion: 1,
+    workspace: null,
+    workspaceState: initialSemanticState,
+  });
+  const publicationPort = createWorkspacePublicationPort({
+    initialAccepted: initialPublication,
+    onApply(candidate) {
+      renderAcceptedPublication(candidate);
+      checkpointPersistence.save({
+        layout: candidate.publication.layout,
+        layoutSync: candidate.publication.layoutSync,
+        rethrow: true,
+      });
+    },
+    onFinalize(candidate) {
+      paneData.finalize(workspaceState.paneIds(candidate.workspaceState.paneWorkspace));
+    },
+    onReject: paneData.reject,
+    onRollback(previous) {
+      if (previous !== null) renderAcceptedPublication(previous);
+    },
+  });
   runtime = createWorkspaceTransactionRuntime({
     activationGeneration: record.activationGeneration,
     acquisitionPort: materialization.acquisitionPort,
+    chartPort: chartApplication,
+    publicationPort,
     projectionPort: materialization.projectionPort,
     replayPort,
     sessionId: record.sessionId,
-    visibleCompletionPort: chartApplication,
+    workspaceStatePort: workspaceState,
   });
   const navigation = createReplayNavigationExecutor({
     paneRequestPort: Object.freeze({
@@ -262,42 +338,7 @@ export function createReplayWorkspaceController({
     transactionRuntime: runtime,
   });
 
-  function acceptVisibleState(desiredWorkspace, desiredSessionHours, identity) {
-    const state = readWorkspaceStateSnapshot(workspaceState.accept({
-      cursorEpochMs: replay.snapshot().cursorEpochMs,
-      identity,
-      paneWorkspace: desiredWorkspace,
-      sessionHours: desiredSessionHours,
-    }));
-    syncReplayStep(state.paneWorkspace, false);
-    const replaySnapshot = replay.snapshot();
-    const workspaceSnapshot = runtime.snapshot().acceptedSnapshot.workspace;
-    const activePaneId = workspaceState.activePaneId();
-    const active = workspaceSnapshot.panes.find(({ paneId }) => paneId === activePaneId)
-      ?? workspaceSnapshot.panes[0];
-    const readyPanes = workspaceSnapshot.panes.filter(({ status }) => status === 'ready');
-    const visibleThroughEpochMs = replaySnapshot.visibleThroughEpochMs;
-    view.setCursor(visibleThroughEpochMs);
-    view.setEvidence({
-      replayRevision: replaySnapshot.revision,
-      workspaceRevision: runtime.snapshot().acceptedRevision,
-    });
-    view.setReplay(replaySnapshot);
-    view.setSelection({ sessionHoursMode: state.sessionHours.mode });
-    view.setVisibleThrough({
-      barCount: active.status === 'ready' ? active.snapshot.bars.length : 0,
-      paneCount: workspaceSnapshot.panes.length,
-      visibleThroughEpochMs,
-    });
-    view.setLayout(paneLayout, workspaceState.paneIds());
-    view.setWorkspace(state.paneWorkspace);
-    view.setWall(activePaneId, workspaceState.wallOrigin(activePaneId));
-    view.setState(readyPanes.length === 0 ? 'empty' : 'ready');
-    checkpointPersistence.save();
-  }
-
   execution = createWorkspaceExecution({
-    acceptVisibleState,
     historyPort: adapter,
     market,
     navigation,
@@ -305,6 +346,8 @@ export function createReplayWorkspaceController({
     range,
     record,
     replay,
+    resolvePublication: publicationValue,
+    resolveReplayStep: desiredReplayStep,
     runtime,
     view,
     workspaceState,

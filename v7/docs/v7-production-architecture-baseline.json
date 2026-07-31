@@ -58,7 +58,7 @@
       }
     ]
   },
-  "deliveryStep": "R8.8",
+  "deliveryStep": "R8.9",
   "knownViolations": [
     {
       "code": "production-composition-bypasses-module-host",
@@ -73,13 +73,6 @@
       "subject": "app/main.js",
       "bugId": "BUG-V7-0004",
       "recoveryStep": "R8.11"
-    },
-    {
-      "code": "writer-outside-declared-owner",
-      "detail": "adapter.replay-workspace-ui writes workspaceSemanticCommit; allowed: core.workspace-transaction-runtime",
-      "subject": "workspaceSemanticCommit:src/replay-workspace-ui/workspace-execution.js",
-      "bugId": "BUG-V7-0001",
-      "recoveryStep": "R8.9"
     }
   ],
   "schemaVersion": 1,
@@ -319,13 +312,6 @@
       },
       {
         "callCount": 1,
-        "factory": "createPaneWorkspace",
-        "sourceFile": "src/workspace-state-runtime/owned-pane-state.js",
-        "sourceModuleId": "core.workspace-state-runtime",
-        "targetModuleId": "core.pane-workspace-domain"
-      },
-      {
-        "callCount": 1,
         "factory": "createPolicyBoundProvider",
         "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
         "sourceModuleId": "adapter.v4-bars-provider",
@@ -336,6 +322,27 @@
         "factory": "createPreparedCommit",
         "sourceFile": "src/chart-snapshot-application/prepared-chart-application.js",
         "sourceModuleId": "core.chart-snapshot-application",
+        "targetModuleId": "core.prepared-commit-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPreparedCommit",
+        "sourceFile": "src/replay-runtime/prepared-replay-commit.js",
+        "sourceModuleId": "core.replay-runtime",
+        "targetModuleId": "core.prepared-commit-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPreparedCommit",
+        "sourceFile": "src/workspace-state-runtime/prepared-workspace-state-commit.js",
+        "sourceModuleId": "core.workspace-state-runtime",
+        "targetModuleId": "core.prepared-commit-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createPreparedCommit",
+        "sourceFile": "src/workspace-transaction-runtime/prepared-publication.js",
+        "sourceModuleId": "core.workspace-transaction-runtime",
         "targetModuleId": "core.prepared-commit-contract"
       },
       {
@@ -704,6 +711,20 @@
       },
       {
         "callCount": 1,
+        "factory": "createWorkspaceSemanticCandidate",
+        "sourceFile": "src/replay-navigation-runtime/navigation-executor.js",
+        "sourceModuleId": "core.replay-navigation-runtime",
+        "targetModuleId": "core.workspace-transaction-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkspaceSemanticCandidate",
+        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workspace-transaction-runtime"
+      },
+      {
+        "callCount": 1,
         "factory": "createWorkspaceStateRuntime",
         "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
         "sourceModuleId": "adapter.replay-workspace-ui",
@@ -771,6 +792,13 @@
         "sourceFile": "src/replay-workspace-ui/workspace-controller.js",
         "sourceModuleId": "adapter.replay-workspace-ui",
         "targetModuleId": "core.pane-layout-domain"
+      },
+      {
+        "callCount": 2,
+        "factory": "createPaneWorkspace",
+        "sourceFile": "src/workspace-state-runtime/owned-pane-state.js",
+        "sourceModuleId": "core.workspace-state-runtime",
+        "targetModuleId": "core.pane-workspace-domain"
       },
       {
         "callCount": 2,
@@ -1351,6 +1379,15 @@
           },
           {
             "importedNames": [
+              "createWorkspaceSemanticCandidate"
+            ],
+            "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
+            "targetFile": "src/workspace-transaction-runtime/public.js",
+            "targetModuleId": "core.workspace-transaction-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
               "createWorkspaceStateRuntime",
               "readWorkspaceStateSnapshot"
             ],
@@ -1752,101 +1789,6 @@
       {
         "actualDependencies": [
           "core.activation-generation",
-          "core.chart-snapshot-application",
-          "core.session-identity",
-          "core.transaction-identity",
-          "core.workspace-transaction-contract"
-        ],
-        "declaredLifecycle": [
-          "dispose"
-        ],
-        "declaredOptionalPorts": [],
-        "declaredRequiredPorts": [
-          "core.activation-generation",
-          "core.bar-data-runtime",
-          "core.chart-snapshot-application",
-          "core.replay-runtime",
-          "core.session-identity",
-          "core.transaction-identity",
-          "core.workspace-transaction-contract"
-        ],
-        "descriptorPath": "src/workspace-transaction-runtime/module.json",
-        "id": "core.workspace-transaction-runtime",
-        "importSites": [
-          {
-            "importedNames": [
-              "activationGenerationsEqual",
-              "requireActivationGeneration"
-            ],
-            "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
-            "targetFile": "src/activation-generation/public.js",
-            "targetModuleId": "core.activation-generation",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "assessWorkspaceTransactionCurrency",
-              "readWorkspaceTransactionIdentity",
-              "workspaceTransactionIdentitiesEqual"
-            ],
-            "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
-            "targetFile": "src/workspace-transaction-contract/public.js",
-            "targetModuleId": "core.workspace-transaction-contract",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "createWorkspaceTransactionPlan",
-              "describeWorkspaceTransactionEnvelope",
-              "settleWorkspaceTransaction"
-            ],
-            "sourceFile": "src/workspace-transaction-runtime/transaction-executor.js",
-            "targetFile": "src/workspace-transaction-contract/public.js",
-            "targetModuleId": "core.workspace-transaction-contract",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "requireMatchingVisibleCompletion"
-            ],
-            "sourceFile": "src/workspace-transaction-runtime/transaction-executor.js",
-            "targetFile": "src/chart-snapshot-application/public.js",
-            "targetModuleId": "core.chart-snapshot-application",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "requireSessionId",
-              "sessionIdsEqual"
-            ],
-            "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
-            "targetFile": "src/session-identity/public.js",
-            "targetModuleId": "core.session-identity",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "serializeTransactionId"
-            ],
-            "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
-            "targetFile": "src/transaction-identity/public.js",
-            "targetModuleId": "core.transaction-identity",
-            "throughPublicEntry": true
-          }
-        ],
-        "independentHarness": "tests/workspace-transaction-runtime-harness.js",
-        "independentHarnessMode": "public-entry-direct",
-        "kind": "core",
-        "observedDisposeSites": [
-          "src/workspace-transaction-runtime/runtime-state.js",
-          "src/workspace-transaction-runtime/workspace-transaction-runtime.js"
-        ],
-        "owner": "workspace-transaction-runtime",
-        "publicEntry": "src/workspace-transaction-runtime/public.js"
-      },
-      {
-        "actualDependencies": [
-          "core.activation-generation",
           "core.layout-sync-domain",
           "core.pane-layout-domain",
           "core.replay-navigation-settings",
@@ -1992,6 +1934,7 @@
         "actualDependencies": [
           "core.activation-generation",
           "core.pane-workspace-domain",
+          "core.prepared-commit-contract",
           "core.session-identity",
           "core.transaction-identity",
           "core.viewport-runtime",
@@ -2005,6 +1948,7 @@
         "declaredRequiredPorts": [
           "core.activation-generation",
           "core.pane-workspace-domain",
+          "core.prepared-commit-contract",
           "core.session-identity",
           "core.transaction-identity",
           "core.viewport-runtime",
@@ -2051,12 +1995,23 @@
             "importedNames": [
               "createInitialViewportIntent",
               "createViewportController",
+              "moveViewportIntentCursor",
               "readViewportIntent",
               "restoreViewportIntent"
             ],
             "sourceFile": "src/workspace-state-runtime/owned-pane-state.js",
             "targetFile": "src/viewport-runtime/public.js",
             "targetModuleId": "core.viewport-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPreparedCommit",
+              "requireMatchingPreparedCommitReceipt"
+            ],
+            "sourceFile": "src/workspace-state-runtime/prepared-workspace-state-commit.js",
+            "targetFile": "src/prepared-commit-contract/public.js",
+            "targetModuleId": "core.prepared-commit-contract",
             "throughPublicEntry": true
           },
           {
@@ -2168,6 +2123,7 @@
         "kind": "core",
         "observedDisposeSites": [
           "src/workspace-state-runtime/owned-pane-state.js",
+          "src/workspace-state-runtime/prepared-workspace-state-commit.js",
           "src/workspace-state-runtime/workspace-state-runtime.js"
         ],
         "owner": "workspace-state-runtime",
@@ -2270,16 +2226,6 @@
           },
           {
             "importedNames": [
-              "readWorkspaceTransactionIdentity",
-              "workspaceTransactionIdentitiesEqual"
-            ],
-            "sourceFile": "src/chart-snapshot-application/visible-completion.js",
-            "targetFile": "src/workspace-transaction-contract/public.js",
-            "targetModuleId": "core.workspace-transaction-contract",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
               "requireReplayPaneResponsePlan"
             ],
             "sourceFile": "src/chart-snapshot-application/pane-set-snapshot-contract.js",
@@ -2339,6 +2285,7 @@
       {
         "actualDependencies": [
           "core.activation-generation",
+          "core.prepared-commit-contract",
           "core.replay-contract",
           "core.session-identity",
           "core.workspace-transaction-contract"
@@ -2349,6 +2296,7 @@
         "declaredOptionalPorts": [],
         "declaredRequiredPorts": [
           "core.activation-generation",
+          "core.prepared-commit-contract",
           "core.replay-contract",
           "core.session-identity",
           "core.workspace-transaction-contract"
@@ -2364,6 +2312,16 @@
             "sourceFile": "src/replay-runtime/activation-match.js",
             "targetFile": "src/activation-generation/public.js",
             "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPreparedCommit",
+              "requireMatchingPreparedCommitReceipt"
+            ],
+            "sourceFile": "src/replay-runtime/prepared-replay-commit.js",
+            "targetFile": "src/prepared-commit-contract/public.js",
+            "targetModuleId": "core.prepared-commit-contract",
             "throughPublicEntry": true
           },
           {
@@ -2406,10 +2364,119 @@
         "independentHarnessMode": "public-entry-direct",
         "kind": "core",
         "observedDisposeSites": [
+          "src/replay-runtime/prepared-replay-commit.js",
           "src/replay-runtime/replay-runtime.js"
         ],
         "owner": "replay-runtime",
         "publicEntry": "src/replay-runtime/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.activation-generation",
+          "core.prepared-commit-contract",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.workspace-transaction-contract"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.activation-generation",
+          "core.bar-data-runtime",
+          "core.chart-snapshot-application",
+          "core.prepared-commit-contract",
+          "core.replay-runtime",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.workspace-state-runtime",
+          "core.workspace-transaction-contract"
+        ],
+        "descriptorPath": "src/workspace-transaction-runtime/module.json",
+        "id": "core.workspace-transaction-runtime",
+        "importSites": [
+          {
+            "importedNames": [
+              "activationGenerationsEqual",
+              "requireActivationGeneration"
+            ],
+            "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "assessWorkspaceTransactionCurrency",
+              "readWorkspaceTransactionIdentity",
+              "workspaceTransactionIdentitiesEqual"
+            ],
+            "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createPreparedCommit",
+              "requireMatchingPreparedCommitReceipt"
+            ],
+            "sourceFile": "src/workspace-transaction-runtime/prepared-publication.js",
+            "targetFile": "src/prepared-commit-contract/public.js",
+            "targetModuleId": "core.prepared-commit-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceTransactionPlan",
+              "describeWorkspaceTransactionEnvelope",
+              "settleWorkspaceTransaction"
+            ],
+            "sourceFile": "src/workspace-transaction-runtime/transaction-executor.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireSessionId",
+              "sessionIdsEqual"
+            ],
+            "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeTransactionId"
+            ],
+            "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
+            "targetFile": "src/transaction-identity/public.js",
+            "targetModuleId": "core.transaction-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "workspaceTransactionIdentitiesEqual"
+            ],
+            "sourceFile": "src/workspace-transaction-runtime/participant-contract.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/workspace-transaction-runtime-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [
+          "src/workspace-transaction-runtime/prepared-publication.js",
+          "src/workspace-transaction-runtime/runtime-state.js",
+          "src/workspace-transaction-runtime/workspace-transaction-runtime.js"
+        ],
+        "owner": "workspace-transaction-runtime",
+        "publicEntry": "src/workspace-transaction-runtime/public.js"
       },
       {
         "actualDependencies": [
@@ -3127,7 +3194,8 @@
           "core.replay-contract",
           "core.replay-navigation-settings",
           "core.replay-pane-response-contract",
-          "core.workspace-transaction-contract"
+          "core.workspace-transaction-contract",
+          "core.workspace-transaction-runtime"
         ],
         "declaredLifecycle": [],
         "declaredOptionalPorts": [],
@@ -3151,6 +3219,15 @@
             "sourceFile": "src/replay-navigation-runtime/navigation-executor.js",
             "targetFile": "src/pane-set-materialization/public.js",
             "targetModuleId": "core.pane-set-materialization",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceSemanticCandidate"
+            ],
+            "sourceFile": "src/replay-navigation-runtime/navigation-executor.js",
+            "targetFile": "src/workspace-transaction-runtime/public.js",
+            "targetModuleId": "core.workspace-transaction-runtime",
             "throughPublicEntry": true
           },
           {
@@ -3936,12 +4013,6 @@
         "surface": "paneWorkspace"
       },
       {
-        "detectorId": "post-terminal-workspace-commit",
-        "sourceFile": "src/replay-workspace-ui/workspace-execution.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
-        "surface": "workspaceSemanticCommit"
-      },
-      {
         "detectorId": "raw-provider-request",
         "sourceFile": "src/bar-data-runtime/bar-data-runtime.js",
         "sourceModuleId": "core.bar-data-runtime",
@@ -3952,12 +4023,6 @@
         "sourceFile": "src/bar-data-runtime/projected-history-runtime.js",
         "sourceModuleId": "core.bar-data-runtime",
         "surface": "rawBarRequest"
-      },
-      {
-        "detectorId": "replay-cursor-commit",
-        "sourceFile": "src/replay-runtime/replay-runtime.js",
-        "sourceModuleId": "core.replay-runtime",
-        "surface": "replayCursor"
       },
       {
         "detectorId": "workspace-snapshot-commit",
