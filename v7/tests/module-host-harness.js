@@ -232,7 +232,7 @@ const manifest = JSON.parse(fs.readFileSync(
 ));
 const productionAssembly = await verifyProductionModuleAssembly({ manifest, v7Root: V7_ROOT });
 assert.equal(productionAssembly.moduleIds.length, manifest.activeProductionModules.length);
-assert.equal(productionAssembly.optionalRemovalMatrix.length, 1);
+assert.equal(productionAssembly.optionalRemovalMatrix.length, 2);
 
 console.log(
   `v7 module host harness passed (${negativeCases.length} negative controls, `

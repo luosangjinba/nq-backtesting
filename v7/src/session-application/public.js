@@ -1,0 +1,2 @@
+/** Public application-composition facade for the real Session Browser route. */
+export { createProductionModuleDefinition } from './application-definition.js';

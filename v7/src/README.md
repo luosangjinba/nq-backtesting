@@ -79,4 +79,9 @@ the Replay Workspace DOM/command adapter from a dedicated Session-scoped
 composition module that constructs and orchestrates core owners through public
 ports for the disclosed deterministic foundation flow.
 
+R8.11 boots both browser routes through isolated ModuleHost graphs loaded from
+the exact production manifest and descriptors. Route entries own no feature
+construction; the Session and Data Acquisition application adapters acquire
+and clean their real browser resources through host lifecycle methods.
+
 Do not import runtime code from V4, V5, or V6.

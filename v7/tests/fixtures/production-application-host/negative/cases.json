@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "case": "required-public-port-omission",
+      "expectedFailureCode": "MISSING_REQUIRED_MODULE"
+    },
+    {
+      "case": "post-application-partial-start-failure",
+      "expectedFailureCode": "MODULE_HOST_START_FAILED"
+    }
+  ]
+}

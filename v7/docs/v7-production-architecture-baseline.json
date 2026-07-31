@@ -58,59 +58,32 @@
       }
     ]
   },
-  "deliveryStep": "R8.10",
-  "knownViolations": [
-    {
-      "code": "production-composition-bypasses-module-host",
-      "detail": "app/data-acquisition.html boots production without core.module-host",
-      "subject": "app/data-acquisition.js",
-      "bugId": "BUG-V7-0004",
-      "recoveryStep": "R8.11"
-    },
-    {
-      "code": "production-composition-bypasses-module-host",
-      "detail": "app/index.html boots production without core.module-host",
-      "subject": "app/main.js",
-      "bugId": "BUG-V7-0004",
-      "recoveryStep": "R8.11"
-    }
-  ],
+  "deliveryStep": "R8.11",
+  "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
     "compositionRoots": [
       {
         "constructedModuleIds": [
-          "adapter.data-acquisition-ui"
+          "core.module-host"
         ],
         "htmlFile": "app/data-acquisition.html",
         "importedModuleIds": [
-          "adapter.data-acquisition-ui"
+          "core.module-host"
         ],
         "path": "app/data-acquisition.js",
-        "usesModuleHost": false
+        "usesModuleHost": true
       },
       {
         "constructedModuleIds": [
-          "adapter.replay-workspace-ui",
-          "adapter.session-browser-ui",
-          "adapter.session-persistence",
-          "adapter.v4-bars-provider",
-          "core.replay-navigation-preference-store",
-          "core.session-store",
-          "core.workstation-settings"
+          "core.module-host"
         ],
         "htmlFile": "app/index.html",
         "importedModuleIds": [
-          "adapter.replay-workspace-ui",
-          "adapter.session-browser-ui",
-          "adapter.session-persistence",
-          "adapter.v4-bars-provider",
-          "core.replay-navigation-preference-store",
-          "core.session-store",
-          "core.workstation-settings"
+          "core.module-host"
         ],
         "path": "app/main.js",
-        "usesModuleHost": false
+        "usesModuleHost": true
       }
     ],
     "constructionSites": [
@@ -151,13 +124,6 @@
       },
       {
         "callCount": 1,
-        "factory": "createColorHistoryStore",
-        "sourceFile": "app/main.js",
-        "sourceModuleId": "application",
-        "targetModuleId": "core.workstation-settings"
-      },
-      {
-        "callCount": 1,
         "factory": "createCoverageReport",
         "sourceFile": "src/provider-execution-runtime/policy-bound-provider.js",
         "sourceModuleId": "core.provider-execution-runtime",
@@ -169,13 +135,6 @@
         "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
         "sourceModuleId": "adapter.v4-bars-provider",
         "targetModuleId": "core.coverage-planning-contract"
-      },
-      {
-        "callCount": 1,
-        "factory": "createDataAcquisitionSurface",
-        "sourceFile": "app/data-acquisition.js",
-        "sourceModuleId": "application",
-        "targetModuleId": "adapter.data-acquisition-ui"
       },
       {
         "callCount": 1,
@@ -239,6 +198,20 @@
         "sourceFile": "src/replay-workspace-composition/workspace-chart-assembly.js",
         "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "adapter.lightweight-chart"
+      },
+      {
+        "callCount": 1,
+        "factory": "createModuleHost",
+        "sourceFile": "app/data-acquisition.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "core.module-host"
+      },
+      {
+        "callCount": 1,
+        "factory": "createModuleHost",
+        "sourceFile": "app/main.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "core.module-host"
       },
       {
         "callCount": 1,
@@ -529,13 +502,6 @@
       },
       {
         "callCount": 1,
-        "factory": "createReplayNavigationPreferenceStore",
-        "sourceFile": "app/main.js",
-        "sourceModuleId": "application",
-        "targetModuleId": "core.replay-navigation-preference-store"
-      },
-      {
-        "callCount": 1,
         "factory": "createReplayNavigationReplayPort",
         "sourceFile": "src/replay-workspace-composition/workspace-data-assembly.js",
         "sourceModuleId": "core.replay-workspace-composition",
@@ -620,20 +586,6 @@
       },
       {
         "callCount": 1,
-        "factory": "createReplayWorkspaceSurface",
-        "sourceFile": "app/main.js",
-        "sourceModuleId": "application",
-        "targetModuleId": "adapter.replay-workspace-ui"
-      },
-      {
-        "callCount": 1,
-        "factory": "createSessionBrowser",
-        "sourceFile": "app/main.js",
-        "sourceModuleId": "application",
-        "targetModuleId": "adapter.session-browser-ui"
-      },
-      {
-        "callCount": 1,
         "factory": "createSessionHoursCalendar",
         "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
         "sourceModuleId": "core.replay-workspace-composition",
@@ -645,27 +597,6 @@
         "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
         "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.session-hours-domain"
-      },
-      {
-        "callCount": 1,
-        "factory": "createSessionRepository",
-        "sourceFile": "app/main.js",
-        "sourceModuleId": "application",
-        "targetModuleId": "adapter.session-persistence"
-      },
-      {
-        "callCount": 1,
-        "factory": "createSessionStore",
-        "sourceFile": "app/main.js",
-        "sourceModuleId": "application",
-        "targetModuleId": "core.session-store"
-      },
-      {
-        "callCount": 1,
-        "factory": "createStorageAdapter",
-        "sourceFile": "app/main.js",
-        "sourceModuleId": "application",
-        "targetModuleId": "adapter.session-persistence"
       },
       {
         "callCount": 1,
@@ -714,13 +645,6 @@
         "factory": "createV4BarsProvider",
         "sourceFile": "src/replay-workspace-composition/foundation-market.js",
         "sourceModuleId": "core.replay-workspace-composition",
-        "targetModuleId": "adapter.v4-bars-provider"
-      },
-      {
-        "callCount": 1,
-        "factory": "createV4MarketDateAvailability",
-        "sourceFile": "app/main.js",
-        "sourceModuleId": "application",
         "targetModuleId": "adapter.v4-bars-provider"
       },
       {
@@ -812,13 +736,6 @@
         "factory": "createWorkstationSettings",
         "sourceFile": "src/lightweight-chart-adapter/pane-set-adapter.js",
         "sourceModuleId": "adapter.lightweight-chart",
-        "targetModuleId": "core.workstation-settings"
-      },
-      {
-        "callCount": 1,
-        "factory": "createWorkstationSettingsRuntime",
-        "sourceFile": "app/main.js",
-        "sourceModuleId": "application",
         "targetModuleId": "core.workstation-settings"
       },
       {
@@ -3903,6 +3820,59 @@
         "observedDisposeSites": [],
         "owner": "replay-runtime",
         "publicEntry": "src/replay-contract/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [
+          "dispose",
+          "start",
+          "stop"
+        ],
+        "declaredOptionalPorts": [
+          "adapter.replay-workspace-ui"
+        ],
+        "declaredRequiredPorts": [
+          "adapter.session-browser-ui",
+          "adapter.session-persistence",
+          "adapter.v4-bars-provider",
+          "core.replay-navigation-preference-store",
+          "core.session-store",
+          "core.workstation-settings"
+        ],
+        "descriptorPath": "src/session-application/module.json",
+        "id": "adapter.session-application",
+        "importSites": [],
+        "independentHarness": "tests/production-application-host-browser-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/session-application/application-definition.js"
+        ],
+        "owner": "application-composition",
+        "publicEntry": "src/session-application/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [
+          "dispose",
+          "start",
+          "stop"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "adapter.data-acquisition-ui"
+        ],
+        "descriptorPath": "src/data-acquisition-application/module.json",
+        "id": "adapter.data-acquisition-application",
+        "importSites": [],
+        "independentHarness": "tests/production-application-host-browser-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/data-acquisition-application/application-definition.js"
+        ],
+        "owner": "application-composition",
+        "publicEntry": "src/data-acquisition-application/public.js"
       },
       {
         "actualDependencies": [],

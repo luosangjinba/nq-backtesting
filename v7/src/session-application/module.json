@@ -1,0 +1,19 @@
+{
+  "id": "adapter.session-application",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "application-composition",
+  "publicEntry": "src/session-application/public.js",
+  "requiredPorts": [
+    "adapter.session-browser-ui",
+    "adapter.session-persistence",
+    "adapter.v4-bars-provider",
+    "core.replay-navigation-preference-store",
+    "core.session-store",
+    "core.workstation-settings"
+  ],
+  "optionalPorts": ["adapter.replay-workspace-ui"],
+  "lifecycle": ["start", "stop", "dispose"],
+  "independentHarness": "tests/production-application-host-browser-harness.js",
+  "removable": false
+}

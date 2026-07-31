@@ -3,7 +3,9 @@ export function createHashNavigation(browserWindow) {
   return Object.freeze({
     read: () => browserWindow.location.hash || '#/sessions',
     go(hash) {
-      if (browserWindow.location.hash === hash) browserWindow.dispatchEvent(new HashChangeEvent('hashchange'));
+      if (browserWindow.location.hash === hash) {
+        browserWindow.dispatchEvent(new browserWindow.HashChangeEvent('hashchange'));
+      }
       else browserWindow.location.hash = hash;
     },
     subscribe(listener) {

@@ -67,7 +67,8 @@ function optionalRemovalMatrix(descriptors) {
 /**
  * Boot all active production descriptors with their real public entries, then
  * prove reverse disposal and every declared optional-port omission through the
- * real ModuleHost graph. Actual application factories remain an R8.11 gate.
+ * real ModuleHost graph. Real application construction is additionally proven
+ * by the production application host browser Harness.
  */
 export async function verifyProductionModuleAssembly({ manifest, v7Root }) {
   const descriptors = readProductionDescriptors(v7Root, manifest);

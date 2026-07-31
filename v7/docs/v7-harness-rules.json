@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "currentStep": "R8.10",
+  "currentStep": "R8.11",
   "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
@@ -10,7 +10,7 @@
     "checkpointCommit": "fa561599",
     "allowedWork": "architecture-conformance-recovery-only",
     "freezeFeatureDelivery": true,
-    "regressedRuleIds": ["H018", "H019", "H021", "H022", "H023", "H025", "H066", "H069"]
+    "regressedRuleIds": ["H019", "H021", "H022", "H023", "H025", "H066", "H069"]
   },
   "rules": [
     {
@@ -312,18 +312,28 @@
       "owner": "module-lifecycle",
       "v6FailurePrevented": "new modules became implicit permanent dependencies",
       "activationStep": "R1.4",
-      "state": "regressed",
+      "state": "accepted",
       "harness": "tests/module-host-harness.js",
       "positiveEvidence": [
         "src/module-host/public.js",
         "src/module-host/module.json",
-        "tests/module-host-harness.js"
+        "src/session-application/public.js",
+        "src/data-acquisition-application/public.js",
+        "app/production-module-catalog.js",
+        "app/main.js",
+        "app/data-acquisition.js",
+        "tests/module-host-harness.js",
+        "tests/production-application-host-browser-harness.js"
       ],
-      "negativeFixtures": ["tests/fixtures/module-host/negative/cases.json"],
+      "negativeFixtures": [
+        "tests/fixtures/module-host/negative/cases.json",
+        "tests/fixtures/production-application-host/negative/cases.json"
+      ],
       "humanReviewRequired": true,
       "acceptanceEvidence": "sessions/session_20260719_r1_4_module_host.md",
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.11"
+      "recoveryStep": "R8.11",
+      "recoveryEvidence": "sessions/session_20260731_r8_11_production_module_host_boot.md"
     },
     {
       "id": "H019",
@@ -1621,10 +1631,21 @@
       "owner": "module-lifecycle",
       "v6FailurePrevented": "a synthetic ModuleHost passed while production manually constructed an undeclared permanent graph",
       "activationStep": "R8.11",
-      "state": "declared",
-      "harness": null,
-      "positiveEvidence": [],
-      "negativeFixtures": [],
+      "state": "executable",
+      "harness": "tests/production-application-host-browser-harness.js",
+      "positiveEvidence": [
+        "docs/V7_PRODUCTION_MODULE_HOST_BOOT_R8_11.md",
+        "src/session-application/public.js",
+        "src/data-acquisition-application/public.js",
+        "app/production-module-catalog.js",
+        "app/main.js",
+        "app/data-acquisition.js",
+        "tests/production-application-host-browser-harness.js"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/module-host/negative/cases.json",
+        "tests/fixtures/production-application-host/negative/cases.json"
+      ],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     },

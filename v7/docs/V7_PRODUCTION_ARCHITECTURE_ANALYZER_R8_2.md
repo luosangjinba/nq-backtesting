@@ -42,16 +42,16 @@ outside the declared owner are violations.
 
 ## Exact Baseline
 
-The exact snapshot was refreshed by R8.10 after separating Replay Workspace UI
-from owner construction and orchestration. It currently contains:
+The exact snapshot was refreshed by R8.11 after booting both production roots
+through ModuleHost. It currently contains:
 
-- 46 active production modules;
+- 48 active production modules;
 - 125 actual module dependency edges;
-- 122 cross-module construction sites;
+- 114 cross-module construction sites;
 - two production HTML/JavaScript composition roots;
 - all 15 declared writer surfaces;
 - seven directly observed critical writer sites;
-- two blocking production findings, down from the 13 first recorded by R8.2.
+- zero blocking production findings, down from the 13 first recorded by R8.2.
 
 The full arrays are committed, not summarized away behind counts. Any module,
 owner, import site, public boundary, construction site, lifecycle observation,
@@ -67,13 +67,9 @@ the full finding objects are compared.
 
 ## Current Blocking Findings
 
-### R8.11 — Production Composition
-
-- `app/main.js` manually constructs its graph without ModuleHost;
-- `app/data-acquisition.js` manually constructs its surface without ModuleHost.
-
-R8.9 removes the UI post-terminal accepted Pane/semantic/publication writer.
-Only the two composition items above remain blocking.
+None. R8.11 closes both `BUG-V7-0004` production composition findings. Later R8
+steps still own their separately cataloged behavioral, source/documentation,
+capability, and cross-product recovery rules.
 
 ## R8.3 Repair Result
 
@@ -159,6 +155,21 @@ construction sites, and seven writer sites. No writer finding is added or
 hidden. H024 is recovered; only the two R8.11 ModuleHost composition roots
 remain as production architecture findings.
 
+## R8.11 Production ModuleHost Result
+
+R8.11 adds explicit Session and Data Acquisition application lifecycle modules.
+Both HTML entry scripts now load exact descriptor closures, register declared
+public entries, construct one ModuleHost, and start only the selected real
+application root. Manual feature/surface construction is removed from the
+entry scripts.
+
+The production browser Harness proves two isolated Session application hosts,
+reverse cleanup, rollback after a later start failure, both real route roots,
+and omission of Replay Workspace from both production optional consumers. The
+exact baseline now contains 48 modules, 125 dependency edges, 114 construction
+sites, seven writer sites, two hosted roots, and zero findings. H018 is
+recovered with real application-path evidence.
+
 ## Negative Controls
 
 Nine mutations now prove the production analyzer rejects:
@@ -185,8 +196,9 @@ named critical writer probes. Dynamic runtime failure atomicity remains owned
 by R8.7–R8.9 and the production cross-product/browser matrix remains owned by
 R8.14–R8.15.
 
-R8.3 reduced its seven assigned findings to zero. R8.4 updates the snapshot for
-its new pure module while intentionally retaining all six later-step findings.
-Later steps must reduce their assigned writer and composition findings to zero.
+R8.3 reduced its seven assigned findings to zero. R8.11 closes the final two
+production-analyzer findings without weakening its negative controls. Later R8
+steps remain blocked by their cataloged recovery rules rather than by a known
+production architecture finding.
 Expanding `knownViolations` requires a new stable bug identity and explicit
 review; it can never be an incidental baseline refresh.

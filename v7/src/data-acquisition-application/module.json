@@ -1,0 +1,12 @@
+{
+  "id": "adapter.data-acquisition-application",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "application-composition",
+  "publicEntry": "src/data-acquisition-application/public.js",
+  "requiredPorts": ["adapter.data-acquisition-ui"],
+  "optionalPorts": [],
+  "lifecycle": ["start", "stop", "dispose"],
+  "independentHarness": "tests/production-application-host-browser-harness.js",
+  "removable": false
+}

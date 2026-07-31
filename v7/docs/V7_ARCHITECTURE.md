@@ -622,8 +622,16 @@ Workspace UI adapter and the existing runtime owners. The UI surface constructs
 only its view and explicit presentation adapter, then dispatches controls to the
 composition command port. The composition constructs Session-scoped owners,
 wires only public ports, and disposes them in reverse order; it imports no DOM
-surface internals and owns no semantic state held by those owners. Production
-HTML boot remains separately assigned to R8.11 ModuleHost composition.
+surface internals and owns no semantic state held by those owners. At the
+R8.10 checkpoint, production HTML boot remained assigned to R8.11.
+
+R8.11 activates two explicit application lifecycle adapters. Each real route
+loads its transitive graph from the committed manifest/descriptors, registers
+public entries with one isolated ModuleHost, and constructs browser resources
+only inside the selected application module's `start()`. Host rollback and
+normal stop dispose the application before its dependency ports. The Session
+application consumes Replay Workspace as an optional port, so its absence is a
+real booted production case rather than a descriptor-only fixture.
 
 Every browser-visible module declares:
 

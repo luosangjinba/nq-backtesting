@@ -1,66 +1,15 @@
-import { createSessionBrowser } from '../src/session-browser-ui/public.js';
-import { createSessionRepository, createStorageAdapter } from '../src/session-persistence/public.js';
-import { createSessionStore } from '../src/session-store/public.js';
-import { createReplayNavigationPreferenceStore } from '../src/replay-navigation-preference-store/public.js';
-import { createReplayWorkspaceSurface } from '../src/replay-workspace-ui/public.js';
-import {
-  createColorHistoryStore,
-  createWorkstationSettingsRuntime,
-} from '../src/workstation-settings/public.js';
-import { SESSION_BROWSER_CONFIG } from './config.js';
-import { createHashNavigation } from './hash-navigation.js';
-import { createV4MarketDateAvailability } from '../src/v4-bars-provider-adapter/public.js';
+import { createModuleHost } from '../src/module-host/public.js';
+import { loadProductionApplicationDefinitions } from './production-module-catalog.js';
 
-function createOpaqueToken() {
-  return `session-${crypto.randomUUID()}`;
-}
-
-function composeStores() {
-  const storage = createStorageAdapter(window.localStorage);
-  const repository = createSessionRepository({
-    storage,
-    namespace: SESSION_BROWSER_CONFIG.storageNamespace,
-  });
-  const sessionStore = createSessionStore({ repository });
-  const replayNavigationPreferences = createReplayNavigationPreferenceStore({ storage });
-  const legacySettingsWires = sessionStore.listSessions()
-    .filter(({ workspace }) => workspace.schemaVersion === 3)
-    .sort((left, right) => right.metadata.updatedAtEpochMs - left.metadata.updatedAtEpochMs)
-    .map(({ workspace }) => workspace.replayNavigationSettings);
-  replayNavigationPreferences.initialize({ legacySettingsWires });
-  const workstationSettings = createWorkstationSettingsRuntime({ storage });
-  workstationSettings.initialize();
-  const colorHistory = createColorHistoryStore({ storage });
-  colorHistory.initialize();
-  return Object.freeze({
-    colorHistory, replayNavigationPreferences, sessionStore, workstationSettings,
-  });
-}
-
-let composed = null;
-let unavailableMessage = null;
-try {
-  composed = composeStores();
-} catch {
-  unavailableMessage = 'Local Session storage could not be initialized. Check browser site-data permissions and reload.';
-}
-
-const replayWorkspace = createReplayWorkspaceSurface();
-const browser = createSessionBrowser({
-  dateAvailability: createV4MarketDateAvailability(),
-  root: document.querySelector('#app'),
-  store: composed?.sessionStore ?? null,
-  replayNavigationPreferences: composed?.replayNavigationPreferences ?? null,
-  workstationSettings: composed?.workstationSettings ?? null,
-  colorHistory: composed?.colorHistory ?? null,
-  unavailableMessage,
-  navigation: createHashNavigation(window),
-  instruments: SESSION_BROWSER_CONFIG.instruments,
-  idFactory: createOpaqueToken,
-  openedSessionSurface: composed ? replayWorkspace : null,
+const definitions = await loadProductionApplicationDefinitions({
+  environment: {
+    browserWindow: window,
+    crypto: window.crypto,
+    readStorage: () => window.localStorage,
+    root: document.querySelector('#app'),
+  },
+  rootModuleId: 'adapter.session-application',
 });
-browser.start();
-window.addEventListener('pagehide', () => {
-  browser.dispose();
-  replayWorkspace.dispose();
-}, { once: true });
+const host = createModuleHost(definitions);
+await host.start();
+window.addEventListener('pagehide', () => { void host.stop(); }, { once: true });

@@ -513,7 +513,10 @@ live in `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
 - `R8.10`: UI/composition responsibility split; completed with one dedicated
   composition module, a focused command port, an explicit UI presentation
   adapter, six negative controls, and deletion of the mixed UI controller;
-- `R8.11`: production ModuleHost boot and removal matrix;
+- `R8.11`: production ModuleHost boot and removal matrix; completed with two
+  real application lifecycle modules, exact descriptor-closure loading, two
+  isolated hosts, reverse cleanup, partial-start rollback, and two production
+  Replay Workspace optional-removal consumers;
 - `R8.12`: source responsibility, size, documentation, and debt closure;
 - `R8.13`: Open/Closed Calendar re-derivation and dense RTH Locate repair;
 - `R8.14`: full production failure/concurrency/cross-product matrix;

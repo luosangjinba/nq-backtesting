@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-30 by R8.10 UI and composition split
+Last updated: 2026-07-31 by R8.11 production ModuleHost boot
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -22,7 +22,8 @@ required for normal startup.
 - R8.7 prepared commit participant contract is commit `518eab82`;
 - R8.8 reversible Chart application is commit `83a82364`;
 - R8.9 global atomic Workspace transaction is commit `18ebe58d`;
-- R8.10 UI/composition split is the current handoff commit;
+- R8.10 UI/composition split is commit `d341b034`;
+- R8.11 production ModuleHost boot is the current handoff commit;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10
@@ -58,11 +59,18 @@ required for normal startup.
   command port plus an explicit UI presentation adapter, and deletes the mixed
   UI controller without changing successful behavior;
 - H024 is recovered through the production boundary Harness and six negative
-  controls; eight recovery regressions remain assigned to R8.11–R8.14;
-- the exact production baseline now scans 46 modules, 125 dependency edges,
-  122 construction sites, 15 declared writer surfaces, and seven critical
-  writer sites; only two R8.11 ModuleHost composition findings remain;
-- next step after this commit is R8.11, but it must not begin until the R8.10
+  controls;
+- R8.11 boots both real routes through exact descriptor-closure ModuleHost
+  graphs, proves two isolated Session application instances, reverse cleanup,
+  post-application partial-start rollback, both real application roots, and
+  the two-consumer Replay Workspace optional-removal matrix;
+- H018 is recovered with two production-path negative controls; seven recovery
+  regressions remain assigned to R8.12–R8.14; H077 is executable and its human
+  acceptance remains unclaimed;
+- the exact production baseline now scans 48 modules, 125 dependency edges,
+  114 construction sites, 15 declared writer surfaces, and seven critical
+  writer sites with zero blocking production architecture findings;
+- next step after this commit is R8.12, but it must not begin until the R8.11
   commit and evidence have been reported;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
@@ -130,12 +138,13 @@ listed above.
 11. `docs/V7_REVERSIBLE_CHART_APPLICATION_R8_8.md`;
 12. `docs/V7_GLOBAL_ATOMIC_WORKSPACE_TRANSACTION_R8_9.md`;
 13. `docs/V7_UI_COMPOSITION_SPLIT_R8_10.md`;
-14. `docs/INDEX.md`;
-15. `TODO.md`;
-16. `docs/V7_ARCHITECTURE.md`;
-17. `docs/V7_HARNESS_STANDARD.md`;
-18. `docs/V7_EXECUTION_ROADMAP.md`;
-19. only the documents directly relevant to the next bounded R8 step.
+14. `docs/V7_PRODUCTION_MODULE_HOST_BOOT_R8_11.md`;
+15. `docs/INDEX.md`;
+16. `TODO.md`;
+17. `docs/V7_ARCHITECTURE.md`;
+18. `docs/V7_HARNESS_STANDARD.md`;
+19. `docs/V7_EXECUTION_ROADMAP.md`;
+20. only the documents directly relevant to the next bounded R8 step.
 
 Do not resume from the historical status narrative alone. The R8 plan and the
 machine-readable recovery mode override earlier statements that phase-one
@@ -597,9 +606,9 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R8.11 is the exact next step: boot both real production roots through
-ModuleHost and prove isolated instances, reverse cleanup, partial-start
-rollback, and the real optional-removal matrix.
+R8.12 is the exact next step: enforce real production source/function budgets
+and close public-contract, lifecycle, cancellation, invariant, and tracked-debt
+documentation against production sources.
 R7.3n/R7.3o acceptance and all feature work remain frozen until R8.15.
 
 ## Standing Workflow
