@@ -2,8 +2,7 @@
 
 Date: 2026-07-30
 
-Status: implemented and automatically verified; awaiting human interaction
-review
+Status: human accepted through R8.15 on 2026-07-31
 
 ## Reported Failure
 
@@ -49,7 +48,7 @@ Viewport writer, and Replay remains untouched.
 
 ## Human Gate
 
-Hard reload the reported Session, repeat the same ETH and RTH drag/location
-sequence, and confirm that P2 locates while dense P1 stays at its existing
-history and zoom. No commit should be created until this interaction is
-accepted together with the still-pending R7.3n calendar-timeframe review.
+The user hard-reloaded the real page under the R8.15 checklist, repeated the
+ETH/RTH drag and bidirectional Locate workflow, and explicitly reported
+`验收通过` on 2026-07-31. R7.3o and the paired R7.3n Calendar gate are accepted
+by the R8.15 closure evidence.

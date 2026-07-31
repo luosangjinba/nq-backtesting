@@ -14,6 +14,21 @@
       "name": "recovery inventory omits regressed rule",
       "operation": "remove-recovery-inventory-entry",
       "expectedFailureCode": "regressed-rule-inventory-mismatch"
+    },
+    {
+      "name": "closed recovery retains feature freeze",
+      "operation": "retain-feature-freeze-after-closure",
+      "expectedFailureCode": "feature-delivery-still-frozen"
+    },
+    {
+      "name": "closed recovery lacks human evidence",
+      "operation": "remove-closure-evidence",
+      "expectedFailureCode": "missing-recovery-closure-evidence"
+    },
+    {
+      "name": "recovery closes outside R8.15",
+      "operation": "replace-closure-step",
+      "expectedFailureCode": "invalid-recovery-closure-step"
     }
   ]
 }

@@ -56,6 +56,34 @@ export function validateHarnessRuleCatalogRecovery(catalog, { pathExists = () =>
     }
   }
 
+  if (recovery?.active === false) {
+    if (recovery.allowedWork !== 'normal-delivery') {
+      violations.push(violation(
+        'closed-recovery-work-scope-invalid',
+        'closed recovery must restore normal delivery scope',
+      ));
+    }
+    if (recovery.freezeFeatureDelivery !== false) {
+      violations.push(violation(
+        'feature-delivery-still-frozen',
+        'closed recovery must release the feature-delivery freeze',
+      ));
+    }
+    if (recovery.closureStep !== 'R8.15') {
+      violations.push(violation(
+        'invalid-recovery-closure-step',
+        'recovery may close only through R8.15',
+      ));
+    }
+    if (!isRelativeEvidencePath(recovery.closureEvidence)
+      || !pathExists(recovery.closureEvidence)) {
+      violations.push(violation(
+        'missing-recovery-closure-evidence',
+        'closed recovery requires durable R8.15 human acceptance evidence',
+      ));
+    }
+  }
+
   if (JSON.stringify(regressedIds) !== JSON.stringify(inventoryIds)) {
     violations.push(violation(
       'regressed-rule-inventory-mismatch',

@@ -472,11 +472,12 @@ Acquisition review, and the user's complete foundation walkthrough, decide
 whether to close phase one. The later Backtesting/Journal boundary must reuse
 the same chart and Replay owners.
 
-## R8 — Architecture Conformance Recovery
+## R8 — Architecture Conformance Recovery (Completed)
 
-R8 supersedes phase-one closure and is the only active delivery milestone. The
-binding detail, bug identities, exact acceptance workflow, and per-step gates
-live in `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
+R8 superseded phase-one closure while recovery was active. The binding detail,
+bug identities, exact acceptance workflow, and per-step gates live in
+`V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`. The user explicitly accepted
+the final hard-reloaded workflow on 2026-07-31; recovery mode is now inactive.
 
 - `R8.1`: recovery constitution and executable regression lifecycle;
 - `R8.2`: production architecture analyzer; completed as an executable exact
@@ -522,7 +523,11 @@ live in `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
 - `R8.14`: full production failure/concurrency/cross-product matrix; completed
   with 11 bound axes, eight real browser/owner scenarios, five fail-closed
   negative controls, and dynamic post-visible durable rollback evidence;
-- `R8.15`: human acceptance and zero-debt recovery closure.
+- `R8.15`: human acceptance and zero-debt recovery closure; completed after
+  explicit user acceptance of the binding dense two-Pane Calendar/ETH/RTH
+  workflow, a clean 78-Harness gate, zero regressed rules, and recovery-mode
+  deactivation.
 
-Each item is exactly one commit and stops for review. R7.3n and R7.3o remain
-unaccepted evidence and may not be closed independently of R8.13–R8.15.
+Each item is exactly one commit and stops for review. R7.3n and R7.3o were
+accepted only through the combined R8.15 human gate, not independently of
+R8.13–R8.15.

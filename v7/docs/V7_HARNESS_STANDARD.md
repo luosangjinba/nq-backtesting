@@ -55,6 +55,12 @@ production-path positive evidence, a negative control reproducing the failure,
 new recovery evidence, and the required human approval. Historical acceptance
 and regression records are never erased or rewritten.
 
+Recovery mode may be deactivated only by its declared closure step after the
+inventory has no regressed rules and the closure gate records explicit human
+acceptance. Closed recovery metadata must name the closure step and evidence,
+set `allowedWork` to `normal-delivery`, and clear the feature-delivery freeze;
+the lifecycle Harness rejects incomplete or internally contradictory closure.
+
 ## Negative-Control Rule
 
 Every architecture/product harness must prove it detects a representative
@@ -164,7 +170,7 @@ same commit. Steps with interaction or visual changes stop after commit for
 human review. Rejection is recorded before corrective work; automated evidence
 cannot overwrite it.
 
-During R8 architecture recovery, every step is exactly one commit and stops
+During R8 architecture recovery, every step was exactly one commit and stopped
 after commit for explicit review, including headless and documentation steps.
 R8 commits are never amended or squashed. A rejected step remains evidence and
 its replacement receives a new delivery id.

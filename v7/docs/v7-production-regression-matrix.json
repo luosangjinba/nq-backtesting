@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
-  "status": "executable",
+  "status": "accepted",
+  "humanAcceptanceEvidence": "sessions/session_20260731_r8_15_human_acceptance_zero_debt.md",
   "executionPolicy": {
     "requiredAxes": [
       "paneCount",

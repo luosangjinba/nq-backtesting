@@ -1,6 +1,6 @@
 # V7 Full Production Regression Matrix — R8.14
 
-Status: executable recovery gate; awaiting R8.15 human acceptance (2026-07-31)
+Status: human accepted through R8.15 (2026-07-31)
 
 ## Outcome
 
@@ -77,9 +77,10 @@ Auto Replay through production owners.
   requirement and its dynamic restore/cache/race evidence is complete.
 - H079 activates as `executable`; it is not human accepted.
 
-No rule remains in `regressed`, but recovery mode stays active. R7.3n/R7.3o and
-all human-review-required recovery rules remain unaccepted until R8.15 repeats
-the exact browser workflow and explicitly closes recovery mode.
+No rule remained in `regressed` after R8.14. The user explicitly accepted the
+exact hard-reloaded browser workflow in R8.15 on 2026-07-31, so the matrix and
+its human-review-required recovery rules are accepted and recovery mode is now
+inactive.
 
 ## Verification Contract
 

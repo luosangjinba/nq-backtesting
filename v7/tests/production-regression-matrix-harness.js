@@ -35,6 +35,8 @@ for (const testCase of negative.cases) {
     scenario.failureInjection.dynamic = false;
   } else if (testCase.operation === 'replace-harness') {
     scenario.harness = testCase.value;
+  } else if (testCase.operation === 'remove-human-acceptance') {
+    invalid.humanAcceptanceEvidence = null;
   } else {
     assert.fail(`unknown production matrix negative operation ${testCase.operation}`);
   }

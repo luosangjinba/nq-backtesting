@@ -32,6 +32,11 @@
       "scenarioId": "global-participant-failure-owner",
       "value": "tests/does-not-exist.js",
       "expectedFailureCode": "PRODUCTION_MATRIX_HARNESS_MISSING"
+    },
+    {
+      "name": "accepted-matrix-without-human-evidence",
+      "operation": "remove-human-acceptance",
+      "expectedFailureCode": "PRODUCTION_MATRIX_HUMAN_ACCEPTANCE_MISSING"
     }
   ]
 }

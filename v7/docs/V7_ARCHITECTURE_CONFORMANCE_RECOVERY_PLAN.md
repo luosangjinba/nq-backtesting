@@ -1,18 +1,22 @@
 # V7 Architecture Conformance Recovery Plan
 
-Status: binding recovery constitution (R8, activated by R8.1 on 2026-07-30)
+Status: completed and human reaccepted by R8.15 on 2026-07-31
 
 ## Decision
 
-R8 is the only permitted V7 delivery milestone until architecture conformance
-is restored and reaccepted. New product features, opportunistic fixes, and
-acceptance of R7.3n/R7.3o are frozen. A change may land only when it is required
-by an R8 step, updates its executable evidence in the same commit, and begins
-and ends with a clean worktree.
+R8 was the only permitted V7 delivery milestone until architecture conformance
+was restored and reaccepted. R8.15 received explicit human acceptance and
+released the recovery feature freeze. The constraints below remain the durable
+record of how the recovery was executed.
 
 The immutable pre-remediation checkpoint is commit `fa561599`. That commit
 preserves the exact implementation and evidence that triggered this recovery;
 it is not an architecture acceptance point.
+
+The closure evidence is
+`sessions/session_20260731_r8_15_human_acceptance_zero_debt.md`. Recovery mode
+is inactive with no regressed rule, production finding, source exception, or
+tracked debt.
 
 ## Recovery Outcome
 

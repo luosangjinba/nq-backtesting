@@ -29,8 +29,13 @@ export function validateProductionRegressionMatrix(model, { pathExists = () => t
   const requiredAxes = values(policy.requiredAxes);
   const allowedKinds = new Set(values(policy.allowedExecutionKinds));
 
-  if (model?.schemaVersion !== 1 || model?.status !== 'executable') {
+  if (model?.schemaVersion !== 1 || !['executable', 'accepted'].includes(model?.status)) {
     violations.push(violation('PRODUCTION_MATRIX_HEADER_INVALID'));
+  }
+  if (model?.status === 'accepted'
+    && (typeof model.humanAcceptanceEvidence !== 'string'
+      || !pathExists(model.humanAcceptanceEvidence))) {
+    violations.push(violation('PRODUCTION_MATRIX_HUMAN_ACCEPTANCE_MISSING'));
   }
   if (requiredAxes.length === 0
     || Object.keys(axes).sort().join('\u0000') !== [...requiredAxes].sort().join('\u0000')) {

@@ -1,6 +1,6 @@
 # V7 Calendar Capability And RTH Locate Re-derivation — R8.13
 
-Status: executable recovery replacement; awaiting R8.14 matrix and R8.15 human acceptance (2026-07-31)
+Status: human accepted through R8.15 (2026-07-31)
 
 ## Outcome
 
@@ -80,10 +80,10 @@ each non-target Pane's wider accepted coverage. Real Chrome proves two resets,
 dense P1 history, repeated ETH P1-to-P2 Locate, atomic RTH replacement, both
 RTH target directions, usable Pane walls, and an unchanged Replay cursor.
 
-H019 and H066 therefore move from `regressed` to `executable`; H078 becomes
-`executable`. R7.3n and R7.3o are not accepted. R8.14 still owns the full
-production failure/concurrency/cross-product matrix, and R8.15 still owns the
-hard-reloaded human interaction acceptance.
+H019, H066, and H078 were executable after R8.13. The R8.14 production matrix
+then passed, and the user explicitly accepted the hard-reloaded R8.15 Calendar
+and dense ETH/RTH bidirectional Locate workflow on 2026-07-31. All three rules,
+R7.3n, and R7.3o are now accepted.
 
 The refreshed production source baseline contains 303 files, 22,404 effective
 lines, 2,400 functions, and 304 public exports. The architecture baseline

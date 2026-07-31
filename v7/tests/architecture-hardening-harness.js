@@ -116,11 +116,20 @@ const recoveryNegativeFixture = JSON.parse(fs.readFileSync(recoveryNegativePath,
 assert.ok(recoveryNegativeFixture.cases.length >= 3, 'R8.1 requires complete lifecycle controls');
 for (const testCase of recoveryNegativeFixture.cases) {
   const invalidCatalog = structuredClone(rules);
-  const firstRegressed = invalidCatalog.rules.find((rule) => rule.id === 'H069');
-  assert.ok(firstRegressed?.regressionEvidence && firstRegressed?.recoveryStep,
-    'recovery lifecycle controls require one rule with complete historical regression metadata');
-  firstRegressed.state = 'regressed';
-  invalidCatalog.recoveryMode.regressedRuleIds = [firstRegressed.id];
+  const regressionOperations = new Set([
+    'deactivate-recovery',
+    'remove-regression-evidence',
+    'remove-recovery-inventory-entry',
+  ]);
+  const firstRegressed = regressionOperations.has(testCase.operation)
+    ? invalidCatalog.rules.find((rule) => rule.id === 'H069')
+    : null;
+  if (firstRegressed) {
+    assert.ok(firstRegressed.regressionEvidence && firstRegressed.recoveryStep,
+      'recovery lifecycle controls require one rule with complete historical regression metadata');
+    firstRegressed.state = 'regressed';
+    invalidCatalog.recoveryMode.regressedRuleIds = [firstRegressed.id];
+  }
   if (testCase.operation === 'deactivate-recovery') {
     invalidCatalog.recoveryMode.active = false;
   } else if (testCase.operation === 'remove-regression-evidence') {
@@ -128,6 +137,12 @@ for (const testCase of recoveryNegativeFixture.cases) {
   } else if (testCase.operation === 'remove-recovery-inventory-entry') {
     invalidCatalog.recoveryMode.regressedRuleIds = invalidCatalog.recoveryMode.regressedRuleIds
       .filter((ruleId) => ruleId !== firstRegressed.id);
+  } else if (testCase.operation === 'retain-feature-freeze-after-closure') {
+    invalidCatalog.recoveryMode.freezeFeatureDelivery = true;
+  } else if (testCase.operation === 'remove-closure-evidence') {
+    invalidCatalog.recoveryMode.closureEvidence = null;
+  } else if (testCase.operation === 'replace-closure-step') {
+    invalidCatalog.recoveryMode.closureStep = 'R8.14';
   } else {
     assert.fail(`unknown recovery negative operation ${testCase.operation}`);
   }

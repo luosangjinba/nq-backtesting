@@ -1,6 +1,6 @@
 # V7 Calendar-Timeframe Domain
 
-Status: R8.13 registered re-derivation executable, awaiting R8.15 human review (2026-07-31)
+Status: R8.13 registered re-derivation human accepted through R8.15 (2026-07-31)
 
 ## Ownership
 
@@ -80,8 +80,8 @@ active.
   enabled and that each switch arrives with useful left history without a
   mouse/wheel boundary event, preserves Replay, and survives premarket RTH.
 
-Human interaction and visual acceptance is still required before R7.3n may be
-committed as accepted.
+The user explicitly accepted the hard-reloaded `1D`/`1W`/`1M` interaction and
+filled-left-context result through the binding R8.15 gate on 2026-07-31.
 
 R8.13 replaces the original mixed foundation registry with separate versioned
 fixed/calendar contributions and a policy-family-agnostic registry. Calendar

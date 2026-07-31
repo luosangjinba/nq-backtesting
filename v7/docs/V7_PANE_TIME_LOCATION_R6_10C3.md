@@ -100,8 +100,9 @@ R8.13 supersedes that Pane-local ledger implementation. Bar Data Runtime now
 solely retains accepted raw coverage and exposes it through a transaction-bound
 synchronous lease; no UI raw ledger exists. The replacement browser evidence
 covers repeated ETH location, atomic RTH replacement, both RTH target
-directions, stable walls, and Replay immobility. R7.3o remains unaccepted until
-the R8.15 human gate.
+directions, stable walls, and Replay immobility. R7.3o remained unaccepted until
+the R8.15 human gate. The user completed that hard-reloaded workflow and
+reported `验收通过` on 2026-07-31; R7.3o is now accepted.
 
 ## Automated Gate
 

@@ -1,14 +1,13 @@
 # V7 TODO
 
-## R8 Architecture Conformance Recovery — Active And Blocking
+## R8 Architecture Conformance Recovery — Human Accepted And Closed
 
 Binding plan: `docs/V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
 Pre-remediation checkpoint: `fa561599`.
 
-This is the only permitted V7 work until R8.15 closes recovery mode. Do not
-accept R7.3n/R7.3o, start a new product feature, or apply an unnumbered fix.
-Every item is one commit; after each commit, stop and report evidence for
-review. Preserve rejected commits and assign a new delivery id to replacements.
+R8 was the only permitted V7 work until the explicit R8.15 acceptance on
+2026-07-31. Recovery mode and its feature freeze are now closed. Preserve
+rejected commits and assign a new delivery id to replacements.
 
 - [x] `R8.1` bind the recovery constitution, stable bug ids, TODO/restart
   continuity, and executable `regressed` rule lifecycle;
@@ -32,10 +31,10 @@ review. Preserve rejected commits and assign a new delivery id to replacements.
 - [x] `R8.13` re-derive Calendar capability extension and dense RTH Locate
   through corrected owners;
 - [x] `R8.14` pass the full production failure/concurrency/cross-product matrix;
-- [ ] `R8.15` obtain human acceptance of the exact reported workflow and close
+- [x] `R8.15` obtain human acceptance of the exact reported workflow and close
   every regression/debt item before disabling recovery mode.
 
-Tracked recovery regressions:
+Closed recovery regressions:
 
 - `BUG-V7-0001`: visible Chart can diverge from failed Workspace/Replay commit;
 - `BUG-V7-0002`: raw source retention exists outside Bar Data Runtime;
@@ -43,6 +42,15 @@ Tracked recovery regressions:
 - `BUG-V7-0004`: production boot bypasses the declared ModuleHost graph;
 - `BUG-V7-0005`: fixture/inventory gates can remain green while production
   violates the architecture.
+
+R8.15 received the user's explicit `验收通过` after the hard-reloaded Calendar
+and dense two-Pane ETH/RTH drag-and-Locate checklist. All 78 Harnesses pass;
+H019/H021/H025/H066/H071/H072/H077/H078/H079 are accepted, H069 remains
+accepted, and no rule is regressed. Recovery mode is inactive, normal delivery
+scope is restored, and the production baselines remain at zero architecture
+findings, zero source exceptions, and zero debt comments. H001/H003/H004 remain
+at their pre-recovery executable governance status. The separately unreviewed
+Data Acquisition H070 and R7.3/R7.3c administrator human gate remain open.
 
 R8.12 production source evidence binds 301 files, 22,279 effective lines, 2,370
 functions, 302 public exports, six protected invariants, zero tracked-debt
@@ -1816,7 +1824,7 @@ writer, Viewport owns the drag wall, and Replay does not move.
   user supplied the filled dense-workspace screenshot and explicitly requested
   the accepted correction be committed).
 
-### R7.3n Session-Aware Calendar Timeframes — Awaiting Human Review
+### R7.3n Session-Aware Calendar Timeframes — Human Accepted
 
 - [x] confirm from Lightweight Charts and awesome-tradingview primary sources
   that the chart library accepts timestamps but does not own source OHLC
@@ -1842,10 +1850,11 @@ writer, Viewport owns the drag wall, and Replay does not move.
   the open-timeframe-menu fixture;
 - [x] re-derive fixed/calendar activation through versioned contributions and
   a policy-family-agnostic registry without new core-owner branches (`R8.13`);
-- [ ] obtain explicit human confirmation after a hard reload that `1D`, `1W`,
-  and `1M` are clickable and fill their left context without pointer input.
+- [x] obtain explicit human confirmation after a hard reload that `1D`, `1W`,
+  and `1M` are clickable and fill their left context without pointer input
+  (`2026-07-31`, accepted with the binding R8.15 checklist).
 
-### R7.3o Dense RTH Time-Location Source Preservation — Awaiting Human Review
+### R7.3o Dense RTH Time-Location Source Preservation — Human Accepted
 
 - [x] reproduce the reported two-Pane sequence with a genuinely dense P1,
   RTH replacement, and the real right-click `Locate in P2` action;
@@ -1865,8 +1874,9 @@ writer, Viewport owns the drag wall, and Replay does not move.
   Replay and both semantic Viewport walls remain stable (`R8.13`);
 - [x] pass focused domain/runtime/architecture gates plus the real Workspace,
   Pane Workspace, and exact multi-Pane RTH browser regressions;
-- [ ] obtain explicit human confirmation after a hard reload by repeating the
-  reported ETH/RTH drag-and-Locate sequence.
+- [x] obtain explicit human confirmation after a hard reload by repeating the
+  reported ETH/RTH drag-and-Locate sequence (`2026-07-31`, user reported
+  `验收通过` under R8.15).
 
 ## Standing Gates
 

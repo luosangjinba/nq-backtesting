@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-31 by R8.14 full production regression matrix
+Last updated: 2026-07-31 by R8.15 human acceptance and zero-debt closure
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -11,8 +11,9 @@ required for normal startup.
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
 - immutable pre-remediation checkpoint: `fa561599`
-- active delivery: R8 architecture conformance recovery only; new feature work
-  and R7.3n/R7.3o acceptance are frozen;
+- recovery state: R8 is complete and inactive; normal-delivery scope is
+  restored, but no next feature or milestone is selected by this handoff;
+- the separate R7.3/R7.3c Data Acquisition admin human gate remains open;
 - R8.1 recovery constitution is commit `7dbabbed`;
 - R8.2 production architecture analyzer is commit `f19b7f32`;
 - R8.3 descriptor/lifecycle/independent-harness repair is commit `60b92d93`;
@@ -26,7 +27,8 @@ required for normal startup.
 - R8.11 production ModuleHost boot is commit `ce42eb9f`;
 - R8.12 source/documentation closure is commit `f62db2b9`;
 - R8.13 Calendar capability and RTH Locate re-derivation is commit `37db33bb`;
-- R8.14 full production regression matrix is the current handoff commit;
+- R8.14 full production regression matrix is commit `9433c823`;
+- R8.15 human acceptance and zero-debt closure is the current handoff commit;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10
@@ -67,9 +69,8 @@ required for normal startup.
   graphs, proves two isolated Session application instances, reverse cleanup,
   post-application partial-start rollback, both real application roots, and
   the two-consumer Replay Workspace optional-removal matrix;
-- H018 is recovered with two production-path negative controls; seven recovery
-  regressions remain assigned to R8.12–R8.14; H077 is executable and its human
-  acceptance remains unclaimed;
+- H018 was recovered with two production-path negative controls; the remaining
+  recovery regressions were assigned to and closed through R8.12–R8.14;
 - the exact production baseline now scans 48 modules, 125 dependency edges,
   115 construction sites, 15 declared writer surfaces, and seven critical
   writer sites with zero blocking production architecture findings;
@@ -78,14 +79,16 @@ required for normal startup.
 - R8.13 reintroduces fixed/calendar timeframes as registered contributions and
   proves repeated ETH plus bidirectional RTH Locate through Bar Data-owned
   leases without moving Replay or collapsing either Pane wall;
-- H019, H066, and H078 are executable; three regressions remain assigned to
-  R8.14, while R7.3n/R7.3o human acceptance remains frozen through R8.15;
+- H019, H066, and H078 became executable in R8.13; the remaining three
+  regressions were assigned to and closed in R8.14;
 - R8.14 binds 11 axes to eight real production scenarios, dynamically fails
   persistence after every Pane paints a newer candidate, and proves exact
   visible, semantic, Replay, and durable rollback; H021/H025/H079 are
   executable and H069 is accepted, leaving no regressed rules;
-- next step after this commit is R8.15 human acceptance and zero-debt closure,
-  but it must not begin until the R8.14 commit and evidence have been reported;
+- R8.15 records the user's explicit `验收通过` for the hard-reloaded Calendar
+  and dense two-Pane ETH/RTH sequence, accepts H019/H021/H025/H066/H071/H072/
+  H077/H078/H079, closes the recovery inventory with zero regressed rules, and
+  deactivates recovery mode without production behavior changes;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
   bar-step interaction gate; R6.7 continuous Autoplay implemented; R6.7a
@@ -122,10 +125,10 @@ required for normal startup.
   while preserving forward cache identity; both are human accepted. R7.3m
   preplans dense TF/ETH-RTH replacements without native input and is also human
   accepted after the filled dense-workspace review; R7.3n activates
-  Projection-owned session-aware `1D`/`1W`/`1M` and is awaiting human review;
-  R7.3o attempted to preserve a dense non-target RTH Pane when an explicit
-  location in another Pane materializes a narrower contained navigation window,
-  but it is frozen and unaccepted after the architecture audit activated R8;
+  Projection-owned session-aware `1D`/`1W`/`1M`, and R7.3o preserves a dense
+  non-target RTH Pane when an explicit location in another Pane materializes a
+  narrower contained navigation window; both were human accepted only through
+  the combined R8.15 hard-reloaded workflow on 2026-07-31;
   R2.4
   Session Browser
   readability and confirmed durable delete human accepted
@@ -156,16 +159,17 @@ listed above.
 15. `docs/V7_SOURCE_AND_DOCUMENTATION_CLOSURE_R8_12.md`;
 16. `docs/V7_CALENDAR_CAPABILITY_RTH_LOCATE_REDERIVATION_R8_13.md`;
 17. `docs/V7_FULL_PRODUCTION_REGRESSION_MATRIX_R8_14.md`;
-18. `docs/INDEX.md`;
-19. `TODO.md`;
-20. `docs/V7_ARCHITECTURE.md`;
-21. `docs/V7_HARNESS_STANDARD.md`;
-22. `docs/V7_EXECUTION_ROADMAP.md`;
-23. only the documents directly relevant to the next bounded R8 step.
+18. `docs/V7_HUMAN_ACCEPTANCE_ZERO_DEBT_CLOSURE_R8_15.md`;
+19. `docs/INDEX.md`;
+20. `TODO.md`;
+21. `docs/V7_ARCHITECTURE.md`;
+22. `docs/V7_HARNESS_STANDARD.md`;
+23. `docs/V7_EXECUTION_ROADMAP.md`;
+24. only the documents directly relevant to the explicitly selected next step.
 
-Do not resume from the historical status narrative alone. The R8 plan and the
-machine-readable recovery mode override earlier statements that phase-one
-foundation work was closed or accepted.
+Do not resume from the historical status narrative alone. The R8 plan, R8.15
+closure evidence, and machine-readable inactive recovery state override earlier
+statements that recovery or its feature-delivery freeze remains active.
 
 Do not load all historical `sessions/` records. For R6 planning, read only the
 R6-relevant architecture/roadmap documents plus:
@@ -623,10 +627,10 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R8.15 is the exact next step: repeat the binding hard-reloaded dense two-Pane
-ETH/RTH drag-and-Locate workflow under human review, close remaining acceptance
-and debt records, and only then deactivate recovery mode.
-R7.3n/R7.3o acceptance and all feature work remain frozen until that gate.
+There is no automatic next R8 step. R8 is human accepted, zero-debt, and
+inactive; wait for explicit product direction before selecting the next bounded
+delivery. The separate R7.3/R7.3c Data Acquisition admin human gate remains
+open and must not be inferred complete from the R8.15 chart-workstation review.
 
 ## Standing Workflow
 

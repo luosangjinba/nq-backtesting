@@ -46,5 +46,6 @@ only numeric `1h`–`12h` durations.
 
 ## Human Acceptance
 
-Pending. The user must hard reload the running page and confirm `1D`, `1W`, and
-`1M` are clickable and arrive filled without a follow-up pointer/wheel event.
+Accepted through R8.15 on 2026-07-31. After the binding hard-reload checklist,
+the user explicitly reported `验收通过`, including that `1D`, `1W`, and `1M`
+are clickable and arrive filled without follow-up pointer/wheel input.
