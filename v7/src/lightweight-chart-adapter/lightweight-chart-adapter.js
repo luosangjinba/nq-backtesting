@@ -1,33 +1,21 @@
-import {
-  CandlestickSeries,
-  createChart,
-  LineSeries,
-  version as lightweightChartsVersion,
-} from '../../node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.mjs';
 import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/public.js';
 import { readViewportIntent } from '../viewport-runtime/public.js';
-import { createWorkstationSettings, readWorkstationSettings } from '../workstation-settings/public.js';
+import { createAdapterSnapshot } from './adapter-snapshot.js';
 import { failLightweightAdapter } from './adapter-error.js';
-import { createCanvasPresentation } from './canvas-presentation.js';
-import { createCandleSeriesPresentation } from './candle-presentation.js';
-import { CANDLE_OPTIONS, CHART_OPTIONS, createChartTimePresentation } from './chart-options.js';
-import { createCrosshairPresentationIndex } from './crosshair-presentation.js';
-import {
-  createCurrentPriceNamePrimitive,
-  createCurrentPriceSeriesPresentation,
-} from './current-price-presentation.js';
+import { createLightweightChartSurface } from './chart-surface.js';
+import { createAdapterCrosshairInteraction } from './crosshair-interaction.js';
 import { createFutureTimeAxisData } from './future-time-axis.js';
 import { planVisibleLogicalRange } from './logical-range-plan.js';
+import { createNativeViewportInteraction } from './native-viewport-interaction.js';
 import { requirePaintedCandles, requireTailUpdatePaint } from './paint-gate.js';
 import { createPaneTimeLocationChartPort } from './pane-time-location-adapter.js';
-import { applyPriceScaleWheel } from './price-scale-wheel.js';
-import { createReplayTruncationInteraction } from './replay-truncation-interaction.js';
 import { planSeriesMutation } from './series-update-plan.js';
 import {
   captureAdapterVisibleState,
   restoreAdapterScaleState,
   restoreAdapterVisibleState,
 } from './visible-state-rollback.js';
+import { createWorkstationPresentationController } from './workstation-presentation-controller.js';
 
 function requirePort(port) {
   for (const method of ['captureManual', 'project', 'reset', 'snapshot']) {
@@ -36,6 +24,13 @@ function requirePort(port) {
     }
   }
   return port;
+}
+
+function requireAdapterEnvironment(host, viewportPort) {
+  if (!(host instanceof HTMLElement)) {
+    failLightweightAdapter('CHART_HOST_INVALID', 'Chart host must be an HTMLElement.');
+  }
+  return requirePort(viewportPort);
 }
 
 function chartData(workspaceSnapshot) {
@@ -56,8 +51,6 @@ function maximumDisplayGapMs(data) {
   return maximum;
 }
 
-const HISTORY_INTENT_STABILITY_MS = 500;
-
 /** Construct the only real Lightweight Charts series writer for one pane. */
 export function createLightweightChartAdapter({
   host,
@@ -68,27 +61,11 @@ export function createLightweightChartAdapter({
   requestFrame = window.requestAnimationFrame.bind(window),
   viewportPort,
 }) {
-  if (!(host instanceof HTMLElement)) {
-    failLightweightAdapter('CHART_HOST_INVALID', 'Chart host must be an HTMLElement.');
-  }
-  const viewport = requirePort(viewportPort);
-  const chart = createChart(host, CHART_OPTIONS);
-  const series = chart.addSeries(CandlestickSeries, CANDLE_OPTIONS);
-  const currentPriceName = createCurrentPriceNamePrimitive();
-  series.attachPrimitive(currentPriceName.primitive);
-  const futureTimeAxisSeries = chart.addSeries(LineSeries, Object.freeze({
-    crosshairMarkerVisible: false,
-    lastValueVisible: false,
-    lineVisible: false,
-    priceLineVisible: false,
-  }));
-  const priceScale = chart.priceScale('right');
-  const crosshairPresentation = createCrosshairPresentationIndex();
-  const truncationInteraction = createReplayTruncationInteraction({
-    chart, host, onSelect: onTruncationSelect,
-  });
-  host.dataset.libraryVersion = lightweightChartsVersion();
-  host.dataset.gridVisible = 'true';
+  const viewport = requireAdapterEnvironment(host, viewportPort);
+  const surface = createLightweightChartSurface({ host, onTruncationSelect });
+  const {
+    chart, currentPriceName, futureTimeAxisSeries, priceScale, series, truncationInteraction,
+  } = surface;
   let adapterRevision = 0;
   let appliedBars = Object.freeze([]);
   let appliedData = Object.freeze([]);
@@ -96,58 +73,19 @@ export function createLightweightChartAdapter({
   let appliedTimeframeDurationMs = null;
   let barCount = 0;
   let disposed = false;
-  let captureToken = 0;
-  let historyCaptureTimer = null;
-  let nativeGestureRevision = 0;
-  let capturedGestureRevision = -1;
-  let nativePointerActive = false;
-  let pointerDownPoint = null;
-  let nativePointerDragged = false;
-  let pointerWithinHost = false;
   let seriesDataRevision = 0;
   let maximumAppliedDisplayGapMs = 0;
-  let presentationInstrumentLabel = '';
-  let presentationPriceIncrement = '0.01';
-  let presentationSettings = createWorkstationSettings();
   let visibleMutationToken = 0;
   const stagedApplications = new WeakMap();
   const onSeriesDataChanged = () => { seriesDataRevision += 1; };
   series.subscribeDataChanged(onSeriesDataChanged);
+  const presentation = createWorkstationPresentationController({
+    chart, currentPriceName, host, priceScale, series, truncationInteraction,
+  });
 
-  function syncCurrentPrice(data = appliedData) {
-    currentPriceName.update({
-      bar: data.at(-1) ?? null,
-      instrumentLabel: presentationInstrumentLabel,
-      settings: presentationSettings,
-    });
-  }
-
-  function recordCrosshairObservation(value, origin) {
-    host.dataset.crosshairDisplayEpochMs = value.displayEpochMs === null
-      ? 'none' : String(value.displayEpochMs);
-    host.dataset.crosshairOrigin = origin;
-    host.dataset.crosshairState = value.state;
-    return value;
-  }
-
-  const onChartCrosshairMove = (event) => {
-    if (!pointerWithinHost && !host.matches(':hover')) return;
-    const displayEpochMs = typeof event.time === 'number' ? Math.round(event.time * 1_000) : null;
-    const hasSeriesBar = displayEpochMs !== null && event.seriesData?.has(series) === true;
-    const value = hasSeriesBar
-      ? crosshairPresentation.selectedAt(displayEpochMs)
-      : crosshairPresentation.latest();
-    onCrosshairMove(recordCrosshairObservation(value, 'native'));
-  };
-  chart.subscribeCrosshairMove(onChartCrosshairMove);
-
-  const onCrosshairEnter = () => { pointerWithinHost = true; };
-  const onCrosshairLeave = () => {
-    pointerWithinHost = false;
-    onCrosshairMove(recordCrosshairObservation(crosshairPresentation.latest(), 'native'));
-  };
-  host.addEventListener('pointerenter', onCrosshairEnter);
-  host.addEventListener('pointerleave', onCrosshairLeave);
+  const crosshairInteraction = createAdapterCrosshairInteraction({
+    chart, host, onCrosshairMove, series,
+  });
 
   function applyViewport() {
     if (barCount < 1) return null;
@@ -190,75 +128,17 @@ export function createLightweightChartAdapter({
     readTimeframeDurationMs: () => appliedTimeframeDurationMs,
   });
 
-  async function captureNativeViewport() {
-    const token = ++captureToken;
-    await new Promise((resolve) => requestFrame(resolve));
-    if (disposed || token !== captureToken || barCount < 1) return;
-    const range = chart.timeScale().getVisibleLogicalRange();
-    if (!range) return;
-    host.dataset.logicalFrom = String(range.from);
-    host.dataset.logicalTo = String(range.to);
-    viewport.captureManual({ latestLogicalIndex: barCount - 1, range });
-    const value = readViewportIntent(viewport.snapshot());
-    host.dataset.latestOffsetBars = String(value.latestOffsetBars);
-    host.dataset.spanBars = String(value.spanBars);
-    host.dataset.viewportOrigin = value.origin;
-    host.dataset.viewportRevision = String(value.revision);
-    onViewportIntent(value);
-    onHistoryBoundary(Object.freeze({ from: range.from, to: range.to }));
-  }
-
-  function scheduleNativeViewportCapture(delayMs = HISTORY_INTENT_STABILITY_MS) {
-    const gestureRevision = nativeGestureRevision;
-    if (capturedGestureRevision === gestureRevision) return;
-    if (historyCaptureTimer !== null) clearTimeout(historyCaptureTimer);
-    historyCaptureTimer = setTimeout(() => {
-      historyCaptureTimer = null;
-      if (disposed || capturedGestureRevision === gestureRevision) return;
-      capturedGestureRevision = gestureRevision;
-      host.dataset.historyBoundaryCaptureCount = String(
-        Number(host.dataset.historyBoundaryCaptureCount || 0) + 1,
-      );
-      void captureNativeViewport();
-    }, delayMs);
-  }
-
-  const onPointerDown = (event) => {
-    if (!host.contains(event.target)) return;
-    if (!nativePointerActive) nativeGestureRevision += 1;
-    nativePointerActive = true;
-    pointerDownPoint = Object.freeze({ x: event.clientX, y: event.clientY });
-    nativePointerDragged = false;
-  };
-  const onPointerMove = (event) => {
-    if (!nativePointerActive || !pointerDownPoint) return;
-    if (!nativePointerDragged) {
-      const x = event.clientX - pointerDownPoint.x;
-      const y = event.clientY - pointerDownPoint.y;
-      nativePointerDragged = ((x * x) + (y * y)) >= 4;
-    }
-    if (nativePointerDragged) scheduleNativeViewportCapture();
-  };
-  const onPointerUp = () => {
-    if (!nativePointerActive) return;
-    nativePointerActive = false;
-    pointerDownPoint = null;
-    if (nativePointerDragged) scheduleNativeViewportCapture(0);
-    nativePointerDragged = false;
-  };
-  const onWheel = (event) => {
-    host.dataset.wheelEventCount = String(Number(host.dataset.wheelEventCount || 0) + 1);
-    if (applyPriceScaleWheel({ event, host, priceScale })) return;
-    nativeGestureRevision += 1;
-    scheduleNativeViewportCapture();
-  };
-  host.addEventListener('wheel', onWheel, { capture: true, passive: false });
-  window.addEventListener('pointerdown', onPointerDown, true);
-  window.addEventListener('mousedown', onPointerDown, true);
-  window.addEventListener('pointermove', onPointerMove, true);
-  window.addEventListener('mousemove', onPointerMove, true);
-  window.addEventListener('pointerup', onPointerUp, true);
-  window.addEventListener('mouseup', onPointerUp, true);
+  const nativeViewportInteraction = createNativeViewportInteraction({
+    chart,
+    host,
+    isDisposed: () => disposed,
+    onHistoryBoundary,
+    onViewportIntent,
+    priceScale,
+    readBarCount: () => barCount,
+    requestFrame,
+    viewport,
+  });
 
   function captureVisibleState() {
     return captureAdapterVisibleState({
@@ -308,15 +188,16 @@ export function createLightweightChartAdapter({
     barCount = restored.barCount;
     maximumAppliedDisplayGapMs = restored.maximumDisplayGapMs;
     if (record.presentationMutated) {
-      applyWorkstationSettings(
+      presentation.apply(
         record.previousSettings,
         record.previousPriceIncrement,
         record.previousInstrumentLabel,
+        appliedData,
       );
     }
-    syncCurrentPrice();
+    presentation.syncCurrentPrice(appliedData);
     truncationInteraction.setBars(appliedBars);
-    crosshairPresentation.setBars(appliedBars);
+    crosshairInteraction.setBars(appliedBars);
     await requireTailUpdatePaint({ changed: () => seriesDataRevision > dataRevisionBefore, requestFrame });
     if (disposed || record.token !== visibleMutationToken) {
       record.state = 'rolled-back';
@@ -333,7 +214,7 @@ export function createLightweightChartAdapter({
     futureTimeAxisSeries.setData(futureTimeAxisData);
     if (mutation.kind === 'tail-update') series.update({ ...mutation.bar });
     else series.setData(data);
-    syncCurrentPrice(data);
+    presentation.syncCurrentPrice(data);
     const mutationEndedAt = performance.now();
     barCount = data.length;
     applyViewport();
@@ -364,7 +245,7 @@ export function createLightweightChartAdapter({
     barCount = 0;
     maximumAppliedDisplayGapMs = 0;
     truncationInteraction.setBars(appliedBars);
-    crosshairPresentation.setBars(appliedBars);
+    crosshairInteraction.setBars(appliedBars);
     host.dataset.barCount = '0';
     host.dataset.futureTimeAxisPointCount = '0';
     host.dataset.lastApplyMs = (paintedAt - startedAt).toFixed(3);
@@ -393,7 +274,7 @@ export function createLightweightChartAdapter({
     appliedFutureTimeAxisData = context.staged.futureTimeAxisData;
     appliedTimeframeDurationMs = context.workspaceSnapshot.provenance.displayTimeframeDurationMs;
     truncationInteraction.setBars(appliedBars);
-    crosshairPresentation.setBars(appliedBars);
+    crosshairInteraction.setBars(appliedBars);
     host.dataset.barCount = String(barCount);
     host.dataset.futureTimeAxisPointCount = String(appliedFutureTimeAxisData.length);
     host.dataset.displayTimeframeId = context.workspaceSnapshot.provenance.displayTimeframeId;
@@ -431,22 +312,24 @@ export function createLightweightChartAdapter({
     if (!record || record.state !== 'staged' || context.staged.kind !== kind) {
       failLightweightAdapter('CHART_ADAPTER_STAGE_INVALID', 'Chart stage is missing, mismatched, or already applied.');
     }
+    const previousPresentation = presentation.snapshot();
     record.previous = captureVisibleState();
-    record.previousPriceIncrement = presentationPriceIncrement;
-    record.previousInstrumentLabel = presentationInstrumentLabel;
-    record.previousSettings = presentationSettings;
+    record.previousPriceIncrement = previousPresentation.priceIncrement;
+    record.previousInstrumentLabel = previousPresentation.instrumentLabel;
+    record.previousSettings = previousPresentation.settings;
     record.previousTimeframeDurationMs = appliedTimeframeDurationMs;
     record.token = ++visibleMutationToken;
     record.state = 'applying';
     try {
       record.presentationMutated = context.staged.priceIncrement !== null
-        && (context.staged.priceIncrement !== presentationPriceIncrement
-          || context.staged.instrumentLabel !== presentationInstrumentLabel);
+        && (context.staged.priceIncrement !== previousPresentation.priceIncrement
+          || context.staged.instrumentLabel !== previousPresentation.instrumentLabel);
       if (record.presentationMutated) {
-        applyWorkstationSettings(
-          presentationSettings,
+        presentation.apply(
+          previousPresentation.settings,
           context.staged.priceIncrement,
           context.staged.instrumentLabel,
+          appliedData,
         );
       }
       const timing = await mutateAndPaint(
@@ -464,79 +347,6 @@ export function createLightweightChartAdapter({
       host.dataset.lastApplyError = `${error?.code ?? error?.name ?? 'error'}:${error?.message ?? error}`;
       throw error;
     }
-  }
-
-  function applyWorkstationSettings(
-    settings,
-    priceIncrement = presentationPriceIncrement,
-    instrumentLabel = presentationInstrumentLabel,
-  ) {
-    if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
-    const value = readWorkstationSettings(settings);
-    const previousSettings = presentationSettings;
-    const previousIncrement = presentationPriceIncrement;
-    try {
-      const canvasPresentation = createCanvasPresentation(settings);
-      const timePresentation = createChartTimePresentation(settings);
-      chart.applyOptions({
-        ...canvasPresentation.chartOptions,
-        localization: { timeFormatter: timePresentation.timeFormatter },
-        timeScale: { tickMarkFormatter: timePresentation.tickMarkFormatter },
-      });
-      priceScale.applyOptions(canvasPresentation.priceScaleOptions);
-      truncationInteraction.setNormalCrosshair(canvasPresentation.crosshairOptions);
-      const { customNameOnlyVisible: _customNameOnlyVisible, ...currentPriceOptions }
-        = createCurrentPriceSeriesPresentation(settings, instrumentLabel);
-      series.applyOptions({
-        ...createCandleSeriesPresentation(settings, priceIncrement),
-        ...currentPriceOptions,
-      });
-    } catch (error) {
-      try {
-        const previousCanvasPresentation = createCanvasPresentation(previousSettings);
-        const previousTimePresentation = createChartTimePresentation(previousSettings);
-        chart.applyOptions({
-          ...previousCanvasPresentation.chartOptions,
-          localization: { timeFormatter: previousTimePresentation.timeFormatter },
-          timeScale: { tickMarkFormatter: previousTimePresentation.tickMarkFormatter },
-        });
-        priceScale.applyOptions(previousCanvasPresentation.priceScaleOptions);
-        truncationInteraction.setNormalCrosshair(previousCanvasPresentation.crosshairOptions);
-        const { customNameOnlyVisible: _customNameOnlyVisible, ...previousCurrentPriceOptions }
-          = createCurrentPriceSeriesPresentation(previousSettings, presentationInstrumentLabel);
-        series.applyOptions({
-          ...createCandleSeriesPresentation(previousSettings, previousIncrement),
-          ...previousCurrentPriceOptions,
-        });
-        syncCurrentPrice();
-      } catch { /* Preserve the first native option failure. */ }
-      throw error;
-    }
-    presentationSettings = settings;
-    presentationPriceIncrement = priceIncrement;
-    presentationInstrumentLabel = instrumentLabel;
-    syncCurrentPrice();
-    host.dataset.bodyVisible = String(value.candles.bodyVisible);
-    host.dataset.canvasBackgroundColor = value.canvas.backgroundColor;
-    host.dataset.bordersVisible = String(value.candles.bordersVisible);
-    host.dataset.crosshairColor = value.canvas.crosshairColor;
-    host.dataset.crosshairOpacityPercent = String(value.canvas.crosshairOpacityPercent);
-    host.dataset.crosshairStyle = value.canvas.crosshairStyle;
-    host.dataset.crosshairWidth = String(value.canvas.crosshairWidth);
-    host.dataset.gridVisible = String(value.canvas.gridVisible);
-    host.dataset.scaleFontSize = String(value.canvas.scaleFontSize);
-    host.dataset.scaleTextColor = value.canvas.scaleTextColor;
-    host.dataset.scaleMarginBottomPercent = String(value.canvas.bottomMarginPercent);
-    host.dataset.scaleMarginTopPercent = String(value.canvas.topMarginPercent);
-    host.dataset.pricePrecision = String(value.candles.pricePrecision);
-    host.dataset.currentPriceLineVisible = String(value.currentPrice.lineVisible);
-    host.dataset.currentPriceNameVisible = String(value.currentPrice.nameVisible);
-    host.dataset.currentPriceValueVisible = String(value.currentPrice.valueVisible);
-    host.dataset.dateFormat = value.time.dateFormat;
-    host.dataset.dayOfWeekVisible = String(value.time.dayOfWeekVisible);
-    host.dataset.displayTimezone = value.time.displayTimezone;
-    host.dataset.hourFormat = value.time.hourFormat;
-    host.dataset.wicksVisible = String(value.candles.wicksVisible);
   }
 
   return Object.freeze({
@@ -561,21 +371,10 @@ export function createLightweightChartAdapter({
     dispose() {
       if (disposed) return;
       disposed = true;
-      if (historyCaptureTimer !== null) clearTimeout(historyCaptureTimer);
-      historyCaptureTimer = null;
-      captureToken += 1;
       visibleMutationToken += 1;
-      host.removeEventListener('wheel', onWheel, true);
-      host.removeEventListener('pointerenter', onCrosshairEnter);
-      host.removeEventListener('pointerleave', onCrosshairLeave);
-      window.removeEventListener('pointerdown', onPointerDown, true);
-      window.removeEventListener('mousedown', onPointerDown, true);
-      window.removeEventListener('pointermove', onPointerMove, true);
-      window.removeEventListener('mousemove', onPointerMove, true);
-      window.removeEventListener('pointerup', onPointerUp, true);
-      window.removeEventListener('mouseup', onPointerUp, true);
+      nativeViewportInteraction.dispose();
       series.unsubscribeDataChanged(onSeriesDataChanged);
-      chart.unsubscribeCrosshairMove(onChartCrosshairMove);
+      crosshairInteraction.dispose();
       truncationInteraction.dispose();
       series.detachPrimitive(currentPriceName.primitive);
       chart.remove();
@@ -586,114 +385,47 @@ export function createLightweightChartAdapter({
       const projection = applyViewport();
       if (projection) onViewportIntent(readViewportIntent(viewport.snapshot()));
     },
-    applyWorkstationSettings,
+    applyWorkstationSettings(settings, priceIncrement, instrumentLabel) {
+      if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+      const current = presentation.snapshot();
+      presentation.apply(
+        settings,
+        priceIncrement === undefined ? current.priceIncrement : priceIncrement,
+        instrumentLabel === undefined ? current.instrumentLabel : instrumentLabel,
+        appliedData,
+      );
+    },
     clearCrosshairPosition() {
-      chart.clearCrosshairPosition();
-      return recordCrosshairObservation(crosshairPresentation.latest(), 'cleared');
+      return crosshairInteraction.clear();
     },
-    crosshairObservation(displayEpochMs = null) {
-      return displayEpochMs === null
-        ? crosshairPresentation.latest()
-        : crosshairPresentation.selectedAt(displayEpochMs);
-    },
-    projectCrosshair(displayEpochMs) {
-      const value = crosshairPresentation.selectedAt(displayEpochMs);
-      if (!value.bar || !Number.isSafeInteger(displayEpochMs)) return value;
-      chart.setCrosshairPosition(value.bar.close, displayEpochMs / 1_000, series);
-      return recordCrosshairObservation(value, 'projected');
-    },
+    crosshairObservation: crosshairInteraction.observe,
+    projectCrosshair: crosshairInteraction.project,
     locateMarketTime: paneTimeLocation.locateMarketTime,
     resolveTimeLocationSelection: paneTimeLocation.resolveSelection,
     setTruncationSelection(active) { truncationInteraction.setActive(active); },
-    snapshot() {
-      const latestCandleTime = appliedData.at(-1)?.time ?? null;
-      const firstFutureTime = appliedFutureTimeAxisData[0]?.time ?? null;
-      const chartOptions = chart.options();
-      const priceScaleOptions = priceScale.options();
-      const seriesOptions = series.options();
-      return Object.freeze({
-        adapterRevision,
-        barCount,
-        canvasPresentation: Object.freeze({
-          backgroundColor: chartOptions.layout.background.color,
-          crosshairColor: host.dataset.crosshairColor,
-          crosshairOpacityPercent: Number(host.dataset.crosshairOpacityPercent),
-          crosshairStyle: host.dataset.crosshairStyle,
-          crosshairWidth: Number(host.dataset.crosshairWidth),
-          nativeHorzCrosshair: Object.freeze({
-            color: chartOptions.crosshair.horzLine.color,
-            style: chartOptions.crosshair.horzLine.style,
-            width: chartOptions.crosshair.horzLine.width,
-          }),
-          nativeVertCrosshair: Object.freeze({
-            color: chartOptions.crosshair.vertLine.color,
-            style: chartOptions.crosshair.vertLine.style,
-            width: chartOptions.crosshair.vertLine.width,
-          }),
-          scaleFontSize: chartOptions.layout.fontSize,
-          scaleMargins: Object.freeze({ ...priceScaleOptions.scaleMargins }),
-          scaleTextColor: chartOptions.layout.textColor,
-        }),
-        firstFutureTimeAxisCoordinate: firstFutureTime === null
-          ? null : chart.timeScale().timeToCoordinate(firstFutureTime),
-        futureTimeAxisPointCount: appliedFutureTimeAxisData.length,
-        lastApplyMs: Number(host.dataset.lastApplyMs || 0),
-        lastMutationMode: host.dataset.lastMutationMode ?? null,
-        lastMutationMs: Number(host.dataset.lastMutationMs || 0),
-        lastPaintMs: Number(host.dataset.lastPaintMs || 0),
-        lastPaintProof: host.dataset.lastPaintProof ?? null,
-        libraryVersion: lightweightChartsVersion(),
-        latestCandleCoordinate: latestCandleTime === null
-          ? null : chart.timeScale().timeToCoordinate(latestCandleTime),
-        latestFutureTimeAxisEpochMs: appliedFutureTimeAxisData.at(-1)?.time * 1_000 ?? null,
-        logicalRange: chart.timeScale().getVisibleLogicalRange(),
-        painted: host.dataset.painted === 'true',
-        priceRange: priceScale.getVisibleRange(),
-        timePresentation: Object.freeze({
-          dateFormat: host.dataset.dateFormat,
-          dayOfWeekVisible: host.dataset.dayOfWeekVisible === 'true',
-          displayTimezone: host.dataset.displayTimezone,
-          hourFormat: host.dataset.hourFormat,
-          sampleCrosshair: chartOptions.localization.timeFormatter(1_777_639_400),
-          sampleTimeTick: chartOptions.timeScale.tickMarkFormatter(1_777_639_400, 3, 'en-US'),
-        }),
-        gridVisible: host.dataset.gridVisible === 'true',
-        bodyVisible: host.dataset.bodyVisible === 'true',
-        bordersVisible: host.dataset.bordersVisible === 'true',
-        pricePrecision: host.dataset.pricePrecision ?? 'auto',
-        seriesDataRevision,
-        seriesPresentation: Object.freeze({
-          borderDownColor: seriesOptions.borderDownColor,
-          borderUpColor: seriesOptions.borderUpColor,
-          borderVisible: seriesOptions.borderVisible,
-          downColor: seriesOptions.downColor,
-          currentPriceNameOnly: currentPriceName.snapshot(),
-          lastValueVisible: seriesOptions.lastValueVisible,
-          priceFormat: Object.freeze({
-            minMove: seriesOptions.priceFormat.minMove,
-            precision: seriesOptions.priceFormat.precision ?? null,
-            type: seriesOptions.priceFormat.type,
-          }),
-          priceLineColor: seriesOptions.priceLineColor,
-          priceLineVisible: seriesOptions.priceLineVisible,
-          title: seriesOptions.title,
-          upColor: seriesOptions.upColor,
-          wickDownColor: seriesOptions.wickDownColor,
-          wickUpColor: seriesOptions.wickUpColor,
-          wickVisible: seriesOptions.wickVisible,
-        }),
-        wicksVisible: host.dataset.wicksVisible === 'true',
-        viewportIntent: viewport.snapshot(),
-      });
-    },
+    snapshot: () => createAdapterSnapshot({
+      adapterRevision,
+      appliedData,
+      appliedFutureTimeAxisData,
+      barCount,
+      chart,
+      currentPriceName,
+      host,
+      libraryVersion: surface.libraryVersion,
+      priceScale,
+      series,
+      seriesDataRevision,
+      viewport,
+    }),
     async stage({
       identity,
-      instrumentLabel = presentationInstrumentLabel,
-      priceIncrement = presentationPriceIncrement,
+      instrumentLabel,
+      priceIncrement,
       signal,
       workspaceSnapshot,
     }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+      const current = presentation.snapshot();
       const data = chartData(workspaceSnapshot);
       return registerStage({
         data,
@@ -702,27 +434,28 @@ export function createLightweightChartAdapter({
           latestDisplayEpochMs: data.at(-1).time * 1_000,
         }),
         identity,
-        instrumentLabel,
+        instrumentLabel: instrumentLabel === undefined ? current.instrumentLabel : instrumentLabel,
         kind: 'ready',
-        priceIncrement,
+        priceIncrement: priceIncrement === undefined ? current.priceIncrement : priceIncrement,
         signal,
         workspaceSnapshot,
       });
     },
     async stageEmpty({
       identity,
-      instrumentLabel = presentationInstrumentLabel,
-      priceIncrement = presentationPriceIncrement,
+      instrumentLabel,
+      priceIncrement,
       signal,
     }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+      const current = presentation.snapshot();
       return registerStage({
         data: Object.freeze([]),
         futureTimeAxisData: Object.freeze([]),
         identity,
-        instrumentLabel,
+        instrumentLabel: instrumentLabel === undefined ? current.instrumentLabel : instrumentLabel,
         kind: 'empty',
-        priceIncrement,
+        priceIncrement: priceIncrement === undefined ? current.priceIncrement : priceIncrement,
         signal,
         workspaceSnapshot: null,
       });

@@ -1,23 +1,24 @@
 import { createRawBarRequest } from '../bar-data-contract/public.js';
-import { createProjectedHistoryRequest } from '../projected-history-contract/public.js';
 import {
   createV4BarsProvider,
   createV4ProjectedHistoryProvider,
   V4_BARS_DATASET_REVISION,
-  V4_PROJECTED_HISTORY_PROVIDER_ID,
 } from '../v4-bars-provider-adapter/public.js';
 import { createFoundationCapabilities, FOUNDATION_IDS } from './foundation-capabilities.js';
+import {
+  requireTargetDisplayBars,
+  sourceBarsForDisplay,
+  TARGET_HISTORY_DISPLAY_BARS,
+} from './foundation-history-budget.js';
 import { planSingleHistoryWindow } from './history-window-plan.js';
+import { createFoundationProjectedHistory } from './foundation-projected-history.js';
 const MINUTE = 60_000;
 const ENTRY_PREFIX_BARS = 120;
 const FORWARD_BUFFER_SOURCE_BARS = 500;
 const MINIMUM_HISTORY_SOURCE_BARS = 240;
-const TARGET_HISTORY_DISPLAY_BARS = 240;
 const MAXIMUM_REQUEST_SOURCE_BARS = 35 * 24 * 60;
 const MAXIMUM_SINGLE_HISTORY_DAYS = 210;
 const MAXIMUM_SINGLE_HISTORY_WINDOW_MS = MAXIMUM_SINGLE_HISTORY_DAYS * 24 * 60 * MINUTE;
-const MAXIMUM_PROJECTED_HISTORY_WINDOW_MS = 24 * 366 * 24 * 60 * MINUTE;
-const PROJECTED_HISTORY_MINIMUM_DURATION_MS = 60 * MINUTE;
 
 /** Concrete NQ-primary Session market composition, isolated outside all core owners. */
 export function createFoundationMarket(record, {
@@ -29,21 +30,14 @@ export function createFoundationMarket(record, {
   const range = record.configuration.historicalRange;
   const contextStartEpochMs = Math.max(0, range.startEpochMs - (ENTRY_PREFIX_BARS * MINUTE));
   const entryHistoryEndEpochMs = range.startEpochMs + MINUTE;
-  function targetDisplayBars(value = TARGET_HISTORY_DISPLAY_BARS) {
-    if (!Number.isSafeInteger(value) || value < 1) {
-      throw new TypeError('Target display bars must be a positive safe integer.');
-    }
-    return value;
-  }
   function historySourceBars(selection, displayBars = TARGET_HISTORY_DISPLAY_BARS) {
-    const durationMs = capabilities.historyPlanning(selection).durationMs;
-    return Math.min(
-      MAXIMUM_REQUEST_SOURCE_BARS,
-      Math.max(
-        MINIMUM_HISTORY_SOURCE_BARS,
-        Math.ceil(durationMs / MINUTE) * targetDisplayBars(displayBars),
-      ),
-    );
+    return sourceBarsForDisplay({
+      displayBars,
+      durationMs: capabilities.historyPlanning(selection).durationMs,
+      maximumSourceBars: MAXIMUM_REQUEST_SOURCE_BARS,
+      minimumSourceBars: MINIMUM_HISTORY_SOURCE_BARS,
+      sourceDurationMs: MINUTE,
+    });
   }
   function usesEntryPrefix(selection) {
     return selection?.displayTimeframe?.id === capabilities.defaultTarget.timeframeId
@@ -103,7 +97,7 @@ export function createFoundationMarket(record, {
       durationMs: capabilities.historyPlanning(planningSelection).durationMs,
       isEligibleMinute: (epochMs) => isEligibleMinute(epochMs, planningSelection),
       maximumWindowMs: MAXIMUM_REQUEST_SOURCE_BARS * MINUTE,
-      targetDisplayBars: targetDisplayBars(displayBars),
+      targetDisplayBars: requireTargetDisplayBars(displayBars),
       windowEndEpochMs: entryHistoryEndEpochMs,
     });
   }
@@ -112,7 +106,7 @@ export function createFoundationMarket(record, {
     selection = capabilities.defaultSelection,
     replacementDisplayBars = null,
   ) {
-    const displayBars = targetDisplayBars(
+    const displayBars = requireTargetDisplayBars(
       replacementDisplayBars ?? TARGET_HISTORY_DISPLAY_BARS,
     );
     const requiredBars = Math.max(1, Math.ceil((exclusiveEndEpochMs - range.startEpochMs) / MINUTE));
@@ -146,64 +140,14 @@ export function createFoundationMarket(record, {
       }),
     });
   }
-  function supportsProjectedHistory(selection = capabilities.defaultSelection) {
-    return selection?.displayTimeframe?.alignment?.kind === 'calendar'
-      || (selection?.displayTimeframe?.alignment?.kind === 'fixed-duration'
-        && selection.displayTimeframe.alignment.durationMs >= PROJECTED_HISTORY_MINIMUM_DURATION_MS);
-  }
-  function requiresProjectedReplacementHistory(request, selection, displayBars) {
-    if (!supportsProjectedHistory(selection)) return false;
-    if (selection.displayTimeframe.alignment.kind === 'calendar') return true;
-    const plannedStart = plannedEntryHistoryStart(selection, displayBars);
-    const hardStart = Math.max(
-      0,
-      entryHistoryEndEpochMs - (MAXIMUM_REQUEST_SOURCE_BARS * MINUTE),
-    );
-    return plannedStart <= hardStart || request.windowStartEpochMs > plannedStart;
-  }
-  function requestProjectedHistoryBefore(
-    oldestEpochMs,
-    selection = capabilities.defaultSelection,
-    targetDisplayBars = TARGET_HISTORY_DISPLAY_BARS,
-  ) {
-    if (!supportsProjectedHistory(selection)) {
-      throw new TypeError('Projected History requires a registered higher timeframe.');
-    }
-    const windowEndEpochMs = Math.max(MINUTE, oldestEpochMs);
-    const alignment = selection.displayTimeframe.alignment;
-    const planning = capabilities.historyPlanning(selection);
-    const displayBars = Math.ceil(targetDisplayBars ?? TARGET_HISTORY_DISPLAY_BARS);
-    const windowStartEpochMs = alignment.kind === 'calendar'
-      ? planning.alignStartEpochMs(Math.max(
-        0,
-        windowEndEpochMs - Math.min(
-          MAXIMUM_PROJECTED_HISTORY_WINDOW_MS,
-          planning.durationMs * displayBars,
-        ),
-      ))
-      : planSingleHistoryWindow({
-        durationMs: planning.durationMs,
-        isEligibleMinute: (epochMs) => isEligibleMinute(epochMs, selection),
-        maximumWindowMs: MAXIMUM_PROJECTED_HISTORY_WINDOW_MS,
-        targetDisplayBars: displayBars,
-        windowEndEpochMs,
-      });
-    return createProjectedHistoryRequest({
-      aggregationPolicyRevision: selection.aggregationPolicy.revision,
-      alignmentKind: alignment.kind,
-      alignmentPolicyId: alignment.kind === 'calendar' ? alignment.policyId : null,
-      calendarRevision: selection.calendar.revision,
-      datasetRevision: V4_BARS_DATASET_REVISION,
-      displayTimeframeId: selection.displayTimeframe.id,
-      durationMs: alignment.kind === 'fixed-duration' ? alignment.durationMs : null,
-      instrumentId: selection.instrument.id,
-      providerId: V4_PROJECTED_HISTORY_PROVIDER_ID,
-      schemaVersion: 1,
-      sessionHoursMode: selection.sessionHoursMode,
-      windowEndEpochMs,
-      windowStartEpochMs,
-    });
-  }
+  const projectedHistory = createFoundationProjectedHistory({
+    capabilities,
+    entryHistoryEndEpochMs,
+    isEligibleMinute,
+    maximumRequestSourceBars: MAXIMUM_REQUEST_SOURCE_BARS,
+    plannedEntryHistoryStart,
+    targetHistoryDisplayBars: TARGET_HISTORY_DISPLAY_BARS,
+  });
   function requestForTimeLocation(
     oldestEpochMs,
     targetEpochMs,
@@ -260,19 +204,11 @@ export function createFoundationMarket(record, {
     projectedHistoryProvider,
     request,
     requestBefore,
-    requestProjectedHistoryBefore,
+    requestProjectedHistoryBefore: projectedHistory.requestBefore,
     requestForTimeLocation,
     requestThrough,
     requestWindow: rawRequest,
-    requiresProjectedReplacementHistory,
-    supportsProjectedHistory,
+    requiresProjectedReplacementHistory: projectedHistory.requiresReplacement,
+    supportsProjectedHistory: projectedHistory.supportsProjectedHistory,
   });
-}
-
-export function supportsFoundationWorkspace(record) {
-  const instrumentIds = record?.configuration?.instrumentIds;
-  const supported = new Set(Object.values(FOUNDATION_IDS.instruments));
-  return Array.isArray(instrumentIds) && instrumentIds.length > 0
-    && instrumentIds.includes(FOUNDATION_IDS.instrument)
-    && instrumentIds.every((id) => supported.has(id));
 }

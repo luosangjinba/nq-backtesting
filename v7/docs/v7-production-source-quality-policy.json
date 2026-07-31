@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "deliveryStep": "R8.12",
+  "productionRoots": ["src", "app"],
+  "application": {
+    "kind": "composition",
+    "owner": "application-composition"
+  },
+  "moduleKinds": {
+    "composition": [
+      "adapter.data-acquisition-application",
+      "adapter.session-application",
+      "core.replay-workspace-composition"
+    ],
+    "contract": [
+      "core.activation-generation",
+      "core.bar-data-contract",
+      "core.capability-contract",
+      "core.coverage-planning-contract",
+      "core.prepared-commit-contract",
+      "core.projected-history-contract",
+      "core.provider-policy-contract",
+      "core.raw-coverage-lease-contract",
+      "core.replay-contract",
+      "core.replay-navigation-settings",
+      "core.replay-pane-response-contract",
+      "core.replay-prefetch-contract",
+      "core.session-identity",
+      "core.transaction-identity",
+      "core.workspace-transaction-contract"
+    ],
+    "domain": [
+      "core.calendar-timeframe-domain",
+      "core.fixed-timeframe-domain",
+      "core.layout-sync-domain",
+      "core.pane-layout-domain",
+      "core.pane-time-location-domain",
+      "core.pane-workspace-domain",
+      "core.projection-domain",
+      "core.session-hours-domain",
+      "core.workspace-checkpoint-domain"
+    ],
+    "runtime": [
+      "core.bar-data-runtime",
+      "core.chart-snapshot-application",
+      "core.module-host",
+      "core.pane-set-materialization",
+      "core.provider-execution-runtime",
+      "core.replay-navigation-runtime",
+      "core.replay-runtime",
+      "core.session-store",
+      "core.viewport-runtime",
+      "core.workspace-replacement-runtime",
+      "core.workspace-state-runtime",
+      "core.workspace-transaction-runtime",
+      "core.workstation-settings"
+    ],
+    "adapter": [
+      "adapter.lightweight-chart",
+      "adapter.v4-bars-provider"
+    ],
+    "persistence": [
+      "adapter.session-persistence",
+      "core.replay-navigation-preference-store"
+    ],
+    "ui": [
+      "adapter.calendar-surface",
+      "adapter.data-acquisition-ui",
+      "adapter.replay-workspace-ui",
+      "adapter.session-browser-ui"
+    ]
+  },
+  "requiredCriticalInvariants": [
+    "session-identity",
+    "stale-rejection",
+    "atomic-commit",
+    "no-future",
+    "projection-alignment",
+    "viewport-wall"
+  ],
+  "sizeExceptions": [],
+  "functionExceptions": []
+}

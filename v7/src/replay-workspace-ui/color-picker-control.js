@@ -37,6 +37,47 @@ function swatch(color, label, onChoose) {
   return button;
 }
 
+function subscribePickerEvents(
+  button,
+  close,
+  commit,
+  handleDocumentKey,
+  handleDocumentPointer,
+  hidden,
+  isOpen,
+  opacity,
+  open,
+  placePopover,
+  precisePanel,
+  precisePicker,
+  preciseToggle,
+  readCurrent,
+  render,
+  textInput,
+) {
+  button.addEventListener('click', () => (isOpen() ? close() : open()));
+  opacity.addEventListener('input', () => commit(hexColorWithOpacity(readCurrent(), opacity.value)));
+  preciseToggle.addEventListener('click', () => {
+    precisePanel.hidden = !precisePanel.hidden;
+    preciseToggle.textContent = precisePanel.hidden ? '+' : '−';
+    preciseToggle.setAttribute('aria-expanded', String(!precisePanel.hidden));
+    placePopover();
+  });
+  precisePicker.addEventListener('color-changed', (event) => commit(event.detail.value));
+  textInput.addEventListener('change', () => {
+    if (!commit(textInput.value)) render();
+  });
+  hidden.addEventListener('input', () => commit(hidden.value));
+  document.addEventListener('pointerdown', handleDocumentPointer, true);
+  document.addEventListener('keydown', handleDocumentKey, true);
+  window.addEventListener('resize', close);
+  return () => {
+    document.removeEventListener('pointerdown', handleDocumentPointer, true);
+    document.removeEventListener('keydown', handleDocumentKey, true);
+    window.removeEventListener('resize', close);
+  };
+}
+
 /** Own one draft-only picker shell; durable Settings and color history remain external. */
 export function createColorPickerControl({
   getRecentColors = () => [],
@@ -185,30 +226,15 @@ export function createColorPickerControl({
     }
   }
 
-  button.addEventListener('click', () => (opened ? close() : open()));
-  opacity.addEventListener('input', () => commit(hexColorWithOpacity(current, opacity.value)));
-  preciseToggle.addEventListener('click', () => {
-    precisePanel.hidden = !precisePanel.hidden;
-    preciseToggle.textContent = precisePanel.hidden ? '+' : '−';
-    preciseToggle.setAttribute('aria-expanded', String(!precisePanel.hidden));
-    placePopover();
-  });
-  precisePicker.addEventListener('color-changed', (event) => commit(event.detail.value));
-  textInput.addEventListener('change', () => {
-    if (!commit(textInput.value)) render();
-  });
-  hidden.addEventListener('input', () => commit(hidden.value));
-  document.addEventListener('pointerdown', handleDocumentPointer, true);
-  document.addEventListener('keydown', handleDocumentKey, true);
-  window.addEventListener('resize', close);
+  const disposeEvents = subscribePickerEvents(button, close, commit, handleDocumentKey,
+    handleDocumentPointer, hidden, () => opened, opacity, open, placePopover, precisePanel,
+    precisePicker, preciseToggle, () => current, render, textInput);
   render();
 
   return Object.freeze({
     close,
     dispose() {
-      document.removeEventListener('pointerdown', handleDocumentPointer, true);
-      document.removeEventListener('keydown', handleDocumentKey, true);
-      window.removeEventListener('resize', close);
+      disposeEvents();
       root.remove();
     },
     focus: () => button.focus(),

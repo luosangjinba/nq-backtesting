@@ -30,6 +30,32 @@ function requirePaneIds(value) {
   return Object.freeze([...value]);
 }
 
+function restorePaneState({ initialCheckpoint, initialCursorEpochMs, initialPaneCount, paneIds }) {
+  const restored = initialCheckpoint === null ? null : readWorkspaceCheckpoint(initialCheckpoint);
+  if (restored && restored.cursorEpochMs !== initialCursorEpochMs) {
+    failWorkspaceState(
+      'WORKSPACE_STATE_RESTORE_CURSOR_MISMATCH',
+      'Restored Pane Workspace cursor must match the Replay checkpoint cursor.',
+    );
+  }
+  if (restored && restored.panes.length !== initialPaneCount) {
+    failWorkspaceState(
+      'WORKSPACE_STATE_RESTORE_LAYOUT_MISMATCH',
+      'Restored Pane Workspace must match its Pane Layout count.',
+    );
+  }
+  if (restored && restored.panes.some(({ paneId }, index) => paneId !== paneIds[index])) {
+    failWorkspaceState(
+      'WORKSPACE_STATE_RESTORE_PANE_ORDER_MISMATCH',
+      'Restored Pane Workspace must use the configured stable Pane priority prefix.',
+    );
+  }
+  return Object.freeze({
+    restored,
+    restoredPanes: new Map(restored?.panes.map((pane) => [pane.paneId, pane]) ?? []),
+  });
+}
+
 /** Own Pane Workspace construction and every mutable Viewport controller. */
 export function createOwnedPaneState({
   activationGeneration,
@@ -50,26 +76,9 @@ export function createOwnedPaneState({
   const viewportPorts = new Map();
   let accepted = null;
   let defaultRightMarginBars = initialRightMarginBars;
-  const restored = initialCheckpoint === null ? null : readWorkspaceCheckpoint(initialCheckpoint);
-  if (restored && restored.cursorEpochMs !== initialCursorEpochMs) {
-    failWorkspaceState(
-      'WORKSPACE_STATE_RESTORE_CURSOR_MISMATCH',
-      'Restored Pane Workspace cursor must match the Replay checkpoint cursor.',
-    );
-  }
-  if (restored && restored.panes.length !== initialPaneCount) {
-    failWorkspaceState(
-      'WORKSPACE_STATE_RESTORE_LAYOUT_MISMATCH',
-      'Restored Pane Workspace must match its Pane Layout count.',
-    );
-  }
-  if (restored && restored.panes.some(({ paneId }, index) => paneId !== paneIds[index])) {
-    failWorkspaceState(
-      'WORKSPACE_STATE_RESTORE_PANE_ORDER_MISMATCH',
-      'Restored Pane Workspace must use the configured stable Pane priority prefix.',
-    );
-  }
-  const restoredPanes = new Map(restored?.panes.map((pane) => [pane.paneId, pane]) ?? []);
+  const { restored, restoredPanes } = restorePaneState({
+    initialCheckpoint, initialCursorEpochMs, initialPaneCount, paneIds,
+  });
 
   function requireCompatibleWorkspace(workspace) {
     const value = readPaneWorkspace(workspace);

@@ -22,6 +22,51 @@ function withLeaseBatches(lease, identity, visit, index = 0, batches = []) {
   });
 }
 
+function planAcquisitionRequest(context, descriptor, selected, market) {
+  const historyRequest = descriptor.kind === 'history-extension'
+    || descriptor.kind === 'time-location-history';
+  const projectionReplacementRequest = descriptor.kind === 'timeframe-replacement'
+    || descriptor.kind === 'session-hours-replacement';
+  const projectedHistoryRequest = descriptor.kind === 'history-extension'
+    && market.supportsProjectedHistory(selected);
+  const request = projectedHistoryRequest
+    ? market.requestProjectedHistoryBefore(
+      descriptor.oldestEpochMs,
+      selected,
+      descriptor.historyDisplayBars,
+    )
+    : descriptor.kind === 'time-location-history'
+      ? market.requestForTimeLocation(descriptor.oldestEpochMs, descriptor.targetEpochMs, selected)
+      : historyRequest
+        ? market.requestBefore(descriptor.oldestEpochMs, selected, descriptor.historyDisplayBars)
+        : market.requestThrough(
+          readReplayCursorProposal(context.proposal).targetEpochMs,
+          selected,
+          projectionReplacementRequest ? descriptor.historyDisplayBars : null,
+        );
+  const replacementProjectedRequest = projectionReplacementRequest
+    && market.requiresProjectedReplacementHistory(
+      request,
+      selected,
+      descriptor.historyDisplayBars,
+    )
+    ? market.requestProjectedHistoryBefore(
+      request.windowStartEpochMs,
+      selected,
+      descriptor.historyDisplayBars,
+    ) : null;
+  return Object.freeze({
+    historyRequest, projectedHistoryRequest, replacementProjectedRequest, request,
+  });
+}
+
+function acquisitionOperation(descriptor, historyRequest) {
+  if (historyRequest) return 'history-extension';
+  if (['instrument-replacement', 'timeframe-replacement', 'session-hours-replacement']
+    .includes(descriptor.kind)) return 'source-replacement';
+  return 'navigation';
+}
+
 /** Compose transaction-scoped raw leases with pure Projection Domain functions. */
 export function createPaneDataComposition({
   barData,
@@ -55,76 +100,33 @@ export function createPaneDataComposition({
       async acquirePane(context) {
         const descriptor = context.paneRequest.request;
         const selected = selection(context.paneResponse, descriptor.responsePlan);
-        const historyRequest = descriptor.kind === 'history-extension'
-          || descriptor.kind === 'time-location-history';
-        const projectionReplacementRequest = descriptor.kind === 'timeframe-replacement'
-          || descriptor.kind === 'session-hours-replacement';
-        const projectedHistoryRequest = descriptor.kind === 'history-extension'
-          && market.supportsProjectedHistory(selected);
-        const request = projectedHistoryRequest
-          ? market.requestProjectedHistoryBefore(
-            descriptor.oldestEpochMs,
-            selected,
-            descriptor.historyDisplayBars,
-          )
-          : descriptor.kind === 'time-location-history'
-          ? market.requestForTimeLocation(
-            descriptor.oldestEpochMs,
-            descriptor.targetEpochMs,
-            selected,
-          )
-          : historyRequest
-            ? market.requestBefore(
-              descriptor.oldestEpochMs,
-              selected,
-              descriptor.historyDisplayBars,
-            )
-            : market.requestThrough(
-              readReplayCursorProposal(context.proposal).targetEpochMs,
-              selected,
-              projectionReplacementRequest ? descriptor.historyDisplayBars : null,
-            );
-        const replacementProjectedRequest = projectionReplacementRequest
-          && market.requiresProjectedReplacementHistory(
-            request,
-            selected,
-            descriptor.historyDisplayBars,
-          )
-          ? market.requestProjectedHistoryBefore(
-            request.windowStartEpochMs,
-            selected,
-            descriptor.historyDisplayBars,
-          ) : null;
+        const plan = planAcquisitionRequest(context, descriptor, selected, market);
 
         let lease = null;
         let projectedBatch = null;
         let replacementProjectedBatch = null;
-        if (projectedHistoryRequest) {
-          projectedBatch = await projectedHistoryData.acquire(request);
+        if (plan.projectedHistoryRequest) {
+          projectedBatch = await projectedHistoryData.acquire(plan.request);
         } else {
-          const operation = historyRequest
-            ? 'history-extension'
-            : descriptor.kind === 'instrument-replacement'
-                || descriptor.kind === 'timeframe-replacement'
-                || descriptor.kind === 'session-hours-replacement'
-              ? 'source-replacement' : 'navigation';
           lease = await barData.acquireCoverageLease({
             consumerId: context.paneResponse.paneId,
             identity: context.identity,
-            operation,
-            request,
+            operation: acquisitionOperation(descriptor, plan.historyRequest),
+            request: plan.request,
             signal: context.signal,
           });
           stagedLeases.add(lease);
-          if (replacementProjectedRequest) {
-            replacementProjectedBatch = await projectedHistoryData.acquire(replacementProjectedRequest);
+          if (plan.replacementProjectedRequest) {
+            replacementProjectedBatch = await projectedHistoryData.acquire(
+              plan.replacementProjectedRequest,
+            );
           }
         }
         return Object.freeze({
           descriptor,
           lease,
           projectedBatch,
-          projectedHistoryRequest,
+          projectedHistoryRequest: plan.projectedHistoryRequest,
           replacementProjectedBatch,
           selection: selected,
         });

@@ -58,7 +58,7 @@
       }
     ]
   },
-  "deliveryStep": "R8.11",
+  "deliveryStep": "R8.12",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -160,7 +160,7 @@
       {
         "callCount": 1,
         "factory": "createFoundationCapabilities",
-        "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+        "sourceFile": "src/replay-workspace-ui/replay-workspace-mount.js",
         "sourceModuleId": "adapter.replay-workspace-ui",
         "targetModuleId": "core.replay-workspace-composition"
       },
@@ -181,7 +181,7 @@
       {
         "callCount": 1,
         "factory": "createLayoutSync",
-        "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+        "sourceFile": "src/replay-workspace-ui/replay-workspace-mount.js",
         "sourceModuleId": "adapter.replay-workspace-ui",
         "targetModuleId": "core.layout-sync-domain"
       },
@@ -251,7 +251,7 @@
       {
         "callCount": 1,
         "factory": "createPaneLayout",
-        "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+        "sourceFile": "src/replay-workspace-ui/replay-workspace-mount.js",
         "sourceModuleId": "adapter.replay-workspace-ui",
         "targetModuleId": "core.pane-layout-domain"
       },
@@ -384,7 +384,7 @@
       {
         "callCount": 1,
         "factory": "createProjectedHistoryRequest",
-        "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+        "sourceFile": "src/replay-workspace-composition/foundation-projected-history.js",
         "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.projected-history-contract"
       },
@@ -580,7 +580,7 @@
       {
         "callCount": 1,
         "factory": "createReplayWorkspaceComposition",
-        "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+        "sourceFile": "src/replay-workspace-ui/replay-workspace-mount.js",
         "sourceModuleId": "adapter.replay-workspace-ui",
         "targetModuleId": "core.replay-workspace-composition"
       },
@@ -727,15 +727,29 @@
       {
         "callCount": 1,
         "factory": "createWorkstationSettings",
-        "sourceFile": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+        "sourceFile": "src/lightweight-chart-adapter/pane-set-adapter.js",
         "sourceModuleId": "adapter.lightweight-chart",
         "targetModuleId": "core.workstation-settings"
       },
       {
         "callCount": 1,
         "factory": "createWorkstationSettings",
-        "sourceFile": "src/lightweight-chart-adapter/pane-set-adapter.js",
+        "sourceFile": "src/lightweight-chart-adapter/workstation-presentation-controller.js",
         "sourceModuleId": "adapter.lightweight-chart",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkstationSettings",
+        "sourceFile": "src/replay-workspace-ui/settings-dialog-draft.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkstationSettings",
+        "sourceFile": "src/replay-workspace-ui/workstation-settings-dialog.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
         "targetModuleId": "core.workstation-settings"
       },
       {
@@ -855,13 +869,6 @@
         "factory": "createWorkstationSettings",
         "sourceFile": "src/lightweight-chart-adapter/chart-options.js",
         "sourceModuleId": "adapter.lightweight-chart",
-        "targetModuleId": "core.workstation-settings"
-      },
-      {
-        "callCount": 2,
-        "factory": "createWorkstationSettings",
-        "sourceFile": "src/replay-workspace-ui/workstation-settings-dialog.js",
-        "sourceModuleId": "adapter.replay-workspace-ui",
         "targetModuleId": "core.workstation-settings"
       },
       {
@@ -1013,10 +1020,9 @@
             "importedNames": [
               "AUTOPLAY_SPEED_OPTIONS",
               "createFoundationCapabilities",
-              "createReplayWorkspaceComposition",
-              "supportsFoundationWorkspace"
+              "createReplayWorkspaceComposition"
             ],
-            "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+            "sourceFile": "src/replay-workspace-ui/replay-workspace-mount.js",
             "targetFile": "src/replay-workspace-composition/public.js",
             "targetModuleId": "core.replay-workspace-composition",
             "throughPublicEntry": true
@@ -1035,7 +1041,7 @@
               "createLayoutSync",
               "deserializeLayoutSync"
             ],
-            "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+            "sourceFile": "src/replay-workspace-ui/replay-workspace-mount.js",
             "targetFile": "src/layout-sync-domain/public.js",
             "targetModuleId": "core.layout-sync-domain",
             "throughPublicEntry": true
@@ -1093,6 +1099,18 @@
           },
           {
             "importedNames": [
+              "createWorkstationSettings",
+              "hexColorOpacityPercent",
+              "hexColorWithOpacity",
+              "readWorkstationSettings"
+            ],
+            "sourceFile": "src/replay-workspace-ui/settings-dialog-draft.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
               "DEFAULT_REPLAY_NAVIGATION_SETTINGS",
               "createReplayNavigationSettings",
               "readReplayNavigationSettings"
@@ -1105,10 +1123,7 @@
           {
             "importedNames": [
               "DEFAULT_WORKSTATION_SETTINGS",
-              "createWorkstationSettings",
-              "hexColorOpacityPercent",
-              "hexColorWithOpacity",
-              "readWorkstationSettings"
+              "createWorkstationSettings"
             ],
             "sourceFile": "src/replay-workspace-ui/workstation-settings-dialog.js",
             "targetFile": "src/workstation-settings/public.js",
@@ -1120,7 +1135,7 @@
               "deserializeWorkspaceCheckpoint",
               "readWorkspaceCheckpoint"
             ],
-            "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+            "sourceFile": "src/replay-workspace-ui/replay-workspace-mount.js",
             "targetFile": "src/workspace-checkpoint-domain/public.js",
             "targetModuleId": "core.workspace-checkpoint-domain",
             "throughPublicEntry": true
@@ -1143,7 +1158,7 @@
               "createPaneLayout",
               "deserializePaneLayout"
             ],
-            "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+            "sourceFile": "src/replay-workspace-ui/replay-workspace-mount.js",
             "targetFile": "src/pane-layout-domain/public.js",
             "targetModuleId": "core.pane-layout-domain",
             "throughPublicEntry": true
@@ -1228,6 +1243,15 @@
             "targetFile": "src/workstation-settings/public.js",
             "targetModuleId": "core.workstation-settings",
             "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "supportsFoundationWorkspace"
+            ],
+            "sourceFile": "src/replay-workspace-ui/replay-workspace-surface.js",
+            "targetFile": "src/replay-workspace-composition/public.js",
+            "targetModuleId": "core.replay-workspace-composition",
+            "throughPublicEntry": true
           }
         ],
         "independentHarness": "tests/replay-workspace-ui-independent-harness.js",
@@ -1244,6 +1268,7 @@
           "src/replay-workspace-ui/replay-transport.js",
           "src/replay-workspace-ui/replay-workspace-surface.js",
           "src/replay-workspace-ui/timeframe-menu.js",
+          "src/replay-workspace-ui/workspace-view-elements.js",
           "src/replay-workspace-ui/workspace-view.js",
           "src/replay-workspace-ui/workstation-settings-dialog.js"
         ],
@@ -1509,7 +1534,7 @@
             "importedNames": [
               "createProjectedHistoryRequest"
             ],
-            "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+            "sourceFile": "src/replay-workspace-composition/foundation-projected-history.js",
             "targetFile": "src/projected-history-contract/public.js",
             "targetModuleId": "core.projected-history-contract",
             "throughPublicEntry": true
@@ -1855,11 +1880,20 @@
           {
             "importedNames": [
               "V4_BARS_DATASET_REVISION",
-              "V4_PROJECTED_HISTORY_PROVIDER_ID",
               "createV4BarsProvider",
               "createV4ProjectedHistoryProvider"
             ],
             "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+            "targetFile": "src/v4-bars-provider-adapter/public.js",
+            "targetModuleId": "adapter.v4-bars-provider",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "V4_BARS_DATASET_REVISION",
+              "V4_PROJECTED_HISTORY_PROVIDER_ID"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-projected-history.js",
             "targetFile": "src/v4-bars-provider-adapter/public.js",
             "targetModuleId": "adapter.v4-bars-provider",
             "throughPublicEntry": true
@@ -1959,7 +1993,7 @@
               "deserializeLayoutSync",
               "serializeLayoutSync"
             ],
-            "sourceFile": "src/session-store/session-record.js",
+            "sourceFile": "src/session-store/session-workspace-record.js",
             "targetFile": "src/layout-sync-domain/public.js",
             "targetModuleId": "core.layout-sync-domain",
             "throughPublicEntry": true
@@ -1970,7 +2004,7 @@
               "readPaneLayout",
               "serializePaneLayout"
             ],
-            "sourceFile": "src/session-store/session-record.js",
+            "sourceFile": "src/session-store/session-workspace-record.js",
             "targetFile": "src/pane-layout-domain/public.js",
             "targetModuleId": "core.pane-layout-domain",
             "throughPublicEntry": true
@@ -1980,7 +2014,7 @@
               "deserializeReplayNavigationSettings",
               "serializeReplayNavigationSettings"
             ],
-            "sourceFile": "src/session-store/session-record.js",
+            "sourceFile": "src/session-store/session-workspace-record.js",
             "targetFile": "src/replay-navigation-settings/public.js",
             "targetModuleId": "core.replay-navigation-settings",
             "throughPublicEntry": true
@@ -2002,7 +2036,7 @@
               "readWorkspaceCheckpoint",
               "serializeWorkspaceCheckpoint"
             ],
-            "sourceFile": "src/session-store/session-record.js",
+            "sourceFile": "src/session-store/session-workspace-record.js",
             "targetFile": "src/workspace-checkpoint-domain/public.js",
             "targetModuleId": "core.workspace-checkpoint-domain",
             "throughPublicEntry": true
@@ -3508,7 +3542,7 @@
               "createWorkstationSettings",
               "readWorkstationSettings"
             ],
-            "sourceFile": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+            "sourceFile": "src/lightweight-chart-adapter/pane-set-adapter.js",
             "targetFile": "src/workstation-settings/public.js",
             "targetModuleId": "core.workstation-settings",
             "throughPublicEntry": true
@@ -3518,7 +3552,7 @@
               "createWorkstationSettings",
               "readWorkstationSettings"
             ],
-            "sourceFile": "src/lightweight-chart-adapter/pane-set-adapter.js",
+            "sourceFile": "src/lightweight-chart-adapter/workstation-presentation-controller.js",
             "targetFile": "src/workstation-settings/public.js",
             "targetModuleId": "core.workstation-settings",
             "throughPublicEntry": true
@@ -3553,6 +3587,15 @@
           },
           {
             "importedNames": [
+              "readViewportIntent"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/native-viewport-interaction.js",
+            "targetFile": "src/viewport-runtime/public.js",
+            "targetModuleId": "core.viewport-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
               "readWorkstationSettings"
             ],
             "sourceFile": "src/lightweight-chart-adapter/current-price-presentation.js",
@@ -3565,7 +3608,9 @@
         "independentHarnessMode": "public-entry-fixture",
         "kind": "adapter",
         "observedDisposeSites": [
+          "src/lightweight-chart-adapter/crosshair-interaction.js",
           "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+          "src/lightweight-chart-adapter/native-viewport-interaction.js",
           "src/lightweight-chart-adapter/pane-set-adapter.js",
           "src/lightweight-chart-adapter/replay-truncation-interaction.js"
         ],

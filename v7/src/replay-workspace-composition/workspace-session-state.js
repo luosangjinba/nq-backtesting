@@ -26,12 +26,9 @@ function validateRestoredWorkspace(restored, market) {
   }
 }
 
-/** Construct Session-scoped market, Replay, and semantic Workspace owner state. */
-export function createWorkspaceSessionState({
+function createSessionOwners({
   initialCheckpoint,
-  initialLayout,
-  initialNavigationSettings,
-  presentation,
+  initialPaneCount,
   record,
   workstationSettings,
 }) {
@@ -48,12 +45,6 @@ export function createWorkspaceSessionState({
     range,
     sessionId: record.sessionId,
   });
-  let navigationSchedule = createReplayNavigationSchedule({ settings: initialNavigationSettings });
-  let paneLayout = initialLayout ?? createPaneLayout();
-  let readLayoutSyncValue = () => null;
-  let syncTimeframe = false;
-  let truncationSelectionActive = false;
-  readReplayNavigationSettings(initialNavigationSettings);
   const workspaceState = createWorkspaceStateRuntime({
     activationGeneration: record.activationGeneration,
     allowedInstrumentIds: record.configuration.instrumentIds,
@@ -61,7 +52,7 @@ export function createWorkspaceSessionState({
     checkpointContext: record.configuration,
     initialCheckpoint,
     initialCursorEpochMs,
-    initialPaneCount: readPaneLayout(paneLayout).paneCount,
+    initialPaneCount,
     initialRightMarginBars: readWorkstationSettings(
       workstationSettings.snapshot().settings,
     ).canvas.rightMarginBars,
@@ -72,6 +63,34 @@ export function createWorkspaceSessionState({
     sessionHoursModes: market.sessionHoursModes,
     sessionId: record.sessionId,
   });
+  return Object.freeze({
+    initialSessionHoursMode, market, range, replay, restored, workspaceState,
+  });
+}
+
+/** Construct Session-scoped market, Replay, and semantic Workspace owner state. */
+export function createWorkspaceSessionState({
+  initialCheckpoint,
+  initialLayout,
+  initialNavigationSettings,
+  presentation,
+  record,
+  workstationSettings,
+}) {
+  let paneLayout = initialLayout ?? createPaneLayout();
+  const {
+    initialSessionHoursMode, market, range, replay, restored, workspaceState,
+  } = createSessionOwners({
+    initialCheckpoint,
+    initialPaneCount: readPaneLayout(paneLayout).paneCount,
+    record,
+    workstationSettings,
+  });
+  let navigationSchedule = createReplayNavigationSchedule({ settings: initialNavigationSettings });
+  let readLayoutSyncValue = () => null;
+  let syncTimeframe = false;
+  let truncationSelectionActive = false;
+  readReplayNavigationSettings(initialNavigationSettings);
   const replayStepById = new Map(market.replayStepOptions.map((option) => [option.id, option.step]));
   const replayStepIdByTimeframeId = new Map(
     market.timeframes.map(({ id, replayStepId }) => [id, replayStepId]),

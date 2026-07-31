@@ -3,232 +3,29 @@ import { readPaneLayout } from '../pane-layout-domain/public.js';
 import { readLayoutSync } from '../layout-sync-domain/public.js';
 import { readReplayStep } from '../replay-contract/public.js';
 import { createTimePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
-import { setControlDisabled, setControlsDisabled } from './control-availability.js';
-import { createExactGotoDialog } from './exact-goto-dialog.js';
-import { createGotoControls } from './goto-controls.js';
-import { createPaneGridView } from './pane-grid-view.js';
-import { createPaneLayoutMenu } from './pane-layout-menu.js';
-import { createPaneTimeLocationMenu } from './pane-time-location-menu.js';
-import { createReplayTransport } from './replay-transport.js';
-import { createTimeframeMenu } from './timeframe-menu.js';
-import { createWorkstationSettingsControl } from './workstation-settings-dialog.js';
+import { setControlDisabled } from './control-availability.js';
+import { createWorkspaceViewElements } from './workspace-view-elements.js';
 
 export const REPLAY_WORKSPACE_STATES = Object.freeze([
   'loading', 'empty', 'unavailable', 'stale', 'error', 'ready',
 ]);
 
-function element(tag, options = {}, children = []) {
-  const node = document.createElement(tag);
-  if (options.className) node.className = options.className;
-  if (options.text !== undefined) node.textContent = options.text;
-  if (options.type) node.type = options.type;
-  if (options.ariaLabel) node.setAttribute('aria-label', options.ariaLabel);
-  for (const child of children) if (child) node.append(child);
-  return node;
-}
-
-function createChoiceGroup({ ariaLabel, choices, className, onChoose }) {
-  const buttons = new Map();
-  const root = element('div', { className: `workspace-choice-group ${className}`, ariaLabel });
-  root.setAttribute('role', 'group');
-  for (const choice of choices) {
-    const button = element('button', {
-      className: 'workspace-choice', text: choice.label, type: 'button',
-    });
-    button.dataset.value = choice.id;
-    button.setAttribute('aria-pressed', 'false');
-    button.addEventListener('click', () => onChoose(choice.id));
-    buttons.set(choice.id, button);
-    root.append(button);
-  }
-  return Object.freeze({
-    buttons,
-    dispose() { for (const button of buttons.values()) button.replaceWith(button.cloneNode(true)); },
-    root,
-    setDisabled(disabled, preserveVisual = false) {
-      setControlsDisabled(buttons.values(), { disabled, preserveVisual });
-    },
-    setValue(value) {
-      for (const [id, button] of buttons) button.setAttribute('aria-pressed', String(id === value));
-    },
-  });
-}
-
-function createInstrumentSelect(options, onChoose) {
-  const select = element('select', { ariaLabel: 'Active pane instrument', className: 'market-symbol-select' });
-  for (const option of options) {
-    const node = element('option', { text: option.label });
-    node.value = option.id;
-    select.append(node);
-  }
-  select.addEventListener('change', () => onChoose(select.value));
-  return Object.freeze({
-    dispose() { select.replaceWith(select.cloneNode(true)); },
-    root: select,
-    setDisabled(disabled, preserveVisual = false) {
-      setControlDisabled(select, { disabled, preserveVisual });
-    },
-    setValue(value) { select.value = value; },
-  });
-}
-
 /** Own the real one/multi-Pane workstation presentation and dispatch UI intents. */
-export function createReplayWorkspaceView({
-  initialNavigationSettings,
-  initialLayout,
-  getWorkstationSettings,
-  getRecentColors,
-  instrumentOptions,
-  layoutOptions,
-  name,
-  onAutoplay,
-  onBack,
-  onLayoutSync,
-  onExactGoto,
-  onFocusPane,
-  onInstrument,
-  onLayout,
-  onLayoutResize,
-  onNext,
-  onPause,
-  onPaneContext,
-  onPaneTimeLocation,
-  onPlaybackSpeed,
-  onPrevious,
-  onPreviewWorkstationSettings,
-  onQuickGoto,
-  onCancelWorkstationSettingsPreview,
-  onSaveGotoSettings,
-  onSaveWorkstationSettings,
-  onRecordRecentColors,
-  onReset,
-  onReplayStep,
-  onRestart,
-  onSessionHours,
-  onTimeframeSync,
-  onTimeframe,
-  onTruncation,
-  playbackSpeedOptions,
-  replayRange,
-  replayStepOptions,
-  sessionHoursModes,
-  timeframeMenuGroups,
-}) {
-  const instrumentLabels = new Map(instrumentOptions.map(({ id, label }) => [id, label]));
-  const instrumentPriceIncrements = new Map(
-    instrumentOptions.map(({ id, priceIncrement }) => [id, priceIncrement]),
-  );
-  const backButton = element('button', {
-    className: 'button replay-action-button replay-back', text: '← All sessions', type: 'button',
-  });
-  const restartButton = element('button', {
-    className: 'button replay-action-button replay-restart', text: 'Restart', type: 'button',
-  });
-  backButton.addEventListener('click', onBack);
-  restartButton.addEventListener('click', onRestart);
-
-  const timeframeControl = createTimeframeMenu({ groups: timeframeMenuGroups, onChoose: onTimeframe });
-  const instrumentControl = createInstrumentSelect(instrumentOptions, onInstrument);
-  const sessionHoursControl = createChoiceGroup({
-    ariaLabel: 'Session hours',
-    choices: sessionHoursModes.map((id) => ({ id, label: id.toUpperCase() })),
-    className: 'session-hours-control',
-    onChoose: onSessionHours,
-  });
-  const paneLayoutControl = createPaneLayoutMenu({
-    onChoose: onLayout,
-    onLayoutSync,
-    options: layoutOptions,
-  });
-  let activeWorkstationSettings = getWorkstationSettings().settings;
+export function createReplayWorkspaceView(options) {
+  const instrumentLabels = new Map(options.instrumentOptions.map(({ id, label }) => [id, label]));
+  let activeWorkstationSettings = options.getWorkstationSettings().settings;
   readWorkstationSettings(activeWorkstationSettings);
   let exactDefaultEpochMs = Date.now();
-  const goto = createGotoControls({
-    initialSettings: initialNavigationSettings,
-    onQuick: onQuickGoto,
-    onSaveSettings: onSaveGotoSettings,
+  const elements = createWorkspaceViewElements(options, {
+    activeWorkstationSettings,
+    getExactDefaultEpochMs: () => exactDefaultEpochMs,
   });
-  const exactGoto = createExactGotoDialog({
-    getDefaultEpochMs: () => exactDefaultEpochMs,
-    onSubmit: onExactGoto,
-    replayRange,
-    workstationSettings: activeWorkstationSettings,
-  });
-  const workstationSettings = createWorkstationSettingsControl({
-    getSnapshot: getWorkstationSettings,
-    getRecentColors,
-    onCancelPreview: onCancelWorkstationSettingsPreview,
-    onPreview: onPreviewWorkstationSettings,
-    onRecordRecentColors,
-    onSave: onSaveWorkstationSettings,
-  });
-  const paneGrid = createPaneGridView({
-    initialLayout,
-    initialWorkstationSettings: activeWorkstationSettings,
-    onFocus: onFocusPane,
-    onPaneContext,
-    onLayoutResize,
-    onReset,
-    resolvePriceIncrement: (instrumentId) => instrumentPriceIncrements.get(instrumentId),
-  });
-  const paneTimeLocationMenu = createPaneTimeLocationMenu({ onChoose: onPaneTimeLocation });
-  const replayTransport = createReplayTransport({
-    onAutoplay,
-    onNext,
-    onPause,
-    onPlaybackSpeed,
-    onPrevious,
-    onReplayStep,
-    onTimeframeSync,
-    onTruncation,
-    playbackSpeedOptions,
-    replayStepOptions,
-  });
-  const sessionRange = element('span', { className: 'replay-session-range', text: 'Session range preparing…' });
-  const visibleThrough = element('span', { className: 'replay-visible-through', text: 'Visible through preparing…' });
-  const status = element('span', { className: 'workspace-inline-status' });
-  status.hidden = true;
-  const overlayTitle = element('strong', { text: 'Preparing replay chart' });
-  const overlayCopy = element('span', { text: 'Projecting the first no-future snapshot.' });
-  const overlay = element('div', { className: 'chart-state-overlay', ariaLabel: 'Chart loading state' }, [
-    element('span', { className: 'chart-state-spinner' }),
-    element('div', {}, [overlayTitle, overlayCopy]),
-  ]);
-  const root = element('section', { className: 'replay-workspace' }, [
-    element('header', { className: 'replay-workspace-toolbar' }, [
-      element('div', { className: 'replay-title-group' }, [
-        element('div', { className: 'replay-title-line' }, [
-          backButton,
-          element('h1', { text: name }),
-          instrumentControl.root,
-          timeframeControl.root,
-          sessionHoursControl.root,
-          paneLayoutControl.root,
-        ]),
-      ]),
-      element('div', { className: 'replay-actions' }, [
-        status,
-        restartButton,
-        goto.root,
-        exactGoto.root,
-        workstationSettings.root,
-        element('span', { className: 'workspace-status replay-local-status' }, [
-          element('span', { className: 'status-dot' }),
-          element('span', { text: 'Local' }),
-        ]),
-      ]),
-    ]),
-    element('div', { className: 'chart-frame' }, [paneGrid.root, overlay, paneTimeLocationMenu.root]),
-    element('footer', { className: 'replay-workspace-footer' }, [
-      element('div', { className: 'replay-footer-context' }, [sessionRange, visibleThrough]),
-      replayTransport.root,
-      element('span', {
-        className: 'replay-footer-owner', text: 'Focused Pane owns symbol, interval, and viewport',
-      }),
-    ]),
-    workstationSettings.dialog,
-  ]);
-  const timeframeLabels = new Map(timeframeMenuGroups.flatMap(({ items }) => (
+  const {
+    exactGoto, goto, instrumentControl, overlay, overlayCopy, overlayTitle, paneGrid,
+    paneLayoutControl, paneTimeLocationMenu, replayTransport, restartButton, root,
+    sessionHoursControl, sessionRange, status, timeframeControl, visibleThrough, workstationSettings,
+  } = elements;
+  const timeframeLabels = new Map(options.timeframeMenuGroups.flatMap(({ items }) => (
     items.map(({ id, label }) => [id, label])
   )));
   let activePaneId = 'pane-main';
@@ -277,7 +74,7 @@ export function createReplayWorkspaceView({
     setAction(restartButton, unavailable);
     workstationSettings.setDisabled(unavailable);
     timeframeControl.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
-    const instrumentUnavailable = unavailable || instrumentOptions.length < 2;
+    const instrumentUnavailable = unavailable || options.instrumentOptions.length < 2;
     instrumentControl.setDisabled(interactionLocked || instrumentUnavailable, stableRefresh && !instrumentUnavailable);
     sessionHoursControl.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
     paneLayoutControl.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
@@ -329,19 +126,7 @@ export function createReplayWorkspaceView({
   return Object.freeze({
     dispose() {
       if (gotoFeedbackTimeout !== null) clearTimeout(gotoFeedbackTimeout);
-      backButton.removeEventListener('click', onBack);
-      restartButton.removeEventListener('click', onRestart);
-      timeframeControl.dispose();
-      instrumentControl.dispose();
-      sessionHoursControl.dispose();
-      paneLayoutControl.dispose();
-      replayTransport.dispose();
-      goto.dispose();
-      exactGoto.dispose();
-      workstationSettings.dispose();
-      paneGrid.dispose();
-      paneTimeLocationMenu.dispose();
-      root.remove();
+      elements.dispose();
     },
     openExactGoto: exactGoto.open,
     openPaneTimeLocationMenu: paneTimeLocationMenu.open,

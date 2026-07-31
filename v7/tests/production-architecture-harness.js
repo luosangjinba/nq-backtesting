@@ -22,7 +22,7 @@ const baseline = JSON.parse(fs.readFileSync(
 ));
 
 assert.equal(baseline.schemaVersion, 1);
-assert.equal(baseline.deliveryStep, 'R8.11');
+assert.equal(baseline.deliveryStep, 'R8.12');
 assert.equal(baseline.status, 'blocking-recovery-baseline');
 const report = analyzeProductionArchitecture({
   manifest,

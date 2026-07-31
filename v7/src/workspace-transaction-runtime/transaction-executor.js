@@ -59,6 +59,17 @@ function requireSynchronous(result, participant, operation) {
   return result;
 }
 
+function requireImmutableProjection(workspaceSnapshot) {
+  if (!workspaceSnapshot || typeof workspaceSnapshot !== 'object'
+    || !Object.isFrozen(workspaceSnapshot)) {
+    throw new WorkspaceTransactionRuntimeError(
+      'WORKSPACE_PROJECTION_IMMUTABLE',
+      'Projection port must return a frozen workspace snapshot.',
+    );
+  }
+  return workspaceSnapshot;
+}
+
 async function prepareTransaction({ description, immutableInput, ports, prepared, record, semantic, state }) {
   const proposal = await ports.replayPort.propose(Object.freeze({
     identity: description.identity,
@@ -76,21 +87,14 @@ async function prepareTransaction({ description, immutableInput, ports, prepared
     signal: record.controller.signal,
   }));
   assertCurrent(state, description.identity);
-  const workspaceSnapshot = await ports.projectionPort.project(Object.freeze({
+  const workspaceSnapshot = requireImmutableProjection(await ports.projectionPort.project(Object.freeze({
     acquired,
     identity: description.identity,
     input: immutableInput,
     operation: description.operation,
     proposal,
     signal: record.controller.signal,
-  }));
-  if (!workspaceSnapshot || typeof workspaceSnapshot !== 'object'
-    || !Object.isFrozen(workspaceSnapshot)) {
-    throw new WorkspaceTransactionRuntimeError(
-      'WORKSPACE_PROJECTION_IMMUTABLE',
-      'Projection port must return a frozen workspace snapshot.',
-    );
-  }
+  })));
   assertCurrent(state, description.identity);
   const chart = requirePreparedParticipant(await ports.chartPort.prepare(Object.freeze({
     identity: description.identity,
@@ -150,6 +154,8 @@ async function applyPreparedTransaction({ description, prepared, state }) {
   for (const entry of prepared.participants.slice(1)) {
     entry.receipt = requireSynchronous(entry.handle.apply(), entry.participant, 'apply');
   }
+  // Protected invariant — atomic-commit: every non-Chart owner applies and all
+  // participants finalize in the same synchronous turn after the Chart paint gate.
   for (const entry of prepared.participants) {
     requireSynchronous(entry.handle.finalize(entry.receipt), entry.participant, 'finalize');
   }

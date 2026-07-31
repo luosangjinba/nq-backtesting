@@ -11,16 +11,20 @@ import {
 import { validateReplayWorkspaceBoundary } from './support/replay-workspace-boundary-validator.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
-const read = (relativePath) => fs.readFileSync(path.resolve(TEST_DIR, relativePath), 'utf8');
 const compositionDirectory = path.resolve(TEST_DIR, '../src/replay-workspace-composition');
 const compositionSources = fs.readdirSync(compositionDirectory)
   .filter((file) => file.endsWith('.js'))
   .sort()
   .map((file) => fs.readFileSync(path.join(compositionDirectory, file), 'utf8'));
+const uiDirectory = path.resolve(TEST_DIR, '../src/replay-workspace-ui');
+const uiSources = fs.readdirSync(uiDirectory)
+  .filter((file) => file.endsWith('.js'))
+  .sort()
+  .map((file) => fs.readFileSync(path.join(uiDirectory, file), 'utf8'));
 const production = Object.freeze({
   commandSource: compositionSources.filter((source) => /export function create\w+Commands|createReplayWorkspaceCommandPort/.test(source)).join('\n'),
   compositionSource: compositionSources.join('\n'),
-  uiSource: read('../src/replay-workspace-ui/replay-workspace-surface.js'),
+  uiSource: uiSources.join('\n'),
 });
 
 assert.equal(typeof createReplayWorkspaceComposition, 'function');

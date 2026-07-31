@@ -13,6 +13,8 @@ function eligibleVisibleBars(input, sourceBars) {
     sessionHoursPolicyRevision: input.sessionHoursPolicy.revision,
     sessionHoursMode: input.sessionHoursPolicy.mode,
   });
+  // Protected invariant — no-future: source bars at or beyond the exclusive
+  // Replay cursor never reach eligibility checks or timeframe aggregation.
   const bars = sourceBars.filter((bar) => {
     if (!isEpochVisibleAtReplayCursor(bar.startEpochMs, input.cursor.targetEpochMs)) return false;
     const eligible = input.sessionHoursPolicy.isEligible(bar, context);
@@ -100,6 +102,8 @@ function requireAdvanceSnapshot(value, input, expected) {
 }
 
 function projectValues(input, sourceBars) {
+  // Protected invariant — projection-alignment: the registered aggregation
+  // policy receives the exact display-timeframe alignment and calendar context.
   return input.aggregationPolicy.project(sourceBars, Object.freeze({
     aggregationPolicyRevision: input.aggregationPolicy.revision,
     calendar: input.calendar,

@@ -8,21 +8,7 @@ import {
   requireSessionId,
   serializeSessionId,
 } from '../session-identity/public.js';
-import {
-  deserializePaneLayout,
-  readPaneLayout,
-  serializePaneLayout,
-} from '../pane-layout-domain/public.js';
-import { deserializeLayoutSync, serializeLayoutSync } from '../layout-sync-domain/public.js';
-import {
-  deserializeReplayNavigationSettings,
-  serializeReplayNavigationSettings,
-} from '../replay-navigation-settings/public.js';
-import {
-  deserializeWorkspaceCheckpoint,
-  readWorkspaceCheckpoint,
-  serializeWorkspaceCheckpoint,
-} from '../workspace-checkpoint-domain/public.js';
+import { requireSessionWorkspace } from './session-workspace-record.js';
 
 const RECORD_SCHEMA = 'v7.session-record';
 const RECORD_VERSION = 1;
@@ -70,86 +56,10 @@ function requireConfiguration(value) {
 }
 
 function requireWorkspace(value = { schemaVersion: 1, state: 'uninitialized' }, configuration) {
-  if (value?.schemaVersion === 1 && value.state === 'uninitialized'
-    && Object.keys(value).sort().join(',') === 'schemaVersion,state') {
-    return Object.freeze({ schemaVersion: 1, state: 'uninitialized' });
-  }
-  if (value?.schemaVersion === 2 && value.state === 'configured'
-    && Object.keys(value).sort().join(',') === 'paneLayout,schemaVersion,state') {
-    try {
-      return Object.freeze({
-        paneLayout: serializePaneLayout(deserializePaneLayout(value.paneLayout)),
-        schemaVersion: 2,
-        state: 'configured',
-      });
-    } catch (cause) {
-      fail('INVALID_SESSION_WORKSPACE', 'Session workspace Pane layout is invalid.', { cause });
-    }
-  }
-  if (value?.schemaVersion === 3 && value.state === 'configured'
-    && Object.keys(value).sort().join(',') === 'paneLayout,replayNavigationSettings,schemaVersion,state') {
-    try {
-      return Object.freeze({
-        paneLayout: serializePaneLayout(deserializePaneLayout(value.paneLayout)),
-        replayNavigationSettings: serializeReplayNavigationSettings(
-          deserializeReplayNavigationSettings(value.replayNavigationSettings),
-        ),
-        schemaVersion: 3,
-        state: 'configured',
-      });
-    } catch (cause) {
-      fail('INVALID_SESSION_WORKSPACE', 'Session workspace configuration is invalid.', { cause });
-    }
-  }
-  if (value?.schemaVersion === 4 && value.state === 'configured'
-    && Object.keys(value).sort().join(',') === 'paneLayout,schemaVersion,state') {
-    try {
-      return Object.freeze({
-        paneLayout: serializePaneLayout(deserializePaneLayout(value.paneLayout)),
-        schemaVersion: 4,
-        state: 'configured',
-      });
-    } catch (cause) {
-      fail('INVALID_SESSION_WORKSPACE', 'Session workspace Pane layout is invalid.', { cause });
-    }
-  }
-  if (value?.schemaVersion === 5 && value.state === 'configured'
-    && Object.keys(value).sort().join(',') === 'layoutSync,paneLayout,schemaVersion,state') {
-    try {
-      return Object.freeze({
-        layoutSync: serializeLayoutSync(deserializeLayoutSync(value.layoutSync)),
-        paneLayout: serializePaneLayout(deserializePaneLayout(value.paneLayout)),
-        schemaVersion: 5,
-        state: 'configured',
-      });
-    } catch (cause) {
-      fail('INVALID_SESSION_WORKSPACE', 'Session workspace layout configuration is invalid.', { cause });
-    }
-  }
-  if (value?.schemaVersion === 6 && value.state === 'configured'
-    && Object.keys(value).sort().join(',') === 'checkpoint,layoutSync,paneLayout,schemaVersion,state') {
-    try {
-      const paneLayout = deserializePaneLayout(value.paneLayout);
-      const checkpoint = deserializeWorkspaceCheckpoint(value.checkpoint, configuration);
-      if (readPaneLayout(paneLayout).paneCount !== readWorkspaceCheckpoint(checkpoint).panes.length) {
-        fail(
-          'INVALID_SESSION_WORKSPACE',
-          'Session workspace Pane layout and checkpoint Pane count must match.',
-        );
-      }
-      return Object.freeze({
-        checkpoint: serializeWorkspaceCheckpoint(checkpoint),
-        layoutSync: serializeLayoutSync(deserializeLayoutSync(value.layoutSync)),
-        paneLayout: serializePaneLayout(paneLayout),
-        schemaVersion: 6,
-        state: 'configured',
-      });
-    } catch (cause) {
-      if (cause instanceof SessionStoreError) throw cause;
-      fail('INVALID_SESSION_WORKSPACE', 'Session workspace checkpoint is invalid.', { cause });
-    }
-  }
-  fail('INVALID_SESSION_WORKSPACE', 'Session workspace envelope is unsupported.');
+  return requireSessionWorkspace(value, configuration, {
+    fail,
+    isStoreError: (error) => error instanceof SessionStoreError,
+  });
 }
 
 function freezeRecord(value) {

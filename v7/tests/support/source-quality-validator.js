@@ -8,7 +8,16 @@ export const SOURCE_BUDGETS = Object.freeze({
   ui: { reviewAt: 300, maxLines: 450, maxFunctionLines: 80 },
 });
 
-const CONTRACT_DOC_FIELDS = ['owner', 'purpose', 'inputs', 'outputs', 'sideEffects', 'errors'];
+const CONTRACT_DOC_FIELDS = [
+  'owner',
+  'purpose',
+  'inputs',
+  'outputs',
+  'sideEffects',
+  'lifecycle',
+  'errors',
+  'concurrencyCancellation',
+];
 const CRITICAL_INVARIANTS = [
   'session-identity',
   'stale-rejection',
@@ -22,10 +31,12 @@ function hasApprovedException(file) {
   const exception = file.sizeException;
   return Boolean(
     exception?.owner &&
+      exception?.decisionId &&
       exception?.reason &&
       exception?.splitIsWorseBecause &&
       exception?.humanApproval &&
-      exception?.reviewCondition,
+      exception?.reviewCondition &&
+      exception?.expiresAtStep,
   );
 }
 

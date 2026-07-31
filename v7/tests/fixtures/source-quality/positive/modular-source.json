@@ -17,7 +17,9 @@
             "inputs": "validated opaque id source",
             "outputs": "frozen SessionIdentity",
             "sideEffects": "none",
-            "errors": "rejects empty identity"
+            "lifecycle": "immutable value with no cleanup",
+            "errors": "rejects empty identity",
+            "concurrencyCancellation": "synchronous and non-cancellable"
           }
         }
       ],

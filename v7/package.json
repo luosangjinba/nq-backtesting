@@ -5,5 +5,8 @@
   "dependencies": {
     "lightweight-charts": "5.2.0",
     "vanilla-colorful": "0.7.2"
+  },
+  "devDependencies": {
+    "acorn": "^8.17.0"
   }
 }

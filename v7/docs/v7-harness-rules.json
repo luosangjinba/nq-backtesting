@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "currentStep": "R8.11",
+  "currentStep": "R8.12",
   "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
@@ -10,7 +10,7 @@
     "checkpointCommit": "fa561599",
     "allowedWork": "architecture-conformance-recovery-only",
     "freezeFeatureDelivery": true,
-    "regressedRuleIds": ["H019", "H021", "H022", "H023", "H025", "H066", "H069"]
+    "regressedRuleIds": ["H019", "H021", "H025", "H066", "H069"]
   },
   "rules": [
     {
@@ -401,9 +401,17 @@
       "owner": "test-governance",
       "v6FailurePrevented": "large mixed-purpose runtime and route files hid old ownership paths",
       "activationStep": "R0.2",
-      "state": "regressed",
+      "state": "accepted",
       "harness": "tests/source-quality-harness.js",
-      "positiveEvidence": ["tests/fixtures/source-quality/positive/modular-source.json"],
+      "positiveEvidence": [
+        "tests/fixtures/source-quality/positive/modular-source.json",
+        "docs/v7-production-source-quality-policy.json",
+        "docs/v7-production-source-quality-baseline.json",
+        "tests/support/production-source-quality-analyzer.js",
+        "tests/support/production-source-quality-validator.js",
+        "tests/source-quality-harness.js",
+        "docs/V7_SOURCE_AND_DOCUMENTATION_CLOSURE_R8_12.md"
+      ],
       "negativeFixtures": [
         "tests/fixtures/source-quality/negative/oversized-file.json",
         "tests/fixtures/source-quality/negative/mixed-responsibility.json",
@@ -413,7 +421,8 @@
       "humanReviewRequired": true,
       "acceptanceEvidence": "sessions/session_20260719_r0_2_source_quality.md",
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.12"
+      "recoveryStep": "R8.12",
+      "recoveryEvidence": "sessions/session_20260731_r8_12_source_documentation_closure.md"
     },
     {
       "id": "H023",
@@ -421,9 +430,19 @@
       "owner": "test-governance",
       "v6FailurePrevented": "owners and old compatibility behavior could not be reliably located or removed",
       "activationStep": "R0.2",
-      "state": "regressed",
+      "state": "accepted",
       "harness": "tests/source-quality-harness.js",
-      "positiveEvidence": ["tests/fixtures/source-quality/positive/modular-source.json"],
+      "positiveEvidence": [
+        "tests/fixtures/source-quality/positive/modular-source.json",
+        "docs/v7-production-source-quality-policy.json",
+        "docs/v7-production-source-quality-baseline.json",
+        "tests/support/production-source-quality-analyzer.js",
+        "tests/source-quality-harness.js",
+        "src/workspace-transaction-runtime/transaction-executor.js",
+        "src/projection-domain/pane-projection.js",
+        "src/viewport-runtime/logical-projection.js",
+        "docs/V7_SOURCE_AND_DOCUMENTATION_CLOSURE_R8_12.md"
+      ],
       "negativeFixtures": [
         "tests/fixtures/source-quality/negative/undocumented-public-export.json",
         "tests/fixtures/source-quality/negative/untracked-debt-comment.json",
@@ -432,7 +451,8 @@
       "humanReviewRequired": true,
       "acceptanceEvidence": "sessions/session_20260719_r0_2_source_quality.md",
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.12"
+      "recoveryStep": "R8.12",
+      "recoveryEvidence": "sessions/session_20260731_r8_12_source_documentation_closure.md"
     },
     {
       "id": "H024",

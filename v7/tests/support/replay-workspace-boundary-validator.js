@@ -37,7 +37,7 @@ export function validateReplayWorkspaceBoundary({
       'Replay Workspace UI must dispatch through the composition public entry.',
     ));
   }
-  if (!/\bcreateWorkspacePresentationPort\s*\(\s*view\s*\)/.test(uiSource)) {
+  if (!/\bpresentation\s*:\s*createWorkspacePresentationPort\s*\(\s*view\s*\)/.test(uiSource)) {
     findings.push(finding(
       'ui-missing-presentation-subscription',
       'Replay Workspace UI must subscribe its DOM view through the presentation port.',

@@ -43,6 +43,59 @@ function transactionKey(identity) {
   return serializeTransactionId(readWorkspaceTransactionIdentity(identity).transactionId).value;
 }
 
+function requireRuntimeConfiguration({
+  activationGeneration,
+  calendarRevision,
+  initialSessionHoursMode,
+  sessionHoursModes,
+  sessionId,
+}) {
+  const scope = Object.freeze({
+    activationGeneration: requireActivationGeneration(activationGeneration),
+    sessionId: requireSessionId(sessionId),
+  });
+  const modes = requireSessionHoursModes(sessionHoursModes);
+  const expectedCalendarRevision = requireExactString(calendarRevision, 'calendarRevision');
+  if (!modes.includes(initialSessionHoursMode)) {
+    failWorkspaceState(
+      'WORKSPACE_STATE_SESSION_HOURS_MODE_INVALID',
+      'Initial Session Hours mode is not supported.',
+    );
+  }
+  return Object.freeze({ expectedCalendarRevision, modes, scope });
+}
+
+function createPaneOwner(options, onViewportAccepted) {
+  return createOwnedPaneState({
+    activationGeneration: options.scope.activationGeneration,
+    allowedInstrumentIds: options.allowedInstrumentIds,
+    initialCheckpoint: options.initialCheckpoint,
+    initialCursorEpochMs: options.initialCursorEpochMs,
+    initialPaneCount: options.initialPaneCount,
+    initialRightMarginBars: options.initialRightMarginBars,
+    initialTarget: options.initialTarget,
+    onViewportAccepted,
+    paneIds: options.paneIds,
+    primaryInstrumentId: options.primaryInstrumentId,
+    sessionId: options.scope.sessionId,
+  });
+}
+
+function createInitialSnapshot(scope, panes, sessionHours, checkpointFor, seenTransactionKeys) {
+  const identity = createWorkspaceTransactionIdentity({
+    ...scope,
+    transactionId: createTransactionId('workspace-state.initial'),
+  });
+  seenTransactionKeys.add(transactionKey(identity));
+  return createWorkspaceStateSnapshot({
+    checkpoint: checkpointFor(panes.current(), sessionHours),
+    identity,
+    paneWorkspace: panes.current(),
+    revision: 0,
+    sessionHours,
+  });
+}
+
 /** Own the accepted Pane, Session Hours, Viewport, and checkpoint semantic state. */
 export function createWorkspaceStateRuntime({
   activationGeneration,
@@ -60,18 +113,13 @@ export function createWorkspaceStateRuntime({
   sessionHoursModes,
   sessionId,
 }) {
-  const scope = Object.freeze({
-    activationGeneration: requireActivationGeneration(activationGeneration),
-    sessionId: requireSessionId(sessionId),
+  const { expectedCalendarRevision, modes, scope } = requireRuntimeConfiguration({
+    activationGeneration,
+    calendarRevision,
+    initialSessionHoursMode,
+    sessionHoursModes,
+    sessionId,
   });
-  const modes = requireSessionHoursModes(sessionHoursModes);
-  const expectedCalendarRevision = requireExactString(calendarRevision, 'calendarRevision');
-  if (!modes.includes(initialSessionHoursMode)) {
-    failWorkspaceState(
-      'WORKSPACE_STATE_SESSION_HOURS_MODE_INVALID',
-      'Initial Session Hours mode is not supported.',
-    );
-  }
   let disposed = false;
   let revision = 0;
   let localSequence = 0;
@@ -175,31 +223,18 @@ export function createWorkspaceStateRuntime({
     return scopedIdentity;
   }
 
-  const panes = createOwnedPaneState({
-    activationGeneration: scope.activationGeneration,
+  const panes = createPaneOwner({
     allowedInstrumentIds,
     initialCheckpoint,
     initialCursorEpochMs,
     initialPaneCount,
     initialRightMarginBars,
     initialTarget,
-    onViewportAccepted: (paneWorkspace) => commitLocal('viewport', paneWorkspace),
     paneIds,
     primaryInstrumentId,
-    sessionId: scope.sessionId,
-  });
-  const initialIdentity = createWorkspaceTransactionIdentity({
-    ...scope,
-    transactionId: createTransactionId('workspace-state.initial'),
-  });
-  seenTransactionKeys.add(transactionKey(initialIdentity));
-  snapshot = createWorkspaceStateSnapshot({
-    checkpoint: checkpointFor(panes.current(), sessionHours),
-    identity: initialIdentity,
-    paneWorkspace: panes.current(),
-    revision,
-    sessionHours,
-  });
+    scope,
+  }, (paneWorkspace) => commitLocal('viewport', paneWorkspace));
+  snapshot = createInitialSnapshot(scope, panes, sessionHours, checkpointFor, seenTransactionKeys);
 
   function normalizeSessionHours(value) {
     if (!value || typeof value !== 'object' || Array.isArray(value)

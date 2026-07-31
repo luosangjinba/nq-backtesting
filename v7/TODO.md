@@ -27,7 +27,7 @@ review. Preserve rejected commits and assign a new delivery id to replacements.
   coordinator and remove post-terminal UI commits;
 - [x] `R8.10` split UI command/presentation from composition and orchestration;
 - [x] `R8.11` boot production through ModuleHost and prove isolation/removal;
-- [ ] `R8.12` close real source size, responsibility, contract documentation,
+- [x] `R8.12` close real source size, responsibility, contract documentation,
   and tracked-debt gates;
 - [ ] `R8.13` re-derive Calendar capability extension and dense RTH Locate
   through corrected owners;
@@ -44,15 +44,14 @@ Tracked recovery regressions:
 - `BUG-V7-0005`: fixture/inventory gates can remain green while production
   violates the architecture.
 
-R8.11 production baseline binds 48 modules, 125 actual dependency edges, 114
-construction sites, two hosted production roots, 15 declared writer surfaces,
-seven critical writer sites, and zero blocking production findings. Both real
-applications now start through ModuleHost from exact descriptor closures;
-dual-instance isolation, reverse cleanup, partial-start rollback, required-port
-failure, and both Replay Workspace optional-removal consumers are executable.
-H018 is recovered; seven recovery regressions remain. No later recovery rule is
-cleared early. H077 is executable on the production path and remains pending
-human acceptance.
+R8.12 production source evidence binds 301 files, 22,279 effective lines, 2,370
+functions, 302 public exports, six protected invariants, zero tracked-debt
+comments, and zero source exceptions or findings. The architecture baseline
+remains clean at 48 modules, 125 actual dependency edges, 115 construction
+sites, two hosted production roots, 15 declared writer surfaces, and seven
+critical writer sites. H022/H023 are recovered; five recovery regressions
+remain. No later recovery rule is cleared early. H077 remains pending human
+acceptance.
 
 ## Established Foundation Governance
 

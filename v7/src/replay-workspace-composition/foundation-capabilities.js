@@ -71,11 +71,8 @@ function selectedInstrumentIds(value) {
   return Object.freeze([...requested]);
 }
 
-/** Register the bounded Session-asset capability cross-product used by the visible foundation slice. */
-export function createFoundationCapabilities(instrumentIds = undefined) {
-  const exchangeWallEpoch = createExchangeWallEpochConverter();
-  const acceptedInstrumentIds = selectedInstrumentIds(instrumentIds);
-  const instruments = Object.freeze(acceptedInstrumentIds.map((id) => {
+function createFoundationInstruments(instrumentIds) {
+  return Object.freeze(instrumentIds.map((id) => {
     const descriptor = INSTRUMENTS[id];
     return defineInstrument({
       ...base('instrument', 'InstrumentDefinition', descriptor.id, descriptor.label),
@@ -87,6 +84,32 @@ export function createFoundationCapabilities(instrumentIds = undefined) {
       symbol: descriptor.symbol,
     });
   }));
+}
+
+function capabilitySnapshot(calendar, catalog, defaultTarget, instrument, instruments, timeframeRegistry) {
+  return Object.freeze({
+    calendar,
+    catalog,
+    defaultSelection: catalog.get(defaultTarget),
+    defaultTarget,
+    historyPlanning: timeframeRegistry.historyPlanning,
+    instrument,
+    instrumentOptions: Object.freeze(instruments.map(({ id, priceIncrement, symbol }) => Object.freeze({
+      id, label: symbol, priceIncrement,
+    }))),
+    instruments,
+    replayStepOptions: timeframeRegistry.replayStepOptions,
+    sessionHoursModes: Object.freeze(['eth', 'rth']),
+    timeframes: timeframeRegistry.timeframes,
+    timeframeMenuGroups: timeframeRegistry.timeframeMenuGroups,
+  });
+}
+
+/** Register the bounded Session-asset capability cross-product used by the visible foundation slice. */
+export function createFoundationCapabilities(instrumentIds = undefined) {
+  const exchangeWallEpoch = createExchangeWallEpochConverter();
+  const acceptedInstrumentIds = selectedInstrumentIds(instrumentIds);
+  const instruments = createFoundationInstruments(acceptedInstrumentIds);
   const instrument = instruments[0];
   const calendar = defineTradingCalendar({
     ...base('calendar', 'TradingCalendar', FOUNDATION_IDS.calendar, 'CME Equity Index'),
@@ -139,27 +162,12 @@ export function createFoundationCapabilities(instrumentIds = undefined) {
     toInstantEpochMs: newYorkWallEpochToInstantMs,
     wallPolicies,
   });
-  const { definitions, entries, historyPlanning } = timeframeRegistry;
+  const { definitions, entries } = timeframeRegistry;
   const defaultTarget = Object.freeze({
     instrumentId: instrument.id,
     sessionHoursMode: 'eth',
     timeframeId: definitions[0].id,
   });
   const catalog = createWorkspaceReplacementCatalog(entries);
-  return Object.freeze({
-    calendar,
-    catalog,
-    defaultSelection: catalog.get(defaultTarget),
-    defaultTarget,
-    historyPlanning,
-    instrument,
-    instrumentOptions: Object.freeze(instruments.map(({ id, priceIncrement, symbol }) => Object.freeze({
-      id, label: symbol, priceIncrement,
-    }))),
-    instruments,
-    replayStepOptions: timeframeRegistry.replayStepOptions,
-    sessionHoursModes: Object.freeze(['eth', 'rth']),
-    timeframes: timeframeRegistry.timeframes,
-    timeframeMenuGroups: timeframeRegistry.timeframeMenuGroups,
-  });
+  return capabilitySnapshot(calendar, catalog, defaultTarget, instrument, instruments, timeframeRegistry);
 }

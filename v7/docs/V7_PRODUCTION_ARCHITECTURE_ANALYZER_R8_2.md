@@ -188,6 +188,21 @@ These controls operate on the production-derived snapshot. The positive path
 always scans real production first; the fixtures cannot substitute for that
 scan.
 
+## R8.12 Source And Documentation Result
+
+R8.12 adds a separate AST-derived production source-quality baseline for all
+301 production JavaScript files and 302 public exports. It closes every actual
+file/function budget violation through same-owner responsibility splits,
+documents the complete public facade surface and all six protected invariants,
+and records zero source exceptions or untracked debt. H022 and H023 are
+recovered with 15 fail-closed source negative controls.
+
+The source-location splits preserve the production architecture: 48 modules,
+125 dependency edges, seven writer sites, two hosted roots, and zero findings.
+The exact construction-site inventory is now 115 because two existing
+Workstation Settings construction calls occupy separate focused UI files; no
+new owner or writer was introduced.
+
 ## Boundaries And Follow-Up
 
 This analyzer is deliberately static and deterministic. It reads explicit ESM

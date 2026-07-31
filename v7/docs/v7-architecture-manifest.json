@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r8.11-production-module-host-boot",
+  "status": "r8.12-source-documentation-closure",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -17,7 +17,10 @@
     "docs/V7_GLOBAL_ATOMIC_WORKSPACE_TRANSACTION_R8_9.md",
     "docs/V7_UI_COMPOSITION_SPLIT_R8_10.md",
     "docs/V7_PRODUCTION_MODULE_HOST_BOOT_R8_11.md",
+    "docs/V7_SOURCE_AND_DOCUMENTATION_CLOSURE_R8_12.md",
     "docs/v7-production-architecture-baseline.json",
+    "docs/v7-production-source-quality-policy.json",
+    "docs/v7-production-source-quality-baseline.json",
     "docs/V7_PRODUCT_AND_SCOPE.md",
     "docs/V7_ARCHITECTURE.md",
     "docs/V7_V6_MIGRATION_DENYLIST.md",

@@ -7,6 +7,87 @@ import { createWorkspacePublicationAssembly } from './workspace-publication-asse
 import { createWorkspaceRuntimeAssembly } from './workspace-runtime-assembly.js';
 import { createWorkspaceSessionState } from './workspace-session-state.js';
 
+function createCheckpointPersistence(options, session) {
+  return createWorkspaceCheckpointPersistence({
+    initialCheckpoint: options.initialCheckpoint,
+    initialLayout: session.readPaneLayout(),
+    initialLayoutSync: options.initialLayoutSync,
+    persist: options.persistWorkspaceCheckpoint,
+    readLayout: session.readPaneLayout,
+    readLayoutSync: () => session.readLayoutSync() ?? options.initialLayoutSync,
+    view: options.presentation,
+    workspaceState: session.workspaceState,
+  });
+}
+
+function createChartAssembly(options, session, checkpointPersistence, handleTruncationSelect, getExecution) {
+  return createWorkspaceChartAssembly({
+    checkpointPersistence,
+    getExecution,
+    handleTruncationSelect,
+    initialLayoutSync: options.initialLayoutSync,
+    presentation: options.presentation,
+    record: options.record,
+    session,
+    workstationSettings: options.workstationSettings,
+    workstationSettingsViewConsumer: options.workstationSettingsViewConsumer,
+  });
+}
+
+function createRuntimeGraph(options, session, chart, checkpointPersistence) {
+  let runtime = null;
+  const data = createWorkspaceDataAssembly({ getRuntime: () => runtime, session });
+  const publication = createWorkspacePublicationAssembly({
+    checkpointPersistence,
+    data,
+    presentation: options.presentation,
+    session,
+  });
+  const runtimeAssembly = createWorkspaceRuntimeAssembly({
+    chart,
+    data,
+    presentation: options.presentation,
+    publication,
+    record: options.record,
+    session,
+    workstationSettings: options.workstationSettings,
+  });
+  runtime = runtimeAssembly.runtime;
+  return Object.freeze({ data, runtime, runtimeAssembly });
+}
+
+function createCompositionCommandPort(options, owners) {
+  const { chart, checkpointPersistence, data, runtimeAssembly, session } = owners;
+  return createReplayWorkspaceCommandPort({
+    acceptedPaneWorkspace: session.acceptedPaneWorkspace,
+    adapter: chart.adapter,
+    autoplayScheduler: runtimeAssembly.autoplayScheduler,
+    checkpointPersistence,
+    disposeComposition: owners.disposeComposition,
+    execution: runtimeAssembly.execution,
+    isDisposed: owners.isDisposed,
+    layoutSyncController: chart.layoutSyncController,
+    paneTimeLocation: runtimeAssembly.paneTimeLocation,
+    persistReplayNavigationSettings: options.persistReplayNavigationSettings,
+    presentation: options.presentation,
+    range: session.range,
+    readPaneLayoutValue: session.readPaneLayout,
+    readSyncTimeframe: session.readSyncTimeframe,
+    readTruncationSelection: session.readTruncationSelection,
+    replay: session.replay,
+    restored: session.restored,
+    setNavigationSchedule: session.setNavigationSchedule,
+    setPaneLayoutValue: session.setPaneLayout,
+    setReplayStep: session.setReplayStep,
+    setSyncTimeframe: session.setSyncTimeframe,
+    setTruncationSelection: owners.setTruncationSelection,
+    snapshotComposition: owners.snapshotComposition,
+    syncReplayStep: session.syncReplayStep,
+    workstationSettings: options.workstationSettings,
+    workspaceState: session.workspaceState,
+  });
+}
+
 /**
  * Compose one Session-scoped Replay Workspace behind command and presentation ports.
  * This boundary constructs and disposes runtime owners; it never owns DOM nodes.
@@ -23,27 +104,22 @@ export function createReplayWorkspaceComposition({
   workstationSettings,
   workstationSettingsViewConsumer,
 }) {
-  const session = createWorkspaceSessionState({
+  const options = Object.freeze({
     initialCheckpoint,
     initialLayout,
+    initialLayoutSync,
     initialNavigationSettings,
+    persistWorkspaceCheckpoint,
+    persistReplayNavigationSettings,
     presentation,
     record,
     workstationSettings,
+    workstationSettingsViewConsumer,
   });
-  let chart;
+  const session = createWorkspaceSessionState(options);
   let runtimeAssembly;
   let disposed = false;
-  const checkpointPersistence = createWorkspaceCheckpointPersistence({
-    initialCheckpoint,
-    initialLayout: session.readPaneLayout(),
-    initialLayoutSync,
-    persist: persistWorkspaceCheckpoint,
-    readLayout: session.readPaneLayout,
-    readLayoutSync: () => session.readLayoutSync() ?? initialLayoutSync,
-    view: presentation,
-    workspaceState: session.workspaceState,
-  });
+  const checkpointPersistence = createCheckpointPersistence(options, session);
 
   function setTruncationSelection(active, error = null) {
     session.setTruncationSelection(active);
@@ -68,36 +144,17 @@ export function createReplayWorkspaceComposition({
     await runtimeAssembly.execution.action('goto-exact', { targetEpochMs }, { allowDim: true });
   }
 
-  chart = createWorkspaceChartAssembly({
+  const chart = createChartAssembly(
+    options,
+    session,
     checkpointPersistence,
-    getExecution: () => runtimeAssembly?.execution ?? null,
     handleTruncationSelect,
-    initialLayoutSync,
-    presentation,
-    record,
-    session,
-    workstationSettings,
-    workstationSettingsViewConsumer,
-  });
+    () => runtimeAssembly?.execution ?? null,
+  );
   session.setLayoutSyncReader(chart.layoutSyncController.snapshot);
-  let runtime = null;
-  const data = createWorkspaceDataAssembly({ getRuntime: () => runtime, session });
-  const publication = createWorkspacePublicationAssembly({
-    checkpointPersistence,
-    data,
-    presentation,
-    session,
-  });
-  runtimeAssembly = createWorkspaceRuntimeAssembly({
-    chart,
-    data,
-    presentation,
-    publication,
-    record,
-    session,
-    workstationSettings,
-  });
-  runtime = runtimeAssembly.runtime;
+  const graph = createRuntimeGraph(options, session, chart, checkpointPersistence);
+  ({ runtimeAssembly } = graph);
+  const { data, runtime } = graph;
 
   function disposeComposition() {
     if (disposed) return;
@@ -127,32 +184,15 @@ export function createReplayWorkspaceComposition({
     semanticState: session.workspaceState.snapshot(),
     workspace: runtime.snapshot(),
   });
-  return createReplayWorkspaceCommandPort({
-    acceptedPaneWorkspace: session.acceptedPaneWorkspace,
-    adapter: chart.adapter,
-    autoplayScheduler: runtimeAssembly.autoplayScheduler,
+  return createCompositionCommandPort(options, {
+    chart,
     checkpointPersistence,
     disposeComposition,
-    execution: runtimeAssembly.execution,
     isDisposed: () => disposed,
-    layoutSyncController: chart.layoutSyncController,
-    paneTimeLocation: runtimeAssembly.paneTimeLocation,
-    persistReplayNavigationSettings,
-    presentation,
-    range: session.range,
-    readPaneLayoutValue: session.readPaneLayout,
-    readSyncTimeframe: session.readSyncTimeframe,
-    readTruncationSelection: session.readTruncationSelection,
-    replay: session.replay,
-    restored: session.restored,
-    setNavigationSchedule: session.setNavigationSchedule,
-    setPaneLayoutValue: session.setPaneLayout,
-    setReplayStep: session.setReplayStep,
-    setSyncTimeframe: session.setSyncTimeframe,
     setTruncationSelection,
     snapshotComposition,
-    syncReplayStep: session.syncReplayStep,
-    workstationSettings,
-    workspaceState: session.workspaceState,
+    data,
+    runtimeAssembly,
+    session,
   });
 }

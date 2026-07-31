@@ -27,6 +27,8 @@ export function measureManualViewportWall({ latestLogicalIndex, range }) {
   if (to <= from) {
     failViewport('VIEWPORT_LOGICAL_RANGE_INVALID', 'Logical range must increase.');
   }
+  // Protected invariant — viewport-wall: product state retains only distance
+  // from the latest bar and visible span, never native chart coordinates.
   return Object.freeze({ latestOffsetBars: to - latest, spanBars: to - from });
 }
 
