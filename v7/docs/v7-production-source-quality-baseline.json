@@ -12750,6 +12750,91 @@
       "functions": [
         {
           "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "base",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "register",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 28,
+          "name": "registration",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-1>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "historyPlanning",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "alignStartEpochMs",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/foundation-fixed-timeframe-capability.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "607f2ef32e7088d9acbbff034d066624c27c0d6ae85dba80f6ba83c38a1f7ee8"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 104,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
           "name": "<anonymous-3>",
           "reviewedDecompositionException": false
         },
@@ -12810,6 +12895,91 @@
       ],
       "sizeException": null,
       "sourceHash": "620c2a932429047319bf905f6b82888efdc294dd548fe671970ccf6b82d95210"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 104,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "base",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "alignStartEpochMs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "register",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "registration",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-1>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "isEligibleWallEpoch",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "historyPlanning",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/foundation-calendar-timeframe-capability.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "986dfffa85ec589448bc0298932fe49e257aecdba2b80dd66e3198a3d0731bfd"
     },
     {
       "adaptsBoundary": true,
@@ -14679,7 +14849,107 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 164,
+      "effectiveLines": 170,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "onChange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onChange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onTimeframeSyncChange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setSpeed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "selectControl",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "setAvailability",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "icon",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "lockNavigation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "onPlayPause",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "iconButton",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "setTimeframeSync",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "setTruncationSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "element",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 80,
+          "name": "createReplayTransport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "setReplay",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.replay-workspace-ui",
+      "owner": "replay-workspace-ui",
+      "ownsContract": false,
+      "path": "src/replay-workspace-ui/replay-transport.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-ui"
+      ],
+      "sizeException": null,
+      "sourceHash": "34e9b1e3e1ccbdc9c80564b93bda8b53d9514ec8063d3414cf21dee251218f16"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 172,
       "forwardingOnly": false,
       "functions": [
         {
@@ -14807,107 +15077,7 @@
         "replay-workspace-composition"
       ],
       "sizeException": null,
-      "sourceHash": "b558b319d6bf4e3773d1d1802ebad5fcb59a15c0319280a5c99efbb61279f2d5"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 170,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "onChange",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onChange",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onTimeframeSyncChange",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setSpeed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "selectControl",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "setAvailability",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 24,
-          "name": "icon",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "lockNavigation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "onPlayPause",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "iconButton",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "setTimeframeSync",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "setTruncationSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "element",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 80,
-          "name": "createReplayTransport",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "setReplay",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.replay-workspace-ui",
-      "owner": "replay-workspace-ui",
-      "ownsContract": false,
-      "path": "src/replay-workspace-ui/replay-transport.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-ui"
-      ],
-      "sizeException": null,
-      "sourceHash": "34e9b1e3e1ccbdc9c80564b93bda8b53d9514ec8063d3414cf21dee251218f16"
+      "sourceHash": "5e1cc61bb18d6ee0dffa20c97617cafdd12de832228b2a2bdeb01680a40e104b"
     },
     {
       "adaptsBoundary": true,
@@ -15309,106 +15479,6 @@
       ],
       "sizeException": null,
       "sourceHash": "4b30b0059b3044c3be4c1ec0d0904a118613aaa877814cc5ce88888ea64fda02"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 183,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-1>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "<anonymous-15>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "timeframeBase",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "alignStartEpochMs",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 2,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 21,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 26,
-          "name": "createFoundationTimeframeRegistry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 27,
-          "name": "aggregationPolicy",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "isEligibleWallEpoch",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "<anonymous-16>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "<anonymous-11>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "historyPlanning",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
-      "ownsContract": false,
-      "path": "src/replay-workspace-composition/foundation-timeframe-registry.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-composition"
-      ],
-      "sizeException": null,
-      "sourceHash": "a04de981667d7d87b1d2f148b62d59d984ad979cccf37ce747c788b4383ca7e7"
     },
     {
       "adaptsBoundary": true,
@@ -17368,25 +17438,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 31,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
-      "ownsContract": true,
-      "path": "src/replay-workspace-composition/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-composition"
-      ],
-      "sizeException": null,
-      "sourceHash": "eecb40e14fd35286723880d380000e541dffd9ead146c9345daa9b8d580ea437"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 34,
       "forwardingOnly": false,
       "functions": [
@@ -17477,6 +17528,25 @@
       ],
       "sizeException": null,
       "sourceHash": "eae9dc788a56a21097ad429ef6cbebeec7ecf19ae4efcee6138d4450ce6567a2"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 35,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": true,
+      "path": "src/replay-workspace-composition/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "e61afcf33314acfa038cafbdc583bdf05de1644054b529311dd4c0da3b3023f8"
     },
     {
       "adaptsBoundary": true,
@@ -22091,6 +22161,155 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "collectTimeframeAlignmentPolicyIds",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "normalizeExtension",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "normalizeContribution",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "createTimeframeCapabilityRegistry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "unique",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "historyPlanning",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/timeframe-capability-registry.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "replay-workspace-composition.",
+            "purpose": "expose the complete supported public contract for replay workspace composition.",
+            "inputs": "validated configuration plus explicitly injected owner, persistence, and presentation ports.",
+            "outputs": "a bounded application or workspace command surface.",
+            "sideEffects": "constructs, wires, invokes, and disposes only the owners named by this composition boundary.",
+            "lifecycle": "the composed graph lives from factory creation until its exposed dispose operation.",
+            "errors": "construction and command failures propagate from the responsible owner with stable error codes.",
+            "concurrencyCancellation": "asynchronous commands preserve cancellation and current-identity checks across owner boundaries."
+          },
+          "moduleId": "core.replay-workspace-composition",
+          "name": "collectTimeframeAlignmentPolicyIds"
+        },
+        {
+          "documentation": {
+            "owner": "replay-workspace-composition.",
+            "purpose": "expose the complete supported public contract for replay workspace composition.",
+            "inputs": "validated configuration plus explicitly injected owner, persistence, and presentation ports.",
+            "outputs": "a bounded application or workspace command surface.",
+            "sideEffects": "constructs, wires, invokes, and disposes only the owners named by this composition boundary.",
+            "lifecycle": "the composed graph lives from factory creation until its exposed dispose operation.",
+            "errors": "construction and command failures propagate from the responsible owner with stable error codes.",
+            "concurrencyCancellation": "asynchronous commands preserve cancellation and current-identity checks across owner boundaries."
+          },
+          "moduleId": "core.replay-workspace-composition",
+          "name": "createTimeframeCapabilityRegistry"
+        }
+      ],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "7c87740e3ca0527d509bd723c8ddaf8fe38d373c75bea61b9ae55d1da21482e2"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 89,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 37,
           "name": "populateSettingsDraft",
           "reviewedDecompositionException": false
@@ -22266,10 +22485,10 @@
   ],
   "schemaVersion": 1,
   "summary": {
-    "effectiveLines": 22279,
-    "files": 301,
-    "functions": 2370,
-    "publicExports": 302
+    "effectiveLines": 22405,
+    "files": 303,
+    "functions": 2400,
+    "publicExports": 304
   },
   "deliveryStep": "R8.12",
   "generatedFromCommit": "ce42eb9f"

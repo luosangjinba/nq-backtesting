@@ -1,0 +1,7 @@
+[
+  { "case": "empty-extension-set" },
+  { "case": "duplicate-extension-id" },
+  { "case": "duplicate-alignment-id" },
+  { "case": "invalid-contribution-shape" },
+  { "case": "duplicate-timeframe-id" }
+]

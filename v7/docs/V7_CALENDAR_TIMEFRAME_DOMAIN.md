@@ -1,6 +1,6 @@
 # V7 Calendar-Timeframe Domain
 
-Status: R7.3n implemented, awaiting human interaction review (2026-07-29)
+Status: R8.13 registered re-derivation executable, awaiting R8.15 human review (2026-07-31)
 
 ## Ownership
 
@@ -82,3 +82,9 @@ active.
 
 Human interaction and visual acceptance is still required before R7.3n may be
 committed as accepted.
+
+R8.13 replaces the original mixed foundation registry with separate versioned
+fixed/calendar contributions and a policy-family-agnostic registry. Calendar
+alignment remains owned by this module; Projection, UI, Chart, Replay, Bar
+Data, and V4 owners gained no concrete calendar branch. See
+`V7_CALENDAR_CAPABILITY_RTH_LOCATE_REDERIVATION_R8_13.md`.

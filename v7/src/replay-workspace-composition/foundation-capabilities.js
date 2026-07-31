@@ -10,9 +10,18 @@ import {
   V4_BARS_PROVIDER_ID,
 } from '../v4-bars-provider-adapter/public.js';
 import {
-  createFoundationTimeframeRegistry,
-  FOUNDATION_CALENDAR_ALIGNMENT_POLICY_IDS,
-} from './foundation-timeframe-registry.js';
+  FOUNDATION_CALENDAR_TIMEFRAME_EXTENSION,
+} from './foundation-calendar-timeframe-capability.js';
+import { FOUNDATION_FIXED_TIMEFRAME_EXTENSION } from './foundation-fixed-timeframe-capability.js';
+import {
+  collectTimeframeAlignmentPolicyIds,
+  createTimeframeCapabilityRegistry,
+} from './timeframe-capability-registry.js';
+
+const FOUNDATION_TIMEFRAME_EXTENSIONS = Object.freeze([
+  FOUNDATION_FIXED_TIMEFRAME_EXTENSION,
+  FOUNDATION_CALENDAR_TIMEFRAME_EXTENSION,
+]);
 
 export const FOUNDATION_IDS = Object.freeze({
   calendar: 'calendar.cme-equity-index',
@@ -113,10 +122,7 @@ export function createFoundationCapabilities(instrumentIds = undefined) {
   const instrument = instruments[0];
   const calendar = defineTradingCalendar({
     ...base('calendar', 'TradingCalendar', FOUNDATION_IDS.calendar, 'CME Equity Index'),
-    alignmentPolicyIds: [
-      'alignment.fixed-duration',
-      ...FOUNDATION_CALENDAR_ALIGNMENT_POLICY_IDS,
-    ],
+    alignmentPolicyIds: collectTimeframeAlignmentPolicyIds(FOUNDATION_TIMEFRAME_EXTENSIONS),
     revision: 'foundation-2026-r1',
     sessionHoursPolicyIds: Object.values(FOUNDATION_IDS.sessionHours),
     timeZone: 'America/New_York',
@@ -153,14 +159,17 @@ export function createFoundationCapabilities(instrumentIds = undefined) {
       revision: `${wallPolicies[mode].revision}-instant-adapter-r1`,
     })]
   ))));
-  const timeframeRegistry = createFoundationTimeframeRegistry({
-    calendar,
-    exchangeWallEpoch,
-    instruments,
-    resolutionId: FOUNDATION_IDS.resolution,
-    sessionPolicies,
-    toInstantEpochMs: newYorkWallEpochToInstantMs,
-    wallPolicies,
+  const timeframeRegistry = createTimeframeCapabilityRegistry({
+    context: Object.freeze({
+      calendar,
+      exchangeWallEpoch,
+      instruments,
+      resolutionId: FOUNDATION_IDS.resolution,
+      sessionPolicies,
+      toInstantEpochMs: newYorkWallEpochToInstantMs,
+      wallPolicies,
+    }),
+    extensions: FOUNDATION_TIMEFRAME_EXTENSIONS,
   });
   const { definitions, entries } = timeframeRegistry;
   const defaultTarget = Object.freeze({

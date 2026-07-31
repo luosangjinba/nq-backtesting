@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "currentStep": "R8.12",
+  "currentStep": "R8.13",
   "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
@@ -10,7 +10,7 @@
     "checkpointCommit": "fa561599",
     "allowedWork": "architecture-conformance-recovery-only",
     "freezeFeatureDelivery": true,
-    "regressedRuleIds": ["H019", "H021", "H025", "H066", "H069"]
+    "regressedRuleIds": ["H021", "H025", "H069"]
   },
   "rules": [
     {
@@ -341,21 +341,29 @@
       "owner": "module-registry",
       "v6FailurePrevented": "new TF, hours, pane, or feature branches regressed old behavior",
       "activationStep": "R5",
-      "state": "regressed",
-      "harness": "tests/architecture-boundary-harness.js",
+      "state": "executable",
+      "harness": "tests/timeframe-capability-registry-harness.js",
       "positiveEvidence": [
         "src/capability-contract/public.js",
         "src/session-hours-domain/public.js",
         "src/fixed-timeframe-domain/public.js",
+        "src/replay-workspace-composition/timeframe-capability-registry.js",
+        "src/replay-workspace-composition/foundation-fixed-timeframe-capability.js",
+        "src/replay-workspace-composition/foundation-calendar-timeframe-capability.js",
         "tests/architecture-boundary-harness.js",
         "tests/capability-contract-harness.js",
-        "tests/fixed-timeframe-domain-harness.js"
+        "tests/fixed-timeframe-domain-harness.js",
+        "tests/timeframe-capability-registry-harness.js"
       ],
-      "negativeFixtures": ["tests/fixtures/capability-contract/negative/cases.json"],
+      "negativeFixtures": [
+        "tests/fixtures/capability-contract/negative/cases.json",
+        "tests/fixtures/timeframe-capability-registry/negative/cases.json"
+      ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": "sessions/session_20260721_r5_6m_fifth_review_acceptance.md",
+      "acceptanceEvidence": null,
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.13"
+      "recoveryStep": "R8.13",
+      "recoveryEvidence": "sessions/session_20260731_r8_13_calendar_rth_locate_rederivation.md"
     },
     {
       "id": "H020",
@@ -1357,8 +1365,8 @@
       "owner": "pane-time-location-domain",
       "v6FailurePrevented": "Ordinary clicks or compressed display time moved other Pane Viewports, missing history bypassed runtime owners, or an unavailable market instant snapped to an unrelated session or future candle",
       "activationStep": "R6",
-      "state": "regressed",
-      "harness": "tests/pane-time-location-domain-harness.js",
+      "state": "executable",
+      "harness": "tests/replay-multi-pane-rth-history-browser-harness.js",
       "positiveEvidence": [
         "src/pane-time-location-domain/pane-time-location.js",
         "src/lightweight-chart-adapter/pane-time-location-adapter.js",
@@ -1366,8 +1374,10 @@
         "src/replay-workspace-ui/pane-time-location-menu.js",
         "tests/pane-time-location-domain-harness.js",
         "tests/pane-time-location-controller-harness.js",
+        "tests/bar-data-coverage-lease-harness.js",
         "tests/lightweight-chart-adapter-browser-harness.js",
         "tests/replay-layout-workspace-browser-harness.js",
+        "tests/replay-multi-pane-rth-history-browser-harness.js",
         "tests/fixtures/replay-workspace/layout-time-location-menu-1440x900.png",
         "docs/V7_PANE_TIME_LOCATION_R6_10C3.md",
         "sessions/session_20260723_r6_10c3_location_history_correction.md"
@@ -1376,9 +1386,10 @@
         "tests/fixtures/pane-time-location-domain/negative/cases.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": "sessions/session_20260723_r6_10c3_location_history_correction.md",
+      "acceptanceEvidence": null,
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.13"
+      "recoveryStep": "R8.13",
+      "recoveryEvidence": "sessions/session_20260731_r8_13_calendar_rth_locate_rederivation.md"
     },
     {
       "id": "H067",
@@ -1675,12 +1686,22 @@
       "owner": "module-registry",
       "v6FailurePrevented": "new calendar timeframe capability edited existing core UI adapter or backend owners and regressed old combinations",
       "activationStep": "R8.13",
-      "state": "declared",
-      "harness": null,
-      "positiveEvidence": [],
-      "negativeFixtures": [],
+      "state": "executable",
+      "harness": "tests/timeframe-capability-registry-harness.js",
+      "positiveEvidence": [
+        "src/replay-workspace-composition/timeframe-capability-registry.js",
+        "src/replay-workspace-composition/foundation-fixed-timeframe-capability.js",
+        "src/replay-workspace-composition/foundation-calendar-timeframe-capability.js",
+        "src/replay-workspace-composition/foundation-capabilities.js",
+        "tests/timeframe-capability-registry-harness.js",
+        "docs/V7_CALENDAR_CAPABILITY_RTH_LOCATE_REDERIVATION_R8_13.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/timeframe-capability-registry/negative/cases.json"
+      ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": null,
+      "recoveryEvidence": "sessions/session_20260731_r8_13_calendar_rth_locate_rederivation.md"
     },
     {
       "id": "H079",

@@ -212,6 +212,68 @@ await assert.rejects(bounded.acquireCoverageLease({
   && error.code === 'RAW_COVERAGE_WINDOW_COUNT_EXCEEDED');
 bounded.dispose();
 
+const paneMatrix = runtime({ requestRawBars: (rawRequest) => batch(rawRequest) });
+const paneOneWide = request(40_000, 45_000);
+const paneTwoNormal = request(42_000, 44_000);
+const replacementIdentity = identity(10);
+const [paneOneReplacement, paneTwoReplacement] = await Promise.all([
+  paneMatrix.acquireCoverageLease({
+    consumerId: 'pane-main', identity: replacementIdentity, operation: 'source-replacement',
+    request: paneOneWide, signal: new AbortController().signal,
+  }),
+  paneMatrix.acquireCoverageLease({
+    consumerId: 'pane-secondary', identity: replacementIdentity, operation: 'source-replacement',
+    request: paneTwoNormal, signal: new AbortController().signal,
+  }),
+]);
+paneMatrix.commitCoverageLeases({
+  activeConsumerIds: ['pane-main', 'pane-secondary'],
+  leases: [paneOneReplacement, paneTwoReplacement],
+});
+
+const locateToPaneTwoIdentity = identity(11);
+const paneTwoHistory = request(40_000, 42_000);
+const [paneOneUnchanged, paneTwoLocated] = await Promise.all([
+  paneMatrix.acquireCoverageLease({
+    consumerId: 'pane-main', identity: locateToPaneTwoIdentity, operation: 'navigation',
+    request: request(42_000, 44_000), signal: new AbortController().signal,
+  }),
+  paneMatrix.acquireCoverageLease({
+    consumerId: 'pane-secondary', identity: locateToPaneTwoIdentity, operation: 'history-extension',
+    request: paneTwoHistory, signal: new AbortController().signal,
+  }),
+]);
+assert.deepEqual(paneOneUnchanged.requests, [paneOneWide],
+  'a dense non-target Pane must retain its complete accepted wall during Locate');
+assert.deepEqual(paneTwoLocated.requests, [paneTwoHistory, paneTwoNormal]);
+paneMatrix.commitCoverageLeases({
+  activeConsumerIds: ['pane-main', 'pane-secondary'],
+  leases: [paneOneUnchanged, paneTwoLocated],
+});
+
+const locateToPaneOneIdentity = identity(12);
+const paneOneHistory = request(35_000, 40_000);
+const [paneOneLocated, paneTwoUnchanged] = await Promise.all([
+  paneMatrix.acquireCoverageLease({
+    consumerId: 'pane-main', identity: locateToPaneOneIdentity, operation: 'history-extension',
+    request: paneOneHistory, signal: new AbortController().signal,
+  }),
+  paneMatrix.acquireCoverageLease({
+    consumerId: 'pane-secondary', identity: locateToPaneOneIdentity, operation: 'navigation',
+    request: request(41_000, 43_000), signal: new AbortController().signal,
+  }),
+]);
+assert.deepEqual(paneOneLocated.requests, [paneOneHistory, paneOneWide]);
+assert.deepEqual(paneTwoUnchanged.requests, [paneTwoHistory, paneTwoNormal],
+  'reverse Locate must retain the other Pane through the same Bar Data-owned rule');
+paneMatrix.commitCoverageLeases({
+  activeConsumerIds: ['pane-main', 'pane-secondary'],
+  leases: [paneOneLocated, paneTwoUnchanged],
+});
+assert.equal(paneMatrix.oldestCoverageEpochMs('pane-main'), 35_000);
+assert.equal(paneMatrix.oldestCoverageEpochMs('pane-secondary'), 40_000);
+paneMatrix.dispose();
+
 console.log('v7 Bar Data coverage lease harness passed', {
-  scope: 'bounded owner coverage, LRU reuse, delay cancellation, release, disposal',
+  scope: 'bounded owner coverage, two-Pane Locate preservation, LRU reuse, cancellation, disposal',
 });

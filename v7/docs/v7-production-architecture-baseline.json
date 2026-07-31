@@ -104,7 +104,7 @@
       {
         "callCount": 1,
         "factory": "createCalendarAggregationPolicy",
-        "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+        "sourceFile": "src/replay-workspace-composition/foundation-calendar-timeframe-capability.js",
         "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.calendar-timeframe-domain"
       },
@@ -153,7 +153,7 @@
       {
         "callCount": 1,
         "factory": "createFixedDurationAggregationPolicy",
-        "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+        "sourceFile": "src/replay-workspace-composition/foundation-fixed-timeframe-capability.js",
         "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.fixed-timeframe-domain"
       },
@@ -573,7 +573,7 @@
       {
         "callCount": 1,
         "factory": "createReplayStep",
-        "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+        "sourceFile": "src/replay-workspace-composition/foundation-fixed-timeframe-capability.js",
         "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.replay-contract"
       },
@@ -1429,7 +1429,7 @@
               "createCalendarAggregationPolicy",
               "resolveCalendarPeriod"
             ],
-            "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+            "sourceFile": "src/replay-workspace-composition/foundation-calendar-timeframe-capability.js",
             "targetFile": "src/calendar-timeframe-domain/public.js",
             "targetModuleId": "core.calendar-timeframe-domain",
             "throughPublicEntry": true
@@ -1447,7 +1447,7 @@
             "importedNames": [
               "createFixedDurationAggregationPolicy"
             ],
-            "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+            "sourceFile": "src/replay-workspace-composition/foundation-fixed-timeframe-capability.js",
             "targetFile": "src/fixed-timeframe-domain/public.js",
             "targetModuleId": "core.fixed-timeframe-domain",
             "throughPublicEntry": true
@@ -1608,7 +1608,7 @@
             "importedNames": [
               "createReplayStep"
             ],
-            "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+            "sourceFile": "src/replay-workspace-composition/foundation-fixed-timeframe-capability.js",
             "targetFile": "src/replay-contract/public.js",
             "targetModuleId": "core.replay-contract",
             "throughPublicEntry": true
@@ -1712,7 +1712,16 @@
             "importedNames": [
               "defineTimeframe"
             ],
-            "sourceFile": "src/replay-workspace-composition/foundation-timeframe-registry.js",
+            "sourceFile": "src/replay-workspace-composition/foundation-calendar-timeframe-capability.js",
+            "targetFile": "src/capability-contract/public.js",
+            "targetModuleId": "core.capability-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineTimeframe"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-fixed-timeframe-capability.js",
             "targetFile": "src/capability-contract/public.js",
             "targetModuleId": "core.capability-contract",
             "throughPublicEntry": true
@@ -1907,6 +1916,13 @@
             "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
             "targetFile": "src/v4-bars-provider-adapter/public.js",
             "targetModuleId": "adapter.v4-bars-provider",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [],
+            "sourceFile": "src/replay-workspace-composition/timeframe-capability-registry.js",
+            "targetFile": "src/capability-contract/public.js",
+            "targetModuleId": "core.capability-contract",
             "throughPublicEntry": true
           }
         ],

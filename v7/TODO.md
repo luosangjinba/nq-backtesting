@@ -29,7 +29,7 @@ review. Preserve rejected commits and assign a new delivery id to replacements.
 - [x] `R8.11` boot production through ModuleHost and prove isolation/removal;
 - [x] `R8.12` close real source size, responsibility, contract documentation,
   and tracked-debt gates;
-- [ ] `R8.13` re-derive Calendar capability extension and dense RTH Locate
+- [x] `R8.13` re-derive Calendar capability extension and dense RTH Locate
   through corrected owners;
 - [ ] `R8.14` pass the full production failure/concurrency/cross-product matrix;
 - [ ] `R8.15` obtain human acceptance of the exact reported workflow and close
@@ -52,6 +52,17 @@ sites, two hosted production roots, 15 declared writer surfaces, and seven
 critical writer sites. H022/H023 are recovered; five recovery regressions
 remain. No later recovery rule is cleared early. H077 remains pending human
 acceptance.
+
+R8.13 separates fixed/calendar construction into registered contributions and
+proves a synthetic extension without core-owner edits or concrete-id branches.
+Bar Data lease and real Chrome evidence now preserve dense/non-target walls
+through repeated ETH Locate, atomic RTH replacement, and both RTH target
+directions without moving Replay. H019/H066/H078 are executable, not human-
+accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
+The refreshed production source baseline contains 303 files, 22,404 effective
+lines, 2,400 functions, and 304 public exports; the architecture baseline
+remains 48 modules, 125 edges, 115 construction sites, seven writers, and zero
+findings.
 
 ## Established Foundation Governance
 
@@ -1817,6 +1828,8 @@ writer, Viewport owns the drag wall, and Replay does not move.
   and premarket RTH month history stays ready;
 - [x] visually inspect and rebaseline the intentional enabled-state change in
   the open-timeframe-menu fixture;
+- [x] re-derive fixed/calendar activation through versioned contributions and
+  a policy-family-agnostic registry without new core-owner branches (`R8.13`);
 - [ ] obtain explicit human confirmation after a hard reload that `1D`, `1W`,
   and `1M` are clickable and fill their left context without pointer input.
 
@@ -1835,6 +1848,9 @@ writer, Viewport owns the drag wall, and Replay does not move.
 - [x] extend the real multi-Pane RTH browser gate through dense zoom, Session
   Hours replacement, actual context-menu location, and non-target bar/span
   preservation;
+- [x] replace the removed UI ledger with Bar Data Runtime-owned accepted
+  coverage leases and prove repeated ETH plus bidirectional RTH Locate while
+  Replay and both semantic Viewport walls remain stable (`R8.13`);
 - [x] pass focused domain/runtime/architecture gates plus the real Workspace,
   Pane Workspace, and exact multi-Pane RTH browser regressions;
 - [ ] obtain explicit human confirmation after a hard reload by repeating the

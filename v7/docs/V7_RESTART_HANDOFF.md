@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-31 by R8.11 production ModuleHost boot
+Last updated: 2026-07-31 by R8.13 Calendar/RTH Locate re-derivation
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -23,7 +23,10 @@ required for normal startup.
 - R8.8 reversible Chart application is commit `83a82364`;
 - R8.9 global atomic Workspace transaction is commit `18ebe58d`;
 - R8.10 UI/composition split is commit `d341b034`;
-- R8.11 production ModuleHost boot is the current handoff commit;
+- R8.11 production ModuleHost boot is commit `ce42eb9f`;
+- R8.12 source/documentation closure is commit `f62db2b9`;
+- R8.13 Calendar capability and RTH Locate re-derivation is the current
+  handoff commit;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10
@@ -68,9 +71,16 @@ required for normal startup.
   regressions remain assigned to R8.12–R8.14; H077 is executable and its human
   acceptance remains unclaimed;
 - the exact production baseline now scans 48 modules, 125 dependency edges,
-  114 construction sites, 15 declared writer surfaces, and seven critical
+  115 construction sites, 15 declared writer surfaces, and seven critical
   writer sites with zero blocking production architecture findings;
-- next step after this commit is R8.12, but it must not begin until the R8.11
+- R8.12 binds all production source to exact size, responsibility, public-
+  contract, invariant, debt, and source-drift evidence with no exceptions;
+- R8.13 reintroduces fixed/calendar timeframes as registered contributions and
+  proves repeated ETH plus bidirectional RTH Locate through Bar Data-owned
+  leases without moving Replay or collapsing either Pane wall;
+- H019, H066, and H078 are executable; three regressions remain assigned to
+  R8.14, while R7.3n/R7.3o human acceptance remains frozen through R8.15;
+- next step after this commit is R8.14, but it must not begin until the R8.13
   commit and evidence have been reported;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
@@ -606,9 +616,9 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R8.12 is the exact next step: enforce real production source/function budgets
-and close public-contract, lifecycle, cancellation, invariant, and tracked-debt
-documentation against production sources.
+R8.14 is the exact next step: execute the full production failure,
+concurrency, cache-state, persistence, restart, and capability cross-product
+matrix without clearing human acceptance.
 R7.3n/R7.3o acceptance and all feature work remain frozen until R8.15.
 
 ## Standing Workflow

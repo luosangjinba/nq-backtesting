@@ -267,6 +267,14 @@ it only through synchronous transaction-bound callbacks. UI source/display
 ledgers and cached source reads are removed; only derived immutable snapshots
 escape the owner.
 
+R8.13 supersedes the R7.3o UI-ledger correction with executable production
+evidence through that R8.5 owner. Covered ordinary navigation retains a Pane's
+wider accepted request set inside Bar Data Runtime, while target history uses a
+bounded extension lease. R8.13 also separates fixed and calendar timeframe
+construction into versioned contributions merged by a policy-family-agnostic
+composition registry; existing core owners import neither contribution and
+contain no concrete timeframe-id branch.
+
 R8.6 activates `core.workspace-state-runtime` as the sole accepted semantic
 Workspace State owner. One branded revision now contains the accepted Pane
 Workspace, Session Hours capability/revision, semantic Viewport values, and

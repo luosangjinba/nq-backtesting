@@ -42,6 +42,7 @@ function readState(cdp) {
       browserErrors: globalThis.__browserErrors,
       controlsDisabled: [...document.querySelectorAll('.session-hours-control button')]
         .every((button) => button.disabled),
+      replayCursorEpochMs: Number(root?.dataset.replayCursorEpochMs),
       panes: [...document.querySelectorAll('.workspace-pane:not(.is-prepared)')].map((pane) => {
         const host = pane.querySelector('.lightweight-chart-host');
         return {
@@ -58,6 +59,11 @@ function readState(cdp) {
       }).sort((left, right) => left.paneNumber - right.paneNumber),
     };
   })()`);
+}
+
+async function resetPane(cdp, paneNumber) {
+  await evaluate(cdp, `document.querySelector('[aria-label="Reset Pane ${paneNumber} view"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
 }
 
 async function dragTowardHistory(cdp, paneId) {
@@ -196,6 +202,11 @@ try {
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '2'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
 
+  await resetPane(cdp, 1);
+  await resetPane(cdp, 2);
+  const resetState = await readState(cdp);
+  const replayCursorEpochMs = resetState.replayCursorEpochMs;
+
   let state = await extendHistory(cdp, 'pane-main');
   assert.ok(state.panes.every(({ bars, empty }) => bars > 0 && !empty),
     `ETH extension must preserve both Panes: ${JSON.stringify(state)}`);
@@ -203,6 +214,18 @@ try {
   state = await zoomOutDense(cdp, 'pane-main');
   assert.ok(state.panes[0].spanBars >= 900 && state.panes[0].bars > state.panes[1].bars,
     `the source Pane must own genuinely denser history before RTH replacement: ${JSON.stringify(state)}`);
+
+  const beforeEthLocations = state;
+  await locateFromSourceToTarget(cdp, 'pane-main', 'pane-secondary');
+  await locateFromSourceToTarget(cdp, 'pane-main', 'pane-secondary');
+  state = await readState(cdp);
+  assert.ok(state.panes[0].bars >= beforeEthLocations.panes[0].bars
+    && state.panes[0].spanBars >= beforeEthLocations.panes[0].spanBars * .9,
+  `repeated ETH Locate must preserve the dense non-target Pane: ${JSON.stringify({
+    beforeEthLocations, afterEthLocations: state,
+  })}`);
+  assert.equal(state.replayCursorEpochMs, replayCursorEpochMs,
+    'ETH Pane time location must not move Replay');
 
   await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="rth"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'rth'
@@ -224,6 +247,17 @@ try {
     `RTH target-history location must preserve the non-target source wall: ${JSON.stringify({
       beforeFirstRthHistory, afterRthTimeLocation,
     })}`);
+  await locateFromSourceToTarget(cdp, 'pane-secondary', 'pane-main');
+  const afterReverseRthTimeLocation = await readState(cdp);
+  assert.ok(afterReverseRthTimeLocation.panes[1].bars >= afterRthTimeLocation.panes[1].bars,
+    `reverse RTH location must not collapse the non-target Pane: ${JSON.stringify({
+      afterRthTimeLocation, afterReverseRthTimeLocation,
+    })}`);
+  assert.ok(afterReverseRthTimeLocation.panes.every(({ logicalFrom, logicalTo, spanBars }) => (
+    spanBars >= 40 && logicalTo - logicalFrom >= 40
+  )), `both RTH target directions must retain usable walls: ${JSON.stringify(afterReverseRthTimeLocation)}`);
+  assert.equal(afterReverseRthTimeLocation.replayCursorEpochMs, replayCursorEpochMs,
+    'RTH Pane time location must not move Replay');
   await cdp.send('Page.reload', { ignoreCache: true });
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'rth'
     && document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
@@ -300,5 +334,5 @@ try {
 }
 
 console.log('v7 multi-Pane RTH history browser harness passed', {
-  scope: 'premarket RTH warmup, dense RTH Locate preservation, rapid span, Pane reduction, ETH recovery',
+  scope: 'two resets, repeated ETH Locate, atomic RTH, bidirectional Locate, rapid span, recovery',
 });

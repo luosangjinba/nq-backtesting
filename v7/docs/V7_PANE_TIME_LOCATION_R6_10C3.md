@@ -96,6 +96,13 @@ its independent Viewport and source history. A real-Chrome regression recreates
 the dense RTH source Pane, invokes the actual right-click `Locate in P2`
 command, and proves P1 bar count and logical span do not collapse.
 
+R8.13 supersedes that Pane-local ledger implementation. Bar Data Runtime now
+solely retains accepted raw coverage and exposes it through a transaction-bound
+synchronous lease; no UI raw ledger exists. The replacement browser evidence
+covers repeated ETH location, atomic RTH replacement, both RTH target
+directions, stable walls, and Replay immobility. R7.3o remains unaccepted until
+the R8.15 human gate.
+
 ## Automated Gate
 
 - domain Harness covers branded selections/commands, span-preserving plans,

@@ -23,6 +23,10 @@ export {
 export {
   createFoundationMarket,
 } from './foundation-market.js';
+export {
+  collectTimeframeAlignmentPolicyIds,
+  createTimeframeCapabilityRegistry,
+} from './timeframe-capability-registry.js';
 export { supportsFoundationWorkspace } from './foundation-workspace-support.js';
 export { createFoundationSourceTraversal } from './foundation-source-traversal.js';
 export { QUICK_GOTO_ACTIONS, QUICK_GOTO_SETTING_FIELDS } from './goto-quick-actions.js';
