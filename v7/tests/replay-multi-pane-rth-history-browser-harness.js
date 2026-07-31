@@ -167,6 +167,60 @@ async function locateFromSourceToTarget(cdp, sourcePaneId, targetPaneId) {
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 20_000);
 }
 
+async function armPostVisiblePersistenceFailure(cdp) {
+  return evaluate(cdp, `(() => {
+    const recordKey = Object.keys(localStorage).find((key) => key.includes(':record:'));
+    if (!recordKey) throw new Error('R8.14 requires one durable Session record');
+    const originalSetItem = Storage.prototype.setItem;
+    const capture = () => {
+      const root = document.querySelector('.replay-workspace');
+      return {
+        mode: root?.dataset.sessionHoursMode,
+        revision: Number(root?.dataset.workspaceRevision),
+        panes: [...document.querySelectorAll('.workspace-pane:not(.is-prepared)')].map((pane) => {
+          const host = pane.querySelector('.lightweight-chart-host');
+          return {
+            paneId: pane.dataset.paneId,
+            sessionHoursMode: host.dataset.sessionHoursMode,
+            visibleRevision: Number(host.dataset.visibleRevision),
+          };
+        }).sort((left, right) => left.paneId.localeCompare(right.paneId)),
+      };
+    };
+    globalThis.__r814PersistenceFailure = {
+      armed: true,
+      candidateAtFailure: null,
+      originalSetItem,
+      recordBefore: localStorage.getItem(recordKey),
+      recordKey,
+    };
+    Storage.prototype.setItem = function setItem(key, value) {
+      const evidence = globalThis.__r814PersistenceFailure;
+      if (evidence.armed && String(key) === evidence.recordKey) {
+        evidence.armed = false;
+        evidence.candidateAtFailure = capture();
+        throw new Error('R8.14 injected durable publication failure after visible apply');
+      }
+      return evidence.originalSetItem.call(this, key, value);
+    };
+    return { recordBefore: globalThis.__r814PersistenceFailure.recordBefore, recordKey };
+  })()`);
+}
+
+async function finishPostVisiblePersistenceFailure(cdp) {
+  return evaluate(cdp, `(() => {
+    const evidence = globalThis.__r814PersistenceFailure;
+    Storage.prototype.setItem = evidence.originalSetItem;
+    return {
+      armed: evidence.armed,
+      candidateAtFailure: evidence.candidateAtFailure,
+      recordAfter: localStorage.getItem(evidence.recordKey),
+      recordBefore: evidence.recordBefore,
+      recordKey: evidence.recordKey,
+    };
+  })()`);
+}
+
 let cdp;
 try {
   const debugPort = await waitForDevtools();
@@ -258,6 +312,42 @@ try {
   )), `both RTH target directions must retain usable walls: ${JSON.stringify(afterReverseRthTimeLocation)}`);
   assert.equal(afterReverseRthTimeLocation.replayCursorEpochMs, replayCursorEpochMs,
     'RTH Pane time location must not move Replay');
+
+  const acceptedBeforeFailure = afterReverseRthTimeLocation;
+  await armPostVisiblePersistenceFailure(cdp);
+  await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="eth"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'error'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 20_000);
+  const afterPersistenceFailure = await readState(cdp);
+  const failureEvidence = await finishPostVisiblePersistenceFailure(cdp);
+  assert.equal(failureEvidence.armed, false, 'the real durable Session write must consume the failure');
+  assert.equal(failureEvidence.candidateAtFailure.mode, 'eth',
+    'the ETH candidate must reach production presentation before persistence fails');
+  assert.ok(failureEvidence.candidateAtFailure.revision > acceptedBeforeFailure.revision,
+    'the dynamically failed candidate must be a later complete Workspace revision');
+  assert.ok(failureEvidence.candidateAtFailure.panes.every(({ sessionHoursMode }) => (
+    sessionHoursMode === 'eth'
+  )), `every real Chart must paint the ETH candidate before failure: ${JSON.stringify(failureEvidence)}`);
+  assert.equal(afterPersistenceFailure.mode, 'rth',
+    'publication failure must restore the accepted RTH semantic selection');
+  assert.equal(afterPersistenceFailure.revision, acceptedBeforeFailure.revision,
+    'publication failure must restore the accepted Workspace revision');
+  assert.equal(afterPersistenceFailure.replayCursorEpochMs, acceptedBeforeFailure.replayCursorEpochMs,
+    'publication failure must restore the accepted Replay cursor');
+  assert.deepEqual(afterPersistenceFailure.panes, acceptedBeforeFailure.panes,
+    'publication failure must restore every accepted real Chart wall exactly');
+  assert.equal(failureEvidence.recordAfter, failureEvidence.recordBefore,
+    'failed durable publication must leave the accepted Session record byte-for-byte unchanged');
+
+  await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="eth"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'eth'
+    && document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 20_000);
+  await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="rth"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'rth'
+    && document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 20_000);
+
   await cdp.send('Page.reload', { ignoreCache: true });
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'rth'
     && document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
@@ -334,5 +424,5 @@ try {
 }
 
 console.log('v7 multi-Pane RTH history browser harness passed', {
-  scope: 'two resets, repeated ETH Locate, atomic RTH, bidirectional Locate, rapid span, recovery',
+  scope: 'dense ETH/RTH bidirectional Locate, dynamic post-visible persistence rollback, reload recovery',
 });

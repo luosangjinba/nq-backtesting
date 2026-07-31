@@ -70,6 +70,7 @@ function failingHandle(handle, participant, readFailure) {
 function chartAdapter(readFailure) {
   let revision = 0;
   let visible = null;
+  const trace = [];
   const stages = new WeakMap();
   return Object.freeze({
     port: Object.freeze({
@@ -80,6 +81,7 @@ function chartAdapter(readFailure) {
         revision += 1;
         visible = context.workspaceSnapshot;
         record.state = 'applied';
+        trace.push(Object.freeze({ revision, type: 'chart-candidate-visible', visible }));
         if (readFailure() === 'chart') throw new Error('chart injected failure after paint');
         return createChartAdapterVisibleReceipt({
           adapterRevision: revision,
@@ -94,6 +96,7 @@ function chartAdapter(readFailure) {
         if (record.state === 'applied') {
           revision = record.previousRevision;
           visible = record.previousVisible;
+          trace.push(Object.freeze({ revision, type: 'chart-accepted-restored', visible }));
         }
         record.state = 'rolled-back';
       },
@@ -104,11 +107,13 @@ function chartAdapter(readFailure) {
       },
     }),
     snapshot: () => Object.freeze({ revision, visible }),
+    trace: () => Object.freeze([...trace]),
   });
 }
 
 function publicationPort(readFailure) {
   const state = { persistenceRevision: 0, value: null };
+  const trace = [];
   const stages = new WeakMap();
   return Object.freeze({
     port: Object.freeze({
@@ -116,8 +121,13 @@ function publicationPort(readFailure) {
         const record = stages.get(stage);
         record.state = 'applying';
         state.value = record.candidate;
+        trace.push(Object.freeze({ type: 'publication-candidate-visible', value: state.value }));
         if (readFailure() === 'publication') throw new Error('publication injected failure');
         state.persistenceRevision += 1;
+        trace.push(Object.freeze({
+          persistenceRevision: state.persistenceRevision,
+          type: 'persistence-candidate-written',
+        }));
         if (readFailure() === 'persistence') throw new Error('persistence injected failure');
         record.state = 'applied';
       },
@@ -128,6 +138,11 @@ function publicationPort(readFailure) {
         if (record.state === 'applying' || record.state === 'applied') {
           state.persistenceRevision = record.previous.persistenceRevision;
           state.value = record.previous.value;
+          trace.push(Object.freeze({
+            persistenceRevision: state.persistenceRevision,
+            type: 'publication-and-persistence-restored',
+            value: state.value,
+          }));
         }
         record.state = 'rolled-back';
       },
@@ -142,6 +157,7 @@ function publicationPort(readFailure) {
       },
     }),
     snapshot: () => Object.freeze({ ...state }),
+    trace: () => Object.freeze([...trace]),
   });
 }
 
@@ -274,8 +290,26 @@ for (const failure of cases) {
     runtime: target.runtime.snapshot().acceptedSnapshot,
     workspaceState: target.workspaceState.snapshot(),
   });
+  const traceOffsets = Object.freeze({
+    chart: target.adapter.trace().length,
+    publication: target.publication.trace().length,
+  });
   target.setFailure(failure);
   assert.equal((await target.execute(`fail-${failure}`)).status, 'failed');
+  const chartTrace = target.adapter.trace().slice(traceOffsets.chart);
+  assert.equal(chartTrace[0]?.type, 'chart-candidate-visible',
+    `${failure}: the failed complete candidate must cross the visible Chart boundary dynamically`);
+  assert.notEqual(chartTrace[0]?.visible, prior.adapter.visible,
+    `${failure}: failure injection must exercise a new candidate, not the accepted snapshot`);
+  assert.equal(chartTrace.at(-1)?.type, 'chart-accepted-restored',
+    `${failure}: the visible Chart must roll back after the injected failure`);
+  if (failure === 'publication' || failure === 'persistence') {
+    const publicationTrace = target.publication.trace().slice(traceOffsets.publication);
+    assert.equal(publicationTrace[0]?.type, 'publication-candidate-visible',
+      `${failure}: publication failure must occur after candidate visibility`);
+    assert.equal(publicationTrace.at(-1)?.type, 'publication-and-persistence-restored',
+      `${failure}: durable publication must restore the last accepted value`);
+  }
   assert.deepEqual(target.adapter.snapshot(), prior.adapter, `${failure}: Chart adapter restored`);
   assert.equal(target.chart.snapshot().acceptedSnapshot, prior.chart, `${failure}: Chart state restored`);
   assert.deepEqual(target.replay.snapshot(), prior.replay, `${failure}: Replay restored`);

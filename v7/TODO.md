@@ -31,7 +31,7 @@ review. Preserve rejected commits and assign a new delivery id to replacements.
   and tracked-debt gates;
 - [x] `R8.13` re-derive Calendar capability extension and dense RTH Locate
   through corrected owners;
-- [ ] `R8.14` pass the full production failure/concurrency/cross-product matrix;
+- [x] `R8.14` pass the full production failure/concurrency/cross-product matrix;
 - [ ] `R8.15` obtain human acceptance of the exact reported workflow and close
   every regression/debt item before disabling recovery mode.
 
@@ -62,6 +62,18 @@ accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
 The refreshed production source baseline contains 303 files, 22,404 effective
 lines, 2,400 functions, and 304 public exports; the architecture baseline
 remains 48 modules, 125 edges, 115 construction sites, seven writers, and zero
+findings.
+
+R8.14 binds 11 production axes to eight real browser/owner scenarios and four
+mandatory high-risk compounds, with five fail-closed negative controls. A real
+Chrome persistence failure now occurs after every Pane paints a later ETH
+candidate and proves exact RTH visual/semantic/Replay rollback plus an unchanged
+durable Session record; all five owner participants have equivalent dynamic
+post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
+rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
+remain open for R8.15. Production source and architecture baselines remain
+unchanged at 303 files, 22,404 effective lines, 2,400 functions, 304 public
+exports, 48 modules, 125 edges, 115 construction sites, seven writers, and zero
 findings.
 
 ## Established Foundation Governance

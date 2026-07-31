@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "currentStep": "R8.13",
+  "currentStep": "R8.14",
   "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
@@ -10,7 +10,7 @@
     "checkpointCommit": "fa561599",
     "allowedWork": "architecture-conformance-recovery-only",
     "freezeFeatureDelivery": true,
-    "regressedRuleIds": ["H021", "H025", "H069"]
+    "regressedRuleIds": []
   },
   "rules": [
     {
@@ -389,19 +389,28 @@
       "owner": "test-governance",
       "v6FailurePrevented": "single-case fixes missed TF, hours, pane, source, and lifecycle combinations",
       "activationStep": "R6",
-      "state": "regressed",
-      "harness": "tests/replay-layout-workspace-browser-harness.js",
+      "state": "executable",
+      "harness": "tests/production-regression-matrix-harness.js",
       "positiveEvidence": [
+        "docs/v7-production-regression-matrix.json",
+        "tests/support/production-regression-matrix-validator.js",
+        "tests/production-regression-matrix-harness.js",
         "tests/replay-layout-workspace-browser-harness.js",
         "tests/replay-pane-workspace-browser-harness.js",
         "tests/replay-multi-pane-rth-history-browser-harness.js",
-        "tests/replay-workspace-browser-harness.js"
+        "tests/replay-workspace-browser-harness.js",
+        "tests/workspace-checkpoint-restore-browser-harness.js",
+        "tests/workspace-global-atomic-commit-harness.js",
+        "tests/workspace-transaction-runtime-harness.js"
       ],
-      "negativeFixtures": ["tests/fixtures/pane-layout-domain/negative/cases.json"],
+      "negativeFixtures": [
+        "tests/fixtures/production-regression-matrix/negative/cases.json"
+      ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": "sessions/session_20260723_r6_interaction_closure.md",
+      "acceptanceEvidence": null,
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.14"
+      "recoveryStep": "R8.14",
+      "recoveryEvidence": "sessions/session_20260731_r8_14_production_regression_matrix.md"
     },
     {
       "id": "H022",
@@ -498,9 +507,15 @@
       "owner": "latency-observability",
       "v6FailurePrevented": "Next and switches regressed to seconds, history appeared one piece per incidental input, and caches lacked stable identity",
       "activationStep": "R0.4",
-      "state": "regressed",
+      "state": "executable",
       "harness": "tests/cache-latency-contract-harness.js",
-      "positiveEvidence": ["docs/v7-cache-latency-contract.json"],
+      "positiveEvidence": [
+        "docs/v7-cache-latency-contract.json",
+        "docs/v7-production-regression-matrix.json",
+        "tests/cache-latency-contract-harness.js",
+        "tests/workspace-checkpoint-restore-browser-harness.js",
+        "tests/production-regression-matrix-harness.js"
+      ],
       "negativeFixtures": [
         "tests/fixtures/cache-latency/negative/artificial-delay.json",
         "tests/fixtures/cache-latency/negative/unbounded-cache-hit.json",
@@ -510,9 +525,10 @@
         "tests/fixtures/cache-latency/negative/incomplete-cache-key.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": "sessions/session_20260719_r0_4_cache_latency.md",
+      "acceptanceEvidence": null,
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.14"
+      "recoveryStep": "R8.14",
+      "recoveryEvidence": "sessions/session_20260731_r8_14_production_regression_matrix.md"
     },
     {
       "id": "H026",
@@ -1445,7 +1461,7 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "A restored mixed Workspace lost its forward cache, issued one range request per Replay step, reprojected all raw history, exceeded visible latency budgets, or allowed delayed/reordered work to overwrite the final accepted Pane set",
       "activationStep": "R7",
-      "state": "regressed",
+      "state": "accepted",
       "harness": "tests/restored-workspace-performance-contract-harness.js",
       "positiveEvidence": [
         "src/projection-domain/pane-projection.js",
@@ -1459,15 +1475,18 @@
         "tests/workspace-checkpoint-restore-browser-harness.js",
         "tests/restored-workspace-performance-contract-harness.js",
         "docs/v7-restored-workspace-performance-matrix.json",
-        "docs/V7_RESTORED_WORKSPACE_PERFORMANCE_R7_2.md"
+        "docs/V7_RESTORED_WORKSPACE_PERFORMANCE_R7_2.md",
+        "docs/v7-production-regression-matrix.json",
+        "tests/production-regression-matrix-harness.js"
       ],
       "negativeFixtures": [
         "tests/fixtures/restored-workspace-performance/negative/missing-axis-value.json"
       ],
       "humanReviewRequired": false,
-      "acceptanceEvidence": "sessions/session_20260723_r7_2_foundation_performance.md",
+      "acceptanceEvidence": "sessions/session_20260731_r8_14_production_regression_matrix.md",
       "regressionEvidence": "sessions/session_20260730_r8_1_architecture_recovery_constitution.md",
-      "recoveryStep": "R8.14"
+      "recoveryStep": "R8.14",
+      "recoveryEvidence": "sessions/session_20260731_r8_14_production_regression_matrix.md"
     },
     {
       "id": "H070",
@@ -1709,12 +1728,22 @@
       "owner": "test-governance",
       "v6FailurePrevented": "dense ETH behavior passed while RTH drag and explicit cross-Pane location collapsed a non-target Pane",
       "activationStep": "R8.14",
-      "state": "declared",
-      "harness": null,
-      "positiveEvidence": [],
-      "negativeFixtures": [],
+      "state": "executable",
+      "harness": "tests/replay-multi-pane-rth-history-browser-harness.js",
+      "positiveEvidence": [
+        "docs/v7-production-regression-matrix.json",
+        "tests/production-regression-matrix-harness.js",
+        "tests/replay-multi-pane-rth-history-browser-harness.js",
+        "tests/workspace-global-atomic-commit-harness.js",
+        "tests/workspace-checkpoint-restore-browser-harness.js",
+        "docs/V7_FULL_PRODUCTION_REGRESSION_MATRIX_R8_14.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/production-regression-matrix/negative/cases.json"
+      ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": null,
+      "recoveryEvidence": "sessions/session_20260731_r8_14_production_regression_matrix.md"
     }
   ]
 }

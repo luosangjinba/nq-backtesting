@@ -1,0 +1,37 @@
+{
+  "cases": [
+    {
+      "name": "missing-axis-value",
+      "operation": "remove-axis-coverage",
+      "axis": "timeframe",
+      "value": "calendar-month",
+      "expectedFailureCode": "PRODUCTION_MATRIX_AXIS_VALUE_MISSING"
+    },
+    {
+      "name": "inventory-only-evidence",
+      "operation": "replace-execution-kind",
+      "scenarioId": "layout-focus-instrument-browser",
+      "value": "inventory-only",
+      "expectedFailureCode": "PRODUCTION_MATRIX_EXECUTION_KIND_INVALID"
+    },
+    {
+      "name": "missing-dense-rth-compound",
+      "operation": "remove-scenario",
+      "scenarioId": "dense-rth-bidirectional-location-browser",
+      "expectedFailureCode": "PRODUCTION_MATRIX_COMPOUND_SCENARIO_MISSING"
+    },
+    {
+      "name": "static-failure-claim",
+      "operation": "disable-dynamic-failure",
+      "scenarioId": "dense-rth-bidirectional-location-browser",
+      "expectedFailureCode": "PRODUCTION_MATRIX_POST_VISIBLE_FAILURE_MISSING"
+    },
+    {
+      "name": "missing-executable-harness",
+      "operation": "replace-harness",
+      "scenarioId": "global-participant-failure-owner",
+      "value": "tests/does-not-exist.js",
+      "expectedFailureCode": "PRODUCTION_MATRIX_HARNESS_MISSING"
+    }
+  ]
+}

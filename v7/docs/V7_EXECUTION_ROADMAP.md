@@ -519,7 +519,9 @@ live in `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
   Replay Workspace optional-removal consumers;
 - `R8.12`: source responsibility, size, documentation, and debt closure;
 - `R8.13`: Open/Closed Calendar re-derivation and dense RTH Locate repair;
-- `R8.14`: full production failure/concurrency/cross-product matrix;
+- `R8.14`: full production failure/concurrency/cross-product matrix; completed
+  with 11 bound axes, eight real browser/owner scenarios, five fail-closed
+  negative controls, and dynamic post-visible durable rollback evidence;
 - `R8.15`: human acceptance and zero-debt recovery closure.
 
 Each item is exactly one commit and stops for review. R7.3n and R7.3o remain

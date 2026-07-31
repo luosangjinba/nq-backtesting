@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "status": "executable",
+  "executionPolicy": {
+    "requiredAxes": [
+      "paneCount",
+      "focusTarget",
+      "instrument",
+      "timeframe",
+      "sessionHours",
+      "viewport",
+      "cacheState",
+      "workOrdering",
+      "replayAction",
+      "persistence",
+      "restart"
+    ],
+    "allowedExecutionKinds": ["browser-production", "production-owner"],
+    "requiredCompoundScenarios": [
+      {
+        "id": "dense-rth-two-pane-bidirectional-location",
+        "match": {
+          "paneCount": "two",
+          "focusTarget": "bidirectional",
+          "sessionHours": "RTH",
+          "viewport": "dense",
+          "replayAction": "pane-location"
+        }
+      },
+      {
+        "id": "restored-mixed-pane-warm-cache",
+        "match": {
+          "paneCount": "two",
+          "instrument": "mixed",
+          "cacheState": "warm-hit",
+          "persistence": "checkpoint-update",
+          "restart": "hard-refresh"
+        }
+      },
+      {
+        "id": "calendar-rth-atomic-replacement",
+        "match": {
+          "timeframe": "calendar-month",
+          "sessionHours": "RTH",
+          "workOrdering": "in-order"
+        }
+      },
+      {
+        "id": "visible-then-persistence-failure",
+        "match": {
+          "sessionHours": "RTH",
+          "workOrdering": "participant-failure",
+          "persistence": "write-failure"
+        }
+      }
+    ]
+  },
+  "axes": {
+    "paneCount": ["single", "two", "four"],
+    "focusTarget": ["P1", "non-primary", "bidirectional"],
+    "instrument": ["NQ", "ES", "mixed"],
+    "timeframe": ["fixed-source", "fixed-aggregate", "calendar-day", "calendar-week", "calendar-month"],
+    "sessionHours": ["ETH", "RTH"],
+    "viewport": ["default", "manual", "dense"],
+    "cacheState": ["cold-miss", "warm-hit", "delayed-fill"],
+    "workOrdering": ["in-order", "delayed", "reordered", "stale", "participant-failure"],
+    "replayAction": ["manual-next", "auto", "previous", "restart", "goto", "pane-location"],
+    "persistence": ["initial-save", "checkpoint-update", "reopen", "write-failure"],
+    "restart": ["fresh-boot", "soft-reopen", "hard-refresh"]
+  },
+  "scenarios": [
+    {
+      "id": "session-create-open-browser",
+      "executionKind": "browser-production",
+      "harness": "tests/session-browser-browser-harness.js",
+      "covers": {
+        "paneCount": ["single"],
+        "focusTarget": ["P1"],
+        "instrument": ["NQ", "ES"],
+        "timeframe": ["fixed-source"],
+        "sessionHours": ["ETH"],
+        "viewport": ["default"],
+        "cacheState": ["cold-miss"],
+        "workOrdering": ["in-order"],
+        "persistence": ["initial-save", "reopen"],
+        "restart": ["fresh-boot", "soft-reopen"]
+      },
+      "assertions": ["opaque-session-isolation", "durable-create-open"]
+    },
+    {
+      "id": "layout-focus-instrument-browser",
+      "executionKind": "browser-production",
+      "harness": "tests/replay-layout-workspace-browser-harness.js",
+      "covers": {
+        "paneCount": ["single", "two", "four"],
+        "focusTarget": ["P1", "non-primary"],
+        "instrument": ["NQ", "ES", "mixed"],
+        "timeframe": ["fixed-source", "fixed-aggregate"],
+        "sessionHours": ["ETH", "RTH"],
+        "viewport": ["default", "manual"],
+        "cacheState": ["cold-miss", "warm-hit"],
+        "workOrdering": ["in-order"],
+        "persistence": ["checkpoint-update"]
+      },
+      "assertions": ["pane-local-targeting", "equivalent-pane-layouts", "one-complete-workspace-revision"]
+    },
+    {
+      "id": "calendar-eth-rth-browser",
+      "executionKind": "browser-production",
+      "harness": "tests/calendar-timeframe-browser-harness.js",
+      "covers": {
+        "paneCount": ["single"],
+        "focusTarget": ["P1"],
+        "instrument": ["NQ"],
+        "timeframe": ["calendar-day", "calendar-week", "calendar-month"],
+        "sessionHours": ["ETH", "RTH"],
+        "viewport": ["default"],
+        "cacheState": ["cold-miss", "warm-hit"],
+        "workOrdering": ["in-order"],
+        "persistence": ["checkpoint-update"]
+      },
+      "assertions": ["registered-calendar-capability", "premarket-rth-context", "replay-cursor-stable"]
+    },
+    {
+      "id": "restored-mixed-workspace-browser",
+      "executionKind": "browser-production",
+      "harness": "tests/workspace-checkpoint-restore-browser-harness.js",
+      "covers": {
+        "paneCount": ["two"],
+        "focusTarget": ["non-primary"],
+        "instrument": ["mixed"],
+        "timeframe": ["fixed-source", "fixed-aggregate"],
+        "sessionHours": ["RTH"],
+        "viewport": ["manual"],
+        "cacheState": ["warm-hit"],
+        "workOrdering": ["in-order"],
+        "replayAction": ["manual-next", "auto"],
+        "persistence": ["checkpoint-update", "reopen"],
+        "restart": ["soft-reopen", "hard-refresh"]
+      },
+      "assertions": ["one-hundred-sample-cache-hit-budget", "zero-warm-provider-requests", "exact-checkpoint-restore"]
+    },
+    {
+      "id": "replay-navigation-browser",
+      "executionKind": "browser-production",
+      "harness": "tests/replay-pane-workspace-browser-harness.js",
+      "covers": {
+        "paneCount": ["two"],
+        "focusTarget": ["P1", "non-primary"],
+        "instrument": ["mixed"],
+        "timeframe": ["fixed-source", "fixed-aggregate"],
+        "sessionHours": ["ETH", "RTH"],
+        "viewport": ["default", "manual"],
+        "cacheState": ["cold-miss", "warm-hit"],
+        "workOrdering": ["in-order"],
+        "replayAction": ["manual-next", "auto", "previous", "restart", "goto"],
+        "persistence": ["checkpoint-update"]
+      },
+      "assertions": ["shared-replay-cursor", "no-future-bars", "targeted-navigation"]
+    },
+    {
+      "id": "dense-rth-bidirectional-location-browser",
+      "executionKind": "browser-production",
+      "harness": "tests/replay-multi-pane-rth-history-browser-harness.js",
+      "covers": {
+        "paneCount": ["single", "two"],
+        "focusTarget": ["P1", "non-primary", "bidirectional"],
+        "instrument": ["NQ"],
+        "timeframe": ["fixed-source"],
+        "sessionHours": ["ETH", "RTH"],
+        "viewport": ["default", "manual", "dense"],
+        "cacheState": ["cold-miss", "warm-hit", "delayed-fill"],
+        "workOrdering": ["in-order", "participant-failure"],
+        "replayAction": ["pane-location"],
+        "persistence": ["checkpoint-update", "write-failure"],
+        "restart": ["hard-refresh"]
+      },
+      "failureInjection": {
+        "bugId": "BUG-V7-0001",
+        "dynamic": true,
+        "participant": "durable-publication",
+        "phase": "post-visible-pre-finalize"
+      },
+      "assertions": [
+        "bidirectional-pane-location",
+        "dense-non-target-wall-preserved",
+        "last-accepted-complete-revision-visible-and-persisted"
+      ]
+    },
+    {
+      "id": "global-participant-failure-owner",
+      "executionKind": "production-owner",
+      "harness": "tests/workspace-global-atomic-commit-harness.js",
+      "covers": {
+        "paneCount": ["single"],
+        "focusTarget": ["P1"],
+        "instrument": ["NQ"],
+        "timeframe": ["fixed-source"],
+        "sessionHours": ["ETH"],
+        "viewport": ["default"],
+        "cacheState": ["warm-hit"],
+        "workOrdering": ["participant-failure"],
+        "replayAction": ["manual-next"],
+        "persistence": ["write-failure"]
+      },
+      "failureInjection": {
+        "bugId": "BUG-V7-0001",
+        "dynamic": true,
+        "participants": ["chart", "replay", "workspace-state", "publication", "persistence"],
+        "phase": "post-visible-pre-finalize"
+      },
+      "assertions": ["all-participants-rollback", "last-accepted-complete-revision-visible-and-persisted"]
+    },
+    {
+      "id": "delayed-reordered-stale-owner",
+      "executionKind": "production-owner",
+      "harness": "tests/workspace-transaction-runtime-harness.js",
+      "covers": {
+        "paneCount": ["single", "two"],
+        "cacheState": ["delayed-fill"],
+        "workOrdering": ["delayed", "reordered", "stale"],
+        "replayAction": ["manual-next"]
+      },
+      "assertions": ["superseded-work-aborted", "stale-work-observational-only", "latest-complete-candidate-wins"]
+    }
+  ]
+}

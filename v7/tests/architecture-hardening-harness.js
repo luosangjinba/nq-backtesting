@@ -116,8 +116,11 @@ const recoveryNegativeFixture = JSON.parse(fs.readFileSync(recoveryNegativePath,
 assert.ok(recoveryNegativeFixture.cases.length >= 3, 'R8.1 requires complete lifecycle controls');
 for (const testCase of recoveryNegativeFixture.cases) {
   const invalidCatalog = structuredClone(rules);
-  const firstRegressed = invalidCatalog.rules.find((rule) => rule.state === 'regressed');
-  assert.ok(firstRegressed, 'R8.1 negative controls require at least one regressed rule');
+  const firstRegressed = invalidCatalog.rules.find((rule) => rule.id === 'H069');
+  assert.ok(firstRegressed?.regressionEvidence && firstRegressed?.recoveryStep,
+    'recovery lifecycle controls require one rule with complete historical regression metadata');
+  firstRegressed.state = 'regressed';
+  invalidCatalog.recoveryMode.regressedRuleIds = [firstRegressed.id];
   if (testCase.operation === 'deactivate-recovery') {
     invalidCatalog.recoveryMode.active = false;
   } else if (testCase.operation === 'remove-regression-evidence') {

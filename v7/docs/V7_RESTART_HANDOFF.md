@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-31 by R8.13 Calendar/RTH Locate re-derivation
+Last updated: 2026-07-31 by R8.14 full production regression matrix
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -25,8 +25,8 @@ required for normal startup.
 - R8.10 UI/composition split is commit `d341b034`;
 - R8.11 production ModuleHost boot is commit `ce42eb9f`;
 - R8.12 source/documentation closure is commit `f62db2b9`;
-- R8.13 Calendar capability and RTH Locate re-derivation is the current
-  handoff commit;
+- R8.13 Calendar capability and RTH Locate re-derivation is commit `37db33bb`;
+- R8.14 full production regression matrix is the current handoff commit;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10
@@ -80,8 +80,12 @@ required for normal startup.
   leases without moving Replay or collapsing either Pane wall;
 - H019, H066, and H078 are executable; three regressions remain assigned to
   R8.14, while R7.3n/R7.3o human acceptance remains frozen through R8.15;
-- next step after this commit is R8.14, but it must not begin until the R8.13
-  commit and evidence have been reported;
+- R8.14 binds 11 axes to eight real production scenarios, dynamically fails
+  persistence after every Pane paints a newer candidate, and proves exact
+  visible, semantic, Replay, and durable rollback; H021/H025/H079 are
+  executable and H069 is accepted, leaving no regressed rules;
+- next step after this commit is R8.15 human acceptance and zero-debt closure,
+  but it must not begin until the R8.14 commit and evidence have been reported;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
   bar-step interaction gate; R6.7 continuous Autoplay implemented; R6.7a
@@ -149,12 +153,15 @@ listed above.
 12. `docs/V7_GLOBAL_ATOMIC_WORKSPACE_TRANSACTION_R8_9.md`;
 13. `docs/V7_UI_COMPOSITION_SPLIT_R8_10.md`;
 14. `docs/V7_PRODUCTION_MODULE_HOST_BOOT_R8_11.md`;
-15. `docs/INDEX.md`;
-16. `TODO.md`;
-17. `docs/V7_ARCHITECTURE.md`;
-18. `docs/V7_HARNESS_STANDARD.md`;
-19. `docs/V7_EXECUTION_ROADMAP.md`;
-20. only the documents directly relevant to the next bounded R8 step.
+15. `docs/V7_SOURCE_AND_DOCUMENTATION_CLOSURE_R8_12.md`;
+16. `docs/V7_CALENDAR_CAPABILITY_RTH_LOCATE_REDERIVATION_R8_13.md`;
+17. `docs/V7_FULL_PRODUCTION_REGRESSION_MATRIX_R8_14.md`;
+18. `docs/INDEX.md`;
+19. `TODO.md`;
+20. `docs/V7_ARCHITECTURE.md`;
+21. `docs/V7_HARNESS_STANDARD.md`;
+22. `docs/V7_EXECUTION_ROADMAP.md`;
+23. only the documents directly relevant to the next bounded R8 step.
 
 Do not resume from the historical status narrative alone. The R8 plan and the
 machine-readable recovery mode override earlier statements that phase-one
@@ -616,10 +623,10 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R8.14 is the exact next step: execute the full production failure,
-concurrency, cache-state, persistence, restart, and capability cross-product
-matrix without clearing human acceptance.
-R7.3n/R7.3o acceptance and all feature work remain frozen until R8.15.
+R8.15 is the exact next step: repeat the binding hard-reloaded dense two-Pane
+ETH/RTH drag-and-Locate workflow under human review, close remaining acceptance
+and debt records, and only then deactivate recovery mode.
+R7.3n/R7.3o acceptance and all feature work remain frozen until that gate.
 
 ## Standing Workflow
 
