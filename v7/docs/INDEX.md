@@ -19,7 +19,8 @@ machine-readable baseline, then
 `V7_SOURCE_AND_DOCUMENTATION_CLOSURE_R8_12.md`, then
 `V7_CALENDAR_CAPABILITY_RTH_LOCATE_REDERIVATION_R8_13.md`, then
 `V7_FULL_PRODUCTION_REGRESSION_MATRIX_R8_14.md`, then
-`V7_HUMAN_ACCEPTANCE_ZERO_DEBT_CLOSURE_R8_15.md`, before the normal
+`V7_HUMAN_ACCEPTANCE_ZERO_DEBT_CLOSURE_R8_15.md`, then the current
+`V7_REPLAY_FOUR_HOUR_CAP_AND_LATENCY_R9_1.md`, before the normal
 implementation reading order below.
 
 Read in this order before V7 implementation work:
@@ -107,7 +108,8 @@ Read in this order before V7 implementation work:
 81. `V7_VIEWPORT_RUNTIME.md`
 82. `V7_LIGHTWEIGHT_CHART_SLICE.md`
 83. `V7_EXECUTION_ROADMAP.md`
-84. `../TODO.md`
+84. `V7_REPLAY_FOUR_HOUR_CAP_AND_LATENCY_R9_1.md`
+85. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.

@@ -535,3 +535,11 @@ the final hard-reloaded workflow on 2026-07-31; recovery mode is now inactive.
 Each item is exactly one commit and stops for review. R7.3n and R7.3o were
 accepted only through the combined R8.15 human gate, not independently of
 R8.13–R8.15.
+
+## R9 — Replay Product Tuning
+
+- `R9.1`: cap Replay step selection at `4h`, map higher synchronized display
+  timeframes to that registered maximum, and tune the `4h`→`1m` bulk-reveal
+  path through bounded forward coverage, exact immutable batch reuse,
+  Projection-issued snapshot identity, and one append replacement; implemented
+  with 128-sample real-Chrome evidence and awaiting human acceptance.

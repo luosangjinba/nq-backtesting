@@ -1,5 +1,25 @@
 # V7 TODO
 
+## R9 Replay Product Tuning — R9.1 Implemented, Human Review Pending
+
+- [x] cap registered Replay choices at `4h` while retaining `8h`/`12h` and
+  calendar display timeframes;
+- [x] map Sync timeframe above `4h` to the maximum registered Replay step
+  without concrete timeframe-id branches or cursor movement;
+- [x] retain the established `500`-minute cadence for Replay steps through
+  `1h`, and give larger steps a bounded duration-derived 64-step forward wall;
+- [x] reuse exact accepted immutable raw batches, branded Projection snapshots,
+  and unchanged Chart data prefixes without weakening unbranded/contained
+  validation paths;
+- [x] prove 128 real-Chrome `4h` advances on a `1m` Pane with 125 warm-cache
+  samples, three provider requests, warm-cache p95 `210.8ms`, and Chart-apply
+  p95 `84.5ms`;
+- [x] activate H080 as executable with a fail-closed request-bound mutation;
+- [ ] obtain human acceptance after a hard reload and sustained rapid `4h`
+  Next sequence, including selector and high-Pane-TF Sync checks.
+
+Binding decision/evidence: `docs/V7_REPLAY_FOUR_HOUR_CAP_AND_LATENCY_R9_1.md`.
+
 ## R8 Architecture Conformance Recovery — Human Accepted And Closed
 
 Binding plan: `docs/V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
@@ -77,8 +97,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The refreshed production source baseline contains 303 files, 22,405 effective
-lines, 2,400 functions, and 304 public exports; the architecture baseline
+The current production source baseline contains 305 files, 22,472 effective
+lines, 2,404 functions, and 305 public exports; the architecture baseline
 remains 48 modules, 125 edges, 115 construction sites, seven writers, and zero
 findings.
 
@@ -90,7 +110,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-unchanged at 303 files, 22,405 effective lines, 2,400 functions, 304 public
+currently at 305 files, 22,472 effective lines, 2,404 functions, 305 public
 exports, 48 modules, 125 edges, 115 construction sites, seven writers, and zero
 findings.
 

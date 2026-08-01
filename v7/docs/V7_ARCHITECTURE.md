@@ -139,6 +139,13 @@ preference derives a Replay-step capability from the active Pane's registered
 fixed TF; Replay Runtime still owns the selected step, and focus/TF sync moves
 no cursor and creates no materialization transaction.
 
+R9.1 caps registered Replay choices at `4h` without removing higher display
+timeframes. Sync timeframe selects the active Pane's registered Replay step or,
+when that display capability has no Replay option, the maximum registered step.
+The composition derives this from capability registration and contains no
+concrete higher-timeframe id branch. Selection remains cursor-, request-, and
+Pane-transaction-neutral.
+
 R6.9 activates `core.pane-layout-domain` as the pure owner of the registered
 one-to-four Pane layout set, immutable split tree, versioned wire schema, and
 measured minimum-size constraints. Replay Workspace UI owns the picker,
@@ -275,6 +282,13 @@ construction into versioned contributions merged by a policy-family-agnostic
 composition registry; existing core owners import neither contribution and
 contain no concrete timeframe-id branch.
 
+R9.1 keeps the 500-source-minute navigation wall through `1h` and derives a
+bounded 64-step wall for larger registered Replay durations. Exact accepted
+request identity returns the same already-validated immutable Raw Batch;
+contained or composed coverage still reconstructs and validates through Bar
+Data Runtime. Future cached bars remain hidden by Projection's exclusive
+cursor.
+
 R8.6 activates `core.workspace-state-runtime` as the sole accepted semantic
 Workspace State owner. One branded revision now contains the accepted Pane
 Workspace, Session Hours capability/revision, semantic Viewport values, and
@@ -402,6 +416,12 @@ plus the newly eligible raw tail. Its result must be identical to a complete
 projection at the same cutoff. Backward/GoTo/history/replacement or incompatible
 inputs always retain the complete path.
 
+R9.1 gives Projection-produced immutable Pane snapshots an in-process private
+identity. Chart application may skip repeated full-prefix bar normalization
+only for that identity; injected or unbranded snapshots still cross the full
+validation boundary. History extension and projected-history merge issue the
+same identity only after producing their final frozen snapshot.
+
 R5.6 activates `adapter.v4-bars-provider` as the concrete local market-data
 boundary. It converts real request instants to V4 New York wall-clock strings,
 normalizes V4's UTC-like wall timestamps back to real instants, removes API
@@ -458,6 +478,13 @@ waits across rendering opportunities, and requires candle pixels from
 `takeScreenshot()` before returning its exact receipt. The adapter owns native
 logical-range capture and chart disposal, but no Replay, bars, projection, or
 durable viewport state.
+
+R9.1 adds an append-replacement plan for one forward transaction that admits
+multiple ordered tail bars. The adapter reuses the identical projected/chart
+prefix, calls `setData()` exactly once, and crosses the same two-frame series-
+change proof used by safe tail updates. Historical changes, backwards moves,
+and capability replacements retain full replacement and its stronger painted-
+candle proof.
 
 R6.9e1 adds adapter-only future time-axis continuity through a separate bounded
 Lightweight Charts whitespace series. Projection provenance supplies the fixed

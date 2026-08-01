@@ -61,6 +61,18 @@ assert.deepEqual(planVisibleLogicalRange({
 assert.equal(planSeriesMutation([], [candle(1)]).kind, 'full-replace');
 assert.equal(planSeriesMutation([candle(1)], [candle(1, 2.5)]).kind, 'tail-update');
 assert.equal(planSeriesMutation([candle(1)], [candle(1), candle(2)]).kind, 'tail-update');
+assert.equal(planSeriesMutation(
+  [candle(1), candle(2)],
+  [candle(1), candle(2), candle(3), candle(4)],
+).kind, 'append-replace');
+assert.equal(planSeriesMutation(
+  [candle(1), candle(2)],
+  [candle(1), candle(2, 4), candle(3), candle(4)],
+).kind, 'append-replace');
+assert.equal(planSeriesMutation(
+  [candle(1), candle(2)],
+  [candle(1), candle(3), candle(2), candle(4)],
+).kind, 'full-replace');
 assert.equal(planSeriesMutation([candle(1)], [candle(2)]).kind, 'full-replace');
 assert.equal(planSeriesMutation([candle(1), candle(2)], [candle(1, 3), candle(2)]).kind, 'full-replace');
 const crosshairPresentation = createCrosshairPresentationIndex();

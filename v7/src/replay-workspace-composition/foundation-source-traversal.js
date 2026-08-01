@@ -94,7 +94,12 @@ export function createFoundationSourceTraversal({ barData, market }) {
     if (typeof market.requestThrough !== 'function') return null;
     active(context.signal);
     const selected = selection(context);
-    const request = market.requestThrough(exclusiveEndEpochMs, selected);
+    const request = market.requestThrough(
+      exclusiveEndEpochMs,
+      selected,
+      null,
+      context.replayStep.durationMs,
+    );
     const result = await barData.withAcquiredCoverage({
       identity: context.identity,
       request,

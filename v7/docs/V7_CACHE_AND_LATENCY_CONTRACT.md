@@ -34,6 +34,12 @@ p99 at 150 ms, and no accepted foreground sample above 250 ms on the declared
 reference workload. Cursor, bars, wall movement, and control completion are one
 visible transaction.
 
+A `4h` Replay step on a `1m` Pane is a separate bulk-reveal workload: one input
+admits up to 240 intermediate candles rather than one latest candle. It retains
+the original Chart-commit budget, but binds end-to-end warm-cache p95 at 250 ms,
+p99 at 350 ms, and maximum at 500 ms over at least 128 samples. Provider time is
+still reported separately. See `V7_REPLAY_FOUR_HOUR_CAP_AND_LATENCY_R9_1.md`.
+
 Auto Replay uses exactly the same advancement transaction. It never overlaps
 advances, samples one bar per step interval, skips intermediate bars, or races
 to catch up. If data is unavailable, playback waits behind a bounded refresh
@@ -183,13 +189,16 @@ Raw cache may hold bars beyond the Replay cursor for responsiveness; Projection
 still enforces no-future visibility. Cache contents never advance Replay or
 write Chart state. Bounded eviction affects performance only, not correctness.
 
-The one-pane foundation quantizes foreground coverage into bounded 500-source-
-minute windows. Chart entry acquires only the first bounded window, not the
-Session range. Session-aware left context stays anchored to that entry even
-when ETH/RTH projection changes. Manual Next and projection replacements reuse
-that exact Bar Data identity while the target remains covered; crossing a
-boundary acquires a new bounded window. Future raw bars in the window remain
-invisible until the exclusive Replay cursor admits them.
+The one-pane foundation quantizes ordinary foreground coverage into bounded
+500-source-minute windows. Replay steps above `1h` instead derive a 64-step
+forward wall from their registered duration; `4h` therefore requests at most
+15,360 source minutes per quantized wall, still below the existing 35-day hard
+ceiling. Chart entry acquires only the first ordinary window, not the Session
+range, and changing the selector performs no prefetch. Session-aware left
+context stays anchored to entry. Manual Next and projection replacements reuse
+the exact Bar Data identity while the target remains covered; crossing a
+boundary acquires a new bounded window. Future raw bars remain invisible until
+the exclusive Replay cursor admits them.
 
 Replay prefetch maintains contiguous raw coverage ahead of the cursor using
 high/low watermarks and provider request limits. TF and ETH/RTH reuse compatible

@@ -4,6 +4,7 @@ import { createReplayStep } from '../replay-contract/public.js';
 
 const MINUTE = 60_000;
 const FIXED_GRID_OFFSET_MS = 0;
+const MAXIMUM_REPLAY_STEP_MINUTES = 240;
 const ITEMS = Object.freeze([
   [1, 'timeframe.display-1-minute', '1m', '1 minute'],
   [2, 'timeframe.display-2-minute', '2m', '2 minutes'],
@@ -57,16 +58,18 @@ function registration(item, resolutionId) {
       durationMs,
     }),
     menuItem: item,
-    replayStepOption: Object.freeze({
-      id: replayStepId,
-      label: item.label,
-      step: createReplayStep({
-        durationMs,
+    replayStepOption: item.durationMinutes > MAXIMUM_REPLAY_STEP_MINUTES
+      ? null
+      : Object.freeze({
         id: replayStepId,
-        offsetMs: FIXED_GRID_OFFSET_MS,
-        sourceDurationMs: MINUTE,
+        label: item.label,
+        step: createReplayStep({
+          durationMs,
+          id: replayStepId,
+          offsetMs: FIXED_GRID_OFFSET_MS,
+          sourceDurationMs: MINUTE,
+        }),
       }),
-    }),
   });
 }
 

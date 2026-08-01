@@ -15,6 +15,7 @@ import { createFoundationProjectedHistory } from './foundation-projected-history
 const MINUTE = 60_000;
 const ENTRY_PREFIX_BARS = 120;
 const FORWARD_BUFFER_SOURCE_BARS = 500;
+const FORWARD_BUFFER_REPLAY_STEPS = 64;
 const MINIMUM_HISTORY_SOURCE_BARS = 240;
 const MAXIMUM_REQUEST_SOURCE_BARS = 35 * 24 * 60;
 const MAXIMUM_SINGLE_HISTORY_DAYS = 210;
@@ -105,12 +106,17 @@ export function createFoundationMarket(record, {
     exclusiveEndEpochMs,
     selection = capabilities.defaultSelection,
     replacementDisplayBars = null,
+    replayStepDurationMs = null,
   ) {
     const displayBars = requireTargetDisplayBars(
       replacementDisplayBars ?? TARGET_HISTORY_DISPLAY_BARS,
     );
     const requiredBars = Math.max(1, Math.ceil((exclusiveEndEpochMs - range.startEpochMs) / MINUTE));
-    const bufferedBars = Math.ceil(requiredBars / FORWARD_BUFFER_SOURCE_BARS) * FORWARD_BUFFER_SOURCE_BARS;
+    const replayBufferBars = replayStepDurationMs === null || replayStepDurationMs <= 60 * MINUTE
+      ? 0
+      : Math.ceil(replayStepDurationMs / MINUTE) * FORWARD_BUFFER_REPLAY_STEPS;
+    const forwardBufferBars = Math.max(FORWARD_BUFFER_SOURCE_BARS, replayBufferBars);
+    const bufferedBars = Math.ceil(requiredBars / forwardBufferBars) * forwardBufferBars;
     const boundedEnd = Math.min(range.endEpochMs, range.startEpochMs + (bufferedBars * MINUTE));
     const boundedStart = Math.max(0, boundedEnd - (MAXIMUM_REQUEST_SOURCE_BARS * MINUTE));
     return rawRequest({

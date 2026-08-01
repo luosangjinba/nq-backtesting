@@ -10,6 +10,7 @@ import {
   defineTradingCalendar,
 } from '../src/capability-contract/public.js';
 import {
+  isProjectedPaneSnapshot,
   projectPaneHistoryExtension,
   projectPaneReplayAdvance,
   projectPaneSnapshot,
@@ -175,6 +176,8 @@ const accepted = projectPaneSnapshot(projectionInput({
     return true;
   } }),
 }));
+assert.equal(isProjectedPaneSnapshot(accepted), true,
+  'Projection Domain output must carry its private validated-snapshot identity');
 assert.deepEqual(
   accepted.bars.map((candidate) => candidate.startEpochMs),
   [1_000_000, 1_060_000, 1_120_000, 1_180_000, 1_240_000],
@@ -219,6 +222,7 @@ const advanceInput = projectionInput({
   } }),
 });
 const advanced = projectPaneReplayAdvance({ ...advanceInput, acceptedSnapshot: accepted });
+assert.equal(isProjectedPaneSnapshot(advanced), true);
 assert.deepEqual(advanced, projectPaneSnapshot(advanceInput),
   'incremental Replay projection must equal a complete projection at the same cursor');
 assert.deepEqual(advanceEligibilityCalls, [1_240_000, 1_300_000,
@@ -265,6 +269,7 @@ const extended = projectPaneHistoryExtension({
   acceptedSnapshot: accepted,
   sourceRequestKeys: [earlierWindow.requestKey, ...accepted.provenance.sourceRequestKeys],
 });
+assert.equal(isProjectedPaneSnapshot(extended), true);
 assert.deepEqual(extended.bars.map((candidate) => candidate.startEpochMs), [
   880_000, 940_000, 1_000_000, 1_060_000, 1_120_000, 1_180_000, 1_240_000,
 ]);

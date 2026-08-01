@@ -10,6 +10,15 @@ const positive = JSON.parse(
   fs.readFileSync(path.join(V7_ROOT, 'docs/v7-cache-latency-contract.json'), 'utf8'),
 );
 assert.deepEqual(validateCacheLatencyContract(positive), [], 'cache/latency contract must pass');
+const invalidFourHour = structuredClone(positive);
+const fourHourNegative = JSON.parse(fs.readFileSync(path.join(
+  TEST_DIR, 'fixtures/replay-four-hour-latency/negative/request-bound.json',
+), 'utf8'));
+invalidFourHour.profiles['manual-next-four-hour-bulk-reveal']
+  .maximumProviderRequests.requests = fourHourNegative.requests;
+assert.ok(validateCacheLatencyContract(invalidFourHour)
+  .some(({ code }) => code === fourHourNegative.expectedFailureCode),
+'4h Replay bulk-reveal request bound must fail closed');
 
 const interactions = JSON.parse(
   fs.readFileSync(path.join(V7_ROOT, 'docs/v7-foundation-interactions.json'), 'utf8'),

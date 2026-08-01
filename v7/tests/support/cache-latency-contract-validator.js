@@ -37,6 +37,19 @@ export function validateCacheLatencyContract(model) {
   }
 
   const profiles = model.profiles ?? {};
+  const fourHour = profiles['manual-next-four-hour-bulk-reveal'] ?? {};
+  if (fourHour.replayStepDurationMs !== 14_400_000
+    || fourHour.displaySourceDurationMs !== 60_000
+    || fourHour.minimumSamples < 128
+    || !boundedLatency(fourHour.cacheHitVisible)
+    || !boundedLatency(fourHour.chartCommit)
+    || fourHour.maximumProviderRequests?.samples < 128
+    || fourHour.maximumProviderRequests?.requests > 5
+    || fourHour.oneVisibleCommit !== true
+    || fourHour.allIntermediateBars !== true
+    || fourHour.providerTimeReportedSeparately !== true) {
+    violations.push({ code: 'unbounded-four-hour-bulk-reveal' });
+  }
   for (const id of ['manual-next-cache-tiered', 'auto-replay-cache-tiered', 'projection-switch-cache-tiered']) {
     if (!boundedLatency(profiles[id]?.cacheHitVisible)) {
       violations.push({ code: 'unbounded-cache-hit-latency', profile: id });

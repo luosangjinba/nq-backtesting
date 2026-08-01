@@ -18,6 +18,17 @@
       "oneVisibleCommit": true,
       "allIntermediateBars": true
     },
+    "manual-next-four-hour-bulk-reveal": {
+      "replayStepDurationMs": 14400000,
+      "displaySourceDurationMs": 60000,
+      "minimumSamples": 128,
+      "cacheHitVisible": { "p95Ms": 250, "p99Ms": 350, "maxMs": 500 },
+      "chartCommit": { "p95Ms": 100, "p99Ms": 150, "maxMs": 250 },
+      "maximumProviderRequests": { "requests": 5, "samples": 128 },
+      "oneVisibleCommit": true,
+      "allIntermediateBars": true,
+      "providerTimeReportedSeparately": true
+    },
     "auto-replay-cache-tiered": {
       "cacheHitVisible": { "p95Ms": 100, "p99Ms": 150, "maxMs": 250 },
       "cacheMissFeedback": { "p95Ms": 50, "p99Ms": 100 },

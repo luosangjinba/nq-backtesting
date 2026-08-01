@@ -106,6 +106,10 @@
     {
       "path": "sessions/session_20260731_r8_16_audit_evidence_consistency.md",
       "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260801_r9_1_replay_four_hour_cap_latency.md",
+      "expectedOccurrences": 1
     }
   ],
   "sizeExceptions": [],

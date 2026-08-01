@@ -97,7 +97,7 @@ The complete `tests/*-harness.js` repository sweep also passes; a final
 ## R8.16 Post-Closure Evidence Consistency
 
 An independent audit after R8.15 found `BUG-V7-0006`: the exact machine
-baseline recorded 303 files, 22,405 effective lines, 2,400 functions, and 304
+baseline now records 305 files, 22,472 effective lines, 2,404 functions, and 305
 public exports, while six current human-readable summaries reported 22,404
 lines. The production snapshot itself was correct and all source rules passed;
 the missing boundary was reconciliation between that snapshot and prose.

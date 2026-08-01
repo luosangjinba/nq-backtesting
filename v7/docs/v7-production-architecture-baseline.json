@@ -1762,7 +1762,8 @@
           },
           {
             "importedNames": [
-              "readReplayCursorProposal"
+              "readReplayCursorProposal",
+              "readReplayStep"
             ],
             "sourceFile": "src/replay-workspace-composition/pane-data-composition.js",
             "targetFile": "src/replay-contract/public.js",
@@ -2333,7 +2334,8 @@
           },
           {
             "importedNames": [
-              "createProjectedBar"
+              "createProjectedBar",
+              "isProjectedPaneSnapshot"
             ],
             "sourceFile": "src/chart-snapshot-application/snapshot-contract.js",
             "targetFile": "src/projection-domain/public.js",

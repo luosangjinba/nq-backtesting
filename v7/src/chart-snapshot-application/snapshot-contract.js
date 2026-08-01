@@ -1,4 +1,4 @@
-import { createProjectedBar } from '../projection-domain/public.js';
+import { createProjectedBar, isProjectedPaneSnapshot } from '../projection-domain/public.js';
 import { readReplayCursorProposal } from '../replay-contract/public.js';
 import { workspaceTransactionIdentitiesEqual } from '../workspace-transaction-contract/public.js';
 import { failChartApplication } from './application-error.js';
@@ -24,12 +24,14 @@ export function requireProjectedPaneSnapshot(candidate, identity) {
   if (!Array.isArray(candidate.bars) || !Object.isFrozen(candidate.bars) || candidate.bars.length === 0) {
     failChartApplication('CHART_SNAPSHOT_BARS', 'Projected bars must be a non-empty frozen array.');
   }
-  for (const bar of candidate.bars) {
-    if (!Object.isFrozen(bar)) failChartApplication('CHART_SNAPSHOT_BAR_MUTABLE', 'Bars must be frozen.');
-    if (!Object.hasOwn(bar, 'displayEpochMs')) {
-      failChartApplication('CHART_SNAPSHOT_BAR_DISPLAY_TIME', 'Projected bars require canonical display time.');
+  if (!isProjectedPaneSnapshot(candidate)) {
+    for (const bar of candidate.bars) {
+      if (!Object.isFrozen(bar)) failChartApplication('CHART_SNAPSHOT_BAR_MUTABLE', 'Bars must be frozen.');
+      if (!Object.hasOwn(bar, 'displayEpochMs')) {
+        failChartApplication('CHART_SNAPSHOT_BAR_DISPLAY_TIME', 'Projected bars require canonical display time.');
+      }
+      createProjectedBar(bar);
     }
-    createProjectedBar(bar);
   }
   if (!candidate.provenance || !Object.isFrozen(candidate.provenance)) {
     failChartApplication('CHART_SNAPSHOT_PROVENANCE', 'Projection provenance must be frozen.');

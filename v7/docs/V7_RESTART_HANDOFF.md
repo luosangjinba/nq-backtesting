@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-31 by R8.16 audit evidence consistency correction
+Last updated: 2026-08-01 by R9.1 Replay four-hour tuning
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -12,7 +12,7 @@ required for normal startup.
 - branch: `v7/rebuild`
 - immutable pre-remediation checkpoint: `fa561599`
 - recovery state: R8 is complete and inactive; normal-delivery scope is
-  restored, but no next feature or milestone is selected by this handoff;
+  active and R9.1 is the current implemented step awaiting human review;
 - the separate R7.3/R7.3c Data Acquisition admin human gate remains open;
 - R8.1 recovery constitution is commit `7dbabbed`;
 - R8.2 production architecture analyzer is commit `f19b7f32`;
@@ -29,7 +29,8 @@ required for normal startup.
 - R8.13 Calendar capability and RTH Locate re-derivation is commit `37db33bb`;
 - R8.14 full production regression matrix is commit `9433c823`;
 - R8.15 human acceptance and zero-debt closure is commit `be15a15d`;
-- R8.16 audit evidence consistency correction is the current handoff commit;
+- R8.16 audit evidence consistency correction is commit `364c6b27`;
+- R9.1 Replay four-hour cap and latency tuning is the current handoff step;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10
@@ -93,6 +94,10 @@ required for normal startup.
 - R8.16 closes `BUG-V7-0006` by reconciling six current prose source summaries
   with the canonical baseline and adding fail-closed H023 summary validation;
   recovery remains inactive and production behavior is unchanged;
+- R9.1 limits Replay choices to `4h`, maps higher synchronized Pane timeframes
+  to that maximum, cuts the measured `4h` provider cadence from 51/100 to
+  3/128, and records 125 warm-cache samples at p95 `210.8ms`; H080 is
+  executable and the hard-reload rapid-click human gate remains pending;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
   bar-step interaction gate; R6.7 continuous Autoplay implemented; R6.7a

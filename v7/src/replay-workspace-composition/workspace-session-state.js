@@ -92,6 +92,7 @@ export function createWorkspaceSessionState({
   let truncationSelectionActive = false;
   readReplayNavigationSettings(initialNavigationSettings);
   const replayStepById = new Map(market.replayStepOptions.map((option) => [option.id, option.step]));
+  const maximumReplayStepOption = market.replayStepOptions.at(-1);
   const replayStepIdByTimeframeId = new Map(
     market.timeframes.map(({ id, replayStepId }) => [id, replayStepId]),
   );
@@ -106,11 +107,15 @@ export function createWorkspaceSessionState({
     return snapshot;
   }
 
+  function synchronizedReplayStepId(timeframeId) {
+    return replayStepIdByTimeframeId.get(timeframeId) ?? maximumReplayStepOption.id;
+  }
+
   function syncReplayStep(workspace = acceptedPaneWorkspace(), publish = true) {
     if (!syncTimeframe) return replay.snapshot();
     const value = workspaceState.read(workspace);
     const active = value.panes.find(({ paneId }) => paneId === value.activePaneId);
-    return setReplayStep(replayStepIdByTimeframeId.get(active.timeframeId), publish);
+    return setReplayStep(synchronizedReplayStepId(active.timeframeId), publish);
   }
 
   presentation.setSessionRange({ endEpochMs: range.endEpochMs, startEpochMs: range.startEpochMs });
@@ -126,7 +131,7 @@ export function createWorkspaceSessionState({
       if (!syncTimeframe) return replay.snapshot().replayStep;
       const value = workspaceState.read(workspace);
       const active = value.panes.find(({ paneId }) => paneId === value.activePaneId);
-      return replayStepById.get(replayStepIdByTimeframeId.get(active.timeframeId));
+      return replayStepById.get(synchronizedReplayStepId(active.timeframeId));
     },
     market,
     range,

@@ -1,6 +1,6 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule (R8.16 post-closure correction, 2026-07-31)
+Status: binding delivery rule (R9.1 Replay product tuning, 2026-08-01)
 
 ## Delivery IDs
 
@@ -20,12 +20,11 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current delivery step is `R8.16`, the post-closure audit evidence
-consistency correction. R8 follows immutable pre-remediation checkpoint
-`fa561599`; R8.1–R8.15 retain their recorded immutable commits, ending with
-R8.15 commit `be15a15d`. R8.16 does not reactivate recovery mode or reopen
-accepted product behavior. Every R8 step is one commit and stops after that
-commit; broad `R<n>` headings remain milestones only.
+The current delivery step is `R9.1`, the Replay `4h` cap and bulk-reveal latency
+slice. R8 remains closed at R8.16 commit `364c6b27`; R9.1 is the first normal
+product delivery after recovery. It is exactly one commit and stops for human
+review before another step is selected. Broad `R<n>` headings remain
+milestones only.
 
 ## Other Stable IDs
 

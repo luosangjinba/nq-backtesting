@@ -176,7 +176,10 @@ export function createRawCoverageStore({
 
   function batchForRequest(requestValue) {
     const request = createRawBarRequest(requestValue);
+    const requestKey = rawBarRequestKey(request);
     for (const batches of acceptedByConsumer.values()) {
+      const exact = batches.find((batch) => batch.requestKey === requestKey);
+      if (exact) return exact;
       const batch = exactBatchFromCoverage(batches, request);
       if (batch) return batch;
     }

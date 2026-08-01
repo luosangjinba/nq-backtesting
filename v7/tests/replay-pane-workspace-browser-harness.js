@@ -427,7 +427,13 @@ try {
       && document.querySelector('.replay-workspace')?.dataset.gridVisible === 'true'`);
   }
 
-  const beforeSync = state;
+  await evaluate(cdp, `(() => {
+    document.querySelector('.timeframe-toggle').click();
+    document.querySelector('[data-timeframe-id="timeframe.display-12-hour"]').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('[data-pane-id="pane-secondary"]')?.dataset.timeframeId
+    === 'timeframe.display-12-hour' && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`);
+  const beforeSync = await evaluate(cdp, paneStateExpression());
   await evaluate(cdp, `document.querySelector('.replay-timeframe-sync input').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.syncTimeframe === 'true'
     && document.querySelector('.replay-workspace')?.dataset.replayStepId === 'replay-step.fixed-240-minute'`);
@@ -449,6 +455,12 @@ try {
   await evaluate(cdp, `document.querySelector('.replay-timeframe-sync input').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.syncTimeframe === 'false'
     && !document.querySelector('.replay-step-select').disabled`);
+  await evaluate(cdp, `(() => {
+    document.querySelector('.timeframe-toggle').click();
+    document.querySelector('[data-timeframe-id="timeframe.display-4-hour"]').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('[data-pane-id="pane-secondary"]')?.dataset.timeframeId
+    === 'timeframe.display-4-hour' && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`);
   state = await evaluate(cdp, paneStateExpression());
 
   const beforeStepSelection = state;

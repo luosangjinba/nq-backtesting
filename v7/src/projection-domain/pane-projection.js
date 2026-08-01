@@ -2,6 +2,7 @@ import { isEpochVisibleAtReplayCursor, readReplayCursorProposal } from '../repla
 import { normalizeProjectedBars } from './projected-bar.js';
 import { failProjection } from './projection-error.js';
 import { createProjectionInput } from './projection-input.js';
+import { brandProjectedPaneSnapshot } from './projected-pane-snapshot.js';
 import { collectProjectionSourceBars } from './source-bar-collection.js';
 
 function eligibleVisibleBars(input, sourceBars) {
@@ -118,7 +119,7 @@ function projectValues(input, sourceBars) {
 }
 
 function snapshot(input, source, eligibleBars, projectedValues) {
-  return Object.freeze({
+  return brandProjectedPaneSnapshot(Object.freeze({
     bars: normalizeProjectedBars(projectedValues, input.cursor.targetEpochMs),
     paneId: input.paneId,
     provenance: Object.freeze({
@@ -126,7 +127,7 @@ function snapshot(input, source, eligibleBars, projectedValues) {
       visibleThroughEpochMs: eligibleBars.at(-1).startEpochMs,
     }),
     schemaVersion: 1,
-  });
+  }));
 }
 
 /**
@@ -155,10 +156,10 @@ export function projectPaneReplayAdvance({ acceptedSnapshot, ...value }) {
       'Replay advance must reproduce the accepted tail bucket boundary.',
     );
   }
-  return Object.freeze({
+  return brandProjectedPaneSnapshot(Object.freeze({
     bars: Object.freeze([...accepted.bars.slice(0, -1), ...tail.bars]),
     paneId: tail.paneId,
     provenance: tail.provenance,
     schemaVersion: 1,
-  });
+  }));
 }

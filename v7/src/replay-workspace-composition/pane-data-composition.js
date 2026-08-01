@@ -1,5 +1,5 @@
 import { createEmptyPaneProjection } from '../pane-set-materialization/public.js';
-import { readReplayCursorProposal } from '../replay-contract/public.js';
+import { readReplayCursorProposal, readReplayStep } from '../replay-contract/public.js';
 import {
   extendPaneProjectedHistory,
   preservePaneProjectedHistory,
@@ -43,6 +43,7 @@ function planAcquisitionRequest(context, descriptor, selected, market) {
           readReplayCursorProposal(context.proposal).targetEpochMs,
           selected,
           projectionReplacementRequest ? descriptor.historyDisplayBars : null,
+          readReplayStep(descriptor.responsePlan.replayStep).durationMs,
         );
   const replacementProjectedRequest = projectionReplacementRequest
     && market.requiresProjectedReplacementHistory(

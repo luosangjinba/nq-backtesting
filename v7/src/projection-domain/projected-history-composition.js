@@ -1,4 +1,5 @@
 import { createProjectedHistoryBatch } from '../projected-history-contract/public.js';
+import { brandProjectedPaneSnapshot } from './projected-pane-snapshot.js';
 
 function selectionIdentity(selection) {
   const alignment = selection.displayTimeframe.alignment;
@@ -52,7 +53,7 @@ function stateProvenance(batch, selection, previous) {
 function merge(snapshot, prefix, projectedHistory, cursorProposal) {
   const byStartEpochMs = new Map(snapshot.bars.map((bar) => [bar.startEpochMs, bar]));
   for (const bar of prefix) byStartEpochMs.set(bar.startEpochMs, bar);
-  return Object.freeze({
+  return brandProjectedPaneSnapshot(Object.freeze({
     bars: Object.freeze([...byStartEpochMs.values()].sort(
       (left, right) => left.startEpochMs - right.startEpochMs,
     )),
@@ -63,7 +64,7 @@ function merge(snapshot, prefix, projectedHistory, cursorProposal) {
       projectedHistory,
     }),
     schemaVersion: snapshot.schemaVersion,
-  });
+  }));
 }
 
 /** Extend projected display history using only the accepted projected snapshot as prior state. */

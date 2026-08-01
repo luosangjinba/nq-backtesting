@@ -1,6 +1,7 @@
 import { readReplayCursorProposal } from '../replay-contract/public.js';
 import { failProjection, ProjectionDomainError } from './projection-error.js';
 import { projectPaneSnapshot } from './pane-projection.js';
+import { brandProjectedPaneSnapshot } from './projected-pane-snapshot.js';
 
 const COMPATIBILITY_FIELDS = Object.freeze([
   'aggregationPolicyId',
@@ -99,7 +100,7 @@ function preserveAcceptedTail(value, accepted, sourceRequestKeys) {
   requireCompatibility(inputCompatibility(value), accepted);
   requireCursor(value, accepted);
   const keys = requireRequestKeys(sourceRequestKeys, value.sourceBatches[0].requestKey, accepted);
-  return Object.freeze({
+  return brandProjectedPaneSnapshot(Object.freeze({
     bars: accepted.bars,
     paneId: accepted.paneId,
     provenance: Object.freeze({
@@ -108,7 +109,7 @@ function preserveAcceptedTail(value, accepted, sourceRequestKeys) {
       sourceRequestKeys: keys,
     }),
     schemaVersion: 1,
-  });
+  }));
 }
 
 /** Project one new history chunk plus its boundary, then preserve the accepted tail. */
@@ -135,7 +136,7 @@ export function projectPaneHistoryExtension({ acceptedSnapshot, sourceRequestKey
   const replaceThroughEpochMs = prefix.bars.at(-1).startEpochMs;
   const tail = accepted.bars.filter((bar) => bar.startEpochMs > replaceThroughEpochMs);
   const bars = Object.freeze([...prefix.bars, ...tail]);
-  return Object.freeze({
+  return brandProjectedPaneSnapshot(Object.freeze({
     bars,
     paneId: prefix.paneId,
     provenance: Object.freeze({
@@ -144,5 +145,5 @@ export function projectPaneHistoryExtension({ acceptedSnapshot, sourceRequestKey
       visibleThroughEpochMs: accepted.provenance.visibleThroughEpochMs,
     }),
     schemaVersion: 1,
-  });
+  }));
 }

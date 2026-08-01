@@ -1018,6 +1018,25 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 10,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "domain",
+      "moduleId": "core.projection-domain",
+      "owner": "projection-domain",
+      "ownsContract": true,
+      "path": "src/projection-domain/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "projection-domain"
+      ],
+      "sizeException": null,
+      "sourceHash": "fe734685fea00e72b0d2ae0bb466cb47185557e81ed9d98479db87c1d74f9f75"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 103,
       "forwardingOnly": false,
       "functions": [
@@ -3004,7 +3023,7 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 138,
+      "effectiveLines": 139,
       "forwardingOnly": false,
       "functions": [
         {
@@ -3083,7 +3102,7 @@
         "projection-domain"
       ],
       "sizeException": null,
-      "sourceHash": "c40781ce60334e82dbc5267012560c0a1f290293662af99fc213c96344b9d3df"
+      "sourceHash": "989e1ffae3e7b8b3da6b8db7c229cdc46563ace40b76d84a347afeca5c6adebd"
     },
     {
       "adaptsBoundary": false,
@@ -5472,146 +5491,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 209,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-11>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-15>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "releaseTransient",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "contiguousPrefix",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "covers",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "validateBounded",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "exactBatchFromCoverage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "reject",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 31,
-          "name": "stage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 39,
-          "name": "createRawCoverageStore",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "oldestEpochMs",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "commit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "requireStage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "createTransient",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "releaseConsumers",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireConsumerId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requirePositiveSafeInteger",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "sameSourceScope",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "readStage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "readTransient",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "batchForRequest",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "core.bar-data-runtime",
-      "owner": "bar-data-runtime",
-      "ownsContract": false,
-      "path": "src/bar-data-runtime/raw-coverage-store.js",
-      "publicExports": [],
-      "responsibilities": [
-        "bar-data-runtime"
-      ],
-      "sizeException": null,
-      "sourceHash": "3495e7ec34baa53d22daa87b05afe7610d0e31d5918434590ca172bbff45eaf0"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 21,
       "forwardingOnly": false,
       "functions": [
@@ -5737,6 +5616,151 @@
       ],
       "sizeException": null,
       "sourceHash": "5de18d6986f81b9a352de71c0bbe40cf0beeee2b51c59ffd2b123d1d11fabd8b"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 212,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "releaseTransient",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "batchForRequest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "contiguousPrefix",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "covers",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "validateBounded",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "exactBatchFromCoverage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "reject",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 31,
+          "name": "stage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 39,
+          "name": "createRawCoverageStore",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "oldestEpochMs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "commit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "requireStage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "createTransient",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "releaseConsumers",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireConsumerId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requirePositiveSafeInteger",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "sameSourceScope",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "readStage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "readTransient",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.bar-data-runtime",
+      "owner": "bar-data-runtime",
+      "ownsContract": false,
+      "path": "src/bar-data-runtime/raw-coverage-store.js",
+      "publicExports": [],
+      "responsibilities": [
+        "bar-data-runtime"
+      ],
+      "sizeException": null,
+      "sourceHash": "540ac5d27a8db8d88d1e20707db174f16f71a11bd592b77b2dbfa60a3f127cbd"
     },
     {
       "adaptsBoundary": false,
@@ -7414,36 +7438,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 38,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 24,
-          "name": "requireProjectedPaneSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "requireExactFrozenObject",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "core.chart-snapshot-application",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/chart-snapshot-application/snapshot-contract.js",
-      "publicExports": [],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "3bf7bdb3d0838cda7c8929c2001420c2bed62bc57c40f3adeb0bc4aeb359139a"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 39,
       "forwardingOnly": false,
       "functions": [
@@ -7833,6 +7827,36 @@
       ],
       "sizeException": null,
       "sourceHash": "e8503436fe540f99e313fcbad44a5bafaf1218f466ab78ccadc841255747ef78"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 40,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 26,
+          "name": "requireProjectedPaneSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireExactFrozenObject",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.chart-snapshot-application",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/chart-snapshot-application/snapshot-contract.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "6183ed53c9ffd2a888d528d2ec1b39bb66ba52fce509cc87a8ef1d4824a2a4b6"
     },
     {
       "adaptsBoundary": false,
@@ -10028,6 +10052,51 @@
       "criticalInvariants": [],
       "debtComments": [],
       "effectiveLines": 8,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 3,
+          "name": "isProjectedPaneSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "brandProjectedPaneSnapshot",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "core.projection-domain",
+      "owner": "projection-domain",
+      "ownsContract": false,
+      "path": "src/projection-domain/projected-pane-snapshot.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "projection-domain.",
+            "purpose": "expose the complete supported public contract for projection domain.",
+            "inputs": "validated domain values and capability policies defined by the exported signatures.",
+            "outputs": "frozen domain values or deterministic projections.",
+            "sideEffects": "none.",
+            "lifecycle": "stateless values and pure calculations have no disposal phase.",
+            "errors": "invalid domain input throws the exported module error or a TypeError.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "core.projection-domain",
+          "name": "isProjectedPaneSnapshot"
+        }
+      ],
+      "responsibilities": [
+        "projection-domain"
+      ],
+      "sizeException": null,
+      "sourceHash": "9c2a894fe7c71cf13e85a628188f714a8abdbbbe19688692d0da21b91cddf1bc"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 8,
       "forwardingOnly": true,
       "functions": [],
       "kind": "contract",
@@ -10716,25 +10785,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 9,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "domain",
-      "moduleId": "core.projection-domain",
-      "owner": "projection-domain",
-      "ownsContract": true,
-      "path": "src/projection-domain/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "projection-domain"
-      ],
-      "sizeException": null,
-      "sourceHash": "53da75946f56901f2f8ed464ae0c8476bf2ba7aeb35994f840e1f5a7f4ada086"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 91,
       "forwardingOnly": false,
       "functions": [
@@ -11191,7 +11241,7 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 94,
+      "effectiveLines": 95,
       "forwardingOnly": false,
       "functions": [
         {
@@ -11313,7 +11363,7 @@
         "projection-domain"
       ],
       "sizeException": null,
-      "sourceHash": "5df5ca3c66ffec710a4396e12a72ab979ccfd76890d25583dc05fcce34ef0d40"
+      "sourceHash": "2b492870600d5bec584a5fefd2a4f2441a28c71b385994906837b8ae9c3b0c21"
     },
     {
       "adaptsBoundary": false,
@@ -11581,7 +11631,7 @@
         }
       ],
       "debtComments": [],
-      "effectiveLines": 147,
+      "effectiveLines": 148,
       "forwardingOnly": false,
       "functions": [
         {
@@ -11669,7 +11719,7 @@
         "projection-domain"
       ],
       "sizeException": null,
-      "sourceHash": "290af1fcd2bdeff02a1d3494fc157c4e8ce249084f8c15eda5e1ef51bb9dc8ae"
+      "sourceHash": "9a584ed8d84dddbc33cb732d9f024b478791d56a22821d2932f3dd5a6527b74f"
     },
     {
       "adaptsBoundary": false,
@@ -12750,91 +12800,6 @@
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "<anonymous-11>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "base",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "register",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 2,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 28,
-          "name": "registration",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-1>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-13>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "historyPlanning",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "alignStartEpochMs",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
-      "ownsContract": false,
-      "path": "src/replay-workspace-composition/foundation-fixed-timeframe-capability.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-composition"
-      ],
-      "sizeException": null,
-      "sourceHash": "607f2ef32e7088d9acbbff034d066624c27c0d6ae85dba80f6ba83c38a1f7ee8"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 104,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
           "name": "<anonymous-3>",
           "reviewedDecompositionException": false
         },
@@ -12980,6 +12945,91 @@
       ],
       "sizeException": null,
       "sourceHash": "986dfffa85ec589448bc0298932fe49e257aecdba2b80dd66e3198a3d0731bfd"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 107,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "base",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "register",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-1>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 30,
+          "name": "registration",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "historyPlanning",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "alignStartEpochMs",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/foundation-fixed-timeframe-capability.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "07e65cdcd56d2089b8b63c88e3085be1f44824622237857406cf3afc1285e02e"
     },
     {
       "adaptsBoundary": true,
@@ -13856,156 +13906,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 142,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-14>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-16>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "acceptedPaneWorkspace",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readLayoutSync",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readLayoutSyncValue",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readNavigationSchedule",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readPaneLayout",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readSyncTimeframe",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readTruncationSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "semanticState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setLayoutSyncReader",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setNavigationSchedule",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setPaneLayout",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setSyncTimeframe",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setTruncationSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "validateRestoredWorkspace",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 41,
-          "name": "createSessionOwners",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 58,
-          "name": "createWorkspaceSessionState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "desiredReplayStep",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "syncReplayStep",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "setReplayStep",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
-      "ownsContract": false,
-      "path": "src/replay-workspace-composition/workspace-session-state.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-composition"
-      ],
-      "sizeException": null,
-      "sourceHash": "683c34f3381330a989c28bef29d2f0bdc1f93e388703ddae85541c26d36549fd"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 144,
       "forwardingOnly": false,
       "functions": [
@@ -14255,6 +14155,161 @@
       ],
       "sizeException": null,
       "sourceHash": "d5cf157f0f70a9daada33c093047885dc4f662e422621f6fcdfb3566f02e1d26"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 146,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "acceptedPaneWorkspace",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readLayoutSync",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readLayoutSyncValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readNavigationSchedule",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readPaneLayout",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readSyncTimeframe",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readTruncationSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "semanticState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setLayoutSyncReader",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setNavigationSchedule",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setPaneLayout",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setSyncTimeframe",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setTruncationSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "validateRestoredWorkspace",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "synchronizedReplayStepId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 41,
+          "name": "createSessionOwners",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 59,
+          "name": "createWorkspaceSessionState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "desiredReplayStep",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "syncReplayStep",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "setReplayStep",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/workspace-session-state.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "4f0a0cebf00f7212d9f3b35fbab9d864e758aed842e15ccdb3a9a91f3945e5f7"
     },
     {
       "adaptsBoundary": true,
@@ -15584,7 +15639,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 184,
+      "effectiveLines": 189,
       "forwardingOnly": false,
       "functions": [
         {
@@ -15628,11 +15683,6 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 15,
-          "name": "withForwardBucket",
-          "reviewedDecompositionException": false
-        },
-        {
           "effectiveLines": 16,
           "name": "withWindow",
           "reviewedDecompositionException": false
@@ -15640,6 +15690,11 @@
         {
           "effectiveLines": 17,
           "name": "previousEligible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "withForwardBucket",
           "reviewedDecompositionException": false
         },
         {
@@ -15728,7 +15783,7 @@
         "replay-workspace-composition"
       ],
       "sizeException": null,
-      "sourceHash": "8c63817fd909e08da921806d3160a8f75a4501df08b98c54671b771116e05771"
+      "sourceHash": "740d9b7f255651380373e5de595b7b4f8e7bd2a1e9160ebdbdc57ae4f155dfc4"
     },
     {
       "adaptsBoundary": true,
@@ -16187,7 +16242,26 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 208,
+      "effectiveLines": 21,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "adapter",
+      "moduleId": "adapter.v4-bars-provider",
+      "owner": "bar-data-runtime",
+      "ownsContract": true,
+      "path": "src/v4-bars-provider-adapter/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "bar-data-runtime"
+      ],
+      "sizeException": null,
+      "sourceHash": "dc9e2b59ead6a2ff27b1da0f809c730d8c54e42cfb38fe2bb43f7ec154500db8"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 214,
       "forwardingOnly": false,
       "functions": [
         {
@@ -16216,13 +16290,13 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 20,
-          "name": "requestThrough",
+          "effectiveLines": 23,
+          "name": "requestForTimeLocation",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 23,
-          "name": "requestForTimeLocation",
+          "effectiveLines": 25,
+          "name": "requestThrough",
           "reviewedDecompositionException": false
         },
         {
@@ -16286,26 +16360,7 @@
         "replay-workspace-composition"
       ],
       "sizeException": null,
-      "sourceHash": "2765804c749d823099c96a234a7444fffb2e3c9909d2a1c669dbe4fd638f8426"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 21,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "adapter",
-      "moduleId": "adapter.v4-bars-provider",
-      "owner": "bar-data-runtime",
-      "ownsContract": true,
-      "path": "src/v4-bars-provider-adapter/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "bar-data-runtime"
-      ],
-      "sizeException": null,
-      "sourceHash": "dc9e2b59ead6a2ff27b1da0f809c730d8c54e42cfb38fe2bb43f7ec154500db8"
+      "sourceHash": "9050ac500f4dc8b9786e316670c2f6e398fe347f6173b70d904e1d065d0a5d99"
     },
     {
       "adaptsBoundary": true,
@@ -16485,7 +16540,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 231,
+      "effectiveLines": 232,
       "forwardingOnly": false,
       "functions": [
         {
@@ -16524,7 +16579,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 37,
+          "effectiveLines": 38,
           "name": "planAcquisitionRequest",
           "reviewedDecompositionException": false
         },
@@ -16579,7 +16634,7 @@
         "replay-workspace-composition"
       ],
       "sizeException": null,
-      "sourceHash": "5f70b05fcfcb0c60107f7412f7be4266f26eeee4e2d572879fa854e859eefce3"
+      "sourceHash": "8ed72933685e68ebe0d86d78c534a757ef9bc01bd1e7fe8195dad7031fff50d6"
     },
     {
       "adaptsBoundary": true,
@@ -16755,41 +16810,6 @@
       ],
       "sizeException": null,
       "sourceHash": "b358361da08767eeb3687957947c32626288c6eb261404dbacc43aabdc12f893"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 24,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 20,
-          "name": "planSeriesMutation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "sameBar",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/series-update-plan.js",
-      "publicExports": [],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "7ad02fe7d977ccd514030dc3653fdf81e0e75b37fe7863e7b003333c6da1c70b"
     },
     {
       "adaptsBoundary": true,
@@ -17189,6 +17209,41 @@
       ],
       "sizeException": null,
       "sourceHash": "d7947fbf8ac73d92413af9052d20cbcec830934707b8b032c7b4cc9fa889c84e"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 29,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 13,
+          "name": "createChartData",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "maximumDisplayGapMs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "chartBar",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/chart-data.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "a20dabd52a1169916182470e538534d164e22082ed107fecd98f93999a6318b2"
     },
     {
       "adaptsBoundary": true,
@@ -18560,6 +18615,41 @@
       "functions": [
         {
           "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "sameBar",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 37,
+          "name": "planSeriesMutation",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/series-update-plan.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "2c7aa35c265788735f30cf436bee42b7d576544d2d9f49bbb6613fe6eefb0d9a"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 41,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
           "name": "commit",
           "reviewedDecompositionException": false
         },
@@ -18680,6 +18770,231 @@
       ],
       "sizeException": null,
       "sourceHash": "1e872d15f33db606c55669a667903a7b0c3b3cdd0bfbdcafcda106f6d9557d95"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 427,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "changed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "changed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "changed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "changed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "commit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "isDisposed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onSeriesDataChanged",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readBarCount",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readBars",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readTimeframeDurationMs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "rollbackVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setTruncationSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "applyWorkstationSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "finalizeVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "applyViewport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "captureVisibleState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "applyPaneTimeLocationRange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "stageEmpty",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "stage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "commitEmpty",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "mutateAndPaint",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "applyEmpty",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "applyVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "clearCrosshairPosition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 37,
+          "name": "commitVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 43,
+          "name": "applyStaged",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "registerStage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 52,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireAdapterEnvironment",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "resetView",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 79,
+          "name": "createLightweightChartAdapter",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requirePort",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose the complete supported public contract for lightweight chart.",
+            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
+            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
+            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
+            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
+            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
+            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
+          },
+          "moduleId": "adapter.lightweight-chart",
+          "name": "createLightweightChartAdapter"
+        }
+      ],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "226cf6c9c665cf29644f373382b932a993d169cf0bfd567a1b7c6f1201972d32"
     },
     {
       "adaptsBoundary": true,
@@ -18857,246 +19172,6 @@
       ],
       "sizeException": null,
       "sourceHash": "f9e2c9a16a6dc7edc0e0beedfc7d7964a9d244f2b63ab95ac0049a776c5ab537"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 442,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "changed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "changed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "changed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "changed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "commit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "isDisposed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onSeriesDataChanged",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readBarCount",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readBars",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readTimeframeDurationMs",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "rollbackVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setTruncationSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "applyWorkstationSettings",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "finalizeVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "applyViewport",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "captureVisibleState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "applyPaneTimeLocationRange",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "stageEmpty",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 24,
-          "name": "stage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 25,
-          "name": "commitEmpty",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 27,
-          "name": "mutateAndPaint",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "applyEmpty",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "applyVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "clearCrosshairPosition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 37,
-          "name": "commitVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "chartData",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 43,
-          "name": "applyStaged",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "registerStage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 52,
-          "name": "rollback",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireAdapterEnvironment",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "resetView",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "maximumDisplayGapMs",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 79,
-          "name": "createLightweightChartAdapter",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "requirePort",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose the complete supported public contract for lightweight chart.",
-            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
-            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
-            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
-            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
-            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
-            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
-          },
-          "moduleId": "adapter.lightweight-chart",
-          "name": "createLightweightChartAdapter"
-        }
-      ],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "c51d2be1f78b009e072cc113f1f884ab1020d9098122458ef7c3051f7feac291"
     },
     {
       "adaptsBoundary": true,
@@ -22485,10 +22560,10 @@
   ],
   "schemaVersion": 1,
   "summary": {
-    "effectiveLines": 22405,
-    "files": 303,
-    "functions": 2400,
-    "publicExports": 304
+    "effectiveLines": 22472,
+    "files": 305,
+    "functions": 2404,
+    "publicExports": 305
   },
   "deliveryStep": "R8.12",
   "generatedFromCommit": "ce42eb9f"

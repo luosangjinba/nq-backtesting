@@ -68,10 +68,13 @@ function runtime(provider, overrides = {}) {
 }
 
 let providerCalls = 0;
+let acceptedFirstBatch = null;
 const owner = runtime({
   requestRawBars(rawRequest) {
     providerCalls += 1;
-    return batch(rawRequest);
+    const value = batch(rawRequest);
+    if (rawRequest.windowStartEpochMs === 5_000) acceptedFirstBatch = value;
+    return value;
   },
 });
 const firstRequest = request(5_000, 7_000);
@@ -94,6 +97,20 @@ assert.equal(owner.oldestCoverageEpochMs('pane-main'), 5_000);
 
 await owner.acquire(request(8_000, 9_000));
 assert.equal(providerCalls, 2, 'a second exact request evicts the first LRU entry');
+const exactReuseIdentity = identity(20);
+const exactReuseLease = await owner.acquireCoverageLease({
+  consumerId: 'pane-main',
+  identity: exactReuseIdentity,
+  operation: 'navigation',
+  request: firstRequest,
+  signal: new AbortController().signal,
+});
+assert.equal(exactReuseLease.withReadView({
+  identity: exactReuseIdentity,
+  request: firstRequest,
+  visit: (rawBatch) => rawBatch === acceptedFirstBatch,
+}), true, 'an exact accepted window must reuse its already-validated immutable batch identity');
+owner.commitCoverageLeases({ activeConsumerIds: ['pane-main'], leases: [exactReuseLease] });
 const reusedIdentity = identity(2);
 const reusedLease = await owner.acquireCoverageLease({
   consumerId: 'pane-main',

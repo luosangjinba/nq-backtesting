@@ -2,6 +2,7 @@ import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/
 import { readViewportIntent } from '../viewport-runtime/public.js';
 import { createAdapterSnapshot } from './adapter-snapshot.js';
 import { failLightweightAdapter } from './adapter-error.js';
+import { createChartData, maximumDisplayGapMs } from './chart-data.js';
 import { createLightweightChartSurface } from './chart-surface.js';
 import { createAdapterCrosshairInteraction } from './crosshair-interaction.js';
 import { createFutureTimeAxisData } from './future-time-axis.js';
@@ -31,24 +32,6 @@ function requireAdapterEnvironment(host, viewportPort) {
     failLightweightAdapter('CHART_HOST_INVALID', 'Chart host must be an HTMLElement.');
   }
   return requirePort(viewportPort);
-}
-
-function chartData(workspaceSnapshot) {
-  return Object.freeze(workspaceSnapshot.bars.map((bar) => Object.freeze({
-    close: bar.close,
-    high: bar.high,
-    low: bar.low,
-    open: bar.open,
-    time: bar.displayEpochMs / 1_000,
-  })));
-}
-
-function maximumDisplayGapMs(data) {
-  let maximum = 0;
-  for (let index = 1; index < data.length; index += 1) {
-    maximum = Math.max(maximum, (data[index].time - data[index - 1].time) * 1_000);
-  }
-  return maximum;
 }
 
 /** Construct the only real Lightweight Charts series writer for one pane. */
@@ -221,7 +204,7 @@ export function createLightweightChartAdapter({
     if (!expectCandles) {
       await requireTailUpdatePaint({ changed: () => seriesDataRevision > dataRevisionBefore, requestFrame });
       host.dataset.lastPaintProof = 'series-empty-two-frame';
-    } else if (mutation.kind === 'tail-update') {
+    } else if (mutation.kind === 'tail-update' || mutation.kind === 'append-replace') {
       await requireTailUpdatePaint({ changed: () => seriesDataRevision > dataRevisionBefore, requestFrame });
       host.dataset.lastPaintProof = 'series-change-two-frame';
     } else {
@@ -264,7 +247,7 @@ export function createLightweightChartAdapter({
   function commitVisible(context, timing) {
     const { mutation, mutationEndedAt, paintedAt, startedAt } = timing;
     adapterRevision += 1;
-    maximumAppliedDisplayGapMs = mutation.kind === 'full-replace'
+    maximumAppliedDisplayGapMs = mutation.kind !== 'tail-update'
       ? maximumDisplayGapMs(context.staged.data)
       : Math.max(maximumAppliedDisplayGapMs, context.staged.data.length > appliedData.length
         ? (context.staged.data.at(-1).time - appliedData.at(-1).time) * 1_000
@@ -426,7 +409,7 @@ export function createLightweightChartAdapter({
     }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
       const current = presentation.snapshot();
-      const data = chartData(workspaceSnapshot);
+      const data = createChartData(workspaceSnapshot, appliedBars, appliedData);
       return registerStage({
         data,
         futureTimeAxisData: createFutureTimeAxisData({

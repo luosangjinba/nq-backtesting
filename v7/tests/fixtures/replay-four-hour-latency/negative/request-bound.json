@@ -1,0 +1,6 @@
+{
+  "name": "four-hour forward request count exceeds the bounded cadence",
+  "operation": "set-maximum-provider-requests",
+  "requests": 6,
+  "expectedFailureCode": "unbounded-four-hour-bulk-reveal"
+}

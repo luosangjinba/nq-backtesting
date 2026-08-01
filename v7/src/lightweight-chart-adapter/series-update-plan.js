@@ -11,7 +11,24 @@ export function planSeriesMutation(previousData, nextData) {
   }
   const sameLength = nextData.length === previousData.length;
   const oneAppended = nextData.length === previousData.length + 1;
-  if (!sameLength && !oneAppended) return Object.freeze({ kind: 'full-replace' });
+  if (!sameLength && !oneAppended) {
+    if (nextData.length <= previousData.length + 1) return Object.freeze({ kind: 'full-replace' });
+    for (let index = 0; index < previousData.length - 1; index += 1) {
+      if (!sameBar(previousData[index], nextData[index])) {
+        return Object.freeze({ kind: 'full-replace' });
+      }
+    }
+    const tailStart = previousData.length - 1;
+    if (previousData.at(-1).time !== nextData[tailStart].time) {
+      return Object.freeze({ kind: 'full-replace' });
+    }
+    for (let index = tailStart + 1; index < nextData.length; index += 1) {
+      if (nextData[index].time <= nextData[index - 1].time) {
+        return Object.freeze({ kind: 'full-replace' });
+      }
+    }
+    return Object.freeze({ kind: 'append-replace' });
+  }
   const prefixLength = sameLength ? previousData.length - 1 : previousData.length;
   for (let index = 0; index < prefixLength; index += 1) {
     if (!sameBar(previousData[index], nextData[index])) return Object.freeze({ kind: 'full-replace' });
