@@ -1728,6 +1728,19 @@
           },
           {
             "importedNames": [
+              "extendPaneProjectedHistory",
+              "preservePaneProjectedHistory",
+              "projectPaneHistoryExtension",
+              "projectPaneReplayAdvance",
+              "projectPaneSnapshot"
+            ],
+            "sourceFile": "src/replay-workspace-composition/pane-projection-routing.js",
+            "targetFile": "src/projection-domain/public.js",
+            "targetModuleId": "core.projection-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
               "GOTO_TARGET_UNAVAILABLE_IN_RANGE",
               "readReplayNavigationResult"
             ],
@@ -1749,10 +1762,6 @@
             "importedNames": [
               "ProjectionDomainError",
               "extendPaneProjectedHistory",
-              "preservePaneProjectedHistory",
-              "projectPaneHistoryExtension",
-              "projectPaneReplayAdvance",
-              "projectPaneSnapshot",
               "projectedHistoryOldestEpochMs"
             ],
             "sourceFile": "src/replay-workspace-composition/pane-data-composition.js",
@@ -1858,6 +1867,15 @@
             "sourceFile": "src/replay-workspace-composition/workspace-session-state.js",
             "targetFile": "src/workstation-settings/public.js",
             "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "retargetProjectedPaneSnapshot"
+            ],
+            "sourceFile": "src/replay-workspace-composition/pane-projection-memo.js",
+            "targetFile": "src/projection-domain/public.js",
+            "targetModuleId": "core.projection-domain",
             "throughPublicEntry": true
           },
           {

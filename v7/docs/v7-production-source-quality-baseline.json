@@ -1018,25 +1018,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 10,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "domain",
-      "moduleId": "core.projection-domain",
-      "owner": "projection-domain",
-      "ownsContract": true,
-      "path": "src/projection-domain/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "projection-domain"
-      ],
-      "sizeException": null,
-      "sourceHash": "fe734685fea00e72b0d2ae0bb466cb47185557e81ed9d98479db87c1d74f9f75"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 103,
       "forwardingOnly": false,
       "functions": [
@@ -2865,6 +2846,25 @@
       "effectiveLines": 13,
       "forwardingOnly": true,
       "functions": [],
+      "kind": "domain",
+      "moduleId": "core.projection-domain",
+      "owner": "projection-domain",
+      "ownsContract": true,
+      "path": "src/projection-domain/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "projection-domain"
+      ],
+      "sizeException": null,
+      "sourceHash": "52463cece750f362ec5cd72d227c5bec7d50ba69dc266e159cd1de7355e3e2b3"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 13,
+      "forwardingOnly": true,
+      "functions": [],
       "kind": "runtime",
       "moduleId": "core.replay-navigation-runtime",
       "owner": "workspace-transaction-runtime",
@@ -3563,6 +3563,70 @@
       ],
       "sizeException": null,
       "sourceHash": "3e56377b4e573be680ef11716d915d6d64029524b1d39d6f61ea26c0c5bb8700"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 16,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 3,
+          "name": "isProjectedPaneSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "brandProjectedPaneSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "retargetProjectedPaneSnapshot",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "core.projection-domain",
+      "owner": "projection-domain",
+      "ownsContract": false,
+      "path": "src/projection-domain/projected-pane-snapshot.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "projection-domain.",
+            "purpose": "expose the complete supported public contract for projection domain.",
+            "inputs": "validated domain values and capability policies defined by the exported signatures.",
+            "outputs": "frozen domain values or deterministic projections.",
+            "sideEffects": "none.",
+            "lifecycle": "stateless values and pure calculations have no disposal phase.",
+            "errors": "invalid domain input throws the exported module error or a TypeError.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "core.projection-domain",
+          "name": "isProjectedPaneSnapshot"
+        },
+        {
+          "documentation": {
+            "owner": "projection-domain.",
+            "purpose": "expose the complete supported public contract for projection domain.",
+            "inputs": "validated domain values and capability policies defined by the exported signatures.",
+            "outputs": "frozen domain values or deterministic projections.",
+            "sideEffects": "none.",
+            "lifecycle": "stateless values and pure calculations have no disposal phase.",
+            "errors": "invalid domain input throws the exported module error or a TypeError.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "core.projection-domain",
+          "name": "retargetProjectedPaneSnapshot"
+        }
+      ],
+      "responsibilities": [
+        "projection-domain"
+      ],
+      "sizeException": null,
+      "sourceHash": "d53d1467ddc12f54f88e30e05b23b7560e5ad0f2c0d368ad9912bdd2d7981798"
     },
     {
       "adaptsBoundary": false,
@@ -10052,51 +10116,6 @@
       "criticalInvariants": [],
       "debtComments": [],
       "effectiveLines": 8,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 3,
-          "name": "isProjectedPaneSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "brandProjectedPaneSnapshot",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "domain",
-      "moduleId": "core.projection-domain",
-      "owner": "projection-domain",
-      "ownsContract": false,
-      "path": "src/projection-domain/projected-pane-snapshot.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "projection-domain.",
-            "purpose": "expose the complete supported public contract for projection domain.",
-            "inputs": "validated domain values and capability policies defined by the exported signatures.",
-            "outputs": "frozen domain values or deterministic projections.",
-            "sideEffects": "none.",
-            "lifecycle": "stateless values and pure calculations have no disposal phase.",
-            "errors": "invalid domain input throws the exported module error or a TypeError.",
-            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
-          },
-          "moduleId": "core.projection-domain",
-          "name": "isProjectedPaneSnapshot"
-        }
-      ],
-      "responsibilities": [
-        "projection-domain"
-      ],
-      "sizeException": null,
-      "sourceHash": "9c2a894fe7c71cf13e85a628188f714a8abdbbbe19688692d0da21b91cddf1bc"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 8,
       "forwardingOnly": true,
       "functions": [],
       "kind": "contract",
@@ -16242,6 +16261,101 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 205,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "visit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "projectPane",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "createPaneDataComposition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "acceptedPane",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 32,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "acquirePane",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 38,
+          "name": "planAcquisitionRequest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "reject",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "acquisitionOperation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "finalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "selection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "createRequest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "oldestEpochMs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "withLeaseBatches",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/pane-data-composition.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "9c3878c04f6d076b34a0161930cd897d9bb961783075c735079f786ab8f74154"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 21,
       "forwardingOnly": true,
       "functions": [],
@@ -16540,106 +16654,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 232,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-14>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "visit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 25,
-          "name": "projectPane",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 26,
-          "name": "createPaneDataComposition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "acceptedPane",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 33,
-          "name": "acquirePane",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 38,
-          "name": "planAcquisitionRequest",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "reject",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 58,
-          "name": "<anonymous-13>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "acquisitionOperation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "finalize",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "selection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "createRequest",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "oldestEpochMs",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "withLeaseBatches",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
-      "ownsContract": false,
-      "path": "src/replay-workspace-composition/pane-data-composition.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-composition"
-      ],
-      "sizeException": null,
-      "sourceHash": "8ed72933685e68ebe0d86d78c534a757ef9bc01bd1e7fe8195dad7031fff50d6"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 233,
       "forwardingOnly": false,
       "functions": [
@@ -16810,6 +16824,51 @@
       ],
       "sizeException": null,
       "sourceHash": "b358361da08767eeb3687957947c32626288c6eb261404dbacc43aabdc12f893"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 24,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "project",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "sameValues",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "createPaneProjectionMemo",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/pane-projection-memo.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "32a282c8e668fd4323b4701890d8f9fbf7eee8df97d54ad414e206155e5e0520"
     },
     {
       "adaptsBoundary": true,
@@ -17243,7 +17302,7 @@
         "chart-runtime-adapter"
       ],
       "sizeException": null,
-      "sourceHash": "a20dabd52a1169916182470e538534d164e22082ed107fecd98f93999a6318b2"
+      "sourceHash": "5e52fe8789ea78ecfce85ef3042abc8bb9fe64fb905a481e2885731980afd1be"
     },
     {
       "adaptsBoundary": true,
@@ -17626,7 +17685,7 @@
         "chart-runtime-adapter"
       ],
       "sizeException": null,
-      "sourceHash": "d8d91c5cefec884514b66e4f0fa1d77af57f67da42cb115689a56e899bf75eac"
+      "sourceHash": "7b72395af962824a21272340f3c86f7c305b28b56f04af380ba394c22ddce5c7"
     },
     {
       "adaptsBoundary": true,
@@ -18050,306 +18109,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 403,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-21>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-22>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-23>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-24>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-27>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-31>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-38>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-40>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-50>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onCrosshairMove",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onHistoryBoundary",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onTruncationSelect",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onViewportIntent",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "rollbackVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "settingsRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "<anonymous-26>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "refreshCrosshair",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "rollbackPaneSet",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "stage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "stage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "apply",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "finalizeVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 28,
-          "name": "ensureAdapter",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "resetView",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "resolveTimeLocationSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 31,
-          "name": "applyVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 37,
-          "name": "<anonymous-53>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-51>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-29>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "latestFor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "setTruncationSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "applyEntries",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "commit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "method",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "paneSetValue",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "publishCrosshair",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "rollbackEntries",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "setCrosshairSync",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 79,
-          "name": "createLightweightPaneSetAdapter",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "readPaneHistoryState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "rollback",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "acceptLocalCrosshair",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "locateMarketTime",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/pane-set-adapter.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose the complete supported public contract for lightweight chart.",
-            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
-            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
-            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
-            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
-            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
-            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
-          },
-          "moduleId": "adapter.lightweight-chart",
-          "name": "createLightweightPaneSetAdapter"
-        }
-      ],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "9129e08590b5ded606870bccba00e564d3d2add36e0c7ca1805d024d7be599e5"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 405,
       "forwardingOnly": false,
       "functions": [
@@ -18610,6 +18369,306 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 409,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-21>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-22>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-23>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-24>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-27>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-31>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-38>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-40>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-50>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onCrosshairMove",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onHistoryBoundary",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onTruncationSelect",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onViewportIntent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "rollbackVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "settingsRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "<anonymous-26>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "refreshCrosshair",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "rollbackPaneSet",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "stage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "apply",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "stage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "finalizeVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 28,
+          "name": "ensureAdapter",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "resetView",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "resolveTimeLocationSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 31,
+          "name": "applyVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-51>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 42,
+          "name": "<anonymous-53>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-29>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "latestFor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "setTruncationSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "applyEntries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "commit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "method",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "paneSetValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "publishCrosshair",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "rollbackEntries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "setCrosshairSync",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 79,
+          "name": "createLightweightPaneSetAdapter",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "readPaneHistoryState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "acceptLocalCrosshair",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "locateMarketTime",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/pane-set-adapter.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose the complete supported public contract for lightweight chart.",
+            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
+            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
+            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
+            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
+            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
+            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
+          },
+          "moduleId": "adapter.lightweight-chart",
+          "name": "createLightweightPaneSetAdapter"
+        }
+      ],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "2c818917ed1a0dd7a77607f27b891a8a33fe3fd743352014f01a422d0b417458"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 41,
       "forwardingOnly": false,
       "functions": [
@@ -18770,231 +18829,6 @@
       ],
       "sizeException": null,
       "sourceHash": "1e872d15f33db606c55669a667903a7b0c3b3cdd0bfbdcafcda106f6d9557d95"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 427,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "changed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "changed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "changed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "changed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "commit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "isDisposed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onSeriesDataChanged",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readBarCount",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readBars",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readTimeframeDurationMs",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "rollbackVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setTruncationSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "applyWorkstationSettings",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "finalizeVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "applyViewport",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "captureVisibleState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "applyPaneTimeLocationRange",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "stageEmpty",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 24,
-          "name": "stage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 25,
-          "name": "commitEmpty",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 27,
-          "name": "mutateAndPaint",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "applyEmpty",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "applyVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "clearCrosshairPosition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 37,
-          "name": "commitVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 43,
-          "name": "applyStaged",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "registerStage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 52,
-          "name": "rollback",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireAdapterEnvironment",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "resetView",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 79,
-          "name": "createLightweightChartAdapter",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "requirePort",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose the complete supported public contract for lightweight chart.",
-            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
-            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
-            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
-            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
-            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
-            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
-          },
-          "moduleId": "adapter.lightweight-chart",
-          "name": "createLightweightChartAdapter"
-        }
-      ],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "226cf6c9c665cf29644f373382b932a993d169cf0bfd567a1b7c6f1201972d32"
     },
     {
       "adaptsBoundary": true,
@@ -19172,6 +19006,231 @@
       ],
       "sizeException": null,
       "sourceHash": "f9e2c9a16a6dc7edc0e0beedfc7d7964a9d244f2b63ab95ac0049a776c5ab537"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 441,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "changed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "changed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "changed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "changed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "commit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "isDisposed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onSeriesDataChanged",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readBarCount",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readBars",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readTimeframeDurationMs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "rollbackVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setTruncationSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "applyWorkstationSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "finalizeVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "applyViewport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "captureVisibleState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "applyPaneTimeLocationRange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "stageEmpty",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "commitEmpty",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "mutateAndPaint",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "stage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "applyEmpty",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "applyVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "clearCrosshairPosition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 43,
+          "name": "applyStaged",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 46,
+          "name": "commitVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "registerStage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 51,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireAdapterEnvironment",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "resetView",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requirePort",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 80,
+          "name": "createLightweightChartAdapter",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose the complete supported public contract for lightweight chart.",
+            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
+            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
+            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
+            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
+            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
+            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
+          },
+          "moduleId": "adapter.lightweight-chart",
+          "name": "createLightweightChartAdapter"
+        }
+      ],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "46b7093405511179920aed7215ef9b857e9bd9482fbb579aee8adfc88dca8c93"
     },
     {
       "adaptsBoundary": true,
@@ -19564,6 +19623,51 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 12,
+          "name": "onClick",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "createReplayTruncationInteraction",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "setNormalCrosshair",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "setActive",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/replay-truncation-interaction.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "bd08dc294fbce54c8f133c8274cc1fa15b0d284ccb4be86572e6c760d62f223e"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 45,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 35,
           "name": "createCanvasPresentation",
           "reviewedDecompositionException": false
@@ -19665,47 +19769,52 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 47,
+      "effectiveLines": 46,
       "forwardingOnly": false,
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "<anonymous-8>",
+          "name": "onEnter",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 10,
-          "name": "candle",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "createCrosshairPresentationIndex",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "observation",
+          "effectiveLines": 21,
+          "name": "createAdapterCrosshairInteraction",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 3,
-          "name": "latest",
+          "name": "observe",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 4,
-          "name": "<anonymous-7>",
+          "name": "clear",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 4,
-          "name": "selectedAt",
+          "name": "onLeave",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 5,
-          "name": "setBars",
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "project",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "record",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "onChartMove",
           "reviewedDecompositionException": false
         }
       ],
@@ -19713,13 +19822,13 @@
       "moduleId": "adapter.lightweight-chart",
       "owner": "chart-runtime-adapter",
       "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/crosshair-presentation.js",
+      "path": "src/lightweight-chart-adapter/crosshair-interaction.js",
       "publicExports": [],
       "responsibilities": [
         "chart-runtime-adapter"
       ],
       "sizeException": null,
-      "sourceHash": "abfdbc3bb82c8edb03ac90b397c7e30bd89a16b6d832b1c9a33d85d0a2bc7c22"
+      "sourceHash": "ca7cc4f117610d8c205b5f87a1e2972f98e66519c6448204be530e335ea03121"
     },
     {
       "adaptsBoundary": true,
@@ -20024,71 +20133,6 @@
       "forwardingOnly": false,
       "functions": [
         {
-          "effectiveLines": 1,
-          "name": "onEnter",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 23,
-          "name": "createAdapterCrosshairInteraction",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "observe",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "clear",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "onLeave",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "project",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "record",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "onChartMove",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/crosshair-interaction.js",
-      "publicExports": [],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "9afd97ea9ada0b73c3a699937e93cc58f3799a7e7371a7f23f3dc81cade335ab"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 49,
-      "forwardingOnly": false,
-      "functions": [
-        {
           "effectiveLines": 13,
           "name": "stage",
           "reviewedDecompositionException": false
@@ -20130,66 +20174,6 @@
       ],
       "sizeException": null,
       "sourceHash": "7cde2c1f07859ed9ba9d5a34c95eb727def72c02864f3be02fa8ff2d7a39204f"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 51,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setBars",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "onClick",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "createReplayTruncationInteraction",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "indexedBars",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "setNormalCrosshair",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "setActive",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/replay-truncation-interaction.js",
-      "publicExports": [],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "2fbe4b9a30e7456e7c5af36a368dd4c30e4a497d41b1d16a19d17bf4fb03c4ed"
     },
     {
       "adaptsBoundary": true,
@@ -20558,6 +20542,71 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 61,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "setBars",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "candle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "createCrosshairPresentationIndex",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "indexAt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "observation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "barAt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "latest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "selectedAt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "entry",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/crosshair-presentation.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "aac951fb0a8d78bd85f961c0710fb01deffb50df8bdf44ac4145966352e86119"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 62,
       "forwardingOnly": false,
       "functions": [
@@ -20781,6 +20830,56 @@
       ],
       "sizeException": null,
       "sourceHash": "649721e4570eb100e85903f74532d22f776bed06d279949dc8b32def1d008e83"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 67,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "compute",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "compute",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "composeProjectedHistory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "sourceProjection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "projectRawPane",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/pane-projection-routing.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "ce8efc49dd9889b4e5da951300d5c4b5d3182218e66fb3d4dce71a21c2c8bc49"
     },
     {
       "adaptsBoundary": true,
@@ -22560,10 +22659,10 @@
   ],
   "schemaVersion": 1,
   "summary": {
-    "effectiveLines": 22472,
-    "files": 305,
-    "functions": 2404,
-    "publicExports": 305
+    "effectiveLines": 22572,
+    "files": 307,
+    "functions": 2413,
+    "publicExports": 306
   },
   "deliveryStep": "R8.12",
   "generatedFromCommit": "ce42eb9f"

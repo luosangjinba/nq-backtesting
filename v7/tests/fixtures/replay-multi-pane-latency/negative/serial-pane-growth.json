@@ -1,0 +1,6 @@
+{
+  "name": "serial-four-pane-median-growth",
+  "operation": "set-four-pane-added-median",
+  "addedMs": 100,
+  "expectedFailureCode": "four-pane-median-growth"
+}

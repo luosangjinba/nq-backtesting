@@ -8,7 +8,7 @@ import { CANDLE_OPTIONS, CHART_OPTIONS } from './chart-options.js';
 import { createCurrentPriceNamePrimitive } from './current-price-presentation.js';
 import { createReplayTruncationInteraction } from './replay-truncation-interaction.js';
 
-export function createLightweightChartSurface({ host, onTruncationSelect }) {
+export function createLightweightChartSurface({ host, interactionIndex, onTruncationSelect }) {
   const chart = createChart(host, CHART_OPTIONS);
   const series = chart.addSeries(CandlestickSeries, CANDLE_OPTIONS);
   const currentPriceName = createCurrentPriceNamePrimitive();
@@ -21,7 +21,7 @@ export function createLightweightChartSurface({ host, onTruncationSelect }) {
   }));
   const priceScale = chart.priceScale('right');
   const truncationInteraction = createReplayTruncationInteraction({
-    chart, host, onSelect: onTruncationSelect,
+    chart, host, interactionIndex, onSelect: onTruncationSelect,
   });
   host.dataset.libraryVersion = lightweightChartsVersion();
   host.dataset.gridVisible = 'true';

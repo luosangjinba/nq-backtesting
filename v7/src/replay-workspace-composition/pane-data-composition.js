@@ -2,13 +2,11 @@ import { createEmptyPaneProjection } from '../pane-set-materialization/public.js
 import { readReplayCursorProposal, readReplayStep } from '../replay-contract/public.js';
 import {
   extendPaneProjectedHistory,
-  preservePaneProjectedHistory,
-  projectPaneHistoryExtension,
-  projectPaneReplayAdvance,
-  projectPaneSnapshot,
   projectedHistoryOldestEpochMs,
   ProjectionDomainError,
 } from '../projection-domain/public.js';
+import { projectRawPane } from './pane-projection-routing.js';
+import { createPaneProjectionMemo } from './pane-projection-memo.js';
 
 const EMPTY_PROJECTION_CODES = new Set(['PROJECTION_SOURCE_EMPTY', 'PROJECTION_VISIBLE_EMPTY']);
 
@@ -76,6 +74,7 @@ export function createPaneDataComposition({
   readAcceptedSnapshot,
 }) {
   const stagedLeases = new Set();
+  const projectionMemo = createPaneProjectionMemo();
 
   function selection(paneResponse, responsePlan) {
     return market.catalog.get({
@@ -167,8 +166,6 @@ export function createPaneDataComposition({
         }
 
         return withLeaseBatches(lease, context.identity, (batches) => {
-          const historyRequest = descriptor.kind === 'history-extension'
-            || descriptor.kind === 'time-location-history';
           const input = {
             aggregationPolicy: selected.aggregationPolicy,
             calendar: selected.calendar,
@@ -181,39 +178,15 @@ export function createPaneDataComposition({
             sourceBatches: batches,
           };
           try {
-            const replayAdvance = descriptor.kind === 'navigation'
-              && ['autoplay-next', 'manual-next'].includes(descriptor.responsePlan.actionKind);
-            let snapshot;
-            if (!historyRequest && replayAdvance && accepted?.status === 'ready') {
-              snapshot = projectPaneReplayAdvance({
-                ...input, acceptedSnapshot: accepted.snapshot,
-              });
-            } else if (!historyRequest) {
-              snapshot = projectPaneSnapshot(input);
-            } else if (!accepted || accepted.status !== 'ready') {
-              snapshot = projectPaneSnapshot(input);
-            } else {
-              snapshot = projectPaneHistoryExtension({
-                ...input,
-                acceptedSnapshot: accepted.snapshot,
-                sourceBatches: batches.slice(0, 2),
-                sourceRequestKeys: batches.map((entry) => entry.requestKey),
-              });
-            }
-            if (replacementProjectedBatch) {
-              return extendPaneProjectedHistory({
-                acceptedSnapshot: accepted?.snapshot ?? null,
-                cursorProposal: context.proposal,
-                projectedBatch: replacementProjectedBatch,
-                selection: selected,
-                snapshot,
-              });
-            }
-            return preservePaneProjectedHistory({
-              acceptedSnapshot: accepted?.snapshot ?? null,
-              cursorProposal: context.proposal,
-              selection: selected,
-              snapshot,
+            return projectRawPane({
+              accepted,
+              batches,
+              context,
+              descriptor,
+              input,
+              projectionMemo,
+              replacementProjectedBatch,
+              selected,
             });
           } catch (error) {
             if (error instanceof ProjectionDomainError && EMPTY_PROJECTION_CODES.has(error.code)) {

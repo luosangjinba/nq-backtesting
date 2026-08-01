@@ -12,7 +12,10 @@
 export { projectPaneReplayAdvance, projectPaneSnapshot } from './pane-projection.js';
 export { projectPaneHistoryExtension } from './pane-history-extension.js';
 export { createProjectedBar } from './projected-bar.js';
-export { isProjectedPaneSnapshot } from './projected-pane-snapshot.js';
+export {
+  isProjectedPaneSnapshot,
+  retargetProjectedPaneSnapshot,
+} from './projected-pane-snapshot.js';
 export { ProjectionDomainError } from './projection-error.js';
 export {
   extendPaneProjectedHistory,

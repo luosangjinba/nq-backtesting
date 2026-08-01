@@ -14,6 +14,7 @@ import {
   projectPaneHistoryExtension,
   projectPaneReplayAdvance,
   projectPaneSnapshot,
+  retargetProjectedPaneSnapshot,
 } from '../src/projection-domain/public.js';
 import { createReplayAdvanceInput, createReplayCursorProposal } from '../src/replay-contract/public.js';
 import { createSessionId } from '../src/session-identity/public.js';
@@ -178,6 +179,11 @@ const accepted = projectPaneSnapshot(projectionInput({
 }));
 assert.equal(isProjectedPaneSnapshot(accepted), true,
   'Projection Domain output must carry its private validated-snapshot identity');
+const retargeted = retargetProjectedPaneSnapshot(accepted, 'pane-secondary');
+assert.equal(retargeted.paneId, 'pane-secondary');
+assert.equal(retargeted.bars, accepted.bars,
+  'retargeted deterministic output must share the exact immutable bar identity');
+assert.equal(isProjectedPaneSnapshot(retargeted), true);
 assert.deepEqual(
   accepted.bars.map((candidate) => candidate.startEpochMs),
   [1_000_000, 1_060_000, 1_120_000, 1_180_000, 1_240_000],

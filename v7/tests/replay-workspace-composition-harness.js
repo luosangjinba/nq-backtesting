@@ -8,6 +8,8 @@ import {
   supportsFoundationWorkspace,
   WORKSPACE_PANE_IDS,
 } from '../src/replay-workspace-composition/public.js';
+import { createPaneProjectionMemo } from '../src/replay-workspace-composition/pane-projection-memo.js';
+import { brandProjectedPaneSnapshot } from '../src/projection-domain/projected-pane-snapshot.js';
 import { validateReplayWorkspaceBoundary } from './support/replay-workspace-boundary-validator.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -39,6 +41,55 @@ assert.deepEqual(WORKSPACE_PANE_IDS, [
 ]);
 assert.equal(AUTOPLAY_SPEED_OPTIONS.length, 4);
 assert.deepEqual(validateReplayWorkspaceBoundary(production), []);
+
+const memo = createPaneProjectionMemo();
+const transactionIdentity = Object.freeze({ transactionId: 'transaction.multi-pane-replay' });
+const selection = Object.freeze({ id: 'selection.nq-1m-eth' });
+const acceptedBars = Object.freeze([]);
+const projectedBars = Object.freeze([Object.freeze({ startEpochMs: 1_000 })]);
+let projectionCalls = 0;
+const compute = () => {
+  projectionCalls += 1;
+  return brandProjectedPaneSnapshot(Object.freeze({
+    bars: projectedBars,
+    paneId: 'pane-main',
+    provenance: Object.freeze({}),
+    schemaVersion: 1,
+  }));
+};
+const firstProjection = memo.project({
+  acceptedBars,
+  compute,
+  identity: transactionIdentity,
+  kind: 'replay-advance',
+  paneId: 'pane-main',
+  requestKeys: Object.freeze(['request.same']),
+  selection,
+});
+const sharedProjection = memo.project({
+  acceptedBars,
+  compute,
+  identity: transactionIdentity,
+  kind: 'replay-advance',
+  paneId: 'pane-secondary',
+  requestKeys: Object.freeze(['request.same']),
+  selection,
+});
+assert.equal(projectionCalls, 1,
+  'exact same-transaction Pane inputs must execute deterministic Projection once');
+assert.equal(sharedProjection.paneId, 'pane-secondary');
+assert.equal(sharedProjection.bars, firstProjection.bars,
+  'reused Pane projection must retain the exact immutable bars identity');
+memo.project({
+  acceptedBars,
+  compute,
+  identity: transactionIdentity,
+  kind: 'replay-advance',
+  paneId: 'pane-tertiary',
+  requestKeys: Object.freeze(['request.different']),
+  selection,
+});
+assert.equal(projectionCalls, 2, 'different source identity must not reuse Pane projection');
 
 const negativeCases = Object.freeze([
   {

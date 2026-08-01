@@ -1,7 +1,4 @@
-import { createCrosshairPresentationIndex } from './crosshair-presentation.js';
-
-export function createAdapterCrosshairInteraction({ chart, host, onCrosshairMove, series }) {
-  const presentation = createCrosshairPresentationIndex();
+export function createAdapterCrosshairInteraction({ chart, host, onCrosshairMove, presentation, series }) {
   let pointerWithinHost = false;
 
   function record(value, origin) {
@@ -48,6 +45,5 @@ export function createAdapterCrosshairInteraction({ chart, host, onCrosshairMove
       chart.setCrosshairPosition(value.bar.close, displayEpochMs / 1_000, series);
       return record(value, 'projected');
     },
-    setBars: presentation.setBars,
   });
 }

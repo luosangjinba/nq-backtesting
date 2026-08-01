@@ -368,6 +368,7 @@ export function createLightweightPaneSetAdapter({
     },
     async stage({ identity, signal, workspaceSnapshot }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Pane-set adapter is disposed.');
+      const chartDataCache = new WeakMap();
       const entries = await Promise.all(workspaceSnapshot.panes.map(async (result, index) => {
         const instrumentId = workspaceSnapshot.responsePlan.paneResponses[index].instrumentId;
         const instrumentLabel = instrumentLabelFor(instrumentId);
@@ -394,7 +395,12 @@ export function createLightweightPaneSetAdapter({
         }
         const adapter = ensureAdapter(result.paneId, instrumentId, instrumentLabel);
         const staged = await adapter.stage({
-          identity, instrumentLabel, priceIncrement, signal, workspaceSnapshot: result.snapshot,
+          chartDataCache,
+          identity,
+          instrumentLabel,
+          priceIncrement,
+          signal,
+          workspaceSnapshot: result.snapshot,
         });
         return Object.freeze({
           adapter,

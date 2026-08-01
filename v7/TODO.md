@@ -1,6 +1,6 @@
 # V7 TODO
 
-## R9 Replay Product Tuning — R9.1 Implemented, Human Review Pending
+## R9 Replay Product Tuning — R9.2 Implemented, Human Review Pending
 
 - [x] cap registered Replay choices at `4h` while retaining `8h`/`12h` and
   calendar display timeframes;
@@ -19,6 +19,26 @@
   Next sequence, including selector and high-Pane-TF Sync checks.
 
 Binding decision/evidence: `docs/V7_REPLAY_FOUR_HOUR_CAP_AND_LATENCY_R9_1.md`.
+
+### R9.2 Multi-Pane Replay Latency — Implemented, Human Review Pending
+
+- [x] reproduce that Single Pane remains immediate while warm-cache `4h` Next
+  latency grows with two and four Panes;
+- [x] compute exact same-transaction/same-input Pane Projection once and retain
+  branded per-Pane identity with one shared immutable bars array;
+- [x] convert shared immutable bars to Chart OHLC once per Pane-set stage while
+  retaining one independent real chart and the atomic paint gate per Pane;
+- [x] replace two full per-Pane interaction Maps with one shared read-only
+  binary-search index and update display-gap evidence from only the changed
+  append tail;
+- [x] pass a sustained 64-action 1/2/4 Pane Chrome gate ending at 14,180 bars
+  per Pane, with warm-cache p50 `85.6ms`/`102.0ms`/`150.0ms`, identical Pane
+  bar counts, and no browser errors;
+- [x] activate H081 as executable without changing H080's pending human state;
+- [ ] obtain human acceptance after a hard reload and rapid `4h` Next sequence
+  in Single Pane, two Panes, and four Panes.
+
+Binding evidence: `docs/V7_REPLAY_MULTI_PANE_LATENCY_R9_2.md`.
 
 ## R8 Architecture Conformance Recovery — Human Accepted And Closed
 
@@ -97,8 +117,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 305 files, 22,472 effective
-lines, 2,404 functions, and 305 public exports; the architecture baseline
+The current production source baseline contains 307 files, 22,572 effective
+lines, 2,413 functions, and 306 public exports; the architecture baseline
 remains 48 modules, 125 edges, 115 construction sites, seven writers, and zero
 findings.
 
@@ -110,7 +130,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 305 files, 22,472 effective lines, 2,404 functions, 305 public
+currently at 307 files, 22,572 effective lines, 2,413 functions, 306 public
 exports, 48 modules, 125 edges, 115 construction sites, seven writers, and zero
 findings.
 

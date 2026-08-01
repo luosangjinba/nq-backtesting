@@ -9,7 +9,10 @@ import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
-const SAMPLE_COUNT = 128;
+const PANE_COUNT = Number(process.env.V7_REPLAY_PANE_COUNT ?? 1);
+const SAMPLE_COUNT = Number(process.env.V7_REPLAY_SAMPLE_COUNT ?? 128);
+assert.ok([1, 2, 4].includes(PANE_COUNT), 'V7_REPLAY_PANE_COUNT must be 1, 2, or 4');
+assert.ok(Number.isSafeInteger(SAMPLE_COUNT) && SAMPLE_COUNT > 0);
 const FOUR_HOUR_STEP_ID = 'replay-step.fixed-240-minute';
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-replay-4h-latency-'));
 const server = createStaticServer(REPOSITORY_ROOT);
@@ -114,6 +117,12 @@ try {
     }))()`);
     throw new Error(`${error.message}; entry failure: ${JSON.stringify(entryFailure)}`);
   }
+  if (PANE_COUNT > 1) {
+    const layoutId = PANE_COUNT === 2 ? 'layout.two-columns' : 'layout.four-grid';
+    await evaluate(cdp, `document.querySelector('[data-layout-id="${layoutId}"]').click()`);
+    await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '${PANE_COUNT}'
+      && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+  }
   await evaluate(cdp, `(() => {
     const select = document.querySelector('.replay-step-select');
     select.value = '${FOUR_HOUR_STEP_ID}';
@@ -147,14 +156,14 @@ try {
       10_000);
     visibleSamples.push(performance.now() - startedAt);
     const after = await evaluate(cdp, `(() => {
-      const host = document.querySelector('.lightweight-chart-host');
+      const hosts = [...document.querySelectorAll('.lightweight-chart-host')];
       return {
-        applyMs: Number(host.dataset.lastApplyMs),
-        barCount: Number(host.dataset.barCount),
+        applyMs: Math.max(...hosts.map((host) => Number(host.dataset.lastApplyMs))),
+        barCounts: hosts.map((host) => Number(host.dataset.barCount)),
         fetchCount: globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length,
-        mutationMode: host.dataset.lastMutationMode,
-        mutationMs: Number(host.dataset.lastMutationMs),
-        paintMs: Number(host.dataset.lastPaintMs),
+        mutationModes: [...new Set(hosts.map((host) => host.dataset.lastMutationMode))],
+        mutationMs: Math.max(...hosts.map((host) => Number(host.dataset.lastMutationMs))),
+        paintMs: Math.max(...hosts.map((host) => Number(host.dataset.lastPaintMs))),
       };
     })()`);
     const visibleMs = visibleSamples.at(-1);
@@ -167,37 +176,41 @@ try {
     applySamples.push(after.applyMs);
     mutationSamples.push(after.mutationMs);
     paintSamples.push(after.paintMs);
-    mutationModes.add(after.mutationMode);
+    for (const mode of after.mutationModes) mutationModes.add(mode);
   }
   result = Object.freeze({
     adapterApply: summarize(applySamples),
     adapterMutation: summarize(mutationSamples),
     adapterPaint: summarize(paintSamples),
     browserErrors: await evaluate(cdp, `globalThis.__browserErrors`),
-    finalBarCount: await evaluate(cdp,
-      `Number(document.querySelector('.lightweight-chart-host').dataset.barCount)`),
+    finalBarCounts: await evaluate(cdp,
+      `[...document.querySelectorAll('.lightweight-chart-host')]
+        .map((host) => Number(host.dataset.barCount))`),
     cacheHitVisible: summarize(cacheHitVisibleSamples),
     cacheMissVisible: summarize(cacheMissVisibleSamples),
     mutationModes: [...mutationModes],
     providerMisses,
+    paneCount: PANE_COUNT,
     visible: summarize(visibleSamples),
   });
   assert.deepEqual(result.browserErrors, []);
   assert.equal(result.visible.samples, SAMPLE_COUNT);
-  assert.ok(result.cacheHitVisible.samples >= 100,
-    `4h Replay requires at least 100 warm-cache samples: ${JSON.stringify(result)}`);
-  assert.ok(result.cacheHitVisible.p95Ms < 250,
-    `4h Replay warm-cache p95 exceeded 250ms: ${JSON.stringify(result)}`);
-  assert.ok(result.cacheHitVisible.p99Ms < 350,
-    `4h Replay warm-cache p99 exceeded 350ms: ${JSON.stringify(result)}`);
-  assert.ok(result.cacheHitVisible.maxMs < 500,
-    `4h Replay warm-cache max exceeded 500ms: ${JSON.stringify(result)}`);
-  assert.ok(result.adapterApply.p95Ms < 100 && result.adapterApply.p99Ms < 150
-    && result.adapterApply.maxMs < 250,
-  `4h Replay chart commit exceeded the binding adapter budget: ${JSON.stringify(result)}`);
-  assert.ok(result.providerMisses <= 5,
-    `4h Replay issued too many bounded forward provider requests: ${JSON.stringify(result)}`);
-  assert.deepEqual(result.mutationModes, ['append-replace']);
+  if (SAMPLE_COUNT >= 128) {
+    assert.ok(result.cacheHitVisible.samples >= 100,
+      `4h Replay requires at least 100 warm-cache samples: ${JSON.stringify(result)}`);
+    assert.ok(result.cacheHitVisible.p95Ms < 250,
+      `4h Replay warm-cache p95 exceeded 250ms: ${JSON.stringify(result)}`);
+    assert.ok(result.cacheHitVisible.p99Ms < 350,
+      `4h Replay warm-cache p99 exceeded 350ms: ${JSON.stringify(result)}`);
+    assert.ok(result.cacheHitVisible.maxMs < 500,
+      `4h Replay warm-cache max exceeded 500ms: ${JSON.stringify(result)}`);
+    assert.ok(result.adapterApply.p95Ms < 100 && result.adapterApply.p99Ms < 150
+      && result.adapterApply.maxMs < 250,
+    `4h Replay chart commit exceeded the binding adapter budget: ${JSON.stringify(result)}`);
+    assert.ok(result.providerMisses <= 5,
+      `4h Replay issued too many bounded forward provider requests: ${JSON.stringify(result)}`);
+    assert.deepEqual(result.mutationModes, ['append-replace']);
+  }
 } finally {
   cdp?.close();
   const exited = new Promise((resolve) => chrome.once('exit', resolve));
@@ -214,4 +227,5 @@ try {
   await new Promise((resolve) => server.close(resolve));
 }
 
-console.log(JSON.stringify({ result, status: 'passed', suite: 'v7 Replay 4h latency browser' }));
+console.log(JSON.stringify({ result, status: SAMPLE_COUNT >= 128 ? 'passed' : 'measured',
+  suite: 'v7 Replay 4h latency browser' }));

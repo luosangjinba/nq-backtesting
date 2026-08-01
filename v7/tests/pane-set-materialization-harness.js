@@ -513,7 +513,7 @@ function rollbackProbeAdapter(initialFailingPaneId = 'pane-es') {
   let surface = Object.freeze({ activePaneId: null, panes: Object.freeze([]) });
   const adapter = createLightweightPaneSetAdapter({
     createPaneAdapter: ({ host }) => {
-      const state = { discards: 0, value: 'accepted' };
+      const state = { chartDataCache: null, discards: 0, value: 'accepted' };
       const stages = new WeakMap();
       children.set(host.paneId, state);
       return Object.freeze({
@@ -546,6 +546,7 @@ function rollbackProbeAdapter(initialFailingPaneId = 'pane-es') {
         setTruncationSelection() {},
         snapshot: () => Object.freeze({ value: state.value }),
         async stage(context) {
+          state.chartDataCache = context.chartDataCache;
           const staged = Object.freeze({ workspaceSnapshot: context.workspaceSnapshot });
           stages.set(staged, { previous: null, state: 'staged' });
           return staged;
@@ -593,6 +594,11 @@ const rollbackProbe = rollbackProbeAdapter();
 const failedStage = await rollbackProbe.adapter.stage({
   identity: directIdentity, signal: directSignal, workspaceSnapshot: validSnapshot,
 });
+const stagedChartDataCaches = [...rollbackProbe.children.values()]
+  .map(({ chartDataCache }) => chartDataCache);
+assert.ok(stagedChartDataCaches[0] instanceof WeakMap);
+assert.equal(stagedChartDataCaches[0], stagedChartDataCaches[1],
+  'one Pane-set stage must share its immutable Chart-data conversion cache across children');
 await assert.rejects(
   () => rollbackProbe.adapter.applyVisible({
     identity: directIdentity,

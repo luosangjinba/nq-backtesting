@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "currentStep": "R9.1",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15", "R8.16", "R9", "R9.1"],
+  "currentStep": "R9.2",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15", "R8.16", "R9", "R9.1", "R9.2"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
     "active": false,
@@ -1765,6 +1765,28 @@
         "src/lightweight-chart-adapter/series-update-plan.js",
         "tests/replay-four-hour-latency-browser-harness.js",
         "tests/replay-pane-workspace-browser-harness.js"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/replay-multi-pane-latency/negative/serial-pane-growth.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "H081",
+      "name": "multi-pane-four-hour-replay-latency",
+      "owner": "replay-workspace-composition",
+      "v6FailurePrevented": "Replay Next was immediate in Single Pane but repeated synchronous projection, conversion, and interaction indexing once per Pane",
+      "activationStep": "R9.2",
+      "state": "executable",
+      "harness": "tests/replay-multi-pane-four-hour-latency-browser-harness.js",
+      "positiveEvidence": [
+        "docs/V7_REPLAY_MULTI_PANE_LATENCY_R9_2.md",
+        "src/replay-workspace-composition/pane-projection-memo.js",
+        "src/replay-workspace-composition/pane-projection-routing.js",
+        "src/lightweight-chart-adapter/pane-set-adapter.js",
+        "src/lightweight-chart-adapter/crosshair-presentation.js",
+        "tests/replay-multi-pane-four-hour-latency-browser-harness.js"
       ],
       "negativeFixtures": [
         "tests/fixtures/replay-four-hour-latency/negative/request-bound.json"

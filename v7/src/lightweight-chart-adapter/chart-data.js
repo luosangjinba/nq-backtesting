@@ -23,9 +23,9 @@ export function createChartData(workspaceSnapshot, previousBars, previousData) {
   ]);
 }
 
-export function maximumDisplayGapMs(data) {
+export function maximumDisplayGapMs(data, fromIndex = 1) {
   let maximum = 0;
-  for (let index = 1; index < data.length; index += 1) {
+  for (let index = Math.max(1, fromIndex); index < data.length; index += 1) {
     maximum = Math.max(maximum, (data[index].time - data[index - 1].time) * 1_000);
   }
   return maximum;

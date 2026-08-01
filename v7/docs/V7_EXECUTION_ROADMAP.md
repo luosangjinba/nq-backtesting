@@ -543,3 +543,8 @@ R8.13–R8.15.
   path through bounded forward coverage, exact immutable batch reuse,
   Projection-issued snapshot identity, and one append replacement; implemented
   with 128-sample real-Chrome evidence and awaiting human acceptance.
+- `R9.2`: remove same-input Multi-pane Replay amplification by sharing exact
+  transaction-scoped Projection and Chart-data conversion, replacing duplicate
+  full-history interaction Maps with one binary-search index per child, and
+  binding sustained 1/2/4 Pane Chrome latency evidence; implemented and
+  awaiting human acceptance.

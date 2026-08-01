@@ -12,20 +12,15 @@ const TRUNCATION_CROSSHAIR = Object.freeze({
   }),
 });
 
-function indexedBars(bars) {
-  return new Map(bars.map((bar) => [bar.displayEpochMs, bar]));
-}
-
 /** Translate native chart clicks back to projected source bucket starts. */
-export function createReplayTruncationInteraction({ chart, host, onSelect }) {
+export function createReplayTruncationInteraction({ chart, host, interactionIndex, onSelect }) {
   let active = false;
-  let barsByDisplayEpochMs = new Map();
   let normalCrosshair = DEFAULT_CROSSHAIR;
 
   const onClick = (event) => {
     if (!active) return;
     const displayEpochMs = typeof event.time === 'number' ? Math.round(event.time * 1_000) : null;
-    const bar = displayEpochMs === null ? null : barsByDisplayEpochMs.get(displayEpochMs) ?? null;
+    const bar = displayEpochMs === null ? null : interactionIndex.barAt(displayEpochMs);
     host.dataset.lastTruncationLogical = event.logical === undefined ? 'none' : String(event.logical);
     host.dataset.lastTruncationSelection = bar ? 'bar' : 'outside-data';
     if (bar) host.dataset.lastTruncationStartEpochMs = String(bar.startEpochMs);
@@ -41,14 +36,12 @@ export function createReplayTruncationInteraction({ chart, host, onSelect }) {
     dispose() {
       chart.unsubscribeClick(onClick);
       chart.unsubscribeDblClick(onClick);
-      barsByDisplayEpochMs.clear();
     },
     setActive(value) {
       active = value === true;
       host.dataset.truncationSelection = active ? 'active' : 'inactive';
       chart.applyOptions({ crosshair: active ? TRUNCATION_CROSSHAIR : normalCrosshair });
     },
-    setBars(bars) { barsByDisplayEpochMs = indexedBars(bars); },
     setNormalCrosshair(value) {
       normalCrosshair = value;
       if (!active) chart.applyOptions({ crosshair: normalCrosshair });

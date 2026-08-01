@@ -89,6 +89,15 @@ assert.deepEqual(crosshairPresentation.selectedAt(1_500), {
   bar: { close: 4, high: 3, low: 0, open: 1, volume: 25 }, change: { percent: 100, value: 2 },
   displayEpochMs: 2_000, state: 'latest',
 });
+const retainedInteractionBar = crosshairPresentation.barAt(1_000);
+crosshairPresentation.setBars([
+  retainedInteractionBar,
+  { ...candle(2, 5), displayEpochMs: 2_000, startEpochMs: 1_900, volume: 30 },
+  { ...candle(3, 6), displayEpochMs: 3_000, startEpochMs: 2_900, volume: 35 },
+], 'append-replace');
+assert.equal(crosshairPresentation.barAt(1_000), retainedInteractionBar,
+  'append replacement must retain the unchanged interaction-index prefix');
+assert.deepEqual(crosshairPresentation.selectedAt(3_000).change, { percent: 20, value: 1 });
 const crosshairNegativeCases = JSON.parse(fs.readFileSync(path.join(
   TEST_DIR, 'fixtures/lightweight-chart-adapter/negative/crosshair-cases.json',
 ), 'utf8'));
