@@ -1,0 +1,1440 @@
+{
+  "version": 1,
+  "mode": "read-only",
+  "query": {
+    "dataset": "GLBX.MDP3",
+    "symbol": "NQ.v.0",
+    "rollRule": "volume",
+    "startDate": "2010-06-06",
+    "endDate": "2026-08-02",
+    "mappingStatus": "OK",
+    "mappingPartial": [],
+    "mappingNotFound": []
+  },
+  "mapping": {
+    "rows": 66,
+    "transitions": 65,
+    "firstD0": "2010-06-04",
+    "lastD1": "2026-08-01",
+    "fingerprint": "635306c81f7b954342f8d67028a3d91bc5e2d7c86089f9eb6a69c61fab44a151",
+    "continuous": [
+      {
+        "d0": "2010-06-04",
+        "d1": "2010-06-14",
+        "instrumentId": "6641",
+        "rawSymbol": "NQM0"
+      },
+      {
+        "d0": "2010-06-14",
+        "d1": "2010-09-13",
+        "instrumentId": "26715",
+        "rawSymbol": "NQU0"
+      },
+      {
+        "d0": "2010-09-13",
+        "d1": "2010-12-13",
+        "instrumentId": "3088",
+        "rawSymbol": "NQZ0"
+      },
+      {
+        "d0": "2010-12-13",
+        "d1": "2011-03-14",
+        "instrumentId": "93735",
+        "rawSymbol": "NQH1"
+      },
+      {
+        "d0": "2011-03-14",
+        "d1": "2011-06-13",
+        "instrumentId": "30668",
+        "rawSymbol": "NQM1"
+      },
+      {
+        "d0": "2011-06-13",
+        "d1": "2011-09-12",
+        "instrumentId": "56972",
+        "rawSymbol": "NQU1"
+      },
+      {
+        "d0": "2011-09-12",
+        "d1": "2011-12-12",
+        "instrumentId": "12038",
+        "rawSymbol": "NQZ1"
+      },
+      {
+        "d0": "2011-12-12",
+        "d1": "2012-03-13",
+        "instrumentId": "8870",
+        "rawSymbol": "NQH2"
+      },
+      {
+        "d0": "2012-03-13",
+        "d1": "2012-06-11",
+        "instrumentId": "20924",
+        "rawSymbol": "NQM2"
+      },
+      {
+        "d0": "2012-06-11",
+        "d1": "2012-09-17",
+        "instrumentId": "57494",
+        "rawSymbol": "NQU2"
+      },
+      {
+        "d0": "2012-09-17",
+        "d1": "2012-12-17",
+        "instrumentId": "10016",
+        "rawSymbol": "NQZ2"
+      },
+      {
+        "d0": "2012-12-17",
+        "d1": "2013-03-12",
+        "instrumentId": "36931",
+        "rawSymbol": "NQH3"
+      },
+      {
+        "d0": "2013-03-12",
+        "d1": "2013-06-17",
+        "instrumentId": "11518",
+        "rawSymbol": "NQM3"
+      },
+      {
+        "d0": "2013-06-17",
+        "d1": "2013-09-16",
+        "instrumentId": "17591",
+        "rawSymbol": "NQU3"
+      },
+      {
+        "d0": "2013-09-16",
+        "d1": "2013-12-16",
+        "instrumentId": "28499",
+        "rawSymbol": "NQZ3"
+      },
+      {
+        "d0": "2013-12-16",
+        "d1": "2014-03-17",
+        "instrumentId": "382251",
+        "rawSymbol": "NQH4"
+      },
+      {
+        "d0": "2014-03-17",
+        "d1": "2014-06-16",
+        "instrumentId": "8223",
+        "rawSymbol": "NQM4"
+      },
+      {
+        "d0": "2014-06-16",
+        "d1": "2014-09-15",
+        "instrumentId": "83745",
+        "rawSymbol": "NQU4"
+      },
+      {
+        "d0": "2014-09-15",
+        "d1": "2014-12-15",
+        "instrumentId": "28097",
+        "rawSymbol": "NQZ4"
+      },
+      {
+        "d0": "2014-12-15",
+        "d1": "2015-03-16",
+        "instrumentId": "50207",
+        "rawSymbol": "NQH5"
+      },
+      {
+        "d0": "2015-03-16",
+        "d1": "2015-06-15",
+        "instrumentId": "58385",
+        "rawSymbol": "NQM5"
+      },
+      {
+        "d0": "2015-06-15",
+        "d1": "2015-09-14",
+        "instrumentId": "2913",
+        "rawSymbol": "NQU5"
+      },
+      {
+        "d0": "2015-09-14",
+        "d1": "2015-12-14",
+        "instrumentId": "12809",
+        "rawSymbol": "NQZ5"
+      },
+      {
+        "d0": "2015-12-14",
+        "d1": "2016-03-14",
+        "instrumentId": "49734",
+        "rawSymbol": "NQH6"
+      },
+      {
+        "d0": "2016-03-14",
+        "d1": "2016-06-13",
+        "instrumentId": "765",
+        "rawSymbol": "NQM6"
+      },
+      {
+        "d0": "2016-06-13",
+        "d1": "2016-09-12",
+        "instrumentId": "2563",
+        "rawSymbol": "NQU6"
+      },
+      {
+        "d0": "2016-09-12",
+        "d1": "2016-12-13",
+        "instrumentId": "2887",
+        "rawSymbol": "NQZ6"
+      },
+      {
+        "d0": "2016-12-13",
+        "d1": "2017-03-13",
+        "instrumentId": "35888",
+        "rawSymbol": "NQH7"
+      },
+      {
+        "d0": "2017-03-13",
+        "d1": "2017-06-12",
+        "instrumentId": "6398",
+        "rawSymbol": "NQM7"
+      },
+      {
+        "d0": "2017-06-12",
+        "d1": "2017-09-11",
+        "instrumentId": "26054",
+        "rawSymbol": "NQU7"
+      },
+      {
+        "d0": "2017-09-11",
+        "d1": "2017-12-11",
+        "instrumentId": "15466",
+        "rawSymbol": "NQZ7"
+      },
+      {
+        "d0": "2017-12-11",
+        "d1": "2018-03-12",
+        "instrumentId": "16210",
+        "rawSymbol": "NQH8"
+      },
+      {
+        "d0": "2018-03-12",
+        "d1": "2018-06-11",
+        "instrumentId": "23520",
+        "rawSymbol": "NQM8"
+      },
+      {
+        "d0": "2018-06-11",
+        "d1": "2018-09-17",
+        "instrumentId": "47511",
+        "rawSymbol": "NQU8"
+      },
+      {
+        "d0": "2018-09-17",
+        "d1": "2018-12-17",
+        "instrumentId": "16041",
+        "rawSymbol": "NQZ8"
+      },
+      {
+        "d0": "2018-12-17",
+        "d1": "2019-03-11",
+        "instrumentId": "15657",
+        "rawSymbol": "NQH9"
+      },
+      {
+        "d0": "2019-03-11",
+        "d1": "2019-06-19",
+        "instrumentId": "9166",
+        "rawSymbol": "NQM9"
+      },
+      {
+        "d0": "2019-06-19",
+        "d1": "2019-09-16",
+        "instrumentId": "36742",
+        "rawSymbol": "NQU9"
+      },
+      {
+        "d0": "2019-09-16",
+        "d1": "2019-12-16",
+        "instrumentId": "15907",
+        "rawSymbol": "NQZ9"
+      },
+      {
+        "d0": "2019-12-16",
+        "d1": "2020-03-18",
+        "instrumentId": "10204",
+        "rawSymbol": "NQH0"
+      },
+      {
+        "d0": "2020-03-18",
+        "d1": "2020-06-17",
+        "instrumentId": "16908",
+        "rawSymbol": "NQM0"
+      },
+      {
+        "d0": "2020-06-17",
+        "d1": "2020-09-16",
+        "instrumentId": "14028",
+        "rawSymbol": "NQU0"
+      },
+      {
+        "d0": "2020-09-16",
+        "d1": "2020-12-16",
+        "instrumentId": "16337",
+        "rawSymbol": "NQZ0"
+      },
+      {
+        "d0": "2020-12-16",
+        "d1": "2021-03-17",
+        "instrumentId": "4378",
+        "rawSymbol": "NQH1"
+      },
+      {
+        "d0": "2021-03-17",
+        "d1": "2021-06-16",
+        "instrumentId": "2786",
+        "rawSymbol": "NQM1"
+      },
+      {
+        "d0": "2021-06-16",
+        "d1": "2021-09-15",
+        "instrumentId": "828",
+        "rawSymbol": "NQU1"
+      },
+      {
+        "d0": "2021-09-15",
+        "d1": "2021-12-13",
+        "instrumentId": "2770",
+        "rawSymbol": "NQZ1"
+      },
+      {
+        "d0": "2021-12-13",
+        "d1": "2022-03-16",
+        "instrumentId": "3541",
+        "rawSymbol": "NQH2"
+      },
+      {
+        "d0": "2022-03-16",
+        "d1": "2022-06-15",
+        "instrumentId": "2895",
+        "rawSymbol": "NQM2"
+      },
+      {
+        "d0": "2022-06-15",
+        "d1": "2022-09-14",
+        "instrumentId": "10391",
+        "rawSymbol": "NQU2"
+      },
+      {
+        "d0": "2022-09-14",
+        "d1": "2022-12-14",
+        "instrumentId": "13613",
+        "rawSymbol": "NQZ2"
+      },
+      {
+        "d0": "2022-12-14",
+        "d1": "2023-03-15",
+        "instrumentId": "20631",
+        "rawSymbol": "NQH3"
+      },
+      {
+        "d0": "2023-03-15",
+        "d1": "2023-06-14",
+        "instrumentId": "3522",
+        "rawSymbol": "NQM3"
+      },
+      {
+        "d0": "2023-06-14",
+        "d1": "2023-09-13",
+        "instrumentId": "2130",
+        "rawSymbol": "NQU3"
+      },
+      {
+        "d0": "2023-09-13",
+        "d1": "2023-12-13",
+        "instrumentId": "260937",
+        "rawSymbol": "NQZ3"
+      },
+      {
+        "d0": "2023-12-13",
+        "d1": "2024-03-13",
+        "instrumentId": "750",
+        "rawSymbol": "NQH4"
+      },
+      {
+        "d0": "2024-03-13",
+        "d1": "2024-06-19",
+        "instrumentId": "13743",
+        "rawSymbol": "NQM4"
+      },
+      {
+        "d0": "2024-06-19",
+        "d1": "2024-09-18",
+        "instrumentId": "4358",
+        "rawSymbol": "NQU4"
+      },
+      {
+        "d0": "2024-09-18",
+        "d1": "2024-12-19",
+        "instrumentId": "106364",
+        "rawSymbol": "NQZ4"
+      },
+      {
+        "d0": "2024-12-19",
+        "d1": "2025-03-20",
+        "instrumentId": "42288528",
+        "rawSymbol": "NQH5"
+      },
+      {
+        "d0": "2025-03-20",
+        "d1": "2025-06-18",
+        "instrumentId": "42005804",
+        "rawSymbol": "NQM5"
+      },
+      {
+        "d0": "2025-06-18",
+        "d1": "2025-09-18",
+        "instrumentId": "42008487",
+        "rawSymbol": "NQU5"
+      },
+      {
+        "d0": "2025-09-18",
+        "d1": "2025-12-17",
+        "instrumentId": "158704",
+        "rawSymbol": "NQZ5"
+      },
+      {
+        "d0": "2025-12-17",
+        "d1": "2026-03-18",
+        "instrumentId": "42002475",
+        "rawSymbol": "NQH6"
+      },
+      {
+        "d0": "2026-03-18",
+        "d1": "2026-06-17",
+        "instrumentId": "42004058",
+        "rawSymbol": "NQM6"
+      },
+      {
+        "d0": "2026-06-17",
+        "d1": "2026-08-01",
+        "instrumentId": "42004177",
+        "rawSymbol": "NQU6"
+      }
+    ]
+  },
+  "comparison": {
+    "exactCounts": {
+      "match": 0,
+      "databento_earlier": 7,
+      "databento_later": 13,
+      "unknown_local_boundary": 0
+    },
+    "diagnosticCounts": {
+      "match": 10,
+      "databento_earlier": 20,
+      "databento_later": 15,
+      "unknown_local_boundary": 0
+    },
+    "authorityCounts": {
+      "governed_calendar": 12,
+      "raw_bilateral_audit": 8,
+      "legacy_continuous_inferred": 45
+    },
+    "diagnosticConfidenceCounts": {
+      "high": 28,
+      "medium": 1,
+      "low": 16,
+      "none": 0
+    },
+    "transitions": [
+      {
+        "window": "2010Q2",
+        "oldContract": "NQM0",
+        "newContract": "NQU0",
+        "databentoD0": "2010-06-14",
+        "databentoInstrumentId": "26715",
+        "targetBoundaryEt": "2010-06-13T18:00",
+        "currentBoundaryEt": "2010-06-13T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": 0,
+        "disposition": "diagnostic_match",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2010Q3",
+        "oldContract": "NQU0",
+        "newContract": "NQZ0",
+        "databentoD0": "2010-09-13",
+        "databentoInstrumentId": "3088",
+        "targetBoundaryEt": "2010-09-12T18:00",
+        "currentBoundaryEt": "2010-09-14T00:00",
+        "currentBoundaryAuthority": "raw_bilateral_audit",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": -30,
+        "disposition": "databento_earlier",
+        "legacyRisk": "red",
+        "calendarStatus": null
+      },
+      {
+        "window": "2010Q4",
+        "oldContract": "NQZ0",
+        "newContract": "NQH1",
+        "databentoD0": "2010-12-13",
+        "databentoInstrumentId": "93735",
+        "targetBoundaryEt": "2010-12-12T18:00",
+        "currentBoundaryEt": "2010-12-13T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": -24,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2011Q1",
+        "oldContract": "NQH1",
+        "newContract": "NQM1",
+        "databentoD0": "2011-03-14",
+        "databentoInstrumentId": "30668",
+        "targetBoundaryEt": "2011-03-13T18:00",
+        "currentBoundaryEt": "2011-03-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "medium",
+        "deltaHours": -6,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2011Q2",
+        "oldContract": "NQM1",
+        "newContract": "NQU1",
+        "databentoD0": "2011-06-13",
+        "databentoInstrumentId": "56972",
+        "targetBoundaryEt": "2011-06-12T18:00",
+        "currentBoundaryEt": "2011-06-14T00:00",
+        "currentBoundaryAuthority": "raw_bilateral_audit",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": -30,
+        "disposition": "databento_earlier",
+        "legacyRisk": "red",
+        "calendarStatus": null
+      },
+      {
+        "window": "2011Q3",
+        "oldContract": "NQU1",
+        "newContract": "NQZ1",
+        "databentoD0": "2011-09-12",
+        "databentoInstrumentId": "12038",
+        "targetBoundaryEt": "2011-09-11T18:00",
+        "currentBoundaryEt": "2011-09-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -54,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2011Q4",
+        "oldContract": "NQZ1",
+        "newContract": "NQH2",
+        "databentoD0": "2011-12-12",
+        "databentoInstrumentId": "8870",
+        "targetBoundaryEt": "2011-12-11T18:00",
+        "currentBoundaryEt": "2011-12-14T00:00",
+        "currentBoundaryAuthority": "raw_bilateral_audit",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": -54,
+        "disposition": "databento_earlier",
+        "legacyRisk": "red",
+        "calendarStatus": null
+      },
+      {
+        "window": "2012Q1",
+        "oldContract": "NQH2",
+        "newContract": "NQM2",
+        "databentoD0": "2012-03-13",
+        "databentoInstrumentId": "20924",
+        "targetBoundaryEt": "2012-03-12T18:00",
+        "currentBoundaryEt": "2012-03-14T00:00",
+        "currentBoundaryAuthority": "raw_bilateral_audit",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": -30,
+        "disposition": "databento_earlier",
+        "legacyRisk": "red",
+        "calendarStatus": null
+      },
+      {
+        "window": "2012Q2",
+        "oldContract": "NQM2",
+        "newContract": "NQU2",
+        "databentoD0": "2012-06-11",
+        "databentoInstrumentId": "57494",
+        "targetBoundaryEt": "2012-06-10T18:00",
+        "currentBoundaryEt": "2012-06-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -78,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2012Q3",
+        "oldContract": "NQU2",
+        "newContract": "NQZ2",
+        "databentoD0": "2012-09-17",
+        "databentoInstrumentId": "10016",
+        "targetBoundaryEt": "2012-09-16T18:00",
+        "currentBoundaryEt": "2012-09-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": 66,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2012Q4",
+        "oldContract": "NQZ2",
+        "newContract": "NQH3",
+        "databentoD0": "2012-12-17",
+        "databentoInstrumentId": "36931",
+        "targetBoundaryEt": "2012-12-16T18:00",
+        "currentBoundaryEt": "2012-12-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": 66,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2013Q1",
+        "oldContract": "NQH3",
+        "newContract": "NQM3",
+        "databentoD0": "2013-03-12",
+        "databentoInstrumentId": "11518",
+        "targetBoundaryEt": "2013-03-11T18:00",
+        "currentBoundaryEt": "2013-03-14T00:00",
+        "currentBoundaryAuthority": "raw_bilateral_audit",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": -54,
+        "disposition": "databento_earlier",
+        "legacyRisk": "red",
+        "calendarStatus": null
+      },
+      {
+        "window": "2013Q2",
+        "oldContract": "NQM3",
+        "newContract": "NQU3",
+        "databentoD0": "2013-06-17",
+        "databentoInstrumentId": "17591",
+        "targetBoundaryEt": "2013-06-16T18:00",
+        "currentBoundaryEt": "2013-06-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": 66,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2013Q3",
+        "oldContract": "NQU3",
+        "newContract": "NQZ3",
+        "databentoD0": "2013-09-16",
+        "databentoInstrumentId": "28499",
+        "targetBoundaryEt": "2013-09-15T18:00",
+        "currentBoundaryEt": "2013-09-15T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": 0,
+        "disposition": "diagnostic_match",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2013Q4",
+        "oldContract": "NQZ3",
+        "newContract": "NQH4",
+        "databentoD0": "2013-12-16",
+        "databentoInstrumentId": "382251",
+        "targetBoundaryEt": "2013-12-15T18:00",
+        "currentBoundaryEt": "2013-12-15T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": 0,
+        "disposition": "diagnostic_match",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2014Q1",
+        "oldContract": "NQH4",
+        "newContract": "NQM4",
+        "databentoD0": "2014-03-17",
+        "databentoInstrumentId": "8223",
+        "targetBoundaryEt": "2014-03-16T18:00",
+        "currentBoundaryEt": "2014-03-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": 66,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2014Q2",
+        "oldContract": "NQM4",
+        "newContract": "NQU4",
+        "databentoD0": "2014-06-16",
+        "databentoInstrumentId": "83745",
+        "targetBoundaryEt": "2014-06-15T18:00",
+        "currentBoundaryEt": "2014-06-15T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": 0,
+        "disposition": "diagnostic_match",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2014Q3",
+        "oldContract": "NQU4",
+        "newContract": "NQZ4",
+        "databentoD0": "2014-09-15",
+        "databentoInstrumentId": "28097",
+        "targetBoundaryEt": "2014-09-14T18:00",
+        "currentBoundaryEt": "2014-09-14T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": 0,
+        "disposition": "diagnostic_match",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2014Q4",
+        "oldContract": "NQZ4",
+        "newContract": "NQH5",
+        "databentoD0": "2014-12-15",
+        "databentoInstrumentId": "50207",
+        "targetBoundaryEt": "2014-12-14T18:00",
+        "currentBoundaryEt": "2014-12-14T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": 0,
+        "disposition": "diagnostic_match",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2015Q1",
+        "oldContract": "NQH5",
+        "newContract": "NQM5",
+        "databentoD0": "2015-03-16",
+        "databentoInstrumentId": "58385",
+        "targetBoundaryEt": "2015-03-15T18:00",
+        "currentBoundaryEt": "2015-03-15T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": 0,
+        "disposition": "diagnostic_match",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2015Q2",
+        "oldContract": "NQM5",
+        "newContract": "NQU5",
+        "databentoD0": "2015-06-15",
+        "databentoInstrumentId": "2913",
+        "targetBoundaryEt": "2015-06-14T18:00",
+        "currentBoundaryEt": "2015-06-14T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": 0,
+        "disposition": "diagnostic_match",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2015Q3",
+        "oldContract": "NQU5",
+        "newContract": "NQZ5",
+        "databentoD0": "2015-09-14",
+        "databentoInstrumentId": "12809",
+        "targetBoundaryEt": "2015-09-13T18:00",
+        "currentBoundaryEt": "2015-09-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -6,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2015Q4",
+        "oldContract": "NQZ5",
+        "newContract": "NQH6",
+        "databentoD0": "2015-12-14",
+        "databentoInstrumentId": "49734",
+        "targetBoundaryEt": "2015-12-13T18:00",
+        "currentBoundaryEt": "2015-12-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -6,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2016Q1",
+        "oldContract": "NQH6",
+        "newContract": "NQM6",
+        "databentoD0": "2016-03-14",
+        "databentoInstrumentId": "765",
+        "targetBoundaryEt": "2016-03-13T18:00",
+        "currentBoundaryEt": "2016-03-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -6,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2016Q2",
+        "oldContract": "NQM6",
+        "newContract": "NQU6",
+        "databentoD0": "2016-06-13",
+        "databentoInstrumentId": "2563",
+        "targetBoundaryEt": "2016-06-12T18:00",
+        "currentBoundaryEt": "2016-06-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -30,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2016Q3",
+        "oldContract": "NQU6",
+        "newContract": "NQZ6",
+        "databentoD0": "2016-09-12",
+        "databentoInstrumentId": "2887",
+        "targetBoundaryEt": "2016-09-11T18:00",
+        "currentBoundaryEt": "2016-09-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -54,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2016Q4",
+        "oldContract": "NQZ6",
+        "newContract": "NQH7",
+        "databentoD0": "2016-12-13",
+        "databentoInstrumentId": "35888",
+        "targetBoundaryEt": "2016-12-12T18:00",
+        "currentBoundaryEt": "2016-12-14T00:00",
+        "currentBoundaryAuthority": "raw_bilateral_audit",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": -30,
+        "disposition": "databento_earlier",
+        "legacyRisk": "red",
+        "calendarStatus": null
+      },
+      {
+        "window": "2017Q1",
+        "oldContract": "NQH7",
+        "newContract": "NQM7",
+        "databentoD0": "2017-03-13",
+        "databentoInstrumentId": "6398",
+        "targetBoundaryEt": "2017-03-12T18:00",
+        "currentBoundaryEt": "2017-03-14T00:00",
+        "currentBoundaryAuthority": "raw_bilateral_audit",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": -30,
+        "disposition": "databento_earlier",
+        "legacyRisk": "red",
+        "calendarStatus": null
+      },
+      {
+        "window": "2017Q2",
+        "oldContract": "NQM7",
+        "newContract": "NQU7",
+        "databentoD0": "2017-06-12",
+        "databentoInstrumentId": "26054",
+        "targetBoundaryEt": "2017-06-11T18:00",
+        "currentBoundaryEt": "2017-06-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -54,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2017Q3",
+        "oldContract": "NQU7",
+        "newContract": "NQZ7",
+        "databentoD0": "2017-09-11",
+        "databentoInstrumentId": "15466",
+        "targetBoundaryEt": "2017-09-10T18:00",
+        "currentBoundaryEt": "2017-09-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -78,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2017Q4",
+        "oldContract": "NQZ7",
+        "newContract": "NQH8",
+        "databentoD0": "2017-12-11",
+        "databentoInstrumentId": "16210",
+        "targetBoundaryEt": "2017-12-10T18:00",
+        "currentBoundaryEt": "2017-12-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -78,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2018Q1",
+        "oldContract": "NQH8",
+        "newContract": "NQM8",
+        "databentoD0": "2018-03-12",
+        "databentoInstrumentId": "23520",
+        "targetBoundaryEt": "2018-03-11T18:00",
+        "currentBoundaryEt": "2018-03-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -54,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2018Q2",
+        "oldContract": "NQM8",
+        "newContract": "NQU8",
+        "databentoD0": "2018-06-11",
+        "databentoInstrumentId": "47511",
+        "targetBoundaryEt": "2018-06-10T18:00",
+        "currentBoundaryEt": "2018-06-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -78,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2018Q3",
+        "oldContract": "NQU8",
+        "newContract": "NQZ8",
+        "databentoD0": "2018-09-17",
+        "databentoInstrumentId": "16041",
+        "targetBoundaryEt": "2018-09-16T18:00",
+        "currentBoundaryEt": "2018-09-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": 66,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2018Q4",
+        "oldContract": "NQZ8",
+        "newContract": "NQH9",
+        "databentoD0": "2018-12-17",
+        "databentoInstrumentId": "15657",
+        "targetBoundaryEt": "2018-12-16T18:00",
+        "currentBoundaryEt": "2018-12-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": 66,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2019Q1",
+        "oldContract": "NQH9",
+        "newContract": "NQM9",
+        "databentoD0": "2019-03-11",
+        "databentoInstrumentId": "9166",
+        "targetBoundaryEt": "2019-03-10T18:00",
+        "currentBoundaryEt": "2019-03-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -78,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2019Q2",
+        "oldContract": "NQM9",
+        "newContract": "NQU9",
+        "databentoD0": "2019-06-19",
+        "databentoInstrumentId": "36742",
+        "targetBoundaryEt": "2019-06-18T18:00",
+        "currentBoundaryEt": "2019-06-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": 114,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "amber",
+        "calendarStatus": null
+      },
+      {
+        "window": "2019Q3",
+        "oldContract": "NQU9",
+        "newContract": "NQZ9",
+        "databentoD0": "2019-09-16",
+        "databentoInstrumentId": "15907",
+        "targetBoundaryEt": "2019-09-15T18:00",
+        "currentBoundaryEt": "2019-09-15T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": 0,
+        "disposition": "diagnostic_match",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2019Q4",
+        "oldContract": "NQZ9",
+        "newContract": "NQH0",
+        "databentoD0": "2019-12-16",
+        "databentoInstrumentId": "10204",
+        "targetBoundaryEt": "2019-12-15T18:00",
+        "currentBoundaryEt": "2019-12-15T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": 0,
+        "disposition": "diagnostic_match",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2020Q1",
+        "oldContract": "NQH0",
+        "newContract": "NQM0",
+        "databentoD0": "2020-03-18",
+        "databentoInstrumentId": "16908",
+        "targetBoundaryEt": "2020-03-17T18:00",
+        "currentBoundaryEt": "2020-03-15T18:00",
+        "currentBoundaryAuthority": "raw_bilateral_audit",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": 48,
+        "disposition": "databento_later",
+        "legacyRisk": "red",
+        "calendarStatus": null
+      },
+      {
+        "window": "2020Q2",
+        "oldContract": "NQM0",
+        "newContract": "NQU0",
+        "databentoD0": "2020-06-17",
+        "databentoInstrumentId": "14028",
+        "targetBoundaryEt": "2020-06-16T18:00",
+        "currentBoundaryEt": "2020-06-14T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": 48,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2020Q3",
+        "oldContract": "NQU0",
+        "newContract": "NQZ0",
+        "databentoD0": "2020-09-16",
+        "databentoInstrumentId": "16337",
+        "targetBoundaryEt": "2020-09-15T18:00",
+        "currentBoundaryEt": "2020-09-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": 42,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2020Q4",
+        "oldContract": "NQZ0",
+        "newContract": "NQH1",
+        "databentoD0": "2020-12-16",
+        "databentoInstrumentId": "4378",
+        "targetBoundaryEt": "2020-12-15T18:00",
+        "currentBoundaryEt": "2020-12-13T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": 48,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2021Q1",
+        "oldContract": "NQH1",
+        "newContract": "NQM1",
+        "databentoD0": "2021-03-17",
+        "databentoInstrumentId": "2786",
+        "targetBoundaryEt": "2021-03-16T18:00",
+        "currentBoundaryEt": "2021-03-17T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": -24,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2021Q2",
+        "oldContract": "NQM1",
+        "newContract": "NQU1",
+        "databentoD0": "2021-06-16",
+        "databentoInstrumentId": "828",
+        "targetBoundaryEt": "2021-06-15T18:00",
+        "currentBoundaryEt": "2021-06-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": 42,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2021Q3",
+        "oldContract": "NQU1",
+        "newContract": "NQZ1",
+        "databentoD0": "2021-09-15",
+        "databentoInstrumentId": "2770",
+        "targetBoundaryEt": "2021-09-14T18:00",
+        "currentBoundaryEt": "2021-09-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": 18,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2021Q4",
+        "oldContract": "NQZ1",
+        "newContract": "NQH2",
+        "databentoD0": "2021-12-13",
+        "databentoInstrumentId": "3541",
+        "targetBoundaryEt": "2021-12-12T18:00",
+        "currentBoundaryEt": "2021-12-13T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": -24,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2022Q1",
+        "oldContract": "NQH2",
+        "newContract": "NQM2",
+        "databentoD0": "2022-03-16",
+        "databentoInstrumentId": "2895",
+        "targetBoundaryEt": "2022-03-15T18:00",
+        "currentBoundaryEt": "2022-03-13T18:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "low",
+        "deltaHours": 48,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2022Q2",
+        "oldContract": "NQM2",
+        "newContract": "NQU2",
+        "databentoD0": "2022-06-15",
+        "databentoInstrumentId": "10391",
+        "targetBoundaryEt": "2022-06-14T18:00",
+        "currentBoundaryEt": "2022-06-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": 18,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2022Q3",
+        "oldContract": "NQU2",
+        "newContract": "NQZ2",
+        "databentoD0": "2022-09-14",
+        "databentoInstrumentId": "13613",
+        "targetBoundaryEt": "2022-09-13T18:00",
+        "currentBoundaryEt": "2022-09-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -6,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2022Q4",
+        "oldContract": "NQZ2",
+        "newContract": "NQH3",
+        "databentoD0": "2022-12-14",
+        "databentoInstrumentId": "20631",
+        "targetBoundaryEt": "2022-12-13T18:00",
+        "currentBoundaryEt": "2022-12-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -6,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2023Q1",
+        "oldContract": "NQH3",
+        "newContract": "NQM3",
+        "databentoD0": "2023-03-15",
+        "databentoInstrumentId": "3522",
+        "targetBoundaryEt": "2023-03-14T18:00",
+        "currentBoundaryEt": "2023-03-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": 18,
+        "disposition": "diagnostic_databento_later",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2023Q2",
+        "oldContract": "NQM3",
+        "newContract": "NQU3",
+        "databentoD0": "2023-06-14",
+        "databentoInstrumentId": "2130",
+        "targetBoundaryEt": "2023-06-13T18:00",
+        "currentBoundaryEt": "2023-06-14T00:00",
+        "currentBoundaryAuthority": "legacy_continuous_inferred",
+        "currentBoundaryConfidence": "high",
+        "deltaHours": -6,
+        "disposition": "diagnostic_databento_earlier",
+        "legacyRisk": "green",
+        "calendarStatus": null
+      },
+      {
+        "window": "2023Q3",
+        "oldContract": "NQU3",
+        "newContract": "NQZ3",
+        "databentoD0": "2023-09-13",
+        "databentoInstrumentId": "260937",
+        "targetBoundaryEt": "2023-09-12T18:00",
+        "currentBoundaryEt": "2023-09-10T18:00",
+        "currentBoundaryAuthority": "governed_calendar",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": 48,
+        "disposition": "databento_later",
+        "legacyRisk": "amber",
+        "calendarStatus": "volume_confirmed"
+      },
+      {
+        "window": "2023Q4",
+        "oldContract": "NQZ3",
+        "newContract": "NQH4",
+        "databentoD0": "2023-12-13",
+        "databentoInstrumentId": "750",
+        "targetBoundaryEt": "2023-12-12T18:00",
+        "currentBoundaryEt": "2023-12-10T18:00",
+        "currentBoundaryAuthority": "governed_calendar",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": 48,
+        "disposition": "databento_later",
+        "legacyRisk": "green",
+        "calendarStatus": "volume_confirmed"
+      },
+      {
+        "window": "2024Q1",
+        "oldContract": "NQH4",
+        "newContract": "NQM4",
+        "databentoD0": "2024-03-13",
+        "databentoInstrumentId": "13743",
+        "targetBoundaryEt": "2024-03-12T18:00",
+        "currentBoundaryEt": "2024-03-10T18:00",
+        "currentBoundaryAuthority": "governed_calendar",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": 48,
+        "disposition": "databento_later",
+        "legacyRisk": "amber",
+        "calendarStatus": "volume_confirmed"
+      },
+      {
+        "window": "2024Q2",
+        "oldContract": "NQM4",
+        "newContract": "NQU4",
+        "databentoD0": "2024-06-19",
+        "databentoInstrumentId": "4358",
+        "targetBoundaryEt": "2024-06-18T18:00",
+        "currentBoundaryEt": "2024-06-16T18:00",
+        "currentBoundaryAuthority": "governed_calendar",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": 48,
+        "disposition": "databento_later",
+        "legacyRisk": "amber",
+        "calendarStatus": "volume_confirmed"
+      },
+      {
+        "window": "2024Q3",
+        "oldContract": "NQU4",
+        "newContract": "NQZ4",
+        "databentoD0": "2024-09-18",
+        "databentoInstrumentId": "106364",
+        "targetBoundaryEt": "2024-09-17T18:00",
+        "currentBoundaryEt": "2024-09-15T18:00",
+        "currentBoundaryAuthority": "governed_calendar",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": 48,
+        "disposition": "databento_later",
+        "legacyRisk": "amber",
+        "calendarStatus": "volume_confirmed"
+      },
+      {
+        "window": "2024Q4",
+        "oldContract": "NQZ4",
+        "newContract": "NQH5",
+        "databentoD0": "2024-12-19",
+        "databentoInstrumentId": "42288528",
+        "targetBoundaryEt": "2024-12-18T18:00",
+        "currentBoundaryEt": "2024-12-15T18:00",
+        "currentBoundaryAuthority": "governed_calendar",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": 72,
+        "disposition": "databento_later",
+        "legacyRisk": "amber",
+        "calendarStatus": "manual_confirmed"
+      },
+      {
+        "window": "2025Q1",
+        "oldContract": "NQH5",
+        "newContract": "NQM5",
+        "databentoD0": "2025-03-20",
+        "databentoInstrumentId": "42005804",
+        "targetBoundaryEt": "2025-03-19T18:00",
+        "currentBoundaryEt": "2025-03-16T18:00",
+        "currentBoundaryAuthority": "governed_calendar",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": 72,
+        "disposition": "databento_later",
+        "legacyRisk": "red",
+        "calendarStatus": "manual_confirmed"
+      },
+      {
+        "window": "2025Q2",
+        "oldContract": "NQM5",
+        "newContract": "NQU5",
+        "databentoD0": "2025-06-18",
+        "databentoInstrumentId": "42008487",
+        "targetBoundaryEt": "2025-06-17T18:00",
+        "currentBoundaryEt": "2025-06-15T18:00",
+        "currentBoundaryAuthority": "governed_calendar",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": 48,
+        "disposition": "databento_later",
+        "legacyRisk": "red",
+        "calendarStatus": "volume_confirmed"
+      },
+      {
+        "window": "2025Q3",
+        "oldContract": "NQU5",
+        "newContract": "NQZ5",
+        "databentoD0": "2025-09-18",
+        "databentoInstrumentId": "158704",
+        "targetBoundaryEt": "2025-09-17T18:00",
+        "currentBoundaryEt": "2025-09-14T18:00",
+        "currentBoundaryAuthority": "governed_calendar",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": 72,
+        "disposition": "databento_later",
+        "legacyRisk": "amber",
+        "calendarStatus": "manual_confirmed"
+      },
+      {
+        "window": "2025Q4",
+        "oldContract": "NQZ5",
+        "newContract": "NQH6",
+        "databentoD0": "2025-12-17",
+        "databentoInstrumentId": "42002475",
+        "targetBoundaryEt": "2025-12-16T18:00",
+        "currentBoundaryEt": "2025-12-14T18:00",
+        "currentBoundaryAuthority": "governed_calendar",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": 48,
+        "disposition": "databento_later",
+        "legacyRisk": null,
+        "calendarStatus": "volume_confirmed"
+      },
+      {
+        "window": "2026Q1",
+        "oldContract": "NQH6",
+        "newContract": "NQM6",
+        "databentoD0": "2026-03-18",
+        "databentoInstrumentId": "42004058",
+        "targetBoundaryEt": "2026-03-17T18:00",
+        "currentBoundaryEt": "2026-03-16T00:00",
+        "currentBoundaryAuthority": "governed_calendar",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": 42,
+        "disposition": "databento_later",
+        "legacyRisk": null,
+        "calendarStatus": "volume_validated"
+      },
+      {
+        "window": "2026Q2",
+        "oldContract": "NQM6",
+        "newContract": "NQU6",
+        "databentoD0": "2026-06-17",
+        "databentoInstrumentId": "42004177",
+        "targetBoundaryEt": "2026-06-16T18:00",
+        "currentBoundaryEt": "2026-06-15T00:00",
+        "currentBoundaryAuthority": "governed_calendar",
+        "currentBoundaryConfidence": "exact",
+        "deltaHours": 42,
+        "disposition": "databento_later",
+        "legacyRisk": null,
+        "calendarStatus": "manual_validated"
+      }
+    ]
+  },
+  "source": {
+    "path": "/home/leo/myworkspace/trading/backtesting-v7/v7/tmp/NQ_full_1min_continuous.csv",
+    "rows": 5906274,
+    "firstTs": "2008-01-02T06:01",
+    "lastTs": "2025-11-04T18:39",
+    "quartersScanned": 63
+  },
+  "calendar": {
+    "path": "/home/leo/myworkspace/trading/backtesting-v7/v4/data_config/futures_roll_calendar.yml",
+    "revision": "adf9ae6191a313c50517646b32b88088bccb708bc240e3d6c346ef1581c71250",
+    "nqEvents": 12
+  },
+  "database": {
+    "path": "/home/leo/myworkspace/trading/backtesting/v4/data/trading_data.duckdb",
+    "totalRows": 12651020,
+    "nqRows": 6158777,
+    "nqDuplicateTimestamps": 0
+  }
+}
+

@@ -138,10 +138,18 @@ Binding audit/evidence:
 - [x] normalize each Databento effective trade date to its preceding
   `18:00 ET` CME session open and bound eight candidate mismatch slices to
   10,568 current rows versus 14,468 replacement rows;
-- [ ] before any legacy write, generate a free full-history mapped-date/local-
-  seam/current-calendar diff and decide whether the Databento-date rule
-  supersedes the existing historical two-session rule across one contiguous
-  governed chain.
+- [x] freeze one free 66-segment/65-transition `NQ.v.0` mapping, resolve every
+  instrument id to the expected H/M/U/Z raw contract, and generate a full-
+  chain mapped-date/local-seam/current-calendar diff;
+- [x] separate 20 exact boundaries from 45 diagnostic legacy inferences,
+  proving all 20 exact boundaries differ from the proposed Databento session
+  boundary and that all 12 current calendar events would move later;
+- [ ] decide whether the Databento-date rule supersedes the existing
+  historical two-session rule from 2010 Q2 onward and approve a maximum USD 4
+  budget before raw-attributing the remaining 45 transitions;
+- [ ] after that decision, audit the 17 low/medium-confidence windows first,
+  then 28 high-confidence windows, before any contiguous calendar or repair
+  manifest is proposed.
 
 Binding prescreen/evidence:
 `docs/V7_NQ_PRE_2025_CONTINUOUS_ROLL_PRESCREEN.md`.
@@ -151,6 +159,10 @@ Binding recent raw audit:
 
 Binding legacy red audit:
 `docs/V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`.
+
+Binding full-chain diff:
+`docs/V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md` and
+`docs/v7-nq-databento-full-chain-diff.json`.
 
 ### Deferred Candidate — General Futures Plugin Platform
 

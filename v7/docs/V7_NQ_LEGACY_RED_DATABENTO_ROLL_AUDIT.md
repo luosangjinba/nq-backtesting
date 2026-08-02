@@ -201,17 +201,19 @@ same proposed Databento-date policy also differs from some already repaired
 mix two historical authorities and make the calendar misdescribe untouched
 data.
 
+The first two gates are complete. The full mapping contains 65 transitions;
+20 have exact local/calendar evidence and all 20 differ from the session-
+aligned Databento boundary. The other 45 local seams remain diagnostic until
+raw attribution. See `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md` and
+`v7-nq-databento-full-chain-diff.json`.
+
 Before any repair:
 
-1. obtain and retain one complete free `NQ.v.0` mapping from Databento's NQ
-   start through the current horizon;
-2. generate a read-only full-chain diff between session-aligned mapped dates,
-   actual local source seams, and the current governed calendar;
-3. identify which mismatches materially improve relative timestamp coverage
-   and which are policy-only changes;
-4. explicitly decide whether the Databento-date rule supersedes the existing
+1. explicitly decide whether the Databento-date rule supersedes the existing
    historical two-session rule for the entire governed range;
-5. produce one versioned, contiguous calendar/repair manifest and require a
+2. if approved, raw-audit the remaining 45 transitions under the documented
+   cost ceiling;
+3. produce one versioned, contiguous calendar/repair manifest and require a
    fresh fingerprint-matching Preview before any write.
 
 Until that decision, the eight intervals above are candidate evidence only.

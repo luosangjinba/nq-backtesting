@@ -140,11 +140,12 @@ replacement rows, a net increase of 3,900 timestamps. No write was performed.
 See `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`.
 
 Remaining raw review priority is no longer chosen by red/amber color alone.
-The next read-only gate is a free full-history `NQ.v.0` mapping diff, because
-the proposed Databento-date authority must be applied consistently across a
-contiguous calendar and compared with already repaired 2023–2025 boundaries.
-Paid minute data is then required only for mismatched repair slices and focused
-bilateral validation.
+The free full-history `NQ.v.0` mapping diff is complete: 65 transitions were
+mapped, 20 current boundaries have exact evidence and all 20 differ, while 45
+legacy source seams remain diagnostic. If the proposed date authority is
+approved, paid minute data is required only for those 45 focused bilateral
+attributions and later exact replacement slices. See
+`V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`.
 
 Any later repair still requires dataset-condition evidence, an accepted
 session-aligned boundary, retained source hashes, backup, exact confirmation,

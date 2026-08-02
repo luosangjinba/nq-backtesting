@@ -476,3 +476,39 @@ No repair was executed. Before any later write, generate a free full-history
 mapped-date/local-seam/current-calendar diff and decide whether this proposed
 date authority supersedes the prior historical two-session rule across one
 contiguous governed chain, including already repaired 2023–2025 dates.
+
+## 2026-08-02 NQ Full-Chain Mapping Diff
+
+The free full-history diff is complete for Databento's available NQ range:
+
+- 66 contiguous `NQ.v.0` mappings and 65 quarterly transitions;
+- all 66 instrument ids resolve to the expected H/M/U/Z raw contract;
+- mapping fingerprint:
+  `635306c81f7b954342f8d67028a3d91bc5e2d7c86089f9eb6a69c61fab44a151`;
+- 12 current governed boundaries and eight raw-audited legacy boundaries are
+  exact;
+- all 20 exact boundaries differ from the session-aligned Databento date;
+- the remaining 45 CSV seams are diagnostic only: 28 high, one medium, and 16
+  low confidence.
+
+Every current NQ calendar event would move later by 42–72 hours. Seven of the
+eight exact legacy-red transitions would move earlier; 2020 Q1 would move
+later. The prior repair records remain accurate execution history, but adopting
+the proposed mapping authority requires rebaselining them.
+
+The recommended remaining audit downloads old/new raw bars only for the 45
+diagnostic windows, with two natural days of padding on each side of the
+inferred/mapped boundary envelope. At the current historical `ohlcv-1m` price
+of USD 70/GB, the estimated bilateral audit is USD 2.62 and a later full exact
+Preview approximately USD 0.63. Require `metadata.get_cost` before submission
+and stop above a combined USD 4 ceiling.
+
+Databento coverage begins after the local CSV: 2008 Q1 through 2010 Q1 remain
+legacy-source history and require an explicit provenance break.
+
+Binding evidence:
+
+- `v7/docs/V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`;
+- `v7/docs/v7-nq-databento-full-chain-diff.json`.
+
+No paid 45-window download and no database/calendar write was performed.

@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-02 by the NQ legacy-red Databento mapping audit
+Last updated: 2026-08-02 by the NQ Databento full-chain mapping diff
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -39,7 +39,8 @@ required for normal startup.
 - the read-only NQ pre-2025 continuous roll prescreen is commit `6798fc09`;
 - the NQ 2023 Q3–2024 raw roll audit is commit `1cd86e60`;
 - the generic NQ 2023 Q3–2024 manifest repair is commit `3e0e08f1`;
-- the read-only NQ legacy-red Databento mapping audit is the current handoff
+- the read-only NQ legacy-red Databento mapping audit is commit `599c4cbd`;
+- the read-only NQ Databento full-chain mapping diff is the current handoff
   step;
 - the NQ 2025 roll audit rejects the legacy boundaries as historical authority,
   retains raw Databento contracts plus the R7.3c session-aligned volume policy,
@@ -57,9 +58,16 @@ required for normal startup.
   `18:00 ET` moves seven boundaries earlier and 2020 Q1 later, with candidate
   slices totaling 10,568 current rows versus 14,468 replacements and no write;
 - early historical sparsity is explicitly treated as normal context rather
-  than tested against a modern fixed minute-count threshold; the next gate is
-  a free full-chain mapped-date/local-seam/current-calendar diff before any
-  contiguous-calendar policy or repair decision;
+  than tested against a modern fixed minute-count threshold;
+- the free full-chain result contains 66 contiguous mappings and 65
+  transitions; all 20 exact current boundaries differ from the proposed
+  session-aligned Databento boundary, while 45 legacy seams remain diagnostic;
+- every one of the 12 governed NQ events would move later by 42–72 hours;
+  adopting the policy therefore rebaselines prior repairs rather than merely
+  extending the calendar backward;
+- the next explicit decision is whether to adopt this authority from 2010 Q2
+  onward and approve at most USD 4 for the remaining 45-window raw audit and
+  later exact Preview; no paid batch or write has occurred;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10
