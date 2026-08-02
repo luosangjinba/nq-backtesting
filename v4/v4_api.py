@@ -34,6 +34,7 @@ from server import maintenance_service
 from server import market_data_backup_service
 from server import market_data_coverage_service
 from server import market_data_calendar_service
+from server import manifest_roll_repair_registry
 from server import roll_maintenance_service
 from server import economic_calendar_service
 from server import economic_manual_import
@@ -74,6 +75,7 @@ HISTORICAL_ROLL_REPAIR_ROOT = os.environ.get(
     "V4_HISTORICAL_ROLL_REPAIR_DIR",
     os.path.expanduser("~/.local/share/replay-lab/historical-roll-repair"),
 )
+HISTORICAL_ROLL_MANIFEST_DIR = os.path.join(V4_ROOT, "data_config", "historical_roll_repairs")
 MAINTENANCE_REQUEST_HEADER = "X-V4-Maintenance-Request"
 MAINTENANCE_REQUEST_VALUE = "data-maintenance"
 WORKSPACE_REQUEST_HEADER = "X-V4-Workspace-Request"
@@ -259,6 +261,9 @@ def run_data_maintenance_action(payload):
         "historical_roll_repair_preview",
         "historical_roll_repair_write",
         "historical_roll_repair_verify",
+        "manifest_roll_repair_preview",
+        "manifest_roll_repair_write",
+        "manifest_roll_repair_verify",
         "confirm_roll_preview",
         "confirm_roll_write",
         "preflight",
@@ -372,6 +377,47 @@ def run_data_maintenance_action(payload):
                 confirm_text,
             ])
         elif action == "historical_roll_repair_verify":
+            args.append("--verify")
+        return _run_maintenance_command(args, timeout=1800)
+
+    if action in {
+        "manifest_roll_repair_preview",
+        "manifest_roll_repair_write",
+        "manifest_roll_repair_verify",
+    }:
+        plan_id = _clean_text(payload.get("planId"), 81)
+        plan_path = manifest_roll_repair_registry.resolve_plan(
+            plan_id,
+            HISTORICAL_ROLL_MANIFEST_DIR,
+        )
+        expected_confirmation = manifest_roll_repair_registry.expected_confirmation(plan_path)
+        args = [
+            python,
+            "v4/scripts/repair_historical_roll_manifest.py",
+            "--plan",
+            str(plan_path),
+            "--db",
+            DB_PATH,
+            "--calendar",
+            ROLL_CALENDAR_PATH,
+            "--repair-root",
+            HISTORICAL_ROLL_REPAIR_ROOT,
+        ]
+        if action == "manifest_roll_repair_write":
+            preview_token = _clean_text(payload.get("previewToken"), 220)
+            confirm_text = _clean_text(payload.get("confirmText"), 80)
+            if not preview_token:
+                raise ValueError("manifest roll repair write requires previewToken")
+            if confirm_text != expected_confirmation:
+                raise ValueError(f"Type '{expected_confirmation}' to execute manifest repair")
+            args.extend([
+                "--commit",
+                "--preview-token",
+                preview_token,
+                "--confirm-text",
+                confirm_text,
+            ])
+        elif action == "manifest_roll_repair_verify":
             args.append("--verify")
         return _run_maintenance_command(args, timeout=1800)
 

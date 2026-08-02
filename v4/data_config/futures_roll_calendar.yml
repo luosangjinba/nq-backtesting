@@ -16,6 +16,72 @@ dataset: GLBX.MDP3
 schema: ohlcv-1m
 rolls:
   - instrument: NQ
+    old_contract: NQU3
+    new_contract: NQZ3
+    roll_date_et: '2023-09-11'
+    effective_at_et: 2023-09-10T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: volume_confirmed
+    evidence_type: historical_trade_date_liquidity_repair
+    note: Historical repair; NQZ3 complete-session volume dominance was 1.7790x on
+      2023-09-11 and 3.5389x on 2023-09-12.
+    confirmed_at: '2026-08-02T09:47:25-04:00'
+  - instrument: NQ
+    old_contract: NQZ3
+    new_contract: NQH4
+    roll_date_et: '2023-12-11'
+    effective_at_et: 2023-12-10T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: volume_confirmed
+    evidence_type: historical_trade_date_liquidity_repair
+    note: Historical repair; NQH4 complete-session volume dominance was 1.6427x on
+      2023-12-11 and 3.5201x on 2023-12-12.
+    confirmed_at: '2026-08-02T09:47:25-04:00'
+  - instrument: NQ
+    old_contract: NQH4
+    new_contract: NQM4
+    roll_date_et: '2024-03-11'
+    effective_at_et: 2024-03-10T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: volume_confirmed
+    evidence_type: historical_trade_date_liquidity_repair
+    note: Historical repair; NQM4 complete-session volume dominance was 1.8169x on
+      2024-03-11 and 3.5825x on 2024-03-12.
+    confirmed_at: '2026-08-02T09:47:25-04:00'
+  - instrument: NQ
+    old_contract: NQM4
+    new_contract: NQU4
+    roll_date_et: '2024-06-17'
+    effective_at_et: 2024-06-16T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: volume_confirmed
+    evidence_type: historical_trade_date_liquidity_repair
+    note: Historical repair; NQU4 complete-session volume dominance was 1.8700x on
+      2024-06-17 and 4.5152x on 2024-06-18.
+    confirmed_at: '2026-08-02T09:47:25-04:00'
+  - instrument: NQ
+    old_contract: NQU4
+    new_contract: NQZ4
+    roll_date_et: '2024-09-16'
+    effective_at_et: 2024-09-15T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: volume_confirmed
+    evidence_type: historical_trade_date_liquidity_audit
+    note: Boundary retained; NQZ4 complete-session volume dominance was 1.1786x on
+      2024-09-16 and 2.7745x on 2024-09-17.
+    confirmed_at: '2026-08-02T09:47:25-04:00'
+  - instrument: NQ
+    old_contract: NQZ4
+    new_contract: NQH5
+    roll_date_et: '2024-12-16'
+    effective_at_et: 2024-12-15T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: historical_trade_date_liquidity_audit
+    note: Boundary retained at the hard horizon; NQH5 had 1,375 minutes and 87.96%
+      of NQZ4 volume on 2024-12-16 before later strict dominance.
+    confirmed_at: '2026-08-02T09:47:25-04:00'
+  - instrument: NQ
     old_contract: NQH5
     new_contract: NQM5
     roll_date_et: '2025-03-17'

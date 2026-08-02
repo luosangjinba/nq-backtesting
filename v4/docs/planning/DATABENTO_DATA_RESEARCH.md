@@ -427,9 +427,15 @@ legacy windows. Binding method and evidence are in
 `v7/docs/V7_NQ_PRE_2025_CONTINUOUS_ROLL_PRESCREEN.md`.
 
 The first raw follow-up audited `2023 Q3/Q4` and `2024 Q1–Q4`. Four boundaries
-need a later guarded repair and two are retained. The exact four intervals
+required a guarded repair and two were retained. The exact four intervals
 contain 14,321 current rows and 14,517 raw replacement rows, for 196 restored
-timestamps. The decision, fingerprints, hard-horizon handling, and required
-generic manifest gate are recorded in
-`v7/docs/V7_NQ_2023Q3_2024_RAW_ROLL_AUDIT.md`. No database or calendar write
-was performed.
+timestamps. The decision, fingerprints, hard-horizon handling, and generic
+manifest gate are recorded in
+`v7/docs/V7_NQ_2023Q3_2024_RAW_ROLL_AUDIT.md`.
+
+The manifest workflow was executed through the V4 Maintenance API on
+2026-08-02 after a fresh Databento download reproduced all reviewed
+fingerprints. It restored the 196 timestamps, finished with 6,158,777 NQ rows
+and zero NQ duplicates, and retained a full database backup, calendar backup,
+Preview manifest, and append-only audit. Ordinary acquisition remains
+insert-only.

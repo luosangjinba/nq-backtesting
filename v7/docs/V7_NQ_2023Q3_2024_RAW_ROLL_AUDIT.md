@@ -1,6 +1,6 @@
 # V7 NQ 2023 Q3–2024 Raw-Contract Roll Audit
 
-Status: read-only raw audit complete; historical repair not executed
+Status: raw audit complete; manifest-driven historical repair executed and verified
 
 Audit date: 2026-08-02
 
@@ -11,7 +11,7 @@ five recent amber prescreen windows. A sixth green window, 2023 Q4, was added
 because it is required to keep the governed quarterly chain contiguous between
 `NQZ3` and `NQH4`.
 
-Four boundaries require a later guarded historical repair:
+Four boundaries were repaired through the guarded manifest workflow:
 
 - 2023 Q3 and Q4 switched late in the legacy continuous CSV;
 - 2024 Q1 switched late;
@@ -23,7 +23,8 @@ Two boundaries should be retained:
 - 2024 Q4 already matches the expiry-week hard-horizon boundary and requires
   manual confirmation because strict two-session dominance occurs later.
 
-No DuckDB row or roll-calendar row was changed.
+The audit phase itself was read-only. The reviewed follow-up repair was
+executed on 2026-08-02 through the V4 Maintenance API.
 
 ## Boundary Evidence
 
@@ -45,7 +46,7 @@ For 2024 Q4, trade date 2024-12-16 is complete and available: `NQH5` has
 hard horizon but not automatic dominance, so the retained boundary must remain
 `manual_confirmed`, not `volume_confirmed`.
 
-## Exact Proposed Data Scope
+## Exact Executed Data Scope
 
 The current CSV and DuckDB counts are identical in every interval. The exact
 replacement slices were downloaded read-only from the indicated raw contract,
@@ -61,9 +62,10 @@ OHLC bounds, half-open bounds, and fingerprint.
 | **Total** |  |  | **14,321** | **14,517** | **+196** |  |
 
 The four audit downloads contained zero duplicate timestamps and zero invalid
-OHLC rows. The normalized frames were not retained because this was a read-only
-decision step. A later Preview must re-download them, require all conditions to
-remain `available`, reproduce these fingerprints exactly, or stop.
+OHLC rows. The audit-phase normalized frames were not reused. The executed
+Preview re-downloaded all four slices, required every condition to remain
+`available`, reproduced all four fingerprints exactly, and retained the
+resulting CSVs and hashes outside the authoritative database.
 
 ## Prescreen Limitation Confirmed
 
@@ -77,10 +79,10 @@ late. Therefore:
 - every boundary entering the governed roll calendar still requires raw
   bilateral evidence.
 
-## Required Repair Gate
+## Executed Repair Gate
 
-Do not add more hard-coded years to the NQ 2025 one-off repair service. The next
-step must establish a generic manifest-driven historical repair boundary that:
+A generic manifest-driven boundary was added without extending or changing the
+accepted NQ 2025 one-off service. The executed workflow:
 
 1. accepts only reviewed transition and interval specifications;
 2. stages raw replacement CSVs plus condition evidence and hashes;
@@ -89,9 +91,35 @@ step must establish a generic manifest-driven historical repair boundary that:
 4. takes a verified full DuckDB backup and calendar backup;
 5. transactionally replaces only the four listed intervals;
 6. writes all six reviewed calendar transitions while retaining 2024 Q3/Q4;
-7. verifies 14,517 replacement rows, 196 restored timestamps, zero NQ
+7. verified 14,517 replacement rows, 196 restored timestamps, zero NQ
    duplicates, API reads, and representative Replay reads;
-8. retains a complete audit manifest and rollback path.
+8. retained a complete audit manifest and rollback path.
 
-Until that gate exists and is explicitly executed, the current database and
-calendar remain unchanged.
+The exact confirmation was `REPAIR NQ 2023Q3-2024`. Preview, Commit, and Verify
+were all invoked through the V4 Maintenance API; the ordinary acquisition path
+remains insert-only.
+
+## Execution Evidence
+
+- manifest plan revision:
+  `fba501647229df13eababd35f3ccda785cd2625f29a415c29697854665759f72`;
+- previous database baseline: 12,650,824 total rows and 6,158,581 NQ rows;
+- final database: 12,651,020 total rows and 6,158,777 NQ rows;
+- final interval rows: 4,499 / 4,498 / 4,500 / 1,020;
+- final interval fingerprints: exact matches to the four reviewed values above;
+- duplicate NQ timestamps: 0;
+- final calendar revision:
+  `adf9ae6191a313c50517646b32b88088bccb708bc240e3d6c346ef1581c71250`;
+- full pre-write DuckDB backup:
+  `/home/leo/.local/share/replay-lab/historical-roll-repair/backups/market-data/trading_data.prewrite.20260802_134801_834602Z.duckdb`;
+- pre-write calendar backup:
+  `/home/leo/.local/share/replay-lab/historical-roll-repair/backups/calendar/futures_roll_calendar.nq-2023q3-2024.20260802T094802-0400.yml`;
+- retained Preview manifest:
+  `/home/leo/.local/share/replay-lab/historical-roll-repair/previews/manifest-roll-nq-2023q3-2024-wQD6_J0lrb6SQJSgvtucIkrZ/manifest.json`;
+- append-only repair audit:
+  `/home/leo/.local/share/replay-lab/historical-roll-repair/manifest_historical_roll_repair_audit.jsonl`.
+
+Independent post-commit checks re-opened both the authoritative database and
+the full backup, ran the manifest verifier again, and read all four repaired
+windows from `/v4/bars`. Representative `/v4/projected_history` reads returned
+115 `1h` ETH bars across 2023 Q3 and 26 `4h` ETH bars across 2024 Q2.

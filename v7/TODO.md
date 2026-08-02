@@ -114,7 +114,7 @@ Binding decision/evidence:
 Binding audit/evidence:
 `docs/V7_NQ_2025_ROLL_LIQUIDITY_AUDIT.md`.
 
-### Data Integrity Follow-up — NQ Pre-2025 Roll Prescreen Complete
+### Data Integrity Follow-up — NQ Recent Pre-2025 Roll Repair Complete
 
 - [x] prove the original continuous CSV volume was retained exactly in DuckDB
   outside the approved 2025 repair intervals;
@@ -130,7 +130,7 @@ Binding audit/evidence:
   quarterly calendar chain, proving green is not boundary certification;
 - [x] bound four proposed repair intervals to 14,321 current rows replaced by
   14,517 raw rows, restoring 196 minute timestamps;
-- [ ] implement a generic manifest-driven historical repair path and execute
+- [x] implement a generic manifest-driven historical repair path and execute
   the four reviewed intervals only after a fresh fingerprint-matching Preview;
 - [ ] review the eight red legacy windows after the recent batch, accounting
   for old session schedules and market-event confounders before any repair.

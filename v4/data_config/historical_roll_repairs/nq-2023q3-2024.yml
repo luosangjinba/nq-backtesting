@@ -1,0 +1,99 @@
+version: 1
+plan_id: nq-2023q3-2024
+dataset: GLBX.MDP3
+schema: ohlcv-1m
+instrument: NQ
+expected_confirmation: REPAIR NQ 2023Q3-2024
+audit_document: v7/docs/V7_NQ_2023Q3_2024_RAW_ROLL_AUDIT.md
+expected_totals:
+  current_rows: 14321
+  replacement_rows: 14517
+  net_restored_minutes: 196
+repairs:
+  - repair_id: 2023-09-u3-z3
+    transition: NQU3->NQZ3
+    source_contract: NQZ3
+    start_et: 2023-09-10T18:00:00
+    end_et: 2023-09-14T00:00:00
+    expected_current_rows: 4398
+    expected_replacement_rows: 4499
+    expected_replacement_fingerprint: ed7ae26484cb6d6f018ad758be0447c16de6b124cbe2fd57a242d6d70e09bdeb
+  - repair_id: 2023-12-z3-h4
+    transition: NQZ3->NQH4
+    source_contract: NQH4
+    start_et: 2023-12-10T18:00:00
+    end_et: 2023-12-14T00:00:00
+    expected_current_rows: 4478
+    expected_replacement_rows: 4498
+    expected_replacement_fingerprint: d210aeb1374ddf4b12de765bfc06b48034d3bc23b3cbe0474bbdb95808e01cf9
+  - repair_id: 2024-03-h4-m4
+    transition: NQH4->NQM4
+    source_contract: NQM4
+    start_et: 2024-03-10T18:00:00
+    end_et: 2024-03-14T00:00:00
+    expected_current_rows: 4429
+    expected_replacement_rows: 4500
+    expected_replacement_fingerprint: 1cd4f5e204e0571383785efa7dc47d0f6c3f0d2780f853441ed7f3ab1b91b5c9
+  - repair_id: 2024-06-m4-u4
+    transition: NQM4->NQU4
+    source_contract: NQM4
+    start_et: 2024-06-14T00:00:00
+    end_et: 2024-06-16T18:00:00
+    expected_current_rows: 1016
+    expected_replacement_rows: 1020
+    expected_replacement_fingerprint: f9e7a8eceb926658cc48177e038bd52b08c2ce31c78ac1d355e08ee740a7765c
+calendar_events:
+  - instrument: NQ
+    old_contract: NQU3
+    new_contract: NQZ3
+    roll_date_et: 2023-09-11
+    effective_at_et: 2023-09-10T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: volume_confirmed
+    evidence_type: historical_trade_date_liquidity_repair
+    note: Historical repair; NQZ3 complete-session volume dominance was 1.7790x on 2023-09-11 and 3.5389x on 2023-09-12.
+  - instrument: NQ
+    old_contract: NQZ3
+    new_contract: NQH4
+    roll_date_et: 2023-12-11
+    effective_at_et: 2023-12-10T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: volume_confirmed
+    evidence_type: historical_trade_date_liquidity_repair
+    note: Historical repair; NQH4 complete-session volume dominance was 1.6427x on 2023-12-11 and 3.5201x on 2023-12-12.
+  - instrument: NQ
+    old_contract: NQH4
+    new_contract: NQM4
+    roll_date_et: 2024-03-11
+    effective_at_et: 2024-03-10T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: volume_confirmed
+    evidence_type: historical_trade_date_liquidity_repair
+    note: Historical repair; NQM4 complete-session volume dominance was 1.8169x on 2024-03-11 and 3.5825x on 2024-03-12.
+  - instrument: NQ
+    old_contract: NQM4
+    new_contract: NQU4
+    roll_date_et: 2024-06-17
+    effective_at_et: 2024-06-16T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: volume_confirmed
+    evidence_type: historical_trade_date_liquidity_repair
+    note: Historical repair; NQU4 complete-session volume dominance was 1.8700x on 2024-06-17 and 4.5152x on 2024-06-18.
+  - instrument: NQ
+    old_contract: NQU4
+    new_contract: NQZ4
+    roll_date_et: 2024-09-16
+    effective_at_et: 2024-09-15T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: volume_confirmed
+    evidence_type: historical_trade_date_liquidity_audit
+    note: Boundary retained; NQZ4 complete-session volume dominance was 1.1786x on 2024-09-16 and 2.7745x on 2024-09-17.
+  - instrument: NQ
+    old_contract: NQZ4
+    new_contract: NQH5
+    roll_date_et: 2024-12-16
+    effective_at_et: 2024-12-15T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: historical_trade_date_liquidity_audit
+    note: Boundary retained at the hard horizon; NQH5 had 1,375 minutes and 87.96% of NQZ4 volume on 2024-12-16 before later strict dominance.

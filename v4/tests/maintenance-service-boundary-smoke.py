@@ -12,6 +12,8 @@ api_source = (V4_ROOT / "v4_api.py").read_text(encoding="utf-8")
 maintenance_source = (V4_ROOT / "server" / "maintenance_service.py").read_text(encoding="utf-8")
 local_env_source = (V4_ROOT / "server" / "local_env_service.py").read_text(encoding="utf-8")
 roll_maintenance_source = (V4_ROOT / "server" / "roll_maintenance_service.py").read_text(encoding="utf-8")
+manifest_repair_source = (V4_ROOT / "server" / "manifest_historical_roll_repair_service.py").read_text(encoding="utf-8")
+manifest_plan_source = (V4_ROOT / "server" / "historical_roll_repair_plan.py").read_text(encoding="utf-8")
 
 for expected in [
     "from server import local_env_service",
@@ -29,6 +31,12 @@ for expected in [
     '"historical_roll_repair_verify"',
     '"v4/scripts/repair_nq_2025_rolls.py"',
     '"REPAIR NQ 2025"',
+    '"manifest_roll_repair_preview"',
+    '"manifest_roll_repair_write"',
+    '"manifest_roll_repair_verify"',
+    '"v4/scripts/repair_historical_roll_manifest.py"',
+    "manifest_roll_repair_registry.resolve_plan",
+    "manifest_roll_repair_registry.expected_confirmation",
 ]:
     assert expected in api_source, f"v4_api.py should delegate maintenance behavior via {expected}"
 
@@ -63,6 +71,21 @@ for expected in [
     '"--min-session-minutes", "1200"',
 ]:
     assert expected in roll_maintenance_source, f"roll_maintenance_service.py should own {expected}"
+
+for expected in [
+    "from .historical_roll_repair_plan import RepairPlan, RepairSpec, load_plan",
+    "def create_preview",
+    "def commit_preview",
+    "def verify_repair",
+]:
+    assert expected in manifest_repair_source, f"manifest repair runtime should own {expected}"
+
+for expected in [
+    "class RepairSpec",
+    "class RepairPlan",
+    "def load_plan",
+]:
+    assert expected in manifest_plan_source, f"manifest repair plan domain should own {expected}"
 
 for expected in [
     "LOCAL_ENV_VARIABLES =",

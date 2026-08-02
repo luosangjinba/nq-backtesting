@@ -125,6 +125,12 @@ The result also proves that green is only a risk-defer signal: 2023 Q4 was
 green because its eventual seam was liquid, but raw old/new volume showed the
 seam was late. Green cannot become governed calendar evidence.
 
+The four reviewed intervals were subsequently executed through the generic
+manifest-driven V4 Maintenance API path after a fresh fingerprint-matching
+Preview. The repair restored 196 minute timestamps and finished with 6,158,777
+NQ rows and zero duplicate NQ timestamps. The binding execution evidence is in
+`V7_NQ_2023Q3_2024_RAW_ROLL_AUDIT.md`.
+
 Remaining raw review priority:
 
 1. the eight red legacy windows;
