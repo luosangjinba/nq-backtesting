@@ -72,6 +72,23 @@ remains, while R9.3 below supersedes its performance mechanism and human gate.
 
 Binding evidence: `docs/V7_REPLAY_VIEWPORT_SEGMENTED_MULTI_PANE_R9_3.md`.
 
+### Deferred Candidate — General Futures Plugin Platform
+
+- [x] preserve the proposed general-futures positioning, first-party pack
+  model, Indicator/Visual/Setup boundaries, declarative Chart contribution,
+  permissions, performance controls, SDK requirements, and unresolved
+  decisions in a non-binding pre-decision memo;
+- [ ] retain the current binding SMC/ICT scope and activate no plugin runtime,
+  loader, SDK, product-scope change, or delivery step until every
+  then-applicable human-review obligation is explicitly accepted or governed
+  as retired/superseded;
+- [ ] after that gate, decide the product scope, prototype four representative
+  first-party plugins, bind the security/transaction/performance contracts, and
+  reconcile sequencing with the seconds/tick candidate before implementation.
+
+Deferred memo:
+`docs/V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md`.
+
 ### Deferred Candidate — Second-Level Replay And Tick-Sourced Data
 
 - [x] preserve the product motivation, candidate data/API boundary,
