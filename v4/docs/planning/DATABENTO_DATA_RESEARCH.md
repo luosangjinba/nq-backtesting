@@ -386,3 +386,21 @@ DATABENTO_API_KEY=... python3 v4/scripts/daily_databento_refresh.py --write --co
 ```
 
 Next work should move to Journal MVP scope and data model. NQ roll repair and refresh automation should be separate tasks.
+
+## 2026-08-02 NQ 2025 Liquidity Re-audit
+
+The earlier conclusion that the local DB remains authoritative is superseded
+for the four 2025 NQ rollover windows. A read-only Databento raw-contract audit
+proved that the March and June legacy midnight boundaries select the new
+contract while it has only 8.74% and 11.31% of old-contract volume, producing
+missing 1m bars that remain visible in Replay.
+
+Direct Databento `NQ.v.0` is not adopted verbatim because its mappings change
+at `00:00 UTC`, splitting the CME session. The retained direction is raw
+quarterly contracts plus the V7 R7.3c two-complete-session volume rule and an
+explicit `18:00` New York effective boundary.
+
+The full evidence, four recommended boundaries, and exact protected historical
+repair intervals are recorded in
+`v7/docs/V7_NQ_2025_ROLL_LIQUIDITY_AUDIT.md`. No database or calendar write was
+performed by the audit.
