@@ -4,6 +4,13 @@ Status: raw audit complete; manifest-driven historical repair executed and verif
 
 Audit date: 2026-08-02
 
+Later policy note: the read-only legacy-red audit recommends using the free
+Databento `NQ.v.0` mapping date as authority while normalizing that trade date
+to the full `18:00 ET` session open. If adopted, it requires a full contiguous
+calendar diff and may supersede some dates recorded here. This document
+remains the binding execution record of the completed repair; see
+`V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md` before another write.
+
 ## Outcome
 
 Databento `GLBX.MDP3` raw old/new `ohlcv-1m` evidence was collected for the

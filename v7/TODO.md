@@ -132,14 +132,25 @@ Binding audit/evidence:
   14,517 raw rows, restoring 196 minute timestamps;
 - [x] implement a generic manifest-driven historical repair path and execute
   the four reviewed intervals only after a fresh fingerprint-matching Preview;
-- [ ] review the eight red legacy windows after the recent batch, accounting
-  for old session schedules and market-event confounders before any repair.
+- [x] review the eight red legacy windows against the free Databento `NQ.v.0`
+  mapping plus raw bilateral minutes, without treating modern minute counts as
+  a universal historical completeness threshold;
+- [x] normalize each Databento effective trade date to its preceding
+  `18:00 ET` CME session open and bound eight candidate mismatch slices to
+  10,568 current rows versus 14,468 replacement rows;
+- [ ] before any legacy write, generate a free full-history mapped-date/local-
+  seam/current-calendar diff and decide whether the Databento-date rule
+  supersedes the existing historical two-session rule across one contiguous
+  governed chain.
 
 Binding prescreen/evidence:
 `docs/V7_NQ_PRE_2025_CONTINUOUS_ROLL_PRESCREEN.md`.
 
 Binding recent raw audit:
 `docs/V7_NQ_2023Q3_2024_RAW_ROLL_AUDIT.md`.
+
+Binding legacy red audit:
+`docs/V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`.
 
 ### Deferred Candidate — General Futures Plugin Platform
 

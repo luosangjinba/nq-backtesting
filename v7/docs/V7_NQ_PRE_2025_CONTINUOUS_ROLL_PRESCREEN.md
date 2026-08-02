@@ -1,6 +1,6 @@
 # V7 NQ Pre-2025 Continuous Roll Risk Prescreen
 
-Status: read-only prescreen complete; first recent raw-contract batch complete
+Status: read-only prescreen and both priority raw-contract batches complete
 
 Scan date: 2026-08-02
 
@@ -131,11 +131,20 @@ Preview. The repair restored 196 minute timestamps and finished with 6,158,777
 NQ rows and zero duplicate NQ timestamps. The binding execution evidence is in
 `V7_NQ_2023Q3_2024_RAW_ROLL_AUDIT.md`.
 
-Remaining raw review priority:
+The eight red legacy windows were subsequently audited against the free
+Databento `NQ.v.0` volume mapping plus raw old/new minute bars. Session-aligning
+each mapped `d0` trade date to the prior natural date at `18:00 ET` makes all
+eight boundaries differ from the local series: seven move earlier and 2020 Q1
+moves later. Their candidate slices contain 10,568 current rows and 14,468 raw
+replacement rows, a net increase of 3,900 timestamps. No write was performed.
+See `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`.
 
-1. the eight red legacy windows;
-2. the other deferred windows only when full historical certification is
-   required or a calendar-chain dependency reaches them.
+Remaining raw review priority is no longer chosen by red/amber color alone.
+The next read-only gate is a free full-history `NQ.v.0` mapping diff, because
+the proposed Databento-date authority must be applied consistently across a
+contiguous calendar and compared with already repaired 2023–2025 boundaries.
+Paid minute data is then required only for mismatched repair slices and focused
+bilateral validation.
 
 Any later repair still requires dataset-condition evidence, an accepted
 session-aligned boundary, retained source hashes, backup, exact confirmation,

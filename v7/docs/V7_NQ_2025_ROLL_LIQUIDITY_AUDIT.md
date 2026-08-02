@@ -4,6 +4,14 @@ Status: audit complete; guarded historical repair executed and verified
 
 Audit date: 2026-08-02
 
+Later policy note: the read-only legacy-red audit recommends using the free
+Databento `NQ.v.0` mapping date as authority while normalizing that date to the
+full `18:00 ET` session open. That is not direct continuous-OHLCV import. If
+adopted, it requires one full-chain diff and may supersede the two-session
+historical dates recorded here. This document remains the binding record of
+the already executed 2025 repair; see
+`V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md` before proposing another write.
+
 ## Outcome
 
 The accepted 2025 NQ legacy roll boundaries are not suitable authorities for

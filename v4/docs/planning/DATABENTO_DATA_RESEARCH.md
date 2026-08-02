@@ -439,3 +439,40 @@ fingerprints. It restored the 196 timestamps, finished with 6,158,777 NQ rows
 and zero NQ duplicates, and retained a full database backup, calendar backup,
 Preview manifest, and append-only audit. Ordinary acquisition remains
 insert-only.
+
+## 2026-08-02 Legacy Red Mapping Audit And Economic Revision
+
+The eight red windows from the pre-2025 prescreen were reviewed read-only.
+The review distinguishes direct continuous-bar import from free continuous
+date mapping:
+
+- direct `NQ.v.0` OHLCV remains unsuitable because its native timestamp
+  boundary can split a CME session;
+- `symbology.resolve` is free and can return the complete `NQ.v.0` historical
+  instrument mapping in one request;
+- each returned mapping start `d0` is treated locally as an effective trade
+  date and normalized to `session_open_for_trade_date(d0)`, the preceding
+  natural date at `18:00 ET`;
+- raw quarterly contracts remain the only candidate bar source.
+
+This is more economical than expanding every local seam by several paid days
+to discover Databento's roll. Paid old/new minute data is needed only for
+focused relative-coverage validation and the exact mismatch slice.
+
+All eight mappings resolved to the expected new contract and every reviewed
+dataset date was `available`. Seven legacy boundaries move earlier and 2020 Q1
+moves 48 hours later. Candidate raw slices contain 14,468 rows versus 10,568
+current rows, a net increase of 3,900 timestamps, with zero raw duplicate
+symbol timestamps and zero invalid replacement OHLC rows.
+
+Historical sparse minutes are not judged against the modern 1,200/1,380-minute
+threshold. The selected contract is compared with its alternate on the same
+historical trade date; bilateral market-event sparsity is retained as context.
+
+Binding evidence:
+`v7/docs/V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`.
+
+No repair was executed. Before any later write, generate a free full-history
+mapped-date/local-seam/current-calendar diff and decide whether this proposed
+date authority supersedes the prior historical two-session rule across one
+contiguous governed chain, including already repaired 2023–2025 dates.

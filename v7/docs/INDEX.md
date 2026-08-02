@@ -28,6 +28,9 @@ implementation reading order below. The deferred
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and
 `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` record possible next
 product directions but authorize no work before current human-review closure.
+The current NQ historical-roll continuation is recorded in
+`V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`; it is a read-only data-integrity
+decision gate and grants no market-data write authority.
 
 Read in this order before V7 implementation work:
 
