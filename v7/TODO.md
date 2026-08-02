@@ -124,13 +124,22 @@ Binding audit/evidence:
   September amber outcomes;
 - [x] scan all 68 complete 2008–2024 quarterly windows: 8 red, 33 amber, and
   27 green;
-- [ ] obtain Databento raw old/new evidence for the five recent amber windows
+- [x] obtain Databento raw old/new evidence for the five recent amber windows
   (`2023 Q3`, `2024 Q1–Q4`);
+- [x] add the adjacent green `2023 Q4` raw review required to preserve the
+  quarterly calendar chain, proving green is not boundary certification;
+- [x] bound four proposed repair intervals to 14,321 current rows replaced by
+  14,517 raw rows, restoring 196 minute timestamps;
+- [ ] implement a generic manifest-driven historical repair path and execute
+  the four reviewed intervals only after a fresh fingerprint-matching Preview;
 - [ ] review the eight red legacy windows after the recent batch, accounting
   for old session schedules and market-event confounders before any repair.
 
 Binding prescreen/evidence:
 `docs/V7_NQ_PRE_2025_CONTINUOUS_ROLL_PRESCREEN.md`.
+
+Binding recent raw audit:
+`docs/V7_NQ_2023Q3_2024_RAW_ROLL_AUDIT.md`.
 
 ### Deferred Candidate — General Futures Plugin Platform
 

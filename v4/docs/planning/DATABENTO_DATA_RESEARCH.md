@@ -425,3 +425,11 @@ Across 68 complete 2008–2024 quarterly windows it reports 8 red, 33 amber, and
 recent amber windows (`2023 Q3`, `2024 Q1–Q4`), followed by the eight red
 legacy windows. Binding method and evidence are in
 `v7/docs/V7_NQ_PRE_2025_CONTINUOUS_ROLL_PRESCREEN.md`.
+
+The first raw follow-up audited `2023 Q3/Q4` and `2024 Q1–Q4`. Four boundaries
+need a later guarded repair and two are retained. The exact four intervals
+contain 14,321 current rows and 14,517 raw replacement rows, for 196 restored
+timestamps. The decision, fingerprints, hard-horizon handling, and required
+generic manifest gate are recorded in
+`v7/docs/V7_NQ_2023Q3_2024_RAW_ROLL_AUDIT.md`. No database or calendar write
+was performed.

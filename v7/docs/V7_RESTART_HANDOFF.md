@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-02 by the NQ pre-2025 continuous roll prescreen
+Last updated: 2026-08-02 by the NQ 2023 Q3–2024 raw roll audit
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -36,8 +36,8 @@ required for normal startup.
 - R9.4 aggregated bucket time labels are commit `d256369d`;
 - the read-only NQ 2025 roll audit is commit `51c01700`;
 - the guarded NQ 2025 historical roll repair is commit `c738f670`;
-- the read-only NQ pre-2025 continuous roll prescreen is the current handoff
-  step;
+- the read-only NQ pre-2025 continuous roll prescreen is commit `6798fc09`;
+- the NQ 2023 Q3–2024 raw roll audit is the current handoff step;
 - the NQ 2025 roll audit rejects the legacy boundaries as historical authority,
   retains raw Databento contracts plus the R7.3c session-aligned volume policy,
   and the separate guarded repair has replaced 2,262 rows with 2,400 source
@@ -45,6 +45,9 @@ required for normal startup.
 - the original NQ continuous CSV retained volume exactly outside those repair
   intervals; the 68-window 2008–2024 prescreen reports 8 red, 33 amber, and 27
   green windows and grants no historical write authority;
+- raw old/new evidence for 2023 Q3/Q4 and 2024 Q1–Q4 retains two boundaries and
+  bounds four future repair intervals to 14,321 current rows replaced by 14,517
+  source rows, restoring 196 timestamps; no write has occurred;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10

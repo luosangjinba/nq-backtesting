@@ -1,6 +1,6 @@
 # V7 NQ Pre-2025 Continuous Roll Risk Prescreen
 
-Status: read-only prescreen complete; no raw-contract decision and no write
+Status: read-only prescreen complete; first recent raw-contract batch complete
 
 Scan date: 2026-08-02
 
@@ -115,10 +115,21 @@ The CLI also supports `--format json`. Both modes are read-only.
 
 ## Next Gate
 
-Download raw old/new Databento `ohlcv-1m` only for:
+The five recent amber windows were audited with raw old/new Databento
+`ohlcv-1m`. The adjacent green 2023 Q4 window was also audited to preserve the
+quarterly chain. Raw evidence found four changed boundaries (`2023 Q3/Q4`,
+`2024 Q1/Q2`) and two retained boundaries (`2024 Q3/Q4`). See
+`V7_NQ_2023Q3_2024_RAW_ROLL_AUDIT.md`.
 
-1. the five recent amber windows (`2023 Q3`, `2024 Q1–Q4`);
-2. the eight red legacy windows after the recent batch is understood.
+The result also proves that green is only a risk-defer signal: 2023 Q4 was
+green because its eventual seam was liquid, but raw old/new volume showed the
+seam was late. Green cannot become governed calendar evidence.
+
+Remaining raw review priority:
+
+1. the eight red legacy windows;
+2. the other deferred windows only when full historical certification is
+   required or a calendar-chain dependency reaches them.
 
 Any later repair still requires dataset-condition evidence, an accepted
 session-aligned boundary, retained source hashes, backup, exact confirmation,
