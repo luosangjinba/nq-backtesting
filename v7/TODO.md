@@ -76,17 +76,22 @@ Binding evidence: `docs/V7_REPLAY_VIEWPORT_SEGMENTED_MULTI_PANE_R9_3.md`.
 
 - [x] preserve the proposed general-futures positioning, first-party pack
   model, calculated Indicator/manual semantic annotation/suggestion/Setup
-  Workflow boundaries, `human`/`suggested`/`computed` provenance, declarative
-  Chart contribution, permissions, performance controls, SDK requirements,
-  and unresolved decisions in a non-binding pre-decision memo;
+  Workflow boundaries, governed AI Harness, `human`/`suggested`/`computed`
+  provenance, declarative Chart contribution, common-package local/Marketplace
+  installation, commercialization hypothesis, permissions, performance
+  controls, SDK requirements, and unresolved decisions in a non-binding
+  pre-decision memo;
 - [ ] retain the current binding SMC/ICT scope and activate no plugin runtime,
-  loader, SDK, product-scope change, or delivery step until every
+  loader, SDK, AI provider, remote evidence transmission, registry,
+  Marketplace, payment, product-scope change, or delivery step until every
   then-applicable human-review obligation is explicitly accepted or governed
   as retired/superseded;
 - [ ] after that gate, decide the product scope, prototype MA, MACD native
   sub-pane, one manual semantic annotation, and one annotation-referencing
-  Setup Workflow, bind the security/transaction/performance contracts, and
-  reconcile sequencing with the seconds/tick candidate before implementation.
+  Setup Workflow; separately prove a frozen-evidence AI boundary and common
+  local/test-registry package; bind security/transaction/performance/privacy/
+  distribution contracts; and reconcile sequencing with the seconds/tick
+  candidate before implementation or any paid-Marketplace decision.
 
 Deferred memo:
 `docs/V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md`.

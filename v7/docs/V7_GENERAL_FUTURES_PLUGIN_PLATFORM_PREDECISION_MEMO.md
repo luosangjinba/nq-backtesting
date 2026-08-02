@@ -54,8 +54,10 @@ model, but the work is larger than exposing Lightweight Charts plugin APIs.
 | native indicator sub-panes | high | lifecycle, sizing, Settings, and performance budgets |
 | human-authored semantic annotations | high | interaction, editable meaning, persistence, chronology, and provenance |
 | detector/suggestion plugins | medium-high | no-future proof, source distinction, and human acceptance |
+| AI-assisted analysis harness | medium | evidence filtering, nondeterminism, privacy, cost, and attribution |
 | Setup workflow/Case plugins | medium-high | event chronology, reference integrity, Journal ownership, and migration |
 | editable drawing tools | medium | interaction ownership, persistence, undo, and cross-pane sync |
+| marketplace and local dual installation | medium-high | signing, compatibility, permissions, updates, licensing, and operations |
 | arbitrary third-party JavaScript | medium-low initially | sandboxing, permissions, supply chain, and resource control |
 | order-flow/footprint plugins | deferred | tick/quote/depth data and specialized rendering |
 | automated strategy/execution plugins | separate decision | orders, fills, risk, capital, and deterministic execution |
@@ -109,10 +111,12 @@ no:
 - indicator evaluator/runtime;
 - manual semantic-annotation contract, command owner, or durable store;
 - detector/suggestion contract;
+- AI evidence-bundle, provider-harness, or AI-suggestion contract;
 - Setup workflow definition, Setup Case, or evidence-reference contract;
 - declarative visual-result schema;
 - Chart contribution manager;
 - plugin package loader or discovery service;
+- local package installer, signed registry, marketplace, or entitlement owner;
 - third-party execution sandbox;
 - plugin-scoped persistence/migration owner;
 - developer SDK, scaffold, or conformance kit.
@@ -238,6 +242,48 @@ of the trader's own recognition skill. A computed Setup detector is one
 possible sub-kind; it produces a suggested or computed occurrence, never an
 order or a validated human Setup Case.
 
+### AI-Assisted Analysis Capability
+
+An AI analysis plugin should declare an analysis rubric, eligible evidence
+types, prompt-template version, output schema, and resource requirements. It
+must not embed provider credentials, select arbitrary private owner state, or
+send data directly over the network. A host-owned AI Harness chooses an
+approved local or remote provider and mediates credentials, future filtering,
+context size, cancellation, latency, cost, privacy, and provider retention
+policy.
+
+The candidate flow is:
+
+```text
+accepted no-future evidence references
+              |
+              v
+     host-built AI Evidence Bundle
+              |
+              v
+ AI Harness -> local or opt-in remote provider
+              |
+              v
+       AI Analysis Suggestion
+              |
+       explicit human review
+              |
+              v
+host annotation / Setup Case command
+```
+
+Useful future roles include checking whether a Setup lacks required evidence,
+summarizing entry-to-exit chronology, comparing plan with execution, finding
+recurring review patterns, proposing annotations, and generating personalized
+review questions.
+
+AI output is nondeterministic advisory evidence. It uses `suggested` source
+with an explicit `generatorKind: ai`, never `human` or deterministic
+`computed`. It cannot mutate Annotation, Journal, Setup Case, Validation, or
+Replay state; count as direct human recognition; mark a Case validated; or
+place an order. AI work is asynchronous, cancellable, and excluded from the
+Replay visible-commit critical path.
+
 ### Setup Workflow Plugin
 
 Defines the schema and stages for recording one complete discretionary trade
@@ -330,6 +376,21 @@ plugin/version, parameter, no-future, market-anchor, and Replay provenance. It
 may be rendered as a candidate but is not a human annotation and cannot be
 included in recognition-skill evidence as though the user created it.
 
+### `AIEvidenceBundle` And `AIAnalysisSuggestion`
+
+`AIEvidenceBundle` is assembled by the host from stable evidence references
+that are eligible at one exclusive Replay cutoff. It contains no hidden future
+bars and grants no owner or storage capability. Remote transmission requires
+an explicit network/provider permission and a user-visible statement of the
+data classes leaving the machine.
+
+`AIAnalysisSuggestion` records at least the requesting plugin/version,
+provider, model identity/version when available, prompt-template version,
+input-evidence hash, Replay cutoff, output-schema version, creation time,
+latency, estimated/measured cost, and stale/cancelled state. Accepting one
+creates a separately revisioned host-owned artifact with a provenance link; it
+does not rewrite the AI output into direct human authorship.
+
 ### `SemanticAnnotation`
 
 A durable host-owned user artifact, not a calculated series point. Candidate
@@ -407,6 +468,12 @@ One candidate transaction policy is:
 Third-party analysis must not block Replay indefinitely, but stale plugin
 graphics must not remain beside newer candles and appear authoritative.
 
+AI analysis never participates in the atomic Replay transaction. The host may
+launch it only from an already accepted evidence bundle. Cursor, Session,
+dataset, plugin, prompt, provider, or evidence staleness cancels or rejects its
+result; a late completion may remain in an explicit historical request log but
+cannot attach itself to the current chart or Case.
+
 Manual semantic annotations and Setup Cases do not share that calculation
 lifecycle. They are durable user artifacts changed only through revision-
 checked host commands. Rendering is a projection of their accepted revisions;
@@ -474,17 +541,17 @@ The candidate platform should distinguish:
 4. **Sandboxed formula plugins** — future restricted DSL, WASM, QuickJS, or
    equivalent runtime after an explicit threat-model decision.
 
-Network, filesystem, cross-instrument data, persistence, background work, and
-native rendering must be separately declared permissions. Web Worker improves
-main-thread and DOM isolation but is not by itself a complete untrusted-code
-sandbox.
+Network, filesystem, cross-instrument data, persistence, background work,
+remote AI provider/data classes, and native rendering must be separately
+declared permissions. Web Worker improves main-thread and DOM isolation but is
+not by itself a complete untrusted-code sandbox.
 
 ## Lifecycle, Persistence, And Developer Experience
 
 Each plugin instance needs explicit discovery, negotiation, activation,
 evaluation, suspension, disposal, and uninstall behavior. It must release
-workers, event subscriptions, derived caches, Chart contributions, and
-temporary state on every path.
+workers, AI requests, event subscriptions, derived caches, Chart contributions,
+and temporary state on every path.
 
 Plugin settings require module-scoped persistence namespaces with independent
 schemas and migrations. Host-owned annotations, relationships, and Setup Cases
@@ -509,6 +576,100 @@ The Lightweight Charts `create-lwc-plugin` scaffold may help first-party native
 renderer development, but it must not become the V7 community API because that
 would expose vendor-specific ownership and couple packages to the Chart engine.
 
+## Dual Installation And Distribution Candidate
+
+Marketplace and local installation should consume one package manifest,
+artifact format, compatibility resolver, permission model, conformance suite,
+installer, runtime, and uninstall lifecycle. They are distribution sources,
+not two plugin APIs.
+
+### Marketplace Installation
+
+The host resolves a versioned artifact from a registry and verifies publisher
+identity, package signature/integrity, supported host API range, declared
+permissions, review/conformance status, and any entitlement before an atomic
+install or upgrade. Candidate services include discovery, categories, ratings,
+release channels, signed updates, trial/license delivery, deprecation,
+revocation, and rollback.
+
+Marketplace signature and review improve source trust but do not make plugin
+code safe. Marketplace plugins receive exactly the same runtime permissions
+and budgets as equivalent local packages. Revocation may disable future
+execution or updates but must not erase historical annotation or Setup evidence.
+
+### Local Installation
+
+A user or developer selects the same packaged artifact from local storage. The
+host still verifies its manifest, integrity, API compatibility, permission
+request, schema/migration plan, and resource declarations. Unknown or unsigned
+publishers require a visible trust decision. Automatic updates should be off by
+default unless the package declares an approved update source.
+
+Local installation preserves offline, private, development, and enterprise
+use. It must not become a bypass around permissions, quotas, migrations, or
+owner boundaries. Free core use and local/free plugins should not require a
+marketplace account; paid marketplace entitlements may use a signed local
+receipt, offline grace period, or fallback/perpetual license rather than a
+network check on every launch.
+
+VS Code is evidence that marketplace and local packaged installation can
+coexist under one extension system. Its official documentation supports both
+Marketplace installation and local `.vsix` installation, signs Marketplace
+artifacts, and still warns that installed extensions require a publisher-trust
+decision:
+
+- <https://code.visualstudio.com/docs/configure/extensions/extension-marketplace>
+
+## Candidate Commercialization Hypothesis
+
+A marketplace can alleviate discovery, payment, licensing, update, trust, and
+developer-distribution problems. It can support paid first-party plugins and a
+commission on third-party sales, but it does not create user demand, valuable
+plugins, or a developer supply by itself. It is a commercialization amplifier,
+not the initial revenue engine.
+
+JetBrains Marketplace is current evidence for a mature mixed model. Its
+official documentation supports free/donation, freemium, paid, and externally
+paid plugins; monthly/yearly subscriptions with or without a fallback license;
+and perpetual licenses. Its published commission is currently 15 percent while
+JetBrains handles marketplace tax and distribution processes:
+
+- <https://plugins.jetbrains.com/docs/marketplace/plugin-monetization.html>
+- <https://plugins.jetbrains.com/docs/marketplace/billing-and-licensing.html>
+- <https://plugins.jetbrains.com/docs/marketplace/revenue-sharing-and-fees.html>
+
+These are feasibility references, not an adopted V7 price, commission, license,
+or account policy. Any marketplace would itself be an operating product with
+publisher identity, package review, malware response, copyright and license
+complaints, moderation, payment, tax, refund, chargeback, fraud, entitlement,
+support, reporting, and revocation obligations.
+
+The candidate revenue order is:
+
+1. keep the open-source core and useful basic first-party packs free enough to
+   establish adoption and trust;
+2. sell first-party specialized indicators and professional Setup workflows;
+3. offer opt-in AI Harness usage through subscription or metered credits after
+   privacy, provider-cost, and evidence contracts are proven;
+4. consider optional hosted sync/backup/team services without weakening
+   local-first operation;
+5. add third-party paid-plugin commission only after the SDK has stable users,
+   credible developers, and marketplace gross merchandise value.
+
+Marketplace commission alone is unlikely to fund an early small ecosystem. An
+illustrative, non-forecast scenario of 10,000 monthly active users, 5 percent
+annual buyers, USD 60 annual plugin spend, and a 15 percent take rate produces
+only USD 4,500 annual platform commission. The same 500 buyers purchasing a
+USD 60 first-party product produce USD 30,000 gross revenue before costs. AI
+subscription revenue may recur more strongly but carries inference, support,
+privacy, and provider-dependency costs.
+
+The future decision must define measurable launch thresholds rather than build
+payments merely because package installation exists. Candidate thresholds
+include active users, enabled local/free plugins, third-party publishers,
+retention, support load, first-party conversion, security-review capacity, and
+credible annual marketplace volume.
+
 ## Candidate First-Party Packs
 
 ```text
@@ -522,6 +683,7 @@ V7 Core
 |-- Setup Workflow Pack
 |   `-- thesis / entry / management / exit / review Case
 |-- Specialized Calculated Indicators
+|-- AI-Assisted Review Pack (future, governed)
 `-- Community Plugins
 ```
 
@@ -554,6 +716,15 @@ boundaries rather than maximize indicator count:
   one anchor with versioned semantic assertions.
 - Arbitrary custom control panels can bypass host Settings, persistence,
   permissions, and disposal boundaries.
+- AI providers can receive future bars, private Journal content, or identifying
+  data unless evidence construction and remote permissions fail closed.
+- Nondeterministic AI suggestions can be mistaken for human recognition or
+  objective Validation truth without immutable source and model provenance.
+- Unbounded AI context and retries can create hidden provider cost and latency.
+- A marketplace can consume the roadmap before sufficient users, developers,
+  gross merchandise value, or security-review capacity exist.
+- Signed marketplace distribution can create false confidence if runtime
+  sandboxing, permissions, update rollback, and revocation remain weak.
 - Pine compatibility can consume the roadmap with language/runtime edge cases
   before a smaller stable V7 plugin contract exists.
 - Community quantity can hide poor quality, repainting, license conflicts, and
@@ -566,14 +737,17 @@ The future decision package must include:
 1. an explicit product-scope decision replacing or retaining the current
    SMC/ICT-only statement;
 2. user workflows for calculated Indicator, manual annotation, suggestion and
-   acceptance, Setup Case, drawing, install, configure, error, disable,
-   uninstall, restore, and evidence drill-down;
+   acceptance, Setup Case, drawing, AI request/consent/review/cancel, local and
+   marketplace install, configure, error, disable, upgrade, uninstall,
+   restore, and evidence drill-down;
 3. a threat model and selected trust/permission tiers;
 4. versioned candidate schemas for package, input requirement, calculated
    result, semantic annotation/assertion/relation, Chart contribution, Setup
-   definition/Case/event, evidence reference, and optional Setup occurrence;
+   definition/Case/event, evidence reference, optional Setup occurrence, AI
+   evidence bundle/suggestion, registry artifact, and entitlement receipt;
 5. proof that no ordinary plugin receives native Chart, Replay, Bar Data, DOM,
-   network, annotation-store, Journal-store, or persistence authority;
+   network, AI credential/provider, annotation-store, Journal-store, or
+   persistence authority;
 6. exact no-future, transaction identity, stale rejection, rollback, failure,
    lifecycle, and removal fixtures for calculated results;
 7. revision, undo/redo, cursor chronology, source, assertion, relationship,
@@ -582,15 +756,25 @@ The future decision package must include:
    relabeling the original computed source;
 9. proof that a Setup Case references rather than copies semantic evidence and
    remains readable when its defining plugin is unavailable;
-10. one/four/eight-Pane calculation/render benchmarks and fail-closed resource
+10. AI evidence fixtures proving no future/private data escapes declared
+    scope, remote transmission is opt-in, and direct mutation is impossible;
+11. AI staleness, cancellation, nondeterministic-source, model/prompt/input
+    provenance, latency, context, and cost-budget fixtures;
+12. one/four/eight-Pane calculation/render benchmarks and fail-closed resource
    budgets;
-11. real Lightweight Charts prototypes for MA overlay, MACD sub-pane, manual
+13. real Lightweight Charts prototypes for MA overlay, MACD sub-pane, manual
     semantic annotation, and teardown using official APIs;
-12. a host-rendered Settings/tool/workflow schema prototype and an explicit
+14. a host-rendered Settings/tool/workflow schema prototype and an explicit
     decision on whether arbitrary custom panels are ever public;
-13. SDK/conformance and host-version compatibility strategy;
-14. licensing and distribution rules for first-party and community packages;
-15. a separate boundary decision for Strategy/Execution and for any plugin
+15. one common package installed locally and from a test signed registry with
+    permission review, compatibility failure, upgrade rollback, revocation,
+    uninstall, and historical-evidence survival;
+16. SDK/conformance and host-version compatibility strategy;
+17. licensing and distribution rules for free, first-party paid, community,
+    externally licensed, and AI-assisted packages;
+18. a marketplace operating model, launch thresholds, support/security
+    capacity, and conservative revenue/cost scenarios before payment work;
+19. a separate boundary decision for Strategy/Execution and for any plugin
     requiring tick/quote/depth data.
 
 ## Deferred Decision Questions
@@ -612,14 +796,26 @@ The future decision package must include:
   object or cross-instrument relationship?
 - How are suggested detections accepted, rejected, corrected, versioned, and
   reported separately from direct human recognition?
+- Does the first AI Harness support local models, user-supplied remote keys,
+  host-metered remote service, or a governed subset of these modes?
+- Which evidence classes may leave the machine, how is consent shown, and what
+  provider retention, redaction, cost, and deletion guarantees are required?
+- Can AI-assisted recognition enter Validation statistics, and if so how is it
+  reported separately from unaided human evidence?
 - Which Setup workflow surfaces can be expressed by host schemas, and does any
   first release require a privileged custom panel?
 - How are Setup Cases and their referenced evidence incorporated into
   Validation statistics without treating hindsight review as ex-ante input?
 - Are custom Canvas renderers public, reviewed-only, or permanently internal?
 - What limits apply per plugin, Pane, Workspace, and Session?
+- Which entity signs Marketplace artifacts, how are signing keys and publisher
+  identity governed, and what does revocation do while offline?
+- What active-user, developer, security-review, retention, conversion, and
+  gross-volume thresholds justify a paid Marketplace?
+- Which capabilities remain free first-party foundations, and which may be
+  paid, freemium, donation-supported, externally licensed, or AI-metered?
 - How are licenses, integrity hashes, upgrades, downgrades, and revoked plugins
-  handled locally?
+  handled locally without requiring a network check on every launch?
 
 ## Relationship To The Seconds/Tick Memo
 
@@ -630,6 +826,10 @@ independent candidate decisions with shared constraints:
 - plugins extend analysis, visual, and semantic evidence capabilities;
 - order-flow plugins may later consume tick/quote/depth inputs only through
   host-mediated, no-future, budgeted data ports;
+- AI plugins may receive seconds/tick-derived evidence only through the same
+  host-built no-future bundle and explicit privacy/cost budgets;
+- package distribution and Marketplace payment are independent of provider
+  resolution and authorize no new market-data access;
 - neither memo authorizes, approves, or silently sequences the other.
 
 The future decision phase must reconcile their delivery order, shared resource
@@ -648,7 +848,12 @@ After all current human-review obligations are explicitly closed:
    third-party installation;
 4. bind calculated output, semantic annotation, source provenance, Setup Case,
    host-rendered control surface, trust, failure, and performance contracts;
-5. reconcile this proposal with the seconds/tick decision candidate;
-6. convert the accepted conclusions into a binding product/architecture
-   decision;
-7. only then assign delivery steps, SDK scope, harnesses, and implementation.
+5. prototype AI only against a host-built frozen evidence bundle and prototype
+   one common package through local and test signed-registry installation,
+   without production remote transmission or payments;
+6. reconcile this proposal with the seconds/tick decision candidate;
+7. convert accepted base-plugin, AI, distribution, and commercialization
+   conclusions into explicitly separate binding decisions;
+8. only then assign delivery steps, SDK scope, harnesses, and implementation;
+9. prove the SDK, local installation, first-party packages, and a signed free
+   registry before any paid Marketplace launch decision.
