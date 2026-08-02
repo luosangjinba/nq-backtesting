@@ -67,6 +67,7 @@ export function createAdapterSnapshot({
   priceScale,
   series,
   seriesDataRevision,
+  seriesWriterSnapshot,
   viewport,
 }) {
   const latestCandleTime = appliedData.at(-1)?.time ?? null;
@@ -99,6 +100,7 @@ export function createAdapterSnapshot({
     bordersVisible: host.dataset.bordersVisible === 'true',
     pricePrecision: host.dataset.pricePrecision ?? 'auto',
     seriesDataRevision,
+    seriesWriter: seriesWriterSnapshot,
     seriesPresentation: seriesSnapshot({ currentPriceName, seriesOptions }),
     wicksVisible: host.dataset.wicksVisible === 'true',
     viewportIntent: viewport.snapshot(),

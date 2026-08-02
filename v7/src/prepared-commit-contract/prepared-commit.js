@@ -21,6 +21,7 @@ const CREATE_FIELDS = Object.freeze([
 ]);
 const APPLY_FIELDS = Object.freeze(['identity', 'resultingRevision']);
 const SETTLE_FIELDS = Object.freeze(['commitReceipt', 'identity', 'resultingRevision']);
+const VERIFIED_DEEP_FROZEN = new WeakSet();
 
 function requireExactRecord(value, fields, code, label) {
   if (!value || typeof value !== 'object' || Array.isArray(value)
@@ -40,12 +41,26 @@ function requireRevision(value, field) {
   return value;
 }
 
-function isDeepFrozen(value, seen = new WeakSet()) {
-  if (value === null || (typeof value !== 'object' && typeof value !== 'function')) return true;
-  if (!Object.isFrozen(value)) return false;
-  if (seen.has(value)) return true;
+function frozenState(value, seen) {
+  if (value === null || (typeof value !== 'object' && typeof value !== 'function')) return 2;
+  if (VERIFIED_DEEP_FROZEN.has(value)) return 2;
+  if (!Object.isFrozen(value)) return 0;
+  if (seen.has(value)) return 1;
   seen.add(value);
-  return Reflect.ownKeys(value).every((key) => isDeepFrozen(value[key], seen));
+  let cacheable = true;
+  for (const key of Reflect.ownKeys(value)) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    const accessor = !Object.hasOwn(descriptor, 'value');
+    const childState = frozenState(accessor ? value[key] : descriptor.value, seen);
+    if (childState === 0) return 0;
+    if (accessor || childState === 1) cacheable = false;
+  }
+  if (cacheable) VERIFIED_DEEP_FROZEN.add(value);
+  return cacheable ? 2 : 1;
+}
+
+function isDeepFrozen(value) {
+  return frozenState(value, new WeakSet()) !== 0;
 }
 
 function requireCandidate(value) {

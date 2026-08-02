@@ -1,7 +1,7 @@
 # V7 Replay Multi-Pane Latency — R9.2
 
 Date: 2026-08-01
-Status: implemented and executable; human acceptance pending
+Status: implemented and executable; human acceptance not granted, superseded by R9.3
 
 ## Reported Boundary
 
@@ -67,6 +67,10 @@ four-Pane Chart-application latency. Automated evidence does not grant the
 required interaction acceptance.
 
 ## Human Gate
+
+The user reported that perceptible Multi-pane delay remained after the R9.2
+hard-reload test. R9.2 therefore remains executable but was not human-accepted;
+R9.3 owns the replacement mechanism and next human gate.
 
 After a hard reload, open the same Session and test rapid `4h` Next sequences
 in Single Pane, two Panes, and four Panes. Confirm entering two Panes no longer

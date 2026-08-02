@@ -2,6 +2,7 @@ import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/
 import { createWorkstationSettings, readWorkstationSettings } from '../workstation-settings/public.js';
 import { failLightweightAdapter } from './adapter-error.js';
 import { createLightweightChartAdapter } from './lightweight-chart-adapter.js';
+import { createSeriesMutationPlanMemo } from './series-update-plan.js';
 
 function method(port, name, label) {
   if (!port || typeof port[name] !== 'function') {
@@ -369,6 +370,8 @@ export function createLightweightPaneSetAdapter({
     async stage({ identity, signal, workspaceSnapshot }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Pane-set adapter is disposed.');
       const chartDataCache = new WeakMap();
+      const futureTimeAxisDataCache = new Map();
+      const seriesMutationPlanMemo = createSeriesMutationPlanMemo();
       const entries = await Promise.all(workspaceSnapshot.panes.map(async (result, index) => {
         const instrumentId = workspaceSnapshot.responsePlan.paneResponses[index].instrumentId;
         const instrumentLabel = instrumentLabelFor(instrumentId);
@@ -400,6 +403,8 @@ export function createLightweightPaneSetAdapter({
           instrumentLabel,
           priceIncrement,
           signal,
+          futureTimeAxisDataCache,
+          seriesMutationPlanMemo,
           workspaceSnapshot: result.snapshot,
         });
         return Object.freeze({

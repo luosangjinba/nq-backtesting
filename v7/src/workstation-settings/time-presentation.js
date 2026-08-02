@@ -6,12 +6,10 @@ function pad(value) {
   return String(value).padStart(2, '0');
 }
 
-function partsFor(epochMs, timeZone) {
+function partsFor(epochMs, formatter) {
   if (!Number.isFinite(epochMs)) throw new TypeError('Time presentation requires a finite epoch.');
-  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
-    day: '2-digit', hour: '2-digit', hourCycle: 'h23', minute: '2-digit', month: '2-digit',
-    second: '2-digit', timeZone, timeZoneName: 'short', weekday: 'short', year: 'numeric',
-  }).formatToParts(new Date(epochMs)).filter(({ type }) => type !== 'literal')
+  const parts = Object.fromEntries(formatter.formatToParts(new Date(epochMs))
+    .filter(({ type }) => type !== 'literal')
     .map(({ type, value }) => [type, value]));
   return Object.freeze(parts);
 }
@@ -69,12 +67,16 @@ export function createTimePresentation(settings, { localTimeZone = null } = {}) 
   const timeZone = time.displayTimezone === 'local'
     ? resolvedLocalTimeZone
     : time.displayTimezone;
+  const instantFormatter = new Intl.DateTimeFormat('en-US', {
+    day: '2-digit', hour: '2-digit', hourCycle: 'h23', minute: '2-digit', month: '2-digit',
+    second: '2-digit', timeZone, timeZoneName: 'short', weekday: 'short', year: 'numeric',
+  });
   const timeZoneLabel = time.displayTimezone === 'America/New_York'
     ? 'New York'
     : (time.displayTimezone === 'UTC' ? 'UTC' : `Local · ${resolvedLocalTimeZone}`);
 
   function instantParts(epochMs) {
-    return partsFor(epochMs, timeZone);
+    return partsFor(epochMs, instantFormatter);
   }
 
   function formatDate(epochMs, options = {}) {

@@ -53,15 +53,20 @@ function profileViolations(profiles) {
     if (new Set(profile.finalBarCounts).size !== 1
       || profile.finalBarCounts.length !== paneCount) violations.push('pane-bar-count-divergence');
   }
-  if (profiles[2].cacheHitVisible.p50Ms >= profiles[1].cacheHitVisible.p50Ms + 45) {
+  if (profiles[2].cacheHitVisible.p50Ms >= profiles[1].cacheHitVisible.p50Ms + 30) {
     violations.push('two-pane-median-growth');
   }
-  if (profiles[4].cacheHitVisible.p50Ms >= profiles[1].cacheHitVisible.p50Ms + 90) {
+  if (profiles[4].cacheHitVisible.p50Ms >= profiles[1].cacheHitVisible.p50Ms + 55) {
     violations.push('four-pane-median-growth');
   }
-  if (profiles[4].cacheHitVisible.p50Ms >= 180
-    || profiles[4].cacheHitVisible.p95Ms >= 375) violations.push('four-pane-sustained-budget');
-  if (profiles[4].adapterApply.p95Ms >= 250) violations.push('four-pane-chart-budget');
+  if (profiles[4].cacheHitVisible.p50Ms >= 100
+    || profiles[4].cacheHitVisible.p95Ms >= 175) violations.push('four-pane-sustained-budget');
+  if (profiles[4].cacheHitActivePaneVisible.p50Ms >= 95
+    || profiles[4].cacheHitActivePaneVisible.p95Ms >= 165) {
+    violations.push('active-pane-visible-budget');
+  }
+  if (profiles[4].adapterApply.p50Ms >= 70
+    || profiles[4].adapterApply.p95Ms >= 115) violations.push('four-pane-chart-budget');
   return violations;
 }
 

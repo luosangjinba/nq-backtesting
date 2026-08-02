@@ -16,7 +16,10 @@ import {
   requireTailUpdatePaint,
 } from '../src/lightweight-chart-adapter/paint-gate.js';
 import { planVisibleLogicalRange } from '../src/lightweight-chart-adapter/logical-range-plan.js';
-import { planSeriesMutation } from '../src/lightweight-chart-adapter/series-update-plan.js';
+import {
+  createSeriesMutationPlanMemo,
+  planSeriesMutation,
+} from '../src/lightweight-chart-adapter/series-update-plan.js';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -75,6 +78,11 @@ assert.equal(planSeriesMutation(
 ).kind, 'full-replace');
 assert.equal(planSeriesMutation([candle(1)], [candle(2)]).kind, 'full-replace');
 assert.equal(planSeriesMutation([candle(1), candle(2)], [candle(1, 3), candle(2)]).kind, 'full-replace');
+const mutationMemo = createSeriesMutationPlanMemo();
+const memoPrevious = Object.freeze([candle(1), candle(2)]);
+const memoNext = Object.freeze([...memoPrevious, candle(3), candle(4)]);
+assert.equal(mutationMemo.plan(memoPrevious, memoNext), mutationMemo.plan(memoPrevious, memoNext),
+  'exact Pane inputs must share one immutable mutation proof');
 const crosshairPresentation = createCrosshairPresentationIndex();
 assert.equal(crosshairPresentation.latest().state, 'empty');
 crosshairPresentation.setBars([

@@ -5,11 +5,11 @@ import { createChartTimePresentation } from './chart-options.js';
 import { createCurrentPriceSeriesPresentation } from './current-price-presentation.js';
 
 export function createWorkstationPresentationController({
+  candleSeriesWriter,
   chart,
   currentPriceName,
   host,
   priceScale,
-  series,
   truncationInteraction,
 }) {
   let instrumentLabel = '';
@@ -32,7 +32,7 @@ export function createWorkstationPresentationController({
     truncationInteraction.setNormalCrosshair(canvasPresentation.crosshairOptions);
     const { customNameOnlyVisible: _customNameOnlyVisible, ...currentPriceOptions }
       = createCurrentPriceSeriesPresentation(nextSettings, nextInstrumentLabel);
-    series.applyOptions({
+    candleSeriesWriter.applyOptions({
       ...createCandleSeriesPresentation(nextSettings, nextPriceIncrement),
       ...currentPriceOptions,
     });

@@ -31,8 +31,8 @@ The user explicitly answered `验收通过` on 2026-07-31.
 - final restored mixed-Pane latency: p95 81.7 ms, p99 91.1 ms, max 96 ms, zero
   warm provider requests;
 - production architecture: 48 modules, 125 edges, 115 construction sites,
-  seven writers, zero findings;
-- production source: 307 files, 22,572 effective lines, 2,413 functions, 306
+  eight writers, zero findings;
+- production source: 309 files, 22,891 effective lines, 2,449 functions, 306
   public exports, zero source exceptions, zero debt comments;
 - final focused lifecycle/matrix controls and `git diff --check` passed before
   commit.

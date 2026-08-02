@@ -1386,131 +1386,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 111,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "formatChartCrosshair",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "dateText",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "wallParts",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 28,
-          "name": "createTimePresentation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "formatDate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "formatTime",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "formatTime",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "instantParts",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "pad",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "localZone",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "formatDate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "monthText",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "timeText",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "formatAxisTick",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "formatDateTime",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "partsFor",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "core.workstation-settings",
-      "owner": "workstation-settings",
-      "ownsContract": false,
-      "path": "src/workstation-settings/time-presentation.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "workstation-settings.",
-            "purpose": "expose the complete supported public contract for workstation settings.",
-            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
-            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
-            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
-            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
-            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
-            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
-          },
-          "moduleId": "core.workstation-settings",
-          "name": "createTimePresentation"
-        }
-      ],
-      "responsibilities": [
-        "workstation-settings"
-      ],
-      "sizeException": null,
-      "sourceHash": "7bb664243736fc87c91fee177284ab18de8016f0c52a43c3bb8d04e7909a36ce"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 112,
       "forwardingOnly": false,
       "functions": [
@@ -1601,6 +1476,131 @@
       ],
       "sizeException": null,
       "sourceHash": "4eed194ba2c228c34bab83d2936909b55f14569a97bbd7925e172e487d605e27"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 113,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "formatChartCrosshair",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "dateText",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "wallParts",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "formatDate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "formatTime",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "formatTime",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "instantParts",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "pad",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 32,
+          "name": "createTimePresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "localZone",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "formatDate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "monthText",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "timeText",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "formatAxisTick",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "partsFor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "formatDateTime",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.workstation-settings",
+      "owner": "workstation-settings",
+      "ownsContract": false,
+      "path": "src/workstation-settings/time-presentation.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "workstation-settings.",
+            "purpose": "expose the complete supported public contract for workstation settings.",
+            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
+            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
+            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.workstation-settings",
+          "name": "createTimePresentation"
+        }
+      ],
+      "responsibilities": [
+        "workstation-settings"
+      ],
+      "sizeException": null,
+      "sourceHash": "ad483e69482ef1aac97e0a1c6662deb09e5e1966bfb154c09e3db2bd447b4504"
     },
     {
       "adaptsBoundary": false,
@@ -5381,150 +5381,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 199,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "requireIdentity",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "requirePreparedCommit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "requireResultingRevision",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "apply",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "finalize",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "rollback",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 32,
-          "name": "createPreparedCommit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "mutationPolicy",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "isDeepFrozen",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "requireExactRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "requireStatus",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "requireCandidate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "requireRevision",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "contract",
-      "moduleId": "core.prepared-commit-contract",
-      "owner": "workspace-transaction-runtime",
-      "ownsContract": false,
-      "path": "src/prepared-commit-contract/prepared-commit.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "workspace-transaction-runtime.",
-            "purpose": "expose the complete supported public contract for prepared commit contract.",
-            "inputs": "immutable values and capability descriptors defined by the exported signatures.",
-            "outputs": "validated frozen values or deterministic calculations.",
-            "sideEffects": "none.",
-            "lifecycle": "stateless values and pure calls have no disposal phase.",
-            "errors": "invalid inputs throw the exported module error or a TypeError.",
-            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
-          },
-          "moduleId": "core.prepared-commit-contract",
-          "name": "createPreparedCommit"
-        },
-        {
-          "documentation": {
-            "owner": "workspace-transaction-runtime.",
-            "purpose": "expose the complete supported public contract for prepared commit contract.",
-            "inputs": "immutable values and capability descriptors defined by the exported signatures.",
-            "outputs": "validated frozen values or deterministic calculations.",
-            "sideEffects": "none.",
-            "lifecycle": "stateless values and pure calls have no disposal phase.",
-            "errors": "invalid inputs throw the exported module error or a TypeError.",
-            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
-          },
-          "moduleId": "core.prepared-commit-contract",
-          "name": "requirePreparedCommit"
-        }
-      ],
-      "responsibilities": [
-        "workspace-transaction-runtime"
-      ],
-      "sizeException": null,
-      "sourceHash": "8b004c99b7ce324c0010bbe4c806ba0ebe2840176c796a8da4ec6bc881639569"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 20,
       "forwardingOnly": false,
       "functions": [
@@ -5825,6 +5681,150 @@
       ],
       "sizeException": null,
       "sourceHash": "540ac5d27a8db8d88d1e20707db174f16f71a11bd592b77b2dbfa60a3f127cbd"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 213,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requireIdentity",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requirePreparedCommit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requireResultingRevision",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "apply",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "finalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "frozenState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "isDeepFrozen",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 32,
+          "name": "createPreparedCommit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "mutationPolicy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "requireExactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireStatus",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireCandidate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireRevision",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.prepared-commit-contract",
+      "owner": "workspace-transaction-runtime",
+      "ownsContract": false,
+      "path": "src/prepared-commit-contract/prepared-commit.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "workspace-transaction-runtime.",
+            "purpose": "expose the complete supported public contract for prepared commit contract.",
+            "inputs": "immutable values and capability descriptors defined by the exported signatures.",
+            "outputs": "validated frozen values or deterministic calculations.",
+            "sideEffects": "none.",
+            "lifecycle": "stateless values and pure calls have no disposal phase.",
+            "errors": "invalid inputs throw the exported module error or a TypeError.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "core.prepared-commit-contract",
+          "name": "createPreparedCommit"
+        },
+        {
+          "documentation": {
+            "owner": "workspace-transaction-runtime.",
+            "purpose": "expose the complete supported public contract for prepared commit contract.",
+            "inputs": "immutable values and capability descriptors defined by the exported signatures.",
+            "outputs": "validated frozen values or deterministic calculations.",
+            "sideEffects": "none.",
+            "lifecycle": "stateless values and pure calls have no disposal phase.",
+            "errors": "invalid inputs throw the exported module error or a TypeError.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "core.prepared-commit-contract",
+          "name": "requirePreparedCommit"
+        }
+      ],
+      "responsibilities": [
+        "workspace-transaction-runtime"
+      ],
+      "sizeException": null,
+      "sourceHash": "c51977d7213867a1de1c79e8dea71b3a89ce6f1e3ff85635e04cbf974ac04e02"
     },
     {
       "adaptsBoundary": false,
@@ -12774,116 +12774,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 103,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 10,
-          "name": "timeSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "canvasSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "seriesSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 49,
-          "name": "createAdapterSnapshot",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/adapter-snapshot.js",
-      "publicExports": [],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "c23af60786a9ad49fa67a7107389672dbfdc7ee29192bb4d813eacce40355987"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 104,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "captureNativeViewport",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 38,
-          "name": "createNativeViewportInteraction",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "onWheel",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "onPointerDown",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "onPointerUp",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "scheduleCapture",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "onPointerMove",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/native-viewport-interaction.js",
-      "publicExports": [],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "620c2a932429047319bf905f6b82888efdc294dd548fe671970ccf6b82d95210"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 104,
       "forwardingOnly": false,
       "functions": [
@@ -12964,6 +12854,46 @@
       ],
       "sizeException": null,
       "sourceHash": "986dfffa85ec589448bc0298932fe49e257aecdba2b80dd66e3198a3d0731bfd"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 105,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 10,
+          "name": "timeSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "canvasSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "seriesSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 51,
+          "name": "createAdapterSnapshot",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/adapter-snapshot.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "231ebd364d11b7af1ab5f95238dcd3da6d8208ec142525006b533c20165602f0"
     },
     {
       "adaptsBoundary": true,
@@ -13184,6 +13114,81 @@
       ],
       "sizeException": null,
       "sourceHash": "557e8955d0756707827809b2e071ec5469fca369e1bdaad5906f47d596f15105"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 109,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "onPointerMove",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "captureNativeViewport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 39,
+          "name": "createNativeViewportInteraction",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "onPointerDown",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "onPointerUp",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "onWheel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "scheduleCapture",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/native-viewport-interaction.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "4e2e7654110956a9a4c2aba5a9b5b9d203da7d49fc3b648309b1c826525b12f3"
     },
     {
       "adaptsBoundary": true,
@@ -16356,6 +16361,161 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 208,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-26>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-27>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "replaceAll",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "createSegment",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "updateTail",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "appendReplacement",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "mutate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 26,
+          "name": "nextSegments",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "createSegmentedCandleSeriesWriter",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "immutableState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "syncVisibility",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "hasSeriesData",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "showAll",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "desiredVisibility",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "finalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "observe",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "setVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "remove",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "applyOptions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "setVisibleLogicalRange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "restore",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "segmentOptions",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/segmented-candle-series.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "bc4ec6f9b1575464b9153e0ef07678fb6eb74c79b8352bea693a228729fd3c17"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 21,
       "forwardingOnly": true,
       "functions": [],
@@ -18369,7 +18529,137 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 409,
+      "effectiveLines": 41,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "commit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "stage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "createViewportSettingsConsumer",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "apply",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "record",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/viewport-settings-consumer.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "replay-workspace-composition.",
+            "purpose": "expose the complete supported public contract for replay workspace composition.",
+            "inputs": "validated configuration plus explicitly injected owner, persistence, and presentation ports.",
+            "outputs": "a bounded application or workspace command surface.",
+            "sideEffects": "constructs, wires, invokes, and disposes only the owners named by this composition boundary.",
+            "lifecycle": "the composed graph lives from factory creation until its exposed dispose operation.",
+            "errors": "construction and command failures propagate from the responsible owner with stable error codes.",
+            "concurrencyCancellation": "asynchronous commands preserve cancellation and current-identity checks across owner boundaries."
+          },
+          "moduleId": "core.replay-workspace-composition",
+          "name": "createViewportSettingsConsumer"
+        }
+      ],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "8a74a85139042aaeab420b3d051cfacdd6b2a592bc33a3c7b3646bd6aac2bf82"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 41,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 11,
+          "name": "begin",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "createRefreshFeedback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "cancelTimer",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "finish",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/refresh-feedback.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "replay-workspace-composition.",
+            "purpose": "expose the complete supported public contract for replay workspace composition.",
+            "inputs": "validated configuration plus explicitly injected owner, persistence, and presentation ports.",
+            "outputs": "a bounded application or workspace command surface.",
+            "sideEffects": "constructs, wires, invokes, and disposes only the owners named by this composition boundary.",
+            "lifecycle": "the composed graph lives from factory creation until its exposed dispose operation.",
+            "errors": "construction and command failures propagate from the responsible owner with stable error codes.",
+            "concurrencyCancellation": "asynchronous commands preserve cancellation and current-identity checks across owner boundaries."
+          },
+          "moduleId": "core.replay-workspace-composition",
+          "name": "createRefreshFeedback"
+        }
+      ],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "1e872d15f33db606c55669a667903a7b0c3b3cdd0bfbdcafcda106f6d9557d95"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 414,
       "forwardingOnly": false,
       "functions": [
         {
@@ -18503,7 +18793,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 17,
+          "effectiveLines": 19,
           "name": "stage",
           "reviewedDecompositionException": false
         },
@@ -18553,7 +18843,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 42,
+          "effectiveLines": 44,
           "name": "<anonymous-53>",
           "reviewedDecompositionException": false
         },
@@ -18663,172 +18953,7 @@
         "chart-runtime-adapter"
       ],
       "sizeException": null,
-      "sourceHash": "2c818917ed1a0dd7a77607f27b891a8a33fe3fd743352014f01a422d0b417458"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 41,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "sameBar",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 37,
-          "name": "planSeriesMutation",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/series-update-plan.js",
-      "publicExports": [],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "2c7aa35c265788735f30cf436bee42b7d576544d2d9f49bbb6613fe6eefb0d9a"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 41,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "commit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "stage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "createViewportSettingsConsumer",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "apply",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "rollback",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "record",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
-      "ownsContract": false,
-      "path": "src/replay-workspace-composition/viewport-settings-consumer.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "replay-workspace-composition.",
-            "purpose": "expose the complete supported public contract for replay workspace composition.",
-            "inputs": "validated configuration plus explicitly injected owner, persistence, and presentation ports.",
-            "outputs": "a bounded application or workspace command surface.",
-            "sideEffects": "constructs, wires, invokes, and disposes only the owners named by this composition boundary.",
-            "lifecycle": "the composed graph lives from factory creation until its exposed dispose operation.",
-            "errors": "construction and command failures propagate from the responsible owner with stable error codes.",
-            "concurrencyCancellation": "asynchronous commands preserve cancellation and current-identity checks across owner boundaries."
-          },
-          "moduleId": "core.replay-workspace-composition",
-          "name": "createViewportSettingsConsumer"
-        }
-      ],
-      "responsibilities": [
-        "replay-workspace-composition"
-      ],
-      "sizeException": null,
-      "sourceHash": "8a74a85139042aaeab420b3d051cfacdd6b2a592bc33a3c7b3646bd6aac2bf82"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 41,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 11,
-          "name": "begin",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "createRefreshFeedback",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "cancelTimer",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "finish",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
-      "ownsContract": false,
-      "path": "src/replay-workspace-composition/refresh-feedback.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "replay-workspace-composition.",
-            "purpose": "expose the complete supported public contract for replay workspace composition.",
-            "inputs": "validated configuration plus explicitly injected owner, persistence, and presentation ports.",
-            "outputs": "a bounded application or workspace command surface.",
-            "sideEffects": "constructs, wires, invokes, and disposes only the owners named by this composition boundary.",
-            "lifecycle": "the composed graph lives from factory creation until its exposed dispose operation.",
-            "errors": "construction and command failures propagate from the responsible owner with stable error codes.",
-            "concurrencyCancellation": "asynchronous commands preserve cancellation and current-identity checks across owner boundaries."
-          },
-          "moduleId": "core.replay-workspace-composition",
-          "name": "createRefreshFeedback"
-        }
-      ],
-      "responsibilities": [
-        "replay-workspace-composition"
-      ],
-      "sizeException": null,
-      "sourceHash": "1e872d15f33db606c55669a667903a7b0c3b3cdd0bfbdcafcda106f6d9557d95"
+      "sourceHash": "f154db0f0c762a87a52f3cd258c3b7b14896ee76026b1ddf1a992f05e0bf9e17"
     },
     {
       "adaptsBoundary": true,
@@ -18908,6 +19033,236 @@
       ],
       "sizeException": null,
       "sourceHash": "e18663eb531f18681f9ca61c62a4ca05bb67ec23452aee8f78654c958202b745"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 430,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "changed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "changed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "changed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "changed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "commit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "isDisposed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onSeriesDataChanged",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readAccepted",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readBarCount",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readBars",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readTimeframeDurationMs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "rollbackVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setTruncationSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "applyWorkstationSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "finalizeVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "captureVisibleState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "applyViewport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "applyPaneTimeLocationRange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "stage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "commitEmpty",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "mutateAndPaint",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "applyEmpty",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "applyVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "clearCrosshairPosition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 45,
+          "name": "applyStaged",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 46,
+          "name": "commitVisible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 51,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireAdapterEnvironment",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "resetView",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "registerStage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requirePort",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 80,
+          "name": "createLightweightChartAdapter",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "stageEmpty",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose the complete supported public contract for lightweight chart.",
+            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
+            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
+            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
+            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
+            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
+            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
+          },
+          "moduleId": "adapter.lightweight-chart",
+          "name": "createLightweightChartAdapter"
+        }
+      ],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "af9396f0df7326dd797ebb95a13f7e64701b95758266cb3a287973635ced9697"
     },
     {
       "adaptsBoundary": true,
@@ -19006,231 +19361,6 @@
       ],
       "sizeException": null,
       "sourceHash": "f9e2c9a16a6dc7edc0e0beedfc7d7964a9d244f2b63ab95ac0049a776c5ab537"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 441,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "changed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "changed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "changed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "changed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "commit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "isDisposed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onSeriesDataChanged",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readBarCount",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readBars",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readTimeframeDurationMs",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "rollbackVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setTruncationSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "applyWorkstationSettings",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "finalizeVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "applyViewport",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "captureVisibleState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "applyPaneTimeLocationRange",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "stageEmpty",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 24,
-          "name": "commitEmpty",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 27,
-          "name": "mutateAndPaint",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 29,
-          "name": "stage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "applyEmpty",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "applyVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "clearCrosshairPosition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 43,
-          "name": "applyStaged",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 46,
-          "name": "commitVisible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "registerStage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 51,
-          "name": "rollback",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireAdapterEnvironment",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "resetView",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "requirePort",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 80,
-          "name": "createLightweightChartAdapter",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose the complete supported public contract for lightweight chart.",
-            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
-            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
-            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
-            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
-            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
-            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
-          },
-          "moduleId": "adapter.lightweight-chart",
-          "name": "createLightweightChartAdapter"
-        }
-      ],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "46b7093405511179920aed7215ef9b857e9bd9482fbb579aee8adfc88dca8c93"
     },
     {
       "adaptsBoundary": true,
@@ -19769,71 +19899,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 46,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "onEnter",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 21,
-          "name": "createAdapterCrosshairInteraction",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "observe",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "clear",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "onLeave",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "project",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "record",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "onChartMove",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/crosshair-interaction.js",
-      "publicExports": [],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "ca7cc4f117610d8c205b5f87a1e2972f98e66519c6448204be530e335ea03121"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 47,
       "forwardingOnly": false,
       "functions": [
@@ -19909,6 +19974,71 @@
       ],
       "sizeException": null,
       "sourceHash": "32e21945ef71d9f9f582afb5607d1298fac75d7b152cd5a4480f7d171cc61f62"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 48,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "onEnter",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "createAdapterCrosshairInteraction",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "observe",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "clear",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "onLeave",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "project",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "record",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "onChartMove",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/crosshair-interaction.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "3d8a807008a9997af7ea82000b2ea2634af9dd0f8c041840c33c8a7dd7fc1c7b"
     },
     {
       "adaptsBoundary": true,
@@ -20537,6 +20667,51 @@
       ],
       "sizeException": null,
       "sourceHash": "6e319b7687fc2b40341ed0ab67ce34fa5a23a00873f20164e156a76c2dc68b47"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 61,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "plan",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "sameBar",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 39,
+          "name": "planSeriesMutation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "createSeriesMutationPlanMemo",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/series-update-plan.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "b591efd69c6fea9ebe86795db2c7863813f511cab0fb30bae9f81e26a2b1d538"
     },
     {
       "adaptsBoundary": true,
@@ -21299,6 +21474,51 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 73,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 13,
+          "name": "cachedFutureTimeAxisData",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "empty",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 30,
+          "name": "ready",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "cachedChartData",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "createChartStagePlanner",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/chart-stage-planner.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "c1173e81fc11ce23d22db7bb484d451e738791c895b71f29a3b2d2e6c475fc94"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 75,
       "forwardingOnly": false,
       "functions": [
@@ -21907,6 +22127,61 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 84,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 13,
+          "name": "restoreAdapterVisibleState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "captureAdapterVisibleState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "copyRange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "captureDataset",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "restoreDataset",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "restoreAdapterScaleState",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/visible-state-rollback.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "f9fdb724e3079979280e8af9c78adfbad8954e1a284ff369382ff864ffb28ee4"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 85,
       "forwardingOnly": false,
       "functions": [
@@ -21972,61 +22247,6 @@
       ],
       "sizeException": null,
       "sourceHash": "7f684715bbe249ecc4e42a5284e764e97838c90506e3ebdb7f563adbea3f9e9b"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 85,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 14,
-          "name": "restoreAdapterVisibleState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 24,
-          "name": "captureAdapterVisibleState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "copyRange",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "captureDataset",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "restoreDataset",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "restoreAdapterScaleState",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/visible-state-rollback.js",
-      "publicExports": [],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "1ce614b03eac30cf0e14b2f8a33f49f099ae93c25a42a45f345987329bee4380"
     },
     {
       "adaptsBoundary": true,
@@ -22151,7 +22371,7 @@
         "chart-runtime-adapter"
       ],
       "sizeException": null,
-      "sourceHash": "7c734973e2fee18da1e344a2f1ac8021a00959cd57527fc3ff6f7b1482b53a39"
+      "sourceHash": "dc8ba4f9fc968107305739999edc6d3fd93c510dc920ed8c70a3cd457041607d"
     },
     {
       "adaptsBoundary": true,
@@ -22659,9 +22879,9 @@
   ],
   "schemaVersion": 1,
   "summary": {
-    "effectiveLines": 22572,
-    "files": 307,
-    "functions": 2413,
+    "effectiveLines": 22891,
+    "files": 309,
+    "functions": 2449,
     "publicExports": 306
   },
   "deliveryStep": "R8.12",

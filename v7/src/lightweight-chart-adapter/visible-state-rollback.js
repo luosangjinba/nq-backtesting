@@ -78,8 +78,7 @@ export function restoreAdapterScaleState({ chart, priceScale, state }) {
 }
 
 /** Restore one previously accepted chart surface after apply, paint, or receipt failure. */
-export function restoreAdapterVisibleState({ chart, futureTimeAxisSeries, host, priceScale, series, state }) {
-  series.setData(state.appliedData);
+export function restoreAdapterVisibleState({ chart, futureTimeAxisSeries, host, priceScale, state }) {
   futureTimeAxisSeries.setData(state.appliedFutureTimeAxisData);
   restoreAdapterScaleState({ chart, priceScale, state });
   restoreDataset(host, state.dataset);

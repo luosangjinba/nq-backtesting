@@ -1,7 +1,7 @@
 # Session — R9.2 Replay Multi-Pane Latency
 
 Date: 2026-08-01
-Status: implemented; human acceptance pending
+Status: implemented; human acceptance not granted, superseded by R9.3
 
 ## Request
 
@@ -41,6 +41,10 @@ quality, and whitespace gates pass after rebaselining exact production
 evidence.
 
 ## Human Gate
+
+The subsequent hard-reload review still found perceptible Multi-pane delay.
+This gate was not accepted; R9.3 supersedes the mechanism while retaining the
+safe R9.2 shared Projection and interaction-index foundation.
 
 Hard reload and rapidly advance `4h` Replay in one, two, and four Panes. Human
 acceptance remains pending until the user confirms the Multi-pane

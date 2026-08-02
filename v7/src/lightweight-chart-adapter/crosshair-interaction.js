@@ -1,4 +1,6 @@
-export function createAdapterCrosshairInteraction({ chart, host, onCrosshairMove, presentation, series }) {
+export function createAdapterCrosshairInteraction({
+  candleSeriesWriter, chart, host, onCrosshairMove, presentation, series,
+}) {
   let pointerWithinHost = false;
 
   function record(value, origin) {
@@ -12,7 +14,7 @@ export function createAdapterCrosshairInteraction({ chart, host, onCrosshairMove
   const onChartMove = (event) => {
     if (!pointerWithinHost && !host.matches(':hover')) return;
     const displayEpochMs = typeof event.time === 'number' ? Math.round(event.time * 1_000) : null;
-    const value = displayEpochMs !== null && event.seriesData?.has(series) === true
+    const value = displayEpochMs !== null && candleSeriesWriter.hasSeriesData(event.seriesData)
       ? presentation.selectedAt(displayEpochMs)
       : presentation.latest();
     onCrosshairMove(record(value, 'native'));

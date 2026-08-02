@@ -14,7 +14,8 @@ export function planSeriesMutation(previousData, nextData) {
   if (!sameLength && !oneAppended) {
     if (nextData.length <= previousData.length + 1) return Object.freeze({ kind: 'full-replace' });
     for (let index = 0; index < previousData.length - 1; index += 1) {
-      if (!sameBar(previousData[index], nextData[index])) {
+      if (previousData[index] !== nextData[index]
+        && !sameBar(previousData[index], nextData[index])) {
         return Object.freeze({ kind: 'full-replace' });
       }
     }
@@ -31,7 +32,8 @@ export function planSeriesMutation(previousData, nextData) {
   }
   const prefixLength = sameLength ? previousData.length - 1 : previousData.length;
   for (let index = 0; index < prefixLength; index += 1) {
-    if (!sameBar(previousData[index], nextData[index])) return Object.freeze({ kind: 'full-replace' });
+    if (previousData[index] !== nextData[index]
+      && !sameBar(previousData[index], nextData[index])) return Object.freeze({ kind: 'full-replace' });
   }
   const previousLast = previousData.at(-1);
   const nextLast = nextData.at(-1);
@@ -41,4 +43,24 @@ export function planSeriesMutation(previousData, nextData) {
   return Object.freeze(validTail
     ? { bar: nextLast, kind: 'tail-update' }
     : { kind: 'full-replace' });
+}
+
+/** Reuse one exact immutable mutation proof across Pane adapters in a transaction. */
+export function createSeriesMutationPlanMemo() {
+  const entries = new WeakMap();
+  return Object.freeze({
+    plan(previousData, nextData) {
+      let nextEntries = entries.get(previousData);
+      if (!nextEntries) {
+        nextEntries = new WeakMap();
+        entries.set(previousData, nextEntries);
+      }
+      let plan = nextEntries.get(nextData);
+      if (!plan) {
+        plan = planSeriesMutation(previousData, nextData);
+        nextEntries.set(nextData, plan);
+      }
+      return plan;
+    },
+  });
 }

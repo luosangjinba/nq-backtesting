@@ -11,6 +11,7 @@ const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
 const PANE_COUNT = Number(process.env.V7_REPLAY_PANE_COUNT ?? 1);
 const SAMPLE_COUNT = Number(process.env.V7_REPLAY_SAMPLE_COUNT ?? 128);
+const CPU_PROFILE = process.env.V7_REPLAY_CPU_PROFILE === '1';
 assert.ok([1, 2, 4].includes(PANE_COUNT), 'V7_REPLAY_PANE_COUNT must be 1, 2, or 4');
 assert.ok(Number.isSafeInteger(SAMPLE_COUNT) && SAMPLE_COUNT > 0);
 const FOUR_HOUR_STEP_ID = 'replay-step.fixed-240-minute';
@@ -62,6 +63,21 @@ function summarize(samples) {
     p99Ms: percentile(samples, 0.99),
     samples: samples.length,
   });
+}
+
+function summarizeProfile(profile) {
+  const nodes = new Map(profile.nodes.map((node) => [node.id, node]));
+  const totals = new Map();
+  for (let index = 0; index < profile.samples.length; index += 1) {
+    const frame = nodes.get(profile.samples[index])?.callFrame;
+    if (!frame) continue;
+    const key = `${frame.functionName || '(anonymous)'} @ ${frame.url}:${frame.lineNumber + 1}`;
+    totals.set(key, (totals.get(key) ?? 0) + (profile.timeDeltas[index] ?? 0));
+  }
+  return [...totals]
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, 30)
+    .map(([frame, microseconds]) => Object.freeze({ frame, milliseconds: microseconds / 1_000 }));
 }
 
 let cdp;
@@ -141,20 +157,54 @@ try {
   const mutationSamples = [];
   const paintSamples = [];
   const applySamples = [];
+  const activePaneVisibleSamples = [];
+  const cacheHitActivePaneVisibleSamples = [];
+  const cacheMissActivePaneVisibleSamples = [];
   const mutationModes = new Set();
   let providerMisses = 0;
+  if (CPU_PROFILE) {
+    await cdp.send('Profiler.enable');
+    await cdp.send('Profiler.setSamplingInterval', { interval: 100 });
+    await cdp.send('Profiler.start');
+  }
   for (let index = 0; index < SAMPLE_COUNT; index += 1) {
     await waitFor(cdp, `document.querySelector('.replay-next')?.disabled === false`);
-    const before = await evaluate(cdp, `(() => ({
-      fetchCount: globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length,
-      revision: Number(document.querySelector('.replay-workspace').dataset.workspaceRevision),
-    }))()`);
-    const startedAt = performance.now();
-    await evaluate(cdp, `document.querySelector('.replay-next').click()`);
-    await waitFor(cdp,
-      `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) === ${before.revision + 1}`,
-      10_000);
-    visibleSamples.push(performance.now() - startedAt);
+    const timing = await evaluate(cdp, `(async () => {
+      const activeHost = document.querySelector('.lightweight-chart-host');
+      const root = document.querySelector('.replay-workspace');
+      const activeVisibleRevision = Number(activeHost.dataset.visibleRevision);
+      const revision = Number(root.dataset.workspaceRevision);
+      const fetchCount = globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length;
+      const startedAt = performance.now();
+      return new Promise((resolve, reject) => {
+        let activeVisibleMs = null;
+        let workspaceVisible = false;
+        const timeout = setTimeout(() => finish(new Error('Replay visibility timed out.')), 10_000);
+        const activeObserver = new MutationObserver(observe);
+        const workspaceObserver = new MutationObserver(observe);
+        function finish(error = null) {
+          clearTimeout(timeout);
+          activeObserver.disconnect();
+          workspaceObserver.disconnect();
+          if (error) reject(error);
+          else resolve({ activeVisibleMs, fetchCount, visibleMs: performance.now() - startedAt });
+        }
+        function observe() {
+          if (activeVisibleMs === null
+            && Number(activeHost.dataset.visibleRevision) === activeVisibleRevision + 1) {
+            activeVisibleMs = performance.now() - startedAt;
+          }
+          if (Number(root.dataset.workspaceRevision) === revision + 1) workspaceVisible = true;
+          if (workspaceVisible && activeVisibleMs !== null) finish();
+        }
+        activeObserver.observe(activeHost, { attributeFilter: ['data-visible-revision'], attributes: true });
+        workspaceObserver.observe(root, { attributeFilter: ['data-workspace-revision'], attributes: true });
+        document.querySelector('.replay-next').click();
+        observe();
+      });
+    })()`);
+    activePaneVisibleSamples.push(timing.activeVisibleMs);
+    visibleSamples.push(timing.visibleMs);
     const after = await evaluate(cdp, `(() => {
       const hosts = [...document.querySelectorAll('.lightweight-chart-host')];
       return {
@@ -167,10 +217,12 @@ try {
       };
     })()`);
     const visibleMs = visibleSamples.at(-1);
-    if (after.fetchCount > before.fetchCount) {
+    if (after.fetchCount > timing.fetchCount) {
       providerMisses += 1;
+      cacheMissActivePaneVisibleSamples.push(timing.activeVisibleMs);
       cacheMissVisibleSamples.push(visibleMs);
     } else {
+      cacheHitActivePaneVisibleSamples.push(timing.activeVisibleMs);
       cacheHitVisibleSamples.push(visibleMs);
     }
     applySamples.push(after.applyMs);
@@ -178,16 +230,21 @@ try {
     paintSamples.push(after.paintMs);
     for (const mode of after.mutationModes) mutationModes.add(mode);
   }
+  const cpuProfile = CPU_PROFILE ? summarizeProfile((await cdp.send('Profiler.stop')).profile) : null;
   result = Object.freeze({
     adapterApply: summarize(applySamples),
     adapterMutation: summarize(mutationSamples),
     adapterPaint: summarize(paintSamples),
     browserErrors: await evaluate(cdp, `globalThis.__browserErrors`),
+    activePaneVisible: summarize(activePaneVisibleSamples),
+    cacheHitActivePaneVisible: summarize(cacheHitActivePaneVisibleSamples),
     finalBarCounts: await evaluate(cdp,
       `[...document.querySelectorAll('.lightweight-chart-host')]
         .map((host) => Number(host.dataset.barCount))`),
     cacheHitVisible: summarize(cacheHitVisibleSamples),
     cacheMissVisible: summarize(cacheMissVisibleSamples),
+    cacheMissActivePaneVisible: summarize(cacheMissActivePaneVisibleSamples),
+    cpuProfile,
     mutationModes: [...mutationModes],
     providerMisses,
     paneCount: PANE_COUNT,

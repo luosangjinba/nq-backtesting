@@ -2,16 +2,16 @@ import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/
 import { readViewportIntent } from '../viewport-runtime/public.js';
 import { createAdapterSnapshot } from './adapter-snapshot.js';
 import { failLightweightAdapter } from './adapter-error.js';
-import { createChartData, maximumDisplayGapMs } from './chart-data.js';
+import { maximumDisplayGapMs } from './chart-data.js';
+import { createChartStagePlanner } from './chart-stage-planner.js';
 import { createLightweightChartSurface } from './chart-surface.js';
 import { createAdapterCrosshairInteraction } from './crosshair-interaction.js';
 import { createCrosshairPresentationIndex } from './crosshair-presentation.js';
-import { createFutureTimeAxisData } from './future-time-axis.js';
 import { planVisibleLogicalRange } from './logical-range-plan.js';
 import { createNativeViewportInteraction } from './native-viewport-interaction.js';
 import { requirePaintedCandles, requireTailUpdatePaint } from './paint-gate.js';
 import { createPaneTimeLocationChartPort } from './pane-time-location-adapter.js';
-import { planSeriesMutation } from './series-update-plan.js';
+import { createSegmentedCandleSeriesWriter } from './segmented-candle-series.js';
 import {
   captureAdapterVisibleState,
   restoreAdapterScaleState,
@@ -48,28 +48,27 @@ export function createLightweightChartAdapter({
   const viewport = requireAdapterEnvironment(host, viewportPort);
   const interactionIndex = createCrosshairPresentationIndex();
   const surface = createLightweightChartSurface({ host, interactionIndex, onTruncationSelect });
-  const {
-    chart, currentPriceName, futureTimeAxisSeries, priceScale, series, truncationInteraction,
-  } = surface;
+  const { chart, currentPriceName, futureTimeAxisSeries, priceScale, series, truncationInteraction } = surface;
   let adapterRevision = 0;
-  let appliedBars = Object.freeze([]);
-  let appliedData = Object.freeze([]);
-  let appliedFutureTimeAxisData = Object.freeze([]);
-  let appliedTimeframeDurationMs = null;
-  let barCount = 0;
-  let disposed = false;
-  let seriesDataRevision = 0;
-  let maximumAppliedDisplayGapMs = 0;
-  let visibleMutationToken = 0;
+  let appliedBars = Object.freeze([]), appliedData = Object.freeze([]);
+  let appliedFutureTimeAxisData = Object.freeze([]), appliedTimeframeDurationMs = null;
+  let barCount = 0, maximumAppliedDisplayGapMs = 0, seriesDataRevision = 0;
+  let disposed = false, visibleMutationToken = 0;
   const stagedApplications = new WeakMap();
   const onSeriesDataChanged = () => { seriesDataRevision += 1; };
-  series.subscribeDataChanged(onSeriesDataChanged);
+  const candleSeriesWriter = createSegmentedCandleSeriesWriter({
+    chart, onDataChanged: onSeriesDataChanged, primarySeries: series,
+  });
   const presentation = createWorkstationPresentationController({
-    chart, currentPriceName, host, priceScale, series, truncationInteraction,
+    candleSeriesWriter, chart, currentPriceName, host, priceScale, truncationInteraction,
   });
 
   const crosshairInteraction = createAdapterCrosshairInteraction({
-    chart, host, onCrosshairMove, presentation: interactionIndex, series,
+    candleSeriesWriter, chart, host, onCrosshairMove, presentation: interactionIndex, series,
+  });
+  const stagePlanner = createChartStagePlanner({
+    readAccepted: () => Object.freeze({ bars: appliedBars, data: appliedData }),
+    readPresentation: presentation.snapshot,
   });
 
   function applyViewport() {
@@ -77,6 +76,7 @@ export function createLightweightChartAdapter({
     const projection = viewport.project(barCount - 1);
     const visibleRange = planVisibleLogicalRange(projection, barCount);
     chart.timeScale().setVisibleLogicalRange(visibleRange);
+    candleSeriesWriter.setVisibleLogicalRange(visibleRange, projection.origin);
     host.dataset.logicalFrom = String(visibleRange.from);
     host.dataset.logicalTo = String(visibleRange.to);
     host.dataset.latestOffsetBars = String(projection.latestOffsetBars);
@@ -87,6 +87,7 @@ export function createLightweightChartAdapter({
   }
 
   function applyPaneTimeLocationRange(range, plan) {
+    candleSeriesWriter.showAll();
     chart.timeScale().setVisibleLogicalRange(range);
     viewport.captureManual({ latestLogicalIndex: barCount - 1, range });
     priceScale.setAutoScale(true);
@@ -118,6 +119,7 @@ export function createLightweightChartAdapter({
     host,
     isDisposed: () => disposed,
     onHistoryBoundary,
+    onNativeViewportGesture: candleSeriesWriter.showAll,
     onViewportIntent,
     priceScale,
     readBarCount: () => barCount,
@@ -157,12 +159,12 @@ export function createLightweightChartAdapter({
       return;
     }
     const dataRevisionBefore = seriesDataRevision;
+    candleSeriesWriter.rollback(record.writerMutation);
     const restored = restoreAdapterVisibleState({
       chart,
       futureTimeAxisSeries,
       host,
       priceScale,
-      series,
       state: record.previous,
     });
     adapterRevision = restored.adapterRevision;
@@ -191,13 +193,11 @@ export function createLightweightChartAdapter({
     record.state = 'rolled-back';
   }
 
-  async function mutateAndPaint(data, futureTimeAxisData, expectCandles = true) {
+  async function mutateAndPaint(data, futureTimeAxisData, mutation, record, expectCandles = true) {
     const startedAt = performance.now();
-    const mutation = planSeriesMutation(appliedData, data);
     const dataRevisionBefore = seriesDataRevision;
     futureTimeAxisSeries.setData(futureTimeAxisData);
-    if (mutation.kind === 'tail-update') series.update({ ...mutation.bar });
-    else series.setData(data);
+    record.writerMutation = candleSeriesWriter.mutate(data, mutation);
     presentation.syncCurrentPrice(data);
     const mutationEndedAt = performance.now();
     barCount = data.length;
@@ -293,7 +293,9 @@ export function createLightweightChartAdapter({
 
   function registerStage(value) {
     const staged = Object.freeze(value);
-    stagedApplications.set(staged, { previous: null, state: 'staged', token: null });
+    stagedApplications.set(staged, {
+      previous: null, state: 'staged', token: null, writerMutation: null,
+    });
     return staged;
   }
 
@@ -327,6 +329,8 @@ export function createLightweightChartAdapter({
       const timing = await mutateAndPaint(
         context.staged.data,
         context.staged.futureTimeAxisData,
+        context.staged.mutation,
+        record,
         expectCandles,
       );
       if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
@@ -356,6 +360,7 @@ export function createLightweightChartAdapter({
           'Only an applied Chart stage can finalize.',
         );
       }
+      candleSeriesWriter.finalize(record.writerMutation);
       record.state = 'finalized';
       record.previous = null;
     },
@@ -365,7 +370,7 @@ export function createLightweightChartAdapter({
       disposed = true;
       visibleMutationToken += 1;
       nativeViewportInteraction.dispose();
-      series.unsubscribeDataChanged(onSeriesDataChanged);
+      candleSeriesWriter.dispose();
       crosshairInteraction.dispose();
       truncationInteraction.dispose();
       series.detachPrimitive(currentPriceName.primitive);
@@ -407,36 +412,30 @@ export function createLightweightChartAdapter({
       priceScale,
       series,
       seriesDataRevision,
+      seriesWriterSnapshot: candleSeriesWriter.snapshot(),
       viewport,
     }),
     async stage({
       chartDataCache = null,
+      futureTimeAxisDataCache = null,
       identity,
       instrumentLabel,
       priceIncrement,
       signal,
+      seriesMutationPlanMemo = null,
       workspaceSnapshot,
     }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
-      const current = presentation.snapshot();
-      let data = chartDataCache?.get(workspaceSnapshot.bars) ?? null;
-      if (data === null) {
-        data = createChartData(workspaceSnapshot, appliedBars, appliedData);
-        chartDataCache?.set(workspaceSnapshot.bars, data);
-      }
-      return registerStage({
-        data,
-        futureTimeAxisData: createFutureTimeAxisData({
-          durationMs: workspaceSnapshot.provenance.displayTimeframeDurationMs,
-          latestDisplayEpochMs: data.at(-1).time * 1_000,
-        }),
+      return registerStage(stagePlanner.ready({
+        chartDataCache,
+        futureTimeAxisDataCache,
         identity,
-        instrumentLabel: instrumentLabel === undefined ? current.instrumentLabel : instrumentLabel,
-        kind: 'ready',
-        priceIncrement: priceIncrement === undefined ? current.priceIncrement : priceIncrement,
+        instrumentLabel,
+        priceIncrement,
+        seriesMutationPlanMemo,
         signal,
         workspaceSnapshot,
-      });
+      }));
     },
     async stageEmpty({
       identity,
@@ -445,17 +444,7 @@ export function createLightweightChartAdapter({
       signal,
     }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
-      const current = presentation.snapshot();
-      return registerStage({
-        data: Object.freeze([]),
-        futureTimeAxisData: Object.freeze([]),
-        identity,
-        instrumentLabel: instrumentLabel === undefined ? current.instrumentLabel : instrumentLabel,
-        kind: 'empty',
-        priceIncrement: priceIncrement === undefined ? current.priceIncrement : priceIncrement,
-        signal,
-        workspaceSnapshot: null,
-      });
+      return registerStage(stagePlanner.empty({ identity, instrumentLabel, priceIncrement, signal }));
     },
   });
 }

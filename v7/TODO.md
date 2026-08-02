@@ -1,6 +1,6 @@
 # V7 TODO
 
-## R9 Replay Product Tuning — R9.2 Implemented, Human Review Pending
+## R9 Replay Product Tuning — R9.3 Implemented, Human Review Pending
 
 - [x] cap registered Replay choices at `4h` while retaining `8h`/`12h` and
   calendar display timeframes;
@@ -39,6 +39,38 @@ Binding decision/evidence: `docs/V7_REPLAY_FOUR_HOUR_CAP_AND_LATENCY_R9_1.md`.
   in Single Pane, two Panes, and four Panes.
 
 Binding evidence: `docs/V7_REPLAY_MULTI_PANE_LATENCY_R9_2.md`.
+
+R9.2 did not receive human acceptance: a hard-reloaded Multi-pane Session still
+had perceptible press-to-candle delay. Its safe shared-projection foundation
+remains, while R9.3 below supersedes its performance mechanism and human gate.
+
+### R9.3 Viewport-Segmented Multi-Pane Replay — Implemented, Human Review Pending
+
+- [x] profile the browser main thread and bind the remaining amplification to
+  repeated full-history mutation proofs, deep immutability traversal, time-axis
+  formatter construction, and independent Lightweight Charts rendering;
+- [x] retain the accepted base series while writing `append-replace` Replay
+  tails into bounded 512-bar series segments instead of replacing complete
+  7,000–14,000-bar histories in every Pane;
+- [x] render only Replay segments intersecting the default follow viewport and
+  reveal all segments immediately on manual drag, horizontal wheel, or explicit
+  time location, preserving complete history access;
+- [x] share exact mutation proofs, Chart data, and future-axis data across
+  equivalent Panes, cache proven frozen subtrees, and reuse one timezone
+  formatter policy without changing owner boundaries;
+- [x] preserve full replacement, empty transition, Workstation Settings,
+  Crosshair, no-future whitespace, stale rollback, later-participant rollback,
+  and atomic finalization behavior;
+- [x] pass the tightened 64-action 1/2/4 Pane Chrome gate at 14,180 bars per
+  Pane: warm p50 `44.9ms`/`53.9ms`/`78.1ms`, four-Pane p95 `126.5ms`, active
+  four-Pane p50 `71.9ms`, identical bar counts, and no browser errors;
+- [x] activate H082 as executable while keeping H080/H081 and R9.3 human
+  acceptance explicitly pending;
+- [ ] obtain human acceptance after a hard reload and rapid `4h` Next sequence
+  in Single Pane, two Panes, and four Panes, including a drag into older Replay
+  segments and Reset back to the latest wall.
+
+Binding evidence: `docs/V7_REPLAY_VIEWPORT_SEGMENTED_MULTI_PANE_R9_3.md`.
 
 ## R8 Architecture Conformance Recovery — Human Accepted And Closed
 
@@ -117,9 +149,9 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 307 files, 22,572 effective
-lines, 2,413 functions, and 306 public exports; the architecture baseline
-remains 48 modules, 125 edges, 115 construction sites, seven writers, and zero
+The current production source baseline contains 309 files, 22,891 effective
+lines, 2,449 functions, and 306 public exports; the architecture baseline
+remains 48 modules, 125 edges, 115 construction sites, eight writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -130,8 +162,8 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 307 files, 22,572 effective lines, 2,413 functions, 306 public
-exports, 48 modules, 125 edges, 115 construction sites, seven writers, and zero
+currently at 309 files, 22,891 effective lines, 2,449 functions, 306 public
+exports, 48 modules, 125 edges, 115 construction sites, eight writers, and zero
 findings.
 
 ## Established Foundation Governance

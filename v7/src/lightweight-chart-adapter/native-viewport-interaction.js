@@ -8,6 +8,7 @@ export function createNativeViewportInteraction({
   host,
   isDisposed,
   onHistoryBoundary,
+  onNativeViewportGesture = () => {},
   onViewportIntent,
   priceScale,
   readBarCount,
@@ -70,7 +71,10 @@ export function createNativeViewportInteraction({
       const y = event.clientY - pointerDownPoint.y;
       nativePointerDragged = ((x * x) + (y * y)) >= 4;
     }
-    if (nativePointerDragged) scheduleCapture();
+    if (nativePointerDragged) {
+      onNativeViewportGesture();
+      scheduleCapture();
+    }
   };
   const onPointerUp = () => {
     if (!nativePointerActive) return;
@@ -83,6 +87,7 @@ export function createNativeViewportInteraction({
     host.dataset.wheelEventCount = String(Number(host.dataset.wheelEventCount || 0) + 1);
     if (applyPriceScaleWheel({ event, host, priceScale })) return;
     nativeGestureRevision += 1;
+    onNativeViewportGesture();
     scheduleCapture();
   };
 

@@ -3648,7 +3648,8 @@
           "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
           "src/lightweight-chart-adapter/native-viewport-interaction.js",
           "src/lightweight-chart-adapter/pane-set-adapter.js",
-          "src/lightweight-chart-adapter/replay-truncation-interaction.js"
+          "src/lightweight-chart-adapter/replay-truncation-interaction.js",
+          "src/lightweight-chart-adapter/segmented-candle-series.js"
         ],
         "owner": "chart-runtime-adapter",
         "publicEntry": "src/lightweight-chart-adapter/public.js"
@@ -4235,6 +4236,12 @@
       {
         "detectorId": "native-chart-series",
         "sourceFile": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "surface": "chartSeries"
+      },
+      {
+        "detectorId": "native-chart-series",
+        "sourceFile": "src/lightweight-chart-adapter/segmented-candle-series.js",
         "sourceModuleId": "adapter.lightweight-chart",
         "surface": "chartSeries"
       },

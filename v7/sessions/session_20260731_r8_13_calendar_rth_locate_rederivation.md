@@ -25,9 +25,9 @@ R7.3n/R7.3o human acceptance reserved for R8.15.
   Pane walls, and unchanged Replay.
 - Moved H019 and H066 from `regressed` to `executable` and activated H078 as
   `executable`; three R8.14 regressions remain.
-- Current exact production evidence is 307 files, 22,572 effective lines,
-  2,413 functions, 306 public exports, 48 modules, 125 dependency edges, 115
-  construction sites, seven writer sites, and zero findings.
+- Current exact production evidence is 309 files, 22,891 effective lines,
+  2,449 functions, 306 public exports, 48 modules, 125 dependency edges, 115
+  construction sites, eight writer sites, and zero findings.
 
 ## Verification
 

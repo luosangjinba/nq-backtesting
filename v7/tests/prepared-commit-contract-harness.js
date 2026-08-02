@@ -322,4 +322,19 @@ assert.throws(
   (error) => error instanceof PreparedCommitContractError,
 );
 
-console.log('v7 Prepared Commit contract harness passed (4 participants, 32 negative controls)');
+let dynamicPayload = Object.freeze({ revision: 1 });
+const dynamicCandidate = {};
+Object.defineProperty(dynamicCandidate, 'payload', {
+  enumerable: true,
+  get: () => dynamicPayload,
+});
+Object.freeze(dynamicCandidate);
+prepared('dynamic-frozen-candidate', { candidate: dynamicCandidate });
+dynamicPayload = {};
+assert.throws(
+  () => prepared('dynamic-mutable-candidate', { candidate: dynamicCandidate }),
+  (error) => error?.code === 'PREPARED_COMMIT_CANDIDATE_IMMUTABLE',
+  'accessor-backed candidates must be revalidated instead of entering the immutable cache',
+);
+
+console.log('v7 Prepared Commit contract harness passed (4 participants, 33 negative controls)');
