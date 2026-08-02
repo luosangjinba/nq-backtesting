@@ -412,3 +412,16 @@ raw-source rows, restored 138 missing minute timestamps, and left zero NQ
 duplicate timestamps. The insert-only updater remains unchanged; retained
 backup, Preview manifest, and audit locations are recorded in the binding V7
 audit document.
+
+## 2026-08-02 Pre-2025 Continuous-Volume Prescreen
+
+The original NQ continuous CSV preserved volume exactly through CSV-to-DuckDB
+conversion outside the approved 2025 repair intervals. A new read-only local
+prescreen uses its post-seam bar count and volume only to rank raw-contract
+evidence work; it cannot confirm old/new dominance or authorize a write.
+
+Across 68 complete 2008–2024 quarterly windows it reports 8 red, 33 amber, and
+27 green. The first raw Databento validation batch is reduced to the five
+recent amber windows (`2023 Q3`, `2024 Q1–Q4`), followed by the eight red
+legacy windows. Binding method and evidence are in
+`v7/docs/V7_NQ_PRE_2025_CONTINUOUS_ROLL_PRESCREEN.md`.

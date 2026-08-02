@@ -114,6 +114,24 @@ Binding decision/evidence:
 Binding audit/evidence:
 `docs/V7_NQ_2025_ROLL_LIQUIDITY_AUDIT.md`.
 
+### Data Integrity Follow-up — NQ Pre-2025 Roll Prescreen Complete
+
+- [x] prove the original continuous CSV volume was retained exactly in DuckDB
+  outside the approved 2025 repair intervals;
+- [x] implement a read-only continuous-volume risk prescreen that cannot
+  confirm a roll or write market data;
+- [x] calibrate the prescreen against the known 2025 March/June red and
+  September amber outcomes;
+- [x] scan all 68 complete 2008–2024 quarterly windows: 8 red, 33 amber, and
+  27 green;
+- [ ] obtain Databento raw old/new evidence for the five recent amber windows
+  (`2023 Q3`, `2024 Q1–Q4`);
+- [ ] review the eight red legacy windows after the recent batch, accounting
+  for old session schedules and market-event confounders before any repair.
+
+Binding prescreen/evidence:
+`docs/V7_NQ_PRE_2025_CONTINUOUS_ROLL_PRESCREEN.md`.
+
 ### Deferred Candidate — General Futures Plugin Platform
 
 - [x] preserve the proposed general-futures positioning, first-party pack
