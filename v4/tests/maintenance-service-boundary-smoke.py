@@ -24,6 +24,11 @@ for expected in [
     '"--db",\n            DB_PATH',
     'if action == "confirm_roll_write":',
     "Legacy roll-calendar writes are disabled",
+    '"historical_roll_repair_preview"',
+    '"historical_roll_repair_write"',
+    '"historical_roll_repair_verify"',
+    '"v4/scripts/repair_nq_2025_rolls.py"',
+    '"REPAIR NQ 2025"',
 ]:
     assert expected in api_source, f"v4_api.py should delegate maintenance behavior via {expected}"
 

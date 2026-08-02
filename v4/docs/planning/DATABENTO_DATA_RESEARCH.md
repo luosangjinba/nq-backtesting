@@ -404,3 +404,11 @@ The full evidence, four recommended boundaries, and exact protected historical
 repair intervals are recorded in
 `v7/docs/V7_NQ_2025_ROLL_LIQUIDITY_AUDIT.md`. No database or calendar write was
 performed by the audit.
+
+The guarded follow-up repair was executed on 2026-08-02 through the V4
+Maintenance API. It retained the audited September boundary, atomically
+replaced the March, June, and December intervals, changed 2,262 rows to 2,400
+raw-source rows, restored 138 missing minute timestamps, and left zero NQ
+duplicate timestamps. The insert-only updater remains unchanged; retained
+backup, Preview manifest, and audit locations are recorded in the binding V7
+audit document.

@@ -93,22 +93,23 @@ Binding evidence: `docs/V7_REPLAY_VIEWPORT_SEGMENTED_MULTI_PANE_R9_3.md`.
 Binding decision/evidence:
 `docs/V7_AGGREGATED_BUCKET_TIME_LABELS_R9_4.md`.
 
-### Data Integrity Follow-up — NQ 2025 Roll Repair Audited, Pending
+### Data Integrity Follow-up — NQ 2025 Roll Repair Complete
 
 - [x] compare all four 2025 NQ legacy boundaries with Databento raw-contract
   volume, minute coverage, direct `NQ.v.0` mapping, and FXReplay observations;
 - [x] reject direct `NQ.v.0` as the stored-series authority because its
   `00:00 UTC` changes split the `18:00` CME session;
-- [x] retain raw quarterly acquisition plus the existing two-complete-session,
-  first-dominant-session `18:00` policy;
-- [x] bound the historical repair to 5,017 current rows replaced by 5,158
-  source rows, restoring 141 missing minute timestamps;
-- [ ] make non-`available` Databento condition dates ineligible for automatic
+- [x] retain raw quarterly acquisition, automatic two-complete-session volume
+  confirmation, the expiry-week hard horizon, and explicit session-aligned
+  manual confirmation where required;
+- [x] bound the historical repair to 2,262 current rows replaced by 2,400
+  source rows, restoring 138 missing minute timestamps;
+- [x] make non-`available` Databento condition dates ineligible for automatic
   two-session confirmation;
-- [ ] implement a separate backup/stage/validate/atomic historical repair path
+- [x] implement a separate backup/stage/validate/atomic historical repair path
   without weakening insert-only acquisition or R7.3c rejection;
-- [ ] repair the four audited intervals and complete API plus representative
-  Replay verification.
+- [x] govern all four audited boundaries, atomically repair the three changed
+  intervals, and complete API plus representative Replay-read verification.
 
 Binding audit/evidence:
 `docs/V7_NQ_2025_ROLL_LIQUIDITY_AUDIT.md`.

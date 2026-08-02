@@ -49,6 +49,7 @@ class DailyVolume:
     old_minutes: int = 0
     new_minutes: int = 0
     complete: bool = True
+    dataset_condition: str = "available"
 
 
 def parse_args() -> argparse.Namespace:
@@ -116,15 +117,26 @@ def utc_iso_from_et(value: datetime) -> str:
     return value.astimezone(UTC).isoformat()
 
 
-def normalize_databento_rows(raw: pd.DataFrame, old_contract: str, new_contract: str) -> pd.DataFrame:
+def normalize_databento_rows(
+    raw: pd.DataFrame,
+    old_contract: str,
+    new_contract: str,
+    conditions: dict[str, str] | None = None,
+) -> pd.DataFrame:
     if raw.empty:
-        return pd.DataFrame(columns=["source_symbol", "ts", "volume"])
+        return pd.DataFrame(columns=["source_symbol", "ts", "volume", "dataset_condition"])
     index = raw.index
-    localized = index.tz_localize("UTC").tz_convert(ET) if index.tz is None else index.tz_convert(ET)
+    utc_index = index.tz_localize("UTC") if index.tz is None else index.tz_convert(UTC)
+    localized = utc_index.tz_convert(ET)
+    condition_by_date = conditions or {}
     rows = pd.DataFrame({
         "source_symbol": raw["symbol"].astype(str),
         "ts": localized.tz_localize(None),
         "volume": pd.to_numeric(raw["volume"], errors="coerce").fillna(0).astype("int64"),
+        "dataset_condition": [
+            condition_by_date.get(value.date().isoformat(), "unknown")
+            for value in utc_index
+        ],
     })
     rows = rows[rows["source_symbol"].isin([old_contract, new_contract])]
     return rows.sort_values(["source_symbol", "ts"]).reset_index(drop=True)
@@ -136,6 +148,17 @@ def download_databento_rows(args: argparse.Namespace) -> pd.DataFrame:
     client = db.Historical()
     start_et = parse_datetime_et(args.start)
     end_et = parse_datetime_et(args.end)
+    start_utc = start_et.astimezone(UTC)
+    end_utc = end_et.astimezone(UTC)
+    condition_rows = client.metadata.get_dataset_condition(
+        dataset=args.dataset,
+        start_date=start_utc.date().isoformat(),
+        end_date=end_utc.date().isoformat(),
+    )
+    conditions = {
+        str(row.get("date") or ""): str(row.get("condition") or "unknown")
+        for row in condition_rows
+    }
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
         data = client.timeseries.get_range(
@@ -148,7 +171,7 @@ def download_databento_rows(args: argparse.Namespace) -> pd.DataFrame:
         )
     for warning in caught:
         print(f"databento_warning: {warning.message}")
-    return normalize_databento_rows(data.to_df(), args.old_contract, args.new_contract)
+    return normalize_databento_rows(data.to_df(), args.old_contract, args.new_contract, conditions)
 
 
 def read_source_file(path: Path, old_contract: str, new_contract: str) -> pd.DataFrame:
@@ -158,6 +181,7 @@ def read_source_file(path: Path, old_contract: str, new_contract: str) -> pd.Dat
     symbol_field = fieldnames.get("source_symbol") or fieldnames.get("symbol")
     ts_field = fieldnames.get("ts") or fieldnames.get("timestamp") or fieldnames.get("time")
     volume_field = fieldnames.get("volume")
+    condition_field = fieldnames.get("dataset_condition") or fieldnames.get("condition")
     if not symbol_field or not ts_field or not volume_field:
         raise ValueError("source file requires symbol/source_symbol, ts/time/timestamp, and volume columns")
     rows = []
@@ -170,8 +194,14 @@ def read_source_file(path: Path, old_contract: str, new_contract: str) -> pd.Dat
             volume = int(float(str(raw.get(volume_field) or "0").strip()))
         except Exception as exc:
             raise ValueError(f"{path}:{index}: {exc}") from exc
-        rows.append({"source_symbol": symbol, "ts": ts, "volume": max(0, volume)})
-    return pd.DataFrame(rows, columns=["source_symbol", "ts", "volume"])
+        condition = str(raw.get(condition_field) or "available").strip().lower() if condition_field else "available"
+        rows.append({
+            "source_symbol": symbol,
+            "ts": ts,
+            "volume": max(0, volume),
+            "dataset_condition": condition or "unknown",
+        })
+    return pd.DataFrame(rows, columns=["source_symbol", "ts", "volume", "dataset_condition"])
 
 
 def aggregate_daily_volume(
@@ -184,6 +214,9 @@ def aggregate_daily_volume(
         return []
     working = rows.copy()
     working["ts"] = pd.to_datetime(working["ts"])
+    if "dataset_condition" not in working.columns:
+        working["dataset_condition"] = "available"
+    working["dataset_condition"] = working["dataset_condition"].fillna("unknown").astype(str).str.lower()
     working["trade_date"] = working["ts"].map(
         lambda value: roll_calendar_service.trade_date_for_et(value.to_pydatetime()).isoformat()
     )
@@ -198,6 +231,8 @@ def aggregate_daily_volume(
         trade_day = date.fromisoformat(str(day))
         expected_open = roll_calendar_service.session_open_for_trade_date(trade_day)
         expected_close = datetime.combine(trade_day, time(17, 0))
+        day_conditions = sorted(set(day_rows["dataset_condition"]))
+        dataset_condition = "available" if day_conditions == ["available"] else "+".join(day_conditions)
 
         def source_is_complete(source_rows: pd.DataFrame, minute_count: int) -> bool:
             if min_session_minutes <= 0:
@@ -214,6 +249,7 @@ def aggregate_daily_volume(
         complete = (
             source_is_complete(old_rows, old_minutes)
             and source_is_complete(new_rows, new_minutes)
+            and dataset_condition == "available"
         )
         if new_volume > old_volume:
             winner = "new"
@@ -226,7 +262,7 @@ def aggregate_daily_volume(
         ratio = None if old_volume == 0 else new_volume / old_volume
         output.append(DailyVolume(
             str(day), old_volume, new_volume, winner, ratio,
-            old_minutes, new_minutes, complete,
+            old_minutes, new_minutes, complete, dataset_condition,
         ))
     return output
 
@@ -253,7 +289,10 @@ def first_consecutive_new_dominance(daily: list[DailyVolume], min_days: int) -> 
 
 def print_daily_table(daily: list[DailyVolume], old_contract: str, new_contract: str, show_empty: bool) -> None:
     print("\ndaily volume")
-    print("trade_date old_contract old_volume new_contract new_volume winner new_old_ratio old_minutes new_minutes complete")
+    print(
+        "trade_date old_contract old_volume new_contract new_volume winner "
+        "new_old_ratio old_minutes new_minutes complete dataset_condition"
+    )
     for row in daily:
         if row.winner == "none" and not show_empty:
             continue
@@ -261,7 +300,8 @@ def print_daily_table(daily: list[DailyVolume], old_contract: str, new_contract:
         print(
             f"{row.date} {old_contract} {row.old_volume} "
             f"{new_contract} {row.new_volume} {row.winner} {ratio} "
-            f"{row.old_minutes} {row.new_minutes} {str(row.complete).lower()}"
+            f"{row.old_minutes} {row.new_minutes} {str(row.complete).lower()} "
+            f"{row.dataset_condition}"
         )
 
 
@@ -278,6 +318,10 @@ def print_summary(args: argparse.Namespace, daily: list[DailyVolume]) -> None:
     print(f"end: {args.end}")
     print(f"days: {len(daily)}")
     print(f"complete_trade_dates: {sum(1 for row in daily if row.complete)}")
+    print(
+        "non_available_trade_dates: "
+        + (",".join(row.date for row in daily if row.dataset_condition != "available") or "none")
+    )
     print(f"old_total_volume: {old_total}")
     print(f"new_total_volume: {new_total}")
     print(f"first_new_overtake_date: {overtake or 'n/a'}")

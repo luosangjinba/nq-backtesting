@@ -70,6 +70,10 @@ LOCAL_ENV_PATH = os.path.join(V4_ROOT, ".env.local")
 ROLL_CALENDAR_PATH = os.path.join(V4_ROOT, "data_config", "futures_roll_calendar.yml")
 ROLL_CALENDAR_BACKUP_DIR = os.path.join(V4_ROOT, "data_config", "roll_calendar_backups")
 ROLL_CALENDAR_AUDIT_PATH = os.path.join(V4_ROOT, "data_config", "roll_calendar_audit.jsonl")
+HISTORICAL_ROLL_REPAIR_ROOT = os.environ.get(
+    "V4_HISTORICAL_ROLL_REPAIR_DIR",
+    os.path.expanduser("~/.local/share/replay-lab/historical-roll-repair"),
+)
 MAINTENANCE_REQUEST_HEADER = "X-V4-Maintenance-Request"
 MAINTENANCE_REQUEST_VALUE = "data-maintenance"
 WORKSPACE_REQUEST_HEADER = "X-V4-Workspace-Request"
@@ -252,6 +256,9 @@ def run_data_maintenance_action(payload):
         "roll_scan_v2",
         "roll_preview_v2",
         "roll_commit_v2",
+        "historical_roll_repair_preview",
+        "historical_roll_repair_write",
+        "historical_roll_repair_verify",
         "confirm_roll_preview",
         "confirm_roll_write",
         "preflight",
@@ -334,6 +341,39 @@ def run_data_maintenance_action(payload):
             "--confirmed-note", note,
         ]
         return _run_maintenance_command(args)
+
+    if action in {
+        "historical_roll_repair_preview",
+        "historical_roll_repair_write",
+        "historical_roll_repair_verify",
+    }:
+        args = [
+            python,
+            "v4/scripts/repair_nq_2025_rolls.py",
+            "--db",
+            DB_PATH,
+            "--calendar",
+            ROLL_CALENDAR_PATH,
+            "--repair-root",
+            HISTORICAL_ROLL_REPAIR_ROOT,
+        ]
+        if action == "historical_roll_repair_write":
+            preview_token = _clean_text(payload.get("previewToken"), 160)
+            confirm_text = _clean_text(payload.get("confirmText"), 80)
+            if not preview_token:
+                raise ValueError("historical roll repair write requires previewToken")
+            if confirm_text != "REPAIR NQ 2025":
+                raise ValueError("Type 'REPAIR NQ 2025' to execute historical repair")
+            args.extend([
+                "--commit",
+                "--preview-token",
+                preview_token,
+                "--confirm-text",
+                confirm_text,
+            ])
+        elif action == "historical_roll_repair_verify":
+            args.append("--verify")
+        return _run_maintenance_command(args, timeout=1800)
 
     if action in {"preflight", "dry_run", "write"}:
         instrument = _choice(payload.get("instrument"), {"ES", "NQ"}, "instrument")

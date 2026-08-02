@@ -105,6 +105,38 @@ class RollVolumeScannerTests(unittest.TestCase):
             self.assertIn("candidate_roll_date: 2026-03-16", result.stdout)
             self.assertIn("candidate_status: manual confirmation required", result.stdout)
 
+    def test_non_available_dataset_day_cannot_confirm_candidate(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            fixture = Path(temp_dir) / "nq-degraded-roll.csv"
+            fixture.write_text(
+                "\n".join([
+                    "symbol,ts,volume,dataset_condition",
+                    "NQU5,2025-09-16 09:30:00,100,available",
+                    "NQZ5,2025-09-16 09:30:00,300,available",
+                    "NQU5,2025-09-17 09:30:00,100,degraded",
+                    "NQZ5,2025-09-17 09:30:00,400,degraded",
+                    "NQU5,2025-09-18 09:30:00,100,available",
+                    "NQZ5,2025-09-18 09:30:00,500,available",
+                    "",
+                ]),
+                encoding="utf-8",
+            )
+
+            result = run_scanner([
+                "--instrument", "NQ",
+                "--old-contract", "NQU5",
+                "--new-contract", "NQZ5",
+                "--start", "2025-09-16",
+                "--end", "2025-09-19",
+                "--source-file", fixture,
+                "--min-consecutive-days", "2",
+            ])
+
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertIn("2025-09-17 NQU5 100 NQZ5 400 new 4.0000 1 1 false degraded", result.stdout)
+            self.assertIn("non_available_trade_dates: 2025-09-17", result.stdout)
+            self.assertIn("candidate_roll_date: n/a", result.stdout)
+
     def test_single_overtake_does_not_bypass_two_day_candidate_rule(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             fixture = Path(temp_dir) / "es-single-overtake.csv"

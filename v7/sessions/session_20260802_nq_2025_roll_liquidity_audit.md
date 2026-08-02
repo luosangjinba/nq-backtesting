@@ -16,10 +16,11 @@ contracts too early.
   8.74% and 11.31% of old-contract volume with visible missing minutes;
 - retained raw quarterly acquisition plus the existing two-complete-session,
   session-aligned R7.3c policy;
-- identified recommended effective boundaries at 2025-03-17 18:00,
-  2025-06-15 18:00, 2025-09-15 18:00, and 2025-12-14 18:00 ET;
-- bounded a future historical repair to 5,017 current rows replaced by 5,158
-  raw-source rows, restoring 141 minute timestamps;
+- after enforcing the existing expiry-week hard horizon, identified effective
+  boundaries at 2025-03-16 18:00, 2025-06-15 18:00, retained
+  2025-09-14 18:00, and 2025-12-14 18:00 ET;
+- bounded a future historical repair to 2,262 current rows replaced by 2,400
+  raw-source rows, restoring 138 minute timestamps;
 - recorded that Databento marks 2025-09-17 `degraded`, so it cannot count as
   automatic confirmation evidence.
 
@@ -35,5 +36,6 @@ No DuckDB, calendar, service, or market-data row was changed.
 
 ## Continuation
 
-Implement a separate guarded historical-repair workflow. Do not weaken the
-ordinary insert-only updater or R7.3c historical-repair rejection.
+Completed in
+`v7/sessions/session_20260802_nq_2025_historical_roll_repair.md`. The ordinary
+insert-only updater and R7.3c historical-repair rejection remain unchanged.

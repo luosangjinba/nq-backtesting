@@ -1,21 +1,54 @@
 # V4 futures raw-contract roll calendar.
 #
 # Purpose:
-# - Databento continuous symbols do not match the existing DB roll behavior.
-# - Use raw quarterly contracts and explicit ET roll dates.
-# - This file is configuration only; it is not an import log.
+# - Direct Databento continuous mappings change at 00:00 UTC and split CME sessions.
+# - Use raw quarterly contracts and explicit New York roll boundaries.
+# - Ordinary acquisition remains insert-only; historical repair uses a separate guarded path.
 #
 # Semantics:
-# - Historical v1 rows retain their accepted midnight boundaries explicitly.
-# - New rows use `effective_at_et` at the prior 18:00 CME trade-date session open.
-# - `roll_date_et` remains the human-facing candidate trade date.
-# - Existing DB rows remain authoritative; future importers must be insert-only.
+# - `roll_date_et` is the human-facing CME trade date.
+# - `effective_at_et` is the exact source-contract transition boundary.
+# - New session-aligned transitions use the prior 18:00 CME session open.
 
 version: 2
 timezone: America/New_York
 dataset: GLBX.MDP3
 schema: ohlcv-1m
 rolls:
+  - instrument: NQ
+    old_contract: NQH5
+    new_contract: NQM5
+    roll_date_et: '2025-03-17'
+    effective_at_et: 2025-03-16T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: historical_trade_date_liquidity_repair
+    note: 'Historical repair: NQM5 had 1,380 minutes and 83.69% of NQH5 volume on
+      trade date 2025-03-17; session-open boundary satisfies the expiry-week hard
+      horizon.'
+    confirmed_at: '2026-08-02T08:36:16-04:00'
+  - instrument: NQ
+    old_contract: NQM5
+    new_contract: NQU5
+    roll_date_et: '2025-06-16'
+    effective_at_et: 2025-06-15T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: volume_confirmed
+    evidence_type: historical_trade_date_liquidity_repair
+    note: 'Historical repair: NQU5 first complete-session volume dominance was 1.5484x
+      on trade date 2025-06-16.'
+    confirmed_at: '2026-08-02T08:36:16-04:00'
+  - instrument: NQ
+    old_contract: NQU5
+    new_contract: NQZ5
+    roll_date_et: '2025-09-15'
+    effective_at_et: 2025-09-14T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: historical_trade_date_liquidity_audit
+    note: 'Boundary retained: NQZ5 had 1,375 minutes and 98.88% of NQU5 volume on
+      trade date 2025-09-15; later Databento evidence includes a degraded date.'
+    confirmed_at: '2026-08-02T08:36:16-04:00'
   - instrument: ES
     old_contract: ESZ5
     new_contract: ESH6
@@ -27,11 +60,14 @@ rolls:
   - instrument: NQ
     old_contract: NQZ5
     new_contract: NQH6
-    roll_date_et: 2025-12-15
-    effective_at_et: 2025-12-15T00:00
-    boundary_policy: legacy_midnight
-    status: volume_validated
-    note: 'Volume audit resolved no-overlap entry: NQH6 first overtakes NQZ5 on 2025-12-15; local NQ DB has no direct overlap for validation.'
+    roll_date_et: '2025-12-15'
+    effective_at_et: 2025-12-14T18:00
+    boundary_policy: cme_trade_date_session_open
+    status: volume_confirmed
+    evidence_type: historical_trade_date_liquidity_repair
+    note: 'Historical repair: NQH6 first complete-session volume dominance was 1.2602x
+      on trade date 2025-12-15.'
+    confirmed_at: '2026-08-02T08:36:16-04:00'
   - instrument: ES
     old_contract: ESH6
     new_contract: ESM6
@@ -39,7 +75,9 @@ rolls:
     effective_at_et: 2026-03-13T00:00
     boundary_policy: legacy_midnight
     status: validated
-    note: Validated against ES DB overlap after correcting candidate date from 2026-03-15 to 2026-03-13; 0 missing, 0 duplicate, max OHLC diff 0.25. Databento flagged 2026-03-15/16 as degraded quality.
+    note: Validated against ES DB overlap after correcting candidate date from 2026-03-15
+      to 2026-03-13; 0 missing, 0 duplicate, max OHLC diff 0.25. Databento flagged
+      2026-03-15/16 as degraded quality.
   - instrument: NQ
     old_contract: NQH6
     new_contract: NQM6
@@ -47,7 +85,9 @@ rolls:
     effective_at_et: 2026-03-16T00:00
     boundary_policy: legacy_midnight
     status: volume_validated
-    note: 'Volume audit resolved conflict: NQM6 first overtakes NQH6 on 2026-03-16; ES 2026-03 remains validated on 2026-03-13; no DB overlap exists for direct NQ validation.'
+    note: 'Volume audit resolved conflict: NQM6 first overtakes NQH6 on 2026-03-16;
+      ES 2026-03 remains validated on 2026-03-13; no DB overlap exists for direct
+      NQ validation.'
   - instrument: ES
     old_contract: ESM6
     new_contract: ESU6

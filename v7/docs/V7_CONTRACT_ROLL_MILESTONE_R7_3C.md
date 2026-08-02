@@ -79,6 +79,13 @@ schema does not retain per-row raw-contract provenance. R7.3c stops and names
 that condition `historical roll repair required`. It does not silently delete,
 update, or rebuild authoritative rows.
 
+The audited NQ 2025 correction uses a separate, bounded Maintenance API path.
+That path is manifest-bound to three exact half-open intervals, requires
+`available` Databento condition evidence, an exact typed confirmation, a
+verified full DuckDB backup, transactional interval replacement, atomic
+calendar/audit writes, and post-write fingerprints. It does not make ordinary
+Roll Preview/Commit or the insert-only updater capable of historical rewrites.
+
 ## Acceptance evidence
 
 - `v4/tests/test_roll_calendar_service.py`

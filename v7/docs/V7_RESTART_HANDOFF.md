@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-02 by the NQ 2025 roll liquidity audit
+Last updated: 2026-08-02 by the NQ 2025 historical roll repair
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -33,10 +33,13 @@ required for normal startup.
 - R9.1 Replay four-hour cap and latency tuning is commit `a3b12a50`;
 - R9.2 shared multi-Pane replay work is commit `041d53f8`;
 - R9.3 viewport-segmented multi-Pane replay is commit `31c91b0d`;
-- R9.4 aggregated bucket time labels are the current handoff step;
-- the read-only NQ 2025 roll audit rejects the four legacy boundaries as
-  historical authority, retains raw Databento contracts plus the R7.3c
-  session-aligned volume policy, and leaves a separate guarded repair pending;
+- R9.4 aggregated bucket time labels are commit `d256369d`;
+- the read-only NQ 2025 roll audit is commit `51c01700`;
+- the guarded NQ 2025 historical roll repair is the current handoff step;
+- the NQ 2025 roll audit rejects the legacy boundaries as historical authority,
+  retains raw Databento contracts plus the R7.3c session-aligned volume policy,
+  and the separate guarded repair has replaced 2,262 rows with 2,400 source
+  rows, restored 138 minute timestamps, and verified zero NQ duplicates;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10
