@@ -20,8 +20,12 @@ machine-readable baseline, then
 `V7_CALENDAR_CAPABILITY_RTH_LOCATE_REDERIVATION_R8_13.md`, then
 `V7_FULL_PRODUCTION_REGRESSION_MATRIX_R8_14.md`, then
 `V7_HUMAN_ACCEPTANCE_ZERO_DEBT_CLOSURE_R8_15.md`, then the current
-`V7_REPLAY_FOUR_HOUR_CAP_AND_LATENCY_R9_1.md`, before the normal
-implementation reading order below.
+`V7_REPLAY_FOUR_HOUR_CAP_AND_LATENCY_R9_1.md`,
+`V7_REPLAY_MULTI_PANE_LATENCY_R9_2.md`, and
+`V7_REPLAY_VIEWPORT_SEGMENTED_MULTI_PANE_R9_3.md`, before the normal
+implementation reading order below. The deferred
+`V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` records a possible next
+product direction but authorizes no work before current human-review closure.
 
 Read in this order before V7 implementation work:
 
@@ -109,7 +113,11 @@ Read in this order before V7 implementation work:
 82. `V7_LIGHTWEIGHT_CHART_SLICE.md`
 83. `V7_EXECUTION_ROADMAP.md`
 84. `V7_REPLAY_FOUR_HOUR_CAP_AND_LATENCY_R9_1.md`
-85. `../TODO.md`
+85. `V7_REPLAY_MULTI_PANE_LATENCY_R9_2.md`
+86. `V7_REPLAY_VIEWPORT_SEGMENTED_MULTI_PANE_R9_3.md`
+87. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
+    non-binding context only
+88. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.

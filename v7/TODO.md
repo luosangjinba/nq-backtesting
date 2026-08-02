@@ -72,6 +72,21 @@ remains, while R9.3 below supersedes its performance mechanism and human gate.
 
 Binding evidence: `docs/V7_REPLAY_VIEWPORT_SEGMENTED_MULTI_PANE_R9_3.md`.
 
+### Deferred Candidate — Second-Level Replay And Tick-Sourced Data
+
+- [x] preserve the product motivation, candidate data/API boundary,
+  performance constraints, provider criteria, and unresolved decisions in a
+  non-binding pre-decision memo;
+- [ ] activate no research prototype, formal decision, delivery step, or
+  implementation until every then-applicable human-review obligation is
+  explicitly accepted or governed as retired/superseded;
+- [ ] after that gate, audit a representative tick sample and current direct-
+  seconds/tick providers, benchmark a throwaway `tick -> 1s` pipeline, and
+  convert the memo into a binding decision before implementation.
+
+Deferred memo:
+`docs/V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md`.
+
 ## R8 Architecture Conformance Recovery — Human Accepted And Closed
 
 Binding plan: `docs/V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`.
