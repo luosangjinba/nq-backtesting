@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-01 by R9.1 Replay four-hour tuning
+Last updated: 2026-08-02 by R9.4 aggregated bucket time labels
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -12,7 +12,7 @@ required for normal startup.
 - branch: `v7/rebuild`
 - immutable pre-remediation checkpoint: `fa561599`
 - recovery state: R8 is complete and inactive; normal-delivery scope is
-  active and R9.1 is the current implemented step awaiting human review;
+  active and R9.4 is the current implemented step awaiting human review;
 - the separate R7.3/R7.3c Data Acquisition admin human gate remains open;
 - R8.1 recovery constitution is commit `7dbabbed`;
 - R8.2 production architecture analyzer is commit `f19b7f32`;
@@ -30,7 +30,10 @@ required for normal startup.
 - R8.14 full production regression matrix is commit `9433c823`;
 - R8.15 human acceptance and zero-debt closure is commit `be15a15d`;
 - R8.16 audit evidence consistency correction is commit `364c6b27`;
-- R9.1 Replay four-hour cap and latency tuning is the current handoff step;
+- R9.1 Replay four-hour cap and latency tuning is commit `a3b12a50`;
+- R9.2 shared multi-Pane replay work is commit `041d53f8`;
+- R9.3 viewport-segmented multi-Pane replay is commit `31c91b0d`;
+- R9.4 aggregated bucket time labels are the current handoff step;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10
@@ -98,6 +101,11 @@ required for normal startup.
   to that maximum, cuts the measured `4h` provider cadence from 51/100 to
   3/128, and records 125 warm-cache samples at p95 `210.8ms`; H080 is
   executable and the hard-reload rapid-click human gate remains pending;
+- R9.4 preserves completion-slot candle coordinates while formatting fixed
+  aggregate labels from bucket start, formats daily/weekly/monthly labels from
+  explicit trading-period dates without time, and passes native formatter,
+  real projected-history, Calendar, Replay Workspace, and multi-Pane latency
+  regression gates; focused hover review remains pending;
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
   bar-step interaction gate; R6.7 continuous Autoplay implemented; R6.7a

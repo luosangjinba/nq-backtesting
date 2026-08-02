@@ -1,6 +1,6 @@
 # V7 TODO
 
-## R9 Replay Product Tuning — R9.3 Implemented, Human Review Pending
+## R9 Replay Product Tuning — R9.4 Implemented, Human Review Pending
 
 - [x] cap registered Replay choices at `4h` while retaining `8h`/`12h` and
   calendar display timeframes;
@@ -71,6 +71,27 @@ remains, while R9.3 below supersedes its performance mechanism and human gate.
   segments and Reset back to the latest wall.
 
 Binding evidence: `docs/V7_REPLAY_VIEWPORT_SEGMENTED_MULTI_PANE_R9_3.md`.
+
+### R9.4 Aggregated Bucket Time Labels — Implemented, Human Review Pending
+
+- [x] preserve every fixed/calendar candle's completion-slot Chart coordinate,
+  partial-bucket placement, Replay cutoff, and no-future behavior;
+- [x] resolve fixed-duration Crosshair and time-axis text from the exact
+  projected bucket `startEpochMs`, covering the shared mechanism used by all
+  registered fixed display timeframes;
+- [x] carry one explicit trading-period `labelDate` for calendar buckets so
+  `1D` shows its trading date and `1W`/`1M` show their trading-period start
+  date without an ETH prior-evening timezone shift;
+- [x] render calendar Crosshair/time-axis labels as date-only through the
+  official Lightweight Charts formatter ports;
+- [x] prove native 1h/4h/1D/1W/1M formatting, real API parity across DST,
+  Calendar and full Replay Workspace behavior, plus the 1/2/4 Pane sustained
+  4h latency gate;
+- [ ] obtain human acceptance after a hard reload by hovering representative
+  intraday and `1D`/`1W`/`1M` candles in ETH and RTH.
+
+Binding decision/evidence:
+`docs/V7_AGGREGATED_BUCKET_TIME_LABELS_R9_4.md`.
 
 ### Deferred Candidate — General Futures Plugin Platform
 
@@ -188,8 +209,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 309 files, 22,891 effective
-lines, 2,449 functions, and 306 public exports; the architecture baseline
+The current production source baseline contains 309 files, 22,999 effective
+lines, 2,460 functions, and 306 public exports; the architecture baseline
 remains 48 modules, 125 edges, 115 construction sites, eight writers, and zero
 findings.
 
@@ -201,7 +222,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 309 files, 22,891 effective lines, 2,449 functions, 306 public
+currently at 309 files, 22,999 effective lines, 2,460 functions, 306 public
 exports, 48 modules, 125 edges, 115 construction sites, eight writers, and zero
 findings.
 

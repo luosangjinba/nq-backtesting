@@ -71,6 +71,7 @@ assert.deepEqual(ethDaily, [
     close: 103,
     displayEpochMs: at('2026-05-04T16:59:00'),
     high: 106,
+    labelDate: '2026-05-04',
     low: 98,
     open: 100,
     startEpochMs: at('2026-05-03T18:00:00'),
@@ -80,6 +81,7 @@ assert.deepEqual(ethDaily, [
     close: 111,
     displayEpochMs: at('2026-05-05T16:59:00'),
     high: 112,
+    labelDate: '2026-05-05',
     low: 108,
     open: 110,
     startEpochMs: at('2026-05-04T18:00:00'),
@@ -93,6 +95,7 @@ const rthDaily = projectCalendarBars({
 });
 assert.equal(rthDaily[0].startEpochMs, at('2026-05-04T09:30:00'));
 assert.equal(rthDaily[0].displayEpochMs, at('2026-05-04T16:14:00'));
+assert.equal(rthDaily[0].labelDate, '2026-05-04');
 
 const ethWeekly = projectCalendarBars({
   bars: [bar(at('2026-05-03T18:00:00'), 300), bar(at('2026-05-08T16:59:00'), 310)],
@@ -100,6 +103,7 @@ const ethWeekly = projectCalendarBars({
 });
 assert.equal(ethWeekly[0].startEpochMs, at('2026-05-03T18:00:00'));
 assert.equal(ethWeekly[0].displayEpochMs, at('2026-05-08T16:59:00'));
+assert.equal(ethWeekly[0].labelDate, '2026-05-04');
 
 const ethMonthly = projectCalendarBars({
   bars: [bar(at('2026-05-31T18:00:00'), 400), bar(at('2026-06-30T16:59:00'), 420)],
@@ -107,6 +111,7 @@ const ethMonthly = projectCalendarBars({
 });
 assert.equal(ethMonthly[0].startEpochMs, at('2026-05-31T18:00:00'));
 assert.equal(ethMonthly[0].displayEpochMs, at('2026-06-30T16:59:00'));
+assert.equal(ethMonthly[0].labelDate, '2026-06-01');
 
 const policy = createCalendarAggregationPolicy({
   alignmentPolicyId: 'alignment.calendar-day',

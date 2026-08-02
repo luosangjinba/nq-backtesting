@@ -93,6 +93,12 @@ assert.deepEqual(crosshairPresentation.selectedAt(1_000), {
   bar: { close: 2, high: 3, low: 0, open: 1, volume: null }, change: null,
   displayEpochMs: 1_000, state: 'selected',
 });
+assert.deepEqual(crosshairPresentation.timeLabelAt(1_000), {
+  epochMs: 900, labelDate: null,
+}, 'fixed-duration chart coordinates must present their canonical bucket start');
+assert.deepEqual(crosshairPresentation.timeLabelAt(1_500), {
+  epochMs: 1_500, labelDate: null,
+}, 'future or whitespace coordinates retain their own instant label');
 assert.deepEqual(crosshairPresentation.selectedAt(1_500), {
   bar: { close: 4, high: 3, low: 0, open: 1, volume: 25 }, change: { percent: 100, value: 2 },
   displayEpochMs: 2_000, state: 'latest',
@@ -106,6 +112,13 @@ crosshairPresentation.setBars([
 assert.equal(crosshairPresentation.barAt(1_000), retainedInteractionBar,
   'append replacement must retain the unchanged interaction-index prefix');
 assert.deepEqual(crosshairPresentation.selectedAt(3_000).change, { percent: 20, value: 1 });
+const calendarPresentation = createCrosshairPresentationIndex();
+calendarPresentation.setBars([{
+  ...candle(4), displayEpochMs: 4_000, labelDate: '2026-03-30', startEpochMs: 3_000, volume: 40,
+}]);
+assert.deepEqual(calendarPresentation.timeLabelAt(4_000), {
+  epochMs: null, labelDate: '2026-03-30',
+}, 'calendar candles must present their trading-period date instead of a completion instant');
 const crosshairNegativeCases = JSON.parse(fs.readFileSync(path.join(
   TEST_DIR, 'fixtures/lightweight-chart-adapter/negative/crosshair-cases.json',
 ), 'utf8'));
@@ -213,6 +226,15 @@ try {
   assert.equal(result.painted, 'true');
   assert.equal(result.mutationMode, 'full-replace');
   assert.equal(result.visibleRevision, 1);
+
+  const aggregateTimeLabels = await evaluate(cdp, `globalThis.__probeAggregateTimeLabels()`);
+  assert.deepEqual(aggregateTimeLabels, {
+    daily: { crosshair: '05/07/2026', tick: '05/07/26' },
+    fourHour: { crosshair: '03/15/2026, 18:00', tick: '18:00' },
+    monthly: { crosshair: '08/01/2025', tick: '08/01/25' },
+    oneHour: { crosshair: '03/15/2026, 23:00', tick: '23:00' },
+    weekly: { crosshair: '03/30/2026', tick: '03/30/26' },
+  }, 'all aggregated labels must use bucket starts while calendar periods remain date-only');
 
   const pointerCapturePoint = await evaluate(cdp, `(() => {
     const bounds = document.querySelector('#chart').getBoundingClientRect();
@@ -399,6 +421,8 @@ try {
     dayOfWeekVisible: true,
     displayTimezone: 'UTC',
     hourFormat: '12-hour',
+    latestCrosshair: 'Thu 1970-01-01, 12:35 AM',
+    latestTimeTick: '12:35 AM',
     sampleCrosshair: 'Fri 2026-05-01, 12:43 PM',
     sampleTimeTick: '12:43 PM',
   });

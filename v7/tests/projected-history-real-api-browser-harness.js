@@ -47,7 +47,7 @@ for (const sessionHoursMode of ['eth', 'rth']) {
     instrument: selection.instrument,
     sessionHoursMode,
     sourceResolutionId: FOUNDATION_IDS.resolution,
-  });
+  }).map((bar) => Object.freeze({ ...bar, labelDate: null }));
   const actual = await projectedProvider.requestProjectedHistory(createProjectedHistoryRequest({
     aggregationPolicyRevision: selection.aggregationPolicy.revision,
     alignmentKind: 'fixed-duration',

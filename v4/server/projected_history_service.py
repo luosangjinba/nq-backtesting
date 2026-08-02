@@ -176,7 +176,7 @@ def query_projected_history(db_path, table, instrument, start, end, tf, session_
         mode,
         str(start).strip(),
         str(end).strip(),
-        "projected-history-v2",
+        "projected-history-v3",
     )
     cached = _PROJECTED_HISTORY_CACHE.get(key)
     if cached:
@@ -231,6 +231,7 @@ order by bucket
                 bars.append({
                     "timestamp": start_timestamp,
                     "displayTimestamp": start_timestamp + duration_seconds - 60,
+                    "labelDate": None,
                     "open": float(row[1]),
                     "high": float(row[2]),
                     "low": float(row[3]),
@@ -260,6 +261,7 @@ order by bucket
                     "displayTimestamp": _wall_to_instant_epoch(
                         _calendar_completion_wall(next_period_start, mode)
                     ),
+                    "labelDate": trading_period_start.strftime("%Y-%m-%d"),
                     "open": float(row[1]),
                     "high": float(row[2]),
                     "low": float(row[3]),

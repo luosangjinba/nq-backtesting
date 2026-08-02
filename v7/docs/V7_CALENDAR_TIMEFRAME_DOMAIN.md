@@ -54,6 +54,14 @@ period. A partial current period keeps that stable completion slot, matching
 fixed-timeframe display placement without moving Replay or admitting future
 source bars.
 
+Each projected calendar bar also carries a validated `labelDate`. It is the
+trading date for a daily bucket and the trading-period start date for a weekly
+or monthly bucket. It is deliberately not derived from `startEpochMs`: an ETH
+Monday bucket begins on Sunday evening as a real instant but must still be
+labelled Monday. The Chart adapter resolves an exact completion coordinate to
+this date and renders date-only Crosshair/time-axis text; Workstation display
+timezone and hour format cannot shift it to the prior date or add a clock.
+
 ## History And Replay Contract
 
 Initial and replacement materialization always requests compact projected
@@ -72,8 +80,9 @@ active.
 ## Gate
 
 - `tests/calendar-timeframe-domain-harness.js` proves day/week/month alignment,
-  ETH rollover, immutable OHLCV output, partial-period completion placement,
-  Projection integration, and five negative controls.
+  ETH rollover, trading-period label dates, immutable OHLCV output,
+  partial-period completion placement, Projection integration, and five
+  negative controls.
 - `tests/projected-history-real-api-browser-harness.js` proves API results equal
   frontend source-`1m` projection for day/week/month × ETH/RTH across DST.
 - `tests/calendar-timeframe-browser-harness.js` proves the three controls are

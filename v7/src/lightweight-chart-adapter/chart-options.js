@@ -18,14 +18,36 @@ function semanticTickType(type) {
   return 'time';
 }
 
+function timeLabel(epochMs, resolveTimeLabel) {
+  const resolved = resolveTimeLabel?.(epochMs) ?? null;
+  if (resolved?.labelDate !== null && resolved?.labelDate !== undefined) {
+    return Object.freeze({ epochMs: null, labelDate: resolved.labelDate });
+  }
+  return Object.freeze({
+    epochMs: Number.isFinite(resolved?.epochMs) ? resolved.epochMs : epochMs,
+    labelDate: null,
+  });
+}
+
 /** Map one Settings value to native Lightweight Charts time-formatting options. */
-export function createChartTimePresentation(settings = createWorkstationSettings()) {
+export function createChartTimePresentation(
+  settings = createWorkstationSettings(),
+  { resolveTimeLabel = null } = {},
+) {
   const presentation = createTimePresentation(settings);
   return Object.freeze({
     tickMarkFormatter(value, type) {
-      return presentation.formatAxisTick(Number(value) * 1_000, semanticTickType(type));
+      const label = timeLabel(Number(value) * 1_000, resolveTimeLabel);
+      return label.labelDate === null
+        ? presentation.formatAxisTick(label.epochMs, semanticTickType(type))
+        : presentation.formatDateLabel(label.labelDate, { compact: true, weekday: false });
     },
-    timeFormatter: (value) => presentation.formatChartCrosshair(Number(value) * 1_000),
+    timeFormatter(value) {
+      const label = timeLabel(Number(value) * 1_000, resolveTimeLabel);
+      return label.labelDate === null
+        ? presentation.formatChartCrosshair(label.epochMs)
+        : presentation.formatDateLabel(label.labelDate);
+    },
   });
 }
 
@@ -75,3 +97,19 @@ export const CHART_OPTIONS = Object.freeze({
     tickMarkFormatter: exchangeTimePresentation.tickMarkFormatter,
   }),
 });
+
+/** Build initial native options around the adapter's live projected-bar label resolver. */
+export function createChartOptions(
+  settings = createWorkstationSettings(),
+  { resolveTimeLabel = null } = {},
+) {
+  const timePresentation = createChartTimePresentation(settings, { resolveTimeLabel });
+  return Object.freeze({
+    ...CHART_OPTIONS,
+    localization: Object.freeze({ timeFormatter: timePresentation.timeFormatter }),
+    timeScale: Object.freeze({
+      ...CHART_OPTIONS.timeScale,
+      tickMarkFormatter: timePresentation.tickMarkFormatter,
+    }),
+  });
+}

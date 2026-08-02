@@ -1,6 +1,7 @@
 import { readWorkstationSettings } from './settings-value.js';
 
 const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
+const DATE_LABEL_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 function pad(value) {
   return String(value).padStart(2, '0');
@@ -26,6 +27,22 @@ function wallParts(date) {
     second: pad(date.getSeconds()),
     weekday: WEEKDAYS[date.getDay()],
     year: String(date.getFullYear()),
+  });
+}
+
+function dateLabelParts(value) {
+  const match = typeof value === 'string' ? DATE_LABEL_PATTERN.exec(value) : null;
+  if (!match) throw new TypeError('Calendar date presentation requires YYYY-MM-DD.');
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1
+    || date.getUTCDate() !== day) {
+    throw new TypeError('Calendar date presentation requires a real date.');
+  }
+  return Object.freeze({
+    day: match[3], month: match[2], weekday: WEEKDAYS[date.getUTCDay()], year: match[1],
   });
 }
 
@@ -119,6 +136,12 @@ export function createTimePresentation(settings, { localTimeZone = null } = {}) 
     },
     formatChartCrosshair: (epochMs) => formatDateTime(epochMs, { timeZoneName: false }),
     formatDate,
+    formatDateLabel(value, options = {}) {
+      return dateText(dateLabelParts(value), time.dateFormat, {
+        ...options,
+        weekday: options.weekday ?? time.dayOfWeekVisible,
+      });
+    },
     formatDateTime,
     formatTime,
     hourFormat: time.hourFormat,

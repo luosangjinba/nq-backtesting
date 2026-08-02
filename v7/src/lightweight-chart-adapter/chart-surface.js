@@ -4,12 +4,14 @@ import {
   LineSeries,
   version as lightweightChartsVersion,
 } from '../../node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.mjs';
-import { CANDLE_OPTIONS, CHART_OPTIONS } from './chart-options.js';
+import { CANDLE_OPTIONS, createChartOptions } from './chart-options.js';
 import { createCurrentPriceNamePrimitive } from './current-price-presentation.js';
 import { createReplayTruncationInteraction } from './replay-truncation-interaction.js';
 
 export function createLightweightChartSurface({ host, interactionIndex, onTruncationSelect }) {
-  const chart = createChart(host, CHART_OPTIONS);
+  const chart = createChart(host, createChartOptions(undefined, {
+    resolveTimeLabel: interactionIndex.timeLabelAt,
+  }));
   const series = chart.addSeries(CandlestickSeries, CANDLE_OPTIONS);
   const currentPriceName = createCurrentPriceNamePrimitive();
   series.attachPrimitive(currentPriceName.primitive);

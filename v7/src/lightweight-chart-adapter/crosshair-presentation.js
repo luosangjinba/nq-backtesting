@@ -64,5 +64,12 @@ export function createCrosshairPresentationIndex() {
       return selected ? observation(selected, 'selected') : latest();
     },
     setBars(nextBars) { bars = nextBars; },
+    timeLabelAt(displayEpochMs) {
+      const bar = bars[indexAt(displayEpochMs)] ?? null;
+      return Object.freeze({
+        epochMs: bar?.labelDate ? null : (bar?.startEpochMs ?? displayEpochMs),
+        labelDate: bar?.labelDate ?? null,
+      });
+    },
   });
 }

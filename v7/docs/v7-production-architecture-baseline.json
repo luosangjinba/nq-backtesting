@@ -867,13 +867,6 @@
       {
         "callCount": 2,
         "factory": "createWorkstationSettings",
-        "sourceFile": "src/lightweight-chart-adapter/chart-options.js",
-        "sourceModuleId": "adapter.lightweight-chart",
-        "targetModuleId": "core.workstation-settings"
-      },
-      {
-        "callCount": 2,
-        "factory": "createWorkstationSettings",
         "sourceFile": "src/session-browser-ui/dom-primitives.js",
         "sourceModuleId": "adapter.session-browser-ui",
         "targetModuleId": "core.workstation-settings"
@@ -891,6 +884,13 @@
         "sourceFile": "src/session-browser-ui/session-browser.js",
         "sourceModuleId": "adapter.session-browser-ui",
         "targetModuleId": "core.session-identity"
+      },
+      {
+        "callCount": 3,
+        "factory": "createWorkstationSettings",
+        "sourceFile": "src/lightweight-chart-adapter/chart-options.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "targetModuleId": "core.workstation-settings"
       }
     ],
     "declaredWriterSurfaces": [

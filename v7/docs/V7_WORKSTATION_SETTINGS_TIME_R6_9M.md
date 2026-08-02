@@ -53,6 +53,13 @@ accepts an injected date/time presentation port but owns no Workstation
 Settings, Replay, market schedule, or Economic Calendar state. In 12-hour mode
 its AM/PM control is explicit and toggles only the draft wall value.
 
+R9.4 extends this policy with validated, timezone-independent calendar-date
+formatting. Fixed aggregate labels still format the canonical bucket-start
+instant in the selected display timezone. Calendar aggregates instead format
+their trading-period `labelDate` directly: daily/weekly/monthly labels remain
+date-only, honor date order and optional detailed-label weekday, and cannot
+shift to an ETH prior-evening date or acquire a time component.
+
 The official Lightweight Charts 5.2 formatter options were tested before
 implementation. The awesome-tradingview catalog did not expose a smaller
 ownership-compatible formatter plugin, so this slice adds no chart plugin or

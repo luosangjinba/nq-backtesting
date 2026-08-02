@@ -69,6 +69,11 @@ separate registered calendar-alignment policy.
 - `startEpochMs` remains the canonical bucket/provenance identity, while
   `displayEpochMs` places the candle at the final source-minute slot in that
   bucket (`4m :03/:07/...`, `30m :29/:59`, `1h :59` on zero-offset grids);
+- that completion slot is a Chart coordinate, not the user-facing bucket
+  label: the Chart adapter resolves an exact candle coordinate back to
+  `startEpochMs` for both Crosshair and time-axis text, so the `23:00`–`23:59`
+  one-hour bucket is labelled `23:00`; this generic mapping applies to every
+  registered fixed-duration display timeframe;
 - an incomplete current bucket keeps that same completion-slot presentation;
   the later display coordinate never advances Replay or admits future source;
 - volume is summed only when every contributing source volume is known;

@@ -1481,239 +1481,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 113,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "formatChartCrosshair",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "dateText",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "wallParts",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "formatDate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "formatTime",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "formatTime",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "instantParts",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "pad",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 32,
-          "name": "createTimePresentation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "localZone",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "formatDate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "monthText",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "timeText",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "formatAxisTick",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "partsFor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "formatDateTime",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "core.workstation-settings",
-      "owner": "workstation-settings",
-      "ownsContract": false,
-      "path": "src/workstation-settings/time-presentation.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "workstation-settings.",
-            "purpose": "expose the complete supported public contract for workstation settings.",
-            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
-            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
-            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
-            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
-            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
-            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
-          },
-          "moduleId": "core.workstation-settings",
-          "name": "createTimePresentation"
-        }
-      ],
-      "responsibilities": [
-        "workstation-settings"
-      ],
-      "sizeException": null,
-      "sourceHash": "ad483e69482ef1aac97e0a1c6662deb09e5e1966bfb154c09e3db2bd447b4504"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 114,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 20,
-          "name": "createProjectedHistoryBatch",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "createProjectedHistoryBar",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 35,
-          "name": "createProjectedHistoryRequest",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "requireId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireString",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "projectedHistoryRequestKey",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "contract",
-      "moduleId": "core.projected-history-contract",
-      "owner": "bar-data-runtime",
-      "ownsContract": false,
-      "path": "src/projected-history-contract/projected-history-contract.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for projected history contract.",
-            "inputs": "immutable values and capability descriptors defined by the exported signatures.",
-            "outputs": "validated frozen values or deterministic calculations.",
-            "sideEffects": "none.",
-            "lifecycle": "stateless values and pure calls have no disposal phase.",
-            "errors": "invalid inputs throw the exported module error or a TypeError.",
-            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
-          },
-          "moduleId": "core.projected-history-contract",
-          "name": "createProjectedHistoryBatch"
-        },
-        {
-          "documentation": {
-            "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for projected history contract.",
-            "inputs": "immutable values and capability descriptors defined by the exported signatures.",
-            "outputs": "validated frozen values or deterministic calculations.",
-            "sideEffects": "none.",
-            "lifecycle": "stateless values and pure calls have no disposal phase.",
-            "errors": "invalid inputs throw the exported module error or a TypeError.",
-            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
-          },
-          "moduleId": "core.projected-history-contract",
-          "name": "createProjectedHistoryRequest"
-        },
-        {
-          "documentation": {
-            "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for projected history contract.",
-            "inputs": "immutable values and capability descriptors defined by the exported signatures.",
-            "outputs": "validated frozen values or deterministic calculations.",
-            "sideEffects": "none.",
-            "lifecycle": "stateless values and pure calls have no disposal phase.",
-            "errors": "invalid inputs throw the exported module error or a TypeError.",
-            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
-          },
-          "moduleId": "core.projected-history-contract",
-          "name": "projectedHistoryRequestKey"
-        }
-      ],
-      "responsibilities": [
-        "bar-data-runtime"
-      ],
-      "sizeException": null,
-      "sourceHash": "dff8441427b805ee7f78955f6be5dc7200342f285cbaf567ea157baf2f324a9c"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 114,
       "forwardingOnly": false,
       "functions": [
@@ -2876,6 +2643,264 @@
       ],
       "sizeException": null,
       "sourceHash": "edf3c75fb90e137b5f8e1bc9ad1e3410fbaee28157ea7e3b41f88387101fc900"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 133,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "labelDate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "createProjectedHistoryBatch",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "createProjectedHistoryBar",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "createProjectedHistoryRequest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "requireId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireString",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "projectedHistoryRequestKey",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.projected-history-contract",
+      "owner": "bar-data-runtime",
+      "ownsContract": false,
+      "path": "src/projected-history-contract/projected-history-contract.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "bar-data-runtime.",
+            "purpose": "expose the complete supported public contract for projected history contract.",
+            "inputs": "immutable values and capability descriptors defined by the exported signatures.",
+            "outputs": "validated frozen values or deterministic calculations.",
+            "sideEffects": "none.",
+            "lifecycle": "stateless values and pure calls have no disposal phase.",
+            "errors": "invalid inputs throw the exported module error or a TypeError.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "core.projected-history-contract",
+          "name": "createProjectedHistoryBatch"
+        },
+        {
+          "documentation": {
+            "owner": "bar-data-runtime.",
+            "purpose": "expose the complete supported public contract for projected history contract.",
+            "inputs": "immutable values and capability descriptors defined by the exported signatures.",
+            "outputs": "validated frozen values or deterministic calculations.",
+            "sideEffects": "none.",
+            "lifecycle": "stateless values and pure calls have no disposal phase.",
+            "errors": "invalid inputs throw the exported module error or a TypeError.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "core.projected-history-contract",
+          "name": "createProjectedHistoryRequest"
+        },
+        {
+          "documentation": {
+            "owner": "bar-data-runtime.",
+            "purpose": "expose the complete supported public contract for projected history contract.",
+            "inputs": "immutable values and capability descriptors defined by the exported signatures.",
+            "outputs": "validated frozen values or deterministic calculations.",
+            "sideEffects": "none.",
+            "lifecycle": "stateless values and pure calls have no disposal phase.",
+            "errors": "invalid inputs throw the exported module error or a TypeError.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "core.projected-history-contract",
+          "name": "projectedHistoryRequestKey"
+        }
+      ],
+      "responsibilities": [
+        "bar-data-runtime"
+      ],
+      "sizeException": null,
+      "sourceHash": "41e0c9a24c3e7e61e06c5edc1de496be8e8c35796fcf2f8158ebd23990fa909c"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 135,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "formatChartCrosshair",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "dateText",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "wallParts",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "dateLabelParts",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "formatDate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "formatTime",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "formatTime",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "instantParts",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "pad",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 34,
+          "name": "createTimePresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "localZone",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "formatDate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "formatDateLabel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "monthText",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "timeText",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "formatAxisTick",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "partsFor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "formatDateTime",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.workstation-settings",
+      "owner": "workstation-settings",
+      "ownsContract": false,
+      "path": "src/workstation-settings/time-presentation.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "workstation-settings.",
+            "purpose": "expose the complete supported public contract for workstation settings.",
+            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
+            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
+            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.workstation-settings",
+          "name": "createTimePresentation"
+        }
+      ],
+      "responsibilities": [
+        "workstation-settings"
+      ],
+      "sizeException": null,
+      "sourceHash": "2504bfad7f0438567ad370ba8cdba9fa3d54d85655732d52626bdcb2f2319509"
     },
     {
       "adaptsBoundary": false,
@@ -9064,66 +9089,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 63,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 10,
-          "name": "normalizeProjectedBars",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 28,
-          "name": "createProjectedBar",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "exactFields",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireFinite",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "domain",
-      "moduleId": "core.projection-domain",
-      "owner": "projection-domain",
-      "ownsContract": false,
-      "path": "src/projection-domain/projected-bar.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "projection-domain.",
-            "purpose": "expose the complete supported public contract for projection domain.",
-            "inputs": "validated domain values and capability policies defined by the exported signatures.",
-            "outputs": "frozen domain values or deterministic projections.",
-            "sideEffects": "none.",
-            "lifecycle": "stateless values and pure calculations have no disposal phase.",
-            "errors": "invalid domain input throws the exported module error or a TypeError.",
-            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
-          },
-          "moduleId": "core.projection-domain",
-          "name": "createProjectedBar"
-        }
-      ],
-      "responsibilities": [
-        "projection-domain"
-      ],
-      "sizeException": null,
-      "sourceHash": "ce12434398a25c6ed7c7820220d46324e638d4e47bf2a679bb9fb17c2bfb45b8"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 66,
       "forwardingOnly": false,
       "functions": [
@@ -10460,6 +10425,81 @@
       "functions": [
         {
           "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "normalizeProjectedBars",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requireLabelDate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 36,
+          "name": "createProjectedBar",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "validFields",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireFinite",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "core.projection-domain",
+      "owner": "projection-domain",
+      "ownsContract": false,
+      "path": "src/projection-domain/projected-bar.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "projection-domain.",
+            "purpose": "expose the complete supported public contract for projection domain.",
+            "inputs": "validated domain values and capability policies defined by the exported signatures.",
+            "outputs": "frozen domain values or deterministic projections.",
+            "sideEffects": "none.",
+            "lifecycle": "stateless values and pure calculations have no disposal phase.",
+            "errors": "invalid domain input throws the exported module error or a TypeError.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "core.projection-domain",
+          "name": "createProjectedBar"
+        }
+      ],
+      "responsibilities": [
+        "projection-domain"
+      ],
+      "sizeException": null,
+      "sourceHash": "5495b6367ba9d776148dda58c6f007afb59c3da7b030b30340e1a6b4a1805b6d"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 83,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
           "name": "<anonymous-8>",
           "reviewedDecompositionException": false
         },
@@ -11496,7 +11536,7 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 98,
+      "effectiveLines": 99,
       "forwardingOnly": false,
       "functions": [
         {
@@ -11510,7 +11550,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 17,
+          "effectiveLines": 18,
           "name": "beginBucket",
           "reviewedDecompositionException": false
         },
@@ -11550,7 +11590,7 @@
         "projection-domain"
       ],
       "sizeException": null,
-      "sourceHash": "34a3d6123f64ebf3828766a962b47a3fbe19fe43f1c41c90c604386975c3ca71"
+      "sourceHash": "637cbcbafac5e4069b962caba219246168e2f99d1dc70f9a6881ff583081a6fa"
     },
     {
       "adaptsBoundary": false,
@@ -12774,6 +12814,61 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 103,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 10,
+          "name": "timeLabel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "createChartTimePresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "createChartOptions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createExchangeTimePresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "tickMarkFormatter",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "timeFormatter",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "semanticTickType",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/chart-options.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "50b706eb43ddf980b93f8bc3f2f0d05e4c981bd4049833049cfd83efbb17e644"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 104,
       "forwardingOnly": false,
       "functions": [
@@ -12854,46 +12949,6 @@
       ],
       "sizeException": null,
       "sourceHash": "986dfffa85ec589448bc0298932fe49e257aecdba2b80dd66e3198a3d0731bfd"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 105,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 10,
-          "name": "timeSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "canvasSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "seriesSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 51,
-          "name": "createAdapterSnapshot",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/adapter-snapshot.js",
-      "publicExports": [],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "231ebd364d11b7af1ab5f95238dcd3da6d8208ec142525006b533c20165602f0"
     },
     {
       "adaptsBoundary": true,
@@ -13189,6 +13244,46 @@
       ],
       "sizeException": null,
       "sourceHash": "4e2e7654110956a9a4c2aba5a9b5b9d203da7d49fc3b648309b1c826525b12f3"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 109,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 14,
+          "name": "timeSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "canvasSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "seriesSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 51,
+          "name": "createAdapterSnapshot",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/adapter-snapshot.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "3321b19bc32dc286ad211a0944e668db25b5b7af7d2dd2c33beb59fc3edaaee9"
     },
     {
       "adaptsBoundary": true,
@@ -17826,31 +17921,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 36,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 27,
-          "name": "createLightweightChartSurface",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/chart-surface.js",
-      "publicExports": [],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "7b72395af962824a21272340f3c86f7c305b28b56f04af380ba394c22ddce5c7"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 38,
       "forwardingOnly": false,
       "functions": [
@@ -17876,6 +17946,31 @@
       ],
       "sizeException": null,
       "sourceHash": "e0871a03021fe669817027a4842da8073013e5789b7f6f1dae797fad28537ab0"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 38,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 29,
+          "name": "createLightweightChartSurface",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/chart-surface.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "da6adb0d7bd1acb4165869bd81f87d8bcc36f019522f7268533f29b2cd5f9ad6"
     },
     {
       "adaptsBoundary": true,
@@ -18959,86 +19054,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 43,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "exchangeWallSecondsToInstantMs",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "partsAt",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "fieldsEpoch",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "formatExchangeWallMinute",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.v4-bars-provider",
-      "owner": "bar-data-runtime",
-      "ownsContract": false,
-      "path": "src/v4-bars-provider-adapter/time-codec.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
-            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
-            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
-            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
-            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
-            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
-            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
-          },
-          "moduleId": "adapter.v4-bars-provider",
-          "name": "exchangeWallSecondsToInstantMs"
-        },
-        {
-          "documentation": {
-            "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
-            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
-            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
-            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
-            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
-            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
-            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
-          },
-          "moduleId": "adapter.v4-bars-provider",
-          "name": "formatExchangeWallMinute"
-        }
-      ],
-      "responsibilities": [
-        "bar-data-runtime"
-      ],
-      "sizeException": null,
-      "sourceHash": "e18663eb531f18681f9ca61c62a4ca05bb67ec23452aee8f78654c958202b745"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 430,
+      "effectiveLines": 426,
       "forwardingOnly": false,
       "functions": [
         {
@@ -19192,7 +19208,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 45,
+          "effectiveLines": 41,
           "name": "applyStaged",
           "reviewedDecompositionException": false
         },
@@ -19262,7 +19278,86 @@
         "chart-runtime-adapter"
       ],
       "sizeException": null,
-      "sourceHash": "af9396f0df7326dd797ebb95a13f7e64701b95758266cb3a287973635ced9697"
+      "sourceHash": "949b01a0e727d659d202a7512ebcfabeb9672305c78bd93094847436bd06d09d"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 43,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "exchangeWallSecondsToInstantMs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "partsAt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "fieldsEpoch",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "formatExchangeWallMinute",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.v4-bars-provider",
+      "owner": "bar-data-runtime",
+      "ownsContract": false,
+      "path": "src/v4-bars-provider-adapter/time-codec.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "bar-data-runtime.",
+            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
+            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
+            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
+            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
+            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
+            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
+          },
+          "moduleId": "adapter.v4-bars-provider",
+          "name": "exchangeWallSecondsToInstantMs"
+        },
+        {
+          "documentation": {
+            "owner": "bar-data-runtime.",
+            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
+            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
+            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
+            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
+            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
+            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
+          },
+          "moduleId": "adapter.v4-bars-provider",
+          "name": "formatExchangeWallMinute"
+        }
+      ],
+      "responsibilities": [
+        "bar-data-runtime"
+      ],
+      "sizeException": null,
+      "sourceHash": "e18663eb531f18681f9ca61c62a4ca05bb67ec23452aee8f78654c958202b745"
     },
     {
       "adaptsBoundary": true,
@@ -20717,71 +20812,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 61,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "setBars",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "candle",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "createCrosshairPresentationIndex",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "indexAt",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "observation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "barAt",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "latest",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "selectedAt",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "entry",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/crosshair-presentation.js",
-      "publicExports": [],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "aac951fb0a8d78bd85f961c0710fb01deffb50df8bdf44ac4145966352e86119"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 62,
       "forwardingOnly": false,
       "functions": [
@@ -21135,27 +21165,52 @@
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "timeFormatter",
+          "name": "setBars",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "candle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "indexAt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "createCrosshairPresentationIndex",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "observation",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 3,
-          "name": "createExchangeTimePresentation",
+          "name": "barAt",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 3,
-          "name": "tickMarkFormatter",
+          "name": "latest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "selectedAt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "entry",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 7,
-          "name": "semanticTickType",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "createChartTimePresentation",
+          "name": "timeLabelAt",
           "reviewedDecompositionException": false
         }
       ],
@@ -21163,13 +21218,13 @@
       "moduleId": "adapter.lightweight-chart",
       "owner": "chart-runtime-adapter",
       "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/chart-options.js",
+      "path": "src/lightweight-chart-adapter/crosshair-presentation.js",
       "publicExports": [],
       "responsibilities": [
         "chart-runtime-adapter"
       ],
       "sizeException": null,
-      "sourceHash": "9af6b7cf8ec03f35c9080a53b68c509d75ab625c1d29e136a6f43610386f7384"
+      "sourceHash": "e5aec4a2166925623595b3c589ddbfa4874c43fb99408159638f6b137bdeb69f"
     },
     {
       "adaptsBoundary": true,
@@ -22327,7 +22382,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 86,
+      "effectiveLines": 87,
       "forwardingOnly": false,
       "functions": [
         {
@@ -22341,7 +22396,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 18,
+          "effectiveLines": 19,
           "name": "createWorkstationPresentationController",
           "reviewedDecompositionException": false
         },
@@ -22371,7 +22426,7 @@
         "chart-runtime-adapter"
       ],
       "sizeException": null,
-      "sourceHash": "dc8ba4f9fc968107305739999edc6d3fd93c510dc920ed8c70a3cd457041607d"
+      "sourceHash": "71090a762b579bc13d5c1c804998ca69c44584e71608af964bdf4e9743cfd174"
     },
     {
       "adaptsBoundary": true,
@@ -22452,100 +22507,6 @@
       ],
       "sizeException": null,
       "sourceHash": "0576f789b1b7551da750a306709a0826644764778ca0a0d40115182d991f8bb6"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 88,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "abort",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "createV4ProjectedHistoryProvider",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "requestUrl",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 2,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "failure",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "targetTimeframe",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 40,
-          "name": "requestProjectedHistory",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.v4-bars-provider",
-      "owner": "bar-data-runtime",
-      "ownsContract": false,
-      "path": "src/v4-bars-provider-adapter/projected-history-adapter.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
-            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
-            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
-            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
-            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
-            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
-            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
-          },
-          "moduleId": "adapter.v4-bars-provider",
-          "name": "createV4ProjectedHistoryProvider"
-        },
-        {
-          "documentation": {
-            "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
-            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
-            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
-            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
-            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
-            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
-            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
-          },
-          "moduleId": "adapter.v4-bars-provider",
-          "name": "V4_PROJECTED_HISTORY_PROVIDER_ID"
-        }
-      ],
-      "responsibilities": [
-        "bar-data-runtime"
-      ],
-      "sizeException": null,
-      "sourceHash": "c96345f4e1a6e8b1c01917d56a63c589f86ec5af5943f80f40678527acec67d9"
     },
     {
       "adaptsBoundary": true,
@@ -22695,6 +22656,100 @@
       ],
       "sizeException": null,
       "sourceHash": "7c87740e3ca0527d509bd723c8ddaf8fe38d373c75bea61b9ae55d1da21482e2"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 89,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "abort",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "createV4ProjectedHistoryProvider",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "requestUrl",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "failure",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "targetTimeframe",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 40,
+          "name": "requestProjectedHistory",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.v4-bars-provider",
+      "owner": "bar-data-runtime",
+      "ownsContract": false,
+      "path": "src/v4-bars-provider-adapter/projected-history-adapter.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "bar-data-runtime.",
+            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
+            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
+            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
+            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
+            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
+            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
+          },
+          "moduleId": "adapter.v4-bars-provider",
+          "name": "createV4ProjectedHistoryProvider"
+        },
+        {
+          "documentation": {
+            "owner": "bar-data-runtime.",
+            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
+            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
+            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
+            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
+            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
+            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
+          },
+          "moduleId": "adapter.v4-bars-provider",
+          "name": "V4_PROJECTED_HISTORY_PROVIDER_ID"
+        }
+      ],
+      "responsibilities": [
+        "bar-data-runtime"
+      ],
+      "sizeException": null,
+      "sourceHash": "e95fe7b42d7d35124fddb2e85b4655a207796efac53f02776e82bb4ab348e7fe"
     },
     {
       "adaptsBoundary": true,
@@ -22879,9 +22934,9 @@
   ],
   "schemaVersion": 1,
   "summary": {
-    "effectiveLines": 22891,
+    "effectiveLines": 22999,
     "files": 309,
-    "functions": 2449,
+    "functions": 2460,
     "publicExports": 306
   },
   "deliveryStep": "R8.12",

@@ -44,12 +44,16 @@ function seriesSnapshot({ currentPriceName, seriesOptions }) {
   });
 }
 
-function timeSnapshot(chartOptions, host) {
+function timeSnapshot(chartOptions, host, latestCandleTime) {
   return Object.freeze({
     dateFormat: host.dataset.dateFormat,
     dayOfWeekVisible: host.dataset.dayOfWeekVisible === 'true',
     displayTimezone: host.dataset.displayTimezone,
     hourFormat: host.dataset.hourFormat,
+    latestCrosshair: latestCandleTime === null
+      ? null : chartOptions.localization.timeFormatter(latestCandleTime),
+    latestTimeTick: latestCandleTime === null
+      ? null : chartOptions.timeScale.tickMarkFormatter(latestCandleTime, 3, 'en-US'),
     sampleCrosshair: chartOptions.localization.timeFormatter(1_777_639_400),
     sampleTimeTick: chartOptions.timeScale.tickMarkFormatter(1_777_639_400, 3, 'en-US'),
   });
@@ -94,7 +98,7 @@ export function createAdapterSnapshot({
     logicalRange: chart.timeScale().getVisibleLogicalRange(),
     painted: host.dataset.painted === 'true',
     priceRange: priceScale.getVisibleRange(),
-    timePresentation: timeSnapshot(chartOptions, host),
+    timePresentation: timeSnapshot(chartOptions, host, latestCandleTime),
     gridVisible: host.dataset.gridVisible === 'true',
     bodyVisible: host.dataset.bodyVisible === 'true',
     bordersVisible: host.dataset.bordersVisible === 'true',

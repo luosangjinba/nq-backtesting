@@ -101,6 +101,47 @@ globalThis.__truncationSelections = truncationSelections;
 globalThis.__viewportIntents = viewportIntents;
 const application = createChartSnapshotApplication({ activationGeneration, adapter, sessionId });
 
+globalThis.__probeAggregateTimeLabels = async () => {
+  const cases = [
+    ['oneHour', '2026-03-16T03:00:00Z', '2026-03-16T03:59:00Z', null, 3_600_000],
+    ['fourHour', '2026-03-15T22:00:00Z', '2026-03-16T01:59:00Z', null, 14_400_000],
+    ['daily', '2026-05-06T22:00:00Z', '2026-05-07T20:59:00Z', '2026-05-07', null],
+    ['weekly', '2026-03-29T22:00:00Z', '2026-04-03T20:59:00Z', '2026-03-30', null],
+    ['monthly', '2025-08-01T13:30:00Z', '2025-08-29T20:59:00Z', '2025-08-01', null],
+  ];
+  const result = {};
+  for (const [name, start, display, labelDate, durationMs] of cases) {
+    const candidate = Object.freeze({
+      ...snapshot,
+      bars: Object.freeze([Object.freeze({
+        close: 101,
+        displayEpochMs: Date.parse(display),
+        high: 102,
+        labelDate,
+        low: 99,
+        open: 100,
+        startEpochMs: Date.parse(start),
+        volume: 10,
+      })]),
+      provenance: Object.freeze({ ...snapshot.provenance, displayTimeframeDurationMs: durationMs }),
+    });
+    const staged = await adapter.stage({
+      identity, signal: new AbortController().signal, workspaceSnapshot: candidate,
+    });
+    await adapter.applyVisible({
+      identity, isCurrent: () => true, signal: new AbortController().signal,
+      staged, workspaceSnapshot: candidate,
+    });
+    const time = adapter.snapshot().timePresentation;
+    result[name] = Object.freeze({
+      crosshair: time.latestCrosshair,
+      tick: time.latestTimeTick,
+    });
+    await adapter.rollbackVisible(staged);
+  }
+  return Object.freeze(result);
+};
+
 globalThis.__probeVisibleRollback = async () => {
   const candidateBar = Object.freeze({
     close: 122,

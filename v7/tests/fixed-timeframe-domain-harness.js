@@ -260,6 +260,7 @@ const partial = projectPaneSnapshot(projectionInput({
 }));
 assert.deepEqual(partial.bars, [{
   displayEpochMs: epoch('2026-06-08T09:34'),
+  labelDate: null,
   startEpochMs: epoch('2026-06-08T09:30'),
   open: 100, high: 103, low: 99, close: 102, volume: 21,
 }], 'exclusive cursor may expose a deterministic partial active bucket');

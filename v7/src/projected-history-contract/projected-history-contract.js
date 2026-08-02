@@ -5,6 +5,10 @@ const REQUEST_FIELDS = Object.freeze([
   'instrumentId', 'providerId', 'schemaVersion', 'sessionHoursMode',
   'windowEndEpochMs', 'windowStartEpochMs',
 ]);
+const BAR_FIELDS = Object.freeze([
+  'close', 'displayEpochMs', 'high', 'low', 'open', 'startEpochMs', 'volume',
+]);
+const DATE_LABEL_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 function requireString(value, label) {
   if (typeof value !== 'string' || value.length === 0 || value.trim() !== value) {
@@ -19,10 +23,22 @@ function requireId(value, label) {
   return value;
 }
 
+function labelDate(value) {
+  if (value === undefined || value === null) return null;
+  const match = typeof value === 'string' ? DATE_LABEL_PATTERN.exec(value) : null;
+  if (!match) throw new TypeError('Projected History label date is invalid.');
+  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+  if (date.toISOString().slice(0, 10) !== value) {
+    throw new TypeError('Projected History label date is invalid.');
+  }
+  return value;
+}
+
 function createProjectedHistoryBar(value) {
-  const fields = ['close', 'displayEpochMs', 'high', 'low', 'open', 'startEpochMs', 'volume'];
+  const fields = Object.keys(value ?? {});
   if (!value || typeof value !== 'object' || Array.isArray(value)
-    || Object.keys(value).sort().join(',') !== fields.sort().join(',')
+    || !BAR_FIELDS.every((field) => Object.hasOwn(value, field))
+    || fields.some((field) => ![...BAR_FIELDS, 'labelDate'].includes(field))
     || !Number.isSafeInteger(value.startEpochMs) || value.startEpochMs < 0
     || !Number.isSafeInteger(value.displayEpochMs) || value.displayEpochMs < value.startEpochMs
     || ['open', 'high', 'low', 'close'].some((field) => !Number.isFinite(value[field]))
@@ -35,6 +51,7 @@ function createProjectedHistoryBar(value) {
     close: value.close,
     displayEpochMs: value.displayEpochMs,
     high: value.high,
+    labelDate: labelDate(value.labelDate),
     low: value.low,
     open: value.open,
     startEpochMs: value.startEpochMs,
@@ -105,6 +122,9 @@ export function createProjectedHistoryBatch(value) {
       || bar.startEpochMs <= previousStartEpochMs
       || bar.displayEpochMs <= previousDisplayEpochMs) {
       throw new TypeError('Projected History bars must be ordered inside their request window.');
+    }
+    if ((request.alignmentKind === 'calendar') !== (bar.labelDate !== null)) {
+      throw new TypeError('Projected History label-date semantics differ from alignment.');
     }
     previousStartEpochMs = bar.startEpochMs;
     previousDisplayEpochMs = bar.displayEpochMs;

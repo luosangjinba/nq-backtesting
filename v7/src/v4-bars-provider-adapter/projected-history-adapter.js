@@ -79,6 +79,7 @@ export function createV4ProjectedHistoryProvider({
           close: bar.close,
           displayEpochMs: bar.displayTimestamp * 1_000,
           high: bar.high,
+          labelDate: bar.labelDate ?? null,
           low: bar.low,
           open: bar.open,
           startEpochMs: bar.timestamp * 1_000,

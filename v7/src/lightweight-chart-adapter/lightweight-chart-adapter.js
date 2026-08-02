@@ -60,7 +60,7 @@ export function createLightweightChartAdapter({
     chart, onDataChanged: onSeriesDataChanged, primarySeries: series,
   });
   const presentation = createWorkstationPresentationController({
-    candleSeriesWriter, chart, currentPriceName, host, priceScale, truncationInteraction,
+    candleSeriesWriter, chart, currentPriceName, host, priceScale, resolveTimeLabel: interactionIndex.timeLabelAt, truncationInteraction,
   });
 
   const crosshairInteraction = createAdapterCrosshairInteraction({
@@ -159,6 +159,7 @@ export function createLightweightChartAdapter({
       return;
     }
     const dataRevisionBefore = seriesDataRevision;
+    interactionIndex.setBars(record.previous.appliedBars);
     candleSeriesWriter.rollback(record.writerMutation);
     const restored = restoreAdapterVisibleState({
       chart,
@@ -183,7 +184,6 @@ export function createLightweightChartAdapter({
       );
     }
     presentation.syncCurrentPrice(appliedData);
-    interactionIndex.setBars(appliedBars);
     await requireTailUpdatePaint({ changed: () => seriesDataRevision > dataRevisionBefore, requestFrame });
     if (disposed || record.token !== visibleMutationToken) {
       record.state = 'rolled-back';
@@ -326,13 +326,9 @@ export function createLightweightChartAdapter({
           appliedData,
         );
       }
-      const timing = await mutateAndPaint(
-        context.staged.data,
-        context.staged.futureTimeAxisData,
-        context.staged.mutation,
-        record,
-        expectCandles,
-      );
+      interactionIndex.setBars(context.workspaceSnapshot?.bars ?? Object.freeze([]));
+      const timing = await mutateAndPaint(context.staged.data, context.staged.futureTimeAxisData,
+        context.staged.mutation, record, expectCandles);
       if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
       const result = commit(context, timing);
       record.state = 'applied';

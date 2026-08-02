@@ -83,18 +83,22 @@ create table futures_1m (
     eth_daily = results[("eth", "1D")][0]
     assert eth_daily["timestamp"] == epoch("2026-05-03T22:00:00")
     assert eth_daily["displayTimestamp"] == epoch("2026-05-04T20:59:00")
+    assert eth_daily["labelDate"] == "2026-05-04"
 
     rth_daily = results[("rth", "1D")][0]
     assert rth_daily["timestamp"] == epoch("2026-05-04T13:30:00")
     assert rth_daily["displayTimestamp"] == epoch("2026-05-04T20:14:00")
+    assert rth_daily["labelDate"] == "2026-05-04"
 
     eth_weekly = results[("eth", "1W")][0]
     assert eth_weekly["timestamp"] == epoch("2026-05-03T22:00:00")
     assert eth_weekly["displayTimestamp"] == epoch("2026-05-08T20:59:00")
+    assert eth_weekly["labelDate"] == "2026-05-04"
 
     june_eth = results[("eth", "1M")][-1]
     assert june_eth["timestamp"] == epoch("2026-05-31T22:00:00")
     assert june_eth["displayTimestamp"] == epoch("2026-06-30T20:59:00")
+    assert june_eth["labelDate"] == "2026-06-01"
 
     cached = projected_history_service.query_projected_history(
         str(db_path), "futures_1m", "NQ", "2026-05-01 00:00", "2026-07-02 00:00", "1M", "eth"

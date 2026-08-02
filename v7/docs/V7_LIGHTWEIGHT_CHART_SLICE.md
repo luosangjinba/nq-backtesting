@@ -34,6 +34,15 @@ Projection bars carry separate canonical bucket `startEpochMs` and chart-only
 Charts time coordinate. Replay/no-future, Session Hours, aggregation identity,
 and provenance continue to use the bucket/source fields.
 
+R9.4 keeps that coordinate contract and corrects only its text presentation.
+The adapter's shared read-only projected-bar index resolves exact candle
+coordinates back to fixed bucket `startEpochMs`, or to the explicit calendar
+`labelDate`. The official `localization.timeFormatter` and
+`timeScale.tickMarkFormatter` ports then show bucket-start time for intraday
+bars and date-only trading-period labels for `1D`/`1W`/`1M`. Future whitespace
+coordinates retain ordinary instant formatting because they do not identify a
+candle. No formatter moves a series point, Replay cursor, or Viewport wall.
+
 `adapter.replay-workspace-ui` owns only its DOM subtree, visible state, and UI
 command dispatch. It composes Session activation, Bar Data Runtime with the
 real provider port, Replay Runtime, Projection Domain, Workspace

@@ -20,6 +20,40 @@ const request = createProjectedHistoryRequest({
   windowEndEpochMs: 28_800_000,
   windowStartEpochMs: 14_400_000,
 });
+const calendarRequest = createProjectedHistoryRequest({
+  ...request,
+  aggregationPolicyRevision: 'calendar-day-eth-r1',
+  alignmentKind: 'calendar',
+  alignmentPolicyId: 'alignment.calendar-day',
+  displayTimeframeId: 'timeframe.display-1-day',
+  durationMs: null,
+});
+const calendarBar = {
+  close: 101,
+  displayEpochMs: 28_740_000,
+  high: 102,
+  labelDate: '1970-01-01',
+  low: 99,
+  open: 100,
+  startEpochMs: 14_400_000,
+  volume: 10,
+};
+assert.equal(createProjectedHistoryBatch({
+  bars: [calendarBar], request: calendarRequest, schemaVersion: 1,
+}).bars[0].labelDate, '1970-01-01');
+assert.throws(() => createProjectedHistoryBatch({
+  bars: [{ ...calendarBar, labelDate: undefined }],
+  request: calendarRequest,
+  schemaVersion: 1,
+}), /label-date semantics/);
+assert.throws(() => createProjectedHistoryBatch({
+  bars: [{ ...calendarBar, labelDate: '1970-02-30' }],
+  request: calendarRequest,
+  schemaVersion: 1,
+}), /label date is invalid/);
+assert.throws(() => createProjectedHistoryBatch({
+  bars: [calendarBar], request, schemaVersion: 1,
+}), /label-date semantics/);
 let providerCalls = 0;
 const runtime = createProjectedHistoryRuntime({
   maxCacheEntries: 2,

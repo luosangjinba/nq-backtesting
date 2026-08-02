@@ -1,10 +1,12 @@
 import { failProjection } from './projection-error.js';
 
 const BASE_BAR_FIELDS = Object.freeze(['startEpochMs', 'open', 'high', 'low', 'close', 'volume']);
-const PROJECTED_BAR_FIELDS = Object.freeze([...BASE_BAR_FIELDS, 'displayEpochMs']);
+const PROJECTED_BAR_FIELDS = Object.freeze([...BASE_BAR_FIELDS, 'displayEpochMs', 'labelDate']);
+const DATE_LABEL_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
-function exactFields(value, fields) {
-  return Object.keys(value).sort().join(',') === [...fields].sort().join(',');
+function validFields(value) {
+  return BASE_BAR_FIELDS.every((field) => Object.hasOwn(value, field))
+    && Object.keys(value).every((field) => PROJECTED_BAR_FIELDS.includes(field));
 }
 
 function requireFinite(value, field) {
@@ -14,12 +16,23 @@ function requireFinite(value, field) {
   return value;
 }
 
+function requireLabelDate(value) {
+  if (value === undefined || value === null) return null;
+  const match = typeof value === 'string' ? DATE_LABEL_PATTERN.exec(value) : null;
+  if (!match) failProjection('PROJECTED_BAR_LABEL_DATE_INVALID', 'Projected label date is invalid.');
+  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+  if (date.toISOString().slice(0, 10) !== value) {
+    failProjection('PROJECTED_BAR_LABEL_DATE_INVALID', 'Projected label date is invalid.');
+  }
+  return value;
+}
+
 export function createProjectedBar(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     failProjection('PROJECTED_BAR_INVALID', 'Projected bar must be an object.');
   }
-  if (!exactFields(value, BASE_BAR_FIELDS) && !exactFields(value, PROJECTED_BAR_FIELDS)) {
-    failProjection('PROJECTED_BAR_FIELDS', 'Projected bar must contain exact OHLCV and optional display-time fields.');
+  if (!validFields(value)) {
+    failProjection('PROJECTED_BAR_FIELDS', 'Projected bar contains invalid OHLCV or presentation fields.');
   }
   if (!Number.isSafeInteger(value.startEpochMs) || value.startEpochMs < 0) {
     failProjection('PROJECTED_BAR_TIMESTAMP_INVALID', 'Projected bar timestamp is invalid.');
@@ -32,6 +45,7 @@ export function createProjectedBar(value) {
   const high = requireFinite(value.high, 'high');
   const low = requireFinite(value.low, 'low');
   const close = requireFinite(value.close, 'close');
+  const labelDate = requireLabelDate(value.labelDate);
   if (high < Math.max(open, low, close) || low > Math.min(open, high, close)) {
     failProjection('PROJECTED_BAR_ENVELOPE_INVALID', 'Projected high/low must contain open and close.');
   }
@@ -39,7 +53,14 @@ export function createProjectedBar(value) {
     failProjection('PROJECTED_BAR_VOLUME_INVALID', 'Projected volume must be null or non-negative.');
   }
   return Object.freeze({
-    startEpochMs: value.startEpochMs, displayEpochMs, open, high, low, close, volume: value.volume,
+    startEpochMs: value.startEpochMs,
+    displayEpochMs,
+    labelDate,
+    open,
+    high,
+    low,
+    close,
+    volume: value.volume,
   });
 }
 

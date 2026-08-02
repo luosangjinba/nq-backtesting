@@ -10,6 +10,7 @@ export function createWorkstationPresentationController({
   currentPriceName,
   host,
   priceScale,
+  resolveTimeLabel,
   truncationInteraction,
 }) {
   let instrumentLabel = '';
@@ -22,7 +23,7 @@ export function createWorkstationPresentationController({
 
   function applyNative(nextSettings, nextPriceIncrement, nextInstrumentLabel) {
     const canvasPresentation = createCanvasPresentation(nextSettings);
-    const timePresentation = createChartTimePresentation(nextSettings);
+    const timePresentation = createChartTimePresentation(nextSettings, { resolveTimeLabel });
     chart.applyOptions({
       ...canvasPresentation.chartOptions,
       localization: { timeFormatter: timePresentation.timeFormatter },

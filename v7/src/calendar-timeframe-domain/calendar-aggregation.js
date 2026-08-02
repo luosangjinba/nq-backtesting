@@ -57,6 +57,7 @@ function beginBucket(bar, alignment, configuration) {
     close: bar.close,
     displayEpochMs: completionEpochMs,
     high: bar.high,
+    labelDate: new Date(alignment.tradingPeriodStartEpochMs).toISOString().slice(0, 10),
     low: bar.low,
     open: bar.open,
     startEpochMs,

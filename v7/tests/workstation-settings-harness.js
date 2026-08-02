@@ -258,6 +258,10 @@ const utcTime = createTimePresentation(settingsValue({ time: {
 assert.equal(utcTime.formatDateTime(summerEpochMs), 'Fri 2026-05-01, 1:30 PM UTC');
 assert.equal(utcTime.formatAxisTick(summerEpochMs, 'day'), '26-05-01',
   'dense axis dates must honor date order without adding weekday text');
+assert.equal(utcTime.formatDateLabel('2026-03-30'), 'Mon 2026-03-30',
+  'calendar bucket dates must retain date identity independently of display timezone');
+assert.equal(utcTime.formatDateLabel('2026-03-30', { compact: true, weekday: false }), '26-03-30');
+assert.throws(() => utcTime.formatDateLabel('2026-02-30'), /real date/);
 const localTime = createTimePresentation(settingsValue({ time: {
   dateFormat: 'DD/MM/YYYY', displayTimezone: 'local', hourFormat: '24-hour',
 } }), { localTimeZone: 'America/Los_Angeles' });
