@@ -7,8 +7,8 @@ Status: discussion captured; product decision and implementation deferred
 
 This memo preserves the discussion about expanding V7 from a narrowly focused
 SMC/ICT workstation into a more general futures Replay and validation platform
-through indicators, visual elements, Setup detectors, and developer-authored
-plugins.
+through calculated indicators, manual semantic annotations, Setup workflows,
+optional detectors, and developer-authored plugins.
 
 It is not a binding product decision, does not change
 `V7_PRODUCT_AND_SCOPE.md`, does not allocate a delivery step, and authorizes no
@@ -32,9 +32,10 @@ the core. The candidate positioning is:
 > and a governed community plugin ecosystem.
 
 SMC/ICT would remain a flagship first-party pack rather than being deleted or
-diluted. Classic technical analysis, price/volume tools, discretionary Setup
-detectors, and later data-intensive futures tools could be installed as other
-packs over the same Replay, Chart, Journal, and Validation owners.
+diluted. Classic technical analysis, price/volume tools, discretionary semantic
+annotation tools, Setup workflows, and later data-intensive futures tools could
+be installed as other packs over the same Replay, Chart, Journal, and
+Validation owners.
 
 The first expanded audience should be **bar-based discretionary futures
 traders**, not every possible futures workflow. Order flow, depth-of-market,
@@ -49,10 +50,11 @@ model, but the work is larger than exposing Lightweight Charts plugin APIs.
 
 | Candidate capability | Feasibility | Primary complexity |
 |---|---:|---|
-| built-in line/band/marker indicators | high | incremental calculation and atomic Chart contribution |
+| calculated line/band/marker indicators | high | incremental calculation and atomic Chart contribution |
 | native indicator sub-panes | high | lifecycle, sizing, Settings, and performance budgets |
-| price/time visual primitives | high | hit testing, autoscale, provenance, and cleanup |
-| deterministic Setup detectors | medium-high | semantic schema, no-future proof, and Journal drill-down |
+| human-authored semantic annotations | high | interaction, editable meaning, persistence, chronology, and provenance |
+| detector/suggestion plugins | medium-high | no-future proof, source distinction, and human acceptance |
+| Setup workflow/Case plugins | medium-high | event chronology, reference integrity, Journal ownership, and migration |
 | editable drawing tools | medium | interaction ownership, persistence, undo, and cross-pane sync |
 | arbitrary third-party JavaScript | medium-low initially | sandboxing, permissions, supply chain, and resource control |
 | order-flow/footprint plugins | deferred | tick/quote/depth data and specialized rendering |
@@ -105,7 +107,9 @@ This is intentionally only a descriptor foundation. Production currently has
 no:
 
 - indicator evaluator/runtime;
-- Setup detector contract;
+- manual semantic-annotation contract, command owner, or durable store;
+- detector/suggestion contract;
+- Setup workflow definition, Setup Case, or evidence-reference contract;
 - declarative visual-result schema;
 - Chart contribution manager;
 - plugin package loader or discovery service;
@@ -131,23 +135,33 @@ Native chart panes can implement indicator sub-panes but cannot replace V7's
 Workspace Pane grid. Plugin APIs must use distinct terms such as
 `workspacePaneId` and `chartSubPane` to prevent ownership confusion.
 
-## Required Two-Layer Plugin Architecture
+## Required Host-Mediated Plugin Architecture
 
 An application plugin and a Lightweight Charts plugin are not the same thing.
-The safe candidate flow is:
+Calculated outputs and human-authored semantic objects have different sources
+and must not be forced through one evaluator-shaped path. The safe candidate
+flow is:
 
 ```text
 immutable no-future Pane Snapshot
               |
               v
-        Plugin Runtime
-   Indicator / Visual / Setup logic
+  Calculated Indicator Runtime
               |
               v
-   Declarative Analysis Result
-     |                    |
-     |                    +--> Setup Evidence --> Journal / Validation
-     v
+ Declarative Calculated Result -------+
+                                      |
+host-owned pointer/selection commands |
+              |                       |
+              v                       |
+ Semantic Annotation Command Owner    |
+              |                       |
+              v                       |
+ Durable Semantic Annotation ---------+
+              |                       |
+              +--> Setup Case evidence references --> Journal / Validation
+                                      |
+                                      v
 Chart Contribution Manager
               |
               v
@@ -157,10 +171,12 @@ sole Lightweight Chart Adapter
 built-in series / native pane / primitive / approved custom series
 ```
 
-Ordinary plugins must not receive a Lightweight Charts `chart`, `series`,
-Pane API, DOM element, Canvas context, Replay runtime, Bar Data runtime, or
-private owner state. Only the existing Chart Adapter may create, update,
-remove, attach, detach, order, or move native series and primitives.
+Ordinary plugins must not receive a Lightweight Charts `chart`, `series`, Pane
+API, DOM element, Canvas context, Replay runtime, Bar Data runtime, annotation
+store, Journal store, or private owner state. Only the existing Chart Adapter
+may create, update, remove, attach, detach, order, or move native series and
+primitives. Only host-owned commands may create or change annotations and
+Setup Cases.
 
 This separation preserves the sole Chart writer, prepared application,
 rollback/finalize lifecycle, stale-result rejection, Crosshair ownership,
@@ -168,36 +184,98 @@ Settings application, and future library portability.
 
 ## Candidate Plugin Taxonomy
 
-### Indicator Plugin
+`Basic` and `advanced` may be useful catalog and product tiers, but they must
+not select different core ownership models. The public contract should classify
+a package by its declared capabilities and the source of each result.
+
+### Calculated Indicator Plugin
 
 Consumes declared immutable inputs and parameters and produces series,
 histograms, bands, markers, candle colors, or sub-pane contributions. Examples
-include EMA, VWAP, RSI, ATR, MACD, Bollinger Bands, and Volume.
+include MA, EMA, VWAP, RSI, ATR, MACD, Bollinger Bands, Volume, and more complex
+specialized indicators. Given identical data, plugin version, and canonical
+parameters, the result must be reproducible.
 
-### Visual Plugin
+MA and a complex multi-output indicator use the same calculation ownership;
+they differ in input requirements, resource budgets, output count, and Settings
+schema. A complete MACD should target a native chart sub-pane rather than share
+the price pane's scale. Omitting sub-panes may simplify an early experiment but
+must not define the public contract.
 
-Produces price/time-anchored declarative geometry such as lines, rays, boxes,
-labels, ranges, backgrounds, session regions, or heatmaps. It does not draw
-directly or own pointer listeners.
+### Manual Semantic Annotation Plugin
 
-### Setup Detector
+Defines host-mediated tools and schemas for user-authored market meaning. FVG,
+BSL, SSL, manually related SMT evidence, Order Blocks, and liquidity labels are
+manual-first examples in the intended ICT/SMC workflow. Installing or enabling
+such a plugin does not scan history or precompute these objects.
 
-Produces semantic occurrences rather than orders. A candidate occurrence
-contains stable setup identity, module/version, parameters, instrument,
-timeframe, Session Hours, start/end anchors, direction, score/status,
-human-readable fields, source snapshot identity, and raw-chart drill-down
-provenance.
+The user selects a tool and anchors an object to accepted chart context. The
+host owns pointer routing, coordinate conversion, create/edit/delete commands,
+undo/redo, persistence, selection, and rendering. The plugin declares allowed
+geometry, semantic fields, role vocabulary, validation, and presentation
+intent; it does not own native pointer listeners or storage.
 
-A Setup detector may contribute optional visual evidence, but its semantic
-record and renderer are separate. It cannot place orders, mutate Journal,
-advance Replay, or mark its own result as validated.
+A single anchored high may acquire several assertions over time, such as BSL,
+Previous Day High, and Previous Week High. These are roles on one semantic
+object, not duplicate unrelated drawings. SMT is preferably a versioned
+relationship between anchored objects in two instruments rather than copied
+geometry.
+
+### Detector Or Suggestion Plugin
+
+Optionally computes candidates such as an automatically detected FVG, Swing,
+or SMT relationship. A candidate is not equivalent to a user's observation.
+The source of every result must be explicit:
+
+- `human` — created directly by the user;
+- `suggested` — computed candidate awaiting a user decision;
+- `computed` — machine output retained as machine output.
+
+Accepting a suggestion creates a human-owned annotation with a provenance
+reference to the candidate; it must not silently rewrite the candidate's
+source. This distinction prevents automated help from contaminating validation
+of the trader's own recognition skill. A computed Setup detector is one
+possible sub-kind; it produces a suggested or computed occurrence, never an
+order or a validated human Setup Case.
+
+### Setup Workflow Plugin
+
+Defines the schema and stages for recording one complete discretionary trade
+process, such as thesis, entry analysis, plan, entry, management, exit,
+outcome, and review. It produces no order and need not detect a Setup.
+
+The plugin may contribute a host-rendered Setup List or detail surface, but the
+Journal/Session owner persists each Setup Case. A Case references existing
+semantic annotations, trade events, chart snapshots, and Replay context by
+stable ids; it must not copy FVG/BSL/SSL objects into a private data island.
+
+### Visual Contribution Capability
+
+Visual output is a reusable capability rather than a sufficient statement of
+business ownership. Calculated indicators, manual annotations, suggestions,
+and Setup evidence may all contribute price/time-anchored lines, rays, boxes,
+labels, ranges, backgrounds, session regions, markers, or heatmaps. Their
+source and lifecycle remain distinct even when the Adapter renders them with
+the same primitive.
 
 ### Drawing Tool
 
 Consumes pointer commands through a host-owned interaction port and produces
 versioned immutable drawing documents. Selection, hit testing, undo/redo,
 persistence, and deletion require explicit ownership and are not implied by a
-Visual plugin.
+visual contribution.
+
+### Host-Rendered Control Surface
+
+Control surfaces are another capability rather than a plugin type. Calculated
+indicators declare a Settings schema; semantic annotations declare tool and
+property schemas; Setup workflows declare list, stage, and detail schemas. The
+host renders, validates, persists, and disposes these surfaces consistently.
+
+Arbitrary plugin-owned DOM, framework components, or unrestricted custom
+panels are a separate high-privilege capability and should not be required for
+the first public SDK. A complex indicator with many grouped or conditional
+settings remains implementable through a sufficiently expressive host schema.
 
 ### Strategy Or Execution Module
 
@@ -217,6 +295,7 @@ ports:
 - capabilities and explicit permissions;
 - input/output contract versions;
 - parameter and Settings schema versions;
+- declared result-source modes and host-rendered surface schemas;
 - persistence namespace and migration versions;
 - deterministic/no-future declarations;
 - compute, memory, output, and render budgets;
@@ -233,7 +312,7 @@ ports:
 Unavailable inputs must produce an explicit unavailable state. A plugin must
 not silently approximate bid/ask, Open Interest, or order flow from OHLCV.
 
-### `DeclarativeAnalysisResult`
+### `DeclarativeCalculatedResult`
 
 - exact Session/activation/transaction/Pane/snapshot identity;
 - plugin id/version and canonical parameter hash;
@@ -241,7 +320,36 @@ not silently approximate bid/ask, Open Interest, or order flow from OHLCV.
 - output revision and validity window;
 - immutable declarative series, overlay, sub-pane, marker, style, and Setup
   occurrence collections;
+- explicit `computed` or `suggested` source, never implicit human authorship;
 - diagnostics and explicit unavailable/error state.
+
+### `SemanticCandidate`
+
+A calculated `suggested` or `computed` semantic result with exact input,
+plugin/version, parameter, no-future, market-anchor, and Replay provenance. It
+may be rendered as a candidate but is not a human annotation and cannot be
+included in recognition-skill evidence as though the user created it.
+
+### `SemanticAnnotation`
+
+A durable host-owned user artifact, not a calculated series point. Candidate
+fields include:
+
+- stable annotation id, schema version, Session, Workspace Pane, instrument,
+  timeframe, and Session Hours identity;
+- immutable price/time/range anchors expressed in market coordinates rather
+  than pixels;
+- primary semantic type and zero or more versioned role assertions;
+- human authorship plus `direct` or `accepted-suggestion` creation origin and
+  immutable candidate provenance where applicable;
+- creator and create/edit/classify/invalidate Replay cursor chronology;
+- status history and human-readable properties;
+- relationships to other annotations, including cross-instrument SMT edges;
+- exact evidence references needed to reconstruct the raw chart context.
+
+One market anchor may carry BSL, Previous Day High, and Previous Week High
+assertions simultaneously. Each assertion records when it was made or removed;
+presentation must not require duplicate independent geometry.
 
 ### `ChartContribution`
 
@@ -259,18 +367,31 @@ The Adapter translates supported contributions to current Lightweight Charts
 APIs. Unsupported output fails during capability negotiation rather than
 performing an ad hoc runtime fallback.
 
+### `SetupDefinition`, `SetupCase`, And `SetupEvent`
+
+`SetupDefinition` versions the workflow stages, fields, validation, allowed
+evidence types, and host-rendered list/detail presentation. `SetupCase` is the
+Journal/Session-owned instance for one complete trade process. `SetupEvent`
+records thesis, analysis, plan, entry, management, exit, outcome, or review at
+an explicit market time and Replay observation cursor.
+
+A Case references annotations, trade events, snapshots, and other evidence by
+stable ids. It does not copy their private payloads. Reference integrity,
+plugin/schema version, event chronology, ex-ante versus hindsight status, and
+raw-context drill-down must survive plugin disable, upgrade, and uninstall.
+
 ### `SetupOccurrence`
 
-A semantic evidence value suitable for Journal and Validation consumption. It
-must preserve no-future computation, input provenance, exact chart anchors,
-plugin version, parameters, and drill-down to raw Replay context.
+An optional computed/suggested detector value, distinct from a human-owned
+`SetupCase`. It preserves no-future computation, input provenance, exact chart
+anchors, plugin version, parameters, and drill-down to raw Replay context.
 
 ## Transaction And Failure Semantics
 
-Plugin results must be bound to the exact projected Workspace revision and
-exclusive Replay cutoff that produced their inputs. A delayed result from a
-prior cursor, timeframe, Session Hours mode, instrument, plugin version, or
-parameter set must never become visible.
+Calculated plugin results must be bound to the exact projected Workspace
+revision and exclusive Replay cutoff that produced their inputs. A delayed
+result from a prior cursor, timeframe, Session Hours mode, instrument, plugin
+version, or parameter set must never become visible.
 
 One candidate transaction policy is:
 
@@ -286,6 +407,23 @@ One candidate transaction policy is:
 Third-party analysis must not block Replay indefinitely, but stale plugin
 graphics must not remain beside newer candles and appear authoritative.
 
+Manual semantic annotations and Setup Cases do not share that calculation
+lifecycle. They are durable user artifacts changed only through revision-
+checked host commands. Rendering is a projection of their accepted revisions;
+the Chart Adapter remains the only native writer and cannot become their
+durable owner.
+
+At minimum the durable chronology must distinguish:
+
+- the market time/price/range to which an artifact is anchored;
+- the Replay cursor at which the user first observed or created it;
+- later classification, role, edit, invalidation, and review cursors;
+- ex-ante evidence from hindsight conclusions entered after the trade.
+
+Moving Replay backward must never rewrite this history. Whether future-created
+annotations are hidden, dimmed, or remain visible in each practice/review mode
+is a product decision that must be explicit and testable.
+
 ## Performance And Resource Contract
 
 The plugin platform must not reintroduce Pane-count amplification. Required
@@ -298,6 +436,10 @@ investigation constraints include:
 - execute ordinary calculation plugins off the browser main thread;
 - cancel queued/staged work on activation and transaction staleness;
 - cache expensive autoscale and hit-test structures;
+- index annotations by visible market range and render only eligible geometry
+  without scanning every Session artifact on each frame;
+- reuse one accepted annotation projection where equivalent Workspace Panes
+  display the same semantic scope, while preserving Pane-local visibility;
 - bound per-plugin execution time, memory, output points, series, primitives,
   sub-panes, labels, and persisted bytes;
 - measure disabled-plugin overhead and require it to be negligible;
@@ -322,8 +464,9 @@ global objects, and CPU without using declared ports.
 
 The candidate platform should distinguish:
 
-1. **Declarative plugins** — safest default; deterministic calculation plus
-   standard outputs, no DOM or native renderer.
+1. **Declarative plugins** — safest default; deterministic calculation or
+   host-rendered annotation/workflow schemas plus standard outputs, no DOM or
+   native renderer.
 2. **Worker calculation plugins** — manually installed/trusted code, isolated
    from DOM and private owner ports, with host-mediated data and persistence.
 3. **Native renderer plugins** — high privilege; custom Canvas renderer or
@@ -343,10 +486,12 @@ evaluation, suspension, disposal, and uninstall behavior. It must release
 workers, event subscriptions, derived caches, Chart contributions, and
 temporary state on every path.
 
-Plugin settings and drawings require module-scoped persistence namespaces with
-independent schemas and migrations. Removing a plugin must leave the core
-Session readable; unknown plugin records must remain preserved or explicitly
-quarantined rather than corrupting Workspace restoration.
+Plugin settings require module-scoped persistence namespaces with independent
+schemas and migrations. Host-owned annotations, relationships, and Setup Cases
+retain their core identity and original plugin/schema provenance. Removing a
+plugin must leave the core Session and historical evidence readable; unknown
+plugin-defined properties must remain preserved or explicitly quarantined
+rather than corrupting Workspace restoration.
 
 A community-facing SDK should eventually provide:
 
@@ -368,26 +513,27 @@ would expose vendor-specific ownership and couple packages to the Chart engine.
 
 ```text
 V7 Core
-|-- Basic Futures Pack
-|   |-- EMA / VWAP / ATR / Volume
-|   `-- Opening Range / Prior Day Levels
-|-- ICT/SMC Pack
-|   |-- FVG / Order Block / Liquidity
-|   `-- Session and Setup evidence
-|-- Classic TA Pack
-|   |-- RSI / MACD / Bollinger / Trend
-|   `-- conventional Setup detectors
+|-- General Calculated Indicator Pack
+|   |-- MA / EMA / VWAP / ATR / Volume
+|   `-- RSI / MACD / Bollinger / Trend
+|-- ICT/SMC Manual Annotation Pack
+|   |-- FVG / Order Block / BSL / SSL
+|   `-- SMT relationships / semantic roles
+|-- Setup Workflow Pack
+|   `-- thesis / entry / management / exit / review Case
+|-- Specialized Calculated Indicators
 `-- Community Plugins
 ```
 
 Reference plugins for the first vertical slice should prove different
 boundaries rather than maximize indicator count:
 
-1. one incremental main-price overlay;
-2. one native resizable indicator sub-pane;
-3. one price/time visual primitive;
-4. one Setup detector whose semantic occurrence drills into Journal/Validation
-   evidence without placing an order.
+1. one incremental MA main-price overlay;
+2. one complete MACD using a native resizable indicator sub-pane;
+3. one manual FVG or BSL/SSL annotation with edit, chronology, roles, and
+   provenance but no automatic precomputation;
+4. one Setup Workflow whose Case references that annotation and drills into
+   Journal/Validation evidence without copying it or placing an order.
 
 ## Product And Architecture Risks
 
@@ -400,8 +546,14 @@ boundaries rather than maximize indicator count:
   plugin and Pane count.
 - Multi-timeframe/multi-instrument plugins can bypass no-future truth if they
   request their own data.
-- Setup detectors can become unverifiable black boxes without exact evidence
-  and versioned parameters.
+- Human, suggested, and computed objects can become indistinguishable and
+  invalidate skill evidence unless source is immutable and visible.
+- Plugin-private annotation or Setup storage can fragment Journal truth and
+  make historical Sessions unreadable after uninstall.
+- Duplicate drawings for BSL/PDH/PWH roles can diverge instead of representing
+  one anchor with versioned semantic assertions.
+- Arbitrary custom control panels can bypass host Settings, persistence,
+  permissions, and disposal boundaries.
 - Pine compatibility can consume the roadmap with language/runtime edge cases
   before a smaller stable V7 plugin contract exists.
 - Community quantity can hide poor quality, repainting, license conflicts, and
@@ -413,22 +565,32 @@ The future decision package must include:
 
 1. an explicit product-scope decision replacing or retaining the current
    SMC/ICT-only statement;
-2. user workflows for Indicator, Visual, Setup, drawing, install, configure,
-   error, disable, uninstall, restore, and evidence drill-down;
+2. user workflows for calculated Indicator, manual annotation, suggestion and
+   acceptance, Setup Case, drawing, install, configure, error, disable,
+   uninstall, restore, and evidence drill-down;
 3. a threat model and selected trust/permission tiers;
-4. versioned candidate schemas for package, input requirement, declarative
-   result, Chart contribution, and Setup occurrence;
+4. versioned candidate schemas for package, input requirement, calculated
+   result, semantic annotation/assertion/relation, Chart contribution, Setup
+   definition/Case/event, evidence reference, and optional Setup occurrence;
 5. proof that no ordinary plugin receives native Chart, Replay, Bar Data, DOM,
-   network, or persistence authority;
+   network, annotation-store, Journal-store, or persistence authority;
 6. exact no-future, transaction identity, stale rejection, rollback, failure,
-   lifecycle, and removal fixtures;
-7. one/four/eight-Pane calculation/render benchmarks and fail-closed resource
+   lifecycle, and removal fixtures for calculated results;
+7. revision, undo/redo, cursor chronology, source, assertion, relationship,
+   and plugin-uninstall fixtures for durable annotations and Setup Cases;
+8. proof that accepting a suggestion creates traceable human evidence without
+   relabeling the original computed source;
+9. proof that a Setup Case references rather than copies semantic evidence and
+   remains readable when its defining plugin is unavailable;
+10. one/four/eight-Pane calculation/render benchmarks and fail-closed resource
    budgets;
-8. real Lightweight Charts prototypes for overlay, sub-pane, primitive, and
-   teardown using official APIs;
-9. SDK/conformance and host-version compatibility strategy;
-10. licensing and distribution rules for first-party and community packages;
-11. a separate boundary decision for Strategy/Execution and for any plugin
+11. real Lightweight Charts prototypes for MA overlay, MACD sub-pane, manual
+    semantic annotation, and teardown using official APIs;
+12. a host-rendered Settings/tool/workflow schema prototype and an explicit
+    decision on whether arbitrary custom panels are ever public;
+13. SDK/conformance and host-version compatibility strategy;
+14. licensing and distribution rules for first-party and community packages;
+15. a separate boundary decision for Strategy/Execution and for any plugin
     requiring tick/quote/depth data.
 
 ## Deferred Decision Questions
@@ -444,8 +606,16 @@ The future decision package must include:
   some classes asynchronous optional consumers?
 - Which plugin failures remove output, pause a Validation Campaign, or merely
   display unavailable status?
-- How are Setup occurrences reviewed, corrected, versioned, and incorporated
-  into Validation statistics?
+- When Replay moves before an annotation's create/classification cursor, is
+  that later knowledge hidden, dimmed, or retained in each product mode?
+- Which semantic fields are assertions on one anchor, and which require a new
+  object or cross-instrument relationship?
+- How are suggested detections accepted, rejected, corrected, versioned, and
+  reported separately from direct human recognition?
+- Which Setup workflow surfaces can be expressed by host schemas, and does any
+  first release require a privileged custom panel?
+- How are Setup Cases and their referenced evidence incorporated into
+  Validation statistics without treating hindsight review as ex-ante input?
 - Are custom Canvas renderers public, reviewed-only, or permanently internal?
 - What limits apply per plugin, Pane, Workspace, and Session?
 - How are licenses, integrity hashes, upgrades, downgrades, and revoked plugins
@@ -473,10 +643,11 @@ After all current human-review obligations are explicitly closed:
 1. re-audit the rule registry and TODO for zero silently pending blockers;
 2. decide the intended general-futures product boundary and explicitly update
    or retain the binding SMC/ICT scope;
-3. prototype only the four representative first-party plugins against official
-   Lightweight Charts APIs without opening third-party installation;
-4. bind declarative output, Setup evidence, trust, failure, and performance
-   contracts;
+3. prototype only MA overlay, MACD native sub-pane, one manual semantic
+   annotation, and one annotation-referencing Setup Workflow without opening
+   third-party installation;
+4. bind calculated output, semantic annotation, source provenance, Setup Case,
+   host-rendered control surface, trust, failure, and performance contracts;
 5. reconcile this proposal with the seconds/tick decision candidate;
 6. convert the accepted conclusions into a binding product/architecture
    decision;

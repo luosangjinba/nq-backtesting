@@ -75,15 +75,17 @@ Binding evidence: `docs/V7_REPLAY_VIEWPORT_SEGMENTED_MULTI_PANE_R9_3.md`.
 ### Deferred Candidate — General Futures Plugin Platform
 
 - [x] preserve the proposed general-futures positioning, first-party pack
-  model, Indicator/Visual/Setup boundaries, declarative Chart contribution,
-  permissions, performance controls, SDK requirements, and unresolved
-  decisions in a non-binding pre-decision memo;
+  model, calculated Indicator/manual semantic annotation/suggestion/Setup
+  Workflow boundaries, `human`/`suggested`/`computed` provenance, declarative
+  Chart contribution, permissions, performance controls, SDK requirements,
+  and unresolved decisions in a non-binding pre-decision memo;
 - [ ] retain the current binding SMC/ICT scope and activate no plugin runtime,
   loader, SDK, product-scope change, or delivery step until every
   then-applicable human-review obligation is explicitly accepted or governed
   as retired/superseded;
-- [ ] after that gate, decide the product scope, prototype four representative
-  first-party plugins, bind the security/transaction/performance contracts, and
+- [ ] after that gate, decide the product scope, prototype MA, MACD native
+  sub-pane, one manual semantic annotation, and one annotation-referencing
+  Setup Workflow, bind the security/transaction/performance contracts, and
   reconcile sequencing with the seconds/tick candidate before implementation.
 
 Deferred memo:
