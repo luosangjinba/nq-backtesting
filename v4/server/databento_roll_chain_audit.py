@@ -1,9 +1,9 @@
-"""Pure evidence helpers for the one-time NQ Databento roll-chain repair.
+"""Pure evidence helpers for Databento continuous roll-chain repairs.
 
-The legacy NQ series has no source-contract column.  These helpers compare
+The legacy continuous series has no source-contract column.  These helpers compare
 that stored series with both raw quarterly contracts, derive the exact source
 change interval, and describe the minimum half-open repair needed to apply the
-session-aligned Databento ``NQ.v.0`` mapping policy.
+session-aligned Databento volume-continuous mapping policy.
 
 Network access, DuckDB reads, artifact writes, and repair execution stay in
 their existing adapters.  This module only evaluates already-normalized bars.

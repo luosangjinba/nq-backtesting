@@ -17,7 +17,7 @@ import tempfile
 import time
 from copy import deepcopy
 from dataclasses import asdict
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -151,6 +151,37 @@ def validate_replacement(spec: RepairSpec, frame: pd.DataFrame) -> pd.DataFrame:
     return rows
 
 
+def relevant_condition_evidence(
+    frame: pd.DataFrame,
+    conditions: list[dict[str, str | None]],
+) -> list[dict[str, str | None]]:
+    """Return dataset conditions for UTC dates that contain staged bars.
+
+    Databento may report ``missing`` for a closed UTC date inside a broad
+    half-open request (for example a Saturday with no CME futures bars).  Such
+    a date does not describe any staged row and must not force permission to
+    accept missing market data.  Conversely, every UTC date represented by a
+    staged replacement must have condition evidence and remains subject to the
+    manifest's explicit accepted-condition allowlist.
+    """
+
+    if frame.empty:
+        raise ValueError("replacement condition evidence requires staged rows")
+    timestamp_dates = {
+        value.to_pydatetime().replace(tzinfo=ET).astimezone(timezone.utc).date().isoformat()
+        for value in pd.to_datetime(frame["ts"])
+    }
+    relevant = [row for row in conditions if str(row.get("date") or "") in timestamp_dates]
+    evidence_dates = {str(row.get("date") or "") for row in relevant}
+    missing_dates = sorted(timestamp_dates - evidence_dates)
+    if missing_dates:
+        raise ValueError(
+            "Databento condition evidence does not cover staged UTC dates: "
+            + ", ".join(missing_dates)
+        )
+    return relevant
+
+
 def _load_interval(
     conn: duckdb.DuckDBPyConnection,
     instrument: str,
@@ -270,17 +301,18 @@ def create_preview(
     try:
         for spec in plan.repairs:
             conditions = condition_evidence.get(spec.repair_id) or []
-            non_available = [
-                row for row in conditions
-                if str(row.get("condition") or "unknown") not in spec.accepted_conditions
-            ]
-            if not conditions or non_available:
-                raise ValueError(
-                    f"{spec.repair_id} has missing or non-accepted Databento condition evidence"
-                )
             if spec.repair_id not in replacements:
                 raise ValueError(f"missing staged replacement for {spec.repair_id}")
             frame = validate_replacement(spec, replacements[spec.repair_id])
+            relevant_conditions = relevant_condition_evidence(frame, conditions)
+            non_available = [
+                row for row in relevant_conditions
+                if str(row.get("condition") or "unknown") not in spec.accepted_conditions
+            ]
+            if not relevant_conditions or non_available:
+                raise ValueError(
+                    f"{spec.repair_id} has missing or non-accepted Databento condition evidence"
+                )
             csv_path = preview_dir / f"{spec.repair_id}.csv"
             csv_text = frame.to_csv(index=False, date_format="%Y-%m-%dT%H:%M:%S")
             _atomic_write_text(csv_path, csv_text)
@@ -289,7 +321,8 @@ def create_preview(
                 "csv": csv_path.name,
                 "csvSha256": _sha256_file(csv_path),
                 "frameFingerprint": frame_fingerprint(frame),
-                "conditions": conditions,
+                "conditions": relevant_conditions,
+                "conditionEvidence": conditions,
             })
 
         calendar_text = _candidate_calendar(calendar, plan, confirmed_at)

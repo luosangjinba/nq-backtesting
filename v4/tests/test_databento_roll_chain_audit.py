@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline tests for NQ Databento full-chain attribution helpers."""
+"""Offline tests for Databento full-chain attribution helpers."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import unittest
 
 import pandas as pd
 
-from v4.server import nq_databento_chain_audit as audit
+from v4.server import databento_roll_chain_audit as audit
 
 
 def bars(start: str, prices: list[float]) -> pd.DataFrame:

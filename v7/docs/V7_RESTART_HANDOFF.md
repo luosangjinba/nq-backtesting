@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-02 by the NQ Databento full-chain mapping diff
+Last updated: 2026-08-03 by the ES Databento full-chain guarded repair
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -42,6 +42,8 @@ required for normal startup.
 - the read-only NQ legacy-red Databento mapping audit is commit `599c4cbd`;
 - the NQ Databento full-chain mapping diff, raw attribution, and guarded repair
   are complete in the current handoff step;
+- the matching ES Databento full-chain mapping, raw attribution, and guarded
+  repair are also complete in the current handoff step;
 - the NQ 2025 roll audit rejects the legacy boundaries as historical authority,
   retains raw Databento contracts plus the R7.3c session-aligned volume policy,
   and the separate guarded repair has replaced 2,262 rows with 2,400 source
@@ -68,8 +70,15 @@ required for normal startup.
 - the fixed manifest replaced 110,932 rows with 119,562, restored 8,630 net
   minutes, finished at 6,167,407 NQ rows with zero duplicates, and published
   all 65 target boundaries below the USD 4 ceiling;
-- independent backup comparison proves all 6,492,243 ES rows and all 694,255
-  pre-Databento NQ rows remain unchanged;
+- ES now follows the same `v.0 d0` prior-`18:00 ET` authority for 65 transitions;
+  10 were already aligned and 55 repaired intervals replaced 99,875 rows with
+  102,512, restoring 2,637 net minutes below the USD 4 ceiling;
+- the closed 2026-03-14 condition contains no staged ES rows and did not grant
+  `missing` permission; only repaired 2019 Q1 and 2026 Q1 explicitly accept
+  `degraded`;
+- final market data contains 6,494,880 ES rows and 6,167,407 NQ rows with zero
+  duplicates; independent backup comparison proves complete NQ and 846,060-row
+  pre-Databento ES history remain unchanged;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10

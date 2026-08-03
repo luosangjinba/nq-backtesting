@@ -33,7 +33,10 @@ The completed NQ historical-roll sequence is recorded in
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
 `V7_NQ_DATABENTO_FULL_CHAIN_REPAIR.md`. Machine-readable mapping and final
 audit evidence are `v7-nq-databento-full-chain-diff.json` and
-`v7-nq-databento-full-chain-audit.json`.
+`v7-nq-databento-full-chain-audit.json`. The matching completed ES execution
+is recorded in `V7_ES_DATABENTO_FULL_CHAIN_REPAIR.md`, with frozen mapping and
+audit evidence in `v7-es-databento-full-chain-diff.json` and
+`v7-es-databento-full-chain-audit.json`.
 
 Read in this order before V7 implementation work:
 

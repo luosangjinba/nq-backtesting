@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Audit and stage the reviewed NQ Databento full-chain repair manifest.
+"""Audit and stage a reviewed Databento full-chain repair manifest.
 
 This is a one-time historical maintenance adapter.  It consumes the frozen
-free ``NQ.v.0`` mapping diff, downloads only bounded raw-contract windows,
+volume-continuous mapping diff, downloads only bounded raw-contract windows,
 proves the source transition in the provenance-free legacy series, and writes
 review artifacts.  It never mutates DuckDB or the Roll Calendar.
 """
@@ -26,7 +26,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from v4.server import manifest_historical_roll_repair_service as repair_service
-from v4.server import nq_databento_chain_audit as chain_audit
+from v4.server import databento_roll_chain_audit as chain_audit
 
 try:
     import databento as db
@@ -39,11 +39,22 @@ UTC = timezone.utc
 DATASET = "GLBX.MDP3"
 SCHEMA = "ohlcv-1m"
 DEFAULT_DB = Path("/home/leo/myworkspace/trading/backtesting/v4/data/trading_data.duckdb")
-DEFAULT_MAPPING = REPO_ROOT / "v7" / "docs" / "v7-nq-databento-full-chain-diff.json"
-DEFAULT_AUDIT_JSON = REPO_ROOT / "v7" / "docs" / "v7-nq-databento-full-chain-audit.json"
-DEFAULT_PLAN = REPO_ROOT / "v4" / "data_config" / "historical_roll_repairs" / "nq-databento-full-chain.yml"
-DEFAULT_AUDIT_DOCUMENT = "v7/docs/V7_NQ_DATABENTO_FULL_CHAIN_REPAIR.md"
-DEFAULT_CACHE = Path.home() / ".local" / "share" / "replay-lab" / "historical-roll-repair" / "nq-full-chain-audit"
+DEFAULTS = {
+    "NQ": {
+        "mapping": REPO_ROOT / "v7" / "docs" / "v7-nq-databento-full-chain-diff.json",
+        "audit_json": REPO_ROOT / "v7" / "docs" / "v7-nq-databento-full-chain-audit.json",
+        "plan": REPO_ROOT / "v4" / "data_config" / "historical_roll_repairs" / "nq-databento-full-chain.yml",
+        "audit_document": "v7/docs/V7_NQ_DATABENTO_FULL_CHAIN_REPAIR.md",
+        "cache": Path.home() / ".local" / "share" / "replay-lab" / "historical-roll-repair" / "nq-full-chain-audit",
+    },
+    "ES": {
+        "mapping": REPO_ROOT / "v7" / "docs" / "v7-es-databento-full-chain-diff.json",
+        "audit_json": REPO_ROOT / "v7" / "docs" / "v7-es-databento-full-chain-audit.json",
+        "plan": REPO_ROOT / "v4" / "data_config" / "historical_roll_repairs" / "es-databento-full-chain.yml",
+        "audit_document": "v7/docs/V7_ES_DATABENTO_FULL_CHAIN_REPAIR.md",
+        "cache": Path.home() / ".local" / "share" / "replay-lab" / "historical-roll-repair" / "es-full-chain-audit",
+    },
+}
 # The first bounded pass proved that these non-aligned windows also begin
 # after the last usable prior-session bars.  Retain that evidence-driven
 # restart scope rather than redownloading every already-proven window.
@@ -52,13 +63,14 @@ EXTENDED_PRIOR_LEG_WINDOWS = frozenset({"2020Q2", "2021Q1"})
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Read-only raw-contract attribution for the NQ Databento full roll chain."
+        description="Read-only raw-contract attribution for a Databento full roll chain."
     )
+    parser.add_argument("--instrument", choices=("ES", "NQ"), default="NQ")
     parser.add_argument("--db", default=str(DEFAULT_DB))
-    parser.add_argument("--mapping", default=str(DEFAULT_MAPPING))
-    parser.add_argument("--audit-json", default=str(DEFAULT_AUDIT_JSON))
-    parser.add_argument("--plan", default=str(DEFAULT_PLAN))
-    parser.add_argument("--cache-dir", default=str(DEFAULT_CACHE))
+    parser.add_argument("--mapping")
+    parser.add_argument("--audit-json")
+    parser.add_argument("--plan")
+    parser.add_argument("--cache-dir")
     parser.add_argument("--max-cost-usd", type=float, default=2.50)
     parser.add_argument(
         "--prior-download-cost-usd",
@@ -100,15 +112,20 @@ def symbol_frame(raw: pd.DataFrame, symbol: str) -> pd.DataFrame:
     return raw.loc[raw["symbol"] == symbol, ["ts", *chain_audit.BAR_COLUMNS]].reset_index(drop=True)
 
 
-def load_local(conn: duckdb.DuckDBPyConnection, start: datetime, end: datetime) -> pd.DataFrame:
+def load_local(
+    conn: duckdb.DuckDBPyConnection,
+    instrument: str,
+    start: datetime,
+    end: datetime,
+) -> pd.DataFrame:
     return conn.execute(
         """
 select ts, open, high, low, close, volume
 from futures_1m
-where instrument = 'NQ' and ts >= ? and ts < ?
+where instrument = ? and ts >= ? and ts < ?
 order by ts
 """.strip(),
-        [start.replace(tzinfo=None), end.replace(tzinfo=None)],
+        [instrument, start.replace(tzinfo=None), end.replace(tzinfo=None)],
     ).fetchdf()
 
 
@@ -220,9 +237,9 @@ def conditions_summary(rows: list[dict[str, str | None]]) -> dict[str, object]:
     return {"rows": len(rows), "counts": counts}
 
 
-def build_calendar_event(row: dict[str, object]) -> dict[str, object]:
+def build_calendar_event(row: dict[str, object], instrument: str) -> dict[str, object]:
     return {
-        "instrument": "NQ",
+        "instrument": instrument,
         "old_contract": row["oldContract"],
         "new_contract": row["newContract"],
         "roll_date_et": row["databentoD0"],
@@ -231,7 +248,7 @@ def build_calendar_event(row: dict[str, object]) -> dict[str, object]:
         "status": "manual_confirmed",
         "evidence_type": "databento_v0_mapping_authority",
         "note": (
-            f"Databento NQ.v.0 maps {row['newContract']} from trade date "
+            f"Databento {instrument}.v.0 maps {row['newContract']} from trade date "
             f"{row['databentoD0']}; local policy uses the prior 18:00 ET session open."
         ),
     }
@@ -246,17 +263,19 @@ def main() -> int:
     if db is None:
         raise RuntimeError("Missing dependency: databento")
     database = Path(args.db).expanduser().resolve()
-    mapping_path = Path(args.mapping).expanduser().resolve()
-    audit_path = Path(args.audit_json).expanduser().resolve()
-    plan_path = Path(args.plan).expanduser().resolve()
-    cache = Path(args.cache_dir).expanduser().resolve()
+    instrument = args.instrument.upper()
+    defaults = DEFAULTS[instrument]
+    mapping_path = Path(args.mapping or defaults["mapping"]).expanduser().resolve()
+    audit_path = Path(args.audit_json or defaults["audit_json"]).expanduser().resolve()
+    plan_path = Path(args.plan or defaults["plan"]).expanduser().resolve()
+    cache = Path(args.cache_dir or defaults["cache"]).expanduser().resolve()
     if not database.is_file() or not mapping_path.is_file():
         raise ValueError("audit requires the authoritative DuckDB and frozen mapping artifact")
 
     mapping = json.loads(mapping_path.read_text(encoding="utf-8"))
     transitions = list(mapping["comparison"]["transitions"])
     if len(transitions) != 65:
-        raise ValueError(f"expected 65 frozen NQ transitions, got {len(transitions)}")
+        raise ValueError(f"expected 65 frozen {instrument} transitions, got {len(transitions)}")
     client = db.Historical()
 
     requests: list[dict[str, object]] = []
@@ -269,7 +288,12 @@ def main() -> int:
             # the diagnostic seam merely appears aligned, retain two complete
             # prior trade dates plus the target session instead.
             needs_prior_trade_dates = (
-                current == target or str(row["window"]) in EXTENDED_PRIOR_LEG_WINDOWS
+                current == target
+                or str(row.get("currentBoundaryConfidence") or "none") in {"low", "none"}
+                or (
+                    instrument == "NQ"
+                    and str(row["window"]) in EXTENDED_PRIOR_LEG_WINDOWS
+                )
             )
             requests.append({
                 "key": request_key(str(row["window"]), "bilateral"),
@@ -353,7 +377,7 @@ def main() -> int:
                 new = symbol_frame(raw, str(row["newContract"]))
                 start = raw["ts"].min().to_pydatetime().replace(tzinfo=ET)
                 end = (raw["ts"].max().to_pydatetime() + timedelta(minutes=1)).replace(tzinfo=ET)
-                local = load_local(conn, start, end)
+                local = load_local(conn, instrument, start, end)
                 evidence = chain_audit.derive_source_boundary(
                     local,
                     old,
@@ -374,7 +398,7 @@ def main() -> int:
             if interval is not None:
                 start = et_aware(interval.start_et)
                 end = et_aware(interval.end_et)
-                current_frame = load_local(conn, start, end)
+                current_frame = load_local(conn, instrument, start, end)
                 if bilateral is not None:
                     local, old, new = bilateral
                     attribution = chain_audit.assert_interval_source_evidence(
@@ -413,9 +437,13 @@ def main() -> int:
                     "expected_replacement_rows": len(replacement),
                     "expected_replacement_fingerprint": fingerprint,
                 }
+                relevant_conditions = repair_service.relevant_condition_evidence(
+                    replacement,
+                    condition_evidence,
+                )
                 accepted_conditions = {"available"}
                 accepted_conditions.update(
-                    str(item.get("condition") or "unknown") for item in condition_evidence
+                    str(item.get("condition") or "unknown") for item in relevant_conditions
                 )
                 if not accepted_conditions.issubset({"available", "degraded"}):
                     raise ValueError(
@@ -434,9 +462,10 @@ def main() -> int:
                     "currentOnlyTimestamps": len(current_ts - replacement_ts),
                     "replacementOnlyTimestamps": len(replacement_ts - current_ts),
                     "replacementFingerprint": fingerprint,
+                    "conditions": conditions_summary(relevant_conditions),
                 }
 
-            calendar_events.append(build_calendar_event(row))
+            calendar_events.append(build_calendar_event(row, instrument))
             audit_rows.append({
                 "window": row["window"],
                 "oldContract": row["oldContract"],
@@ -457,11 +486,11 @@ def main() -> int:
             )
 
         total_rows = int(conn.execute("select count(*) from futures_1m").fetchone()[0])
-        nq_rows = int(conn.execute(
-            "select count(*) from futures_1m where instrument = 'NQ'"
+        instrument_rows = int(conn.execute(
+            "select count(*) from futures_1m where instrument = ?", [instrument]
         ).fetchone()[0])
         duplicates = int(conn.execute(
-            "select count(*) - count(distinct ts) from futures_1m where instrument = 'NQ'"
+            "select count(*) - count(distinct ts) from futures_1m where instrument = ?", [instrument]
         ).fetchone()[0])
 
     expected_current = sum(int(row["expected_current_rows"]) for row in repair_rows)
@@ -471,7 +500,7 @@ def main() -> int:
         "mode": "read-only-reviewed-plan",
         "generatedAtEt": datetime.now(ET).isoformat(timespec="seconds"),
         "policy": {
-            "mapping": "Databento NQ.v.0 volume-ranked d0",
+            "mapping": f"Databento {instrument}.v.0 volume-ranked d0",
             "boundary": "prior natural date 18:00 America/New_York",
             "barSource": "raw quarterly contracts",
             "firstGovernedTransition": transitions[0]["window"],
@@ -481,8 +510,8 @@ def main() -> int:
         "database": {
             "path": str(database),
             "totalRows": total_rows,
-            "nqRows": nq_rows,
-            "nqDuplicateTimestamps": duplicates,
+            f"{instrument.lower()}Rows": instrument_rows,
+            f"{instrument.lower()}DuplicateTimestamps": duplicates,
         },
         "summary": {
             "transitions": len(transitions),
@@ -501,12 +530,12 @@ def main() -> int:
     }
     plan_payload = {
         "version": 1,
-        "plan_id": "nq-databento-full-chain",
+        "plan_id": f"{instrument.lower()}-databento-full-chain",
         "dataset": DATASET,
         "schema": SCHEMA,
-        "instrument": "NQ",
-        "expected_confirmation": "REPAIR NQ DATABENTO FULL CHAIN",
-        "audit_document": DEFAULT_AUDIT_DOCUMENT,
+        "instrument": instrument,
+        "expected_confirmation": f"REPAIR {instrument} DATABENTO FULL CHAIN",
+        "audit_document": str(defaults["audit_document"]),
         "expected_totals": {
             "current_rows": expected_current,
             "replacement_rows": expected_replacement,
@@ -525,7 +554,7 @@ def main() -> int:
         yaml.safe_dump(plan_payload, sort_keys=False, allow_unicode=True),
         encoding="utf-8",
     )
-    print("nq_databento_full_chain_audit_status: ok")
+    print(f"{instrument.lower()}_databento_full_chain_audit_status: ok")
     print(f"transitions: {len(transitions)}")
     print(f"repairs: {len(repair_rows)}")
     print(f"aligned_without_repair: {len(transitions) - len(repair_rows)}")
@@ -542,6 +571,6 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except Exception as exc:
-        print("nq_databento_full_chain_audit_status: failed")
+        print("databento_full_chain_audit_status: failed")
         print(f"error: {exc}")
         raise SystemExit(1)

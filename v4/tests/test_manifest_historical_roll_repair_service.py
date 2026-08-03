@@ -219,6 +219,57 @@ class ManifestHistoricalRollRepairTests(unittest.TestCase):
             )
             self.assertTrue(preview["ok"])
 
+    def test_condition_on_closed_utc_date_does_not_require_missing_permission(self) -> None:
+        replacement = pd.DataFrame({
+            "ts": pd.to_datetime(["2026-03-13 16:59:00", "2026-03-15 18:00:00"]),
+            "open": [100.0, 101.0],
+            "high": [102.0, 103.0],
+            "low": [98.0, 99.0],
+            "close": [101.0, 102.0],
+            "volume": [10, 20],
+        })
+        evidence = [
+            {"date": "2026-03-13", "condition": "available"},
+            {"date": "2026-03-14", "condition": "missing"},
+            {"date": "2026-03-15", "condition": "degraded"},
+        ]
+
+        relevant = service.relevant_condition_evidence(replacement, evidence)
+
+        self.assertEqual(
+            [(row["date"], row["condition"]) for row in relevant],
+            [("2026-03-13", "available"), ("2026-03-15", "degraded")],
+        )
+
+    def test_condition_evidence_must_cover_every_staged_utc_date(self) -> None:
+        replacement = pd.DataFrame({"ts": pd.to_datetime(["2026-03-15 18:00:00"])})
+
+        with self.assertRaisesRegex(ValueError, "does not cover staged UTC dates"):
+            service.relevant_condition_evidence(
+                replacement,
+                [{"date": "2026-03-14", "condition": "missing"}],
+            )
+
+    def test_missing_condition_on_staged_date_remains_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            database, calendar, _, plan, replacement = self.fixture(root)
+            missing = {
+                plan.repairs[0].repair_id: [
+                    {"date": "2024-03-10", "condition": "missing"}
+                ]
+            }
+
+            with self.assertRaisesRegex(ValueError, "non-accepted"):
+                service.create_preview(
+                    plan,
+                    database,
+                    calendar,
+                    {plan.repairs[0].repair_id: replacement},
+                    missing,
+                    repair_root=root / "rejected",
+                )
+
     def test_wrong_confirmation_cannot_mutate(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)

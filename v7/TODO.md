@@ -180,6 +180,33 @@ Binding full-chain repair:
 `docs/v7-nq-databento-full-chain-audit.json`, and
 `../v4/data_config/historical_roll_repairs/nq-databento-full-chain.yml`.
 
+### Data Integrity Follow-up — ES Databento Full-Chain Repair Complete
+
+- [x] adopt the same Databento `v.0 d0` to prior `18:00 ET` session-open
+  authority for ES from 2010 Q2 through 2026 Q2;
+- [x] freeze 66 contiguous mappings, independently resolve every instrument id
+  to one raw quarterly ES contract, and verify the 65-transition chain;
+- [x] use local seams only to bound paid review and prove all 62 legacy source
+  changes with bilateral exact OHLCV attribution;
+- [x] identify 10 already aligned boundaries and 55 non-overlapping repair
+  intervals containing 99,875 current and 102,512 replacement rows;
+- [x] keep `missing` rejected while filtering condition authority to UTC dates
+  that actually contain staged bars, explicitly accepting `degraded` only for
+  repaired 2019 Q1 and 2026 Q1;
+- [x] complete audit and fresh Preview for an estimated USD 3.276531 total,
+  below the USD 4 stop;
+- [x] commit the guarded repair, restore 2,637 net minute rows, publish all 65
+  ES calendar targets, and independently verify 6,494,880 ES rows with zero
+  duplicates;
+- [x] prove all 6,167,407 NQ rows and all 846,060 pre-Databento ES rows remain
+  byte-content-equivalent to the pre-write backup.
+
+Binding ES full-chain repair:
+`docs/V7_ES_DATABENTO_FULL_CHAIN_REPAIR.md`,
+`docs/v7-es-databento-full-chain-diff.json`,
+`docs/v7-es-databento-full-chain-audit.json`, and
+`../v4/data_config/historical_roll_repairs/es-databento-full-chain.yml`.
+
 ### Deferred Candidate — General Futures Plugin Platform
 
 - [x] preserve the proposed general-futures positioning, first-party pack

@@ -1,0 +1,1109 @@
+version: 1
+plan_id: es-databento-full-chain
+dataset: GLBX.MDP3
+schema: ohlcv-1m
+instrument: ES
+expected_confirmation: REPAIR ES DATABENTO FULL CHAIN
+audit_document: v7/docs/V7_ES_DATABENTO_FULL_CHAIN_REPAIR.md
+expected_totals:
+  current_rows: 99875
+  replacement_rows: 102512
+  net_restored_minutes: 2637
+repairs:
+- repair_id: 2010q2-esm0-esu0
+  transition: ESM0->ESU0
+  source_contract: ESU0
+  start_et: 2010-06-13T18:00
+  end_et: 2010-06-14T00:00
+  expected_current_rows: 321
+  expected_replacement_rows: 352
+  expected_replacement_fingerprint: 9a1ee3eecd0adfbbeb9fffd5ef88e87290dfb58ca59c8c5ce74ca5890432f9a8
+- repair_id: 2010q3-esu0-esz0
+  transition: ESU0->ESZ0
+  source_contract: ESZ0
+  start_et: 2010-09-12T18:00
+  end_et: 2010-09-14T00:00
+  expected_current_rows: 1589
+  expected_replacement_rows: 1735
+  expected_replacement_fingerprint: 2aa1b7ad562b584e314ee1d5d914e1ffdf6b46393912f4eb4b83dbb11e828759
+- repair_id: 2010q4-esz0-esh1
+  transition: ESZ0->ESH1
+  source_contract: ESH1
+  start_et: 2010-12-12T18:00
+  end_et: 2010-12-14T00:00
+  expected_current_rows: 1555
+  expected_replacement_rows: 1714
+  expected_replacement_fingerprint: 244c90b60d3c05c23c8a363bb6e7c8def1c64d5852bfc7d224471f0806abc622
+- repair_id: 2011q1-esh1-esm1
+  transition: ESH1->ESM1
+  source_contract: ESM1
+  start_et: 2011-03-13T18:00
+  end_et: 2011-03-14T00:00
+  expected_current_rows: 357
+  expected_replacement_rows: 359
+  expected_replacement_fingerprint: 22c3ebbcffbe6b855a9acdb8017a52c5e4f2a29afd5819a79d1c21cda320f715
+- repair_id: 2011q2-esm1-esu1
+  transition: ESM1->ESU1
+  source_contract: ESU1
+  start_et: 2011-06-12T18:00
+  end_et: 2011-06-14T00:00
+  expected_current_rows: 1574
+  expected_replacement_rows: 1697
+  expected_replacement_fingerprint: 788fc148abdea6ddd7df53275df1db5d7dd8d1f7e19e5eb2096ac6f77f06164a
+- repair_id: 2011q3-esu1-esz1
+  transition: ESU1->ESZ1
+  source_contract: ESZ1
+  start_et: 2011-09-11T18:00
+  end_et: 2011-09-14T00:00
+  expected_current_rows: 3059
+  expected_replacement_rows: 3137
+  expected_replacement_fingerprint: 82c0b71333c0d3336f1b7d0def406240e229522a4c2fecd3c8530057845bfe8f
+- repair_id: 2011q4-esz1-esh2
+  transition: ESZ1->ESH2
+  source_contract: ESH2
+  start_et: 2011-12-11T18:00
+  end_et: 2011-12-14T00:00
+  expected_current_rows: 3028
+  expected_replacement_rows: 3129
+  expected_replacement_fingerprint: f26140055e03f15a156aab87d8e8eb817fa1972885142e1bcf17f4c04e28927f
+- repair_id: 2012q1-esh2-esm2
+  transition: ESH2->ESM2
+  source_contract: ESM2
+  start_et: 2012-03-12T18:00
+  end_et: 2012-03-14T00:00
+  expected_current_rows: 1636
+  expected_replacement_rows: 1729
+  expected_replacement_fingerprint: c6dea95c52021fdb688486492c8425f6e5002dee4dd065916bb282013deeb0c5
+- repair_id: 2012q2-esm2-esu2
+  transition: ESM2->ESU2
+  source_contract: ESU2
+  start_et: 2012-06-10T18:00
+  end_et: 2012-06-14T00:00
+  expected_current_rows: 4199
+  expected_replacement_rows: 4524
+  expected_replacement_fingerprint: 4d85cc2e41cadca64cac0fdf742c45a823568991ad361359fe3482478244f14b
+- repair_id: 2012q3-esu2-esz2
+  transition: ESU2->ESZ2
+  source_contract: ESU2
+  start_et: 2012-09-14T00:00
+  end_et: 2012-09-16T18:00
+  expected_current_rows: 970
+  expected_replacement_rows: 973
+  expected_replacement_fingerprint: 4866cd4d1c221f3ec7926a4e5cfd6b440a42ab7f898a62bc1b3266e73ab16811
+- repair_id: 2012q4-esz2-esh3
+  transition: ESZ2->ESH3
+  source_contract: ESZ2
+  start_et: 2012-12-14T00:00
+  end_et: 2012-12-16T18:00
+  expected_current_rows: 1002
+  expected_replacement_rows: 1004
+  expected_replacement_fingerprint: b3de9fe0702dac43244b28c5f515670c09a13ff9f2ac2877fc3cf7a84a9e3169
+- repair_id: 2013q1-esh3-esm3
+  transition: ESH3->ESM3
+  source_contract: ESM3
+  start_et: 2013-03-11T18:00
+  end_et: 2013-03-14T00:01
+  expected_current_rows: 2661
+  expected_replacement_rows: 3054
+  expected_replacement_fingerprint: 2c0922ebf3eaf749c49a371e96f18bd3c43a454736963b5c329876710426aa6c
+- repair_id: 2013q2-esm3-esu3
+  transition: ESM3->ESU3
+  source_contract: ESM3
+  start_et: 2013-06-14T00:00
+  end_et: 2013-06-16T18:00
+  expected_current_rows: 1015
+  expected_replacement_rows: 1016
+  expected_replacement_fingerprint: 930f5bb1934fee5e7a100982e3ba2bf5fd572a21c7f0a8b8ff5ad651b47456ad
+- repair_id: 2014q1-esh4-esm4
+  transition: ESH4->ESM4
+  source_contract: ESH4
+  start_et: 2014-03-14T00:00
+  end_et: 2014-03-16T18:00
+  expected_current_rows: 1017
+  expected_replacement_rows: 1011
+  expected_replacement_fingerprint: 802b65eb8919310ff4f8393e0418da6524e73123308e6eca170ef8b1e5abff85
+- repair_id: 2015q3-esu5-esz5
+  transition: ESU5->ESZ5
+  source_contract: ESZ5
+  start_et: 2015-09-13T18:00
+  end_et: 2015-09-14T00:00
+  expected_current_rows: 360
+  expected_replacement_rows: 360
+  expected_replacement_fingerprint: 190dc27c9568b2ea3420e77923ddfccf72039a632b2f06e107b7a079676f6851
+- repair_id: 2015q4-esz5-esh6
+  transition: ESZ5->ESH6
+  source_contract: ESH6
+  start_et: 2015-12-13T18:00
+  end_et: 2015-12-14T00:00
+  expected_current_rows: 356
+  expected_replacement_rows: 359
+  expected_replacement_fingerprint: 68e6dbcac8bd701661dd3e479b4759354d212a91e29f9679e3757a355da6e50c
+- repair_id: 2016q1-esh6-esm6
+  transition: ESH6->ESM6
+  source_contract: ESM6
+  start_et: 2016-03-13T18:00
+  end_et: 2016-03-14T00:00
+  expected_current_rows: 349
+  expected_replacement_rows: 356
+  expected_replacement_fingerprint: b976d7df7d6d82e344ce73e1df7a4523a7ab61d3f7062821ce117b04e5faf2e5
+- repair_id: 2016q2-esm6-esu6
+  transition: ESM6->ESU6
+  source_contract: ESU6
+  start_et: 2016-06-12T18:00
+  end_et: 2016-06-14T00:00
+  expected_current_rows: 1697
+  expected_replacement_rows: 1724
+  expected_replacement_fingerprint: 38730fac82fea6d06449bda9872a34c03fa78c1a3a1b3106e9291d7958bf9052
+- repair_id: 2016q3-esu6-esz6
+  transition: ESU6->ESZ6
+  source_contract: ESZ6
+  start_et: 2016-09-11T18:00
+  end_et: 2016-09-14T00:00
+  expected_current_rows: 3003
+  expected_replacement_rows: 3084
+  expected_replacement_fingerprint: e7dbdc55fc0d35fe56f24ebd82679208b8e40b605bfa992ee4f400b85fd90155
+- repair_id: 2016q4-esz6-esh7
+  transition: ESZ6->ESH7
+  source_contract: ESH7
+  start_et: 2016-12-12T18:00
+  end_et: 2016-12-14T00:00
+  expected_current_rows: 1603
+  expected_replacement_rows: 1711
+  expected_replacement_fingerprint: 2f9c9ebeff2f2a0b9fbae27d417eed492061e3f300e582df11f4b859886af14e
+- repair_id: 2017q1-esh7-esm7
+  transition: ESH7->ESM7
+  source_contract: ESM7
+  start_et: 2017-03-12T18:00
+  end_et: 2017-03-14T00:00
+  expected_current_rows: 1556
+  expected_replacement_rows: 1637
+  expected_replacement_fingerprint: ff1d8798b423e8c9d10ede893babb8318a3ff37d73278132920b18a6a091e803
+- repair_id: 2017q2-esm7-esu7
+  transition: ESM7->ESU7
+  source_contract: ESU7
+  start_et: 2017-06-11T18:00
+  end_et: 2017-06-14T00:00
+  expected_current_rows: 2874
+  expected_replacement_rows: 3034
+  expected_replacement_fingerprint: f4330fffc1d116a281cf14276c09abc8ef30fdae18ed9df2402e38e4a318bb6b
+- repair_id: 2017q3-esu7-esz7
+  transition: ESU7->ESZ7
+  source_contract: ESZ7
+  start_et: 2017-09-10T18:00
+  end_et: 2017-09-14T00:00
+  expected_current_rows: 4144
+  expected_replacement_rows: 4369
+  expected_replacement_fingerprint: fb3604e7c8bc4630824fc27b11b162ab70d5f29fe40b6f91cfd09011b3ba4bba
+- repair_id: 2017q4-esz7-esh8
+  transition: ESZ7->ESH8
+  source_contract: ESH8
+  start_et: 2017-12-10T18:00
+  end_et: 2017-12-14T00:00
+  expected_current_rows: 4198
+  expected_replacement_rows: 4354
+  expected_replacement_fingerprint: 992be28e8d22378851aece5ac85cd1bb9fb3ac00bf3b5be4a7669a1ebfc8d6c9
+- repair_id: 2018q1-esh8-esm8
+  transition: ESH8->ESM8
+  source_contract: ESM8
+  start_et: 2018-03-13T18:00
+  end_et: 2018-03-14T00:00
+  expected_current_rows: 356
+  expected_replacement_rows: 360
+  expected_replacement_fingerprint: 6f720a9b334b034e33726b89389f827c432d8c997db1537ad21309e4187d0fb9
+- repair_id: 2018q2-esm8-esu8
+  transition: ESM8->ESU8
+  source_contract: ESU8
+  start_et: 2018-06-12T18:00
+  end_et: 2018-06-14T00:00
+  expected_current_rows: 1626
+  expected_replacement_rows: 1699
+  expected_replacement_fingerprint: dcdbea2187e2bd6505c3a60ac1dc72280865d87f431b5fa54d34e3b7763543a3
+- repair_id: 2018q3-esu8-esz8
+  transition: ESU8->ESZ8
+  source_contract: ESU8
+  start_et: 2018-09-14T00:00
+  end_et: 2018-09-16T18:00
+  expected_current_rows: 983
+  expected_replacement_rows: 995
+  expected_replacement_fingerprint: 0b8f6b4423cef3ce6b12e220f17d34685f76cabce92a789f6c8834ab3c22cfb5
+- repair_id: 2018q4-esz8-esh9
+  transition: ESZ8->ESH9
+  source_contract: ESZ8
+  start_et: 2018-12-14T00:00
+  end_et: 2018-12-16T18:00
+  expected_current_rows: 1005
+  expected_replacement_rows: 1005
+  expected_replacement_fingerprint: 8244f64384e60caefa63c978bc8547fb47bc3bdbf6a3a96d0559dc78446f3bff
+- repair_id: 2019q1-esh9-esm9
+  transition: ESH9->ESM9
+  source_contract: ESM9
+  start_et: 2019-03-10T18:00
+  end_et: 2019-03-14T00:00
+  expected_current_rows: 4425
+  expected_replacement_rows: 4449
+  expected_replacement_fingerprint: 01619c40cb53dc84182103a74249b7b04b66fbe9a526956a373887e53645c5fa
+  accepted_conditions:
+  - available
+  - degraded
+- repair_id: 2019q2-esm9-esu9
+  transition: ESM9->ESU9
+  source_contract: ESM9
+  start_et: 2019-06-14T00:00
+  end_et: 2019-06-16T18:00
+  expected_current_rows: 1001
+  expected_replacement_rows: 1003
+  expected_replacement_fingerprint: 6165f712baa7394bcfe4ef6fdd4eca64d30f4ddb64bad9d86ffbae2da634b804
+- repair_id: 2020q1-esh0-esm0
+  transition: ESH0->ESM0
+  source_contract: ESH0
+  start_et: 2020-03-15T18:00
+  end_et: 2020-03-17T18:00
+  expected_current_rows: 2023
+  expected_replacement_rows: 2078
+  expected_replacement_fingerprint: eef77fe3a4b1871788bbdb0c2debfe49f77a442e5589a017b85d539fee8d38f7
+- repair_id: 2020q2-esm0-esu0
+  transition: ESM0->ESU0
+  source_contract: ESM0
+  start_et: 2020-06-14T18:00
+  end_et: 2020-06-16T18:00
+  expected_current_rows: 2730
+  expected_replacement_rows: 2730
+  expected_replacement_fingerprint: 16d035a64391c57253edee96db3c311147eb9e364681bfaadd9943bdb387adef
+- repair_id: 2020q3-esu0-esz0
+  transition: ESU0->ESZ0
+  source_contract: ESZ0
+  start_et: 2020-09-13T18:00
+  end_et: 2020-09-14T00:00
+  expected_current_rows: 360
+  expected_replacement_rows: 360
+  expected_replacement_fingerprint: 96e95b7871865e30b85a8a8408b061e566df7d93a25e4f0bf7aab2c0206e81cf
+- repair_id: 2020q4-esz0-esh1
+  transition: ESZ0->ESH1
+  source_contract: ESH1
+  start_et: 2020-12-13T18:00
+  end_et: 2020-12-14T00:00
+  expected_current_rows: 359
+  expected_replacement_rows: 360
+  expected_replacement_fingerprint: 36edb815514a8e588d6e8ed252ef48b308a23486c80bfe66d1727cdb77755dde
+- repair_id: 2021q2-esm1-esu1
+  transition: ESM1->ESU1
+  source_contract: ESU1
+  start_et: 2021-06-13T18:00
+  end_et: 2021-06-14T00:00
+  expected_current_rows: 354
+  expected_replacement_rows: 360
+  expected_replacement_fingerprint: 1baf3e16000bddad9655caa4b03f050790f27a4cd570e5cf5dabb033ece868d7
+- repair_id: 2021q3-esu1-esz1
+  transition: ESU1->ESZ1
+  source_contract: ESZ1
+  start_et: 2021-09-12T18:00
+  end_et: 2021-09-14T00:00
+  expected_current_rows: 1735
+  expected_replacement_rows: 1739
+  expected_replacement_fingerprint: e444b10c49a8eb8c9741ca407b9498ef68fbd5f97167e8371f7806062edd1df5
+- repair_id: 2021q4-esz1-esh2
+  transition: ESZ1->ESH2
+  source_contract: ESH2
+  start_et: 2021-12-12T18:00
+  end_et: 2021-12-14T00:00
+  expected_current_rows: 1735
+  expected_replacement_rows: 1740
+  expected_replacement_fingerprint: b992f48cf6646512ab4906c3cc0073abf9090ed9adf693a8d784e89b81d20e48
+- repair_id: 2022q1-esh2-esm2
+  transition: ESH2->ESM2
+  source_contract: ESM2
+  start_et: 2022-03-13T18:00
+  end_et: 2022-03-14T00:00
+  expected_current_rows: 360
+  expected_replacement_rows: 360
+  expected_replacement_fingerprint: 5bde62016540495c63c8a1a3d57f56abd04cd8512e051389901af656ef676dc5
+- repair_id: 2022q2-esm2-esu2
+  transition: ESM2->ESU2
+  source_contract: ESM2
+  start_et: 2022-06-14T00:00
+  end_et: 2022-06-14T18:00
+  expected_current_rows: 1020
+  expected_replacement_rows: 1020
+  expected_replacement_fingerprint: fc99e601e0a2ef1573adae66a150e404e4fba6476d4c6ec083dbcf75a7bdffb3
+- repair_id: 2022q3-esu2-esz2
+  transition: ESU2->ESZ2
+  source_contract: ESZ2
+  start_et: 2022-09-13T18:00
+  end_et: 2022-09-14T00:00
+  expected_current_rows: 360
+  expected_replacement_rows: 360
+  expected_replacement_fingerprint: 377217ccd9648005fdf08d19cf86983c86531765d95b9284c6e9fb1f5bea02cf
+- repair_id: 2022q4-esz2-esh3
+  transition: ESZ2->ESH3
+  source_contract: ESH3
+  start_et: 2022-12-13T18:00
+  end_et: 2022-12-14T00:00
+  expected_current_rows: 355
+  expected_replacement_rows: 360
+  expected_replacement_fingerprint: 3673bf9245cbafed898fabd86f665f2cef50fa24d1a4003ee430446b4a1df123
+- repair_id: 2023q1-esh3-esm3
+  transition: ESH3->ESM3
+  source_contract: ESH3
+  start_et: 2023-03-14T00:00
+  end_et: 2023-03-14T18:00
+  expected_current_rows: 1020
+  expected_replacement_rows: 1020
+  expected_replacement_fingerprint: a0e61db1b0e4ad281768354d16a49f8d991d24f78605f09fee3044aba4dc10ce
+- repair_id: 2023q2-esm3-esu3
+  transition: ESM3->ESU3
+  source_contract: ESU3
+  start_et: 2023-06-13T18:00
+  end_et: 2023-06-14T00:00
+  expected_current_rows: 350
+  expected_replacement_rows: 360
+  expected_replacement_fingerprint: b44df77d429c13ffcc7811a9315cdb79f9e7a7747e8212397caf60824095bf15
+- repair_id: 2023q3-esu3-esz3
+  transition: ESU3->ESZ3
+  source_contract: ESZ3
+  start_et: 2023-09-12T18:00
+  end_et: 2023-09-14T00:00
+  expected_current_rows: 1698
+  expected_replacement_rows: 1735
+  expected_replacement_fingerprint: b590fda9f0308432ea981b0704631c669f488b9a4de4686ad460666551ae5de1
+- repair_id: 2023q4-esz3-esh4
+  transition: ESZ3->ESH4
+  source_contract: ESH4
+  start_et: 2023-12-12T18:00
+  end_et: 2023-12-14T00:00
+  expected_current_rows: 1704
+  expected_replacement_rows: 1736
+  expected_replacement_fingerprint: b7b2567e15eef7f53ab3093808b54378f701260903f2d7820b9491d04c294317
+- repair_id: 2024q1-esh4-esm4
+  transition: ESH4->ESM4
+  source_contract: ESM4
+  start_et: 2024-03-12T18:00
+  end_et: 2024-03-14T00:00
+  expected_current_rows: 1687
+  expected_replacement_rows: 1739
+  expected_replacement_fingerprint: 59763aa6881bf19930280926519a8cc23e3fee5e198e7f674985d4beb6c0a5a4
+- repair_id: 2024q2-esm4-esu4
+  transition: ESM4->ESU4
+  source_contract: ESM4
+  start_et: 2024-06-14T00:00
+  end_et: 2024-06-18T18:00
+  expected_current_rows: 3757
+  expected_replacement_rows: 3771
+  expected_replacement_fingerprint: fbbacd133dc33559288667be3bd505e79ff2f01a8e22583ca6e2e28e3b9eea03
+- repair_id: 2024q3-esu4-esz4
+  transition: ESU4->ESZ4
+  source_contract: ESU4
+  start_et: 2024-09-15T18:00
+  end_et: 2024-09-17T18:00
+  expected_current_rows: 2751
+  expected_replacement_rows: 2752
+  expected_replacement_fingerprint: e020fcb44a50dd237997cf5f7a32653fdd96d7ed4694f5b9c0f7a2081765aa9a
+- repair_id: 2024q4-esz4-esh5
+  transition: ESZ4->ESH5
+  source_contract: ESZ4
+  start_et: 2024-12-15T18:00
+  end_et: 2024-12-17T18:00
+  expected_current_rows: 2750
+  expected_replacement_rows: 2749
+  expected_replacement_fingerprint: fb60d86d0d963886870cabb78f3509b07170925adaacb563e499e36b93c8ea9a
+- repair_id: 2025q1-esh5-esm5
+  transition: ESH5->ESM5
+  source_contract: ESH5
+  start_et: 2025-03-14T00:00
+  end_et: 2025-03-18T18:00
+  expected_current_rows: 3778
+  expected_replacement_rows: 3780
+  expected_replacement_fingerprint: 992c055bf2a3af06bbf24bf003edb71d552956865cd0a445039513aff98e571b
+- repair_id: 2025q2-esm5-esu5
+  transition: ESM5->ESU5
+  source_contract: ESM5
+  start_et: 2025-06-13T00:00
+  end_et: 2025-06-17T18:00
+  expected_current_rows: 3780
+  expected_replacement_rows: 3780
+  expected_replacement_fingerprint: 426f020b4b0d7fe735af38837f539911a2493155f28ce8dc4dbb724602b71f72
+- repair_id: 2025q3-esu5-esz5
+  transition: ESU5->ESZ5
+  source_contract: ESU5
+  start_et: 2025-09-14T18:00
+  end_et: 2025-09-16T18:00
+  expected_current_rows: 2750
+  expected_replacement_rows: 2754
+  expected_replacement_fingerprint: 921dcb85ddd7374011ecf58d4208e22ab525de742806e1ec0b7f1156a2e676ed
+- repair_id: 2025q4-esz5-esh6
+  transition: ESZ5->ESH6
+  source_contract: ESZ5
+  start_et: 2025-12-14T00:00
+  end_et: 2025-12-16T18:00
+  expected_current_rows: 2760
+  expected_replacement_rows: 2760
+  expected_replacement_fingerprint: 2e164ce7a7b1fdba2eb11168eb5fa3e096dc4311ac82910107b5d516c4f3377c
+- repair_id: 2026q1-esh6-esm6
+  transition: ESH6->ESM6
+  source_contract: ESH6
+  start_et: 2026-03-13T00:00
+  end_et: 2026-03-17T18:00
+  expected_current_rows: 3780
+  expected_replacement_rows: 3780
+  expected_replacement_fingerprint: dcde96dd95deebc320ebc7700818b4ae52c484d17456f614c561330fe3cf072c
+  accepted_conditions:
+  - available
+  - degraded
+- repair_id: 2026q2-esm6-esu6
+  transition: ESM6->ESU6
+  source_contract: ESM6
+  start_et: 2026-06-15T00:00
+  end_et: 2026-06-16T18:00
+  expected_current_rows: 2400
+  expected_replacement_rows: 2396
+  expected_replacement_fingerprint: 76d07566203bacfbf50e3cd50989f27debc340480c103a637a4a4d5645221c25
+calendar_events:
+- instrument: ES
+  old_contract: ESM0
+  new_contract: ESU0
+  roll_date_et: '2010-06-14'
+  effective_at_et: 2010-06-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU0 from trade date 2010-06-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU0
+  new_contract: ESZ0
+  roll_date_et: '2010-09-13'
+  effective_at_et: 2010-09-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ0 from trade date 2010-09-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ0
+  new_contract: ESH1
+  roll_date_et: '2010-12-13'
+  effective_at_et: 2010-12-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH1 from trade date 2010-12-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH1
+  new_contract: ESM1
+  roll_date_et: '2011-03-14'
+  effective_at_et: 2011-03-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM1 from trade date 2011-03-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM1
+  new_contract: ESU1
+  roll_date_et: '2011-06-13'
+  effective_at_et: 2011-06-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU1 from trade date 2011-06-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU1
+  new_contract: ESZ1
+  roll_date_et: '2011-09-12'
+  effective_at_et: 2011-09-11T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ1 from trade date 2011-09-12; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ1
+  new_contract: ESH2
+  roll_date_et: '2011-12-12'
+  effective_at_et: 2011-12-11T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH2 from trade date 2011-12-12; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH2
+  new_contract: ESM2
+  roll_date_et: '2012-03-13'
+  effective_at_et: 2012-03-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM2 from trade date 2012-03-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM2
+  new_contract: ESU2
+  roll_date_et: '2012-06-11'
+  effective_at_et: 2012-06-10T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU2 from trade date 2012-06-11; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU2
+  new_contract: ESZ2
+  roll_date_et: '2012-09-17'
+  effective_at_et: 2012-09-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ2 from trade date 2012-09-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ2
+  new_contract: ESH3
+  roll_date_et: '2012-12-17'
+  effective_at_et: 2012-12-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH3 from trade date 2012-12-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH3
+  new_contract: ESM3
+  roll_date_et: '2013-03-12'
+  effective_at_et: 2013-03-11T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM3 from trade date 2013-03-12; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM3
+  new_contract: ESU3
+  roll_date_et: '2013-06-17'
+  effective_at_et: 2013-06-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU3 from trade date 2013-06-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU3
+  new_contract: ESZ3
+  roll_date_et: '2013-09-16'
+  effective_at_et: 2013-09-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ3 from trade date 2013-09-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ3
+  new_contract: ESH4
+  roll_date_et: '2013-12-16'
+  effective_at_et: 2013-12-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH4 from trade date 2013-12-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH4
+  new_contract: ESM4
+  roll_date_et: '2014-03-17'
+  effective_at_et: 2014-03-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM4 from trade date 2014-03-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM4
+  new_contract: ESU4
+  roll_date_et: '2014-06-16'
+  effective_at_et: 2014-06-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU4 from trade date 2014-06-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU4
+  new_contract: ESZ4
+  roll_date_et: '2014-09-15'
+  effective_at_et: 2014-09-14T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ4 from trade date 2014-09-15; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ4
+  new_contract: ESH5
+  roll_date_et: '2014-12-15'
+  effective_at_et: 2014-12-14T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH5 from trade date 2014-12-15; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH5
+  new_contract: ESM5
+  roll_date_et: '2015-03-16'
+  effective_at_et: 2015-03-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM5 from trade date 2015-03-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM5
+  new_contract: ESU5
+  roll_date_et: '2015-06-15'
+  effective_at_et: 2015-06-14T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU5 from trade date 2015-06-15; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU5
+  new_contract: ESZ5
+  roll_date_et: '2015-09-14'
+  effective_at_et: 2015-09-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ5 from trade date 2015-09-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ5
+  new_contract: ESH6
+  roll_date_et: '2015-12-14'
+  effective_at_et: 2015-12-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH6 from trade date 2015-12-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH6
+  new_contract: ESM6
+  roll_date_et: '2016-03-14'
+  effective_at_et: 2016-03-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM6 from trade date 2016-03-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM6
+  new_contract: ESU6
+  roll_date_et: '2016-06-13'
+  effective_at_et: 2016-06-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU6 from trade date 2016-06-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU6
+  new_contract: ESZ6
+  roll_date_et: '2016-09-12'
+  effective_at_et: 2016-09-11T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ6 from trade date 2016-09-12; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ6
+  new_contract: ESH7
+  roll_date_et: '2016-12-13'
+  effective_at_et: 2016-12-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH7 from trade date 2016-12-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH7
+  new_contract: ESM7
+  roll_date_et: '2017-03-13'
+  effective_at_et: 2017-03-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM7 from trade date 2017-03-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM7
+  new_contract: ESU7
+  roll_date_et: '2017-06-12'
+  effective_at_et: 2017-06-11T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU7 from trade date 2017-06-12; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU7
+  new_contract: ESZ7
+  roll_date_et: '2017-09-11'
+  effective_at_et: 2017-09-10T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ7 from trade date 2017-09-11; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ7
+  new_contract: ESH8
+  roll_date_et: '2017-12-11'
+  effective_at_et: 2017-12-10T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH8 from trade date 2017-12-11; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH8
+  new_contract: ESM8
+  roll_date_et: '2018-03-14'
+  effective_at_et: 2018-03-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM8 from trade date 2018-03-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM8
+  new_contract: ESU8
+  roll_date_et: '2018-06-13'
+  effective_at_et: 2018-06-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU8 from trade date 2018-06-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU8
+  new_contract: ESZ8
+  roll_date_et: '2018-09-17'
+  effective_at_et: 2018-09-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ8 from trade date 2018-09-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ8
+  new_contract: ESH9
+  roll_date_et: '2018-12-17'
+  effective_at_et: 2018-12-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH9 from trade date 2018-12-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH9
+  new_contract: ESM9
+  roll_date_et: '2019-03-11'
+  effective_at_et: 2019-03-10T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM9 from trade date 2019-03-11; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM9
+  new_contract: ESU9
+  roll_date_et: '2019-06-17'
+  effective_at_et: 2019-06-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU9 from trade date 2019-06-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU9
+  new_contract: ESZ9
+  roll_date_et: '2019-09-16'
+  effective_at_et: 2019-09-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ9 from trade date 2019-09-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ9
+  new_contract: ESH0
+  roll_date_et: '2019-12-16'
+  effective_at_et: 2019-12-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH0 from trade date 2019-12-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH0
+  new_contract: ESM0
+  roll_date_et: '2020-03-18'
+  effective_at_et: 2020-03-17T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM0 from trade date 2020-03-18; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM0
+  new_contract: ESU0
+  roll_date_et: '2020-06-17'
+  effective_at_et: 2020-06-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU0 from trade date 2020-06-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU0
+  new_contract: ESZ0
+  roll_date_et: '2020-09-14'
+  effective_at_et: 2020-09-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ0 from trade date 2020-09-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ0
+  new_contract: ESH1
+  roll_date_et: '2020-12-14'
+  effective_at_et: 2020-12-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH1 from trade date 2020-12-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH1
+  new_contract: ESM1
+  roll_date_et: '2021-03-15'
+  effective_at_et: 2021-03-14T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM1 from trade date 2021-03-15; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM1
+  new_contract: ESU1
+  roll_date_et: '2021-06-14'
+  effective_at_et: 2021-06-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU1 from trade date 2021-06-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU1
+  new_contract: ESZ1
+  roll_date_et: '2021-09-13'
+  effective_at_et: 2021-09-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ1 from trade date 2021-09-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ1
+  new_contract: ESH2
+  roll_date_et: '2021-12-13'
+  effective_at_et: 2021-12-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH2 from trade date 2021-12-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH2
+  new_contract: ESM2
+  roll_date_et: '2022-03-14'
+  effective_at_et: 2022-03-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM2 from trade date 2022-03-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM2
+  new_contract: ESU2
+  roll_date_et: '2022-06-15'
+  effective_at_et: 2022-06-14T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU2 from trade date 2022-06-15; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU2
+  new_contract: ESZ2
+  roll_date_et: '2022-09-14'
+  effective_at_et: 2022-09-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ2 from trade date 2022-09-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ2
+  new_contract: ESH3
+  roll_date_et: '2022-12-14'
+  effective_at_et: 2022-12-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH3 from trade date 2022-12-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH3
+  new_contract: ESM3
+  roll_date_et: '2023-03-15'
+  effective_at_et: 2023-03-14T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM3 from trade date 2023-03-15; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM3
+  new_contract: ESU3
+  roll_date_et: '2023-06-14'
+  effective_at_et: 2023-06-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU3 from trade date 2023-06-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU3
+  new_contract: ESZ3
+  roll_date_et: '2023-09-13'
+  effective_at_et: 2023-09-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ3 from trade date 2023-09-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ3
+  new_contract: ESH4
+  roll_date_et: '2023-12-13'
+  effective_at_et: 2023-12-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH4 from trade date 2023-12-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH4
+  new_contract: ESM4
+  roll_date_et: '2024-03-13'
+  effective_at_et: 2024-03-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM4 from trade date 2024-03-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM4
+  new_contract: ESU4
+  roll_date_et: '2024-06-19'
+  effective_at_et: 2024-06-18T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU4 from trade date 2024-06-19; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU4
+  new_contract: ESZ4
+  roll_date_et: '2024-09-18'
+  effective_at_et: 2024-09-17T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ4 from trade date 2024-09-18; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ4
+  new_contract: ESH5
+  roll_date_et: '2024-12-18'
+  effective_at_et: 2024-12-17T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH5 from trade date 2024-12-18; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH5
+  new_contract: ESM5
+  roll_date_et: '2025-03-19'
+  effective_at_et: 2025-03-18T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM5 from trade date 2025-03-19; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM5
+  new_contract: ESU5
+  roll_date_et: '2025-06-18'
+  effective_at_et: 2025-06-17T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU5 from trade date 2025-06-18; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESU5
+  new_contract: ESZ5
+  roll_date_et: '2025-09-17'
+  effective_at_et: 2025-09-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESZ5 from trade date 2025-09-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESZ5
+  new_contract: ESH6
+  roll_date_et: '2025-12-17'
+  effective_at_et: 2025-12-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESH6 from trade date 2025-12-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESH6
+  new_contract: ESM6
+  roll_date_et: '2026-03-18'
+  effective_at_et: 2026-03-17T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESM6 from trade date 2026-03-18; local policy uses the
+    prior 18:00 ET session open.
+- instrument: ES
+  old_contract: ESM6
+  new_contract: ESU6
+  roll_date_et: '2026-06-17'
+  effective_at_et: 2026-06-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento ES.v.0 maps ESU6 from trade date 2026-06-17; local policy uses the
+    prior 18:00 ET session open.

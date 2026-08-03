@@ -540,3 +540,36 @@ Binding evidence:
 - `v7/docs/V7_NQ_DATABENTO_FULL_CHAIN_REPAIR.md`;
 - `v7/docs/v7-nq-databento-full-chain-audit.json`;
 - `v4/data_config/historical_roll_repairs/nq-databento-full-chain.yml`.
+
+## 2026-08-03 ES Full-Chain Authority And Repair
+
+The approved NQ authority was applied independently to ES. A free `ES.v.0`
+query produced 66 contiguous mappings and 65 transitions from 2010 Q2 through
+2026 Q2. All instrument ids resolved to one overlapping raw H/M/U/Z contract;
+the mapping fingerprint is
+`102cf1f20aa7bd437403917952b290e0df60316657c1c965d9b34492ebb163e3`.
+
+Because no original ES continuous CSV with source identity is retained, local
+price seams were diagnostic window locators only. Bilateral raw old/new OHLCV
+proved all 62 legacy changes. Ten boundaries were already aligned; the guarded
+manifest repaired the remaining 55, replacing 99,875 rows with 102,512 and
+restoring 2,637 net minutes. Audit plus fresh Preview was estimated at USD
+3.276531, below the USD 4 stop.
+
+The generic condition boundary now evaluates only UTC dates represented by
+staged rows while retaining the full provider response. This prevents a closed
+date such as 2026-03-14 from requiring or granting `missing` permission; a
+missing condition on a staged date remains rejected. Only repaired 2019 Q1 and
+2026 Q1 explicitly accept `degraded`.
+
+The V4 Maintenance API committed and independently verified 6,494,880 ES rows,
+zero ES duplicates, and exact 65-event calendar parity. All 6,167,407 NQ rows
+and all 846,060 pre-Databento ES rows match the pre-write backup by count,
+range, and aggregate row hash.
+
+Binding evidence:
+
+- `v7/docs/V7_ES_DATABENTO_FULL_CHAIN_REPAIR.md`;
+- `v7/docs/v7-es-databento-full-chain-diff.json`;
+- `v7/docs/v7-es-databento-full-chain-audit.json`;
+- `v4/data_config/historical_roll_repairs/es-databento-full-chain.yml`.
