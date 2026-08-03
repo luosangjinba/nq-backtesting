@@ -512,3 +512,31 @@ Binding evidence:
 - `v7/docs/v7-nq-databento-full-chain-diff.json`.
 
 No paid 45-window download and no database/calendar write was performed.
+
+## 2026-08-03 NQ Full-Chain Authority And Repair
+
+The pending decision was approved: Databento `NQ.v.0` mapping start `d0`,
+normalized to the preceding `18:00 ET` session open, supersedes the historical
+two-session rule for NQ from 2010 Q2 onward. Raw quarterly contracts remain the
+stored bar source; direct continuous OHLCV remains rejected.
+
+All 45 diagnostic seams received exact bilateral old/new OHLCV attribution.
+Nine of 65 mapped boundaries were already aligned and 56 required repair. The
+reviewed manifest replaced 110,932 rows with 119,562, producing 8,630 net
+restored minute rows. Fresh Preview plus attribution was estimated at USD
+2.721236, below the USD 4 stop.
+
+Three repaired windows explicitly accept Databento `degraded` conditions:
+2019 Q1, 2025 Q3, and 2026 Q1. The generic path still defaults to `available`
+only, and unknown conditions remain rejected.
+
+The V4 Maintenance API created a verified full DuckDB backup, transactionally
+committed the 56 intervals, published the 65-event calendar, and independently
+verified 6,167,407 NQ rows with zero duplicates. ES and pre-Databento NQ
+history match the pre-write backup by count, range, and aggregate row hash.
+
+Binding evidence:
+
+- `v7/docs/V7_NQ_DATABENTO_FULL_CHAIN_REPAIR.md`;
+- `v7/docs/v7-nq-databento-full-chain-audit.json`;
+- `v4/data_config/historical_roll_repairs/nq-databento-full-chain.yml`.

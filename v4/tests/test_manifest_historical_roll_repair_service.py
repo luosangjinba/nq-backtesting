@@ -27,7 +27,13 @@ def frame(rows: int, price: float) -> pd.DataFrame:
     })
 
 
-def write_plan(path: Path, replacement: pd.DataFrame, *, current_rows: int = 3) -> service.RepairPlan:
+def write_plan(
+    path: Path,
+    replacement: pd.DataFrame,
+    *,
+    current_rows: int = 3,
+    accepted_conditions: list[str] | None = None,
+) -> service.RepairPlan:
     payload = {
         "version": 1,
         "plan_id": "nq-test-repair",
@@ -50,6 +56,7 @@ def write_plan(path: Path, replacement: pd.DataFrame, *, current_rows: int = 3) 
             "expected_current_rows": current_rows,
             "expected_replacement_rows": len(replacement),
             "expected_replacement_fingerprint": service.frame_fingerprint(replacement),
+            **({"accepted_conditions": accepted_conditions} if accepted_conditions else {}),
         }],
         "calendar_events": [{
             "instrument": "NQ",
@@ -180,6 +187,37 @@ class ManifestHistoricalRollRepairTests(unittest.TestCase):
                     conditions(),
                     repair_root=root / "repair",
                 )
+
+    def test_degraded_condition_requires_explicit_reviewed_manifest_permission(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            database, calendar, _, plan, replacement = self.fixture(root)
+            degraded = {"2024-03-h4-m4": [{"date": "2024-03-10", "condition": "degraded"}]}
+            with self.assertRaisesRegex(ValueError, "non-accepted"):
+                service.create_preview(
+                    plan,
+                    database,
+                    calendar,
+                    {plan.repairs[0].repair_id: replacement},
+                    degraded,
+                    repair_root=root / "rejected",
+                )
+
+            reviewed_path = root / "reviewed-plan.yml"
+            reviewed = write_plan(
+                reviewed_path,
+                replacement,
+                accepted_conditions=["available", "degraded"],
+            )
+            preview = service.create_preview(
+                reviewed,
+                database,
+                calendar,
+                {reviewed.repairs[0].repair_id: replacement},
+                degraded,
+                repair_root=root / "accepted",
+            )
+            self.assertTrue(preview["ok"])
 
     def test_wrong_confirmation_cannot_mutate(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -1,7 +1,7 @@
 # V7 NQ Databento Full-Chain Roll Diff
 
-Status: complete read-only mapping diff; remaining raw attribution not
-authorized
+Status: completed precursor; authority adopted and repair executed in
+`V7_NQ_DATABENTO_FULL_CHAIN_REPAIR.md`
 
 Audit date: 2026-08-02
 
@@ -165,6 +165,11 @@ USD 30, rewrite millions of otherwise unaffected rows, and enlarge rollback
 risk. The narrow bilateral plan is the recommended economic path.
 
 ## Next Decision Gate
+
+Disposition: completed on 2026-08-03. The requested Databento authority and
+USD 4 ceiling were approved, all 45 remaining windows were raw-attributed, and
+the guarded full-chain repair committed below the ceiling. The original gate
+text is retained as the pre-execution record.
 
 No paid 45-window download was made in this step. Before continuing, explicitly
 approve both:

@@ -129,7 +129,7 @@ def validate_calendar(data: dict[str, object], events: list[RollEvent]) -> None:
         raise ValueError(f"unsupported roll calendar version: {version}")
     if str(data.get("timezone") or "America/New_York") != "America/New_York":
         raise ValueError("roll calendar timezone must be America/New_York")
-    seen: set[tuple[str, str, str]] = set()
+    seen: set[tuple[str, str, str, int]] = set()
     by_instrument: dict[str, list[RollEvent]] = {}
     for event in events:
         if event.instrument not in {"ES", "NQ"}:
@@ -140,20 +140,23 @@ def validate_calendar(data: dict[str, object], events: list[RollEvent]) -> None:
             raise ValueError(f"contract prefix does not match {event.instrument}: {event.old_contract}->{event.new_contract}")
         if next_contract(event.old_contract) != event.new_contract:
             raise ValueError(f"non-consecutive quarterly contracts: {event.old_contract}->{event.new_contract}")
-        deadline = decision_deadline_et(
+        deadline = confirmed_transition_deadline_et(
             event.old_contract,
             reference_year=event.effective_at_et.year,
         )
         if event.effective_at_et > deadline:
             raise ValueError(
-                f"roll transition exceeds old-contract decision deadline: "
+                f"roll transition exceeds old-contract expiry deadline: "
                 f"{event.old_contract}->{event.new_contract} effective "
                 f"{event.effective_at_et.isoformat(timespec='minutes')} is after "
                 f"{deadline.isoformat(timespec='minutes')}"
             )
-        key = (event.instrument, event.old_contract, event.new_contract)
+        key = transition_identity(event)
         if key in seen:
-            raise ValueError(f"duplicate roll transition: {event.instrument} {event.old_contract}->{event.new_contract}")
+            raise ValueError(
+                f"duplicate roll transition: {event.instrument} "
+                f"{event.old_contract}->{event.new_contract} contract year {key[3]}"
+            )
         seen.add(key)
         by_instrument.setdefault(event.instrument, []).append(event)
     for instrument, rows in by_instrument.items():
@@ -200,6 +203,21 @@ def _full_contract_year(contract: str, reference_year: int) -> int:
     return min(candidates, key=lambda candidate: abs(candidate - reference_year))
 
 
+def transition_identity(event: RollEvent) -> tuple[str, str, str, int]:
+    """Return an era-aware identity for one quarterly transition.
+
+    Databento raw symbols use one-digit years, so e.g. ``NQH0->NQM0`` is a
+    valid distinct transition in both 2010 and 2020.
+    """
+
+    return (
+        event.instrument,
+        event.old_contract,
+        event.new_contract,
+        _full_contract_year(event.old_contract, event.effective_at_et.year),
+    )
+
+
 def decision_deadline_et(contract: str, *, reference_year: int) -> datetime:
     """Return Monday of the quarterly third-Friday expiry week as a hard stop."""
     _, quarter, _, _ = parse_contract(contract)
@@ -210,6 +228,24 @@ def decision_deadline_et(contract: str, *, reference_year: int) -> datetime:
     third_friday = date(year, month, first_friday + 14)
     expiry_week_monday = third_friday - timedelta(days=4)
     return datetime.combine(expiry_week_monday, wall_time.min)
+
+
+def confirmed_transition_deadline_et(contract: str, *, reference_year: int) -> datetime:
+    """Return the old contract's third-Friday close for calendar validity.
+
+    The Monday decision deadline remains the operational hard stop for a
+    missing future transition.  A reviewed historical transition may follow a
+    provider's later volume mapping, but it may never select the old contract
+    after its quarterly expiry session closes.
+    """
+
+    _, quarter, _, _ = parse_contract(contract)
+    year = _full_contract_year(contract, reference_year)
+    month = CONTRACT_MONTH[quarter]
+    first = date(year, month, 1)
+    first_friday = 1 + ((4 - first.weekday()) % 7)
+    third_friday = date(year, month, first_friday + 14)
+    return datetime.combine(third_friday, wall_time(17, 0))
 
 
 def health_snapshot(path: Path | str, *, now_et: datetime | None = None) -> dict[str, object]:
@@ -367,6 +403,17 @@ def create_roll_preview(
     data, events = load_calendar(calendar_path)
     instrument = str(evidence["instrument"])
     effective = _et_naive(evidence["effectiveAtEt"], "effectiveAtEt")
+    operational_deadline = decision_deadline_et(
+        str(evidence["oldContract"]),
+        reference_year=effective.year,
+    )
+    if effective > operational_deadline:
+        raise ValueError(
+            f"roll transition exceeds old-contract decision deadline: "
+            f"{evidence['oldContract']}->{evidence['newContract']} effective "
+            f"{effective.isoformat(timespec='minutes')} is after "
+            f"{operational_deadline.isoformat(timespec='minutes')}"
+        )
     max_ts = _database_max_ts(db_path, instrument)
     if max_ts is not None and max_ts >= effective:
         raise ValueError(

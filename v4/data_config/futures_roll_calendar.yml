@@ -16,105 +16,687 @@ dataset: GLBX.MDP3
 schema: ohlcv-1m
 rolls:
   - instrument: NQ
+    old_contract: NQM0
+    new_contract: NQU0
+    roll_date_et: '2010-06-14'
+    effective_at_et: 2010-06-13T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU0 from trade date 2010-06-14; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQU0
+    new_contract: NQZ0
+    roll_date_et: '2010-09-13'
+    effective_at_et: 2010-09-12T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ0 from trade date 2010-09-13; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQZ0
+    new_contract: NQH1
+    roll_date_et: '2010-12-13'
+    effective_at_et: 2010-12-12T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH1 from trade date 2010-12-13; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQH1
+    new_contract: NQM1
+    roll_date_et: '2011-03-14'
+    effective_at_et: 2011-03-13T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM1 from trade date 2011-03-14; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQM1
+    new_contract: NQU1
+    roll_date_et: '2011-06-13'
+    effective_at_et: 2011-06-12T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU1 from trade date 2011-06-13; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQU1
+    new_contract: NQZ1
+    roll_date_et: '2011-09-12'
+    effective_at_et: 2011-09-11T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ1 from trade date 2011-09-12; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQZ1
+    new_contract: NQH2
+    roll_date_et: '2011-12-12'
+    effective_at_et: 2011-12-11T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH2 from trade date 2011-12-12; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQH2
+    new_contract: NQM2
+    roll_date_et: '2012-03-13'
+    effective_at_et: 2012-03-12T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM2 from trade date 2012-03-13; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQM2
+    new_contract: NQU2
+    roll_date_et: '2012-06-11'
+    effective_at_et: 2012-06-10T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU2 from trade date 2012-06-11; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQU2
+    new_contract: NQZ2
+    roll_date_et: '2012-09-17'
+    effective_at_et: 2012-09-16T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ2 from trade date 2012-09-17; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQZ2
+    new_contract: NQH3
+    roll_date_et: '2012-12-17'
+    effective_at_et: 2012-12-16T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH3 from trade date 2012-12-17; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQH3
+    new_contract: NQM3
+    roll_date_et: '2013-03-12'
+    effective_at_et: 2013-03-11T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM3 from trade date 2013-03-12; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQM3
+    new_contract: NQU3
+    roll_date_et: '2013-06-17'
+    effective_at_et: 2013-06-16T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU3 from trade date 2013-06-17; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
     old_contract: NQU3
     new_contract: NQZ3
-    roll_date_et: '2023-09-11'
-    effective_at_et: 2023-09-10T18:00
-    boundary_policy: cme_trade_date_session_open
-    status: volume_confirmed
-    evidence_type: historical_trade_date_liquidity_repair
-    note: Historical repair; NQZ3 complete-session volume dominance was 1.7790x on
-      2023-09-11 and 3.5389x on 2023-09-12.
-    confirmed_at: '2026-08-02T09:47:25-04:00'
+    roll_date_et: '2013-09-16'
+    effective_at_et: 2013-09-15T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ3 from trade date 2013-09-16; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
   - instrument: NQ
     old_contract: NQZ3
     new_contract: NQH4
-    roll_date_et: '2023-12-11'
-    effective_at_et: 2023-12-10T18:00
-    boundary_policy: cme_trade_date_session_open
-    status: volume_confirmed
-    evidence_type: historical_trade_date_liquidity_repair
-    note: Historical repair; NQH4 complete-session volume dominance was 1.6427x on
-      2023-12-11 and 3.5201x on 2023-12-12.
-    confirmed_at: '2026-08-02T09:47:25-04:00'
+    roll_date_et: '2013-12-16'
+    effective_at_et: 2013-12-15T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH4 from trade date 2013-12-16; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
   - instrument: NQ
     old_contract: NQH4
     new_contract: NQM4
-    roll_date_et: '2024-03-11'
-    effective_at_et: 2024-03-10T18:00
-    boundary_policy: cme_trade_date_session_open
-    status: volume_confirmed
-    evidence_type: historical_trade_date_liquidity_repair
-    note: Historical repair; NQM4 complete-session volume dominance was 1.8169x on
-      2024-03-11 and 3.5825x on 2024-03-12.
-    confirmed_at: '2026-08-02T09:47:25-04:00'
+    roll_date_et: '2014-03-17'
+    effective_at_et: 2014-03-16T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM4 from trade date 2014-03-17; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
   - instrument: NQ
     old_contract: NQM4
     new_contract: NQU4
-    roll_date_et: '2024-06-17'
-    effective_at_et: 2024-06-16T18:00
-    boundary_policy: cme_trade_date_session_open
-    status: volume_confirmed
-    evidence_type: historical_trade_date_liquidity_repair
-    note: Historical repair; NQU4 complete-session volume dominance was 1.8700x on
-      2024-06-17 and 4.5152x on 2024-06-18.
-    confirmed_at: '2026-08-02T09:47:25-04:00'
+    roll_date_et: '2014-06-16'
+    effective_at_et: 2014-06-15T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU4 from trade date 2014-06-16; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
   - instrument: NQ
     old_contract: NQU4
     new_contract: NQZ4
-    roll_date_et: '2024-09-16'
-    effective_at_et: 2024-09-15T18:00
-    boundary_policy: cme_trade_date_session_open
-    status: volume_confirmed
-    evidence_type: historical_trade_date_liquidity_audit
-    note: Boundary retained; NQZ4 complete-session volume dominance was 1.1786x on
-      2024-09-16 and 2.7745x on 2024-09-17.
-    confirmed_at: '2026-08-02T09:47:25-04:00'
+    roll_date_et: '2014-09-15'
+    effective_at_et: 2014-09-14T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ4 from trade date 2014-09-15; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
   - instrument: NQ
     old_contract: NQZ4
     new_contract: NQH5
-    roll_date_et: '2024-12-16'
-    effective_at_et: 2024-12-15T18:00
-    boundary_policy: cme_trade_date_session_open
+    roll_date_et: '2014-12-15'
+    effective_at_et: 2014-12-14T18:00
+    boundary_policy: databento_volume_trade_date_session_open
     status: manual_confirmed
-    evidence_type: historical_trade_date_liquidity_audit
-    note: Boundary retained at the hard horizon; NQH5 had 1,375 minutes and 87.96%
-      of NQZ4 volume on 2024-12-16 before later strict dominance.
-    confirmed_at: '2026-08-02T09:47:25-04:00'
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH5 from trade date 2014-12-15; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
   - instrument: NQ
     old_contract: NQH5
     new_contract: NQM5
-    roll_date_et: '2025-03-17'
-    effective_at_et: 2025-03-16T18:00
-    boundary_policy: cme_trade_date_session_open
+    roll_date_et: '2015-03-16'
+    effective_at_et: 2015-03-15T18:00
+    boundary_policy: databento_volume_trade_date_session_open
     status: manual_confirmed
-    evidence_type: historical_trade_date_liquidity_repair
-    note: 'Historical repair: NQM5 had 1,380 minutes and 83.69% of NQH5 volume on
-      trade date 2025-03-17; session-open boundary satisfies the expiry-week hard
-      horizon.'
-    confirmed_at: '2026-08-02T08:36:16-04:00'
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM5 from trade date 2015-03-16; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
   - instrument: NQ
     old_contract: NQM5
     new_contract: NQU5
-    roll_date_et: '2025-06-16'
-    effective_at_et: 2025-06-15T18:00
-    boundary_policy: cme_trade_date_session_open
-    status: volume_confirmed
-    evidence_type: historical_trade_date_liquidity_repair
-    note: 'Historical repair: NQU5 first complete-session volume dominance was 1.5484x
-      on trade date 2025-06-16.'
-    confirmed_at: '2026-08-02T08:36:16-04:00'
+    roll_date_et: '2015-06-15'
+    effective_at_et: 2015-06-14T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU5 from trade date 2015-06-15; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
   - instrument: NQ
     old_contract: NQU5
     new_contract: NQZ5
-    roll_date_et: '2025-09-15'
-    effective_at_et: 2025-09-14T18:00
-    boundary_policy: cme_trade_date_session_open
+    roll_date_et: '2015-09-14'
+    effective_at_et: 2015-09-13T18:00
+    boundary_policy: databento_volume_trade_date_session_open
     status: manual_confirmed
-    evidence_type: historical_trade_date_liquidity_audit
-    note: 'Boundary retained: NQZ5 had 1,375 minutes and 98.88% of NQU5 volume on
-      trade date 2025-09-15; later Databento evidence includes a degraded date.'
-    confirmed_at: '2026-08-02T08:36:16-04:00'
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ5 from trade date 2015-09-14; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQZ5
+    new_contract: NQH6
+    roll_date_et: '2015-12-14'
+    effective_at_et: 2015-12-13T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH6 from trade date 2015-12-14; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQH6
+    new_contract: NQM6
+    roll_date_et: '2016-03-14'
+    effective_at_et: 2016-03-13T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM6 from trade date 2016-03-14; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQM6
+    new_contract: NQU6
+    roll_date_et: '2016-06-13'
+    effective_at_et: 2016-06-12T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU6 from trade date 2016-06-13; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQU6
+    new_contract: NQZ6
+    roll_date_et: '2016-09-12'
+    effective_at_et: 2016-09-11T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ6 from trade date 2016-09-12; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQZ6
+    new_contract: NQH7
+    roll_date_et: '2016-12-13'
+    effective_at_et: 2016-12-12T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH7 from trade date 2016-12-13; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQH7
+    new_contract: NQM7
+    roll_date_et: '2017-03-13'
+    effective_at_et: 2017-03-12T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM7 from trade date 2017-03-13; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQM7
+    new_contract: NQU7
+    roll_date_et: '2017-06-12'
+    effective_at_et: 2017-06-11T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU7 from trade date 2017-06-12; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQU7
+    new_contract: NQZ7
+    roll_date_et: '2017-09-11'
+    effective_at_et: 2017-09-10T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ7 from trade date 2017-09-11; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQZ7
+    new_contract: NQH8
+    roll_date_et: '2017-12-11'
+    effective_at_et: 2017-12-10T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH8 from trade date 2017-12-11; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQH8
+    new_contract: NQM8
+    roll_date_et: '2018-03-12'
+    effective_at_et: 2018-03-11T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM8 from trade date 2018-03-12; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQM8
+    new_contract: NQU8
+    roll_date_et: '2018-06-11'
+    effective_at_et: 2018-06-10T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU8 from trade date 2018-06-11; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQU8
+    new_contract: NQZ8
+    roll_date_et: '2018-09-17'
+    effective_at_et: 2018-09-16T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ8 from trade date 2018-09-17; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQZ8
+    new_contract: NQH9
+    roll_date_et: '2018-12-17'
+    effective_at_et: 2018-12-16T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH9 from trade date 2018-12-17; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQH9
+    new_contract: NQM9
+    roll_date_et: '2019-03-11'
+    effective_at_et: 2019-03-10T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM9 from trade date 2019-03-11; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQM9
+    new_contract: NQU9
+    roll_date_et: '2019-06-19'
+    effective_at_et: 2019-06-18T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU9 from trade date 2019-06-19; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQU9
+    new_contract: NQZ9
+    roll_date_et: '2019-09-16'
+    effective_at_et: 2019-09-15T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ9 from trade date 2019-09-16; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQZ9
+    new_contract: NQH0
+    roll_date_et: '2019-12-16'
+    effective_at_et: 2019-12-15T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH0 from trade date 2019-12-16; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQH0
+    new_contract: NQM0
+    roll_date_et: '2020-03-18'
+    effective_at_et: 2020-03-17T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM0 from trade date 2020-03-18; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQM0
+    new_contract: NQU0
+    roll_date_et: '2020-06-17'
+    effective_at_et: 2020-06-16T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU0 from trade date 2020-06-17; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQU0
+    new_contract: NQZ0
+    roll_date_et: '2020-09-16'
+    effective_at_et: 2020-09-15T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ0 from trade date 2020-09-16; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQZ0
+    new_contract: NQH1
+    roll_date_et: '2020-12-16'
+    effective_at_et: 2020-12-15T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH1 from trade date 2020-12-16; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQH1
+    new_contract: NQM1
+    roll_date_et: '2021-03-17'
+    effective_at_et: 2021-03-16T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM1 from trade date 2021-03-17; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQM1
+    new_contract: NQU1
+    roll_date_et: '2021-06-16'
+    effective_at_et: 2021-06-15T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU1 from trade date 2021-06-16; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQU1
+    new_contract: NQZ1
+    roll_date_et: '2021-09-15'
+    effective_at_et: 2021-09-14T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ1 from trade date 2021-09-15; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQZ1
+    new_contract: NQH2
+    roll_date_et: '2021-12-13'
+    effective_at_et: 2021-12-12T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH2 from trade date 2021-12-13; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQH2
+    new_contract: NQM2
+    roll_date_et: '2022-03-16'
+    effective_at_et: 2022-03-15T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM2 from trade date 2022-03-16; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQM2
+    new_contract: NQU2
+    roll_date_et: '2022-06-15'
+    effective_at_et: 2022-06-14T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU2 from trade date 2022-06-15; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQU2
+    new_contract: NQZ2
+    roll_date_et: '2022-09-14'
+    effective_at_et: 2022-09-13T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ2 from trade date 2022-09-14; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQZ2
+    new_contract: NQH3
+    roll_date_et: '2022-12-14'
+    effective_at_et: 2022-12-13T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH3 from trade date 2022-12-14; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQH3
+    new_contract: NQM3
+    roll_date_et: '2023-03-15'
+    effective_at_et: 2023-03-14T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM3 from trade date 2023-03-15; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQM3
+    new_contract: NQU3
+    roll_date_et: '2023-06-14'
+    effective_at_et: 2023-06-13T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU3 from trade date 2023-06-14; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQU3
+    new_contract: NQZ3
+    roll_date_et: '2023-09-13'
+    effective_at_et: 2023-09-12T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ3 from trade date 2023-09-13; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQZ3
+    new_contract: NQH4
+    roll_date_et: '2023-12-13'
+    effective_at_et: 2023-12-12T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH4 from trade date 2023-12-13; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQH4
+    new_contract: NQM4
+    roll_date_et: '2024-03-13'
+    effective_at_et: 2024-03-12T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM4 from trade date 2024-03-13; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQM4
+    new_contract: NQU4
+    roll_date_et: '2024-06-19'
+    effective_at_et: 2024-06-18T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU4 from trade date 2024-06-19; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQU4
+    new_contract: NQZ4
+    roll_date_et: '2024-09-18'
+    effective_at_et: 2024-09-17T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ4 from trade date 2024-09-18; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQZ4
+    new_contract: NQH5
+    roll_date_et: '2024-12-19'
+    effective_at_et: 2024-12-18T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH5 from trade date 2024-12-19; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQH5
+    new_contract: NQM5
+    roll_date_et: '2025-03-20'
+    effective_at_et: 2025-03-19T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM5 from trade date 2025-03-20; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQM5
+    new_contract: NQU5
+    roll_date_et: '2025-06-18'
+    effective_at_et: 2025-06-17T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU5 from trade date 2025-06-18; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
+  - instrument: NQ
+    old_contract: NQU5
+    new_contract: NQZ5
+    roll_date_et: '2025-09-18'
+    effective_at_et: 2025-09-17T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQZ5 from trade date 2025-09-18; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
   - instrument: ES
     old_contract: ESZ5
     new_contract: ESH6
@@ -126,14 +708,14 @@ rolls:
   - instrument: NQ
     old_contract: NQZ5
     new_contract: NQH6
-    roll_date_et: '2025-12-15'
-    effective_at_et: 2025-12-14T18:00
-    boundary_policy: cme_trade_date_session_open
-    status: volume_confirmed
-    evidence_type: historical_trade_date_liquidity_repair
-    note: 'Historical repair: NQH6 first complete-session volume dominance was 1.2602x
-      on trade date 2025-12-15.'
-    confirmed_at: '2026-08-02T08:36:16-04:00'
+    roll_date_et: '2025-12-17'
+    effective_at_et: 2025-12-16T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQH6 from trade date 2025-12-17; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
   - instrument: ES
     old_contract: ESH6
     new_contract: ESM6
@@ -147,13 +729,14 @@ rolls:
   - instrument: NQ
     old_contract: NQH6
     new_contract: NQM6
-    roll_date_et: 2026-03-16
-    effective_at_et: 2026-03-16T00:00
-    boundary_policy: legacy_midnight
-    status: volume_validated
-    note: 'Volume audit resolved conflict: NQM6 first overtakes NQH6 on 2026-03-16;
-      ES 2026-03 remains validated on 2026-03-13; no DB overlap exists for direct
-      NQ validation.'
+    roll_date_et: '2026-03-18'
+    effective_at_et: 2026-03-17T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQM6 from trade date 2026-03-18; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'
   - instrument: ES
     old_contract: ESM6
     new_contract: ESU6
@@ -165,8 +748,11 @@ rolls:
   - instrument: NQ
     old_contract: NQM6
     new_contract: NQU6
-    roll_date_et: 2026-06-15
-    effective_at_et: 2026-06-15T00:00
-    boundary_policy: legacy_midnight
-    status: manual_validated
-    note: Manual trading system switched to NQU6 on 2026-06-15.
+    roll_date_et: '2026-06-17'
+    effective_at_et: 2026-06-16T18:00
+    boundary_policy: databento_volume_trade_date_session_open
+    status: manual_confirmed
+    evidence_type: databento_v0_mapping_authority
+    note: Databento NQ.v.0 maps NQU6 from trade date 2026-06-17; local policy uses
+      the prior 18:00 ET session open.
+    confirmed_at: '2026-08-03T06:25:22-04:00'

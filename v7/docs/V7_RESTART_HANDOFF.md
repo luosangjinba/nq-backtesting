@@ -40,8 +40,8 @@ required for normal startup.
 - the NQ 2023 Q3–2024 raw roll audit is commit `1cd86e60`;
 - the generic NQ 2023 Q3–2024 manifest repair is commit `3e0e08f1`;
 - the read-only NQ legacy-red Databento mapping audit is commit `599c4cbd`;
-- the read-only NQ Databento full-chain mapping diff is the current handoff
-  step;
+- the NQ Databento full-chain mapping diff, raw attribution, and guarded repair
+  are complete in the current handoff step;
 - the NQ 2025 roll audit rejects the legacy boundaries as historical authority,
   retains raw Databento contracts plus the R7.3c session-aligned volume policy,
   and the separate guarded repair has replaced 2,262 rows with 2,400 source
@@ -60,14 +60,16 @@ required for normal startup.
 - early historical sparsity is explicitly treated as normal context rather
   than tested against a modern fixed minute-count threshold;
 - the free full-chain result contains 66 contiguous mappings and 65
-  transitions; all 20 exact current boundaries differ from the proposed
-  session-aligned Databento boundary, while 45 legacy seams remain diagnostic;
-- every one of the 12 governed NQ events would move later by 42–72 hours;
-  adopting the policy therefore rebaselines prior repairs rather than merely
-  extending the calendar backward;
-- the next explicit decision is whether to adopt this authority from 2010 Q2
-  onward and approve at most USD 4 for the remaining 45-window raw audit and
-  later exact Preview; no paid batch or write has occurred;
+  transitions; all 45 diagnostic legacy seams now have exact bilateral raw
+  attribution, yielding nine already aligned events and 56 repair intervals;
+- Databento `NQ.v.0` `d0`, normalized to the prior `18:00 ET` session open,
+  now governs NQ from 2010 Q2 through 2026 Q2 while pre-June-2010 NQ remains
+  explicitly legacy-source history;
+- the fixed manifest replaced 110,932 rows with 119,562, restored 8,630 net
+  minutes, finished at 6,167,407 NQ rows with zero duplicates, and published
+  all 65 target boundaries below the USD 4 ceiling;
+- independent backup comparison proves all 6,492,243 ES rows and all 694,255
+  pre-Databento NQ rows remain unchanged;
 - R8.3 closes all seven descriptor, lifecycle, and independent-harness findings;
   the refreshed exact baseline scans 42 production modules, 100 actual
   dependency edges, 101 construction sites, two production roots, and 10

@@ -1,0 +1,1120 @@
+version: 1
+plan_id: nq-databento-full-chain
+dataset: GLBX.MDP3
+schema: ohlcv-1m
+instrument: NQ
+expected_confirmation: REPAIR NQ DATABENTO FULL CHAIN
+audit_document: v7/docs/V7_NQ_DATABENTO_FULL_CHAIN_REPAIR.md
+expected_totals:
+  current_rows: 110932
+  replacement_rows: 119562
+  net_restored_minutes: 8630
+repairs:
+- repair_id: 2010q2-nqm0-nqu0
+  transition: NQM0->NQU0
+  source_contract: NQU0
+  start_et: 2010-06-13T18:00
+  end_et: 2010-06-14T00:00
+  expected_current_rows: 97
+  expected_replacement_rows: 274
+  expected_replacement_fingerprint: 3095fae8fdd146d7f4d6f6110600e448747a2fa4a43f37a703d7078c843f11d7
+- repair_id: 2010q3-nqu0-nqz0
+  transition: NQU0->NQZ0
+  source_contract: NQZ0
+  start_et: 2010-09-12T18:00
+  end_et: 2010-09-14T00:00
+  expected_current_rows: 993
+  expected_replacement_rows: 1427
+  expected_replacement_fingerprint: e6df38a571a80478ed5deb0100a6a3ed6eb6ad3fe99d6c95abe30b4b42a64d34
+- repair_id: 2010q4-nqz0-nqh1
+  transition: NQZ0->NQH1
+  source_contract: NQH1
+  start_et: 2010-12-12T18:00
+  end_et: 2010-12-14T00:00
+  expected_current_rows: 959
+  expected_replacement_rows: 1369
+  expected_replacement_fingerprint: 010dc73d1825ad540c6b67749ce5dc9110f3935351727f907ec0d103b84385e7
+- repair_id: 2011q1-nqh1-nqm1
+  transition: NQH1->NQM1
+  source_contract: NQM1
+  start_et: 2011-03-13T18:00
+  end_et: 2011-03-14T00:00
+  expected_current_rows: 205
+  expected_replacement_rows: 339
+  expected_replacement_fingerprint: 732f48ed5078feee008c31848d0a4f17a2ea68e6f058a22892956cf18ce2534e
+- repair_id: 2011q2-nqm1-nqu1
+  transition: NQM1->NQU1
+  source_contract: NQU1
+  start_et: 2011-06-12T18:00
+  end_et: 2011-06-14T00:00
+  expected_current_rows: 924
+  expected_replacement_rows: 1424
+  expected_replacement_fingerprint: ee722b498120e24b86fe0f0ed7eb040f706892e6d420665f563832abc3372555
+- repair_id: 2011q3-nqu1-nqz1
+  transition: NQU1->NQZ1
+  source_contract: NQZ1
+  start_et: 2011-09-11T18:00
+  end_et: 2011-09-14T00:00
+  expected_current_rows: 2451
+  expected_replacement_rows: 2963
+  expected_replacement_fingerprint: d8d71e8c55d78739cb9acdd95290450e6d5fa4f45c4143e1969dc688a2dc9a75
+- repair_id: 2011q4-nqz1-nqh2
+  transition: NQZ1->NQH2
+  source_contract: NQH2
+  start_et: 2011-12-11T18:00
+  end_et: 2011-12-14T00:00
+  expected_current_rows: 1857
+  expected_replacement_rows: 2789
+  expected_replacement_fingerprint: ddf6e2180015a387a6ce49ad400c29f4387aa329b7876ed393dbe7d730fa15eb
+- repair_id: 2012q1-nqh2-nqm2
+  transition: NQH2->NQM2
+  source_contract: NQM2
+  start_et: 2012-03-12T18:00
+  end_et: 2012-03-14T00:00
+  expected_current_rows: 1015
+  expected_replacement_rows: 1527
+  expected_replacement_fingerprint: c70cc0f13767c77cc9224e8e84e0128640715995afc206a234bc3fd53b5f7cdc
+- repair_id: 2012q2-nqm2-nqu2
+  transition: NQM2->NQU2
+  source_contract: NQU2
+  start_et: 2012-06-10T18:00
+  end_et: 2012-06-14T00:00
+  expected_current_rows: 2914
+  expected_replacement_rows: 4160
+  expected_replacement_fingerprint: e9acc160c3695637b80cf6747d3371345bd84102125404449dde23201e142472
+- repair_id: 2012q3-nqu2-nqz2
+  transition: NQU2->NQZ2
+  source_contract: NQU2
+  start_et: 2012-09-14T00:00
+  end_et: 2012-09-16T18:00
+  expected_current_rows: 908
+  expected_replacement_rows: 937
+  expected_replacement_fingerprint: 60447a0553f79c45ab1888f47442c1cfd28d76a26f9b5c1aca77b6862c8bf462
+- repair_id: 2012q4-nqz2-nqh3
+  transition: NQZ2->NQH3
+  source_contract: NQZ2
+  start_et: 2012-12-14T00:00
+  end_et: 2012-12-16T18:00
+  expected_current_rows: 964
+  expected_replacement_rows: 860
+  expected_replacement_fingerprint: 88a5e87c50c6877c523635340f01cfd5ceeac0186006b18908edbdac19ec3ac0
+- repair_id: 2013q1-nqh3-nqm3
+  transition: NQH3->NQM3
+  source_contract: NQM3
+  start_et: 2013-03-11T18:00
+  end_et: 2013-03-14T00:00
+  expected_current_rows: 1634
+  expected_replacement_rows: 2489
+  expected_replacement_fingerprint: 36f35fe854c3630f4057510679a85e43423745c02de2373aaffa68df872d3fce
+- repair_id: 2013q2-nqm3-nqu3
+  transition: NQM3->NQU3
+  source_contract: NQM3
+  start_et: 2013-06-14T00:00
+  end_et: 2013-06-16T18:00
+  expected_current_rows: 968
+  expected_replacement_rows: 904
+  expected_replacement_fingerprint: 171b0bc0322da0c1d184dcbc28a0084fbf4f0ca301371f6fd3f6c2cdb9812e8d
+- repair_id: 2014q1-nqh4-nqm4
+  transition: NQH4->NQM4
+  source_contract: NQH4
+  start_et: 2014-03-14T00:00
+  end_et: 2014-03-16T18:00
+  expected_current_rows: 956
+  expected_replacement_rows: 909
+  expected_replacement_fingerprint: e1af0ab45a7c19e360c655cf3fb45c33bfaadc440876c84fd318eb39650703b9
+- repair_id: 2015q3-nqu5-nqz5
+  transition: NQU5->NQZ5
+  source_contract: NQZ5
+  start_et: 2015-09-13T18:00
+  end_et: 2015-09-14T00:00
+  expected_current_rows: 301
+  expected_replacement_rows: 342
+  expected_replacement_fingerprint: 6bb86b4a7e6e6266570060da2cdeae2d5ddc1f806f4ebf3ca664a1935e42b439
+- repair_id: 2015q4-nqz5-nqh6
+  transition: NQZ5->NQH6
+  source_contract: NQH6
+  start_et: 2015-12-13T18:00
+  end_et: 2015-12-14T00:00
+  expected_current_rows: 260
+  expected_replacement_rows: 339
+  expected_replacement_fingerprint: a9c3c6d77a35e04ac5e84476fa6dc9452cc8ad74617155f85391e1549f24724e
+- repair_id: 2016q1-nqh6-nqm6
+  transition: NQH6->NQM6
+  source_contract: NQM6
+  start_et: 2016-03-13T18:00
+  end_et: 2016-03-14T00:00
+  expected_current_rows: 219
+  expected_replacement_rows: 297
+  expected_replacement_fingerprint: 0185fe9322728519349c7f134e22b25295133b309af9985aaa73286cdcc15366
+- repair_id: 2016q2-nqm6-nqu6
+  transition: NQM6->NQU6
+  source_contract: NQU6
+  start_et: 2016-06-12T18:00
+  end_et: 2016-06-14T00:00
+  expected_current_rows: 1386
+  expected_replacement_rows: 1650
+  expected_replacement_fingerprint: 034c29c17be0747116d72fabb96e672be324037a9e7f88ea0d0b4591a92c8596
+- repair_id: 2016q3-nqu6-nqz6
+  transition: NQU6->NQZ6
+  source_contract: NQZ6
+  start_et: 2016-09-11T18:00
+  end_et: 2016-09-14T00:00
+  expected_current_rows: 2665
+  expected_replacement_rows: 3021
+  expected_replacement_fingerprint: 1cf3f4fd62e23c89d7d492012054c2ea68e644c1b4d944d3752621fc1ea200a4
+- repair_id: 2016q4-nqz6-nqh7
+  transition: NQZ6->NQH7
+  source_contract: NQH7
+  start_et: 2016-12-12T18:00
+  end_et: 2016-12-14T00:00
+  expected_current_rows: 1244
+  expected_replacement_rows: 1571
+  expected_replacement_fingerprint: 0c6aa634a4b580732b54a52b3618216192e2cf03c8fb71f0a20eaa0ffe912289
+- repair_id: 2017q1-nqh7-nqm7
+  transition: NQH7->NQM7
+  source_contract: NQM7
+  start_et: 2017-03-12T18:00
+  end_et: 2017-03-14T00:00
+  expected_current_rows: 1275
+  expected_replacement_rows: 1597
+  expected_replacement_fingerprint: 1fc6650d6d94fb2652e04ace8c7be0850f6c98148795a66bcf10d33e88ca8690
+- repair_id: 2017q2-nqm7-nqu7
+  transition: NQM7->NQU7
+  source_contract: NQU7
+  start_et: 2017-06-11T18:00
+  end_et: 2017-06-14T00:00
+  expected_current_rows: 2773
+  expected_replacement_rows: 3022
+  expected_replacement_fingerprint: 9dadd94e7bb016bd4de5a26763935bdb70fc33698cc9d9651f7ac645a2d833f5
+- repair_id: 2017q3-nqu7-nqz7
+  transition: NQU7->NQZ7
+  source_contract: NQZ7
+  start_et: 2017-09-10T18:00
+  end_et: 2017-09-14T00:00
+  expected_current_rows: 3897
+  expected_replacement_rows: 4360
+  expected_replacement_fingerprint: 1c0378255ed26081fa9c1f1bd31cd43cdd1fa37d680cdab8ed7724bcefb2f998
+- repair_id: 2017q4-nqz7-nqh8
+  transition: NQZ7->NQH8
+  source_contract: NQH8
+  start_et: 2017-12-10T18:00
+  end_et: 2017-12-14T00:00
+  expected_current_rows: 3858
+  expected_replacement_rows: 4406
+  expected_replacement_fingerprint: 6ba6198a987b2adee3f220ee4c7c90ed3c310434cb9ce0cd2aaa90f6170792d0
+- repair_id: 2018q1-nqh8-nqm8
+  transition: NQH8->NQM8
+  source_contract: NQM8
+  start_et: 2018-03-11T18:00
+  end_et: 2018-03-14T00:00
+  expected_current_rows: 2966
+  expected_replacement_rows: 3077
+  expected_replacement_fingerprint: 4713531e9b29d2779721b2bc7400523881b218ce9c54f85789b518d7563018c4
+- repair_id: 2018q2-nqm8-nqu8
+  transition: NQM8->NQU8
+  source_contract: NQU8
+  start_et: 2018-06-10T18:00
+  end_et: 2018-06-14T00:00
+  expected_current_rows: 4180
+  expected_replacement_rows: 4438
+  expected_replacement_fingerprint: 01ecf78ed7995cbba729da7366ab46d7dac3ba5997345ed4c480284a79e26390
+- repair_id: 2018q3-nqu8-nqz8
+  transition: NQU8->NQZ8
+  source_contract: NQU8
+  start_et: 2018-09-14T00:00
+  end_et: 2018-09-16T18:00
+  expected_current_rows: 999
+  expected_replacement_rows: 1002
+  expected_replacement_fingerprint: 8ada19c88fe1ae4dcb4d81f179be2de16ff1c08415fb4009bbd8e41775ac659c
+- repair_id: 2018q4-nqz8-nqh9
+  transition: NQZ8->NQH9
+  source_contract: NQZ8
+  start_et: 2018-12-14T00:00
+  end_et: 2018-12-16T18:00
+  expected_current_rows: 1004
+  expected_replacement_rows: 1005
+  expected_replacement_fingerprint: 124acfeabe8728ff4ff82ab85921507a8419421c5da0fd83d165b3413ad880f3
+- repair_id: 2019q1-nqh9-nqm9
+  transition: NQH9->NQM9
+  source_contract: NQM9
+  start_et: 2019-03-10T18:00
+  end_et: 2019-03-14T00:00
+  expected_current_rows: 4371
+  expected_replacement_rows: 4451
+  expected_replacement_fingerprint: fd58c586f66153536c2c5fc39ee823cc5b0bc28616ea825f9aa260ca08e42195
+  accepted_conditions:
+  - available
+  - degraded
+- repair_id: 2019q2-nqm9-nqu9
+  transition: NQM9->NQU9
+  source_contract: NQM9
+  start_et: 2019-06-14T00:00
+  end_et: 2019-06-18T18:00
+  expected_current_rows: 3726
+  expected_replacement_rows: 3719
+  expected_replacement_fingerprint: f37c0c81fdea0cc569d8ec21df2ccbe25c6acae86d70b1bc64336285a06b6333
+- repair_id: 2020q1-nqh0-nqm0
+  transition: NQH0->NQM0
+  source_contract: NQH0
+  start_et: 2020-03-15T18:00
+  end_et: 2020-03-17T18:00
+  expected_current_rows: 1626
+  expected_replacement_rows: 1644
+  expected_replacement_fingerprint: f386a387ca141c647288e11a9eb990cdc71c396513af189748a15bb3570c9c8b
+- repair_id: 2020q2-nqm0-nqu0
+  transition: NQM0->NQU0
+  source_contract: NQM0
+  start_et: 2020-06-14T18:00
+  end_et: 2020-06-16T18:00
+  expected_current_rows: 2728
+  expected_replacement_rows: 2729
+  expected_replacement_fingerprint: b02f939e2f56620da32d5ef5c57ad3b23d11a524473ef1cda898cb2835282fe1
+- repair_id: 2020q3-nqu0-nqz0
+  transition: NQU0->NQZ0
+  source_contract: NQU0
+  start_et: 2020-09-14T00:00
+  end_et: 2020-09-15T18:00
+  expected_current_rows: 2369
+  expected_replacement_rows: 2367
+  expected_replacement_fingerprint: 7c20a3ff2e21756c116a3184fac93e7726e0b8494b6b6fe3180a0696008549b6
+- repair_id: 2020q4-nqz0-nqh1
+  transition: NQZ0->NQH1
+  source_contract: NQZ0
+  start_et: 2020-12-14T00:00
+  end_et: 2020-12-15T18:00
+  expected_current_rows: 2369
+  expected_replacement_rows: 2370
+  expected_replacement_fingerprint: 24c367a7196f39d24ed16a0d8494fa94bf11c7aa8b436c14320ffccc94590460
+- repair_id: 2021q1-nqh1-nqm1
+  transition: NQH1->NQM1
+  source_contract: NQH1
+  start_et: 2021-03-14T18:00
+  end_et: 2021-03-16T18:00
+  expected_current_rows: 2730
+  expected_replacement_rows: 2729
+  expected_replacement_fingerprint: b15a594248cc34840de6cb90324984b8299cb0bd4bd4fda5aa16b10965e6cf41
+- repair_id: 2021q2-nqm1-nqu1
+  transition: NQM1->NQU1
+  source_contract: NQM1
+  start_et: 2021-06-14T00:00
+  end_et: 2021-06-15T18:00
+  expected_current_rows: 2368
+  expected_replacement_rows: 2363
+  expected_replacement_fingerprint: f49581433b8939cb21da0bf36c0e7c5f8b23100962845190a3122a0f092ac300
+- repair_id: 2021q3-nqu1-nqz1
+  transition: NQU1->NQZ1
+  source_contract: NQU1
+  start_et: 2021-09-14T00:00
+  end_et: 2021-09-14T18:00
+  expected_current_rows: 1020
+  expected_replacement_rows: 1016
+  expected_replacement_fingerprint: 275a84c0afb8935be7af29143a9fda2f3482309511d2585e47bd1f472ef72c5b
+- repair_id: 2021q4-nqz1-nqh2
+  transition: NQZ1->NQH2
+  source_contract: NQH2
+  start_et: 2021-12-12T18:00
+  end_et: 2021-12-14T00:00
+  expected_current_rows: 1734
+  expected_replacement_rows: 1739
+  expected_replacement_fingerprint: fe9fed921cc231afe00f08526c8cce270be461c9ed63514b199e7865e70c7ad2
+- repair_id: 2022q1-nqh2-nqm2
+  transition: NQH2->NQM2
+  source_contract: NQH2
+  start_et: 2022-03-14T00:00
+  end_et: 2022-03-15T18:00
+  expected_current_rows: 2400
+  expected_replacement_rows: 2400
+  expected_replacement_fingerprint: 917d9800376eb47713cbd38351f6eb76f47a9102ae2e2af1533bd632cdf432f7
+- repair_id: 2022q2-nqm2-nqu2
+  transition: NQM2->NQU2
+  source_contract: NQM2
+  start_et: 2022-06-14T00:00
+  end_et: 2022-06-14T18:00
+  expected_current_rows: 1020
+  expected_replacement_rows: 1020
+  expected_replacement_fingerprint: 3f22a06509098684f76100731d155e8a31b5726dca92ea65f37c1b3760b318cf
+- repair_id: 2022q3-nqu2-nqz2
+  transition: NQU2->NQZ2
+  source_contract: NQZ2
+  start_et: 2022-09-13T18:00
+  end_et: 2022-09-14T00:00
+  expected_current_rows: 360
+  expected_replacement_rows: 360
+  expected_replacement_fingerprint: 99cfa0278abd73f9e0b14a3b48543a1d43020691beb1d7b6c4cfe004daac8857
+- repair_id: 2022q4-nqz2-nqh3
+  transition: NQZ2->NQH3
+  source_contract: NQH3
+  start_et: 2022-12-13T18:00
+  end_et: 2022-12-14T00:00
+  expected_current_rows: 360
+  expected_replacement_rows: 360
+  expected_replacement_fingerprint: 0ea36d824cde4df7974e14c8fc274d3c820bb9ff30fc139fc38a8e296ceac961
+- repair_id: 2023q1-nqh3-nqm3
+  transition: NQH3->NQM3
+  source_contract: NQH3
+  start_et: 2023-03-14T00:00
+  end_et: 2023-03-14T18:00
+  expected_current_rows: 1020
+  expected_replacement_rows: 1018
+  expected_replacement_fingerprint: 23dc12d98d64ee2ee2231bee4a3c31183759323467e63a78c2ac556270c0aebd
+- repair_id: 2023q2-nqm3-nqu3
+  transition: NQM3->NQU3
+  source_contract: NQU3
+  start_et: 2023-06-13T18:00
+  end_et: 2023-06-14T00:00
+  expected_current_rows: 344
+  expected_replacement_rows: 360
+  expected_replacement_fingerprint: f2d1756dc0bf8248061103f986718f03f7f447ae7d9c378c56384f63f251be5c
+- repair_id: 2023q3-nqu3-nqz3
+  transition: NQU3->NQZ3
+  source_contract: NQU3
+  start_et: 2023-09-10T18:00
+  end_et: 2023-09-12T18:00
+  expected_current_rows: 2759
+  expected_replacement_rows: 2757
+  expected_replacement_fingerprint: 9beec0b8c0bce757d9b0cc0c1326a08da31231af20a9f42de26417a02e09f0f3
+- repair_id: 2023q4-nqz3-nqh4
+  transition: NQZ3->NQH4
+  source_contract: NQZ3
+  start_et: 2023-12-10T18:00
+  end_et: 2023-12-12T18:00
+  expected_current_rows: 2758
+  expected_replacement_rows: 2758
+  expected_replacement_fingerprint: c87d6d2d7de98ce679c381d6043f082fecf9e4e5a70b40a73675247577ac6fd5
+- repair_id: 2024q1-nqh4-nqm4
+  transition: NQH4->NQM4
+  source_contract: NQH4
+  start_et: 2024-03-10T18:00
+  end_et: 2024-03-12T18:00
+  expected_current_rows: 2760
+  expected_replacement_rows: 2747
+  expected_replacement_fingerprint: c5e2b9642223c218a097962eb77f3ed8ecc3df6befda0b42d3992ef7ad39ff1c
+- repair_id: 2024q2-nqm4-nqu4
+  transition: NQM4->NQU4
+  source_contract: NQM4
+  start_et: 2024-06-16T18:00
+  end_et: 2024-06-18T18:00
+  expected_current_rows: 2760
+  expected_replacement_rows: 2756
+  expected_replacement_fingerprint: bcaa5d399be649d3ebd7e0c6d6143cb151bc565e9979b0496fd9b7f0af8d83b7
+- repair_id: 2024q3-nqu4-nqz4
+  transition: NQU4->NQZ4
+  source_contract: NQU4
+  start_et: 2024-09-15T18:00
+  end_et: 2024-09-17T18:00
+  expected_current_rows: 2752
+  expected_replacement_rows: 2739
+  expected_replacement_fingerprint: 942feee056cacc2d73b22f63d5ed89b4c2b20bc9d8047fbe6287b143b9d6385b
+- repair_id: 2024q4-nqz4-nqh5
+  transition: NQZ4->NQH5
+  source_contract: NQZ4
+  start_et: 2024-12-15T18:00
+  end_et: 2024-12-18T18:00
+  expected_current_rows: 4133
+  expected_replacement_rows: 4136
+  expected_replacement_fingerprint: cea02f53af595ed79f7b0224b6f2a2562339ee8de3c3c3c230e8b93c1d1c274b
+- repair_id: 2025q1-nqh5-nqm5
+  transition: NQH5->NQM5
+  source_contract: NQH5
+  start_et: 2025-03-16T18:00
+  end_et: 2025-03-19T18:00
+  expected_current_rows: 4140
+  expected_replacement_rows: 4135
+  expected_replacement_fingerprint: 5fb5051546a7b88ee650bf275f95f9de4a36f5f8691b3c32acd027c8beda2d60
+- repair_id: 2025q2-nqm5-nqu5
+  transition: NQM5->NQU5
+  source_contract: NQM5
+  start_et: 2025-06-15T18:00
+  end_et: 2025-06-17T18:00
+  expected_current_rows: 2758
+  expected_replacement_rows: 2753
+  expected_replacement_fingerprint: 619c2ac4d419ed78e78dc6a350d3c43dcf9e8c909c62ff9d3d626862c886005f
+- repair_id: 2025q3-nqu5-nqz5
+  transition: NQU5->NQZ5
+  source_contract: NQU5
+  start_et: 2025-09-14T18:00
+  end_et: 2025-09-17T18:00
+  expected_current_rows: 4135
+  expected_replacement_rows: 4109
+  expected_replacement_fingerprint: 94896e8282ac65917c6721814bdd2f373a0296ff2882c20d5d73cbf1ba9e94ff
+  accepted_conditions:
+  - available
+  - degraded
+- repair_id: 2025q4-nqz5-nqh6
+  transition: NQZ5->NQH6
+  source_contract: NQZ5
+  start_et: 2025-12-14T18:00
+  end_et: 2025-12-16T18:00
+  expected_current_rows: 2760
+  expected_replacement_rows: 2754
+  expected_replacement_fingerprint: 4aed9a8313b9b9c5a92a78ee5a87e249ebf0757ea44865e4088db222ab55e99d
+- repair_id: 2026q1-nqh6-nqm6
+  transition: NQH6->NQM6
+  source_contract: NQH6
+  start_et: 2026-03-16T00:00
+  end_et: 2026-03-17T18:00
+  expected_current_rows: 2400
+  expected_replacement_rows: 2388
+  expected_replacement_fingerprint: 91122634c9cf6fa5c95e2e5cb9f710d2fdf547570d96d367551b59e260bcda98
+  accepted_conditions:
+  - available
+  - degraded
+- repair_id: 2026q2-nqm6-nqu6
+  transition: NQM6->NQU6
+  source_contract: NQM6
+  start_et: 2026-06-15T00:00
+  end_et: 2026-06-16T18:00
+  expected_current_rows: 2400
+  expected_replacement_rows: 2387
+  expected_replacement_fingerprint: 9bfc346dc1ac63eb3af3eb5c9c8709b5f838b0e20ae2cbcdeecbce38c9715d5f
+calendar_events:
+- instrument: NQ
+  old_contract: NQM0
+  new_contract: NQU0
+  roll_date_et: '2010-06-14'
+  effective_at_et: 2010-06-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU0 from trade date 2010-06-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU0
+  new_contract: NQZ0
+  roll_date_et: '2010-09-13'
+  effective_at_et: 2010-09-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ0 from trade date 2010-09-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ0
+  new_contract: NQH1
+  roll_date_et: '2010-12-13'
+  effective_at_et: 2010-12-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH1 from trade date 2010-12-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH1
+  new_contract: NQM1
+  roll_date_et: '2011-03-14'
+  effective_at_et: 2011-03-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM1 from trade date 2011-03-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM1
+  new_contract: NQU1
+  roll_date_et: '2011-06-13'
+  effective_at_et: 2011-06-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU1 from trade date 2011-06-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU1
+  new_contract: NQZ1
+  roll_date_et: '2011-09-12'
+  effective_at_et: 2011-09-11T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ1 from trade date 2011-09-12; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ1
+  new_contract: NQH2
+  roll_date_et: '2011-12-12'
+  effective_at_et: 2011-12-11T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH2 from trade date 2011-12-12; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH2
+  new_contract: NQM2
+  roll_date_et: '2012-03-13'
+  effective_at_et: 2012-03-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM2 from trade date 2012-03-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM2
+  new_contract: NQU2
+  roll_date_et: '2012-06-11'
+  effective_at_et: 2012-06-10T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU2 from trade date 2012-06-11; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU2
+  new_contract: NQZ2
+  roll_date_et: '2012-09-17'
+  effective_at_et: 2012-09-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ2 from trade date 2012-09-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ2
+  new_contract: NQH3
+  roll_date_et: '2012-12-17'
+  effective_at_et: 2012-12-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH3 from trade date 2012-12-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH3
+  new_contract: NQM3
+  roll_date_et: '2013-03-12'
+  effective_at_et: 2013-03-11T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM3 from trade date 2013-03-12; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM3
+  new_contract: NQU3
+  roll_date_et: '2013-06-17'
+  effective_at_et: 2013-06-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU3 from trade date 2013-06-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU3
+  new_contract: NQZ3
+  roll_date_et: '2013-09-16'
+  effective_at_et: 2013-09-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ3 from trade date 2013-09-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ3
+  new_contract: NQH4
+  roll_date_et: '2013-12-16'
+  effective_at_et: 2013-12-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH4 from trade date 2013-12-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH4
+  new_contract: NQM4
+  roll_date_et: '2014-03-17'
+  effective_at_et: 2014-03-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM4 from trade date 2014-03-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM4
+  new_contract: NQU4
+  roll_date_et: '2014-06-16'
+  effective_at_et: 2014-06-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU4 from trade date 2014-06-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU4
+  new_contract: NQZ4
+  roll_date_et: '2014-09-15'
+  effective_at_et: 2014-09-14T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ4 from trade date 2014-09-15; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ4
+  new_contract: NQH5
+  roll_date_et: '2014-12-15'
+  effective_at_et: 2014-12-14T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH5 from trade date 2014-12-15; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH5
+  new_contract: NQM5
+  roll_date_et: '2015-03-16'
+  effective_at_et: 2015-03-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM5 from trade date 2015-03-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM5
+  new_contract: NQU5
+  roll_date_et: '2015-06-15'
+  effective_at_et: 2015-06-14T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU5 from trade date 2015-06-15; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU5
+  new_contract: NQZ5
+  roll_date_et: '2015-09-14'
+  effective_at_et: 2015-09-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ5 from trade date 2015-09-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ5
+  new_contract: NQH6
+  roll_date_et: '2015-12-14'
+  effective_at_et: 2015-12-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH6 from trade date 2015-12-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH6
+  new_contract: NQM6
+  roll_date_et: '2016-03-14'
+  effective_at_et: 2016-03-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM6 from trade date 2016-03-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM6
+  new_contract: NQU6
+  roll_date_et: '2016-06-13'
+  effective_at_et: 2016-06-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU6 from trade date 2016-06-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU6
+  new_contract: NQZ6
+  roll_date_et: '2016-09-12'
+  effective_at_et: 2016-09-11T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ6 from trade date 2016-09-12; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ6
+  new_contract: NQH7
+  roll_date_et: '2016-12-13'
+  effective_at_et: 2016-12-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH7 from trade date 2016-12-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH7
+  new_contract: NQM7
+  roll_date_et: '2017-03-13'
+  effective_at_et: 2017-03-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM7 from trade date 2017-03-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM7
+  new_contract: NQU7
+  roll_date_et: '2017-06-12'
+  effective_at_et: 2017-06-11T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU7 from trade date 2017-06-12; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU7
+  new_contract: NQZ7
+  roll_date_et: '2017-09-11'
+  effective_at_et: 2017-09-10T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ7 from trade date 2017-09-11; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ7
+  new_contract: NQH8
+  roll_date_et: '2017-12-11'
+  effective_at_et: 2017-12-10T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH8 from trade date 2017-12-11; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH8
+  new_contract: NQM8
+  roll_date_et: '2018-03-12'
+  effective_at_et: 2018-03-11T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM8 from trade date 2018-03-12; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM8
+  new_contract: NQU8
+  roll_date_et: '2018-06-11'
+  effective_at_et: 2018-06-10T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU8 from trade date 2018-06-11; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU8
+  new_contract: NQZ8
+  roll_date_et: '2018-09-17'
+  effective_at_et: 2018-09-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ8 from trade date 2018-09-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ8
+  new_contract: NQH9
+  roll_date_et: '2018-12-17'
+  effective_at_et: 2018-12-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH9 from trade date 2018-12-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH9
+  new_contract: NQM9
+  roll_date_et: '2019-03-11'
+  effective_at_et: 2019-03-10T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM9 from trade date 2019-03-11; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM9
+  new_contract: NQU9
+  roll_date_et: '2019-06-19'
+  effective_at_et: 2019-06-18T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU9 from trade date 2019-06-19; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU9
+  new_contract: NQZ9
+  roll_date_et: '2019-09-16'
+  effective_at_et: 2019-09-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ9 from trade date 2019-09-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ9
+  new_contract: NQH0
+  roll_date_et: '2019-12-16'
+  effective_at_et: 2019-12-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH0 from trade date 2019-12-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH0
+  new_contract: NQM0
+  roll_date_et: '2020-03-18'
+  effective_at_et: 2020-03-17T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM0 from trade date 2020-03-18; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM0
+  new_contract: NQU0
+  roll_date_et: '2020-06-17'
+  effective_at_et: 2020-06-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU0 from trade date 2020-06-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU0
+  new_contract: NQZ0
+  roll_date_et: '2020-09-16'
+  effective_at_et: 2020-09-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ0 from trade date 2020-09-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ0
+  new_contract: NQH1
+  roll_date_et: '2020-12-16'
+  effective_at_et: 2020-12-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH1 from trade date 2020-12-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH1
+  new_contract: NQM1
+  roll_date_et: '2021-03-17'
+  effective_at_et: 2021-03-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM1 from trade date 2021-03-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM1
+  new_contract: NQU1
+  roll_date_et: '2021-06-16'
+  effective_at_et: 2021-06-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU1 from trade date 2021-06-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU1
+  new_contract: NQZ1
+  roll_date_et: '2021-09-15'
+  effective_at_et: 2021-09-14T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ1 from trade date 2021-09-15; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ1
+  new_contract: NQH2
+  roll_date_et: '2021-12-13'
+  effective_at_et: 2021-12-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH2 from trade date 2021-12-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH2
+  new_contract: NQM2
+  roll_date_et: '2022-03-16'
+  effective_at_et: 2022-03-15T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM2 from trade date 2022-03-16; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM2
+  new_contract: NQU2
+  roll_date_et: '2022-06-15'
+  effective_at_et: 2022-06-14T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU2 from trade date 2022-06-15; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU2
+  new_contract: NQZ2
+  roll_date_et: '2022-09-14'
+  effective_at_et: 2022-09-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ2 from trade date 2022-09-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ2
+  new_contract: NQH3
+  roll_date_et: '2022-12-14'
+  effective_at_et: 2022-12-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH3 from trade date 2022-12-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH3
+  new_contract: NQM3
+  roll_date_et: '2023-03-15'
+  effective_at_et: 2023-03-14T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM3 from trade date 2023-03-15; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM3
+  new_contract: NQU3
+  roll_date_et: '2023-06-14'
+  effective_at_et: 2023-06-13T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU3 from trade date 2023-06-14; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU3
+  new_contract: NQZ3
+  roll_date_et: '2023-09-13'
+  effective_at_et: 2023-09-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ3 from trade date 2023-09-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ3
+  new_contract: NQH4
+  roll_date_et: '2023-12-13'
+  effective_at_et: 2023-12-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH4 from trade date 2023-12-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH4
+  new_contract: NQM4
+  roll_date_et: '2024-03-13'
+  effective_at_et: 2024-03-12T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM4 from trade date 2024-03-13; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM4
+  new_contract: NQU4
+  roll_date_et: '2024-06-19'
+  effective_at_et: 2024-06-18T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU4 from trade date 2024-06-19; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU4
+  new_contract: NQZ4
+  roll_date_et: '2024-09-18'
+  effective_at_et: 2024-09-17T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ4 from trade date 2024-09-18; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ4
+  new_contract: NQH5
+  roll_date_et: '2024-12-19'
+  effective_at_et: 2024-12-18T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH5 from trade date 2024-12-19; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH5
+  new_contract: NQM5
+  roll_date_et: '2025-03-20'
+  effective_at_et: 2025-03-19T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM5 from trade date 2025-03-20; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM5
+  new_contract: NQU5
+  roll_date_et: '2025-06-18'
+  effective_at_et: 2025-06-17T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU5 from trade date 2025-06-18; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQU5
+  new_contract: NQZ5
+  roll_date_et: '2025-09-18'
+  effective_at_et: 2025-09-17T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQZ5 from trade date 2025-09-18; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQZ5
+  new_contract: NQH6
+  roll_date_et: '2025-12-17'
+  effective_at_et: 2025-12-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQH6 from trade date 2025-12-17; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQH6
+  new_contract: NQM6
+  roll_date_et: '2026-03-18'
+  effective_at_et: 2026-03-17T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQM6 from trade date 2026-03-18; local policy uses the
+    prior 18:00 ET session open.
+- instrument: NQ
+  old_contract: NQM6
+  new_contract: NQU6
+  roll_date_et: '2026-06-17'
+  effective_at_et: 2026-06-16T18:00
+  boundary_policy: databento_volume_trade_date_session_open
+  status: manual_confirmed
+  evidence_type: databento_v0_mapping_authority
+  note: Databento NQ.v.0 maps NQU6 from trade date 2026-06-17; local policy uses the
+    prior 18:00 ET session open.

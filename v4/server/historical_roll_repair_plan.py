@@ -29,6 +29,7 @@ class RepairSpec:
     expected_current_rows: int
     expected_replacement_rows: int
     expected_replacement_fingerprint: str
+    accepted_conditions: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -138,6 +139,16 @@ def load_plan(plan_path: Path | str) -> RepairPlan:
         ).lower()
         if not FINGERPRINT_PATTERN.fullmatch(fingerprint):
             raise ValueError(f"{repair_id} has invalid replacement fingerprint")
+        raw_conditions = row.get("accepted_conditions", ["available"])
+        if not isinstance(raw_conditions, list) or not raw_conditions:
+            raise ValueError(f"{repair_id} accepted_conditions must be a non-empty list")
+        accepted_conditions = tuple(str(value or "").strip() for value in raw_conditions)
+        if len(set(accepted_conditions)) != len(accepted_conditions) or not set(accepted_conditions).issubset(
+            {"available", "degraded"}
+        ):
+            raise ValueError(
+                f"{repair_id} accepted_conditions may contain only available/degraded without duplicates"
+            )
         repairs.append(RepairSpec(
             repair_id,
             transition,
@@ -147,6 +158,7 @@ def load_plan(plan_path: Path | str) -> RepairPlan:
             current_rows,
             replacement_rows,
             fingerprint,
+            accepted_conditions,
         ))
 
     ordered = sorted(repairs, key=lambda item: datetime.fromisoformat(item.start_et))
@@ -158,7 +170,7 @@ def load_plan(plan_path: Path | str) -> RepairPlan:
     if not isinstance(raw_events, list) or not raw_events:
         raise ValueError("historical roll repair manifest requires calendar_events")
     calendar_events = []
-    event_transitions = set()
+    event_transitions: set[tuple[str, str, str, int]] = set()
     for index, source in enumerate(raw_events):
         if not isinstance(source, dict):
             raise ValueError("each calendar event must be a mapping")
@@ -181,14 +193,24 @@ def load_plan(plan_path: Path | str) -> RepairPlan:
             )
         if parsed.status not in roll_calendar_service.NEW_CONFIRMATION_STATUSES:
             raise ValueError(f"calendar event status is not confirmed: {parsed.status}")
-        key = (event["old_contract"], event["new_contract"])
+        key = roll_calendar_service.transition_identity(parsed)
         if key in event_transitions:
-            raise ValueError(f"duplicate calendar event: {key[0]}->{key[1]}")
+            raise ValueError(
+                f"duplicate calendar event: {event['old_contract']}->{event['new_contract']} "
+                f"contract year {key[3]}"
+            )
         event_transitions.add(key)
         calendar_events.append(event)
     for repair in repairs:
         old_contract, new_contract = repair.transition.split("->")
-        if (old_contract, new_contract) not in event_transitions:
+        repair_start = datetime.fromisoformat(repair.start_et)
+        repair_key = (
+            instrument,
+            old_contract,
+            new_contract,
+            roll_calendar_service._full_contract_year(old_contract, repair_start.year),
+        )
+        if repair_key not in event_transitions:
             raise ValueError(f"calendar_events does not cover repair {repair.transition}")
 
     totals = payload.get("expected_totals")

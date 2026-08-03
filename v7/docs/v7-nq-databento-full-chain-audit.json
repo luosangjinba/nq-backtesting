@@ -1,0 +1,2411 @@
+{
+  "database": {
+    "nqDuplicateTimestamps": 0,
+    "nqRows": 6158777,
+    "path": "/home/leo/myworkspace/trading/backtesting/v4/data/trading_data.duckdb",
+    "totalRows": 12651020
+  },
+  "generatedAtEt": "2026-08-03T06:00:44-04:00",
+  "mode": "read-only-reviewed-plan",
+  "policy": {
+    "barSource": "raw quarterly contracts",
+    "boundary": "prior natural date 18:00 America/New_York",
+    "firstGovernedTransition": "2010Q2",
+    "mapping": "Databento NQ.v.0 volume-ranked d0",
+    "preDatabentoHistory": "legacy source retained before 2010Q2"
+  },
+  "sourceMappingRevision": "635306c81f7b954342f8d67028a3d91bc5e2d7c86089f9eb6a69c61fab44a151",
+  "summary": {
+    "alignedWithoutRepair": 9,
+    "auditedLegacyAttributions": 45,
+    "currentRows": 110932,
+    "estimatedCumulativeDownloadUsd": 2.284741,
+    "estimatedUncachedDownloadUsd": 0.0,
+    "netRows": 8630,
+    "repairs": 56,
+    "replacementRows": 119562,
+    "transitions": 65
+  },
+  "transitions": [
+    {
+      "auditedCurrentBoundaryEt": "2010-06-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "first_exact_new_contract_match",
+        "current_boundary_et": "2010-06-14T00:00",
+        "first_new_only_match_et": "2010-06-14T00:00",
+        "last_old_only_match_et": "2010-06-13T23:45",
+        "new_only_matches": 3306,
+        "old_only_matches": 3618,
+        "unmatched_local_rows": 14
+      },
+      "conditions": {
+        "counts": {
+          "available": 9
+        },
+        "rows": 9
+      },
+      "databentoD0": "2010-06-14",
+      "newContract": "NQU0",
+      "oldContract": "NQM0",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2010-06-13T18:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 4,
+        "currentRows": 97,
+        "direction": "databento_earlier",
+        "end_et": "2010-06-14T00:00",
+        "expectedSourceOnlyMatches": 97,
+        "localRows": 97,
+        "netRows": 177,
+        "replacementFingerprint": "3095fae8fdd146d7f4d6f6110600e448747a2fa4a43f37a703d7078c843f11d7",
+        "replacementOnlyTimestamps": 181,
+        "replacementRows": 274,
+        "source_contract": "NQU0",
+        "start_et": "2010-06-13T18:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2010-06-13T18:00",
+      "window": "2010Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2010-09-14T00:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4
+        },
+        "rows": 4
+      },
+      "databentoD0": "2010-09-13",
+      "newContract": "NQZ0",
+      "oldContract": "NQU0",
+      "priorAuthority": "raw_bilateral_audit",
+      "priorBoundaryEt": "2010-09-14T00:00",
+      "repair": {
+        "authority": "raw_bilateral_audit",
+        "currentOnlyTimestamps": 23,
+        "currentRows": 993,
+        "direction": "databento_earlier",
+        "end_et": "2010-09-14T00:00",
+        "localRows": 993,
+        "netRows": 434,
+        "replacementFingerprint": "e6df38a571a80478ed5deb0100a6a3ed6eb6ad3fe99d6c95abe30b4b42a64d34",
+        "replacementOnlyTimestamps": 457,
+        "replacementRows": 1427,
+        "source_contract": "NQZ0",
+        "start_et": "2010-09-12T18:00"
+      },
+      "targetBoundaryEt": "2010-09-12T18:00",
+      "window": "2010Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2010-12-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "first_exact_new_contract_match",
+        "current_boundary_et": "2010-12-14T00:00",
+        "first_new_only_match_et": "2010-12-14T00:00",
+        "last_old_only_match_et": "2010-12-13T23:52",
+        "new_only_matches": 2119,
+        "old_only_matches": 958,
+        "unmatched_local_rows": 5
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2010-12-13",
+      "newContract": "NQH1",
+      "oldContract": "NQZ0",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2010-12-13T18:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 26,
+        "currentRows": 959,
+        "direction": "databento_earlier",
+        "end_et": "2010-12-14T00:00",
+        "expectedSourceOnlyMatches": 958,
+        "localRows": 959,
+        "netRows": 410,
+        "replacementFingerprint": "010dc73d1825ad540c6b67749ce5dc9110f3935351727f907ec0d103b84385e7",
+        "replacementOnlyTimestamps": 436,
+        "replacementRows": 1369,
+        "source_contract": "NQH1",
+        "start_et": "2010-12-12T18:00",
+        "unmatchedLocalRows": 1
+      },
+      "targetBoundaryEt": "2010-12-12T18:00",
+      "window": "2010Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2011-03-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2011-03-14T00:00",
+        "first_new_only_match_et": "2011-03-14T00:03",
+        "last_old_only_match_et": "2011-03-13T23:59",
+        "new_only_matches": 2684,
+        "old_only_matches": 205,
+        "unmatched_local_rows": 6
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2011-03-14",
+      "newContract": "NQM1",
+      "oldContract": "NQH1",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2011-03-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 4,
+        "currentRows": 205,
+        "direction": "databento_earlier",
+        "end_et": "2011-03-14T00:00",
+        "expectedSourceOnlyMatches": 205,
+        "localRows": 205,
+        "netRows": 134,
+        "replacementFingerprint": "732f48ed5078feee008c31848d0a4f17a2ea68e6f058a22892956cf18ce2534e",
+        "replacementOnlyTimestamps": 138,
+        "replacementRows": 339,
+        "source_contract": "NQM1",
+        "start_et": "2011-03-13T18:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2011-03-13T18:00",
+      "window": "2011Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2011-06-14T00:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4
+        },
+        "rows": 4
+      },
+      "databentoD0": "2011-06-13",
+      "newContract": "NQU1",
+      "oldContract": "NQM1",
+      "priorAuthority": "raw_bilateral_audit",
+      "priorBoundaryEt": "2011-06-14T00:00",
+      "repair": {
+        "authority": "raw_bilateral_audit",
+        "currentOnlyTimestamps": 12,
+        "currentRows": 924,
+        "direction": "databento_earlier",
+        "end_et": "2011-06-14T00:00",
+        "localRows": 924,
+        "netRows": 500,
+        "replacementFingerprint": "ee722b498120e24b86fe0f0ed7eb040f706892e6d420665f563832abc3372555",
+        "replacementOnlyTimestamps": 512,
+        "replacementRows": 1424,
+        "source_contract": "NQU1",
+        "start_et": "2011-06-12T18:00"
+      },
+      "targetBoundaryEt": "2011-06-12T18:00",
+      "window": "2011Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2011-09-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2011-09-14T00:00",
+        "first_new_only_match_et": "2011-09-14T00:00",
+        "last_old_only_match_et": "2011-09-13T23:59",
+        "new_only_matches": 2635,
+        "old_only_matches": 2449,
+        "unmatched_local_rows": 9
+      },
+      "conditions": {
+        "counts": {
+          "available": 7
+        },
+        "rows": 7
+      },
+      "databentoD0": "2011-09-12",
+      "newContract": "NQZ1",
+      "oldContract": "NQU1",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2011-09-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 16,
+        "currentRows": 2451,
+        "direction": "databento_earlier",
+        "end_et": "2011-09-14T00:00",
+        "expectedSourceOnlyMatches": 2449,
+        "localRows": 2451,
+        "netRows": 512,
+        "replacementFingerprint": "d8d71e8c55d78739cb9acdd95290450e6d5fa4f45c4143e1969dc688a2dc9a75",
+        "replacementOnlyTimestamps": 528,
+        "replacementRows": 2963,
+        "source_contract": "NQZ1",
+        "start_et": "2011-09-11T18:00",
+        "unmatchedLocalRows": 2
+      },
+      "targetBoundaryEt": "2011-09-11T18:00",
+      "window": "2011Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2011-12-14T00:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 5
+        },
+        "rows": 5
+      },
+      "databentoD0": "2011-12-12",
+      "newContract": "NQH2",
+      "oldContract": "NQZ1",
+      "priorAuthority": "raw_bilateral_audit",
+      "priorBoundaryEt": "2011-12-14T00:00",
+      "repair": {
+        "authority": "raw_bilateral_audit",
+        "currentOnlyTimestamps": 21,
+        "currentRows": 1857,
+        "direction": "databento_earlier",
+        "end_et": "2011-12-14T00:00",
+        "localRows": 1857,
+        "netRows": 932,
+        "replacementFingerprint": "ddf6e2180015a387a6ce49ad400c29f4387aa329b7876ed393dbe7d730fa15eb",
+        "replacementOnlyTimestamps": 953,
+        "replacementRows": 2789,
+        "source_contract": "NQH2",
+        "start_et": "2011-12-11T18:00"
+      },
+      "targetBoundaryEt": "2011-12-11T18:00",
+      "window": "2011Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2012-03-14T00:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4
+        },
+        "rows": 4
+      },
+      "databentoD0": "2012-03-13",
+      "newContract": "NQM2",
+      "oldContract": "NQH2",
+      "priorAuthority": "raw_bilateral_audit",
+      "priorBoundaryEt": "2012-03-14T00:00",
+      "repair": {
+        "authority": "raw_bilateral_audit",
+        "currentOnlyTimestamps": 26,
+        "currentRows": 1015,
+        "direction": "databento_earlier",
+        "end_et": "2012-03-14T00:00",
+        "localRows": 1015,
+        "netRows": 512,
+        "replacementFingerprint": "c70cc0f13767c77cc9224e8e84e0128640715995afc206a234bc3fd53b5f7cdc",
+        "replacementOnlyTimestamps": 538,
+        "replacementRows": 1527,
+        "source_contract": "NQM2",
+        "start_et": "2012-03-12T18:00"
+      },
+      "targetBoundaryEt": "2012-03-12T18:00",
+      "window": "2012Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2012-06-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2012-06-14T00:00",
+        "first_new_only_match_et": "2012-06-14T00:00",
+        "last_old_only_match_et": "2012-06-13T23:58",
+        "new_only_matches": 2217,
+        "old_only_matches": 2914,
+        "unmatched_local_rows": 4
+      },
+      "conditions": {
+        "counts": {
+          "available": 8
+        },
+        "rows": 8
+      },
+      "databentoD0": "2012-06-11",
+      "newContract": "NQU2",
+      "oldContract": "NQM2",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2012-06-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 29,
+        "currentRows": 2914,
+        "direction": "databento_earlier",
+        "end_et": "2012-06-14T00:00",
+        "expectedSourceOnlyMatches": 2914,
+        "localRows": 2914,
+        "netRows": 1246,
+        "replacementFingerprint": "e9acc160c3695637b80cf6747d3371345bd84102125404449dde23201e142472",
+        "replacementOnlyTimestamps": 1275,
+        "replacementRows": 4160,
+        "source_contract": "NQU2",
+        "start_et": "2012-06-10T18:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2012-06-10T18:00",
+      "window": "2012Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2012-09-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2012-09-14T00:00",
+        "first_new_only_match_et": "2012-09-14T00:00",
+        "last_old_only_match_et": "2012-09-13T23:59",
+        "new_only_matches": 3314,
+        "old_only_matches": 2400,
+        "unmatched_local_rows": 12
+      },
+      "conditions": {
+        "counts": {
+          "available": 7
+        },
+        "rows": 7
+      },
+      "databentoD0": "2012-09-17",
+      "newContract": "NQZ2",
+      "oldContract": "NQU2",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2012-09-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 12,
+        "currentRows": 908,
+        "direction": "databento_later",
+        "end_et": "2012-09-16T18:00",
+        "expectedSourceOnlyMatches": 904,
+        "localRows": 908,
+        "netRows": 29,
+        "replacementFingerprint": "60447a0553f79c45ab1888f47442c1cfd28d76a26f9b5c1aca77b6862c8bf462",
+        "replacementOnlyTimestamps": 41,
+        "replacementRows": 937,
+        "source_contract": "NQU2",
+        "start_et": "2012-09-14T00:00",
+        "unmatchedLocalRows": 4
+      },
+      "targetBoundaryEt": "2012-09-16T18:00",
+      "window": "2012Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2012-12-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2012-12-14T00:00",
+        "first_new_only_match_et": "2012-12-14T00:00",
+        "last_old_only_match_et": "2012-12-13T23:55",
+        "new_only_matches": 3526,
+        "old_only_matches": 2488,
+        "unmatched_local_rows": 2
+      },
+      "conditions": {
+        "counts": {
+          "available": 7
+        },
+        "rows": 7
+      },
+      "databentoD0": "2012-12-17",
+      "newContract": "NQH3",
+      "oldContract": "NQZ2",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2012-12-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 121,
+        "currentRows": 964,
+        "direction": "databento_later",
+        "end_et": "2012-12-16T18:00",
+        "expectedSourceOnlyMatches": 964,
+        "localRows": 964,
+        "netRows": -104,
+        "replacementFingerprint": "88a5e87c50c6877c523635340f01cfd5ceeac0186006b18908edbdac19ec3ac0",
+        "replacementOnlyTimestamps": 17,
+        "replacementRows": 860,
+        "source_contract": "NQZ2",
+        "start_et": "2012-12-14T00:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2012-12-16T18:00",
+      "window": "2012Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2013-03-14T00:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 5
+        },
+        "rows": 5
+      },
+      "databentoD0": "2013-03-12",
+      "newContract": "NQM3",
+      "oldContract": "NQH3",
+      "priorAuthority": "raw_bilateral_audit",
+      "priorBoundaryEt": "2013-03-14T00:00",
+      "repair": {
+        "authority": "raw_bilateral_audit",
+        "currentOnlyTimestamps": 72,
+        "currentRows": 1634,
+        "direction": "databento_earlier",
+        "end_et": "2013-03-14T00:00",
+        "localRows": 1634,
+        "netRows": 855,
+        "replacementFingerprint": "36f35fe854c3630f4057510679a85e43423745c02de2373aaffa68df872d3fce",
+        "replacementOnlyTimestamps": 927,
+        "replacementRows": 2489,
+        "source_contract": "NQM3",
+        "start_et": "2013-03-11T18:00"
+      },
+      "targetBoundaryEt": "2013-03-11T18:00",
+      "window": "2013Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2013-06-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2013-06-14T00:00",
+        "first_new_only_match_et": "2013-06-14T00:00",
+        "last_old_only_match_et": "2013-06-13T23:59",
+        "new_only_matches": 3374,
+        "old_only_matches": 2561,
+        "unmatched_local_rows": 0
+      },
+      "conditions": {
+        "counts": {
+          "available": 7
+        },
+        "rows": 7
+      },
+      "databentoD0": "2013-06-17",
+      "newContract": "NQU3",
+      "oldContract": "NQM3",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2013-06-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 82,
+        "currentRows": 968,
+        "direction": "databento_later",
+        "end_et": "2013-06-16T18:00",
+        "expectedSourceOnlyMatches": 968,
+        "localRows": 968,
+        "netRows": -64,
+        "replacementFingerprint": "171b0bc0322da0c1d184dcbc28a0084fbf4f0ca301371f6fd3f6c2cdb9812e8d",
+        "replacementOnlyTimestamps": 18,
+        "replacementRows": 904,
+        "source_contract": "NQM3",
+        "start_et": "2013-06-14T00:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2013-06-16T18:00",
+      "window": "2013Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2013-09-15T18:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2013-09-15T18:00",
+        "first_new_only_match_et": "2013-09-15T18:00",
+        "last_old_only_match_et": "2013-09-13T17:14",
+        "new_only_matches": 3629,
+        "old_only_matches": 3451,
+        "unmatched_local_rows": 0
+      },
+      "conditions": {
+        "counts": {
+          "available": 9
+        },
+        "rows": 9
+      },
+      "databentoD0": "2013-09-16",
+      "newContract": "NQZ3",
+      "oldContract": "NQU3",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2013-09-15T18:00",
+      "repair": null,
+      "targetBoundaryEt": "2013-09-15T18:00",
+      "window": "2013Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2013-12-15T18:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2013-12-15T18:00",
+        "first_new_only_match_et": "2013-12-15T18:00",
+        "last_old_only_match_et": "2013-12-13T17:14",
+        "new_only_matches": 3659,
+        "old_only_matches": 3695,
+        "unmatched_local_rows": 1
+      },
+      "conditions": {
+        "counts": {
+          "available": 9
+        },
+        "rows": 9
+      },
+      "databentoD0": "2013-12-16",
+      "newContract": "NQH4",
+      "oldContract": "NQZ3",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2013-12-15T18:00",
+      "repair": null,
+      "targetBoundaryEt": "2013-12-15T18:00",
+      "window": "2013Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2014-03-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2014-03-14T00:00",
+        "first_new_only_match_et": "2014-03-14T00:00",
+        "last_old_only_match_et": "2014-03-13T23:59",
+        "new_only_matches": 3511,
+        "old_only_matches": 2513,
+        "unmatched_local_rows": 0
+      },
+      "conditions": {
+        "counts": {
+          "available": 7
+        },
+        "rows": 7
+      },
+      "databentoD0": "2014-03-17",
+      "newContract": "NQM4",
+      "oldContract": "NQH4",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2014-03-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 62,
+        "currentRows": 956,
+        "direction": "databento_later",
+        "end_et": "2014-03-16T18:00",
+        "expectedSourceOnlyMatches": 956,
+        "localRows": 956,
+        "netRows": -47,
+        "replacementFingerprint": "e1af0ab45a7c19e360c655cf3fb45c33bfaadc440876c84fd318eb39650703b9",
+        "replacementOnlyTimestamps": 15,
+        "replacementRows": 909,
+        "source_contract": "NQH4",
+        "start_et": "2014-03-14T00:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2014-03-16T18:00",
+      "window": "2014Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2014-06-15T18:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2014-06-15T18:00",
+        "first_new_only_match_et": "2014-06-15T18:00",
+        "last_old_only_match_et": "2014-06-11T17:14",
+        "new_only_matches": 3562,
+        "old_only_matches": 1128,
+        "unmatched_local_rows": 2465
+      },
+      "conditions": {
+        "counts": {
+          "available": 5,
+          "degraded": 4
+        },
+        "rows": 9
+      },
+      "databentoD0": "2014-06-16",
+      "newContract": "NQU4",
+      "oldContract": "NQM4",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2014-06-15T18:00",
+      "repair": null,
+      "targetBoundaryEt": "2014-06-15T18:00",
+      "window": "2014Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2014-09-14T18:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2014-09-14T18:00",
+        "first_new_only_match_et": "2014-09-14T18:00",
+        "last_old_only_match_et": "2014-09-12T17:14",
+        "new_only_matches": 3661,
+        "old_only_matches": 3629,
+        "unmatched_local_rows": 0
+      },
+      "conditions": {
+        "counts": {
+          "available": 9
+        },
+        "rows": 9
+      },
+      "databentoD0": "2014-09-15",
+      "newContract": "NQZ4",
+      "oldContract": "NQU4",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2014-09-14T18:00",
+      "repair": null,
+      "targetBoundaryEt": "2014-09-14T18:00",
+      "window": "2014Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2014-12-14T18:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2014-12-14T18:00",
+        "first_new_only_match_et": "2014-12-14T18:00",
+        "last_old_only_match_et": "2014-12-12T17:14",
+        "new_only_matches": 4071,
+        "old_only_matches": 4005,
+        "unmatched_local_rows": 0
+      },
+      "conditions": {
+        "counts": {
+          "available": 9
+        },
+        "rows": 9
+      },
+      "databentoD0": "2014-12-15",
+      "newContract": "NQH5",
+      "oldContract": "NQZ4",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2014-12-14T18:00",
+      "repair": null,
+      "targetBoundaryEt": "2014-12-14T18:00",
+      "window": "2014Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2015-03-15T18:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2015-03-15T18:00",
+        "first_new_only_match_et": "2015-03-15T18:00",
+        "last_old_only_match_et": "2015-03-13T17:14",
+        "new_only_matches": 3673,
+        "old_only_matches": 3719,
+        "unmatched_local_rows": 0
+      },
+      "conditions": {
+        "counts": {
+          "available": 9
+        },
+        "rows": 9
+      },
+      "databentoD0": "2015-03-16",
+      "newContract": "NQM5",
+      "oldContract": "NQH5",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2015-03-15T18:00",
+      "repair": null,
+      "targetBoundaryEt": "2015-03-15T18:00",
+      "window": "2015Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2015-06-14T18:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2015-06-14T18:00",
+        "first_new_only_match_et": "2015-06-14T18:00",
+        "last_old_only_match_et": "2015-06-12T17:14",
+        "new_only_matches": 3668,
+        "old_only_matches": 3503,
+        "unmatched_local_rows": 0
+      },
+      "conditions": {
+        "counts": {
+          "available": 9
+        },
+        "rows": 9
+      },
+      "databentoD0": "2015-06-15",
+      "newContract": "NQU5",
+      "oldContract": "NQM5",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2015-06-14T18:00",
+      "repair": null,
+      "targetBoundaryEt": "2015-06-14T18:00",
+      "window": "2015Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2015-09-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2015-09-14T00:00",
+        "first_new_only_match_et": "2015-09-14T00:00",
+        "last_old_only_match_et": "2015-09-13T23:59",
+        "new_only_matches": 2645,
+        "old_only_matches": 301,
+        "unmatched_local_rows": 0
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2015-09-14",
+      "newContract": "NQZ5",
+      "oldContract": "NQU5",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2015-09-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 9,
+        "currentRows": 301,
+        "direction": "databento_earlier",
+        "end_et": "2015-09-14T00:00",
+        "expectedSourceOnlyMatches": 301,
+        "localRows": 301,
+        "netRows": 41,
+        "replacementFingerprint": "6bb86b4a7e6e6266570060da2cdeae2d5ddc1f806f4ebf3ca664a1935e42b439",
+        "replacementOnlyTimestamps": 50,
+        "replacementRows": 342,
+        "source_contract": "NQZ5",
+        "start_et": "2015-09-13T18:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2015-09-13T18:00",
+      "window": "2015Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2015-12-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2015-12-14T00:00",
+        "first_new_only_match_et": "2015-12-14T00:00",
+        "last_old_only_match_et": "2015-12-13T23:59",
+        "new_only_matches": 2660,
+        "old_only_matches": 259,
+        "unmatched_local_rows": 9
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2015-12-14",
+      "newContract": "NQH6",
+      "oldContract": "NQZ5",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2015-12-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 8,
+        "currentRows": 260,
+        "direction": "databento_earlier",
+        "end_et": "2015-12-14T00:00",
+        "expectedSourceOnlyMatches": 259,
+        "localRows": 260,
+        "netRows": 79,
+        "replacementFingerprint": "a9c3c6d77a35e04ac5e84476fa6dc9452cc8ad74617155f85391e1549f24724e",
+        "replacementOnlyTimestamps": 87,
+        "replacementRows": 339,
+        "source_contract": "NQH6",
+        "start_et": "2015-12-13T18:00",
+        "unmatchedLocalRows": 1
+      },
+      "targetBoundaryEt": "2015-12-13T18:00",
+      "window": "2015Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2016-03-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2016-03-14T00:00",
+        "first_new_only_match_et": "2016-03-14T00:00",
+        "last_old_only_match_et": "2016-03-13T23:59",
+        "new_only_matches": 2558,
+        "old_only_matches": 219,
+        "unmatched_local_rows": 2
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2016-03-14",
+      "newContract": "NQM6",
+      "oldContract": "NQH6",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2016-03-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 19,
+        "currentRows": 219,
+        "direction": "databento_earlier",
+        "end_et": "2016-03-14T00:00",
+        "expectedSourceOnlyMatches": 219,
+        "localRows": 219,
+        "netRows": 78,
+        "replacementFingerprint": "0185fe9322728519349c7f134e22b25295133b309af9985aaa73286cdcc15366",
+        "replacementOnlyTimestamps": 97,
+        "replacementRows": 297,
+        "source_contract": "NQM6",
+        "start_et": "2016-03-13T18:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2016-03-13T18:00",
+      "window": "2016Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2016-06-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2016-06-14T00:00",
+        "first_new_only_match_et": "2016-06-14T00:00",
+        "last_old_only_match_et": "2016-06-13T23:59",
+        "new_only_matches": 2659,
+        "old_only_matches": 1384,
+        "unmatched_local_rows": 2
+      },
+      "conditions": {
+        "counts": {
+          "available": 7
+        },
+        "rows": 7
+      },
+      "databentoD0": "2016-06-13",
+      "newContract": "NQU6",
+      "oldContract": "NQM6",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2016-06-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 19,
+        "currentRows": 1386,
+        "direction": "databento_earlier",
+        "end_et": "2016-06-14T00:00",
+        "expectedSourceOnlyMatches": 1384,
+        "localRows": 1386,
+        "netRows": 264,
+        "replacementFingerprint": "034c29c17be0747116d72fabb96e672be324037a9e7f88ea0d0b4591a92c8596",
+        "replacementOnlyTimestamps": 283,
+        "replacementRows": 1650,
+        "source_contract": "NQU6",
+        "start_et": "2016-06-12T18:00",
+        "unmatchedLocalRows": 2
+      },
+      "targetBoundaryEt": "2016-06-12T18:00",
+      "window": "2016Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2016-09-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2016-09-14T00:00",
+        "first_new_only_match_et": "2016-09-14T00:00",
+        "last_old_only_match_et": "2016-09-13T23:57",
+        "new_only_matches": 2630,
+        "old_only_matches": 2665,
+        "unmatched_local_rows": 0
+      },
+      "conditions": {
+        "counts": {
+          "available": 7
+        },
+        "rows": 7
+      },
+      "databentoD0": "2016-09-12",
+      "newContract": "NQZ6",
+      "oldContract": "NQU6",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2016-09-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 13,
+        "currentRows": 2665,
+        "direction": "databento_earlier",
+        "end_et": "2016-09-14T00:00",
+        "expectedSourceOnlyMatches": 2665,
+        "localRows": 2665,
+        "netRows": 356,
+        "replacementFingerprint": "1cf3f4fd62e23c89d7d492012054c2ea68e644c1b4d944d3752621fc1ea200a4",
+        "replacementOnlyTimestamps": 369,
+        "replacementRows": 3021,
+        "source_contract": "NQZ6",
+        "start_et": "2016-09-11T18:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2016-09-11T18:00",
+      "window": "2016Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2016-12-14T00:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4
+        },
+        "rows": 4
+      },
+      "databentoD0": "2016-12-13",
+      "newContract": "NQH7",
+      "oldContract": "NQZ6",
+      "priorAuthority": "raw_bilateral_audit",
+      "priorBoundaryEt": "2016-12-14T00:00",
+      "repair": {
+        "authority": "raw_bilateral_audit",
+        "currentOnlyTimestamps": 47,
+        "currentRows": 1244,
+        "direction": "databento_earlier",
+        "end_et": "2016-12-14T00:00",
+        "localRows": 1244,
+        "netRows": 327,
+        "replacementFingerprint": "0c6aa634a4b580732b54a52b3618216192e2cf03c8fb71f0a20eaa0ffe912289",
+        "replacementOnlyTimestamps": 374,
+        "replacementRows": 1571,
+        "source_contract": "NQH7",
+        "start_et": "2016-12-12T18:00"
+      },
+      "targetBoundaryEt": "2016-12-12T18:00",
+      "window": "2016Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2017-03-14T00:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4
+        },
+        "rows": 4
+      },
+      "databentoD0": "2017-03-13",
+      "newContract": "NQM7",
+      "oldContract": "NQH7",
+      "priorAuthority": "raw_bilateral_audit",
+      "priorBoundaryEt": "2017-03-14T00:00",
+      "repair": {
+        "authority": "raw_bilateral_audit",
+        "currentOnlyTimestamps": 40,
+        "currentRows": 1275,
+        "direction": "databento_earlier",
+        "end_et": "2017-03-14T00:00",
+        "localRows": 1275,
+        "netRows": 322,
+        "replacementFingerprint": "1fc6650d6d94fb2652e04ace8c7be0850f6c98148795a66bcf10d33e88ca8690",
+        "replacementOnlyTimestamps": 362,
+        "replacementRows": 1597,
+        "source_contract": "NQM7",
+        "start_et": "2017-03-12T18:00"
+      },
+      "targetBoundaryEt": "2017-03-12T18:00",
+      "window": "2017Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2017-06-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2017-06-14T00:00",
+        "first_new_only_match_et": "2017-06-14T00:00",
+        "last_old_only_match_et": "2017-06-13T23:58",
+        "new_only_matches": 2698,
+        "old_only_matches": 2711,
+        "unmatched_local_rows": 62
+      },
+      "conditions": {
+        "counts": {
+          "available": 7
+        },
+        "rows": 7
+      },
+      "databentoD0": "2017-06-12",
+      "newContract": "NQU7",
+      "oldContract": "NQM7",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2017-06-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 28,
+        "currentRows": 2773,
+        "direction": "databento_earlier",
+        "end_et": "2017-06-14T00:00",
+        "expectedSourceOnlyMatches": 2711,
+        "localRows": 2773,
+        "netRows": 249,
+        "replacementFingerprint": "9dadd94e7bb016bd4de5a26763935bdb70fc33698cc9d9651f7ac645a2d833f5",
+        "replacementOnlyTimestamps": 277,
+        "replacementRows": 3022,
+        "source_contract": "NQU7",
+        "start_et": "2017-06-11T18:00",
+        "unmatchedLocalRows": 62
+      },
+      "targetBoundaryEt": "2017-06-11T18:00",
+      "window": "2017Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2017-09-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2017-09-14T00:00",
+        "first_new_only_match_et": "2017-09-14T00:00",
+        "last_old_only_match_et": "2017-09-13T23:56",
+        "new_only_matches": 2347,
+        "old_only_matches": 3895,
+        "unmatched_local_rows": 5
+      },
+      "conditions": {
+        "counts": {
+          "available": 8
+        },
+        "rows": 8
+      },
+      "databentoD0": "2017-09-11",
+      "newContract": "NQZ7",
+      "oldContract": "NQU7",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2017-09-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 34,
+        "currentRows": 3897,
+        "direction": "databento_earlier",
+        "end_et": "2017-09-14T00:00",
+        "expectedSourceOnlyMatches": 3895,
+        "localRows": 3897,
+        "netRows": 463,
+        "replacementFingerprint": "1c0378255ed26081fa9c1f1bd31cd43cdd1fa37d680cdab8ed7724bcefb2f998",
+        "replacementOnlyTimestamps": 497,
+        "replacementRows": 4360,
+        "source_contract": "NQZ7",
+        "start_et": "2017-09-10T18:00",
+        "unmatchedLocalRows": 2
+      },
+      "targetBoundaryEt": "2017-09-10T18:00",
+      "window": "2017Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2017-12-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2017-12-14T00:00",
+        "first_new_only_match_et": "2017-12-14T00:00",
+        "last_old_only_match_et": "2017-12-13T23:59",
+        "new_only_matches": 2361,
+        "old_only_matches": 3858,
+        "unmatched_local_rows": 2
+      },
+      "conditions": {
+        "counts": {
+          "available": 8
+        },
+        "rows": 8
+      },
+      "databentoD0": "2017-12-11",
+      "newContract": "NQH8",
+      "oldContract": "NQZ7",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2017-12-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 24,
+        "currentRows": 3858,
+        "direction": "databento_earlier",
+        "end_et": "2017-12-14T00:00",
+        "expectedSourceOnlyMatches": 3858,
+        "localRows": 3858,
+        "netRows": 548,
+        "replacementFingerprint": "6ba6198a987b2adee3f220ee4c7c90ed3c310434cb9ce0cd2aaa90f6170792d0",
+        "replacementOnlyTimestamps": 572,
+        "replacementRows": 4406,
+        "source_contract": "NQH8",
+        "start_et": "2017-12-10T18:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2017-12-10T18:00",
+      "window": "2017Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2018-03-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2018-03-14T00:00",
+        "first_new_only_match_et": "2018-03-14T00:00",
+        "last_old_only_match_et": "2018-03-13T23:59",
+        "new_only_matches": 2729,
+        "old_only_matches": 2965,
+        "unmatched_local_rows": 1
+      },
+      "conditions": {
+        "counts": {
+          "available": 7
+        },
+        "rows": 7
+      },
+      "databentoD0": "2018-03-12",
+      "newContract": "NQM8",
+      "oldContract": "NQH8",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2018-03-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 8,
+        "currentRows": 2966,
+        "direction": "databento_earlier",
+        "end_et": "2018-03-14T00:00",
+        "expectedSourceOnlyMatches": 2965,
+        "localRows": 2966,
+        "netRows": 111,
+        "replacementFingerprint": "4713531e9b29d2779721b2bc7400523881b218ce9c54f85789b518d7563018c4",
+        "replacementOnlyTimestamps": 119,
+        "replacementRows": 3077,
+        "source_contract": "NQM8",
+        "start_et": "2018-03-11T18:00",
+        "unmatchedLocalRows": 1
+      },
+      "targetBoundaryEt": "2018-03-11T18:00",
+      "window": "2018Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2018-06-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2018-06-14T00:00",
+        "first_new_only_match_et": "2018-06-14T00:00",
+        "last_old_only_match_et": "2018-06-13T23:59",
+        "new_only_matches": 914,
+        "old_only_matches": 2967,
+        "unmatched_local_rows": 2666
+      },
+      "conditions": {
+        "counts": {
+          "available": 8
+        },
+        "rows": 8
+      },
+      "databentoD0": "2018-06-11",
+      "newContract": "NQU8",
+      "oldContract": "NQM8",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2018-06-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 13,
+        "currentRows": 4180,
+        "direction": "databento_earlier",
+        "end_et": "2018-06-14T00:00",
+        "expectedSourceOnlyMatches": 2967,
+        "localRows": 4180,
+        "netRows": 258,
+        "replacementFingerprint": "01ecf78ed7995cbba729da7366ab46d7dac3ba5997345ed4c480284a79e26390",
+        "replacementOnlyTimestamps": 271,
+        "replacementRows": 4438,
+        "source_contract": "NQU8",
+        "start_et": "2018-06-10T18:00",
+        "unmatchedLocalRows": 1213
+      },
+      "targetBoundaryEt": "2018-06-10T18:00",
+      "window": "2018Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2018-09-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2018-09-14T00:00",
+        "first_new_only_match_et": "2018-09-14T00:01",
+        "last_old_only_match_et": "2018-09-13T23:59",
+        "new_only_matches": 3724,
+        "old_only_matches": 2722,
+        "unmatched_local_rows": 6
+      },
+      "conditions": {
+        "counts": {
+          "available": 7
+        },
+        "rows": 7
+      },
+      "databentoD0": "2018-09-17",
+      "newContract": "NQZ8",
+      "oldContract": "NQU8",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2018-09-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 3,
+        "currentRows": 999,
+        "direction": "databento_later",
+        "end_et": "2018-09-16T18:00",
+        "expectedSourceOnlyMatches": 997,
+        "localRows": 999,
+        "netRows": 3,
+        "replacementFingerprint": "8ada19c88fe1ae4dcb4d81f179be2de16ff1c08415fb4009bbd8e41775ac659c",
+        "replacementOnlyTimestamps": 6,
+        "replacementRows": 1002,
+        "source_contract": "NQU8",
+        "start_et": "2018-09-14T00:00",
+        "unmatchedLocalRows": 2
+      },
+      "targetBoundaryEt": "2018-09-16T18:00",
+      "window": "2018Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2018-12-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2018-12-14T00:00",
+        "first_new_only_match_et": "2018-12-14T00:00",
+        "last_old_only_match_et": "2018-12-13T23:59",
+        "new_only_matches": 3734,
+        "old_only_matches": 2730,
+        "unmatched_local_rows": 0
+      },
+      "conditions": {
+        "counts": {
+          "available": 7
+        },
+        "rows": 7
+      },
+      "databentoD0": "2018-12-17",
+      "newContract": "NQH9",
+      "oldContract": "NQZ8",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2018-12-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 0,
+        "currentRows": 1004,
+        "direction": "databento_later",
+        "end_et": "2018-12-16T18:00",
+        "expectedSourceOnlyMatches": 1004,
+        "localRows": 1004,
+        "netRows": 1,
+        "replacementFingerprint": "124acfeabe8728ff4ff82ab85921507a8419421c5da0fd83d165b3413ad880f3",
+        "replacementOnlyTimestamps": 1,
+        "replacementRows": 1005,
+        "source_contract": "NQZ8",
+        "start_et": "2018-12-14T00:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2018-12-16T18:00",
+      "window": "2018Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2019-03-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2019-03-14T00:00",
+        "first_new_only_match_et": "2019-03-14T00:00",
+        "last_old_only_match_et": "2019-03-13T23:59",
+        "new_only_matches": 2370,
+        "old_only_matches": 4368,
+        "unmatched_local_rows": 3
+      },
+      "conditions": {
+        "counts": {
+          "available": 7,
+          "degraded": 1
+        },
+        "rows": 8
+      },
+      "databentoD0": "2019-03-11",
+      "newContract": "NQM9",
+      "oldContract": "NQH9",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2019-03-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 2,
+        "currentRows": 4371,
+        "direction": "databento_earlier",
+        "end_et": "2019-03-14T00:00",
+        "expectedSourceOnlyMatches": 4368,
+        "localRows": 4371,
+        "netRows": 80,
+        "replacementFingerprint": "fd58c586f66153536c2c5fc39ee823cc5b0bc28616ea825f9aa260ca08e42195",
+        "replacementOnlyTimestamps": 82,
+        "replacementRows": 4451,
+        "source_contract": "NQM9",
+        "start_et": "2019-03-10T18:00",
+        "unmatchedLocalRows": 3
+      },
+      "targetBoundaryEt": "2019-03-10T18:00",
+      "window": "2019Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2019-06-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2019-06-14T00:00",
+        "first_new_only_match_et": "2019-06-14T00:00",
+        "last_old_only_match_et": "2019-06-13T23:59",
+        "new_only_matches": 6450,
+        "old_only_matches": 2730,
+        "unmatched_local_rows": 6
+      },
+      "conditions": {
+        "counts": {
+          "available": 9
+        },
+        "rows": 9
+      },
+      "databentoD0": "2019-06-19",
+      "newContract": "NQU9",
+      "oldContract": "NQM9",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2019-06-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 16,
+        "currentRows": 3726,
+        "direction": "databento_later",
+        "end_et": "2019-06-18T18:00",
+        "expectedSourceOnlyMatches": 3723,
+        "localRows": 3726,
+        "netRows": -7,
+        "replacementFingerprint": "f37c0c81fdea0cc569d8ec21df2ccbe25c6acae86d70b1bc64336285a06b6333",
+        "replacementOnlyTimestamps": 9,
+        "replacementRows": 3719,
+        "source_contract": "NQM9",
+        "start_et": "2019-06-14T00:00",
+        "unmatchedLocalRows": 3
+      },
+      "targetBoundaryEt": "2019-06-18T18:00",
+      "window": "2019Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2019-09-15T18:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2019-09-15T18:00",
+        "first_new_only_match_et": "2019-09-15T18:00",
+        "last_old_only_match_et": "2019-09-13T16:59",
+        "new_only_matches": 4095,
+        "old_only_matches": 4085,
+        "unmatched_local_rows": 7
+      },
+      "conditions": {
+        "counts": {
+          "available": 9
+        },
+        "rows": 9
+      },
+      "databentoD0": "2019-09-16",
+      "newContract": "NQZ9",
+      "oldContract": "NQU9",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2019-09-15T18:00",
+      "repair": null,
+      "targetBoundaryEt": "2019-09-15T18:00",
+      "window": "2019Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2019-12-15T18:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2019-12-15T18:00",
+        "first_new_only_match_et": "2019-12-15T18:00",
+        "last_old_only_match_et": "2019-12-13T16:59",
+        "new_only_matches": 4091,
+        "old_only_matches": 4088,
+        "unmatched_local_rows": 2
+      },
+      "conditions": {
+        "counts": {
+          "available": 9
+        },
+        "rows": 9
+      },
+      "databentoD0": "2019-12-16",
+      "newContract": "NQH0",
+      "oldContract": "NQZ9",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2019-12-15T18:00",
+      "repair": null,
+      "targetBoundaryEt": "2019-12-15T18:00",
+      "window": "2019Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2020-03-15T18:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4
+        },
+        "rows": 4
+      },
+      "databentoD0": "2020-03-18",
+      "newContract": "NQM0",
+      "oldContract": "NQH0",
+      "priorAuthority": "raw_bilateral_audit",
+      "priorBoundaryEt": "2020-03-15T18:00",
+      "repair": {
+        "authority": "raw_bilateral_audit",
+        "currentOnlyTimestamps": 146,
+        "currentRows": 1626,
+        "direction": "databento_later",
+        "end_et": "2020-03-17T18:00",
+        "localRows": 1626,
+        "netRows": 18,
+        "replacementFingerprint": "f386a387ca141c647288e11a9eb990cdc71c396513af189748a15bb3570c9c8b",
+        "replacementOnlyTimestamps": 164,
+        "replacementRows": 1644,
+        "source_contract": "NQH0",
+        "start_et": "2020-03-15T18:00"
+      },
+      "targetBoundaryEt": "2020-03-17T18:00",
+      "window": "2020Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2020-06-14T18:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2020-06-14T18:00",
+        "first_new_only_match_et": "2020-06-14T18:00",
+        "last_old_only_match_et": "2020-06-12T16:59",
+        "new_only_matches": 6797,
+        "old_only_matches": 4047,
+        "unmatched_local_rows": 74
+      },
+      "conditions": {
+        "counts": {
+          "available": 10
+        },
+        "rows": 10
+      },
+      "databentoD0": "2020-06-17",
+      "newContract": "NQU0",
+      "oldContract": "NQM0",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2020-06-14T18:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 1,
+        "currentRows": 2728,
+        "direction": "databento_later",
+        "end_et": "2020-06-16T18:00",
+        "expectedSourceOnlyMatches": 2720,
+        "localRows": 2728,
+        "netRows": 1,
+        "replacementFingerprint": "b02f939e2f56620da32d5ef5c57ad3b23d11a524473ef1cda898cb2835282fe1",
+        "replacementOnlyTimestamps": 2,
+        "replacementRows": 2729,
+        "source_contract": "NQM0",
+        "start_et": "2020-06-14T18:00",
+        "unmatchedLocalRows": 8
+      },
+      "targetBoundaryEt": "2020-06-16T18:00",
+      "window": "2020Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2020-09-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2020-09-14T00:00",
+        "first_new_only_match_et": "2020-09-14T00:00",
+        "last_old_only_match_et": "2020-09-13T23:59",
+        "new_only_matches": 5085,
+        "old_only_matches": 360,
+        "unmatched_local_rows": 14
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2020-09-16",
+      "newContract": "NQZ0",
+      "oldContract": "NQU0",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2020-09-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 3,
+        "currentRows": 2369,
+        "direction": "databento_later",
+        "end_et": "2020-09-15T18:00",
+        "expectedSourceOnlyMatches": 2365,
+        "localRows": 2369,
+        "netRows": -2,
+        "replacementFingerprint": "7c20a3ff2e21756c116a3184fac93e7726e0b8494b6b6fe3180a0696008549b6",
+        "replacementOnlyTimestamps": 1,
+        "replacementRows": 2367,
+        "source_contract": "NQU0",
+        "start_et": "2020-09-14T00:00",
+        "unmatchedLocalRows": 4
+      },
+      "targetBoundaryEt": "2020-09-15T18:00",
+      "window": "2020Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2020-12-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "first_exact_new_contract_match",
+        "current_boundary_et": "2020-12-14T00:00",
+        "first_new_only_match_et": "2020-12-14T00:00",
+        "last_old_only_match_et": "2020-12-13T23:59",
+        "new_only_matches": 5087,
+        "old_only_matches": 360,
+        "unmatched_local_rows": 12
+      },
+      "conditions": {
+        "counts": {
+          "available": 7
+        },
+        "rows": 7
+      },
+      "databentoD0": "2020-12-16",
+      "newContract": "NQH1",
+      "oldContract": "NQZ0",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2020-12-13T18:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 0,
+        "currentRows": 2369,
+        "direction": "databento_later",
+        "end_et": "2020-12-15T18:00",
+        "expectedSourceOnlyMatches": 2359,
+        "localRows": 2369,
+        "netRows": 1,
+        "replacementFingerprint": "24c367a7196f39d24ed16a0d8494fa94bf11c7aa8b436c14320ffccc94590460",
+        "replacementOnlyTimestamps": 1,
+        "replacementRows": 2370,
+        "source_contract": "NQZ0",
+        "start_et": "2020-12-14T00:00",
+        "unmatchedLocalRows": 10
+      },
+      "targetBoundaryEt": "2020-12-15T18:00",
+      "window": "2020Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2021-03-14T18:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "first_exact_new_contract_match",
+        "current_boundary_et": "2021-03-14T18:00",
+        "first_new_only_match_et": "2021-03-14T18:00",
+        "last_old_only_match_et": "2021-03-12T16:59",
+        "new_only_matches": 6797,
+        "old_only_matches": 1357,
+        "unmatched_local_rows": 36
+      },
+      "conditions": {
+        "counts": {
+          "available": 9
+        },
+        "rows": 9
+      },
+      "databentoD0": "2021-03-17",
+      "newContract": "NQM1",
+      "oldContract": "NQH1",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2021-03-17T18:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 1,
+        "currentRows": 2730,
+        "direction": "databento_later",
+        "end_et": "2021-03-16T18:00",
+        "expectedSourceOnlyMatches": 2721,
+        "localRows": 2730,
+        "netRows": -1,
+        "replacementFingerprint": "b15a594248cc34840de6cb90324984b8299cb0bd4bd4fda5aa16b10965e6cf41",
+        "replacementOnlyTimestamps": 0,
+        "replacementRows": 2729,
+        "source_contract": "NQH1",
+        "start_et": "2021-03-14T18:00",
+        "unmatchedLocalRows": 9
+      },
+      "targetBoundaryEt": "2021-03-16T18:00",
+      "window": "2021Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2021-06-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2021-06-14T00:00",
+        "first_new_only_match_et": "2021-06-14T00:00",
+        "last_old_only_match_et": "2021-06-13T23:59",
+        "new_only_matches": 5077,
+        "old_only_matches": 354,
+        "unmatched_local_rows": 20
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2021-06-16",
+      "newContract": "NQU1",
+      "oldContract": "NQM1",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2021-06-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 7,
+        "currentRows": 2368,
+        "direction": "databento_later",
+        "end_et": "2021-06-15T18:00",
+        "expectedSourceOnlyMatches": 2354,
+        "localRows": 2368,
+        "netRows": -5,
+        "replacementFingerprint": "f49581433b8939cb21da0bf36c0e7c5f8b23100962845190a3122a0f092ac300",
+        "replacementOnlyTimestamps": 2,
+        "replacementRows": 2363,
+        "source_contract": "NQM1",
+        "start_et": "2021-06-14T00:00",
+        "unmatchedLocalRows": 14
+      },
+      "targetBoundaryEt": "2021-06-15T18:00",
+      "window": "2021Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2021-09-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2021-09-14T00:00",
+        "first_new_only_match_et": "2021-09-14T00:00",
+        "last_old_only_match_et": "2021-09-13T23:59",
+        "new_only_matches": 3776,
+        "old_only_matches": 1736,
+        "unmatched_local_rows": 4
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2021-09-15",
+      "newContract": "NQZ1",
+      "oldContract": "NQU1",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2021-09-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 4,
+        "currentRows": 1020,
+        "direction": "databento_later",
+        "end_et": "2021-09-14T18:00",
+        "expectedSourceOnlyMatches": 1018,
+        "localRows": 1020,
+        "netRows": -4,
+        "replacementFingerprint": "275a84c0afb8935be7af29143a9fda2f3482309511d2585e47bd1f472ef72c5b",
+        "replacementOnlyTimestamps": 0,
+        "replacementRows": 1016,
+        "source_contract": "NQU1",
+        "start_et": "2021-09-14T00:00",
+        "unmatchedLocalRows": 2
+      },
+      "targetBoundaryEt": "2021-09-14T18:00",
+      "window": "2021Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2021-12-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "first_exact_new_contract_match",
+        "current_boundary_et": "2021-12-14T00:00",
+        "first_new_only_match_et": "2021-12-14T00:00",
+        "last_old_only_match_et": "2021-12-13T23:59",
+        "new_only_matches": 2394,
+        "old_only_matches": 1728,
+        "unmatched_local_rows": 12
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2021-12-13",
+      "newContract": "NQH2",
+      "oldContract": "NQZ1",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2021-12-13T18:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 1,
+        "currentRows": 1734,
+        "direction": "databento_earlier",
+        "end_et": "2021-12-14T00:00",
+        "expectedSourceOnlyMatches": 1728,
+        "localRows": 1734,
+        "netRows": 5,
+        "replacementFingerprint": "fe9fed921cc231afe00f08526c8cce270be461c9ed63514b199e7865e70c7ad2",
+        "replacementOnlyTimestamps": 6,
+        "replacementRows": 1739,
+        "source_contract": "NQH2",
+        "start_et": "2021-12-12T18:00",
+        "unmatchedLocalRows": 6
+      },
+      "targetBoundaryEt": "2021-12-12T18:00",
+      "window": "2021Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2022-03-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "first_exact_new_contract_match",
+        "current_boundary_et": "2022-03-14T00:00",
+        "first_new_only_match_et": "2022-03-14T00:00",
+        "last_old_only_match_et": "2022-03-13T23:59",
+        "new_only_matches": 5148,
+        "old_only_matches": 360,
+        "unmatched_local_rows": 12
+      },
+      "conditions": {
+        "counts": {
+          "available": 7
+        },
+        "rows": 7
+      },
+      "databentoD0": "2022-03-16",
+      "newContract": "NQM2",
+      "oldContract": "NQH2",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2022-03-13T18:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 0,
+        "currentRows": 2400,
+        "direction": "databento_later",
+        "end_et": "2022-03-15T18:00",
+        "expectedSourceOnlyMatches": 2390,
+        "localRows": 2400,
+        "netRows": 0,
+        "replacementFingerprint": "917d9800376eb47713cbd38351f6eb76f47a9102ae2e2af1533bd632cdf432f7",
+        "replacementOnlyTimestamps": 0,
+        "replacementRows": 2400,
+        "source_contract": "NQH2",
+        "start_et": "2022-03-14T00:00",
+        "unmatchedLocalRows": 10
+      },
+      "targetBoundaryEt": "2022-03-15T18:00",
+      "window": "2022Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2022-06-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2022-06-14T00:00",
+        "first_new_only_match_et": "2022-06-14T00:00",
+        "last_old_only_match_et": "2022-06-13T23:59",
+        "new_only_matches": 3764,
+        "old_only_matches": 1736,
+        "unmatched_local_rows": 20
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2022-06-15",
+      "newContract": "NQU2",
+      "oldContract": "NQM2",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2022-06-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 0,
+        "currentRows": 1020,
+        "direction": "databento_later",
+        "end_et": "2022-06-14T18:00",
+        "expectedSourceOnlyMatches": 1020,
+        "localRows": 1020,
+        "netRows": 0,
+        "replacementFingerprint": "3f22a06509098684f76100731d155e8a31b5726dca92ea65f37c1b3760b318cf",
+        "replacementOnlyTimestamps": 0,
+        "replacementRows": 1020,
+        "source_contract": "NQM2",
+        "start_et": "2022-06-14T00:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2022-06-14T18:00",
+      "window": "2022Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2022-09-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2022-09-14T00:00",
+        "first_new_only_match_et": "2022-09-14T00:00",
+        "last_old_only_match_et": "2022-09-13T23:59",
+        "new_only_matches": 2742,
+        "old_only_matches": 3114,
+        "unmatched_local_rows": 24
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2022-09-14",
+      "newContract": "NQZ2",
+      "oldContract": "NQU2",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2022-09-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 0,
+        "currentRows": 360,
+        "direction": "databento_earlier",
+        "end_et": "2022-09-14T00:00",
+        "expectedSourceOnlyMatches": 360,
+        "localRows": 360,
+        "netRows": 0,
+        "replacementFingerprint": "99cfa0278abd73f9e0b14a3b48543a1d43020691beb1d7b6c4cfe004daac8857",
+        "replacementOnlyTimestamps": 0,
+        "replacementRows": 360,
+        "source_contract": "NQZ2",
+        "start_et": "2022-09-13T18:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2022-09-13T18:00",
+      "window": "2022Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2022-12-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2022-12-14T00:00",
+        "first_new_only_match_et": "2022-12-14T00:00",
+        "last_old_only_match_et": "2022-12-13T23:59",
+        "new_only_matches": 2742,
+        "old_only_matches": 3111,
+        "unmatched_local_rows": 26
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2022-12-14",
+      "newContract": "NQH3",
+      "oldContract": "NQZ2",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2022-12-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 0,
+        "currentRows": 360,
+        "direction": "databento_earlier",
+        "end_et": "2022-12-14T00:00",
+        "expectedSourceOnlyMatches": 360,
+        "localRows": 360,
+        "netRows": 0,
+        "replacementFingerprint": "0ea36d824cde4df7974e14c8fc274d3c820bb9ff30fc139fc38a8e296ceac961",
+        "replacementOnlyTimestamps": 0,
+        "replacementRows": 360,
+        "source_contract": "NQH3",
+        "start_et": "2022-12-13T18:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2022-12-13T18:00",
+      "window": "2022Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2023-03-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2023-03-14T00:00",
+        "first_new_only_match_et": "2023-03-14T00:00",
+        "last_old_only_match_et": "2023-03-13T23:59",
+        "new_only_matches": 3758,
+        "old_only_matches": 1734,
+        "unmatched_local_rows": 28
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2023-03-15",
+      "newContract": "NQM3",
+      "oldContract": "NQH3",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2023-03-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 2,
+        "currentRows": 1020,
+        "direction": "databento_later",
+        "end_et": "2023-03-14T18:00",
+        "expectedSourceOnlyMatches": 1012,
+        "localRows": 1020,
+        "netRows": -2,
+        "replacementFingerprint": "23dc12d98d64ee2ee2231bee4a3c31183759323467e63a78c2ac556270c0aebd",
+        "replacementOnlyTimestamps": 0,
+        "replacementRows": 1018,
+        "source_contract": "NQH3",
+        "start_et": "2023-03-14T00:00",
+        "unmatchedLocalRows": 8
+      },
+      "targetBoundaryEt": "2023-03-14T18:00",
+      "window": "2023Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2023-06-14T00:00",
+      "boundaryEvidence": {
+        "both_matches": 0,
+        "boundary_basis": "inferred_boundary_inside_exact_match_gap",
+        "current_boundary_et": "2023-06-14T00:00",
+        "first_new_only_match_et": "2023-06-14T00:00",
+        "last_old_only_match_et": "2023-06-13T23:59",
+        "new_only_matches": 2728,
+        "old_only_matches": 3089,
+        "unmatched_local_rows": 41
+      },
+      "conditions": {
+        "counts": {
+          "available": 6
+        },
+        "rows": 6
+      },
+      "databentoD0": "2023-06-14",
+      "newContract": "NQU3",
+      "oldContract": "NQM3",
+      "priorAuthority": "legacy_continuous_inferred",
+      "priorBoundaryEt": "2023-06-14T00:00",
+      "repair": {
+        "ambiguousBothMatches": 0,
+        "currentOnlyTimestamps": 0,
+        "currentRows": 344,
+        "direction": "databento_earlier",
+        "end_et": "2023-06-14T00:00",
+        "expectedSourceOnlyMatches": 344,
+        "localRows": 344,
+        "netRows": 16,
+        "replacementFingerprint": "f2d1756dc0bf8248061103f986718f03f7f447ae7d9c378c56384f63f251be5c",
+        "replacementOnlyTimestamps": 16,
+        "replacementRows": 360,
+        "source_contract": "NQU3",
+        "start_et": "2023-06-13T18:00",
+        "unmatchedLocalRows": 0
+      },
+      "targetBoundaryEt": "2023-06-13T18:00",
+      "window": "2023Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2023-09-10T18:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4
+        },
+        "rows": 4
+      },
+      "databentoD0": "2023-09-13",
+      "newContract": "NQZ3",
+      "oldContract": "NQU3",
+      "priorAuthority": "governed_calendar",
+      "priorBoundaryEt": "2023-09-10T18:00",
+      "repair": {
+        "authority": "governed_calendar",
+        "currentOnlyTimestamps": 3,
+        "currentRows": 2759,
+        "direction": "databento_later",
+        "end_et": "2023-09-12T18:00",
+        "localRows": 2759,
+        "netRows": -2,
+        "replacementFingerprint": "9beec0b8c0bce757d9b0cc0c1326a08da31231af20a9f42de26417a02e09f0f3",
+        "replacementOnlyTimestamps": 1,
+        "replacementRows": 2757,
+        "source_contract": "NQU3",
+        "start_et": "2023-09-10T18:00"
+      },
+      "targetBoundaryEt": "2023-09-12T18:00",
+      "window": "2023Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2023-12-10T18:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4
+        },
+        "rows": 4
+      },
+      "databentoD0": "2023-12-13",
+      "newContract": "NQH4",
+      "oldContract": "NQZ3",
+      "priorAuthority": "governed_calendar",
+      "priorBoundaryEt": "2023-12-10T18:00",
+      "repair": {
+        "authority": "governed_calendar",
+        "currentOnlyTimestamps": 2,
+        "currentRows": 2758,
+        "direction": "databento_later",
+        "end_et": "2023-12-12T18:00",
+        "localRows": 2758,
+        "netRows": 0,
+        "replacementFingerprint": "c87d6d2d7de98ce679c381d6043f082fecf9e4e5a70b40a73675247577ac6fd5",
+        "replacementOnlyTimestamps": 2,
+        "replacementRows": 2758,
+        "source_contract": "NQZ3",
+        "start_et": "2023-12-10T18:00"
+      },
+      "targetBoundaryEt": "2023-12-12T18:00",
+      "window": "2023Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2024-03-10T18:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4
+        },
+        "rows": 4
+      },
+      "databentoD0": "2024-03-13",
+      "newContract": "NQM4",
+      "oldContract": "NQH4",
+      "priorAuthority": "governed_calendar",
+      "priorBoundaryEt": "2024-03-10T18:00",
+      "repair": {
+        "authority": "governed_calendar",
+        "currentOnlyTimestamps": 13,
+        "currentRows": 2760,
+        "direction": "databento_later",
+        "end_et": "2024-03-12T18:00",
+        "localRows": 2760,
+        "netRows": -13,
+        "replacementFingerprint": "c5e2b9642223c218a097962eb77f3ed8ecc3df6befda0b42d3992ef7ad39ff1c",
+        "replacementOnlyTimestamps": 0,
+        "replacementRows": 2747,
+        "source_contract": "NQH4",
+        "start_et": "2024-03-10T18:00"
+      },
+      "targetBoundaryEt": "2024-03-12T18:00",
+      "window": "2024Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2024-06-16T18:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4
+        },
+        "rows": 4
+      },
+      "databentoD0": "2024-06-19",
+      "newContract": "NQU4",
+      "oldContract": "NQM4",
+      "priorAuthority": "governed_calendar",
+      "priorBoundaryEt": "2024-06-16T18:00",
+      "repair": {
+        "authority": "governed_calendar",
+        "currentOnlyTimestamps": 4,
+        "currentRows": 2760,
+        "direction": "databento_later",
+        "end_et": "2024-06-18T18:00",
+        "localRows": 2760,
+        "netRows": -4,
+        "replacementFingerprint": "bcaa5d399be649d3ebd7e0c6d6143cb151bc565e9979b0496fd9b7f0af8d83b7",
+        "replacementOnlyTimestamps": 0,
+        "replacementRows": 2756,
+        "source_contract": "NQM4",
+        "start_et": "2024-06-16T18:00"
+      },
+      "targetBoundaryEt": "2024-06-18T18:00",
+      "window": "2024Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2024-09-15T18:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4
+        },
+        "rows": 4
+      },
+      "databentoD0": "2024-09-18",
+      "newContract": "NQZ4",
+      "oldContract": "NQU4",
+      "priorAuthority": "governed_calendar",
+      "priorBoundaryEt": "2024-09-15T18:00",
+      "repair": {
+        "authority": "governed_calendar",
+        "currentOnlyTimestamps": 19,
+        "currentRows": 2752,
+        "direction": "databento_later",
+        "end_et": "2024-09-17T18:00",
+        "localRows": 2752,
+        "netRows": -13,
+        "replacementFingerprint": "942feee056cacc2d73b22f63d5ed89b4c2b20bc9d8047fbe6287b143b9d6385b",
+        "replacementOnlyTimestamps": 6,
+        "replacementRows": 2739,
+        "source_contract": "NQU4",
+        "start_et": "2024-09-15T18:00"
+      },
+      "targetBoundaryEt": "2024-09-17T18:00",
+      "window": "2024Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2024-12-15T18:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 5
+        },
+        "rows": 5
+      },
+      "databentoD0": "2024-12-19",
+      "newContract": "NQH5",
+      "oldContract": "NQZ4",
+      "priorAuthority": "governed_calendar",
+      "priorBoundaryEt": "2024-12-15T18:00",
+      "repair": {
+        "authority": "governed_calendar",
+        "currentOnlyTimestamps": 4,
+        "currentRows": 4133,
+        "direction": "databento_later",
+        "end_et": "2024-12-18T18:00",
+        "localRows": 4133,
+        "netRows": 3,
+        "replacementFingerprint": "cea02f53af595ed79f7b0224b6f2a2562339ee8de3c3c3c230e8b93c1d1c274b",
+        "replacementOnlyTimestamps": 7,
+        "replacementRows": 4136,
+        "source_contract": "NQZ4",
+        "start_et": "2024-12-15T18:00"
+      },
+      "targetBoundaryEt": "2024-12-18T18:00",
+      "window": "2024Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2025-03-16T18:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 5
+        },
+        "rows": 5
+      },
+      "databentoD0": "2025-03-20",
+      "newContract": "NQM5",
+      "oldContract": "NQH5",
+      "priorAuthority": "governed_calendar",
+      "priorBoundaryEt": "2025-03-16T18:00",
+      "repair": {
+        "authority": "governed_calendar",
+        "currentOnlyTimestamps": 5,
+        "currentRows": 4140,
+        "direction": "databento_later",
+        "end_et": "2025-03-19T18:00",
+        "localRows": 4140,
+        "netRows": -5,
+        "replacementFingerprint": "5fb5051546a7b88ee650bf275f95f9de4a36f5f8691b3c32acd027c8beda2d60",
+        "replacementOnlyTimestamps": 0,
+        "replacementRows": 4135,
+        "source_contract": "NQH5",
+        "start_et": "2025-03-16T18:00"
+      },
+      "targetBoundaryEt": "2025-03-19T18:00",
+      "window": "2025Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2025-06-15T18:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4
+        },
+        "rows": 4
+      },
+      "databentoD0": "2025-06-18",
+      "newContract": "NQU5",
+      "oldContract": "NQM5",
+      "priorAuthority": "governed_calendar",
+      "priorBoundaryEt": "2025-06-15T18:00",
+      "repair": {
+        "authority": "governed_calendar",
+        "currentOnlyTimestamps": 7,
+        "currentRows": 2758,
+        "direction": "databento_later",
+        "end_et": "2025-06-17T18:00",
+        "localRows": 2758,
+        "netRows": -5,
+        "replacementFingerprint": "619c2ac4d419ed78e78dc6a350d3c43dcf9e8c909c62ff9d3d626862c886005f",
+        "replacementOnlyTimestamps": 2,
+        "replacementRows": 2753,
+        "source_contract": "NQM5",
+        "start_et": "2025-06-15T18:00"
+      },
+      "targetBoundaryEt": "2025-06-17T18:00",
+      "window": "2025Q2"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2025-09-14T18:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4,
+          "degraded": 1
+        },
+        "rows": 5
+      },
+      "databentoD0": "2025-09-18",
+      "newContract": "NQZ5",
+      "oldContract": "NQU5",
+      "priorAuthority": "governed_calendar",
+      "priorBoundaryEt": "2025-09-14T18:00",
+      "repair": {
+        "authority": "governed_calendar",
+        "currentOnlyTimestamps": 31,
+        "currentRows": 4135,
+        "direction": "databento_later",
+        "end_et": "2025-09-17T18:00",
+        "localRows": 4135,
+        "netRows": -26,
+        "replacementFingerprint": "94896e8282ac65917c6721814bdd2f373a0296ff2882c20d5d73cbf1ba9e94ff",
+        "replacementOnlyTimestamps": 5,
+        "replacementRows": 4109,
+        "source_contract": "NQU5",
+        "start_et": "2025-09-14T18:00"
+      },
+      "targetBoundaryEt": "2025-09-17T18:00",
+      "window": "2025Q3"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2025-12-14T18:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 4
+        },
+        "rows": 4
+      },
+      "databentoD0": "2025-12-17",
+      "newContract": "NQH6",
+      "oldContract": "NQZ5",
+      "priorAuthority": "governed_calendar",
+      "priorBoundaryEt": "2025-12-14T18:00",
+      "repair": {
+        "authority": "governed_calendar",
+        "currentOnlyTimestamps": 6,
+        "currentRows": 2760,
+        "direction": "databento_later",
+        "end_et": "2025-12-16T18:00",
+        "localRows": 2760,
+        "netRows": -6,
+        "replacementFingerprint": "4aed9a8313b9b9c5a92a78ee5a87e249ebf0757ea44865e4088db222ab55e99d",
+        "replacementOnlyTimestamps": 0,
+        "replacementRows": 2754,
+        "source_contract": "NQZ5",
+        "start_et": "2025-12-14T18:00"
+      },
+      "targetBoundaryEt": "2025-12-16T18:00",
+      "window": "2025Q4"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2026-03-16T00:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 2,
+          "degraded": 1
+        },
+        "rows": 3
+      },
+      "databentoD0": "2026-03-18",
+      "newContract": "NQM6",
+      "oldContract": "NQH6",
+      "priorAuthority": "governed_calendar",
+      "priorBoundaryEt": "2026-03-16T00:00",
+      "repair": {
+        "authority": "governed_calendar",
+        "currentOnlyTimestamps": 12,
+        "currentRows": 2400,
+        "direction": "databento_later",
+        "end_et": "2026-03-17T18:00",
+        "localRows": 2400,
+        "netRows": -12,
+        "replacementFingerprint": "91122634c9cf6fa5c95e2e5cb9f710d2fdf547570d96d367551b59e260bcda98",
+        "replacementOnlyTimestamps": 0,
+        "replacementRows": 2388,
+        "source_contract": "NQH6",
+        "start_et": "2026-03-16T00:00"
+      },
+      "targetBoundaryEt": "2026-03-17T18:00",
+      "window": "2026Q1"
+    },
+    {
+      "auditedCurrentBoundaryEt": "2026-06-15T00:00",
+      "boundaryEvidence": null,
+      "conditions": {
+        "counts": {
+          "available": 3
+        },
+        "rows": 3
+      },
+      "databentoD0": "2026-06-17",
+      "newContract": "NQU6",
+      "oldContract": "NQM6",
+      "priorAuthority": "governed_calendar",
+      "priorBoundaryEt": "2026-06-15T00:00",
+      "repair": {
+        "authority": "governed_calendar",
+        "currentOnlyTimestamps": 13,
+        "currentRows": 2400,
+        "direction": "databento_later",
+        "end_et": "2026-06-16T18:00",
+        "localRows": 2400,
+        "netRows": -13,
+        "replacementFingerprint": "9bfc346dc1ac63eb3af3eb5c9c8709b5f838b0e20ae2cbcdeecbce38c9715d5f",
+        "replacementOnlyTimestamps": 0,
+        "replacementRows": 2387,
+        "source_contract": "NQM6",
+        "start_et": "2026-06-15T00:00"
+      },
+      "targetBoundaryEt": "2026-06-16T18:00",
+      "window": "2026Q2"
+    }
+  ],
+  "version": 1
+}

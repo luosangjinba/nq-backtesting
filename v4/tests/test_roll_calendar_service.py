@@ -76,6 +76,10 @@ class RollCalendarServiceTests(unittest.TestCase):
             service.decision_deadline_et("ESU6", reference_year=2026),
             datetime(2026, 9, 14),
         )
+        self.assertEqual(
+            service.confirmed_transition_deadline_et("ESU6", reference_year=2026),
+            datetime(2026, 9, 18, 17),
+        )
 
     def test_health_reports_missing_next_transition_instead_of_silent_success(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -114,14 +118,55 @@ class RollCalendarServiceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "non-consecutive"):
             service.validate_calendar(data, events)
 
-    def test_transition_after_old_contract_deadline_is_rejected(self) -> None:
+    def test_repeated_one_digit_transition_in_different_decades_is_valid(self) -> None:
+        data = {"version": 2, "timezone": "America/New_York"}
+        events = [
+            service.RollEvent(
+                "NQ", "NQH0", "NQM0", datetime(2010, 3, 14, 18),
+                "volume_confirmed", "2010", "cme_trade_date_session_open",
+            ),
+            service.RollEvent(
+                "NQ", "NQM0", "NQU0", datetime(2010, 6, 13, 18),
+                "volume_confirmed", "2010", "cme_trade_date_session_open",
+            ),
+            service.RollEvent(
+                "NQ", "NQU0", "NQZ0", datetime(2010, 9, 12, 18),
+                "volume_confirmed", "2010", "cme_trade_date_session_open",
+            ),
+            service.RollEvent(
+                "NQ", "NQZ0", "NQH1", datetime(2010, 12, 12, 18),
+                "volume_confirmed", "2010", "cme_trade_date_session_open",
+            ),
+            service.RollEvent(
+                "NQ", "NQH1", "NQM1", datetime(2011, 3, 13, 18),
+                "volume_confirmed", "2011", "cme_trade_date_session_open",
+            ),
+        ]
+        # The identity helper itself proves the same raw-code pair can recur
+        # without colliding when its effective decade changes.
+        later = service.RollEvent(
+            "NQ", "NQH0", "NQM0", datetime(2020, 3, 17, 18),
+            "volume_confirmed", "2020", "cme_trade_date_session_open",
+        )
+        self.assertNotEqual(service.transition_identity(events[0]), service.transition_identity(later))
+        service.validate_calendar(data, events)
+
+    def test_confirmed_transition_after_operational_deadline_before_expiry_is_valid(self) -> None:
         data = {"version": 2, "timezone": "America/New_York"}
         events = [service.RollEvent(
             "ES", "ESU6", "ESZ6", datetime(2026, 9, 17, 18),
+            "volume_confirmed", "provider mapping", "cme_trade_date_session_open",
+        )]
+        service.validate_calendar(data, events)
+
+    def test_transition_after_old_contract_expiry_is_rejected(self) -> None:
+        data = {"version": 2, "timezone": "America/New_York"}
+        events = [service.RollEvent(
+            "ES", "ESU6", "ESZ6", datetime(2026, 9, 18, 17, 1),
             "volume_confirmed", "late", "cme_trade_date_session_open",
         )]
 
-        with self.assertRaisesRegex(ValueError, "decision deadline"):
+        with self.assertRaisesRegex(ValueError, "expiry deadline"):
             service.validate_calendar(data, events)
 
     def test_preview_rejects_candidate_after_old_contract_deadline(self) -> None:

@@ -199,12 +199,12 @@ def _candidate_calendar(calendar_path: Path, plan: RepairPlan, confirmed_at: str
     if not isinstance(data, dict) or not isinstance(data.get("rolls"), list):
         raise ValueError("roll calendar must contain a rolls list")
     repair_keys = {
-        (str(event["instrument"]), str(event["old_contract"]), str(event["new_contract"]))
+        roll_calendar_service.transition_identity(roll_calendar_service._event_from_row(event))
         for event in plan.calendar_events
     }
     remaining = [
         row for row in data["rolls"]
-        if (str(row.get("instrument")), str(row.get("old_contract")), str(row.get("new_contract")))
+        if roll_calendar_service.transition_identity(roll_calendar_service._event_from_row(row))
         not in repair_keys
     ]
     events = []
@@ -271,11 +271,12 @@ def create_preview(
         for spec in plan.repairs:
             conditions = condition_evidence.get(spec.repair_id) or []
             non_available = [
-                row for row in conditions if str(row.get("condition") or "unknown") != "available"
+                row for row in conditions
+                if str(row.get("condition") or "unknown") not in spec.accepted_conditions
             ]
             if not conditions or non_available:
                 raise ValueError(
-                    f"{spec.repair_id} has missing or non-available Databento condition evidence"
+                    f"{spec.repair_id} has missing or non-accepted Databento condition evidence"
                 )
             if spec.repair_id not in replacements:
                 raise ValueError(f"missing staged replacement for {spec.repair_id}")
@@ -626,24 +627,23 @@ def verify_repair(
     if str(data.get("dataset")) != plan.dataset or str(data.get("schema")) != plan.schema:
         raise ValueError("calendar dataset/schema does not match the reviewed manifest")
     actual = {
-        (event.old_contract, event.new_contract): (
+        roll_calendar_service.transition_identity(event): (
             event.effective_at_et.isoformat(timespec="minutes"),
             event.status,
         )
         for event in events if event.instrument == plan.instrument
     }
     for event in plan.calendar_events:
-        key = (str(event["old_contract"]), str(event["new_contract"]))
+        parsed_event = roll_calendar_service._event_from_row(event)
+        key = roll_calendar_service.transition_identity(parsed_event)
         expected = (
-            roll_calendar_service._event_from_row(event).effective_at_et.isoformat(
-                timespec="minutes"
-            ),
+            parsed_event.effective_at_et.isoformat(timespec="minutes"),
             str(event["status"]),
         )
         actual_value = actual.get(key)
         if actual_value != expected:
             raise ValueError(
-                f"calendar verification mismatch for {key[0]}->{key[1]}: "
+                f"calendar verification mismatch for {key[1]}->{key[2]} year {key[3]}: "
                 f"expected {expected}, got {actual_value}"
             )
     return {

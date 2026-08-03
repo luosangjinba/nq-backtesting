@@ -33,12 +33,15 @@ Databento updater
 - The domain derives the next missing raw contract. The current calendar
   reports `ESU6 → ESZ6` and `NQU6 → NQZ6` instead of treating U6 as valid
   forever.
-- An unconfirmed contract has a hard horizon at Monday of its quarterly
-  third-Friday expiry week. Selected-range Preflight is blocked after that
-  minute until the next transition is confirmed.
+- An unconfirmed contract has an operational hard horizon at Monday of its
+  quarterly third-Friday expiry week. Selected-range Preflight is blocked
+  after that minute until the next transition is confirmed. A confirmed
+  provider-mapped historical event may be later, but calendar validity still
+  rejects any source transition after the old contract's third-Friday close.
 
-The hard horizon is a safety stop, not the recommended roll date. The
-operator should scan and confirm earlier from market evidence.
+The operational hard horizon is a safety stop, not the recommended roll date
+or the expiry deadline. The operator should normally scan and confirm earlier
+from market evidence.
 
 ## Evidence workflow
 

@@ -114,7 +114,7 @@ Binding decision/evidence:
 Binding audit/evidence:
 `docs/V7_NQ_2025_ROLL_LIQUIDITY_AUDIT.md`.
 
-### Data Integrity Follow-up — NQ Recent Pre-2025 Roll Repair Complete
+### Data Integrity Follow-up — NQ Databento Full-Chain Repair Complete
 
 - [x] prove the original continuous CSV volume was retained exactly in DuckDB
   outside the approved 2025 repair intervals;
@@ -144,12 +144,23 @@ Binding audit/evidence:
 - [x] separate 20 exact boundaries from 45 diagnostic legacy inferences,
   proving all 20 exact boundaries differ from the proposed Databento session
   boundary and that all 12 current calendar events would move later;
-- [ ] decide whether the Databento-date rule supersedes the existing
+- [x] decide that the Databento-date rule supersedes the existing
   historical two-session rule from 2010 Q2 onward and approve a maximum USD 4
   budget before raw-attributing the remaining 45 transitions;
-- [ ] after that decision, audit the 17 low/medium-confidence windows first,
+- [x] after that decision, audit the 17 low/medium-confidence windows first,
   then 28 high-confidence windows, before any contiguous calendar or repair
-  manifest is proposed.
+  manifest is proposed;
+- [x] prove all 45 legacy source changes by exact old/new raw-contract OHLCV
+  attribution, identifying nine already aligned events and 56 bounded repair
+  intervals across the complete 65-transition chain;
+- [x] keep non-`available` conditions rejected by default while granting
+  reviewed `degraded` permission only to 2019 Q1, 2025 Q3, and 2026 Q1;
+- [x] complete fresh fingerprint-matching Preview and guarded Commit below the
+  USD 4 ceiling, replacing 110,932 rows with 119,562 and restoring 8,630 net
+  minutes;
+- [x] independently verify 6,167,407 NQ rows, zero duplicates, exact 65-event
+  calendar parity, unchanged ES, unchanged pre-Databento NQ history, and
+  representative 1m/1h/4h API reads.
 
 Binding prescreen/evidence:
 `docs/V7_NQ_PRE_2025_CONTINUOUS_ROLL_PRESCREEN.md`.
@@ -163,6 +174,11 @@ Binding legacy red audit:
 Binding full-chain diff:
 `docs/V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md` and
 `docs/v7-nq-databento-full-chain-diff.json`.
+
+Binding full-chain repair:
+`docs/V7_NQ_DATABENTO_FULL_CHAIN_REPAIR.md`,
+`docs/v7-nq-databento-full-chain-audit.json`, and
+`../v4/data_config/historical_roll_repairs/nq-databento-full-chain.yml`.
 
 ### Deferred Candidate — General Futures Plugin Platform
 
