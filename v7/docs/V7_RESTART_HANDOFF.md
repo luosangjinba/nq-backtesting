@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-05 after R10.5 empty-listener guard correction
+Last updated: 2026-08-05 after R10.6 service-runtime permission correction
 
 ## Current Overall Acceptance State
 
@@ -35,6 +35,10 @@ The first R10.4 wrapper invocation then exited silently before the installer:
 the empty legacy-listener branch inherited the failed test status under
 `set -e`. R10.5 returns success explicitly when no listener exists and binds
 that exact no-listener continuation as executable regression evidence.
+The R10.5 rerun then reached dependency/release installation but the `replay`
+identity could not execute the root-created shared venv Python. R10.6 now
+normalizes both venv and release trees to root ownership plus service-group
+read/traverse/execute access, including repair of the already-created venv.
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not

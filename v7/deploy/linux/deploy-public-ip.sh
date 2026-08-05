@@ -180,8 +180,10 @@ if [[ "$reset_password" -eq 1 || ! -s "$password_file" ]]; then
   printf '\n'
   [[ -n "$password_one" ]] || die "browser password cannot be empty"
   [[ "$password_one" == "$password_two" ]] || die "browser passwords do not match"
+  previous_umask="$(umask)"
   umask 077
   printf '%s' "$password_one" > "$password_file"
+  umask "$previous_umask"
   unset password_one password_two
 fi
 chown root:root "$password_file"

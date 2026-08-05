@@ -2,6 +2,10 @@
 
 set -Eeuo pipefail
 
+# Runtime trees are root-owned but must remain traversable by the selected
+# service group even when the invoking root shell uses a restrictive umask.
+umask 022
+
 usage() {
   cat <<'USAGE'
 Replay Lab V7 Linux deployment
@@ -697,12 +701,16 @@ if [[ ! -x "$venv_python" ]]; then
 fi
 run_step sudo_cmd "$venv_python" -m pip install --disable-pip-version-check --upgrade pip wheel
 run_step sudo_cmd "$venv_python" -m pip install --disable-pip-version-check -r "$runtime_requirements"
+run_step sudo_cmd chown -R root:"$service_group" "$venv_dir"
+run_step sudo_cmd chmod -R u=rwX,g=rX,o= "$venv_dir"
 
 archive_path="$tmp_dir/release.tar"
 run_step repo_git archive --format=tar --output="$archive_path" "$repository_commit"
 run_step sudo_cmd install -d -m 0755 "$release_dir"
 run_step sudo_cmd tar -xf "$archive_path" -C "$release_dir"
 run_step sudo_cmd npm ci --omit=dev --no-audit --no-fund --prefix "$release_dir/v7"
+run_step sudo_cmd chown -R root:"$service_group" "$release_dir"
+run_step sudo_cmd chmod -R u=rwX,g=rX,o= "$release_dir"
 
 run_step as_service_user test -r "$db_path"
 db_summary="$(as_service_user "$venv_python" -c \

@@ -7,6 +7,16 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
+### R10.6 Service Runtime Permissions — Corrected, Host Rerun Pending
+
+- [x] preserve the Alibaba failure where root-created venv Python returned
+  `Permission denied` under the dedicated `replay` identity;
+- [x] normalize the shared venv and immutable release to root ownership with
+  group-only read/traverse/execute access for the selected service identity;
+- [x] repair an already-created restrictive venv during the next rerun and
+  restore the wrapper's prior umask after password creation;
+- [ ] pull the correction and resume the Alibaba apply through local health.
+
 ### R10.5 Empty Legacy-Listener Guard — Corrected, Host Rerun Pending
 
 - [x] reproduce the silent quick-deploy exit when neither loopback port has a

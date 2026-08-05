@@ -96,6 +96,7 @@ try {
   const quickSource = fs.readFileSync(quickDeployScript, 'utf8');
   assert.match(quickSource, /refusing to stop unknown PID/);
   assert.match(quickSource, /Browser password for \$auth_user/);
+  assert.match(quickSource, /previous_umask="\$\(umask\)"[\s\S]*umask 077[\s\S]*umask "\$previous_umask"/);
   assert.match(quickSource,
     /installer_arguments=\([\s\S]*--auth-password-file "\$password_file"[\s\S]*bash "\$installer" "\$\{installer_arguments\[@\]\}"/);
   const quickListenerStopSource = quickSource.match(
@@ -232,6 +233,10 @@ try {
   assert.match(installerSource, /caddy_version_at_least 2 10 2/);
   assert.match(installerSource, /import \/etc\/caddy\/replay-lab\.Caddyfile/);
   assert.match(installerSource, /combined Caddy configuration is invalid; restoring/);
+  assert.match(installerSource, /chown -R root:"\$service_group" "\$venv_dir"/);
+  assert.match(installerSource, /chmod -R u=rwX,g=rX,o= "\$venv_dir"/);
+  assert.match(installerSource, /chown -R root:"\$service_group" "\$release_dir"/);
+  assert.match(installerSource, /chmod -R u=rwX,g=rX,o= "\$release_dir"/);
   const listenerGuardSource = installerSource.match(
     /^require_managed_or_free_port\(\) \{[\s\S]*?^\}/m,
   )?.[0];
