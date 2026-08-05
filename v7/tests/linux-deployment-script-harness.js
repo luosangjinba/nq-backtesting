@@ -91,11 +91,13 @@ try {
   const quickHelp = spawnSync('bash', [quickDeployScript, '--help'], { encoding: 'utf8' });
   assert.equal(quickHelp.status, 0, quickHelp.stderr);
   assert.match(quickHelp.stdout, /--replace-legacy/);
+  assert.match(quickHelp.stdout, /--preserve-caddy/);
   assert.match(quickHelp.stdout, /inbound TCP 80\/443/);
   const quickSource = fs.readFileSync(quickDeployScript, 'utf8');
   assert.match(quickSource, /refusing to stop unknown PID/);
   assert.match(quickSource, /Browser password for \$auth_user/);
-  assert.match(quickSource, /bash "\$installer"[\s\S]*--auth-password-file "\$password_file"/);
+  assert.match(quickSource,
+    /installer_arguments=\([\s\S]*--auth-password-file "\$password_file"[\s\S]*bash "\$installer" "\$\{installer_arguments\[@\]\}"/);
 
   const common = ['--dry-run', '--db', database, '--service-user', os.userInfo().username];
   const caddyVersion = spawnSync('caddy', ['version'], { encoding: 'utf8' });
@@ -158,7 +160,46 @@ try {
         && Number(caddyVersionMatch[3]) >= 2));
   if (supportsIpCertificate) {
     validateRenderedCaddy(publicIpPlan.stdout, 'Caddyfile-public-ip');
+    const existingCaddyPath = path.join(temporaryDirectory, 'Caddyfile-existing');
+    const replayFragmentPath = path.join(temporaryDirectory, 'replay-lab.Caddyfile');
+    fs.writeFileSync(replayFragmentPath, renderedCaddyFrom(publicIpPlan.stdout));
+    fs.writeFileSync(existingCaddyPath, [
+      'recap.example.com {',
+      '  respond "existing site"',
+      '}',
+      '',
+      `import ${replayFragmentPath}`,
+      '',
+    ].join('\n'));
+    const coexistenceValidation = spawnSync(
+      'caddy', ['validate', '--config', existingCaddyPath], { encoding: 'utf8' },
+    );
+    assert.equal(
+      coexistenceValidation.status,
+      0,
+      `${coexistenceValidation.stdout}\n${coexistenceValidation.stderr}`,
+    );
   }
+
+  const preservedPublicIpPlan = execute([
+    ...common,
+    '--public-ip', '43.110.32.34',
+    '--auth-user', 'reviewer',
+    '--auth-hash', passwordHash,
+    '--preserve-caddy',
+  ]);
+  assert.equal(preservedPublicIpPlan.status, 0, preservedPublicIpPlan.stderr);
+  assert.match(preservedPublicIpPlan.stdout, /Back up and preserve: \/etc\/caddy\/Caddyfile/);
+  assert.match(preservedPublicIpPlan.stdout, /Write managed fragment: \/etc\/caddy\/replay-lab\.Caddyfile/);
+  expectFailure([...common, '--preserve-caddy'], /--preserve-caddy requires --domain or --public-ip/);
+  expectFailure([
+    ...common,
+    '--domain', 'replay.example.com',
+    '--email', 'reviewer@example.com',
+    '--auth-user', 'reviewer',
+    '--auth-hash', passwordHash,
+    '--preserve-caddy',
+  ], /--preserve-caddy cannot be combined with --email/);
 
   for (const fixture of negativeCases) {
     expectFailure(negativeArguments(fixture.id, common), new RegExp(fixture.expectedMessage));
@@ -175,6 +216,8 @@ try {
   assert.match(installerSource, /if ! node_runtime_ready; then\s+base_packages\+=\(nodejs npm\)/);
   assert.match(installerSource, /already used outside \$unit; stop the legacy listener before apply/);
   assert.match(installerSource, /caddy_version_at_least 2 10 2/);
+  assert.match(installerSource, /import \/etc\/caddy\/replay-lab\.Caddyfile/);
+  assert.match(installerSource, /combined Caddy configuration is invalid; restoring/);
   const listenerGuardSource = installerSource.match(
     /^require_managed_or_free_port\(\) \{[\s\S]*?^\}/m,
   )?.[0];

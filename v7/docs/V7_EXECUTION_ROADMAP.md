@@ -575,3 +575,7 @@ R8.13–R8.15.
   preparation and explicitly authorized, exact-match legacy-listener
   replacement while delegating all release/runtime behavior to R10.2;
   implemented and awaiting the same real-host gate.
+- `R10.4`: preserve unrelated Caddy sites through an explicit imported-fragment
+  deployment path, combined-config validation, repeat-safe import ownership,
+  and main/fragment rollback; implemented after the Alibaba host exposed an
+  existing Caddy site and awaiting the same real-host rerun.

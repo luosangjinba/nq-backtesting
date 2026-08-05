@@ -10,6 +10,7 @@ Usage:
   sudo bash v7/deploy/linux/deploy-public-ip.sh \
     --public-ip 203.0.113.10 \
     --db /srv/replay-lab-data/trading_data.duckdb \
+    [--preserve-caddy] \
     [--replace-legacy]
 
 Options:
@@ -20,6 +21,7 @@ Options:
   --password-file PATH   Persistent root-only password file.
                          Default: /etc/replay-lab/secrets/web-password
   --reset-password       Prompt for a new browser password even when the file exists.
+  --preserve-caddy       Keep existing Caddy sites and import a Replay Lab fragment.
   --replace-legacy       Stop only identified legacy v4_api.py/serve.mjs listeners on 8766/8007.
   --help                 Show this help.
 
@@ -98,6 +100,7 @@ service_user="replay"
 password_file="/etc/replay-lab/secrets/web-password"
 reset_password=0
 replace_legacy=0
+preserve_caddy=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -128,6 +131,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --reset-password)
       reset_password=1
+      shift
+      ;;
+    --preserve-caddy)
+      preserve_caddy=1
       shift
       ;;
     --replace-legacy)
@@ -185,13 +192,16 @@ stop_identified_listener 8766 replay-lab-api.service
 stop_identified_listener 8007 replay-lab-web.service
 
 info "cloud security group prerequisite: inbound TCP 80/443; keep 8007/8766 closed"
-bash "$installer" \
-  --apply --yes \
-  --db "$db_path" \
-  --service-user "$service_user" \
-  --public-ip "$public_ip" \
-  --auth-user "$auth_user" \
+installer_arguments=(
+  --apply --yes
+  --db "$db_path"
+  --service-user "$service_user"
+  --public-ip "$public_ip"
+  --auth-user "$auth_user"
   --auth-password-file "$password_file"
+)
+[[ "$preserve_caddy" -eq 0 ]] || installer_arguments+=(--preserve-caddy)
+bash "$installer" "${installer_arguments[@]}"
 
 printf '\nDirect browser URL: https://%s/v7/app/\n' "$public_ip"
 printf 'Browser user: %s\n' "$auth_user"

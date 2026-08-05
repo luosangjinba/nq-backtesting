@@ -7,6 +7,21 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
+### R10.4 Existing Caddy Coexistence — Implemented, Host Rerun Pending
+
+- [x] preserve the Alibaba host evidence that its active Caddy configuration
+  already serves `recap.buddhiststudy.xyz` while Replay Lab units are absent;
+- [x] add an explicit `--preserve-caddy` path to both deployment entries;
+- [x] install Replay Lab as one managed imported fragment without replacing
+  unrelated sites or duplicating the import on repeat deployment;
+- [x] validate the combined existing-domain/direct-IP configuration with Caddy
+  2.11.3 and roll back main/fragment configuration on validation, service, or
+  reload failure;
+- [ ] pull the correction on Alibaba Linux, execute the one command, and prove
+  both the existing domain and authenticated Replay Lab IP endpoint remain up.
+
+Binding evidence: `docs/V7_LINUX_EXISTING_CADDY_COEXISTENCE_R10_4.md`.
+
 ### R10.3 Public IPv4 Quick Deploy — Implemented, Host Run Pending
 
 - [x] add one interactive public-IPv4 wrapper around the binding installer;

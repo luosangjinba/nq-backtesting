@@ -35,6 +35,8 @@ Optional public HTTPS:
   --auth-user USER             Caddy Basic Auth user.
   --auth-hash HASH             Pre-hashed Caddy password.
   --auth-password-file PATH    Root-readable plaintext password file; deleted only by its owner.
+  --preserve-caddy             Add an imported Replay Lab fragment instead of replacing an
+                               existing Caddyfile. Cannot be combined with --email.
   --allow-public-without-auth  Explicitly expose the read-only acceptance surface without auth.
 
 Package control:
@@ -346,6 +348,21 @@ rollback_release() {
   sudo_cmd systemctl restart replay-lab-api.service replay-lab-web.service 2>/dev/null || true
 }
 
+restore_caddy_configuration() {
+  if [[ "$caddy_main_existed" -eq 1 ]]; then
+    sudo_cmd cp "$caddy_backup" /etc/caddy/Caddyfile
+  else
+    sudo_cmd rm -f /etc/caddy/Caddyfile
+  fi
+  if [[ "$preserve_caddy" -eq 1 ]]; then
+    if [[ "$caddy_fragment_existed" -eq 1 ]]; then
+      sudo_cmd cp "$caddy_fragment_backup" "$caddy_fragment_path"
+    else
+      sudo_cmd rm -f "$caddy_fragment_path"
+    fi
+  fi
+}
+
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd -- "$script_dir/../../.." && pwd)"
 db_path=""
@@ -365,6 +382,7 @@ auth_user=""
 auth_hash=""
 auth_password_file=""
 allow_public_without_auth=0
+preserve_caddy=0
 dry_run=0
 apply=0
 yes=0
@@ -444,6 +462,10 @@ while [[ $# -gt 0 ]]; do
       auth_password_file="$2"
       shift 2
       ;;
+    --preserve-caddy)
+      preserve_caddy=1
+      shift
+      ;;
     --allow-public-without-auth)
       allow_public_without_auth=1
       shift
@@ -509,6 +531,10 @@ else
   [[ "$allow_public_without_auth" -eq 0 ]] \
     || die "--allow-public-without-auth requires --domain or --public-ip"
 fi
+[[ "$preserve_caddy" -eq 0 || -n "$public_host" ]] \
+  || die "--preserve-caddy requires --domain or --public-ip"
+[[ "$preserve_caddy" -eq 0 || -z "$email" ]] \
+  || die "--preserve-caddy cannot be combined with --email"
 
 python_bin="$(find_supported_python || true)"
 if [[ -n "$requested_python_bin" && -z "$python_bin" ]]; then
@@ -614,7 +640,12 @@ printf 'Write: /etc/replay-lab/replay-lab.env\n'
 printf 'Write: /etc/systemd/system/replay-lab-api.service\n'
 printf 'Write: /etc/systemd/system/replay-lab-web.service\n'
 if [[ -n "$public_host" ]]; then
-  printf 'Back up then replace: /etc/caddy/Caddyfile\n'
+  if [[ "$preserve_caddy" -eq 1 ]]; then
+    printf 'Back up and preserve: /etc/caddy/Caddyfile\n'
+    printf 'Write managed fragment: /etc/caddy/replay-lab.Caddyfile\n'
+  else
+    printf 'Back up then replace: /etc/caddy/Caddyfile\n'
+  fi
 fi
 printf 'Database copy/write: never\n'
 printf 'Database service mount: read-only\n'
@@ -705,24 +736,63 @@ run_step sudo_cmd ln -sfn "$release_dir" "$install_root/current.next"
 run_step sudo_cmd mv -Tf "$install_root/current.next" "$current_release"
 
 caddy_backup=""
+caddy_main_existed=0
+caddy_fragment_path="/etc/caddy/replay-lab.Caddyfile"
+caddy_fragment_backup=""
+caddy_fragment_existed=0
 if [[ -n "$public_host" ]]; then
   run_step sudo_cmd install -d -m 0755 /etc/caddy
   if sudo_cmd test -f /etc/caddy/Caddyfile; then
+    caddy_main_existed=1
     caddy_backup="/etc/caddy/Caddyfile.replay-lab-backup-$(date -u +%Y%m%dT%H%M%SZ)"
     run_step sudo_cmd cp /etc/caddy/Caddyfile "$caddy_backup"
   fi
-  run_step sudo_cmd install -m 0644 "$rendered_caddy" /etc/caddy/Caddyfile
+  if [[ "$preserve_caddy" -eq 1 ]]; then
+    if sudo_cmd test -f "$caddy_fragment_path"; then
+      caddy_fragment_existed=1
+      caddy_fragment_backup="$caddy_fragment_path.backup-$(date -u +%Y%m%dT%H%M%SZ)"
+      run_step sudo_cmd cp "$caddy_fragment_path" "$caddy_fragment_backup"
+    fi
+    run_step sudo_cmd install -m 0644 "$rendered_caddy" "$caddy_fragment_path"
+    merged_caddy="$tmp_dir/Caddyfile.preserved"
+    if [[ "$caddy_main_existed" -eq 1 ]]; then
+      sudo_cmd cat /etc/caddy/Caddyfile > "$merged_caddy"
+    else
+      : > "$merged_caddy"
+    fi
+    if ! grep -Eq \
+      '^[[:space:]]*import[[:space:]]+/etc/caddy/replay-lab\.Caddyfile[[:space:]]*$' \
+      "$merged_caddy"; then
+      printf '\nimport /etc/caddy/replay-lab.Caddyfile\n' >> "$merged_caddy"
+    fi
+    run_step sudo_cmd install -m 0644 "$merged_caddy" /etc/caddy/Caddyfile
+  else
+    run_step sudo_cmd install -m 0644 "$rendered_caddy" /etc/caddy/Caddyfile
+  fi
+  printf '+ caddy validate --config /etc/caddy/Caddyfile\n'
+  if ! sudo_cmd caddy validate --config /etc/caddy/Caddyfile; then
+    warn "combined Caddy configuration is invalid; restoring the previous configuration"
+    restore_caddy_configuration
+    rollback_release
+    die "combined Caddy configuration validation failed"
+  fi
 fi
 
 run_step sudo_cmd systemctl daemon-reload
 run_step sudo_cmd systemctl enable replay-lab-api.service replay-lab-web.service
 if ! sudo_cmd systemctl restart replay-lab-api.service replay-lab-web.service; then
+  if [[ -n "$public_host" ]]; then
+    restore_caddy_configuration
+  fi
   rollback_release
   die "Replay Lab services failed to restart"
 fi
 if ! wait_for_url http://127.0.0.1:8766/v4/health \
   || ! wait_for_url http://127.0.0.1:8007/v7/app/; then
   sudo_cmd journalctl -u replay-lab-api.service -u replay-lab-web.service -n 80 --no-pager || true
+  if [[ -n "$public_host" ]]; then
+    restore_caddy_configuration
+  fi
   rollback_release
   die "local health checks failed; previous release was restored when available"
 fi
@@ -730,11 +800,9 @@ fi
 if [[ -n "$public_host" ]]; then
   run_step sudo_cmd systemctl enable --now caddy
   if ! sudo_cmd systemctl reload caddy; then
-    if [[ -n "$caddy_backup" ]]; then
-      warn "Caddy reload failed; restoring $caddy_backup"
-      sudo_cmd cp "$caddy_backup" /etc/caddy/Caddyfile
-      sudo_cmd systemctl reload caddy || true
-    fi
+    warn "Caddy reload failed; restoring the previous configuration"
+    restore_caddy_configuration
+    sudo_cmd systemctl reload caddy || true
     rollback_release
     die "Caddy reload failed"
   fi

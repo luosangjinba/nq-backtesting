@@ -27,10 +27,14 @@ reviewed installer:
 sudo bash v7/deploy/linux/deploy-public-ip.sh \
   --public-ip 43.110.32.34 \
   --db /srv/replay-lab-data/trading_data.duckdb \
+  --preserve-caddy \
   --replace-legacy
 ```
 
 It prompts twice for the browser password when no saved password exists. The
+`--preserve-caddy` option retains existing Caddy sites and installs Replay Lab
+as an imported `/etc/caddy/replay-lab.Caddyfile` fragment. Omit it only on a
+dedicated host where replacing the whole Caddyfile is intentional. The
 `--replace-legacy` option stops only command lines positively identified as the
 old `v4_api.py` on 8766 or `serve.mjs 8007`; an unknown listener still fails
 closed. Omit that option when no legacy process exists.
@@ -111,6 +115,10 @@ the local-browser compatibility path resolves the V4 API on port `8766`.
 Point the domain's DNS A/AAAA record at the host and allow inbound TCP 80/443.
 Use this mode on a dedicated acceptance host: the installer backs up and then
 replaces `/etc/caddy/Caddyfile` rather than merging with unrelated sites.
+On a shared host, add `--preserve-caddy` and omit `--email`; the installer
+backs up the main file, writes a managed Replay Lab fragment, adds one absolute
+import when absent, validates the combined configuration, and restores both
+files if validation or reload fails.
 Put a strong password in a root-readable file; passing plaintext on the command
 line would leak it into shell history:
 
@@ -161,7 +169,8 @@ sudo bash v7/deploy/linux/install.sh \
   --service-user replay \
   --public-ip 43.110.32.34 \
   --auth-user reviewer \
-  --auth-password-file /root/replay-lab-secrets/web-password
+  --auth-password-file /root/replay-lab-secrets/web-password \
+  --preserve-caddy
 ```
 
 Open `https://43.110.32.34/v7/app/` and enter the configured credentials.

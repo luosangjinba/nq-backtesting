@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-05 after R10.3 public-IPv4 quick-deploy implementation
+Last updated: 2026-08-05 after R10.4 existing-Caddy coexistence correction
 
 ## Current Overall Acceptance State
 
@@ -26,6 +26,11 @@ the R10.2 commit, deliberately stop the identified legacy process, and rerun
 the host gate; do not open 8007 or 8766 publicly.
 R10.3 reduces that rerun to `deploy/linux/deploy-public-ip.sh`, retaining an
 explicit exact-match legacy replacement flag and the same R10.2 boundaries.
+The next host diagnostic proved the quick deploy had not completed: neither
+Replay Lab systemd unit existed and neither loopback port was listening. It
+also proved the host's active Caddyfile serves `recap.buddhiststudy.xyz`, so
+R10.4 adds `--preserve-caddy` to import a managed Replay Lab fragment without
+replacing that unrelated site. Pull R10.4 and rerun the wrapper with that flag.
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
