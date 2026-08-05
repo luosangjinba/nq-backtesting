@@ -1,10 +1,45 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-03 by the ES Databento full-chain guarded repair
+Last updated: 2026-08-04 before the planned server reboot
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
 required for normal startup.
+
+## Pre-Reboot Durable Snapshot
+
+All NQ/ES full-chain repair work is complete, committed, and independently
+verified. No Maintenance job, database transaction, Preview, or Commit remains
+in progress. The current ad hoc V4/V7 server processes are disposable runtime
+state and are expected not to survive the reboot.
+
+- final NQ repair commit: `9e94af07`;
+- final ES repair commit and pre-reboot code baseline: `b91a1057`;
+- authoritative database:
+  `/home/leo/myworkspace/trading/backtesting/v4/data/trading_data.duckdb`;
+- final database rows: 12,662,287 total, 6,494,880 ES, and 6,167,407 NQ;
+- duplicate `(instrument, ts)` rows: zero for ES and zero for NQ;
+- final Roll Calendar revision:
+  `86d01ee693741bd0200c435de843a3bea3671ace1f4a8dfc02f203aaf96469fd`;
+- both instruments have 65 governed transitions from 2010 Q2 through 2026
+  Q2, using Databento `v.0 d0` normalized to the preceding natural date at
+  `18:00 America/New_York`;
+- pre-Databento history is intentionally retained unchanged.
+
+The binding repair records are `V7_NQ_DATABENTO_FULL_CHAIN_REPAIR.md` and
+`V7_ES_DATABENTO_FULL_CHAIN_REPAIR.md`. Their executable manifests are
+`v4/data_config/historical_roll_repairs/nq-databento-full-chain.yml` and
+`v4/data_config/historical_roll_repairs/es-databento-full-chain.yml`; their
+machine-readable audit evidence is
+`v7/docs/v7-nq-databento-full-chain-audit.json` and
+`v7/docs/v7-es-databento-full-chain-audit.json`.
+
+Verified recovery artifacts outside Git are retained under
+`/home/leo/.local/share/replay-lab/historical-roll-repair/`. The exact NQ and
+ES database backups, calendar backups, retained Preview manifests, and shared
+append-only audit paths are recorded in the two binding repair documents. All
+seven referenced external recovery artifacts existed immediately before this
+handoff was committed.
 
 ## Repository State
 
@@ -41,9 +76,9 @@ required for normal startup.
 - the generic NQ 2023 Q3–2024 manifest repair is commit `3e0e08f1`;
 - the read-only NQ legacy-red Databento mapping audit is commit `599c4cbd`;
 - the NQ Databento full-chain mapping diff, raw attribution, and guarded repair
-  are complete in the current handoff step;
+  are complete in commit `9e94af07`;
 - the matching ES Databento full-chain mapping, raw attribution, and guarded
-  repair are also complete in the current handoff step;
+  repair are complete in commit `b91a1057`;
 - the NQ 2025 roll audit rejects the legacy boundaries as historical authority,
   retains raw Databento contracts plus the R7.3c session-aligned volume policy,
   and the separate guarded repair has replaced 2,262 rows with 2,400 source
@@ -657,28 +692,50 @@ exchange-calendar or tick-level coverage.
 
 ## Verification After Restart
 
-From the repository root:
+The machine-local `v4/.env.local` currently binds `V4_TRADING_DB` to the
+authoritative database path above. From the repository root, first confirm the
+durable checkout and database without starting services:
 
 ```bash
 git branch --show-current
 git status --short
-npm --prefix v7 install
-for test_file in v7/tests/*-harness.js; do node "$test_file"; done
-node v7/scripts/serve.mjs 8007
+python3 -c '
+import duckdb
+db = "/home/leo/myworkspace/trading/backtesting/v4/data/trading_data.duckdb"
+with duckdb.connect(db, read_only=True) as conn:
+    print(conn.execute("""
+        select instrument, count(*) as rows,
+               count(*) - count(distinct ts) as duplicate_timestamps
+        from futures_1m
+        where instrument in ('ES', 'NQ')
+        group by instrument
+        order by instrument
+    """).fetchall())
+'
 ```
 
 Expected results:
 
 - branch is `v7/rebuild`;
 - `git status --short` is empty;
-- all Harness files pass;
-- the server prints the V7 Session Browser URL;
-- `curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/`
-  returns `200` while the service is running.
+- ES reports 6,494,880 rows and NQ reports 6,167,407 rows.
 
-The server process does not survive a machine reboot and must be restarted.
-The existing V4 API on `127.0.0.1:8766` is required for the real chart. If it
-is unavailable, V7 shows Chart unavailable and does not substitute fake bars.
+Then start the two required services in separate terminals:
+
+```bash
+cd /home/leo/myworkspace/trading/backtesting-v7
+bash v4/start.sh restart
+```
+
+```bash
+cd /home/leo/myworkspace/trading/backtesting-v7
+node v7/scripts/serve.mjs 8007
+```
+
+`v4/start.sh restart` loads `v4/.env.local`, starts only the API on port 8766,
+and returns. The V7 command owns its terminal while the static server is
+running. The V4 API is required for the real chart; if it is unavailable, V7
+shows Chart unavailable and does not substitute fake bars.
 
 After a service restart verify both endpoints:
 
@@ -687,12 +744,27 @@ curl -s http://127.0.0.1:8766/v4/health
 curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 ```
 
+Expected: V4 health returns JSON with `"status":"ok"`, and V7 returns HTTP
+`200`. Do not rerun either historical repair manifest during ordinary restart;
+both guarded writes are already committed and verified.
+
+Installing dependencies or running the complete Harness suite is not required
+for an ordinary server reboot when the checkout is unchanged. Before resuming
+development, the standard optional regression command remains:
+
+```bash
+npm --prefix v7 install
+for test_file in v7/tests/*-harness.js; do node "$test_file"; done
+```
+
 ## Exact Next Step
 
-There is no automatic step after R8.16. R8 recovery remains human accepted and
-inactive; wait for explicit product direction before selecting the next bounded
-delivery. The separate R7.3/R7.3c Data Acquisition admin human gate remains
-open and must not be inferred complete from the R8.15 chart-workstation review.
+After restart, do not resume either NQ or ES repair: both full-chain writes are
+complete. R9.4 aggregated-bucket crosshair formatting is implemented and still
+has its focused browser hover review pending. R8 recovery remains human
+accepted and inactive. The separate R7.3/R7.3c Data Acquisition admin human
+gate and the proposed multi-source acquisition/plugin project remain deferred;
+neither is implicitly authorized by the completed historical repairs.
 
 ## Standing Workflow
 
