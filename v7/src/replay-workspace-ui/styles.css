@@ -1209,9 +1209,15 @@
   padding: 0 6px;
   appearance: none;
   -webkit-appearance: none;
+  background-color: #101114;
   background-image: none;
+  color-scheme: dark;
   text-align: center;
   text-align-last: center;
+}
+.replay-transport-select option {
+  background-color: #101114;
+  color: #c7cbd3;
 }
 .replay-transport-select::-ms-expand { display: none; }
 .replay-speed-select {

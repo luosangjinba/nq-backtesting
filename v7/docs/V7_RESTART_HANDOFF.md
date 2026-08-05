@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-05 after R10.7 direct-IP default-SNI correction
+Last updated: 2026-08-05 after Replay-step native-menu theme correction
 
 ## Current Overall Acceptance State
 
@@ -44,6 +44,11 @@ Let's Encrypt certificate for `43.110.32.34`, but external IP-literal clients
 still received a TLS internal alert because they omitted SNI. R10.7 configures
 that managed IP certificate as Caddy's `default_sni`, merging it into the
 existing global block while retaining the unrelated domain and account email.
+Authenticated cloud review then exposed a product UI finding: the bottom
+Replay-step native select popup reverted from dark to white when the pointer
+left it. The correction gives the select/options an explicit opaque dark base
+and dark color scheme; real-Chrome style and pointer-exit assertions pass, and
+the original Windows/browser path awaits human recheck.
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not

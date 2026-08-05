@@ -260,6 +260,10 @@ try {
       timeframeSyncAccessibleName: document.querySelector('.replay-timeframe-sync input').ariaLabel,
       timeframeSyncVisibleText: document.querySelector('.replay-timeframe-sync').textContent.trim(),
       transportSelectAppearance: getComputedStyle(document.querySelector('.replay-step-select')).appearance,
+      transportSelectBackground: getComputedStyle(document.querySelector('.replay-step-select')).backgroundColor,
+      transportSelectColorScheme: getComputedStyle(document.querySelector('.replay-step-select')).colorScheme,
+      transportSelectOptionBackgrounds: [...document.querySelector('.replay-step-select').options]
+        .map((option) => getComputedStyle(option).backgroundColor),
       transportSelectOrder: [...document.querySelectorAll('.replay-transport-select')]
         .map((control) => control.classList.contains('replay-speed-select') ? 'speed' : 'step'),
       visibleThrough: document.querySelector('.replay-visible-through').textContent,
@@ -293,9 +297,38 @@ try {
     timeframeId: 'timeframe.display-1-minute', topTransportControls: 0,
     transportCentered: true, transportParent: 'replay-workspace-footer',
     timeframeSyncAccessibleName: 'Sync timeframe', timeframeSyncVisibleText: '',
-    transportSelectAppearance: 'none', transportSelectOrder: ['speed', 'step'],
+    transportSelectAppearance: 'none', transportSelectBackground: 'rgb(16, 17, 20)',
+    transportSelectColorScheme: 'dark',
+    transportSelectOptionBackgrounds: Array(11).fill('rgb(16, 17, 20)'),
+    transportSelectOrder: ['speed', 'step'],
     visibleThrough: 'Visible through · 05/01/2026, 12:40 EDT · 121 bars', workspaceRevision: 1,
   });
+  const replayStepCenter = await evaluate(cdp, `(() => {
+    const rect = document.querySelector('.replay-step-select').getBoundingClientRect();
+    return { x: Math.round(rect.left + rect.width / 2), y: Math.round(rect.top + rect.height / 2) };
+  })()`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: replayStepCenter.x, y: replayStepCenter.y,
+  });
+  const replayStepHover = await evaluate(cdp, `(() => {
+    const select = document.querySelector('.replay-step-select');
+    return {
+      background: getComputedStyle(select).backgroundColor,
+      hit: document.elementFromPoint(${replayStepCenter.x}, ${replayStepCenter.y})?.className ?? null,
+      hovered: select.matches(':hover'),
+    };
+  })()`);
+  assert.deepEqual(replayStepHover, {
+    background: 'rgb(16, 17, 20)',
+    hit: 'replay-transport-select replay-step-select',
+    hovered: true,
+  }, 'Replay-step pointer hit must retain an opaque dark native-control background');
+  await cdp.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 1400, y: 880 });
+  assert.equal(
+    await evaluate(cdp, `getComputedStyle(document.querySelector('.replay-step-select')).backgroundColor`),
+    'rgb(16, 17, 20)',
+    'Replay-step mouseleave must restore an opaque dark background for the native popup',
+  );
   assert.match(await evaluate(cdp, `document.querySelector('.replay-workspace').dataset.cursorText`), /05\/01\/2026.*12:40.*EDT/,
     'chart cursor must use the Session New York exchange clock convention');
   const timeframeMenu = await evaluate(cdp, `(() => {

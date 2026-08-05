@@ -7,6 +7,19 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
+### Overall-Acceptance Finding — Replay-Step Native Menu Theme
+
+- [x] preserve the cloud-review screenshots showing the open Replay-step
+  native menu changing from dark to white after pointer exit;
+- [x] isolate the defect to the Replay UI `<select>` using a transparent base
+  background rather than Chart, Replay, or timeframe state ownership;
+- [x] give the native control and every option an explicit opaque dark theme
+  plus `color-scheme: dark`;
+- [x] bind real-Chrome pointer hit/exit and every-option computed-style
+  evidence before the retained pre-existing Replay visual-fixture gate;
+- [ ] redeploy the committed correction and obtain human confirmation on the
+  original Windows/browser path.
+
 ### R10.7 Direct-IP TLS Default SNI — Corrected, Host Rerun Pending
 
 - [x] preserve the successful public-IP certificate issuance alongside the
