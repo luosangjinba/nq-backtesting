@@ -1308,7 +1308,8 @@
         "importSites": [
           {
             "importedNames": [
-              "createDateTimeControl"
+              "createDateTimeControl",
+              "parseLocalDateTimeValue"
             ],
             "sourceFile": "src/session-browser-ui/create-dialog.js",
             "targetFile": "src/calendar-surface/public.js",

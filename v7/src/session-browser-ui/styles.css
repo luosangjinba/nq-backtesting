@@ -108,8 +108,7 @@ h1, h2, h3, p { margin-top: 0; }
 .session-card-marker { width: 42px; height: 42px; border-radius: 12px; }
 .session-card-body { min-width: 0; }
 .session-card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
-.session-card h3 { margin-bottom: 6px; color: var(--text-primary); font-size: 17px; letter-spacing: -.01em; }
-.session-card-heading p { margin-bottom: 0; color: var(--text-muted); font-size: 12px; }
+.session-card h3 { margin-bottom: 0; color: var(--text-primary); font-size: 17px; letter-spacing: -.01em; }
 .session-card-meta { margin-top: 15px; color: var(--text-secondary); font-size: 13px; }
 .session-card-meta > span { display: flex; align-items: center; gap: 7px; }
 .instrument-tags { display: flex; flex-wrap: wrap; gap: 6px; }

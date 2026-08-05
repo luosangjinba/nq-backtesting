@@ -15,7 +15,7 @@ export function createReplayWorkspaceView(options) {
   const instrumentLabels = new Map(options.instrumentOptions.map(({ id, label }) => [id, label]));
   let activeWorkstationSettings = options.getWorkstationSettings().settings;
   readWorkstationSettings(activeWorkstationSettings);
-  let exactDefaultEpochMs = Date.now();
+  let exactDefaultEpochMs = options.replayRange.startEpochMs;
   const elements = createWorkspaceViewElements(options, {
     activeWorkstationSettings,
     getExactDefaultEpochMs: () => exactDefaultEpochMs,
@@ -42,6 +42,14 @@ export function createReplayWorkspaceView(options) {
   let cursorEpochMs = null;
   let sessionRangeEpochs = null;
   let visibleThroughState = null;
+
+  function onDocumentKeydown(event) {
+    if (event.key !== 'Escape' || !truncationSelectionActive) return;
+    event.preventDefault();
+    options.onTruncation();
+  }
+
+  document.addEventListener('keydown', onDocumentKeydown);
 
   function renderTimePresentation() {
     const presentation = createTimePresentation(activeWorkstationSettings);
@@ -126,6 +134,7 @@ export function createReplayWorkspaceView(options) {
   return Object.freeze({
     dispose() {
       if (gotoFeedbackTimeout !== null) clearTimeout(gotoFeedbackTimeout);
+      document.removeEventListener('keydown', onDocumentKeydown);
       elements.dispose();
     },
     openExactGoto: exactGoto.open,
@@ -164,7 +173,6 @@ export function createReplayWorkspaceView(options) {
       complete = snapshot.complete;
       playback = snapshot.playback;
       const replayStep = readReplayStep(snapshot.replayStep);
-      exactDefaultEpochMs = snapshot.cursorEpochMs;
       root.dataset.replayPlayback = playback;
       root.dataset.replayCursorEpochMs = String(snapshot.cursorEpochMs);
       root.dataset.replayStepId = replayStep.id;
@@ -216,6 +224,7 @@ export function createReplayWorkspaceView(options) {
     setState,
     setVisibleThrough({ barCount, paneCount, visibleThroughEpochMs }) {
       visibleThroughState = Object.freeze({ barCount, paneCount, visibleThroughEpochMs });
+      exactDefaultEpochMs = visibleThroughEpochMs ?? options.replayRange.startEpochMs;
       renderTimePresentation();
     },
     setWall(paneId, origin) {

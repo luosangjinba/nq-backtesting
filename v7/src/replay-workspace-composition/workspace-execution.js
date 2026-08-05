@@ -37,6 +37,13 @@ export function createWorkspaceExecution({
   let disposed = false;
   let pending = false;
   let transactionSequence = 0;
+  let idleWaiters = [];
+
+  function publishIdle() {
+    const waiters = idleWaiters;
+    idleWaiters = [];
+    for (const resolve of waiters) resolve();
+  }
 
   function identity(operation) {
     const intent = createWorkspaceTransactionIntent({
@@ -66,6 +73,7 @@ export function createWorkspaceExecution({
       return null;
     } finally {
       pending = false;
+      publishIdle();
       refreshFeedback.finish(feedbackToken);
     }
   }
@@ -172,9 +180,11 @@ export function createWorkspaceExecution({
     action,
     dispose() {
       disposed = true;
+      publishIdle();
       refreshFeedback.dispose();
     },
     isPending: () => pending,
+    whenIdle: () => (pending ? new Promise((resolve) => idleWaiters.push(resolve)) : Promise.resolve()),
     materialize,
     requestHistory,
     requestTimeLocationHistory,

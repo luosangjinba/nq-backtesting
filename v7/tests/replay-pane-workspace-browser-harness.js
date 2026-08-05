@@ -696,8 +696,8 @@ try {
   await evaluate(cdp, `document.querySelector('.exact-goto-toggle').click()`);
   await waitFor(cdp, `document.querySelector('.exact-goto-dialog')?.open === true`);
   assert.equal(await evaluate(cdp,
-    `document.querySelector('.exact-goto-dialog [name="goto-target"]').value`), '2026-05-05T15:00',
-  'Exact GoTo must default to the current shared Replay cursor');
+    `document.querySelector('.exact-goto-dialog [name="goto-target"]').value`), '2026-05-05T14:59',
+  'Exact GoTo must default to the latest revealed minute');
   assert.deepEqual(await evaluate(cdp, `(() => {
     const find = (label) => document.querySelector('.exact-goto-dialog [aria-label="' + label + '"]');
     return {
@@ -713,10 +713,10 @@ try {
   await capture(cdp, exactGotoVisualFile, '.exact-goto-dialog');
   await evaluate(cdp, `(() => {
     document.querySelector('.exact-goto-dialog [aria-label="May 4, 2026"]').click();
-    document.querySelector('.exact-goto-dialog [aria-label="Increase minute"]').click();
+    document.querySelector('.exact-goto-dialog [aria-label="Decrease minute"]').click();
   })()`);
   assert.equal(await evaluate(cdp,
-    `document.querySelector('.exact-goto-dialog [name="goto-target"]').value`), '2026-05-04T15:01',
+    `document.querySelector('.exact-goto-dialog [name="goto-target"]').value`), '2026-05-04T14:58',
   'the inline Calendar day and time controls must update the one exact target value');
   const beforeInvalidExact = await evaluate(cdp, paneStateExpression());
   await evaluate(cdp, `(() => {
@@ -726,7 +726,7 @@ try {
   assert.equal(await evaluate(cdp, `document.querySelector('.exact-goto-dialog').open`), true,
     'an out-of-range Exact GoTo must keep the dialog open');
   assert.match(await evaluate(cdp,
-    `document.querySelector('.exact-goto-validation').textContent`), /Time must be between .*New York/,
+    `document.querySelector('.exact-goto-validation').textContent`), /Visible minute must be between .*New York/,
   'an out-of-range Exact GoTo must report the explicit Session boundary');
   assert.deepEqual(await evaluate(cdp, paneStateExpression()), beforeInvalidExact,
     'invalid Exact GoTo input must not issue a Replay or Workspace transaction');
@@ -737,7 +737,7 @@ try {
   const beforeExact = state.workspaceRevision;
   await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeExact}`, 10_000);
   assert.match(await evaluate(cdp, `document.querySelector('.replay-visible-through').textContent`),
-    /05\/04\/2026, 12:59 EDT/, 'exact GoTo uses a New York exclusive cutoff');
+    /05\/04\/2026, 13:00 EDT/, 'Exact GoTo must reveal the precise selected New York minute');
 
   for (let cycle = 0; cycle < 3; cycle += 1) {
     const beforeQuickCycle = Number(await evaluate(cdp,
@@ -770,6 +770,12 @@ try {
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.truncationSelection === 'active'`);
   assert.equal(await evaluate(cdp, `document.querySelector('.replay-playback').disabled`), true,
     'Replay navigation must lock while the chart owns a truncation-point gesture');
+  await evaluate(cdp, `document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.truncationSelection === 'inactive'`);
+  assert.equal(await evaluate(cdp, `document.querySelector('.replay-playback').disabled`), false,
+    'Escape must cancel truncation selection and restore Replay navigation');
+  await evaluate(cdp, `document.querySelector('.replay-truncation').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.truncationSelection === 'active'`);
   const truncationPoint = await evaluate(cdp, `(() => {
     const host = document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host');
     const bounds = host.getBoundingClientRect();
@@ -828,7 +834,7 @@ try {
     `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
   await evaluate(cdp, `(() => {
     document.querySelector('.exact-goto-toggle').click();
-    document.querySelector('.exact-goto-dialog [name="goto-target"]').value = '2026-05-06T16:00';
+    document.querySelector('.exact-goto-dialog [name="goto-target"]').value = '2026-05-06T15:59';
     document.querySelector('.exact-goto-dialog .goto-submit').click();
   })()`);
   await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeSessionEnd}
@@ -981,13 +987,13 @@ try {
     time: document.querySelector('.exact-goto-dialog .date-time-inline-time').textContent,
     timeZone: document.querySelector('.exact-goto-dialog').dataset.displayTimezone,
   }))()`), {
-    date: 'Wed 2026-05-06', hourFormat: '12-hour', time: '7:55 PM', timeZone: 'UTC',
+    date: 'Wed 2026-05-06', hourFormat: '12-hour', time: '7:54 PM', timeZone: 'UTC',
   }, 'Exact GoTo must share the committed timezone, date, weekday, and hour format');
   await evaluate(cdp, `document.querySelector('.exact-goto-dialog .date-time-period').click()`);
   assert.deepEqual(await evaluate(cdp, `(() => ({
     time: document.querySelector('.exact-goto-dialog .date-time-inline-time').textContent,
     value: document.querySelector('.exact-goto-dialog [name="goto-target"]').value,
-  }))()`), { time: '7:55 AM', value: '2026-05-06T07:55' },
+  }))()`), { time: '7:54 AM', value: '2026-05-06T07:54' },
   '12-hour Exact GoTo must offer an explicit AM/PM toggle over the same wall value');
   await evaluate(cdp, `document.querySelector('.exact-goto-dialog .date-time-period').click()`);
   await evaluate(cdp, `document.querySelector('.exact-goto-dialog .goto-dialog-close').click()`);

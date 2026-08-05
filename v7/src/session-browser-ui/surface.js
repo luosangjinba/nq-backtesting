@@ -72,7 +72,6 @@ function sessionCard(card, actions, workstationSettings) {
       element('div', { className: 'session-card-heading' }, [
         element('div', {}, [
           element('h3', { text: card.name }),
-          element('p', { text: `Created ${formatDateTime(card.createdAtEpochMs, workstationSettings)}` }),
         ]),
         instruments,
       ]),

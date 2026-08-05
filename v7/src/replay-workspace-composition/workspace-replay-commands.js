@@ -22,6 +22,20 @@ export function createWorkspaceReplayCommands({
   setTruncationSelection,
   workstationSettings,
 }) {
+  let manualNextTail = Promise.resolve();
+
+  function queueManualNext() {
+    if (isDisposed()) return undefined;
+    const scheduled = manualNextTail.then(async () => {
+      await execution.whenIdle();
+      return isDisposed() || replay.snapshot().complete
+        ? null
+        : execution.action('manual-next');
+    });
+    manualNextTail = scheduled.catch(() => null);
+    return scheduled;
+  }
+
   return Object.freeze({
     autoplay: () => autoplayScheduler.play(),
     changePlaybackSpeed(speedId) {
@@ -46,7 +60,7 @@ export function createWorkspaceReplayCommands({
       }
       return result;
     },
-    next: () => execution.action('manual-next'),
+    next: queueManualNext,
     pause: () => (isDisposed() ? undefined : autoplayScheduler.pause()),
     previous: () => execution.action('manual-previous', {}, { allowDim: true }),
     restart() {

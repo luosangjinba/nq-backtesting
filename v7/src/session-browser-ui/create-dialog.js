@@ -1,11 +1,14 @@
 import { element, icon } from './dom-primitives.js';
-import { createDateTimeControl } from '../calendar-surface/public.js';
+import { createDateTimeControl, parseLocalDateTimeValue } from '../calendar-surface/public.js';
 import { createInstrumentPicker } from './instrument-picker.js';
 import {
-  intersectMarketDates,
   marketDateId,
+  resolveSessionBoundaryWallMinute,
+  sessionBoundaryMarketDates,
   sharedMarketTimeBounds,
 } from './market-date-policy.js';
+
+const MARKET_TIME_ZONE = 'America/New_York';
 
 function field(label, control, hint = null, containerTag = 'label') {
   const labelNode = element(containerTag, { className: 'form-field' }, [
@@ -22,12 +25,10 @@ function createControls(instruments, onInstrumentSelectionChange) {
     autocomplete: 'off', placeholder: 'e.g. London open practice', required: '',
   });
   const start = createDateTimeControl({
-    disableOutsideMonth: true,
-    name: 'start', label: 'Start in New York', timeZone: 'America/New_York',
+    disableOutsideMonth: true, name: 'start', label: 'Start in New York', timeZone: MARKET_TIME_ZONE,
   });
   const end = createDateTimeControl({
-    disableOutsideMonth: true,
-    name: 'end', label: 'End in New York', placement: 'end', timeZone: 'America/New_York',
+    disableOutsideMonth: true, name: 'end', label: 'End in New York', placement: 'end', timeZone: MARKET_TIME_ZONE,
   });
   return Object.freeze({
     name,
@@ -46,8 +47,6 @@ function resetControls(controls) {
 
 function readIntent(controls, availability) {
   const instrumentIds = controls.instruments.selectedIds();
-  const startEpochMs = controls.start.readEpochMs();
-  const endEpochMs = controls.end.readEpochMs();
   if (controls.name.value.trim() !== controls.name.value || controls.name.value.length === 0) {
     return { error: 'Enter a name without leading or trailing spaces.' };
   }
@@ -56,14 +55,23 @@ function readIntent(controls, availability) {
   if (availability.status !== 'ready') {
     return { error: 'Market-data dates are unavailable. Check the local data service and reopen this dialog.' };
   }
-  const enabledDates = new Set(intersectMarketDates(availability.byInstrument, instrumentIds));
-  if (!enabledDates.has(controls.start.value().slice(0, 10))
-    || !enabledDates.has(controls.end.value().slice(0, 10))) {
+  const startDates = new Set(sessionBoundaryMarketDates(availability.byInstrument, instrumentIds, 'start'));
+  const endDates = new Set(sessionBoundaryMarketDates(availability.byInstrument, instrumentIds, 'end'));
+  if (!startDates.has(controls.start.value().slice(0, 10))
+    || !endDates.has(controls.end.value().slice(0, 10))) {
     return { error: 'Choose start and end dates with data for every selected instrument.' };
   }
   const bounds = sharedMarketTimeBounds(availability.byInstrument, instrumentIds);
-  const startWallMinute = controls.start.value();
-  const endWallMinute = controls.end.value();
+  let startWallMinute;
+  let endWallMinute;
+  try {
+    startWallMinute = resolveSessionBoundaryWallMinute(controls.start.value(), 'start');
+    endWallMinute = resolveSessionBoundaryWallMinute(controls.end.value(), 'end');
+  } catch {
+    return { error: 'Choose valid start and end dates and times.' };
+  }
+  const startEpochMs = parseLocalDateTimeValue(startWallMinute, MARKET_TIME_ZONE);
+  const endEpochMs = parseLocalDateTimeValue(endWallMinute, MARKET_TIME_ZONE);
   if (startWallMinute < bounds.firstTimestamp) {
     return { error: `Start time must be on or after ${bounds.firstTimestamp.replace('T', ' ')} New York time.` };
   }
@@ -105,17 +113,24 @@ export function createSessionDialog({ dateAvailability, instruments, onSubmit })
   function applyDatePolicy() {
     dialog.dataset.dateAvailabilityState = availability.status;
     dialog.setAttribute('aria-busy', availability.status === 'loading' ? 'true' : 'false');
-    let enabledDates = Object.freeze([]);
+    let enabledStartDates = Object.freeze([]);
+    let enabledEndDates = Object.freeze([]);
     if (availability.status === 'ready') {
-      enabledDates = intersectMarketDates(
+      enabledStartDates = sessionBoundaryMarketDates(
         availability.byInstrument,
         controls.instruments.selectedIds(),
+        'start',
+      );
+      enabledEndDates = sessionBoundaryMarketDates(
+        availability.byInstrument,
+        controls.instruments.selectedIds(),
+        'end',
       );
     }
-    const enabled = new Set(enabledDates);
-    const predicate = (parts) => enabled.has(marketDateId(parts));
-    controls.start.setDateEnabled(predicate);
-    controls.end.setDateEnabled(predicate);
+    const enabledStart = new Set(enabledStartDates);
+    const enabledEnd = new Set(enabledEndDates);
+    controls.start.setDateEnabled((parts) => enabledStart.has(marketDateId(parts)));
+    controls.end.setDateEnabled((parts) => enabledEnd.has(marketDateId(parts)));
   }
 
   controls = createControls(instruments, applyDatePolicy);

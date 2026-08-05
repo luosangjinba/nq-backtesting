@@ -77,6 +77,7 @@ export function createInstrumentPicker(instruments, { onSelectionChange = () => 
   records = createOptionRecords(instruments, () => {
     value.textContent = selectedLabel(instruments, records.map((record) => record.input));
     onSelectionChange(selectedIds());
+    picker.open = false;
   });
   const categories = createCategoryFilter(instruments, () => applyFilters());
   const empty = element('p', { className: 'instrument-picker-empty', text: 'No matching instruments.', hidden: '' });

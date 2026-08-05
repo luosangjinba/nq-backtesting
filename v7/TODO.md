@@ -7,6 +7,29 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
+### Overall-Acceptance Findings — Session And Replay Interaction Corrections
+
+- [x] remove the ambiguous creation timestamp from Session cards while keeping
+  the authoritative historical range and update-order metadata;
+- [x] collapse the instrument picker after each NQ/ES selection without
+  removing its existing multi-select capability;
+- [x] keep eligible Saturdays selectable at the Session Browser-owned market-
+  date boundary, mapping Start to the following Sunday `18:00` and End to the
+  preceding Friday `16:59` in New York time;
+- [x] retain Manual Next as an enabled pointer target during accepted-chart
+  refresh and serialize every rapid click through the existing single-flight
+  Workspace execution boundary instead of dropping overlap;
+- [x] dispatch Escape from Workspace UI to the existing Replay truncation
+  command so selection exits without adding a second state owner;
+- [x] redefine Exact GoTo's UI value as the minute to reveal, default it to the
+  latest revealed minute, and translate it to the existing exclusive Replay
+  cutoff while retaining no-future and atomic-Pane invariants;
+- [x] bind pure boundary/queue evidence, Session Browser real-Chrome Saturday
+  persistence, Replay pointer-state evidence, multi-Pane Escape/Exact behavior,
+  and intentional Session/Calendar/Exact visual fixtures;
+- [ ] redeploy the committed correction and obtain human confirmation for all
+  six findings on the original cloud/browser acceptance path.
+
 ### Overall-Acceptance Finding — Adjustable Pane Readout Font Size
 
 - [x] confirm from the official Lightweight Charts layout contract that its
@@ -490,8 +513,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 309 files, 23,073 effective
-lines, 2,467 functions, and 306 public exports; the architecture baseline
+The current production source baseline contains 309 files, 23,158 effective
+lines, 2,478 functions, and 306 public exports; the architecture baseline
 remains 48 modules, 125 edges, 115 construction sites, eight writers, and zero
 findings.
 
@@ -503,7 +526,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 309 files, 23,073 effective lines, 2,467 functions, 306 public
+currently at 309 files, 23,158 effective lines, 2,478 functions, 306 public
 exports, 48 modules, 125 edges, 115 construction sites, eight writers, and zero
 findings.
 
@@ -1650,12 +1673,14 @@ redesign below instead of being applied in isolation.
 
 - [x] separate Exact GoTo from the Quick GoTo menu into its own Workspace-level
   entry;
-- [x] default its New York date/time to the current shared Replay cursor;
+- [x] default its date/time to the latest revealed Replay minute after the
+  overall-acceptance precision correction;
 - [x] add immutable generic Calendar date-range presentation without adding
   Replay or Economic Calendar ownership;
 - [x] highlight included Session dates and boundaries and disable outside
   dates;
-- [x] validate boundary-date time against the closed Replay Session range;
+- [x] validate visible-minute input through the last minute before Replay
+  Session End;
 - [x] retain invalid input with explicit New York lower/upper bounds and no
   Replay or Workspace transaction;
 - [x] retain the existing exclusive-cutoff `goto-exact` action and atomic

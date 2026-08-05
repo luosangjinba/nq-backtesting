@@ -146,7 +146,10 @@ export function createReplayTransport({
       });
       lockNavigation(previous, unavailable);
       lockNavigation(replayStep, unavailable || syncTimeframe);
-      lockNavigation(next, unavailable || complete);
+      setControlDisabled(next, {
+        disabled: unavailable || complete || selecting || !hasAcceptedChart,
+        preserveVisual: false,
+      });
       const playbackUnavailable = unavailable || complete || selecting || (busy && playback !== 'playing');
       setControlDisabled(playPause, {
         disabled: playbackUnavailable,

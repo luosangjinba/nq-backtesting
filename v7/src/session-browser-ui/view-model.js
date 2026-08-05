@@ -20,7 +20,6 @@ function toCard(record, instrumentLabels) {
   return Object.freeze({
     id: serializeSessionId(record.sessionId).value,
     name: record.metadata.name,
-    createdAtEpochMs: record.metadata.createdAtEpochMs,
     updatedAtEpochMs: record.metadata.updatedAtEpochMs,
     startEpochMs: record.configuration.historicalRange.startEpochMs,
     endEpochMs: record.configuration.historicalRange.endEpochMs,

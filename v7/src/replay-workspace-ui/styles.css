@@ -1208,8 +1208,8 @@
   padding: 0 6px;
   place-items: center;
 }
-.replay-transport-button:hover,
-.replay-transport-select:hover { background: #292929; color: #fff; }
+.replay-transport-button:hover { background: #292929; color: #fff; }
+.replay-transport-select:hover { background: #101114; color: #fff; }
 .replay-transport-button:focus-visible,
 .replay-transport-select:focus-visible { outline: 1px solid var(--accent); outline-offset: -1px; }
 .replay-playback {

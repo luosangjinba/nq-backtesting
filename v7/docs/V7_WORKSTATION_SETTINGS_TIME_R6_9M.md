@@ -42,8 +42,9 @@ only text or Calendar wall controls:
 - Replay Workspace uses the same policy for Session range, visible-through,
   cursor, and range-end feedback;
 - Exact GoTo uses the selected timezone, date order, weekday, and hour format
-  for its reusable Calendar control and converts the chosen wall time back to
-  one canonical epoch before dispatch;
+  for its reusable Calendar control, converts the chosen visible minute back
+  to one canonical epoch, and dispatches the following minute as the existing
+  exclusive Replay cutoff;
 - Session Browser uses the committed global policy for card and opened-Session
   time ranges.
 
@@ -72,8 +73,9 @@ dependency.
 - Quick GoTo anchors and their global schedule remain New York market-time
   domain values, regardless of display timezone.
 - Replay remains one canonical cursor shared by every Pane.
-- Exact GoTo keeps its closed Session-range validation and exclusive visible
-  cutoff. Only the wall representation used to choose that instant changes.
+- Exact GoTo's customer value is the exact minute to reveal. The UI limits it
+  to the final minute before Session End and translates it to the unchanged
+  exclusive cutoff, so no future source bar is exposed.
 - Bar data, ETH/RTH classification, aggregation completion, future whitespace
   points, and economic-event ownership are unchanged.
 

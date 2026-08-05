@@ -366,8 +366,11 @@ try {
       const control = root.querySelector(selector);
       return { opacity: getComputedStyle(control).opacity, selector };
     });
-    const probe = { initial: sample(), records: [], toolbar, transport };
-    probe.observer = new MutationObserver(() => probe.records.push(sample()));
+    const probe = { initial: sample(), nextDisabled: [], records: [], toolbar, transport };
+    probe.observer = new MutationObserver(() => {
+      probe.records.push(sample());
+      probe.nextDisabled.push(root.querySelector('.replay-next').disabled);
+    });
     probe.observer.observe(root, { attributes: true, attributeFilter: ['disabled'], subtree: true });
     globalThis.__toolbarRefreshProbe = probe;
   })()`);
@@ -392,6 +395,7 @@ try {
     probe.observer.disconnect();
     return {
       initial: probe.initial,
+      nextDisabled: probe.nextDisabled,
       records: probe.records,
       sameNode: probe.toolbar === document.querySelector('.replay-workspace-toolbar'),
       sameTransport: probe.transport === document.querySelector('.replay-transport'),
@@ -400,6 +404,8 @@ try {
   assert.equal(toolbarRefreshProbe.sameNode, true, 'candle refresh must retain the toolbar DOM node');
   assert.equal(toolbarRefreshProbe.sameTransport, true, 'candle refresh must retain the Replay transport DOM node');
   assert.ok(toolbarRefreshProbe.records.length >= 1, 'toolbar probe must observe the transient input lock');
+  assert.ok(toolbarRefreshProbe.nextDisabled.every((disabled) => disabled === false),
+    'Manual Next must retain its pointer target while the queued transaction settles');
   for (const record of toolbarRefreshProbe.records) assert.deepEqual(record, toolbarRefreshProbe.initial,
     `transient input locking must not flash toolbar opacity: ${JSON.stringify(toolbarRefreshProbe)}`);
   const cacheHitVisibleMs = performance.now() - startedAt;
@@ -527,6 +533,7 @@ try {
     `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`),
     providerRequestsAfterTimeframe, 'cache-hit aggregate Next must not issue another provider request');
   assert.equal(manualAfter.wall, 'manual');
+
   assert.ok(Math.abs(manualAfter.offset - manualBefore.offset) < 0.001);
   assert.ok(Math.abs(manualAfter.span - manualBefore.span) < 0.001);
 

@@ -13299,7 +13299,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 111,
+      "effectiveLines": 112,
       "forwardingOnly": false,
       "functions": [
         {
@@ -13409,11 +13409,6 @@
         },
         {
           "effectiveLines": 4,
-          "name": "<anonymous-20>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
           "name": "<anonymous-6>",
           "reviewedDecompositionException": false
         },
@@ -13425,6 +13420,11 @@
         {
           "effectiveLines": 43,
           "name": "createInstrumentPicker",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-20>",
           "reviewedDecompositionException": false
         },
         {
@@ -13463,7 +13463,7 @@
         "session-store"
       ],
       "sizeException": null,
-      "sourceHash": "a5e17779c59ea4697cc8a313301f84a9ea5b9c4310db207c44209a815fe4b083"
+      "sourceHash": "7a024946322d78e0444a95bea569e1a5f35ea7edf4bee13d88a8dc3b13600830"
     },
     {
       "adaptsBoundary": true,
@@ -13678,81 +13678,6 @@
       ],
       "sizeException": null,
       "sourceHash": "dd3e3d1263b54d4475e72bca3a4d868d35a8e388fe1fec391f458d6412c47f27"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 137,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "submit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 26,
-          "name": "replaceDateTime",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "closeDialog",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "setWorkstationSettings",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "setDisabled",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 57,
-          "name": "createExactGotoDialog",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "open",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "element",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "requireRange",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.replay-workspace-ui",
-      "owner": "replay-workspace-ui",
-      "ownsContract": false,
-      "path": "src/replay-workspace-ui/exact-goto-dialog.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-ui"
-      ],
-      "sizeException": null,
-      "sourceHash": "12b10765bb5f221de743d8099bb4086ed6e352e42d1ba81cb6468e4ef13b80a8"
     },
     {
       "adaptsBoundary": true,
@@ -14030,6 +13955,81 @@
       ],
       "sizeException": null,
       "sourceHash": "56b846c418ef169681f774d506f8eae8942876dc668c3fdaeb56231c75a258c8"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 142,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "submit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 26,
+          "name": "replaceDateTime",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "closeDialog",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "setWorkstationSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "setDisabled",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 58,
+          "name": "createExactGotoDialog",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "open",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "element",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireRange",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.replay-workspace-ui",
+      "owner": "replay-workspace-ui",
+      "ownsContract": false,
+      "path": "src/replay-workspace-ui/exact-goto-dialog.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-ui"
+      ],
+      "sizeException": null,
+      "sourceHash": "432c224fdfb725376c7d2d562c8e5fb314dbd89aca72502e5000c1b7b737f5e9"
     },
     {
       "adaptsBoundary": true,
@@ -15033,106 +15033,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 170,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "onChange",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onChange",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onTimeframeSyncChange",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setSpeed",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "selectControl",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "setAvailability",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 24,
-          "name": "icon",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "lockNavigation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "onPlayPause",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "iconButton",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "setTimeframeSync",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "setTruncationSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "element",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 80,
-          "name": "createReplayTransport",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "setReplay",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.replay-workspace-ui",
-      "owner": "replay-workspace-ui",
-      "ownsContract": false,
-      "path": "src/replay-workspace-ui/replay-transport.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-ui"
-      ],
-      "sizeException": null,
-      "sourceHash": "34e9b1e3e1ccbdc9c80564b93bda8b53d9514ec8063d3414cf21dee251218f16"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 172,
       "forwardingOnly": false,
       "functions": [
@@ -15262,6 +15162,106 @@
       ],
       "sizeException": null,
       "sourceHash": "5e1cc61bb18d6ee0dffa20c97617cafdd12de832228b2a2bdeb01680a40e104b"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 173,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "onChange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onChange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onTimeframeSyncChange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setSpeed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "selectControl",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "setAvailability",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "icon",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "lockNavigation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "onPlayPause",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "iconButton",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "setTimeframeSync",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "setTruncationSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "element",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 80,
+          "name": "createReplayTransport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "setReplay",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.replay-workspace-ui",
+      "owner": "replay-workspace-ui",
+      "ownsContract": false,
+      "path": "src/replay-workspace-ui/replay-transport.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-ui"
+      ],
+      "sizeException": null,
+      "sourceHash": "08de53bb0c85d3c7402af9529ea3f55dd1adea8b5c365a002ef688ae8d7ef91c"
     },
     {
       "adaptsBoundary": true,
@@ -15458,96 +15458,6 @@
       ],
       "sizeException": null,
       "sourceHash": "661d38ec84db55edaa116f872a8b2b726bfe85eb23926c57d30202cbd8d6955f"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 180,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "isPending",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "identity",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "requestTimeLocationHistory",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "requestHistory",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "run",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 29,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "semanticState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 33,
-          "name": "createWorkspaceExecution",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "action",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "materialize",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "replaceSessionHours",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
-      "ownsContract": false,
-      "path": "src/replay-workspace-composition/workspace-execution.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-composition"
-      ],
-      "sizeException": null,
-      "sourceHash": "4b30b0059b3044c3be4c1ec0d0904a118613aaa877814cc5ce88888ea64fda02"
     },
     {
       "adaptsBoundary": true,
@@ -15803,6 +15713,111 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 189,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "isPending",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "whenIdle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "identity",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "requestTimeLocationHistory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "requestHistory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "run",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "semanticState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "createWorkspaceExecution",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "action",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "publishIdle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "materialize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "replaceSessionHours",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/workspace-execution.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "7b7531f01a861c41530dae0c03e4a54a6ec1b46ca94d86b456665564ec3b0b75"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 194,
       "forwardingOnly": false,
       "functions": [
@@ -15988,116 +16003,6 @@
       ],
       "sizeException": null,
       "sourceHash": "38594a3c48b5ae1e9d0c50e6e5ce2ce4e7f8f28ac04a0face2c9652e3d31285c"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 195,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-14>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onClick",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onClick",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "predicate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "applyDatePolicy",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "open",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 20,
-          "name": "createControls",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "close",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 37,
-          "name": "readIntent",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 50,
-          "name": "createSessionDialog",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "<anonymous-11>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "<anonymous-15>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "resetControls",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "<anonymous-16>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "field",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.session-browser-ui",
-      "owner": "session-store",
-      "ownsContract": false,
-      "path": "src/session-browser-ui/create-dialog.js",
-      "publicExports": [],
-      "responsibilities": [
-        "session-store"
-      ],
-      "sizeException": null,
-      "sourceHash": "76a0a244ff445721a003eacf3830c7d61842b4cd1e382941e592085e965ced70"
     },
     {
       "adaptsBoundary": true,
@@ -16641,6 +16546,121 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 209,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onClick",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onClick",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "createControls",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "open",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "applyDatePolicy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "close",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 44,
+          "name": "readIntent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 50,
+          "name": "createSessionDialog",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "resetControls",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "field",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.session-browser-ui",
+      "owner": "session-store",
+      "ownsContract": false,
+      "path": "src/session-browser-ui/create-dialog.js",
+      "publicExports": [],
+      "responsibilities": [
+        "session-store"
+      ],
+      "sizeException": null,
+      "sourceHash": "a79c3b9bcbbd8dd5ddeea2c2c9e7ee2045f178704975a2c3b80b3a7153b909e0"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 21,
       "forwardingOnly": true,
       "functions": [],
@@ -16765,7 +16785,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 217,
+      "effectiveLines": 216,
       "forwardingOnly": false,
       "functions": [
         {
@@ -16824,7 +16844,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 54,
+          "effectiveLines": 53,
           "name": "sessionCard",
           "reviewedDecompositionException": false
         },
@@ -16844,7 +16864,7 @@
         "session-store"
       ],
       "sizeException": null,
-      "sourceHash": "154c6e1a3dc65ee6c9bc5cf33cce9bfc1e1ef48b6b5742247c237d2fcb4ff8a9"
+      "sourceHash": "6d04a57c8a6aa22d5e2a59a06c763ef4bd0ce7053c334cb85e9336277f0e9ac8"
     },
     {
       "adaptsBoundary": true,
@@ -17363,7 +17383,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 267,
+      "effectiveLines": 274,
       "forwardingOnly": false,
       "functions": [
         {
@@ -17373,7 +17393,7 @@
         },
         {
           "effectiveLines": 1,
-          "name": "<anonymous-30>",
+          "name": "<anonymous-31>",
           "reviewedDecompositionException": false
         },
         {
@@ -17402,13 +17422,13 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 11,
-          "name": "setGotoFeedback",
+          "effectiveLines": 10,
+          "name": "setReplay",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 11,
-          "name": "setReplay",
+          "name": "setGotoFeedback",
           "reviewedDecompositionException": false
         },
         {
@@ -17453,11 +17473,6 @@
         },
         {
           "effectiveLines": 4,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
           "name": "setAction",
           "reviewedDecompositionException": false
         },
@@ -17482,8 +17497,13 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 4,
-          "name": "setVisibleThrough",
+          "effectiveLines": 5,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "onDocumentKeydown",
           "reviewedDecompositionException": false
         },
         {
@@ -17502,8 +17522,13 @@
           "reviewedDecompositionException": false
         },
         {
+          "effectiveLines": 5,
+          "name": "setVisibleThrough",
+          "reviewedDecompositionException": false
+        },
+        {
           "effectiveLines": 6,
-          "name": "<anonymous-15>",
+          "name": "<anonymous-16>",
           "reviewedDecompositionException": false
         },
         {
@@ -17512,13 +17537,13 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 79,
-          "name": "createReplayWorkspaceView",
+          "effectiveLines": 8,
+          "name": "setLayoutSync",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 8,
-          "name": "setLayoutSync",
+          "effectiveLines": 80,
+          "name": "createReplayWorkspaceView",
           "reviewedDecompositionException": false
         },
         {
@@ -17552,7 +17577,7 @@
         "replay-workspace-ui"
       ],
       "sizeException": null,
-      "sourceHash": "18af3a25c56fc48c1c41bc752d04c6ad2f108e4129ec11057cf94466f3c7a3c2"
+      "sourceHash": "5a7cce8fc228cf6e26424059c1a21a665ac51d436b50e12d4a71f2db98d63d9f"
     },
     {
       "adaptsBoundary": true,
@@ -19949,86 +19974,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 46,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-11>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "intersectMarketDates",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "sharedMarketTimeBounds",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "pad",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "marketDateId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.session-browser-ui",
-      "owner": "session-store",
-      "ownsContract": false,
-      "path": "src/session-browser-ui/market-date-policy.js",
-      "publicExports": [],
-      "responsibilities": [
-        "session-store"
-      ],
-      "sizeException": null,
-      "sourceHash": "767609dabfa52ad5b8a1505dc07f14248941010f2f78867dc633ccf46e57379b"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 47,
       "forwardingOnly": false,
       "functions": [
@@ -20847,137 +20792,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 62,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "autoplay",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "gotoExact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "locatePaneTime",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "next",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "openPaneTimeLocation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "pause",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "previous",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "gotoQuick",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "start",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 33,
-          "name": "createWorkspaceReplayCommands",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "formatCursor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "restart",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "toggleTruncationSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "changePlaybackSpeed",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
-      "ownsContract": false,
-      "path": "src/replay-workspace-composition/workspace-replay-commands.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-composition"
-      ],
-      "sizeException": null,
-      "sourceHash": "26db2b0af08b5f4466611f251ba4832a68d1ea2fb94bf2536f67bf4fbf43c33c"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 64,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "resizePaneLayout",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "createPaneLayoutCommands",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 33,
-          "name": "changePaneLayout",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
-      "ownsContract": false,
-      "path": "src/replay-workspace-composition/pane-layout-commands.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-composition"
-      ],
-      "sizeException": null,
-      "sourceHash": "8b13dc593dab0baef673f66a25bf201f2565fa4eff5c3188494c935b1bb825f3"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 64,
+      "effectiveLines": 63,
       "forwardingOnly": false,
       "functions": [
         {
@@ -20991,7 +20806,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 12,
+          "effectiveLines": 11,
           "name": "toCard",
           "reviewedDecompositionException": false
         },
@@ -21069,7 +20884,47 @@
         "session-store"
       ],
       "sizeException": null,
-      "sourceHash": "649721e4570eb100e85903f74532d22f776bed06d279949dc8b32def1d008e83"
+      "sourceHash": "207dbd54b8ec02e557fddf9890bb856ec98508c4a9ff1e23bd217687f2a95a5e"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 64,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "resizePaneLayout",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "createPaneLayoutCommands",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "changePaneLayout",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/pane-layout-commands.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "8b13dc593dab0baef673f66a25bf201f2565fa4eff5c3188494c935b1bb825f3"
     },
     {
       "adaptsBoundary": true,
@@ -21609,6 +21464,106 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 74,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "autoplay",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "gotoExact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "locatePaneTime",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "openPaneTimeLocation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "pause",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "previous",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "gotoQuick",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "start",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 34,
+          "name": "createWorkspaceReplayCommands",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "formatCursor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "restart",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "toggleTruncationSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "changePlaybackSpeed",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "queueManualNext",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/workspace-replay-commands.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "85efca3df361c0ae5e9a0ae652ce8b19c7e970e93b6c514ef5343a73bd919cf2"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 75,
       "forwardingOnly": false,
       "functions": [
@@ -21993,6 +21948,106 @@
       ],
       "sizeException": null,
       "sourceHash": "f8eaca018560505091b6c9fbcbde5b5cdeb42d26694a594525e41b197bad768e"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 82,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "resolveSessionBoundaryWallMinute",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "intersectMarketDates",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "sessionBoundaryMarketDates",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "sharedMarketTimeBounds",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "pad",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "weekday",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "marketDateId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "shiftMarketDate",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.session-browser-ui",
+      "owner": "session-store",
+      "ownsContract": false,
+      "path": "src/session-browser-ui/market-date-policy.js",
+      "publicExports": [],
+      "responsibilities": [
+        "session-store"
+      ],
+      "sizeException": null,
+      "sourceHash": "5760c2dc1b83f4acd8682cac6309c20871cf9f4acf726c503412368c00c2ecca"
     },
     {
       "adaptsBoundary": true,
@@ -22969,9 +23024,9 @@
   ],
   "schemaVersion": 1,
   "summary": {
-    "effectiveLines": 23073,
+    "effectiveLines": 23158,
     "files": 309,
-    "functions": 2467,
+    "functions": 2478,
     "publicExports": 306
   },
   "deliveryStep": "R8.12",

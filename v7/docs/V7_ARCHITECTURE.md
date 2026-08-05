@@ -791,11 +791,26 @@ acquire Replay, market-session, Quick GoTo, or Economic Calendar state.
 
 Display timezone is deliberately not a domain timezone. Session creation and
 Quick GoTo anchors remain New York wall-time contracts. Exact GoTo converts the
-selected display-zone wall value back to a canonical epoch before dispatch and
-retains its existing Session-range and exclusive-cutoff rules. Preview and
+selected display-zone wall value back to a canonical epoch. The UI value now
+names the exact minute to reveal and is translated forward by one minute to the
+existing exclusive Replay cutoff; the selectable upper bound is therefore the
+last minute strictly before Session End. Preview and
 commit can therefore reformat every mounted and future Pane without moving the
 Replay cursor, changing visibility, requesting bars, issuing a Workspace
 transaction, rewriting series data, or changing Pane/Viewport revisions.
+
+Session creation's market-date policy remains owned by Session Browser rather
+than Calendar Surface. It adds source-backed Saturday shorthand: Start resolves
+to the following Sunday `18:00`, while End resolves to the preceding Friday
+`16:59`, both in New York time. Calendar Surface still owns only generic date-
+time DOM, formatting, and epoch conversion.
+
+The overall-acceptance Manual Next correction keeps the UI target enabled once
+an accepted Chart exists and queues click intents in command order. Workspace
+Execution exposes only an idle notification; every queued intent still enters
+the same single-flight navigation transaction and Replay Runtime remains the
+sole cursor owner. Workspace UI dispatches Escape through the existing
+truncation toggle command and owns no truncation state beyond presentation.
 
 The 2026-08-05 overall-acceptance correction advances Workstation Settings to
 version 7 with global `paneReadout.fontSize`. `core.workstation-settings` owns

@@ -9,6 +9,7 @@ import {
   WORKSPACE_PANE_IDS,
 } from '../src/replay-workspace-composition/public.js';
 import { createPaneProjectionMemo } from '../src/replay-workspace-composition/pane-projection-memo.js';
+import { createWorkspaceReplayCommands } from '../src/replay-workspace-composition/workspace-replay-commands.js';
 import { brandProjectedPaneSnapshot } from '../src/projection-domain/projected-pane-snapshot.js';
 import { validateReplayWorkspaceBoundary } from './support/replay-workspace-boundary-validator.js';
 
@@ -41,6 +42,49 @@ assert.deepEqual(WORKSPACE_PANE_IDS, [
 ]);
 assert.equal(AUTOPLAY_SPEED_OPTIONS.length, 4);
 assert.deepEqual(validateReplayWorkspaceBoundary(production), []);
+
+function deferred() {
+  let resolve;
+  const promise = new Promise((next) => { resolve = next; });
+  return { promise, resolve };
+}
+
+const nextCalls = [];
+const nextCommands = createWorkspaceReplayCommands({
+  execution: {
+    action: () => {
+      const gate = deferred();
+      nextCalls.push(gate);
+      return gate.promise;
+    },
+    whenIdle: () => Promise.resolve(),
+  },
+  isDisposed: () => false,
+  replay: { snapshot: () => ({ complete: false }) },
+});
+const rapidNext = [nextCommands.next(), nextCommands.next(), nextCommands.next()];
+await new Promise((resolve) => setImmediate(resolve));
+assert.equal(nextCalls.length, 1, 'rapid Manual Next intents must start one Replay transaction at a time');
+nextCalls[0].resolve('first');
+await new Promise((resolve) => setImmediate(resolve));
+assert.equal(nextCalls.length, 2, 'the second Manual Next intent must wait instead of being dropped');
+nextCalls[1].resolve('second');
+await new Promise((resolve) => setImmediate(resolve));
+assert.equal(nextCalls.length, 3, 'the third Manual Next intent must preserve click order');
+nextCalls[2].resolve('third');
+assert.deepEqual(await Promise.all(rapidNext), ['first', 'second', 'third']);
+let afterCompleteCalls = 0;
+const completeNextCommands = createWorkspaceReplayCommands({
+  execution: {
+    action: () => { afterCompleteCalls += 1; },
+    whenIdle: () => Promise.resolve(),
+  },
+  isDisposed: () => false,
+  replay: { snapshot: () => ({ complete: true }) },
+});
+assert.equal(await completeNextCommands.next(), null);
+assert.equal(afterCompleteCalls, 0,
+  'queued Manual Next intents must drain harmlessly after Replay reaches Session End');
 
 const memo = createPaneProjectionMemo();
 const transactionIdentity = Object.freeze({ transactionId: 'transaction.multi-pane-replay' });

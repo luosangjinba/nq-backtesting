@@ -2,6 +2,8 @@ import { createDateTimeControl } from '../calendar-surface/public.js';
 import { createTimePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
 import { setControlDisabled, setControlsDisabled } from './control-availability.js';
 
+const MINUTE_MS = 60_000;
+
 function element(tag, options = {}, children = []) {
   const node = document.createElement(tag);
   if (options.className) node.className = options.className;
@@ -24,6 +26,7 @@ function requireRange(range) {
 /** Own the separate Workspace-level Exact GoTo trigger and range-aware dialog. */
 export function createExactGotoDialog({ getDefaultEpochMs, onSubmit, replayRange, workstationSettings }) {
   const range = requireRange(replayRange);
+  const latestVisibleMinuteEpochMs = Math.max(range.startEpochMs, range.endEpochMs - MINUTE_MS);
   readWorkstationSettings(workstationSettings);
   let activeSettings = workstationSettings;
   let presentation = createTimePresentation(activeSettings);
@@ -73,7 +76,7 @@ export function createExactGotoDialog({ getDefaultEpochMs, onSubmit, replayRange
     dateTime = createDateTimeControl({
       dateTimePresentation: presentation.calendarPresentation,
       label: 'Replay target',
-      maxEpochMs: range.endEpochMs,
+      maxEpochMs: latestVisibleMinuteEpochMs,
       minEpochMs: range.startEpochMs,
       name: 'goto-target',
       presentation: 'inline',
@@ -85,7 +88,7 @@ export function createExactGotoDialog({ getDefaultEpochMs, onSubmit, replayRange
       + `${presentation.formatDateTime(range.endEpochMs, { timeZoneName: false })}`
       + ` · ${presentation.timeZoneLabel}`;
     rangeCopy.textContent = `Replay Session · ${rangeText}`;
-    instruction.textContent = `Choose an exact date and time in ${presentation.timeZoneLabel}.`;
+    instruction.textContent = `Choose the exact minute to reveal in ${presentation.timeZoneLabel}.`;
     dialog.dataset.displayTimezone = presentation.timeZone;
   }
 
@@ -110,14 +113,17 @@ export function createExactGotoDialog({ getDefaultEpochMs, onSubmit, replayRange
       validation.hidden = false;
       return;
     }
-    if (epochMs < range.startEpochMs || epochMs > range.endEpochMs) {
-      validation.textContent = `Time must be between ${rangeText}.`;
+    if (epochMs < range.startEpochMs || epochMs > latestVisibleMinuteEpochMs) {
+      const latest = presentation.formatDateTime(latestVisibleMinuteEpochMs, { timeZoneName: false });
+      validation.textContent = `Visible minute must be between ${
+        presentation.formatDateTime(range.startEpochMs, { timeZoneName: false })
+      } and ${latest} · ${presentation.timeZoneLabel}.`;
       validation.hidden = false;
       return;
     }
     validation.hidden = true;
     closeDialog();
-    onSubmit(epochMs);
+    onSubmit(Math.min(range.endEpochMs, epochMs + MINUTE_MS));
   }
 
   toggle.addEventListener('click', () => open());

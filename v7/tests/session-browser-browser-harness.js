@@ -96,7 +96,10 @@ try {
       };
       globalThis.fetch = async (input, options) => {
         if (String(input).includes('/v4/available_dates')) {
-          const dates = ['2026-05-01', '2026-05-05', '2026-06-05', '2026-06-10', '2026-06-12'];
+          const dates = [
+            '2026-05-01', '2026-05-03', '2026-05-05', '2026-05-08',
+            '2026-06-05', '2026-06-07', '2026-06-10', '2026-06-12',
+          ];
           return new Response(JSON.stringify({
             schemaVersion: 1,
             timeZone: 'America/New_York',
@@ -153,6 +156,8 @@ try {
     input.checked = true;
     input.dispatchEvent(new Event('change', { bubbles: true }));
   })()`);
+  assert.equal(await evaluate(cdp, `document.querySelector('.instrument-picker').open`), false,
+    'choosing an instrument must collapse the dropdown');
   await waitFor(cdp, `document.querySelector('.create-dialog')?.dataset.dateAvailabilityState === 'ready'`);
   const datePickerEvidence = await evaluate(cdp, `(() => {
     const start = document.querySelectorAll('.date-time-control')[0];
@@ -176,11 +181,15 @@ try {
       availableEnabled: !start.querySelector('[data-date="2026-06-05"]').disabled,
       unavailableDisabled: start.querySelector('[data-date="2026-06-04"]').disabled,
       outsideDisabled: [...start.querySelectorAll('.date-time-day.is-outside')].every((day) => day.disabled),
+      saturdayStartEnabled: !start.querySelector('[data-date="2026-06-06"]').disabled,
+      saturdayEndEnabled: !document.querySelectorAll('.date-time-control')[1]
+        .querySelector('[data-date="2026-06-06"]').disabled,
     };
   })()`);
   assert.deepEqual(datePickerEvidence, {
     open: true, dayCount: 42, heading: 'June2026', monthCount: 12, yearCount: 10,
     availableEnabled: true, unavailableDisabled: true, outsideDisabled: true,
+    saturdayStartEnabled: true, saturdayEndEnabled: true,
   }, 'Session picker must disable source-empty and outside-month dates while retaining navigation views');
   await capture(cdp, 'date-time-picker-open');
   const todayEvidence = await evaluate(cdp, `(() => {
@@ -241,8 +250,8 @@ try {
     const instruments = [...form.querySelectorAll('[name="instrument"]')];
     instruments[0].checked = false;
     instruments[1].checked = true;
-    form.elements.start.value = '2026-06-10T09:30';
-    form.elements.end.value = '2026-06-12T16:00';
+    form.elements.start.value = '2026-05-02T12:34';
+    form.elements.end.value = '2026-05-09T12:34';
     form.requestSubmit();
   })()`);
   await waitFor(cdp, `document.querySelector('#app').dataset.screen === 'opened' && document.querySelector('h1')?.textContent === 'Session Beta'`);
@@ -254,6 +263,8 @@ try {
     ['Session Alpha', 'Session Beta']);
   assert.equal(await evaluate(cdp, `document.querySelectorAll('.session-card .delete-session-button').length`), 2,
     'every Session card must expose its own Delete action');
+  assert.equal(await evaluate(cdp, `document.querySelector('.session-list').textContent.includes('Created')`), false,
+    'Session cards must present the historical range without an ambiguous creation timestamp');
   await capture(cdp, 'ready-two-sessions');
 
   assert.equal(await evaluate(cdp, clickCardByName('Session Alpha')), true);
@@ -280,15 +291,21 @@ try {
     return {
       keys,
       ranges: Object.fromEntries(records.map((record) => [record.metadata.name,
-        record.configuration.historicalRange.startEpochMs])),
+        record.configuration.historicalRange])),
       sessions: Object.fromEntries(records.map((record) => [record.metadata.name, record.activationGeneration.value])),
     };
   })()`);
   assert.deepEqual(storageEvidence.sessions, { 'Session Alpha': 3, 'Session Beta': 3 });
   assert.deepEqual(storageEvidence.ranges, {
-    'Session Alpha': Date.parse('2026-05-01T13:30:00Z'),
-    'Session Beta': Date.parse('2026-06-10T13:30:00Z'),
-  }, 'Session creation must persist New York wall input independently of the Pacific browser timezone');
+    'Session Alpha': {
+      startEpochMs: Date.parse('2026-05-01T13:30:00Z'),
+      endEpochMs: Date.parse('2026-05-05T20:00:00Z'),
+    },
+    'Session Beta': {
+      startEpochMs: Date.parse('2026-05-03T22:00:00Z'),
+      endEpochMs: Date.parse('2026-05-08T20:59:00Z'),
+    },
+  }, 'Session creation must persist New York input and resolve Saturday to adjacent CME boundaries');
   assert.equal(storageEvidence.keys.some((key) => /active|current|last-opened/i.test(key)), false);
 
   await evaluate(cdp, `document.querySelector('.replay-back, .opened-header .button').click()`);

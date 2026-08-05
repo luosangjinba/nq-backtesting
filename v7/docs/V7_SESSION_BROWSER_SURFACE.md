@@ -1,6 +1,7 @@
 # V7 Session Browser Surface
 
-Status: R2.2 and R2.4 human accepted (2026-07-21)
+Status: R2.2 and R2.4 human accepted (2026-07-21); 2026-08-05 overall-
+acceptance corrections implemented, awaiting deployed human recheck
 
 ## Owner And Ports
 
@@ -17,11 +18,13 @@ key. Every activation still passes the branded SessionId to Session Store.
 
 ## Customer Surfaces
 
-- Session list with distinct name, instruments, creation time, and range;
+- Session list with distinct name, instruments, and authoritative historical
+  range; creation time is intentionally omitted because it can be confused
+  with the replay range;
 - one visible Delete action per Session with an inline, keyboard-focused
   permanent-delete confirmation before any Store command is dispatched;
 - accessible Create Session dialog with a compact multi-select instrument
-  dropdown and explicit date-times;
+  dropdown that collapses after each selection and explicit date-times;
 - a fresh empty creation draft on every open; name, instruments, Start, End,
   search, and dropdown state never leak into a later creation attempt;
 - configuration-driven asset discovery with search, dynamic category filters,
@@ -46,6 +49,13 @@ or model internals. A replacement must pass the same public conformance and
 preserve empty-draft and epoch semantics. Calendar Surface cannot own
 market-data availability or Session state.
 
+The Session Browser's separate market-date policy owns CME Saturday boundary
+shorthand. A Saturday is selectable for Start when the following Sunday is
+source-backed and resolves to Sunday `18:00 America/New_York`; it is selectable
+for End when the preceding Friday is source-backed and resolves to Friday
+`16:59 America/New_York`. The generic Calendar Surface receives only enabled-
+date predicates and never acquires CME schedule or market-data ownership.
+
 No fake Replay, chart, order, Journal, campaign, plugin, or unavailable future
 control may appear. Revision, activation generation, internal phase names, and
 debug state are not customer-visible.
@@ -61,8 +71,9 @@ Chrome at `1440x900`, device scale factor 1, and reduced motion captures:
 - inline permanent-delete confirmation for Beta;
 - selected Beta after hard refresh.
 
-The browser harness compares screenshots byte-for-byte and executes direct-open
-create A, fresh-default draft verification before direct-open create B, A→B,
+The browser harness compares screenshots byte-for-byte and executes dropdown
+collapse, Saturday Start/End resolution, direct-open create A, fresh-default
+draft verification before direct-open create B, A→B,
 hard refresh on B, reopen A, cancel delete B, confirm delete B, and verify both
 its indexed identity and record key are gone while A remains. A visual change
 requires an explicit fixture update plus human review.

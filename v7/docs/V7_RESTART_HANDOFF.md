@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-05 after adjustable Pane readout font-size correction
+Last updated: 2026-08-05 after Session/Replay overall-acceptance corrections
 
 ## Current Overall Acceptance State
 
@@ -60,6 +60,14 @@ Workstation Settings version 7 adds global `paneReadout.fontSize` with 10–18px
 choices and a 12px default. The DOM-only overlay scales every readout component
 and its header height; live preview, Cancel, save, hard reload, all-Pane fan-out,
 and v1–v6 migration pass. The cloud path awaits human review.
+The completed checklist then identified six bounded interaction findings.
+Session cards no longer show a misleading creation timestamp; instrument
+selection collapses its picker; eligible Saturdays map Start to Sunday 18:00
+and End to Friday 16:59. Manual Next remains clickable and queues rapid intents
+through the existing single-flight Workspace executor, Escape exits truncation
+selection, and Exact GoTo now names the minute to reveal while translating to
+the unchanged exclusive no-future cutoff. Automated browser evidence passes;
+all six items await human confirmation on the deployed acceptance host.
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -591,11 +599,13 @@ and human-accepted:
   noise is rejected; all eight current-price Name/Value/Line combinations and
   practical New York/UTC/local date/hour presentation are retained. Future
   unimplemented ids move to R6.9h-m rather than reusing the delivered R6.9g id.
-- R6.9h separates Exact GoTo from Quick GoTo, defaults it to the shared Replay
-  cursor, and adds Session-range-aware Calendar dates plus closed-boundary
+- R6.9h separates Exact GoTo from Quick GoTo and adds Session-range-aware
+  Calendar dates plus closed-boundary
   New York validation. Invalid input retains the dialog and issues no Replay or
   Workspace transaction. It was accepted on 2026-07-22 after the roll-boundary
-  visible-completion correction.
+  visible-completion correction. The 2026-08-05 overall-acceptance follow-up
+  now defaults the dialog to the latest revealed minute and translates that
+  visible-minute choice to the existing exclusive Replay cutoff.
 - R6.9i activates one separate versioned global Workstation Settings record and
   owner. Its four-tab draft shell exposes only Canvas Grid visibility; OK stages,
   applies, persists, and commits all consumers atomically, while failures roll
