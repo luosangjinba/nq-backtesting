@@ -54,7 +54,7 @@ without a cursor or enable-time Workspace transaction.
 
 Production architecture remains clean at 48 modules, 125 dependency edges,
 115 construction sites, and eight writer sites. Current source evidence is 309
-files, 23,021 effective lines, 2,464 functions, and 306 public exports, with no
+files, 23,073 effective lines, 2,467 functions, and 306 public exports, with no
 source-quality finding.
 
 ## Human Gate

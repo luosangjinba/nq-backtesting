@@ -76,7 +76,7 @@ assert.equal(Object.isFrozen(readWorkstationSettings(defaults).interface), true)
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults).paneReadout), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults).time), true);
 assert.equal(grid(deserializeWorkstationSettings(serializeWorkstationSettings(defaults))), true);
-assert.equal(serializeWorkstationSettings(defaults).version, 6);
+assert.equal(serializeWorkstationSettings(defaults).version, 7);
 assert.deepEqual(readWorkstationSettings(defaults).canvas, {
   backgroundColor: '#000000ff',
   bottomMarginPercent: 12,
@@ -97,7 +97,7 @@ assert.deepEqual(readWorkstationSettings(defaults).currentPrice, {
   lineVisible: true, nameVisible: true, valueVisible: true,
 });
 assert.deepEqual(readWorkstationSettings(defaults).paneReadout, {
-  changeVisible: true, ohlcVisible: true, volumeVisible: false,
+  changeVisible: true, fontSize: 12, ohlcVisible: true, volumeVisible: false,
 });
 assert.deepEqual(readWorkstationSettings(defaults).time, {
   dateFormat: 'MM/DD/YYYY', dayOfWeekVisible: false,
@@ -165,6 +165,9 @@ assert.equal(readWorkstationSettings(migratedStatusCurrentPrice).canvas.gridVisi
 assert.equal(readWorkstationSettings(migratedStatusCurrentPrice).canvas.rightMarginBars, 12);
 assert.equal(readWorkstationSettings(migratedStatusCurrentPrice).currentPrice.lineVisible, false);
 assert.equal(readWorkstationSettings(migratedStatusCurrentPrice).paneReadout.volumeVisible, true);
+const legacyPaneReadout = Object.fromEntries(Object.entries(
+  readWorkstationSettings(defaults).paneReadout,
+).filter(([field]) => field !== 'fontSize'));
 const migratedCanvasPresentation = deserializeWorkstationSettings({
   schema: 'v7.workstation-settings',
   value: {
@@ -172,13 +175,23 @@ const migratedCanvasPresentation = deserializeWorkstationSettings({
     canvas: readWorkstationSettings(defaults).canvas,
     currentPrice: readWorkstationSettings(defaults).currentPrice,
     interface: readWorkstationSettings(defaults).interface,
-    paneReadout: readWorkstationSettings(defaults).paneReadout,
+    paneReadout: legacyPaneReadout,
   },
   version: 5,
 });
 assert.deepEqual(readWorkstationSettings(migratedCanvasPresentation).time,
   readWorkstationSettings(defaults).time,
   'R6.9l records must migrate to the accepted shared time defaults');
+const migratedTimePresentation = deserializeWorkstationSettings({
+  schema: 'v7.workstation-settings',
+  value: {
+    ...readWorkstationSettings(defaults),
+    paneReadout: legacyPaneReadout,
+  },
+  version: 6,
+});
+assert.equal(readWorkstationSettings(migratedTimePresentation).paneReadout.fontSize, 12,
+  'version-6 records must migrate to the accepted Pane readout font default');
 assert.throws(
   () => createWorkstationSettings({
     candles: readWorkstationSettings(defaults).candles,
@@ -210,6 +223,11 @@ assert.throws(
   () => settingsValue({ paneReadout: { volumeVisible: 'yes' } }),
   (error) => error instanceof WorkstationSettingsError
     && error.code === 'WORKSTATION_SETTINGS_PANE_READOUT_VISIBILITY_INVALID',
+);
+assert.throws(
+  () => settingsValue({ paneReadout: { fontSize: 19 } }),
+  (error) => error instanceof WorkstationSettingsError
+    && error.code === 'WORKSTATION_SETTINGS_PANE_READOUT_FONT_SIZE_INVALID',
 );
 assert.throws(
   () => settingsValue({ canvas: { crosshairOpacityPercent: 101 } }),

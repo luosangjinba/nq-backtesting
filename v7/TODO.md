@@ -7,6 +7,24 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
+### Overall-Acceptance Finding — Adjustable Pane Readout Font Size
+
+- [x] confirm from the official Lightweight Charts layout contract that its
+  `fontSize` controls scale text rather than the product-owned DOM status line;
+- [x] confirm the awesome-tradingview catalog exposes no smaller compatible
+  status-line typography plugin;
+- [x] advance global Workstation Settings to version 7 with a default 12px
+  `paneReadout.fontSize`, bounded 10–18px, and deterministic v1–v6 migration;
+- [x] add one Status Line font-size selector with live preview, Cancel restore,
+  OK persistence, hard-reload restore, and current/future-Pane fan-out;
+- [x] scale symbol, timeframe, Pane number, OHLC, change, Volume, and overlay
+  height through the DOM-only Pane overlay without changing Chart options;
+- [x] bind pure Settings rejection/migration, real-Chrome 18px preview/Cancel,
+  16px commit/reload, default-layout visual stability, and the intentional
+  Status Line dialog fixture update;
+- [ ] redeploy the committed correction and obtain human confirmation on the
+  original cloud/browser path.
+
 ### Overall-Acceptance Finding — Light Canvas Pane Readout Contrast
 
 - [x] preserve the cloud-review screenshot showing white Canvas plus blurred,
@@ -472,8 +490,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 309 files, 23,021 effective
-lines, 2,464 functions, and 306 public exports; the architecture baseline
+The current production source baseline contains 309 files, 23,073 effective
+lines, 2,467 functions, and 306 public exports; the architecture baseline
 remains 48 modules, 125 edges, 115 construction sites, eight writers, and zero
 findings.
 
@@ -485,7 +503,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 309 files, 23,021 effective lines, 2,464 functions, 306 public
+currently at 309 files, 23,073 effective lines, 2,467 functions, 306 public
 exports, 48 modules, 125 edges, 115 construction sites, eight writers, and zero
 findings.
 

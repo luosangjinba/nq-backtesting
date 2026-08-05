@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-05 after light-Canvas Pane readout correction
+Last updated: 2026-08-05 after adjustable Pane readout font-size correction
 
 ## Current Overall Acceptance State
 
@@ -55,6 +55,11 @@ palette and two black text shadows. It now derives a light/dark presentation
 tone from the normalized Canvas background, preserves the original dark theme,
 and uses crisp dark unshadowed readouts on light Canvas. Real-Chrome live
 preview and Cancel restoration pass; the cloud path awaits human recheck.
+The reviewer then requested an adjustable font size for the same Pane readout.
+Workstation Settings version 7 adds global `paneReadout.fontSize` with 10–18px
+choices and a 12px default. The DOM-only overlay scales every readout component
+and its header height; live preview, Cancel, save, hard reload, all-Pane fan-out,
+and v1–v6 migration pass. The cloud path awaits human review.
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not

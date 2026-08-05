@@ -93,9 +93,9 @@ and Session Browser consume the same committed global record.
 
 ## Acceptance Evidence
 
-- `tests/workstation-settings-harness.js` proves strict version-6 values,
-  version-1 through version-5 migration, all enum failures, New York summer and
-  winter DST, UTC, injected browser-local timezone, weekday/date/hour formats,
+- `tests/workstation-settings-harness.js` proves current strict version-7
+  values, version-1 through version-6 migration, all enum failures, New York
+  summer and winter DST, UTC, injected browser-local timezone, weekday/date/hour formats,
   and unchanged epoch input;
 - `tests/lightweight-chart-adapter-browser-harness.js` proves the native
   formatter mapping changes neither series-data nor adapter revision;

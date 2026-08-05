@@ -4140,91 +4140,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 165,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 14,
-          "name": "normalizeTime",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "normalizeWorkstationSettingsValue",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "normalizeCandles",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "booleanField",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 43,
-          "name": "normalizeCanvas",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "normalizeVisibilityGroup",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "boundedInteger",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "enumField",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "exactObject",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "normalizeInterface",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "color",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "precision",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "core.workstation-settings",
-      "owner": "workstation-settings",
-      "ownsContract": false,
-      "path": "src/workstation-settings/settings-normalization.js",
-      "publicExports": [],
-      "responsibilities": [
-        "workstation-settings"
-      ],
-      "sizeException": null,
-      "sourceHash": "ebe0eb501ce9568af64ed138005c59fbbe171f364527a87266dd7d179710e3c2"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 17,
       "forwardingOnly": false,
       "functions": [
@@ -4775,6 +4690,96 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 183,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 14,
+          "name": "normalizeTime",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "normalizeWorkstationSettingsValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "normalizePaneReadout",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "normalizeCandles",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "booleanField",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 43,
+          "name": "normalizeCanvas",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "normalizeVisibilityGroup",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "boundedInteger",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "enumField",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactObject",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "normalizeInterface",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "color",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "precision",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.workstation-settings",
+      "owner": "workstation-settings",
+      "ownsContract": false,
+      "path": "src/workstation-settings/settings-normalization.js",
+      "publicExports": [],
+      "responsibilities": [
+        "workstation-settings"
+      ],
+      "sizeException": null,
+      "sourceHash": "c0ad1e0325a170b15ddd1872b38ea815a0d7d10d32ad1e3b7b93d89233b6d398"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 19,
       "forwardingOnly": false,
       "functions": [
@@ -5236,176 +5241,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 194,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "read",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "migrateAlphaCandleValue",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "migrateCanvasOnlyValue",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 26,
-          "name": "deserializeWorkstationSettings",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 26,
-          "name": "migrateOpaqueCandleValue",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "workstationSettingsEqual",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "createWorkstationSettings",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "exactObject",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "migrateCanvasPresentationValue",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "serializeWorkstationSettings",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "migrateStatusCurrentPriceValue",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "readWorkstationSettings",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "core.workstation-settings",
-      "owner": "workstation-settings",
-      "ownsContract": false,
-      "path": "src/workstation-settings/settings-value.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "workstation-settings.",
-            "purpose": "expose the complete supported public contract for workstation settings.",
-            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
-            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
-            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
-            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
-            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
-            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
-          },
-          "moduleId": "core.workstation-settings",
-          "name": "createWorkstationSettings"
-        },
-        {
-          "documentation": {
-            "owner": "workstation-settings.",
-            "purpose": "expose the complete supported public contract for workstation settings.",
-            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
-            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
-            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
-            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
-            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
-            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
-          },
-          "moduleId": "core.workstation-settings",
-          "name": "DEFAULT_WORKSTATION_SETTINGS"
-        },
-        {
-          "documentation": {
-            "owner": "workstation-settings.",
-            "purpose": "expose the complete supported public contract for workstation settings.",
-            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
-            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
-            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
-            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
-            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
-            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
-          },
-          "moduleId": "core.workstation-settings",
-          "name": "deserializeWorkstationSettings"
-        },
-        {
-          "documentation": {
-            "owner": "workstation-settings.",
-            "purpose": "expose the complete supported public contract for workstation settings.",
-            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
-            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
-            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
-            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
-            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
-            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
-          },
-          "moduleId": "core.workstation-settings",
-          "name": "readWorkstationSettings"
-        },
-        {
-          "documentation": {
-            "owner": "workstation-settings.",
-            "purpose": "expose the complete supported public contract for workstation settings.",
-            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
-            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
-            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
-            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
-            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
-            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
-          },
-          "moduleId": "core.workstation-settings",
-          "name": "serializeWorkstationSettings"
-        },
-        {
-          "documentation": {
-            "owner": "workstation-settings.",
-            "purpose": "expose the complete supported public contract for workstation settings.",
-            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
-            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
-            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
-            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
-            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
-            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
-          },
-          "moduleId": "core.workstation-settings",
-          "name": "workstationSettingsEqual"
-        }
-      ],
-      "responsibilities": [
-        "workstation-settings"
-      ],
-      "sizeException": null,
-      "sourceHash": "77c61c0438c072c7164e8bbf6547efd85491862338dde46513cca72bc78c5dd1"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 20,
       "forwardingOnly": false,
       "functions": [
@@ -5850,6 +5685,181 @@
       ],
       "sizeException": null,
       "sourceHash": "c51977d7213867a1de1c79e8dea71b3a89ce6f1e3ff85635e04cbf974ac04e02"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 214,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "migrateAlphaCandleValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "migrateCanvasPresentationValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "migrateStatusCurrentPriceValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "migrateCanvasOnlyValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 26,
+          "name": "migrateOpaqueCandleValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "deserializeWorkstationSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "workstationSettingsEqual",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "createWorkstationSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactObject",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "serializeWorkstationSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "migrateTimePresentationValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "readWorkstationSettings",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.workstation-settings",
+      "owner": "workstation-settings",
+      "ownsContract": false,
+      "path": "src/workstation-settings/settings-value.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "workstation-settings.",
+            "purpose": "expose the complete supported public contract for workstation settings.",
+            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
+            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
+            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.workstation-settings",
+          "name": "createWorkstationSettings"
+        },
+        {
+          "documentation": {
+            "owner": "workstation-settings.",
+            "purpose": "expose the complete supported public contract for workstation settings.",
+            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
+            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
+            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.workstation-settings",
+          "name": "DEFAULT_WORKSTATION_SETTINGS"
+        },
+        {
+          "documentation": {
+            "owner": "workstation-settings.",
+            "purpose": "expose the complete supported public contract for workstation settings.",
+            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
+            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
+            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.workstation-settings",
+          "name": "deserializeWorkstationSettings"
+        },
+        {
+          "documentation": {
+            "owner": "workstation-settings.",
+            "purpose": "expose the complete supported public contract for workstation settings.",
+            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
+            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
+            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.workstation-settings",
+          "name": "readWorkstationSettings"
+        },
+        {
+          "documentation": {
+            "owner": "workstation-settings.",
+            "purpose": "expose the complete supported public contract for workstation settings.",
+            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
+            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
+            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.workstation-settings",
+          "name": "serializeWorkstationSettings"
+        },
+        {
+          "documentation": {
+            "owner": "workstation-settings.",
+            "purpose": "expose the complete supported public contract for workstation settings.",
+            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
+            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
+            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.workstation-settings",
+          "name": "workstationSettingsEqual"
+        }
+      ],
+      "responsibilities": [
+        "workstation-settings"
+      ],
+      "sizeException": null,
+      "sourceHash": "a41a77d2453d8e7210b09bd1257c0bb401b5a119b1ead069067e1a4edc71cbce"
     },
     {
       "adaptsBoundary": false,
@@ -16093,7 +16103,45 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 197,
+      "effectiveLines": 2,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "persistence",
+      "moduleId": "adapter.session-persistence",
+      "owner": "session-store",
+      "ownsContract": true,
+      "path": "src/session-persistence/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "session-store"
+      ],
+      "sizeException": null,
+      "sourceHash": "80bff0d1c3debd5c0a63702871d4379b7b31b917afe7c1be0ca65720d72e2ed4"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 2,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "ui",
+      "moduleId": "adapter.replay-workspace-ui",
+      "owner": "replay-workspace-ui",
+      "ownsContract": true,
+      "path": "src/replay-workspace-ui/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-ui"
+      ],
+      "sizeException": null,
+      "sourceHash": "db2e35651c140702587702a608963f9c85d7dba1a27e7cf60313c18c75970b02"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 200,
       "forwardingOnly": false,
       "functions": [
         {
@@ -16132,13 +16180,13 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 13,
-          "name": "setReadoutPresentation",
+          "effectiveLines": 15,
+          "name": "renderOhlc",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 15,
-          "name": "renderOhlc",
+          "effectiveLines": 16,
+          "name": "setReadoutPresentation",
           "reviewedDecompositionException": false
         },
         {
@@ -16222,45 +16270,7 @@
         "replay-workspace-ui"
       ],
       "sizeException": null,
-      "sourceHash": "10b59b6280c515a02ba856f6ae3cb3b3c7bd48bc60985754cc4d308f87aa6ec8"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 2,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "persistence",
-      "moduleId": "adapter.session-persistence",
-      "owner": "session-store",
-      "ownsContract": true,
-      "path": "src/session-persistence/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "session-store"
-      ],
-      "sizeException": null,
-      "sourceHash": "80bff0d1c3debd5c0a63702871d4379b7b31b917afe7c1be0ca65720d72e2ed4"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 2,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "ui",
-      "moduleId": "adapter.replay-workspace-ui",
-      "owner": "replay-workspace-ui",
-      "ownsContract": true,
-      "path": "src/replay-workspace-ui/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-ui"
-      ],
-      "sizeException": null,
-      "sourceHash": "db2e35651c140702587702a608963f9c85d7dba1a27e7cf60313c18c75970b02"
+      "sourceHash": "966616cec2feb0cd04acd8cc4063b27abe1be72c8bd37e428415132423cc5ea1"
     },
     {
       "adaptsBoundary": true,
@@ -17353,7 +17363,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 266,
+      "effectiveLines": 267,
       "forwardingOnly": false,
       "functions": [
         {
@@ -17427,7 +17437,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 27,
+          "effectiveLines": 28,
           "name": "setWorkstationSettings",
           "reviewedDecompositionException": false
         },
@@ -17542,7 +17552,7 @@
         "replay-workspace-ui"
       ],
       "sizeException": null,
-      "sourceHash": "d7947fbf8ac73d92413af9052d20cbcec830934707b8b032c7b4cc9fa889c84e"
+      "sourceHash": "18af3a25c56fc48c1c41bc752d04c6ad2f108e4129ec11057cf94466f3c7a3c2"
     },
     {
       "adaptsBoundary": true,
@@ -17613,7 +17623,26 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 292,
+      "effectiveLines": 3,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": true,
+      "path": "src/lightweight-chart-adapter/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "chart-runtime-adapter"
+      ],
+      "sizeException": null,
+      "sourceHash": "40b07e1b973e66dbdfef4fedf102e29e1602b97257dfe48984fff11570bcd996"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 300,
       "forwardingOnly": false,
       "functions": [
         {
@@ -17633,7 +17662,12 @@
         },
         {
           "effectiveLines": 1,
-          "name": "<anonymous-28>",
+          "name": "<anonymous-26>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-29>",
           "reviewedDecompositionException": false
         },
         {
@@ -17743,22 +17777,22 @@
         },
         {
           "effectiveLines": 30,
-          "name": "createPanels",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 30,
           "name": "createTimeControls",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 47,
-          "name": "createSettingsDialogForm",
+          "effectiveLines": 33,
+          "name": "createPanels",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 5,
           "name": "focusTab",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 52,
+          "name": "createSettingsDialogForm",
           "reviewedDecompositionException": false
         }
       ],
@@ -17772,26 +17806,7 @@
         "replay-workspace-ui"
       ],
       "sizeException": null,
-      "sourceHash": "d70094d461248b436849708c60803c5996a26eada5261d52f8dee078cb60e3d2"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 3,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": true,
-      "path": "src/lightweight-chart-adapter/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "chart-runtime-adapter"
-      ],
-      "sizeException": null,
-      "sourceHash": "40b07e1b973e66dbdfef4fedf102e29e1602b97257dfe48984fff11570bcd996"
+      "sourceHash": "582d35f6e5a098342f3139812a51cfed0c8b844ad677e3f280d9213e1e3b2eb8"
     },
     {
       "adaptsBoundary": true,
@@ -22775,36 +22790,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 89,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 37,
-          "name": "populateSettingsDraft",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 46,
-          "name": "readSettingsDraft",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.replay-workspace-ui",
-      "owner": "replay-workspace-ui",
-      "ownsContract": false,
-      "path": "src/replay-workspace-ui/settings-dialog-draft.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-ui"
-      ],
-      "sizeException": null,
-      "sourceHash": "a78ec4d502669bf6c7eea81c10a51573d48d60643700c29c37818764002c6ee7"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 9,
       "forwardingOnly": false,
       "functions": [
@@ -22825,6 +22810,36 @@
       ],
       "sizeException": null,
       "sourceHash": "6be14bf618c2b22b064a93849256b0f92f470199750e49a1deff620f71d4cc39"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 91,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 38,
+          "name": "populateSettingsDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 47,
+          "name": "readSettingsDraft",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.replay-workspace-ui",
+      "owner": "replay-workspace-ui",
+      "ownsContract": false,
+      "path": "src/replay-workspace-ui/settings-dialog-draft.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-ui"
+      ],
+      "sizeException": null,
+      "sourceHash": "0d02453f3b96767b4459f2755a2b343c53081486564e6b13cb8fc51527524a5b"
     },
     {
       "adaptsBoundary": true,
@@ -22954,9 +22969,9 @@
   ],
   "schemaVersion": 1,
   "summary": {
-    "effectiveLines": 23021,
+    "effectiveLines": 23073,
     "files": 309,
-    "functions": 2464,
+    "functions": 2467,
     "publicExports": 306
   },
   "deliveryStep": "R8.12",

@@ -797,6 +797,17 @@ commit can therefore reformat every mounted and future Pane without moving the
 Replay cursor, changing visibility, requesting bars, issuing a Workspace
 transaction, rewriting series data, or changing Pane/Viewport revisions.
 
+The 2026-08-05 overall-acceptance correction advances Workstation Settings to
+version 7 with global `paneReadout.fontSize`. `core.workstation-settings` owns
+its 10–18px integer contract, 12px default, persistence, and deterministic
+version-1 through version-6 migration. Replay Workspace UI projects the value
+to every current/future DOM-only Pane overlay and scales the Pane number,
+symbol, timeframe, OHLC, change, Volume, and overlay height through one CSS
+custom property. It does not route through Lightweight Charts: the library's
+documented `layout.fontSize` controls only scale text. Preview, Cancel, Save,
+rollback, and hard-reload semantics remain the existing global Settings
+transaction and cannot move Replay or mutate Chart data.
+
 ## Session Isolation Invariant
 
 All mutable records and async results carry:

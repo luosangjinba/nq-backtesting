@@ -200,15 +200,18 @@ export function createPaneOverlayView({ onMaximize, onReset, paneId }) {
     setReadoutPresentation(value) {
       if (!value || typeof value.ohlcVisible !== 'boolean'
         || typeof value.changeVisible !== 'boolean'
-        || typeof value.volumeVisible !== 'boolean') {
-        throw new TypeError('Pane readout presentation requires three visibility values.');
+        || typeof value.volumeVisible !== 'boolean'
+        || !Number.isSafeInteger(value.fontSize) || value.fontSize < 10 || value.fontSize > 18) {
+        throw new TypeError('Pane readout presentation requires three visibility values and a 10–18px font size.');
       }
       ohlc.hidden = !value.ohlcVisible;
       change.hidden = !value.changeVisible;
       volume.hidden = !value.volumeVisible;
       root.dataset.changeVisible = String(value.changeVisible);
+      root.dataset.fontSize = String(value.fontSize);
       root.dataset.ohlcVisible = String(value.ohlcVisible);
       root.dataset.volumeVisible = String(value.volumeVisible);
+      root.style.setProperty('--pane-readout-font-size', `${value.fontSize}px`);
     },
   });
 }

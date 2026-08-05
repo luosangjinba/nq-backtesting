@@ -282,6 +282,8 @@ try {
       name, document.querySelector('[name="' + name + '"]').checked,
     ])
   )`), { changeVisible: true, ohlcVisible: true, volumeVisible: false });
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('[name="paneReadoutFontSize"]').value`), '12');
   await capture(cdp, workstationStatusVisualFile, '.workstation-settings-dialog');
   await evaluate(cdp, `document.querySelector('[data-settings-tab="scales"]').click()`);
   assert.deepEqual(await evaluate(cdp, `Object.fromEntries(
@@ -344,6 +346,9 @@ try {
     const canvas = document.querySelector('[name="canvasBackgroundColor"]');
     canvas.value = '#ffffffff';
     canvas.dispatchEvent(new Event('input', { bubbles: true }));
+    const readoutFont = document.querySelector('[name="paneReadoutFontSize"]');
+    readoutFont.value = '18';
+    readoutFont.dispatchEvent(new Event('input', { bubbles: true }));
     document.querySelector('[name="gridVisible"]').click();
     for (const [name, value] of Object.entries({
       dateFormat: 'YYYY-MM-DD', displayTimezone: 'UTC', hourFormat: '12-hour',
@@ -357,7 +362,9 @@ try {
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.gridVisible === 'false'
     && document.querySelector('.replay-workspace')?.dataset.canvasBackgroundColor === '#ffffffff'
     && [...document.querySelectorAll('.pane-overlay-layer')]
-      .every((overlay) => overlay.dataset.canvasTone === 'light')
+      .every((overlay) => overlay.dataset.canvasTone === 'light'
+        && overlay.dataset.fontSize === '18')
+    && document.querySelector('.replay-workspace')?.dataset.paneReadoutFontSize === '18'
     && document.querySelector('.replay-workspace')?.dataset.displayTimezone === 'UTC'
     && document.querySelector('.replay-workspace')?.dataset.dateFormat === 'YYYY-MM-DD'
     && document.querySelector('.replay-workspace')?.dataset.hourFormat === '12-hour'
@@ -377,12 +384,14 @@ try {
     return {
       lightClass: overlay.classList.contains('is-light-canvas'),
       symbolColor: getComputedStyle(pane.querySelector('.pane-symbol')).color,
+      symbolFontSize: getComputedStyle(pane.querySelector('.pane-symbol')).fontSize,
       textShadow: getComputedStyle(header).textShadow,
       tone: overlay.dataset.canvasTone,
     };
   })()`), {
     lightClass: true,
     symbolColor: 'rgb(29, 37, 45)',
+    symbolFontSize: '19px',
     textShadow: 'none',
     tone: 'light',
   },
@@ -406,7 +415,9 @@ try {
     && document.querySelector('.replay-workspace')?.dataset.gridVisible === 'true'
     && document.querySelector('.replay-workspace')?.dataset.canvasBackgroundColor === '#000000ff'
     && [...document.querySelectorAll('.pane-overlay-layer')]
-      .every((overlay) => overlay.dataset.canvasTone === 'dark')
+      .every((overlay) => overlay.dataset.canvasTone === 'dark'
+        && overlay.dataset.fontSize === '12')
+    && document.querySelector('.replay-workspace')?.dataset.paneReadoutFontSize === '12'
     && document.querySelector('.replay-workspace')?.dataset.displayTimezone === 'America/New_York'
     && document.querySelector('.replay-workspace')?.dataset.dateFormat === 'MM/DD/YYYY'
     && document.querySelector('.replay-workspace')?.dataset.hourFormat === '24-hour'
@@ -890,6 +901,7 @@ try {
     document.querySelector('[name="ohlcVisible"]').click();
     document.querySelector('[name="changeVisible"]').click();
     document.querySelector('[name="volumeVisible"]').click();
+    document.querySelector('[name="paneReadoutFontSize"]').value = '16';
     document.querySelector('[name="currentPriceValueVisible"]').click();
     for (const [name, value] of Object.entries({
       canvasBackgroundColor: '#101820ff',
@@ -912,7 +924,8 @@ try {
     document.querySelector('[name="bottomMarginPercent"]').value = '18';
     document.querySelector('[name="rightMarginBars"]').value = '24';
     for (const name of [
-      'crosshairStyle', 'crosshairWidth', 'scaleFontSize', 'paneControlDockVisibility',
+      'crosshairStyle', 'crosshairWidth', 'scaleFontSize', 'paneReadoutFontSize',
+      'paneControlDockVisibility',
       'displayTimezone', 'dateFormat', 'hourFormat',
       'topMarginPercent', 'bottomMarginPercent', 'rightMarginBars',
     ]) document.querySelector('[name="' + name + '"]')
@@ -925,6 +938,9 @@ try {
     && document.querySelector('.replay-workspace')?.dataset.dateFormat === 'YYYY-MM-DD'
     && document.querySelector('.replay-workspace')?.dataset.dayOfWeekVisible === 'true'
     && document.querySelector('.replay-workspace')?.dataset.hourFormat === '12-hour'
+    && document.querySelector('.replay-workspace')?.dataset.paneReadoutFontSize === '16'
+    && [...document.querySelectorAll('.pane-overlay-layer')]
+      .every((overlay) => overlay.dataset.fontSize === '16')
     && document.querySelector('.lightweight-chart-host')?.dataset.crosshairStyle === 'dotted'
     && document.querySelector('.lightweight-chart-host')?.dataset.scaleFontSize === '16'`);
   assert.equal(await evaluate(cdp,
@@ -988,6 +1004,8 @@ try {
     `[...document.querySelectorAll('.lightweight-chart-host')]
       .every((host) => host.dataset.gridVisible === 'false')`), true,
   'the committed Grid value must apply to every mounted Pane');
+  await evaluate(cdp,
+    `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
   assert.deepEqual(await evaluate(cdp, `(() => {
     const host = document.querySelector('.lightweight-chart-host');
     const pane = document.querySelector('.workspace-pane');
@@ -1004,11 +1022,13 @@ try {
       currentPriceNameVisible: host.dataset.currentPriceNameVisible,
       currentPriceValueVisible: host.dataset.currentPriceValueVisible,
       ohlcHidden: pane.querySelector('.pane-ohlc').hidden,
+      paneReadoutFontSize: pane.querySelector('.pane-overlay-layer').dataset.fontSize,
       pricePrecision: host.dataset.pricePrecision,
       scaleFontSize: host.dataset.scaleFontSize,
       scaleMarginBottomPercent: host.dataset.scaleMarginBottomPercent,
       scaleMarginTopPercent: host.dataset.scaleMarginTopPercent,
       scaleTextColor: host.dataset.scaleTextColor,
+      symbolFontSize: getComputedStyle(pane.querySelector('.pane-symbol')).fontSize,
       volumeHidden: pane.querySelector('.pane-volume').hidden,
     };
   })()`), {
@@ -1024,11 +1044,13 @@ try {
     currentPriceNameVisible: 'true',
     currentPriceValueVisible: 'false',
     ohlcHidden: true,
+    paneReadoutFontSize: '16',
     pricePrecision: '1',
     scaleFontSize: '16',
     scaleMarginBottomPercent: '18',
     scaleMarginTopPercent: '14',
     scaleTextColor: '#f1e9daff',
+    symbolFontSize: '17px',
     volumeHidden: false,
   }, 'Symbol, readout, and name-only current-price settings must apply without moving Replay');
   assert.match(await evaluate(cdp,
@@ -1067,6 +1089,7 @@ try {
       hourFormat: root.dataset.hourFormat,
       ohlcVisible: root.dataset.ohlcVisible,
       paneControlDockVisibility: root.dataset.paneControlDockVisibility,
+      paneReadoutFontSize: root.dataset.paneReadoutFontSize,
       rightMarginBars: root.dataset.rightMarginBars,
       volumeVisible: root.dataset.volumeVisible,
     };
@@ -1075,6 +1098,7 @@ try {
     currentPriceValueVisible: 'false', ohlcVisible: 'false',
     dateFormat: 'YYYY-MM-DD', dayOfWeekVisible: 'true', displayTimezone: 'UTC',
     hourFormat: '12-hour', paneControlDockVisibility: 'always',
+    paneReadoutFontSize: '16',
     rightMarginBars: '24', volumeVisible: 'true',
   }, 'hard Session re-entry must restore Status/current-price settings');
 
@@ -1121,6 +1145,11 @@ try {
     `[...document.querySelectorAll('.lightweight-chart-host')]
       .every((host) => host.dataset.bodyVisible === 'false' && host.dataset.pricePrecision === '1')`), true,
   'future Panes must inherit the committed Symbol presentation before ready paint');
+  assert.equal(await evaluate(cdp,
+    `[...document.querySelectorAll('.pane-overlay-layer')]
+      .every((overlay) => overlay.dataset.fontSize === '16'
+        && getComputedStyle(overlay.querySelector('.pane-symbol')).fontSize === '17px')`), true,
+  'future Panes must inherit the committed Status Line font size before ready paint');
   assert.equal(await evaluate(cdp,
     `[...document.querySelectorAll('.lightweight-chart-host')]
       .every((host) => host.dataset.currentPriceNameVisible === 'true'
@@ -1203,6 +1232,8 @@ try {
         .settings.value.currentPrice.valueVisible,
       pricePrecision: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
         .settings.value.candles.pricePrecision,
+      paneReadoutFontSize: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
+        .settings.value.paneReadout.fontSize,
       rightMarginBars: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
         .settings.value.canvas.rightMarginBars,
       settingsVersion: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
@@ -1223,10 +1254,11 @@ try {
     displayTimezone: 'UTC',
     gridVisible: false,
     hourFormat: '12-hour',
+    paneReadoutFontSize: 16,
     pricePrecision: 1,
     rightMarginBars: 24,
     sessionOwnsSettings: false,
-    settingsVersion: 6,
+    settingsVersion: 7,
     volumeVisible: true,
   }, 'independent global records must own Quick GoTo and visual Settings outside Sessions');
 

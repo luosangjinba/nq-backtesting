@@ -236,6 +236,7 @@ export function createReplayWorkspaceView(options) {
       root.dataset.gridVisible = String(value.canvas.gridVisible);
       root.dataset.ohlcVisible = String(value.paneReadout.ohlcVisible);
       root.dataset.paneControlDockVisibility = value.interface.paneControlDockVisibility;
+      root.dataset.paneReadoutFontSize = String(value.paneReadout.fontSize);
       root.dataset.pricePrecision = String(value.candles.pricePrecision);
       root.dataset.rightMarginBars = String(value.canvas.rightMarginBars);
       root.dataset.scaleFontSize = String(value.canvas.scaleFontSize);

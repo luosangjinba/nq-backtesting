@@ -155,6 +155,9 @@ function createPanels(controls) {
     ['status', element('section', { className: 'workstation-settings-status' }, [
       element('span', { className: 'workstation-settings-kicker', text: 'Content' }),
       controls.readout.ohlc.root, controls.readout.change.root, controls.readout.volume.root,
+      element('span', { className: 'workstation-settings-kicker workstation-settings-section-kicker',
+        text: 'Typography' }),
+      controls.readout.fontSize.root,
     ])],
     ['scales', element('section', { className: 'workstation-settings-scales' }, [
       element('span', { className: 'workstation-settings-kicker', text: 'Current price' }),
@@ -277,6 +280,11 @@ export function createSettingsDialogForm({ getRecentColors, onColorChange }) {
     precision: createPrecisionControl(),
     readout: Object.freeze({
       change: switchControl({ label: 'Bar change values', name: 'changeVisible' }),
+      fontSize: selectControl({
+        label: 'Font size', name: 'paneReadoutFontSize',
+        options: [10, 11, 12, 13, 14, 15, 16, 17, 18]
+          .map((value) => ({ label: `${value} px`, value })),
+      }),
       ohlc: switchControl({ label: 'Chart values (OHLC)', name: 'ohlcVisible' }),
       volume: switchControl({ copy: 'Unavailable source volume is shown as Vol —.', label: 'Volume', name: 'volumeVisible' }),
     }),

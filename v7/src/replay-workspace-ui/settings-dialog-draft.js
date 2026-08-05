@@ -35,6 +35,7 @@ export function populateSettingsDraft(controls, settings) {
   controls.currentPrice.name.input.checked = value.currentPrice.nameVisible;
   controls.currentPrice.value.input.checked = value.currentPrice.valueVisible;
   controls.readout.change.input.checked = value.paneReadout.changeVisible;
+  controls.readout.fontSize.select.value = String(value.paneReadout.fontSize);
   controls.readout.ohlc.input.checked = value.paneReadout.ohlcVisible;
   controls.readout.volume.input.checked = value.paneReadout.volumeVisible;
   controls.time.dateFormat.select.value = value.time.dateFormat;
@@ -78,6 +79,7 @@ export function readSettingsDraft(controls) {
     interface: { paneControlDockVisibility: controls.paneControls.select.value },
     paneReadout: {
       changeVisible: controls.readout.change.input.checked,
+      fontSize: Number(controls.readout.fontSize.select.value),
       ohlcVisible: controls.readout.ohlc.input.checked,
       volumeVisible: controls.readout.volume.input.checked,
     },

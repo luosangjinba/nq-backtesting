@@ -8,12 +8,13 @@ export { failWorkstationSettings, WorkstationSettingsError } from './settings-er
 
 const SETTINGS = new WeakSet();
 const SCHEMA = 'v7.workstation-settings';
-const VERSION = 6;
+const VERSION = 7;
 const CANVAS_ONLY_VERSION = 1;
 const OPAQUE_CANDLE_VERSION = 2;
 const ALPHA_CANDLE_VERSION = 3;
 const STATUS_CURRENT_PRICE_VERSION = 4;
 const CANVAS_PRESENTATION_VERSION = 5;
+const TIME_PRESENTATION_VERSION = 6;
 
 export const DEFAULT_WORKSTATION_SETTINGS = Object.freeze({
   candles: Object.freeze({
@@ -49,6 +50,7 @@ export const DEFAULT_WORKSTATION_SETTINGS = Object.freeze({
   interface: Object.freeze({ paneControlDockVisibility: 'hover' }),
   paneReadout: Object.freeze({
     changeVisible: true,
+    fontSize: 12,
     ohlcVisible: true,
     volumeVisible: false,
   }),
@@ -175,6 +177,10 @@ function migrateStatusCurrentPriceValue(value) {
     ...value,
     canvas: { ...DEFAULT_WORKSTATION_SETTINGS.canvas, gridVisible: value.canvas.gridVisible },
     interface: DEFAULT_WORKSTATION_SETTINGS.interface,
+    paneReadout: {
+      ...value.paneReadout,
+      fontSize: DEFAULT_WORKSTATION_SETTINGS.paneReadout.fontSize,
+    },
     time: DEFAULT_WORKSTATION_SETTINGS.time,
   });
 }
@@ -182,7 +188,21 @@ function migrateStatusCurrentPriceValue(value) {
 function migrateCanvasPresentationValue(value) {
   return createWorkstationSettings({
     ...value,
+    paneReadout: {
+      ...value.paneReadout,
+      fontSize: DEFAULT_WORKSTATION_SETTINGS.paneReadout.fontSize,
+    },
     time: DEFAULT_WORKSTATION_SETTINGS.time,
+  });
+}
+
+function migrateTimePresentationValue(value) {
+  return createWorkstationSettings({
+    ...value,
+    paneReadout: {
+      ...value.paneReadout,
+      fontSize: DEFAULT_WORKSTATION_SETTINGS.paneReadout.fontSize,
+    },
   });
 }
 
@@ -205,6 +225,7 @@ export function deserializeWorkstationSettings(wire) {
   if (wire.version === ALPHA_CANDLE_VERSION) return migrateAlphaCandleValue(wire.value);
   if (wire.version === STATUS_CURRENT_PRICE_VERSION) return migrateStatusCurrentPriceValue(wire.value);
   if (wire.version === CANVAS_PRESENTATION_VERSION) return migrateCanvasPresentationValue(wire.value);
+  if (wire.version === TIME_PRESENTATION_VERSION) return migrateTimePresentationValue(wire.value);
   if (wire.version !== VERSION) {
     failWorkstationSettings(
       'WORKSTATION_SETTINGS_VERSION_INVALID',

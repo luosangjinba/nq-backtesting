@@ -1,6 +1,7 @@
 # V7 Workstation Settings Status And Current Price — R6.9k
 
-Status: accepted by human interaction and visual review (2026-07-22)
+Status: accepted by human interaction and visual review (2026-07-22); font-size
+acceptance correction implemented, human recheck pending (2026-08-05)
 
 ## Product Boundary
 
@@ -21,6 +22,7 @@ The active controls and defaults are:
   },
   "paneReadout": {
     "changeVisible": true,
+    "fontSize": 12,
     "ohlcVisible": true,
     "volumeVisible": false
   }
@@ -38,6 +40,8 @@ Volume DOM. Existing selected/latest Crosshair semantics are unchanged:
 
 - `ohlcVisible` hides only the four OHLC values;
 - `changeVisible` hides only absolute and percentage bar change;
+- `fontSize` scales the complete product-owned readout from 10px through 18px,
+  defaults to 12px, and adjusts the overlay height without changing the chart;
 - `volumeVisible` reveals the accepted bar's source or aggregate Volume;
 - finite Volume is formatted compactly, while explicit unknown `null` is
   rendered honestly as `Vol —` and never coerced to zero;
@@ -45,6 +49,13 @@ Volume DOM. Existing selected/latest Crosshair semantics are unchanged:
 
 The Pane grid applies the same committed presentation and shared price formatter
 to every mounted overlay and to an overlay created later.
+
+The 2026-08-05 acceptance correction advances the current Settings wire from
+version 6 to version 7. Existing version-1 through version-6 records migrate to
+the 12px default without changing any accepted visual or time preference.
+Official Lightweight Charts documentation limits `layout.fontSize` to scale
+text, and the awesome-tradingview catalog offers no compatible status-line
+typography plugin, so the existing DOM overlay remains the correct owner.
 
 ## Current-price Mapping
 

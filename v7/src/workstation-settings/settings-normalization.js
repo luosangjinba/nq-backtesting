@@ -146,6 +146,26 @@ function normalizeInterface(value) {
   });
 }
 
+function normalizePaneReadout(value) {
+  exactObject(value, ['changeVisible', 'fontSize', 'ohlcVisible', 'volumeVisible'],
+    'WORKSTATION_SETTINGS_PANE_READOUT_FIELDS_INVALID', 'Pane readout Settings fields are invalid.');
+  return Object.freeze({
+    changeVisible: booleanField(value.changeVisible,
+      'WORKSTATION_SETTINGS_PANE_READOUT_VISIBILITY_INVALID',
+      'Pane readout changeVisible must be boolean.'),
+    fontSize: boundedInteger(value.fontSize, {
+      code: 'WORKSTATION_SETTINGS_PANE_READOUT_FONT_SIZE_INVALID',
+      field: 'Pane readout fontSize', maximum: 18, minimum: 10,
+    }),
+    ohlcVisible: booleanField(value.ohlcVisible,
+      'WORKSTATION_SETTINGS_PANE_READOUT_VISIBILITY_INVALID',
+      'Pane readout ohlcVisible must be boolean.'),
+    volumeVisible: booleanField(value.volumeVisible,
+      'WORKSTATION_SETTINGS_PANE_READOUT_VISIBILITY_INVALID',
+      'Pane readout volumeVisible must be boolean.'),
+  });
+}
+
 function normalizeTime(value) {
   exactObject(value, ['dateFormat', 'dayOfWeekVisible', 'displayTimezone', 'hourFormat'],
     'WORKSTATION_SETTINGS_TIME_FIELDS_INVALID', 'Time presentation Settings fields are invalid.');
@@ -171,8 +191,7 @@ export function normalizeWorkstationSettingsValue(value) {
     currentPrice: normalizeVisibilityGroup(value.currentPrice,
       ['lineVisible', 'nameVisible', 'valueVisible'], 'CURRENT_PRICE', 'Current-price'),
     interface: normalizeInterface(value.interface),
-    paneReadout: normalizeVisibilityGroup(value.paneReadout,
-      ['changeVisible', 'ohlcVisible', 'volumeVisible'], 'PANE_READOUT', 'Pane readout'),
+    paneReadout: normalizePaneReadout(value.paneReadout),
     time: normalizeTime(value.time),
   });
 }
