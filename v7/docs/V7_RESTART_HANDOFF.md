@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-05 after R10.4 existing-Caddy coexistence correction
+Last updated: 2026-08-05 after R10.5 empty-listener guard correction
 
 ## Current Overall Acceptance State
 
@@ -31,6 +31,10 @@ Replay Lab systemd unit existed and neither loopback port was listening. It
 also proved the host's active Caddyfile serves `recap.buddhiststudy.xyz`, so
 R10.4 adds `--preserve-caddy` to import a managed Replay Lab fragment without
 replacing that unrelated site. Pull R10.4 and rerun the wrapper with that flag.
+The first R10.4 wrapper invocation then exited silently before the installer:
+the empty legacy-listener branch inherited the failed test status under
+`set -e`. R10.5 returns success explicitly when no listener exists and binds
+that exact no-listener continuation as executable regression evidence.
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not

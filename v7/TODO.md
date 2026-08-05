@@ -7,6 +7,15 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
+### R10.5 Empty Legacy-Listener Guard — Corrected, Host Rerun Pending
+
+- [x] reproduce the silent quick-deploy exit when neither loopback port has a
+  legacy listener;
+- [x] correct the empty-listener branch to return success under `set -e`;
+- [x] bind a no-listener executable regression that proves deployment
+  orchestration continues;
+- [ ] pull the correction and rerun the Alibaba deployment command.
+
 ### R10.4 Existing Caddy Coexistence — Implemented, Host Rerun Pending
 
 - [x] preserve the Alibaba host evidence that its active Caddy configuration

@@ -98,6 +98,20 @@ try {
   assert.match(quickSource, /Browser password for \$auth_user/);
   assert.match(quickSource,
     /installer_arguments=\([\s\S]*--auth-password-file "\$password_file"[\s\S]*bash "\$installer" "\$\{installer_arguments\[@\]\}"/);
+  const quickListenerStopSource = quickSource.match(
+    /^stop_identified_listener\(\) \{[\s\S]*?^\}/m,
+  )?.[0];
+  assert.ok(quickListenerStopSource, 'quick-deploy listener stop must remain executable');
+  const noLegacyListener = spawnSync('bash', ['-c', [
+    'set -Eeuo pipefail',
+    'systemctl() { return 3; }',
+    'listener_pids() { return 0; }',
+    quickListenerStopSource,
+    'stop_identified_listener 8766 replay-lab-api.service',
+    'printf "no-listener-continues\\n"',
+  ].join('\n')], { encoding: 'utf8' });
+  assert.equal(noLegacyListener.status, 0, noLegacyListener.stderr);
+  assert.match(noLegacyListener.stdout, /no-listener-continues/);
 
   const common = ['--dry-run', '--db', database, '--service-user', os.userInfo().username];
   const caddyVersion = spawnSync('caddy', ['version'], { encoding: 'utf8' });

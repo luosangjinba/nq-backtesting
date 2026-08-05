@@ -68,7 +68,7 @@ stop_identified_listener() {
   local pids=()
   systemctl is-active --quiet "$unit" && return
   mapfile -t pids < <(listener_pids "$port")
-  [[ "${#pids[@]}" -gt 0 ]] || return
+  [[ "${#pids[@]}" -gt 0 ]] || return 0
   [[ "$replace_legacy" -eq 1 ]] \
     || die "port $port has a legacy listener; inspect it or rerun with --replace-legacy"
   for pid in "${pids[@]}"; do
