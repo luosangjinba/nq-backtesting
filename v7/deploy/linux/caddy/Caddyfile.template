@@ -1,0 +1,14 @@
+@@EMAIL_DIRECTIVE@@@@SITE_ADDRESS@@ {
+  encode gzip zstd
+@@AUTH_BLOCK@@
+
+  # The acceptance deployment is intentionally read-only. Data Acquisition is
+  # reviewed separately and must never gain write authority by proxy accident.
+  @mutating method POST PUT PATCH DELETE
+  respond @mutating "Remote mutation is disabled on this acceptance host." 403
+
+  @v4_api path /v4/*
+  reverse_proxy @v4_api 127.0.0.1:8766
+
+  reverse_proxy 127.0.0.1:8007
+}

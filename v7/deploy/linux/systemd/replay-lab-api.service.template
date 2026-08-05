@@ -1,0 +1,30 @@
+[Unit]
+Description=Replay Lab V4 market-data API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=@@SERVICE_USER@@
+Group=@@SERVICE_GROUP@@
+WorkingDirectory=@@CURRENT_RELEASE@@/v4
+EnvironmentFile=/etc/replay-lab/replay-lab.env
+ExecStart=@@PYTHON_BIN@@ @@CURRENT_RELEASE@@/v4/v4_api.py
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=20
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectClock=true
+ProtectControlGroups=true
+ProtectHome=read-only
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=full
+ReadOnlyPaths=@@DATABASE_PATH@@
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

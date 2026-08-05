@@ -1,0 +1,28 @@
+[Unit]
+Description=Replay Lab V7 static workstation
+After=network-online.target replay-lab-api.service
+Wants=network-online.target replay-lab-api.service
+
+[Service]
+Type=simple
+User=@@SERVICE_USER@@
+Group=@@SERVICE_GROUP@@
+WorkingDirectory=@@CURRENT_RELEASE@@
+ExecStart=@@NODE_BIN@@ @@CURRENT_RELEASE@@/v7/scripts/serve.mjs 8007
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=20
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectClock=true
+ProtectControlGroups=true
+ProtectHome=read-only
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=full
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

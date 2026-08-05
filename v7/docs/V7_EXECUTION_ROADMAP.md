@@ -548,3 +548,21 @@ R8.13–R8.15.
   full-history interaction Maps with one binary-search index per child, and
   binding sustained 1/2/4 Pane Chrome latency evidence; implemented and
   awaiting human acceptance.
+- `R9.3`: supersede R9.2's still-perceptible complete-history Canvas rewrite
+  with bounded Replay series segments, viewport-aware rendering, shared
+  mutation/immutability/time-format proofs, and a tightened sustained 1/2/4
+  Pane Chrome gate; implemented and awaiting human acceptance.
+- `R9.4`: preserve completion-slot Chart coordinates while labeling fixed
+  aggregates from bucket start and calendar aggregates from explicit trading-
+  period dates through official Crosshair/time-axis formatter ports;
+  implemented and awaiting focused human hover review.
+
+## R10 — Deployment Validation
+
+- `R10.1`: add a private-by-default one-command Linux acceptance-host deploy
+  for exact committed releases, a systemd-enforced read-only external DuckDB,
+  loopback V4/V7 services, optional authenticated Caddy HTTPS, proxy-enforced
+  remote mutation blocking, local health rollback, and executable dry-run/
+  negative/rendered-config evidence. It runs in parallel with the still-open
+  phase-one overall acceptance checklist and awaits a real lightweight-host
+  gate.

@@ -1,6 +1,6 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule (R9.1 Replay product tuning, 2026-08-01)
+Status: binding delivery rule (R10.1 Linux acceptance-host deployment, 2026-08-04)
 
 ## Delivery IDs
 
@@ -20,11 +20,12 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current delivery step is `R9.1`, the Replay `4h` cap and bulk-reveal latency
-slice. R8 remains closed at R8.16 commit `364c6b27`; R9.1 is the first normal
-product delivery after recovery. It is exactly one commit and stops for human
-review before another step is selected. Broad `R<n>` headings remain
-milestones only.
+The current repository-changing delivery step is `R10.1`, the parallel Linux
+acceptance-host deployment boundary. R8 remains closed at R8.16 commit
+`364c6b27`; R9.1–R9.4 retain their recorded implementation and human-review
+states, and the phase-one overall checklist remains open. R10.1 is exactly one
+commit and stops for real lightweight-host review. Broad `R<n>` headings
+remain milestones only.
 
 ## Other Stable IDs
 

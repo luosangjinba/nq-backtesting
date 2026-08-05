@@ -1,5 +1,46 @@
 # V7 TODO
 
+## Phase-One Overall Acceptance — In Progress
+
+The main-program acceptance pass is still active. R8 architecture recovery
+closure and individual R9 implementations do not close it. The current
+machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
+Contract Roll retain their separate gate.
+
+### R10.1 Linux Acceptance-Host Deployment — Implemented, Host Review Pending
+
+- [x] add one private-by-default Linux deployment command for common `apt`,
+  `dnf`, and `pacman` systemd hosts;
+- [x] deploy exact committed Git revisions as immutable releases with pinned
+  minimal Python runtime and exact npm lock dependencies;
+- [x] keep V4/V7 services loopback-only and support two-port SSH review without
+  requiring a public endpoint;
+- [x] add optional Caddy automatic HTTPS with authentication required by
+  default and version-compatible authentication directives;
+- [x] keep the external DuckDB mounted read-only in the API service and block
+  all public mutation methods during main-program acceptance;
+- [x] restore the prior release after local API/Web health failure and retain
+  explicit manual rollback evidence;
+- [x] execute private/public dry-run, negative input, hardened-unit, and real
+  rendered-Caddy validation without host mutation;
+- [x] invoke all 82 top-level V7 Harnesses and preserve the two reproducible
+  existing visual failures as open overall-acceptance evidence instead of
+  re-recording their fixtures;
+- [x] activate H083 as executable while retaining its real-host human gate;
+- [ ] execute the installer on a clean lightweight cloud host and record CPU,
+  memory, disk, cold/warm interaction latency, console/network, and service
+  restart evidence;
+- [ ] prove the public mutation block and unchanged database fingerprint, then
+  exercise one repeat deployment and rollback target;
+- [ ] complete the remaining overall acceptance checklist independently of
+  this deployment gate;
+- [ ] diagnose the reproducible Replay Workspace missing candle-body render and
+  the smaller Pane Workspace visual delta before claiming a clean overall
+  Harness sweep.
+
+Binding decision/evidence:
+`docs/V7_LINUX_ACCEPTANCE_HOST_DEPLOYMENT_R10_1.md`.
+
 ## R9 Replay Product Tuning — R9.4 Implemented, Human Review Pending
 
 - [x] cap registered Replay choices at `4h` while retaining `8h`/`12h` and

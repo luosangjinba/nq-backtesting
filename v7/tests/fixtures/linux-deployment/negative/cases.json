@@ -1,0 +1,22 @@
+[
+  {
+    "id": "relative-database-path",
+    "expectedMessage": "--db must be an absolute path"
+  },
+  {
+    "id": "missing-database",
+    "expectedMessage": "DuckDB file does not exist"
+  },
+  {
+    "id": "public-without-auth",
+    "expectedMessage": "public HTTPS requires --auth-user"
+  },
+  {
+    "id": "apply-without-confirmation",
+    "expectedMessage": "--apply requires --yes"
+  },
+  {
+    "id": "hostname-with-scheme",
+    "expectedMessage": "--domain must be a hostname"
+  }
+]

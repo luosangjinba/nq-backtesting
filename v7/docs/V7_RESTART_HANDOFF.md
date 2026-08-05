@@ -1,6 +1,23 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-04 before the planned server reboot
+Last updated: 2026-08-04 after restart and R10.1 deployment implementation
+
+## Current Overall Acceptance State
+
+Phase-one main-program acceptance is still in progress. R8's architecture
+recovery closure and the individual R9 implementation records do not close the
+overall product gate. The current machine-local reviewer sequence is
+`v7/tmp/验收1.md`; continue from its actual checkbox state. Data Acquisition and
+Contract Roll remain a separate checklist/gate.
+
+R10.1 adds a parallel Linux acceptance-host installer at
+`v7/deploy/linux/install.sh`. It is implemented with automated dry-run/config
+evidence but has not yet passed its real lightweight-cloud-host gate. Its
+read-only public boundary must not be interpreted as Data Acquisition approval.
+The 2026-08-04 full Harness sweep also left two reproducible pre-existing visual
+findings open: a small Pane Workspace fixture delta and a Replay Workspace
+render with candle wicks but missing filled bodies. No baseline was updated;
+both remain part of overall acceptance rather than R10.1 production changes.
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -47,7 +64,8 @@ handoff was committed.
 - branch: `v7/rebuild`
 - immutable pre-remediation checkpoint: `fa561599`
 - recovery state: R8 is complete and inactive; normal-delivery scope is
-  active and R9.4 is the current implemented step awaiting human review;
+  active, phase-one overall acceptance remains open, R9.4 retains focused
+  human review, and parallel R10.1 awaits real-host validation;
 - the separate R7.3/R7.3c Data Acquisition admin human gate remains open;
 - R8.1 recovery constitution is commit `7dbabbed`;
 - R8.2 production architecture analyzer is commit `f19b7f32`;
@@ -760,11 +778,15 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 ## Exact Next Step
 
 After restart, do not resume either NQ or ES repair: both full-chain writes are
-complete. R9.4 aggregated-bucket crosshair formatting is implemented and still
-has its focused browser hover review pending. R8 recovery remains human
-accepted and inactive. The separate R7.3/R7.3c Data Acquisition admin human
-gate and the proposed multi-source acquisition/plugin project remain deferred;
-neither is implicitly authorized by the completed historical repairs.
+complete. Continue the open overall checklist from `v7/tmp/验收1.md`; R9.4's
+aggregated-bucket hover review is one pending focused check inside that broader
+acceptance, not the entire gate. In parallel, run R10.1 first in private SSH-
+tunnel mode on a clean lightweight Linux host, then optionally authenticated
+HTTPS, and record resource/latency/restart/rollback plus unchanged-database
+evidence. R8 recovery remains human accepted and inactive. The separate
+R7.3/R7.3c Data Acquisition admin human gate and the proposed multi-source
+acquisition/plugin project remain deferred; neither is implicitly authorized by
+the completed historical repairs or the read-only deployment path.
 
 ## Standing Workflow
 
