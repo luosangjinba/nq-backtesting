@@ -7,6 +7,18 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
+### R10.7 Direct-IP TLS Default SNI — Corrected, Host Rerun Pending
+
+- [x] preserve the successful public-IP certificate issuance alongside the
+  continuing no-SNI TLS handshake failure;
+- [x] add the public IP as Caddy `default_sni` for clients that omit SNI when
+  connecting to an IP literal;
+- [x] merge that global option into an existing global block without removing
+  its email or unrelated sites, reject conflicts, and remain repeat-safe;
+- [x] validate replacement and coexistence configurations with Caddy 2.11.3;
+- [ ] pull the correction, reload Caddy through the installer, and prove the
+  external endpoint returns authenticated HTTP rather than a TLS alert.
+
 ### R10.6 Service Runtime Permissions — Corrected, Host Rerun Pending
 
 - [x] preserve the Alibaba failure where root-created venv Python returned

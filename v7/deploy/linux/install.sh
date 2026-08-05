@@ -127,11 +127,54 @@ render_template() {
     line="${line//@@NODE_BIN@@/$node_bin}"
     line="${line//@@DATABASE_PATH@@/$db_path}"
     line="${line//@@SITE_ADDRESS@@/$public_host}"
-    line="${line//@@EMAIL_DIRECTIVE@@/$email_directive}"
+    line="${line//@@GLOBAL_OPTIONS@@/$global_options_block}"
     line="${line//@@AUTH_BLOCK@@/$auth_block}"
     line="${line//@@TLS_BLOCK@@/$tls_block}"
     printf '%s\n' "$line"
   done < "$input" > "$output"
+}
+
+write_caddy_default_sni() {
+  local input="$1"
+  local output="$2"
+  local server_name="$3"
+  local existing=""
+  local first_code_line=""
+  existing="$(awk '$1 == "default_sni" { print $2; exit }' "$input")"
+  if [[ -n "$existing" ]]; then
+    if [[ "$existing" != "$server_name" ]]; then
+      printf 'ERROR: existing Caddy default_sni conflicts with public IP: %s\n' "$existing" >&2
+      return 1
+    fi
+    cp -- "$input" "$output"
+    return 0
+  fi
+  first_code_line="$(awk '
+    /^[[:space:]]*$/ || /^[[:space:]]*#/ { next }
+    {
+      line=$0
+      sub(/^[[:space:]]*/, "", line)
+      sub(/[[:space:]]*$/, "", line)
+      print line
+      exit
+    }
+  ' "$input")"
+  if [[ "$first_code_line" == "{" ]]; then
+    awk -v server_name="$server_name" '
+      !inserted && /^[[:space:]]*\{[[:space:]]*$/ {
+        print
+        print "  default_sni " server_name
+        inserted=1
+        next
+      }
+      { print }
+    ' "$input" > "$output"
+  else
+    {
+      printf '{\n  default_sni %s\n}\n\n' "$server_name"
+      cat "$input"
+    } > "$output"
+  fi
 }
 
 detect_caddy_auth_directive() {
@@ -562,7 +605,7 @@ web_template="$template_root/systemd/replay-lab-web.service.template"
 caddy_template="$template_root/caddy/Caddyfile.template"
 runtime_requirements="$template_root/requirements-runtime.txt"
 previous_release=""
-email_directive=""
+global_options_block=""
 auth_block=""
 auth_directive="basic_auth"
 tls_block=""
@@ -584,7 +627,13 @@ rendered_web="$tmp_dir/replay-lab-web.service"
 rendered_caddy="$tmp_dir/Caddyfile"
 
 if [[ -n "$public_host" ]]; then
-  [[ -z "$email" ]] || email_directive=$'{\n  email '"$email"$'\n}\n\n'
+  global_option_lines=""
+  [[ -z "$email" ]] || global_option_lines+="  email $email"$'\n'
+  if [[ -n "$public_ip" && "$preserve_caddy" -eq 0 ]]; then
+    global_option_lines+="  default_sni $public_ip"$'\n'
+  fi
+  [[ -z "$global_option_lines" ]] \
+    || global_options_block=$'{\n'"$global_option_lines"$'}\n\n'
   if [[ -n "$public_ip" ]]; then
     tls_block=$'\n  tls {\n    issuer acme https://acme-v02.api.letsencrypt.org/directory {\n      profile shortlived\n      disable_tlsalpn_challenge\n    }\n  }'
   fi
@@ -756,23 +805,32 @@ if [[ -n "$public_host" ]]; then
     run_step sudo_cmd cp /etc/caddy/Caddyfile "$caddy_backup"
   fi
   if [[ "$preserve_caddy" -eq 1 ]]; then
-    if sudo_cmd test -f "$caddy_fragment_path"; then
-      caddy_fragment_existed=1
-      caddy_fragment_backup="$caddy_fragment_path.backup-$(date -u +%Y%m%dT%H%M%SZ)"
-      run_step sudo_cmd cp "$caddy_fragment_path" "$caddy_fragment_backup"
-    fi
-    run_step sudo_cmd install -m 0644 "$rendered_caddy" "$caddy_fragment_path"
     merged_caddy="$tmp_dir/Caddyfile.preserved"
+    source_caddy="$tmp_dir/Caddyfile.existing"
     if [[ "$caddy_main_existed" -eq 1 ]]; then
-      sudo_cmd cat /etc/caddy/Caddyfile > "$merged_caddy"
+      sudo_cmd cat /etc/caddy/Caddyfile > "$source_caddy"
     else
-      : > "$merged_caddy"
+      : > "$source_caddy"
+    fi
+    if [[ -n "$public_ip" ]]; then
+      if ! write_caddy_default_sni "$source_caddy" "$merged_caddy" "$public_ip"; then
+        rollback_release
+        die "cannot preserve a Caddyfile with a conflicting default_sni"
+      fi
+    else
+      cp -- "$source_caddy" "$merged_caddy"
     fi
     if ! grep -Eq \
       '^[[:space:]]*import[[:space:]]+/etc/caddy/replay-lab\.Caddyfile[[:space:]]*$' \
       "$merged_caddy"; then
       printf '\nimport /etc/caddy/replay-lab.Caddyfile\n' >> "$merged_caddy"
     fi
+    if sudo_cmd test -f "$caddy_fragment_path"; then
+      caddy_fragment_existed=1
+      caddy_fragment_backup="$caddy_fragment_path.backup-$(date -u +%Y%m%dT%H%M%SZ)"
+      run_step sudo_cmd cp "$caddy_fragment_path" "$caddy_fragment_backup"
+    fi
+    run_step sudo_cmd install -m 0644 "$rendered_caddy" "$caddy_fragment_path"
     run_step sudo_cmd install -m 0644 "$merged_caddy" /etc/caddy/Caddyfile
   else
     run_step sudo_cmd install -m 0644 "$rendered_caddy" /etc/caddy/Caddyfile

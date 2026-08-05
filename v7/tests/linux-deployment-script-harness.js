@@ -166,6 +166,18 @@ try {
   assert.match(publicIpPlan.stdout, /Let's Encrypt short-lived IPv4 certificate/);
   assert.match(publicIpPlan.stdout, /profile shortlived/);
   assert.match(publicIpPlan.stdout, /disable_tlsalpn_challenge/);
+  assert.match(publicIpPlan.stdout, /default_sni 43\.110\.32\.34/);
+  const preservedPublicIpPlan = execute([
+    ...common,
+    '--public-ip', '43.110.32.34',
+    '--auth-user', 'reviewer',
+    '--auth-hash', passwordHash,
+    '--preserve-caddy',
+  ]);
+  assert.equal(preservedPublicIpPlan.status, 0, preservedPublicIpPlan.stderr);
+  assert.match(preservedPublicIpPlan.stdout, /Back up and preserve: \/etc\/caddy\/Caddyfile/);
+  assert.match(preservedPublicIpPlan.stdout, /Write managed fragment: \/etc\/caddy\/replay-lab\.Caddyfile/);
+  assert.doesNotMatch(renderedCaddyFrom(preservedPublicIpPlan.stdout), /default_sni/);
   const caddyVersionMatch = caddyVersion.stdout.match(/v?(\d+)\.(\d+)\.(\d+)/);
   const supportsIpCertificate = caddyVersionMatch
     && (Number(caddyVersionMatch[1]) > 2
@@ -177,8 +189,12 @@ try {
     validateRenderedCaddy(publicIpPlan.stdout, 'Caddyfile-public-ip');
     const existingCaddyPath = path.join(temporaryDirectory, 'Caddyfile-existing');
     const replayFragmentPath = path.join(temporaryDirectory, 'replay-lab.Caddyfile');
-    fs.writeFileSync(replayFragmentPath, renderedCaddyFrom(publicIpPlan.stdout));
+    fs.writeFileSync(replayFragmentPath, renderedCaddyFrom(preservedPublicIpPlan.stdout));
     fs.writeFileSync(existingCaddyPath, [
+      '{',
+      '  default_sni 43.110.32.34',
+      '}',
+      '',
       'recap.example.com {',
       '  respond "existing site"',
       '}',
@@ -196,16 +212,6 @@ try {
     );
   }
 
-  const preservedPublicIpPlan = execute([
-    ...common,
-    '--public-ip', '43.110.32.34',
-    '--auth-user', 'reviewer',
-    '--auth-hash', passwordHash,
-    '--preserve-caddy',
-  ]);
-  assert.equal(preservedPublicIpPlan.status, 0, preservedPublicIpPlan.stderr);
-  assert.match(preservedPublicIpPlan.stdout, /Back up and preserve: \/etc\/caddy\/Caddyfile/);
-  assert.match(preservedPublicIpPlan.stdout, /Write managed fragment: \/etc\/caddy\/replay-lab\.Caddyfile/);
   expectFailure([...common, '--preserve-caddy'], /--preserve-caddy requires --domain or --public-ip/);
   expectFailure([
     ...common,
@@ -233,10 +239,35 @@ try {
   assert.match(installerSource, /caddy_version_at_least 2 10 2/);
   assert.match(installerSource, /import \/etc\/caddy\/replay-lab\.Caddyfile/);
   assert.match(installerSource, /combined Caddy configuration is invalid; restoring/);
+  assert.match(installerSource, /write_caddy_default_sni/);
   assert.match(installerSource, /chown -R root:"\$service_group" "\$venv_dir"/);
   assert.match(installerSource, /chmod -R u=rwX,g=rX,o= "\$venv_dir"/);
   assert.match(installerSource, /chown -R root:"\$service_group" "\$release_dir"/);
   assert.match(installerSource, /chmod -R u=rwX,g=rX,o= "\$release_dir"/);
+  const defaultSniSource = installerSource.match(
+    /^write_caddy_default_sni\(\) \{[\s\S]*?^\}/m,
+  )?.[0];
+  assert.ok(defaultSniSource, 'default SNI merger must remain independently executable');
+  const existingGlobalOptions = path.join(temporaryDirectory, 'existing-global.Caddyfile');
+  const mergedGlobalOptions = path.join(temporaryDirectory, 'merged-global.Caddyfile');
+  fs.writeFileSync(existingGlobalOptions, [
+    '{',
+    '  email reviewer@example.com',
+    '}',
+    '',
+    'recap.example.com {',
+    '  respond "existing"',
+    '}',
+    '',
+  ].join('\n'));
+  const defaultSniMerge = spawnSync('bash', ['-c', [
+    defaultSniSource,
+    'write_caddy_default_sni "$1" "$2" 43.110.32.34',
+  ].join('\n'), 'bash', existingGlobalOptions, mergedGlobalOptions], { encoding: 'utf8' });
+  assert.equal(defaultSniMerge.status, 0, defaultSniMerge.stderr);
+  const mergedGlobalSource = fs.readFileSync(mergedGlobalOptions, 'utf8');
+  assert.match(mergedGlobalSource, /email reviewer@example\.com/);
+  assert.match(mergedGlobalSource, /default_sni 43\.110\.32\.34/);
   const listenerGuardSource = installerSource.match(
     /^require_managed_or_free_port\(\) \{[\s\S]*?^\}/m,
   )?.[0];

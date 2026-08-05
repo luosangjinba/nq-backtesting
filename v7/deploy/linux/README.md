@@ -146,8 +146,11 @@ named `--allow-public-without-auth` override.
 Direct IP access keeps both application processes on loopback and publishes
 only Caddy on ports 80/443. It requires Caddy 2.10.2 or newer and a publicly
 reachable IPv4 address. The installer configures Let's Encrypt's `shortlived`
-profile, forces the HTTP challenge, and leaves renewal to Caddy. Open TCP 80
-and 443 in both the cloud security group and host firewall before apply.
+profile, forces the HTTP challenge, and selects the managed IP certificate as
+Caddy's `default_sni` because IP-literal clients may omit SNI. Preserve mode
+merges that option into an existing leading global block. Certificate renewal
+remains owned by Caddy. Open TCP 80 and 443 in both the cloud security group
+and host firewall before apply.
 
 Create a dedicated service identity and a root-readable web password:
 

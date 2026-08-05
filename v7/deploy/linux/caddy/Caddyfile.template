@@ -1,4 +1,4 @@
-@@EMAIL_DIRECTIVE@@@@SITE_ADDRESS@@ {
+@@GLOBAL_OPTIONS@@@@SITE_ADDRESS@@ {
   encode gzip zstd
 @@TLS_BLOCK@@
 @@AUTH_BLOCK@@

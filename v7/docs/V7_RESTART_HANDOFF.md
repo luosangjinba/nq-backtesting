@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-05 after R10.6 service-runtime permission correction
+Last updated: 2026-08-05 after R10.7 direct-IP default-SNI correction
 
 ## Current Overall Acceptance State
 
@@ -39,6 +39,11 @@ The R10.5 rerun then reached dependency/release installation but the `replay`
 identity could not execute the root-created shared venv Python. R10.6 now
 normalizes both venv and release trees to root ownership plus service-group
 read/traverse/execute access, including repair of the already-created venv.
+The R10.6 host then reached healthy V4/V7 services and successfully obtained a
+Let's Encrypt certificate for `43.110.32.34`, but external IP-literal clients
+still received a TLS internal alert because they omitted SNI. R10.7 configures
+that managed IP certificate as Caddy's `default_sni`, merging it into the
+existing global block while retaining the unrelated domain and account email.
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
