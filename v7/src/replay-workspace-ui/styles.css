@@ -874,6 +874,27 @@
   font-variant-numeric: tabular-nums;
 }
 .pane-volume-label { color: #8f979f; }
+.pane-overlay-layer.is-light-canvas .workspace-pane-header {
+  color: #35404a;
+  text-shadow: none;
+}
+.pane-overlay-layer.is-light-canvas .pane-number,
+.pane-overlay-layer.is-light-canvas .pane-ohlc-label,
+.pane-overlay-layer.is-light-canvas .pane-volume-label { color: #56616b; }
+.pane-overlay-layer.is-light-canvas .pane-symbol { color: #1d252d; }
+.pane-overlay-layer.is-light-canvas .pane-timeframe,
+.pane-overlay-layer.is-light-canvas .pane-ohlc,
+.pane-overlay-layer.is-light-canvas .pane-change,
+.pane-overlay-layer.is-light-canvas .pane-volume { color: #35404a; }
+.pane-overlay-layer.is-light-canvas .pane-ohlc[data-state="selected"] .pane-ohlc-label {
+  color: #343d46;
+}
+.pane-overlay-layer.is-light-canvas .pane-ohlc[data-direction="up"] .pane-ohlc-value,
+.pane-overlay-layer.is-light-canvas .pane-change[data-direction="up"] { color: #007866; }
+.pane-overlay-layer.is-light-canvas .pane-ohlc[data-direction="down"] .pane-ohlc-value,
+.pane-overlay-layer.is-light-canvas .pane-change[data-direction="down"] { color: #c6283d; }
+.pane-overlay-layer.is-light-canvas .pane-ohlc[data-direction="flat"] .pane-ohlc-value,
+.pane-overlay-layer.is-light-canvas .pane-change[data-direction="flat"] { color: #35404a; }
 .pane-ohlc[hidden],
 .pane-change[hidden],
 .pane-volume[hidden] { display: none; }

@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-05 after Replay-step native-menu theme correction
+Last updated: 2026-08-05 after light-Canvas Pane readout correction
 
 ## Current Overall Acceptance State
 
@@ -49,6 +49,12 @@ Replay-step native select popup reverted from dark to white when the pointer
 left it. The correction gives the select/options an explicit opaque dark base
 and dark color scheme; real-Chrome style and pointer-exit assertions pass, and
 the original Windows/browser path awaits human recheck.
+The next cloud screenshot showed a white Canvas with blurred, low-contrast Pane
+symbol/OHLC/change/Volume text. The Pane overlay had retained its dark-Canvas
+palette and two black text shadows. It now derives a light/dark presentation
+tone from the normalized Canvas background, preserves the original dark theme,
+and uses crisp dark unshadowed readouts on light Canvas. Real-Chrome live
+preview and Cancel restoration pass; the cloud path awaits human recheck.
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not

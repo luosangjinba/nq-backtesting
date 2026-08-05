@@ -1154,6 +1154,15 @@
           },
           {
             "importedNames": [
+              "normalizeHexAlphaColor"
+            ],
+            "sourceFile": "src/replay-workspace-ui/pane-overlay-view.js",
+            "targetFile": "src/workstation-settings/public.js",
+            "targetModuleId": "core.workstation-settings",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
               "PANE_LAYOUT_OPTIONS",
               "createPaneLayout",
               "deserializePaneLayout"

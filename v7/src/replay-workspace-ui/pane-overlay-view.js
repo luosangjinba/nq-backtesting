@@ -1,4 +1,23 @@
 import { readWorkspacePaneIdentity } from '../replay-workspace-composition/public.js';
+import { normalizeHexAlphaColor } from '../workstation-settings/public.js';
+
+function linearSrgbChannel(value) {
+  return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+}
+
+/** Choose the readout palette that contrasts with one Canvas background color. */
+export function paneOverlayToneForBackground(value) {
+  const normalized = normalizeHexAlphaColor(value);
+  if (normalized === null) {
+    throw new TypeError('Pane overlay Canvas background requires a CSS hex color.');
+  }
+  const alpha = parseInt(normalized.slice(7, 9), 16) / 255;
+  const [red, green, blue] = [1, 3, 5]
+    .map((start) => (parseInt(normalized.slice(start, start + 2), 16) / 255) * alpha)
+    .map(linearSrgbChannel);
+  const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+  return luminance > 0.179 ? 'light' : 'dark';
+}
 
 function element(tag, options = {}, children = []) {
   const node = document.createElement(tag);
@@ -142,6 +161,11 @@ export function createPaneOverlayView({ onMaximize, onReset, paneId }) {
 
   return Object.freeze({
     root,
+    setCanvasBackground(value) {
+      const tone = paneOverlayToneForBackground(value);
+      root.dataset.canvasTone = tone;
+      root.classList.toggle('is-light-canvas', tone === 'light');
+    },
     setControlVisibility(value) {
       if (!['always', 'hidden', 'hover'].includes(value)) {
         throw new TypeError('Pane controls require hover, always, or hidden visibility.');

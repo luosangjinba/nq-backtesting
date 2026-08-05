@@ -7,6 +7,21 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
+### Overall-Acceptance Finding — Light Canvas Pane Readout Contrast
+
+- [x] preserve the cloud-review screenshot showing white Canvas plus blurred,
+  low-contrast Pane symbol/OHLC/change/Volume text;
+- [x] isolate the defect to the DOM-only Pane overlay retaining its dark-Canvas
+  foreground palette and two black text shadows, not Chart or price data;
+- [x] classify the effective Canvas luminance from the normalized global
+  background color and project one light/dark tone to every mounted Pane;
+- [x] keep the original dark-Canvas declarations unchanged while giving light
+  Canvas readouts a dark high-contrast palette with no text shadow;
+- [x] bind real-Chrome Settings preview, every-Pane propagation, computed
+  symbol color, shadow removal, Cancel restoration, and pure alpha controls;
+- [ ] redeploy the committed correction and obtain human confirmation on the
+  original light-Canvas review path.
+
 ### Overall-Acceptance Finding — Replay-Step Native Menu Theme
 
 - [x] preserve the cloud-review screenshots showing the open Replay-step
@@ -457,8 +472,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 309 files, 22,999 effective
-lines, 2,460 functions, and 306 public exports; the architecture baseline
+The current production source baseline contains 309 files, 23,021 effective
+lines, 2,464 functions, and 306 public exports; the architecture baseline
 remains 48 modules, 125 edges, 115 construction sites, eight writers, and zero
 findings.
 
@@ -470,7 +485,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 309 files, 22,999 effective lines, 2,460 functions, 306 public
+currently at 309 files, 23,021 effective lines, 2,464 functions, 306 public
 exports, 48 modules, 125 edges, 115 construction sites, eight writers, and zero
 findings.
 

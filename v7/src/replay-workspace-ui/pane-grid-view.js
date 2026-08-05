@@ -39,8 +39,9 @@ export function createPaneGridView({
   const paneSetApplications = new WeakMap();
 
   function updatePresentation(record) {
-    const { candles, interface: interfaceSettings, paneReadout }
+    const { candles, canvas, interface: interfaceSettings, paneReadout }
       = readWorkstationSettings(workstationSettings);
+    record.overlay.setCanvasBackground(canvas.backgroundColor);
     record.overlay.setReadoutPresentation(paneReadout);
     record.overlay.setControlVisibility(interfaceSettings.paneControlDockVisibility);
     if (record.instrumentId) {

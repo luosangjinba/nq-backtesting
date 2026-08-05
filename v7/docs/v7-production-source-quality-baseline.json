@@ -15453,121 +15453,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 176,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "format",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "iconButton",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "setControlState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "formatPaneVolume",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "setReadoutPresentation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "renderOhlc",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-13>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "formatPaneTimeframeLabel",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "setLabels",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "setOhlc",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "formatPercent",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "formatSigned",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "setControlVisibility",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "setPricePresentation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 70,
-          "name": "createPaneOverlayView",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "ohlcField",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "element",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.replay-workspace-ui",
-      "owner": "replay-workspace-ui",
-      "ownsContract": false,
-      "path": "src/replay-workspace-ui/pane-overlay-view.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-ui"
-      ],
-      "sizeException": null,
-      "sourceHash": "fd94be3dd33f1fad141d7016b71e7b0f3ac2d7967dab2030e8ceda6cebfc0b02"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 180,
       "forwardingOnly": false,
       "functions": [
@@ -16203,6 +16088,141 @@
       ],
       "sizeException": null,
       "sourceHash": "76a0a244ff445721a003eacf3830c7d61842b4cd1e382941e592085e965ced70"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 197,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "format",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "iconButton",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "setControlState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "formatPaneVolume",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "paneOverlayToneForBackground",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "setReadoutPresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "renderOhlc",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "linearSrgbChannel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "formatPaneTimeframeLabel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "setLabels",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "setOhlc",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "formatPercent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "formatSigned",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "setCanvasBackground",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "setControlVisibility",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "setPricePresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 72,
+          "name": "createPaneOverlayView",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "ohlcField",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "element",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.replay-workspace-ui",
+      "owner": "replay-workspace-ui",
+      "ownsContract": false,
+      "path": "src/replay-workspace-ui/pane-overlay-view.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-ui"
+      ],
+      "sizeException": null,
+      "sourceHash": "10b59b6280c515a02ba856f6ae3cb3b3c7bd48bc60985754cc4d308f87aa6ec8"
     },
     {
       "adaptsBoundary": true,
@@ -17976,7 +17996,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 384,
+      "effectiveLines": 385,
       "forwardingOnly": false,
       "functions": [
         {
@@ -18030,11 +18050,6 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 12,
-          "name": "updatePresentation",
-          "reviewedDecompositionException": false
-        },
-        {
           "effectiveLines": 13,
           "name": "<anonymous-21>",
           "reviewedDecompositionException": false
@@ -18042,6 +18057,11 @@
         {
           "effectiveLines": 13,
           "name": "setLayout",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "updatePresentation",
           "reviewedDecompositionException": false
         },
         {
@@ -18195,7 +18215,7 @@
         "replay-workspace-ui"
       ],
       "sizeException": null,
-      "sourceHash": "e4ee0b2b08f1992492d3f806d39c0272c52bcbcb34edb52feecddf1c29d130f6"
+      "sourceHash": "82aaf52798caba7714eb19b3ca23e7b7158727ab6060437349d2cb661789d04e"
     },
     {
       "adaptsBoundary": true,
@@ -22934,9 +22954,9 @@
   ],
   "schemaVersion": 1,
   "summary": {
-    "effectiveLines": 22999,
+    "effectiveLines": 23021,
     "files": 309,
-    "functions": 2460,
+    "functions": 2464,
     "publicExports": 306
   },
   "deliveryStep": "R8.12",

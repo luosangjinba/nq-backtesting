@@ -341,6 +341,9 @@ try {
     const draft = document.querySelector('[name="upBodyColor"]');
     draft.value = '#5c6bc080';
     draft.dispatchEvent(new Event('input', { bubbles: true }));
+    const canvas = document.querySelector('[name="canvasBackgroundColor"]');
+    canvas.value = '#ffffffff';
+    canvas.dispatchEvent(new Event('input', { bubbles: true }));
     document.querySelector('[name="gridVisible"]').click();
     for (const [name, value] of Object.entries({
       dateFormat: 'YYYY-MM-DD', displayTimezone: 'UTC', hourFormat: '12-hour',
@@ -352,6 +355,9 @@ try {
     document.querySelector('[name="dayOfWeekVisible"]').click();
   })()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.gridVisible === 'false'
+    && document.querySelector('.replay-workspace')?.dataset.canvasBackgroundColor === '#ffffffff'
+    && [...document.querySelectorAll('.pane-overlay-layer')]
+      .every((overlay) => overlay.dataset.canvasTone === 'light')
     && document.querySelector('.replay-workspace')?.dataset.displayTimezone === 'UTC'
     && document.querySelector('.replay-workspace')?.dataset.dateFormat === 'YYYY-MM-DD'
     && document.querySelector('.replay-workspace')?.dataset.hourFormat === '12-hour'
@@ -362,6 +368,25 @@ try {
         && host.dataset.dateFormat === 'YYYY-MM-DD'
         && host.dataset.hourFormat === '12-hour'
         && host.dataset.dayOfWeekVisible === 'true')`);
+  await evaluate(cdp,
+    `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
+  assert.deepEqual(await evaluate(cdp, `(() => {
+    const pane = document.querySelector('.workspace-pane.is-active:not(.is-prepared)');
+    const overlay = pane.querySelector('.pane-overlay-layer');
+    const header = pane.querySelector('.workspace-pane-header');
+    return {
+      lightClass: overlay.classList.contains('is-light-canvas'),
+      symbolColor: getComputedStyle(pane.querySelector('.pane-symbol')).color,
+      textShadow: getComputedStyle(header).textShadow,
+      tone: overlay.dataset.canvasTone,
+    };
+  })()`), {
+    lightClass: true,
+    symbolColor: 'rgb(29, 37, 45)',
+    textShadow: 'none',
+    tone: 'light',
+  },
+  'a light Canvas preview must switch Pane readouts to crisp dark text without shadow');
   assert.match(await evaluate(cdp,
     `document.querySelector('.replay-session-range').textContent`),
   /Mon 2026-05-04, 4:40 PM UTC.*Wed 2026-05-06, 8:00 PM UTC/,
@@ -379,6 +404,9 @@ try {
   await evaluate(cdp, `document.querySelector('.workstation-settings-cancel').click()`);
   await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === false
     && document.querySelector('.replay-workspace')?.dataset.gridVisible === 'true'
+    && document.querySelector('.replay-workspace')?.dataset.canvasBackgroundColor === '#000000ff'
+    && [...document.querySelectorAll('.pane-overlay-layer')]
+      .every((overlay) => overlay.dataset.canvasTone === 'dark')
     && document.querySelector('.replay-workspace')?.dataset.displayTimezone === 'America/New_York'
     && document.querySelector('.replay-workspace')?.dataset.dateFormat === 'MM/DD/YYYY'
     && document.querySelector('.replay-workspace')?.dataset.hourFormat === '24-hour'
