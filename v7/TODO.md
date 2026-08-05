@@ -7,6 +7,28 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
+### R10.2 Public IPv4 And Runtime Compatibility — Implemented, Host Rerun Pending
+
+- [x] preserve the real Alibaba Linux failure as evidence: NodeSource Node.js
+  24 conflicted with the distribution's separate npm package before mutation;
+- [x] reuse an existing supported Node/npm pair instead of requesting
+  conflicting distribution packages;
+- [x] auto-select Python 3.13–3.10 with venv and add an explicit interpreter
+  override;
+- [x] fail closed when 8007/8766 is owned by a legacy process rather than the
+  Replay Lab systemd units;
+- [x] add authenticated direct public-IPv4 HTTPS while keeping both
+  application services loopback-only;
+- [x] require Caddy 2.10.2+, Let's Encrypt's short-lived profile, HTTP-01,
+  read-only DuckDB mounting, and public mutation blocking;
+- [x] validate domain and IPv4 configurations with official Caddy 2.11.3;
+- [ ] stop the reviewed legacy V4 listener and rerun apply on Alibaba Linux;
+- [ ] prove trusted certificate issuance, authenticated browser access,
+  unchanged DuckDB fingerprint, service restart, and rollback.
+
+Binding correction/evidence:
+`docs/V7_LINUX_PUBLIC_IPV4_RUNTIME_COMPATIBILITY_R10_2.md`.
+
 ### R10.1 Linux Acceptance-Host Deployment — Implemented, Host Review Pending
 
 - [x] add one private-by-default Linux deployment command for common `apt`,

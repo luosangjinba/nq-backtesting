@@ -566,3 +566,8 @@ R8.13–R8.15.
   negative/rendered-config evidence. It runs in parallel with the still-open
   phase-one overall acceptance checklist and awaits a real lightweight-host
   gate.
+- `R10.2`: correct the first Alibaba Linux run by reusing existing Node/npm,
+  selecting Python 3.10+ explicitly, failing closed on unmanaged legacy
+  listeners, and adding authenticated direct public-IPv4 HTTPS through Caddy
+  2.10.2+ plus Let's Encrypt's short-lived certificate profile; implemented
+  and awaiting the real-host rerun.

@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-04 after restart and R10.1 deployment implementation
+Last updated: 2026-08-05 after the first Alibaba Linux R10.1 run and R10.2 correction
 
 ## Current Overall Acceptance State
 
@@ -18,6 +18,12 @@ The 2026-08-04 full Harness sweep also left two reproducible pre-existing visual
 findings open: a small Pane Workspace fixture delta and a Replay Workspace
 render with candle wicks but missing filled bodies. No baseline was updated;
 both remain part of overall acceptance rather than R10.1 production changes.
+
+The first Alibaba Linux apply stopped before host mutation on a NodeSource/
+distribution npm conflict and exposed an unmanaged V4 listener on 8766. R10.2
+corrects both boundaries and adds authenticated direct public-IPv4 HTTPS. Pull
+the R10.2 commit, deliberately stop the identified legacy process, and rerun
+the host gate; do not open 8007 or 8766 publicly.
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not

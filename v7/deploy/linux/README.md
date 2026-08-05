@@ -1,6 +1,6 @@
 # Replay Lab V7 Linux One-Click Deployment
 
-Status: R10.1 acceptance-host deployment boundary
+Status: R10.2 public-IPv4/runtime compatibility boundary
 
 `install.sh` deploys the current committed V7 tree as an immutable release,
 installs the minimal V4 read runtime and V7 browser dependencies, and creates
@@ -28,6 +28,13 @@ Python 3.10+ and Node.js 18+ are enforced after package installation. On an
 older long-term-support image whose distribution repository still supplies an
 older Node.js, install a supported Node.js package first and rerun with
 `--skip-package-install`.
+
+The installer reuses an already-supported Node/npm pair instead of requesting
+distribution `nodejs`/`npm` packages again. This avoids the package conflict
+between a NodeSource Node.js installation and Alibaba Linux's separate npm
+package. Python 3.13 through 3.10 are auto-detected before generic `python3`;
+use `--python-bin python3.11` only when an unusual host needs an explicit
+selection.
 
 A practical small-host starting point is 2 vCPU, 2 GB RAM plus swap, and at
 least 3 GB free space in addition to the market database. The current verified
@@ -106,6 +113,45 @@ Caddy obtains and renews HTTPS certificates and protects both the V7 surface
 and `/v4/*` with the same credentials. The installer does not remove the
 password file. Public access without authentication requires the deliberately
 named `--allow-public-without-auth` override.
+
+## Direct Public IPv4 HTTPS
+
+Direct IP access keeps both application processes on loopback and publishes
+only Caddy on ports 80/443. It requires Caddy 2.10.2 or newer and a publicly
+reachable IPv4 address. The installer configures Let's Encrypt's `shortlived`
+profile, forces the HTTP challenge, and leaves renewal to Caddy. Open TCP 80
+and 443 in both the cloud security group and host firewall before apply.
+
+Create a dedicated service identity and a root-readable web password:
+
+```bash
+sudo useradd --system --home-dir /var/lib/replay-lab --create-home \
+  --shell /sbin/nologin replay 2>/dev/null || true
+sudo chown root:replay /srv/replay-lab-data/trading_data.duckdb
+sudo chmod 0640 /srv/replay-lab-data/trading_data.duckdb
+sudo install -d -m 0700 /root/replay-lab-secrets
+sudo bash -c 'umask 077; read -rsp "Replay password: " password; printf "%s" "$password" > /root/replay-lab-secrets/web-password; unset password; echo'
+```
+
+Then deploy:
+
+```bash
+sudo bash v7/deploy/linux/install.sh \
+  --apply --yes \
+  --db /srv/replay-lab-data/trading_data.duckdb \
+  --service-user replay \
+  --public-ip 43.110.32.34 \
+  --auth-user reviewer \
+  --auth-password-file /root/replay-lab-secrets/web-password
+```
+
+Open `https://43.110.32.34/v7/app/` and enter the configured credentials.
+Do not expose 8007 or 8766 in the cloud security group.
+
+Apply mode fails before host mutation when either loopback port is owned by a
+legacy process rather than the Replay Lab systemd units. Inspect and stop the
+reported old process deliberately, then rerun apply; the installer never kills
+an unknown listener automatically.
 
 ## Repeat Deployment And Rollback
 

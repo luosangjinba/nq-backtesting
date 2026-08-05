@@ -38,6 +38,24 @@ function expectFailure(argumentsList, expectedText) {
   assert.match(`${result.stdout}\n${result.stderr}`, expectedText);
 }
 
+function renderedCaddyFrom(output) {
+  const previewStart = 'Rendered Caddy preview\n----------------------\n';
+  const previewEnd = '\nPlanned host changes\n';
+  const startIndex = output.indexOf(previewStart);
+  const endIndex = output.indexOf(previewEnd, startIndex);
+  assert.ok(startIndex >= 0 && endIndex > startIndex, 'Caddy preview must be extractable');
+  return output.slice(startIndex + previewStart.length, endIndex);
+}
+
+function validateRenderedCaddy(output, fileName) {
+  const renderedCaddyPath = path.join(temporaryDirectory, fileName);
+  fs.writeFileSync(renderedCaddyPath, renderedCaddyFrom(output));
+  const validation = spawnSync('caddy', ['validate', '--config', renderedCaddyPath], {
+    encoding: 'utf8',
+  });
+  assert.equal(validation.status, 0, `${validation.stdout}\n${validation.stderr}`);
+}
+
 function negativeArguments(id, common) {
   switch (id) {
     case 'relative-database-path':
@@ -50,6 +68,17 @@ function negativeArguments(id, common) {
       return ['--apply', '--db', database];
     case 'hostname-with-scheme':
       return [...common, '--domain', 'https://replay.example.com', '--allow-public-without-auth'];
+    case 'invalid-public-ip':
+      return [...common, '--public-ip', '999.110.32.34', '--allow-public-without-auth'];
+    case 'conflicting-public-host':
+      return [
+        ...common,
+        '--domain', 'replay.example.com',
+        '--public-ip', '43.110.32.34',
+        '--allow-public-without-auth',
+      ];
+    case 'invalid-python-bin':
+      return [...common, '--python-bin', '/missing/replay-python'];
     default:
       throw new Error(`Unknown Linux deployment negative fixture: ${id}`);
   }
@@ -75,6 +104,9 @@ try {
   assert.match(privatePlan.stdout, /Database service mount: read-only/);
   assert.match(privatePlan.stdout, new RegExp(`ReadOnlyPaths=${database.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
   assert.match(privatePlan.stdout, /dry-run complete; no host files were changed/);
+  const packageRequest = privatePlan.stdout.match(/Runtime package request: (.+)/)?.[1] ?? '';
+  assert.doesNotMatch(packageRequest, /\b(?:nodejs|npm)\b/,
+    'an existing supported Node/npm pair must not request conflicting distribution packages');
 
   const publicPlan = execute([
     ...common,
@@ -91,18 +123,29 @@ try {
   assert.match(publicPlan.stdout, /reverse_proxy 127\.0\.0\.1:8007/);
   assert.match(publicPlan.stdout, /(basic_auth|basicauth) \{/);
   if (caddyAvailable) {
-    const previewStart = 'Rendered Caddy preview\n----------------------\n';
-    const previewEnd = '\nPlanned host changes\n';
-    const startIndex = publicPlan.stdout.indexOf(previewStart);
-    const endIndex = publicPlan.stdout.indexOf(previewEnd, startIndex);
-    assert.ok(startIndex >= 0 && endIndex > startIndex, 'Caddy preview must be extractable');
-    const renderedCaddy = publicPlan.stdout.slice(startIndex + previewStart.length, endIndex);
-    const renderedCaddyPath = path.join(temporaryDirectory, 'Caddyfile');
-    fs.writeFileSync(renderedCaddyPath, renderedCaddy);
-    const validation = spawnSync('caddy', ['validate', '--config', renderedCaddyPath], {
-      encoding: 'utf8',
-    });
-    assert.equal(validation.status, 0, `${validation.stdout}\n${validation.stderr}`);
+    validateRenderedCaddy(publicPlan.stdout, 'Caddyfile-domain');
+  }
+
+  const publicIpPlan = execute([
+    ...common,
+    '--public-ip', '43.110.32.34',
+    '--auth-user', 'reviewer',
+    '--auth-hash', passwordHash,
+  ]);
+  assert.equal(publicIpPlan.status, 0, publicIpPlan.stderr);
+  assert.match(publicIpPlan.stdout, /public URL: https:\/\/43\.110\.32\.34\/v7\/app\//);
+  assert.match(publicIpPlan.stdout, /Let's Encrypt short-lived IPv4 certificate/);
+  assert.match(publicIpPlan.stdout, /profile shortlived/);
+  assert.match(publicIpPlan.stdout, /disable_tlsalpn_challenge/);
+  const caddyVersionMatch = caddyVersion.stdout.match(/v?(\d+)\.(\d+)\.(\d+)/);
+  const supportsIpCertificate = caddyVersionMatch
+    && (Number(caddyVersionMatch[1]) > 2
+      || (Number(caddyVersionMatch[1]) === 2 && Number(caddyVersionMatch[2]) > 10)
+      || (Number(caddyVersionMatch[1]) === 2
+        && Number(caddyVersionMatch[2]) === 10
+        && Number(caddyVersionMatch[3]) >= 2));
+  if (supportsIpCertificate) {
+    validateRenderedCaddy(publicIpPlan.stdout, 'Caddyfile-public-ip');
   }
 
   for (const fixture of negativeCases) {
@@ -114,6 +157,25 @@ try {
   assert.match(caddySource, /respond @mutating .* 403/);
   assert.match(caddySource, /reverse_proxy @v4_api 127\.0\.0\.1:8766/);
   assert.match(caddySource, /reverse_proxy 127\.0\.0\.1:8007/);
+  assert.match(caddySource, /@@TLS_BLOCK@@/);
+
+  const installerSource = fs.readFileSync(script, 'utf8');
+  assert.match(installerSource, /if ! node_runtime_ready; then\s+base_packages\+=\(nodejs npm\)/);
+  assert.match(installerSource, /already used outside \$unit; stop the legacy listener before apply/);
+  assert.match(installerSource, /caddy_version_at_least 2 10 2/);
+  const listenerGuardSource = installerSource.match(
+    /^require_managed_or_free_port\(\) \{[\s\S]*?^\}/m,
+  )?.[0];
+  assert.ok(listenerGuardSource, 'listener guard must remain independently executable');
+  const listenerGuard = spawnSync('bash', ['-c', [
+    'die() { printf "ERROR: %s\\n" "$*" >&2; exit 1; }',
+    'port_is_listening() { return 0; }',
+    'systemctl() { return 3; }',
+    listenerGuardSource,
+    'require_managed_or_free_port 8766 replay-lab-api.service',
+  ].join('\n')], { encoding: 'utf8' });
+  assert.notEqual(listenerGuard.status, 0);
+  assert.match(listenerGuard.stderr, /127\.0\.0\.1:8766 is already used outside replay-lab-api\.service/);
 
   const apiSource = fs.readFileSync(apiTemplate, 'utf8');
   const webSource = fs.readFileSync(webTemplate, 'utf8');

@@ -1,5 +1,6 @@
 @@EMAIL_DIRECTIVE@@@@SITE_ADDRESS@@ {
   encode gzip zstd
+@@TLS_BLOCK@@
 @@AUTH_BLOCK@@
 
   # The acceptance deployment is intentionally read-only. Data Acquisition is

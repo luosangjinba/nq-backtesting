@@ -26,9 +26,11 @@ Paths and identity:
   --install-root PATH          Releases and virtualenv. Default: /opt/replay-lab.
   --state-root PATH            Runtime state/home. Default: /var/lib/replay-lab.
   --service-user USER          Existing service user. Default: SUDO_USER/current user.
+  --python-bin COMMAND         Python 3.10+ interpreter with venv. Default: auto-detect.
 
 Optional public HTTPS:
   --domain HOST                HTTPS hostname served by Caddy; DNS must point to this host.
+  --public-ip IPV4             HTTPS directly on a public IPv4 address; no DNS required.
   --email EMAIL                Optional ACME account email.
   --auth-user USER             Caddy Basic Auth user.
   --auth-hash HASH             Pre-hashed Caddy password.
@@ -118,9 +120,10 @@ render_template() {
     line="${line//@@PYTHON_BIN@@/$venv_python}"
     line="${line//@@NODE_BIN@@/$node_bin}"
     line="${line//@@DATABASE_PATH@@/$db_path}"
-    line="${line//@@SITE_ADDRESS@@/$domain}"
+    line="${line//@@SITE_ADDRESS@@/$public_host}"
     line="${line//@@EMAIL_DIRECTIVE@@/$email_directive}"
     line="${line//@@AUTH_BLOCK@@/$auth_block}"
+    line="${line//@@TLS_BLOCK@@/$tls_block}"
     printf '%s\n' "$line"
   done < "$input" > "$output"
 }
@@ -147,26 +150,101 @@ detect_caddy_auth_directive() {
   fi
 }
 
-install_base_packages() {
+find_supported_python() {
+  local candidate=""
+  local resolved=""
+  local candidates=()
+  if [[ -n "$requested_python_bin" ]]; then
+    candidates=("$requested_python_bin")
+  else
+    candidates=(python3.13 python3.12 python3.11 python3.10 python3)
+  fi
+  for candidate in "${candidates[@]}"; do
+    resolved="$(command -v -- "$candidate" 2>/dev/null || true)"
+    [[ -n "$resolved" ]] || continue
+    "$resolved" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' \
+      >/dev/null 2>&1 || continue
+    "$resolved" -m venv --help >/dev/null 2>&1 || continue
+    printf '%s' "$resolved"
+    return 0
+  done
+  return 1
+}
+
+node_runtime_ready() {
+  command -v node >/dev/null 2>&1 \
+    && command -v npm >/dev/null 2>&1 \
+    && node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 18 ? 0 : 1)' \
+      >/dev/null 2>&1
+}
+
+caddy_version_at_least() {
+  local required_major="$1"
+  local required_minor="$2"
+  local required_patch="$3"
+  local raw=""
+  local version=""
+  local major=0
+  local minor=0
+  local patch=0
+  command -v caddy >/dev/null 2>&1 || return 1
+  raw="$(caddy version 2>/dev/null | awk '{print $1}')"
+  version="${raw#v}"
+  IFS=. read -r major minor patch <<< "$version"
+  patch="${patch%%[^0-9]*}"
+  [[ "$major" =~ ^[0-9]+$ && "$minor" =~ ^[0-9]+$ && "$patch" =~ ^[0-9]+$ ]] || return 1
+  (( major > required_major \
+    || (major == required_major && minor > required_minor) \
+    || (major == required_major && minor == required_minor && patch >= required_patch) ))
+}
+
+plan_base_packages() {
+  base_packages=(ca-certificates curl git tar)
+  if ! node_runtime_ready; then
+    base_packages+=(nodejs npm)
+  fi
   if command -v apt-get >/dev/null 2>&1; then
-    run_step sudo_cmd apt-get update
-    run_step sudo_cmd env DEBIAN_FRONTEND=noninteractive apt-get install -y \
-      ca-certificates curl git nodejs npm python3 python3-pip python3-venv tar
+    package_manager="apt"
+    [[ -n "$python_bin" ]] || base_packages+=(python3 python3-pip python3-venv)
     return
   fi
   if command -v dnf >/dev/null 2>&1; then
-    run_step sudo_cmd dnf install -y ca-certificates curl git nodejs npm python3 python3-pip tar
+    package_manager="dnf"
+    [[ -n "$python_bin" ]] || base_packages+=(python3 python3-pip)
     return
   fi
   if command -v pacman >/dev/null 2>&1; then
-    run_step sudo_cmd pacman -S --needed --noconfirm ca-certificates curl git nodejs npm python python-pip tar
+    package_manager="pacman"
+    [[ -n "$python_bin" ]] || base_packages+=(python python-pip)
+    return
+  fi
+  package_manager="unsupported"
+}
+
+install_base_packages() {
+  if [[ "$package_manager" == "apt" ]]; then
+    run_step sudo_cmd apt-get update
+    run_step sudo_cmd env DEBIAN_FRONTEND=noninteractive apt-get install -y "${base_packages[@]}"
+    return
+  fi
+  if [[ "$package_manager" == "dnf" ]]; then
+    run_step sudo_cmd dnf install -y "${base_packages[@]}"
+    return
+  fi
+  if [[ "$package_manager" == "pacman" ]]; then
+    run_step sudo_cmd pacman -S --needed --noconfirm "${base_packages[@]}"
     return
   fi
   die "unsupported package manager; install prerequisites manually and rerun with --skip-package-install"
 }
 
 install_caddy() {
-  command -v caddy >/dev/null 2>&1 && return
+  if command -v caddy >/dev/null 2>&1; then
+    if [[ -z "$public_ip" ]] || caddy_version_at_least 2 10 2; then
+      return
+    fi
+    info "upgrading Caddy for public IPv4 certificate support"
+  fi
   if command -v apt-get >/dev/null 2>&1; then
     run_step sudo_cmd apt-get install -y debian-keyring debian-archive-keyring apt-transport-https gnupg
     local caddy_tmp=""
@@ -200,16 +278,46 @@ install_caddy() {
 
 require_runtime_commands() {
   local command_name=""
-  for command_name in curl git node npm python3 systemctl tar; do
+  for command_name in curl git node npm systemctl tar; do
     command -v "$command_name" >/dev/null 2>&1 || die "required command is missing: $command_name"
   done
-  python3 -m venv --help >/dev/null 2>&1 || die "python3 venv support is missing"
-  python3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' \
-    || die "Python 3.10 or newer is required"
-  node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 18 ? 0 : 1)' \
-    || die "Node.js 18 or newer is required"
-  if [[ -n "$domain" ]]; then
-    command -v caddy >/dev/null 2>&1 || die "Caddy is required when --domain is set"
+  python_bin="$(find_supported_python || true)"
+  [[ -n "$python_bin" ]] \
+    || die "Python 3.10+ with venv is required; install it or pass --python-bin"
+  node_runtime_ready || die "Node.js 18 or newer with npm is required"
+  if [[ -n "$public_host" ]]; then
+    command -v caddy >/dev/null 2>&1 \
+      || die "Caddy is required when --domain or --public-ip is set"
+  fi
+  if [[ -n "$public_ip" ]] && ! caddy_version_at_least 2 10 2; then
+    die "Caddy 2.10.2 or newer is required for public IPv4 HTTPS certificates"
+  fi
+}
+
+validate_ipv4() {
+  local value="$1"
+  local parts=()
+  local part=""
+  IFS=. read -r -a parts <<< "$value"
+  [[ "${#parts[@]}" -eq 4 ]] || return 1
+  for part in "${parts[@]}"; do
+    [[ "$part" =~ ^[0-9]{1,3}$ ]] || return 1
+    (( 10#$part <= 255 )) || return 1
+  done
+}
+
+port_is_listening() {
+  local port="$1"
+  command -v ss >/dev/null 2>&1 || return 1
+  ss -H -ltn 2>/dev/null \
+    | awk -v suffix=":$port" '$4 ~ suffix "$" { found=1 } END { exit(found ? 0 : 1) }'
+}
+
+require_managed_or_free_port() {
+  local port="$1"
+  local unit="$2"
+  if port_is_listening "$port" && ! systemctl is-active --quiet "$unit"; then
+    die "127.0.0.1:$port is already used outside $unit; stop the legacy listener before apply"
   fi
 }
 
@@ -245,7 +353,13 @@ install_root="/opt/replay-lab"
 state_root="/var/lib/replay-lab"
 service_user="${SUDO_USER:-$(id -un)}"
 service_group=""
+requested_python_bin=""
+python_bin=""
 domain=""
+public_ip=""
+public_host=""
+package_manager=""
+base_packages=()
 email=""
 auth_user=""
 auth_hash=""
@@ -295,9 +409,19 @@ while [[ $# -gt 0 ]]; do
       service_user="$2"
       shift 2
       ;;
+    --python-bin)
+      [[ $# -ge 2 ]] || die "--python-bin requires a value"
+      requested_python_bin="$2"
+      shift 2
+      ;;
     --domain)
       [[ $# -ge 2 ]] || die "--domain requires a value"
       domain="$2"
+      shift 2
+      ;;
+    --public-ip)
+      [[ $# -ge 2 ]] || die "--public-ip requires a value"
+      public_ip="$2"
       shift 2
       ;;
     --email)
@@ -355,8 +479,17 @@ git -c "safe.directory=$repo_root" -C "$repo_root" rev-parse --is-inside-work-tr
 id "$service_user" >/dev/null 2>&1 || die "service user does not exist: $service_user"
 service_group="$(id -gn "$service_user")"
 
-if [[ -n "$domain" ]]; then
-  [[ "$domain" =~ ^[A-Za-z0-9][A-Za-z0-9.-]*[A-Za-z0-9]$ ]] || die "--domain must be a hostname without scheme or path"
+[[ -z "$domain" || -z "$public_ip" ]] || die "use only one of --domain or --public-ip"
+if [[ -n "$public_ip" ]]; then
+  validate_ipv4 "$public_ip" || die "--public-ip must be a valid IPv4 address"
+fi
+public_host="${domain:-$public_ip}"
+
+if [[ -n "$public_host" ]]; then
+  if [[ -n "$domain" ]]; then
+    [[ "$domain" =~ ^[A-Za-z0-9][A-Za-z0-9.-]*[A-Za-z0-9]$ ]] \
+      || die "--domain must be a hostname without scheme or path"
+  fi
   [[ -z "$email" || "$email" =~ ^[^[:space:]@]+@[^[:space:]@]+$ ]] || die "invalid --email"
   [[ -z "$auth_user" || "$auth_user" =~ ^[A-Za-z0-9._-]{1,64}$ ]] || die "invalid --auth-user"
   [[ -z "$auth_hash" || "$auth_hash" =~ ^[^[:space:]{}]+$ ]] || die "invalid --auth-hash"
@@ -372,9 +505,16 @@ if [[ -n "$domain" ]]; then
   fi
 else
   [[ -z "$email" && -z "$auth_user" && -z "$auth_hash" && -z "$auth_password_file" ]] \
-    || die "domain/auth options require --domain"
-  [[ "$allow_public_without_auth" -eq 0 ]] || die "--allow-public-without-auth requires --domain"
+    || die "public/auth options require --domain or --public-ip"
+  [[ "$allow_public_without_auth" -eq 0 ]] \
+    || die "--allow-public-without-auth requires --domain or --public-ip"
 fi
+
+python_bin="$(find_supported_python || true)"
+if [[ -n "$requested_python_bin" && -z "$python_bin" ]]; then
+  die "--python-bin must resolve to Python 3.10+ with venv support"
+fi
+plan_base_packages
 
 repo_root="$(cd -- "$repo_root" && pwd)"
 db_path="$(cd -- "$(dirname -- "$db_path")" && pwd)/$(basename -- "$db_path")"
@@ -395,6 +535,7 @@ previous_release=""
 email_directive=""
 auth_block=""
 auth_directive="basic_auth"
+tls_block=""
 
 for required_file in "$api_template" "$web_template" "$caddy_template" "$runtime_requirements" \
   "$repo_root/v4/v4_api.py" "$repo_root/v7/scripts/serve.mjs" "$repo_root/v7/package-lock.json"; do
@@ -412,8 +553,11 @@ rendered_api="$tmp_dir/replay-lab-api.service"
 rendered_web="$tmp_dir/replay-lab-web.service"
 rendered_caddy="$tmp_dir/Caddyfile"
 
-if [[ -n "$domain" ]]; then
+if [[ -n "$public_host" ]]; then
   [[ -z "$email" ]] || email_directive=$'{\n  email '"$email"$'\n}\n\n'
+  if [[ -n "$public_ip" ]]; then
+    tls_block=$'\n  tls {\n    issuer acme https://acme-v02.api.letsencrypt.org/directory {\n      profile shortlived\n      disable_tlsalpn_challenge\n    }\n  }'
+  fi
   if [[ -n "$auth_user" ]]; then
     auth_directive="$(detect_caddy_auth_directive)"
     if [[ -n "$auth_hash" ]]; then
@@ -436,10 +580,15 @@ info "database: $db_path (external, read-only deployment contract)"
 info "install root: $install_root"
 info "state root: $state_root"
 info "service identity: $service_user:$service_group"
+info "Python candidate: ${python_bin:-install/selection required during apply}"
+info "Node candidate: $(command -v node 2>/dev/null || printf 'installation required during apply')"
 info "release: $release_dir"
-if [[ -n "$domain" ]]; then
-  info "public URL: https://$domain/v7/app/"
+if [[ -n "$public_host" ]]; then
+  info "public URL: https://$public_host/v7/app/"
   info "proxy policy: authenticated=$([[ -n "$auth_user" ]] && printf yes || printf no), mutations=blocked"
+  if [[ -n "$public_ip" ]]; then
+    info "certificate: Let's Encrypt short-lived IPv4 certificate; inbound 80/443 required"
+  fi
 else
   info "public proxy: disabled"
   info "access: ssh -L 8007:127.0.0.1:8007 -L 8766:127.0.0.1:8766 USER@HOST"
@@ -449,7 +598,7 @@ printf '\nRendered systemd service summary\n'
 printf '%s\n' '--------------------------------'
 grep -E '^(User|Group|WorkingDirectory|EnvironmentFile|ExecStart|ReadOnlyPaths)=' "$rendered_api"
 grep -E '^(User|Group|WorkingDirectory|ExecStart)=' "$rendered_web"
-if [[ -n "$domain" ]]; then
+if [[ -n "$public_host" ]]; then
   printf '\nRendered Caddy preview\n'
   printf '%s\n' '----------------------'
   sed -e 's|__HASH_FROM_PASSWORD_FILE__|<generated-hash>|' "$rendered_caddy"
@@ -458,12 +607,13 @@ fi
 printf '\nPlanned host changes\n'
 printf '%s\n' '--------------------'
 printf 'Install runtime packages: %s\n' "$([[ "$skip_package_install" -eq 1 ]] && printf no || printf yes)"
+printf 'Runtime package request: %s (%s)\n' "${base_packages[*]}" "$package_manager"
 printf 'Create immutable release: %s\n' "$release_dir"
 printf 'Create shared virtualenv: %s\n' "$venv_dir"
 printf 'Write: /etc/replay-lab/replay-lab.env\n'
 printf 'Write: /etc/systemd/system/replay-lab-api.service\n'
 printf 'Write: /etc/systemd/system/replay-lab-web.service\n'
-if [[ -n "$domain" ]]; then
+if [[ -n "$public_host" ]]; then
   printf 'Back up then replace: /etc/caddy/Caddyfile\n'
 fi
 printf 'Database copy/write: never\n'
@@ -477,10 +627,13 @@ fi
 if [[ "${EUID:-$(id -u)}" -ne 0 ]] && ! command -v sudo >/dev/null 2>&1; then
   die "sudo is required for --apply when not running as root"
 fi
+command -v systemctl >/dev/null 2>&1 || die "systemd is required for --apply"
+require_managed_or_free_port 8766 replay-lab-api.service
+require_managed_or_free_port 8007 replay-lab-web.service
 
 if [[ "$skip_package_install" -eq 0 ]]; then
   install_base_packages
-  [[ -z "$domain" ]] || install_caddy
+  [[ -z "$public_host" ]] || install_caddy
 fi
 require_runtime_commands
 node_bin="$(command -v node)"
@@ -501,7 +654,7 @@ render_template "$api_template" "$rendered_api"
 render_template "$web_template" "$rendered_web"
 render_template "$caddy_template" "$rendered_caddy"
 
-if [[ -n "$domain" ]]; then
+if [[ -n "$public_host" ]]; then
   run_step caddy validate --config "$rendered_caddy"
 fi
 
@@ -509,7 +662,7 @@ run_step sudo_cmd install -d -m 0755 "$install_root" "$install_root/releases" "$
 run_step sudo_cmd install -d -m 0750 -o "$service_user" -g "$service_group" "$state_root"
 
 if [[ ! -x "$venv_python" ]]; then
-  run_step sudo_cmd python3 -m venv "$venv_dir"
+  run_step sudo_cmd "$python_bin" -m venv "$venv_dir"
 fi
 run_step sudo_cmd "$venv_python" -m pip install --disable-pip-version-check --upgrade pip wheel
 run_step sudo_cmd "$venv_python" -m pip install --disable-pip-version-check -r "$runtime_requirements"
@@ -533,8 +686,8 @@ env_file="$tmp_dir/replay-lab.env"
   printf 'V4_API_PORT=8766\n'
   printf 'V4_TRADING_DB=%s\n' "$db_path"
   printf 'V4_MARKET_DATA_BACKUP_DIR=%s/backups/market-data\n' "$state_root"
-  if [[ -n "$domain" ]]; then
-    printf 'V4_ALLOWED_WEB_ORIGINS=https://%s\n' "$domain"
+  if [[ -n "$public_host" ]]; then
+    printf 'V4_ALLOWED_WEB_ORIGINS=https://%s\n' "$public_host"
   else
     printf 'V4_ALLOWED_WEB_ORIGINS=http://127.0.0.1:8007,http://localhost:8007\n'
   fi
@@ -552,7 +705,7 @@ run_step sudo_cmd ln -sfn "$release_dir" "$install_root/current.next"
 run_step sudo_cmd mv -Tf "$install_root/current.next" "$current_release"
 
 caddy_backup=""
-if [[ -n "$domain" ]]; then
+if [[ -n "$public_host" ]]; then
   run_step sudo_cmd install -d -m 0755 /etc/caddy
   if sudo_cmd test -f /etc/caddy/Caddyfile; then
     caddy_backup="/etc/caddy/Caddyfile.replay-lab-backup-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -574,7 +727,7 @@ if ! wait_for_url http://127.0.0.1:8766/v4/health \
   die "local health checks failed; previous release was restored when available"
 fi
 
-if [[ -n "$domain" ]]; then
+if [[ -n "$public_host" ]]; then
   run_step sudo_cmd systemctl enable --now caddy
   if ! sudo_cmd systemctl reload caddy; then
     if [[ -n "$caddy_backup" ]]; then
@@ -591,14 +744,14 @@ printf '\nHealth result\n'
 printf '%s\n' '-------------'
 ok "http://127.0.0.1:8766/v4/health"
 ok "http://127.0.0.1:8007/v7/app/"
-if [[ -n "$domain" ]]; then
+if [[ -n "$public_host" ]]; then
   if [[ -n "$auth_user" ]]; then
-    public_status="$(curl -sS --max-time 10 -o /dev/null -w '%{http_code}' "https://$domain/v7/app/" || true)"
+    public_status="$(curl -sS --max-time 10 -o /dev/null -w '%{http_code}' "https://$public_host/v7/app/" || true)"
     [[ "$public_status" == "401" ]] \
-      && ok "https://$domain/v7/app/ requires authentication" \
+      && ok "https://$public_host/v7/app/ requires authentication" \
       || warn "public endpoint expected HTTP 401 without credentials, got ${public_status:-curl-failed}"
-  elif wait_for_url "https://$domain/v7/app/" 10; then
-    ok "https://$domain/v7/app/"
+  elif wait_for_url "https://$public_host/v7/app/" 10; then
+    ok "https://$public_host/v7/app/"
   else
     warn "public HTTPS health is not ready; verify DNS and ports 80/443"
   fi
@@ -610,7 +763,7 @@ fi
 
 printf '\nOperations\n'
 printf '%s\n' '----------'
-printf 'sudo systemctl status replay-lab-api replay-lab-web%s\n' "$([[ -n "$domain" ]] && printf ' caddy' || true)"
+printf 'sudo systemctl status replay-lab-api replay-lab-web%s\n' "$([[ -n "$public_host" ]] && printf ' caddy' || true)"
 printf 'sudo journalctl -u replay-lab-api -u replay-lab-web -f\n'
 printf 'Active release: %s\n' "$release_dir"
 printf 'Previous release: %s\n' "${previous_release:-none}"
