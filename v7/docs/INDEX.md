@@ -26,7 +26,8 @@ machine-readable baseline, then
 `V7_AGGREGATED_BUCKET_TIME_LABELS_R9_4.md`. The parallel Linux acceptance-host
 deployment is recorded in `V7_LINUX_ACCEPTANCE_HOST_DEPLOYMENT_R10_1.md`; it
 is corrected for direct-IP/runtime compatibility in
-`V7_LINUX_PUBLIC_IPV4_RUNTIME_COMPATIBILITY_R10_2.md`. Neither closes the
+`V7_LINUX_PUBLIC_IPV4_RUNTIME_COMPATIBILITY_R10_2.md`, with the one-command
+operator path in `V7_LINUX_PUBLIC_IPV4_QUICK_DEPLOY_R10_3.md`. None closes the
 ongoing phase-one overall acceptance pass. Read those before the normal
 implementation reading order below. The deferred
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and
@@ -133,11 +134,12 @@ Read in this order before V7 implementation work:
 87. `V7_AGGREGATED_BUCKET_TIME_LABELS_R9_4.md`
 88. `V7_LINUX_ACCEPTANCE_HOST_DEPLOYMENT_R10_1.md`
 89. `V7_LINUX_PUBLIC_IPV4_RUNTIME_COMPATIBILITY_R10_2.md`
-90. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
+90. `V7_LINUX_PUBLIC_IPV4_QUICK_DEPLOY_R10_3.md`
+91. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-91. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
+92. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-92. `../TODO.md`
+93. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.

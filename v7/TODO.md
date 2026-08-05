@@ -7,6 +7,18 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
+### R10.3 Public IPv4 Quick Deploy — Implemented, Host Run Pending
+
+- [x] add one interactive public-IPv4 wrapper around the binding installer;
+- [x] create/reuse a dedicated service identity and securely prepare the
+  browser password file without command-line disclosure;
+- [x] require explicit legacy replacement and exact known-process matching;
+- [x] retain cloud 80/443 as a human prerequisite and keep 8007/8766 private;
+- [x] bind wrapper syntax/help/safety behavior into H083 evidence;
+- [ ] execute the single command on Alibaba Linux and finish R10.2's host gate.
+
+Binding evidence: `docs/V7_LINUX_PUBLIC_IPV4_QUICK_DEPLOY_R10_3.md`.
+
 ### R10.2 Public IPv4 And Runtime Compatibility — Implemented, Host Rerun Pending
 
 - [x] preserve the real Alibaba Linux failure as evidence: NodeSource Node.js

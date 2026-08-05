@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(testDirectory, '../..');
 const script = path.join(repositoryRoot, 'v7/deploy/linux/install.sh');
+const quickDeployScript = path.join(repositoryRoot, 'v7/deploy/linux/deploy-public-ip.sh');
 const caddyTemplate = path.join(repositoryRoot, 'v7/deploy/linux/caddy/Caddyfile.template');
 const apiTemplate = path.join(
   repositoryRoot,
@@ -85,6 +86,17 @@ function negativeArguments(id, common) {
 }
 
 try {
+  const quickSyntax = spawnSync('bash', ['-n', quickDeployScript], { encoding: 'utf8' });
+  assert.equal(quickSyntax.status, 0, quickSyntax.stderr);
+  const quickHelp = spawnSync('bash', [quickDeployScript, '--help'], { encoding: 'utf8' });
+  assert.equal(quickHelp.status, 0, quickHelp.stderr);
+  assert.match(quickHelp.stdout, /--replace-legacy/);
+  assert.match(quickHelp.stdout, /inbound TCP 80\/443/);
+  const quickSource = fs.readFileSync(quickDeployScript, 'utf8');
+  assert.match(quickSource, /refusing to stop unknown PID/);
+  assert.match(quickSource, /Browser password for \$auth_user/);
+  assert.match(quickSource, /bash "\$installer"[\s\S]*--auth-password-file "\$password_file"/);
+
   const common = ['--dry-run', '--db', database, '--service-user', os.userInfo().username];
   const caddyVersion = spawnSync('caddy', ['version'], { encoding: 'utf8' });
   const caddyAvailable = caddyVersion.status === 0;

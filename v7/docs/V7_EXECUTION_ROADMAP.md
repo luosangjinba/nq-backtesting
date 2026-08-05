@@ -571,3 +571,7 @@ R8.13–R8.15.
   listeners, and adding authenticated direct public-IPv4 HTTPS through Caddy
   2.10.2+ plus Let's Encrypt's short-lived certificate profile; implemented
   and awaiting the real-host rerun.
+- `R10.3`: add one interactive direct-IPv4 wrapper for service-user/password
+  preparation and explicitly authorized, exact-match legacy-listener
+  replacement while delegating all release/runtime behavior to R10.2;
+  implemented and awaiting the same real-host gate.

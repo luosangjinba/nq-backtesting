@@ -1,6 +1,6 @@
 # Replay Lab V7 Linux One-Click Deployment
 
-Status: R10.2 public-IPv4/runtime compatibility boundary
+Status: R10.3 public-IPv4 quick-deploy boundary
 
 `install.sh` deploys the current committed V7 tree as an immutable release,
 installs the minimal V4 read runtime and V7 browser dependencies, and creates
@@ -15,6 +15,25 @@ mount of that exact file, while public Caddy mode additionally rejects every
 `POST`, `PUT`, `PATCH`, and `DELETE` request. It is therefore suitable for the
 current main-program acceptance pass, not the separate Data Acquisition or
 Contract Roll write review.
+
+## Fastest Direct-IP Path
+
+After pulling the current `v7/rebuild` branch and opening cloud TCP 80/443, one
+interactive command prepares the dedicated service identity, database read
+permission, root-only password file, recognized legacy listeners, and the
+reviewed installer:
+
+```bash
+sudo bash v7/deploy/linux/deploy-public-ip.sh \
+  --public-ip 43.110.32.34 \
+  --db /srv/replay-lab-data/trading_data.duckdb \
+  --replace-legacy
+```
+
+It prompts twice for the browser password when no saved password exists. The
+`--replace-legacy` option stops only command lines positively identified as the
+old `v4_api.py` on 8766 or `serve.mjs 8007`; an unknown listener still fails
+closed. Omit that option when no legacy process exists.
 
 ## Supported Hosts
 

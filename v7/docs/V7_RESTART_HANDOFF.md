@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-05 after the first Alibaba Linux R10.1 run and R10.2 correction
+Last updated: 2026-08-05 after R10.3 public-IPv4 quick-deploy implementation
 
 ## Current Overall Acceptance State
 
@@ -24,6 +24,8 @@ distribution npm conflict and exposed an unmanaged V4 listener on 8766. R10.2
 corrects both boundaries and adds authenticated direct public-IPv4 HTTPS. Pull
 the R10.2 commit, deliberately stop the identified legacy process, and rerun
 the host gate; do not open 8007 or 8766 publicly.
+R10.3 reduces that rerun to `deploy/linux/deploy-public-ip.sh`, retaining an
+explicit exact-match legacy replacement flag and the same R10.2 boundaries.
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
