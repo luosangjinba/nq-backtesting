@@ -12,7 +12,7 @@
     "core.session-store",
     "core.workstation-settings"
   ],
-  "optionalPorts": ["adapter.replay-workspace-ui"],
+  "optionalPorts": ["adapter.replay-workspace-ui", "adapter.server-state-sync"],
   "lifecycle": ["start", "stop", "dispose"],
   "independentHarness": "tests/production-application-host-browser-harness.js",
   "removable": false

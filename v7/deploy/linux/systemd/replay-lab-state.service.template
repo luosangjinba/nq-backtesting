@@ -1,15 +1,15 @@
 [Unit]
-Description=Replay Lab V7 static workstation
-After=network-online.target replay-lab-api.service replay-lab-state.service
-Wants=network-online.target replay-lab-api.service replay-lab-state.service
+Description=Replay Lab V7 user-state service
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
 User=@@SERVICE_USER@@
 Group=@@SERVICE_GROUP@@
-WorkingDirectory=@@CURRENT_RELEASE@@
+WorkingDirectory=@@CURRENT_RELEASE@@/v7/server
 EnvironmentFile=/etc/replay-lab/replay-lab.env
-ExecStart=@@NODE_BIN@@ @@CURRENT_RELEASE@@/v7/scripts/serve.mjs 8007
+ExecStart=@@PYTHON_BIN@@ @@CURRENT_RELEASE@@/v7/server/state_api.py
 Restart=on-failure
 RestartSec=3
 TimeoutStopSec=20
@@ -23,6 +23,7 @@ ProtectKernelLogs=true
 ProtectKernelModules=true
 ProtectKernelTunables=true
 ProtectSystem=full
+ReadWritePaths=@@STATE_ROOT@@/state
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 
 [Install]

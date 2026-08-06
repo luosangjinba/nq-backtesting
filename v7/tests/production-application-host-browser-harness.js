@@ -70,6 +70,9 @@ try {
   assert.equal(evidence.optional.moduleIds.includes('adapter.replay-workspace-ui'), false);
   assert.equal(evidence.optional.snapshot.hasReplayWorkspace, false);
   assert.deepEqual(evidence.optional.sessionBrowserOptionalPortIds, []);
+  assert.equal(evidence.stateSyncOptional.moduleIds.includes('adapter.server-state-sync'), false);
+  assert.equal(evidence.stateSyncOptional.snapshot.status, 'running');
+  assert.equal(evidence.stateSyncOptional.snapshot.storageAvailable, true);
   assert.equal(evidence.data.running.status, 'running');
   assert.equal(evidence.data.stopped.status, 'disposed');
   assert.equal(evidence.data.childrenAfterStop, 0);
@@ -106,4 +109,4 @@ try {
   });
 }
 
-console.log('v7 production application host browser harness passed (2 isolated instances, reverse cleanup, partial rollback, optional removal, 2 real roots, 2 negative controls)');
+console.log('v7 production application host browser harness passed (2 isolated instances, reverse cleanup, partial rollback, replay/state-sync optional removal, 2 real roots, 2 negative controls)');

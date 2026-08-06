@@ -20,10 +20,11 @@ or persistence owner.
 browser
   -> optional Caddy HTTPS + Basic Auth
     -> /v4/* -> 127.0.0.1:8766 -> V4 read API -> external DuckDB
+    -> /v7/state/* -> 127.0.0.1:8767 -> user-scoped SQLite state
     -> all other paths -> 127.0.0.1:8007 -> V7 static server
 ```
 
-Both application services bind loopback only and run under an explicitly
+All three application services bind loopback only and run under an explicitly
 selected existing Linux user. Without `--domain`, no public proxy is installed;
 the reviewer uses SSH forwards for both `8007` and `8766`. With `--domain`,
 Caddy obtains HTTPS and authentication is required unless the operator supplies
@@ -36,8 +37,9 @@ the deliberately named unauthenticated-public override.
   systemd filesystem namespace;
 - the installer never copies, replaces, repairs, changes permissions on, or
   writes the database;
-- Caddy acceptance mode returns `403` for every public `POST`, `PUT`, `PATCH`,
-  and `DELETE` before proxying;
+- authenticated Caddy acceptance mode allows only bounded, revision-checked
+  `/v7/state/*` requests and returns `403` for every other public `POST`, `PUT`,
+  `PATCH`, and `DELETE`; unauthenticated public mode exposes no state route;
 - Data Acquisition and Contract Roll therefore remain separate and cannot gain
   remote write authority from this deployment step;
 - no Databento credential or historical repair manifest is installed or run.
@@ -47,8 +49,9 @@ the deliberately named unauthenticated-public override.
 Apply mode rejects tracked working-tree changes, archives exact committed
 `HEAD`, installs locked browser packages and a minimal pinned Python runtime,
 then moves `/opt/replay-lab/current` atomically to the new immutable release.
-systemd owns both service lifecycles. If either local health endpoint fails,
-the prior release symlink is restored and both services restart against it.
+systemd owns all three service lifecycles. If any local health endpoint fails,
+the prior release symlink is restored and all three services restart against
+it. The separate user-state SQLite file is retained across code rollback.
 
 Old releases are retained. Caddy and systemd files are not deleted by the
 installer. An existing Caddyfile is timestamp-backed up before replacement.
@@ -69,7 +72,8 @@ provider- and host-specific authority outside a generic installer.
 
 `tests/linux-deployment-script-harness.js` executes private and authenticated
 public dry runs, extracts and validates the real rendered Caddyfile when Caddy
-is installed, inspects both hardened systemd units, and proves failures for:
+is installed, inspects all three hardened systemd units, and proves failures
+for:
 
 - relative or missing database paths;
 - a public domain without authentication/explicit override;
@@ -102,9 +106,11 @@ On a clean lightweight systemd host:
 3. verify Sessions and representative 1m/4h, ETH/RTH, Replay, restore, and
    browser-console behavior against the open overall checklist;
 4. optionally repeat with a DNS hostname, HTTPS, and Basic Auth;
-5. prove public mutation methods return `403` and the database fingerprint is
-   unchanged;
+5. prove only authenticated state CAS is writable, other public mutations
+   return `403`, and the market database fingerprint is unchanged;
 6. redeploy the same/new committed revision and prove service restart plus
-   retained rollback target.
+   retained rollback target;
+7. prove state SQLite backup/restore and the same Session/Workspace checkpoint
+   from two physical computers using the same authenticated identity.
 
 Automated dry-run evidence does not grant real-host acceptance.

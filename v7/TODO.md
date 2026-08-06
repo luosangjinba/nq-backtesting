@@ -7,6 +7,26 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
+### R10.8 Authenticated Cross-Device State Sync — Implemented, Host Review Pending
+
+- [x] decide on one server-side, user-scoped state snapshot while retaining the
+  existing local Session repository as the immediate durable command boundary;
+- [x] exclude market bars, DuckDB, credentials, pending transactions, and native
+  Chart state from synchronization;
+- [x] implement the loopback SQLite state service with authenticated user
+  isolation, bounded snapshots, strict revision CAS, and restart persistence;
+- [x] implement local-first browser bootstrap, first-device import, second-
+  device hydration, ordered background writes, offline state, conflict
+  detection, local backups, and explicit resolution;
+- [x] add a dedicated systemd unit and authenticated Caddy allowlist for only
+  `/v7/state/*`, keeping all market/data-acquisition mutations blocked;
+- [x] bind state-service, browser-sync, optional-removal, Linux rendering, and
+  real two-profile browser evidence;
+- [ ] deploy the committed result and confirm the same Session/Workspace state
+  from two physical computers without changing the market DuckDB.
+
+Binding contract and host gate: `docs/V7_SERVER_STATE_SYNC_R10_8.md`.
+
 ### Overall-Acceptance Findings — Session And Replay Interaction Corrections
 
 - [x] remove the ambiguous creation timestamp from Session cards while keeping
@@ -514,9 +534,9 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 309 files, 23,200 effective
-lines, 2,480 functions, and 306 public exports; the architecture baseline
-remains 48 modules, 125 edges, 115 construction sites, eight writers, and zero
+The current production source baseline contains 312 files, 23,754 effective
+lines, 2,534 functions, and 307 public exports; the architecture baseline
+remains 49 modules, 125 edges, 115 construction sites, nine writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -527,8 +547,8 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 309 files, 23,200 effective lines, 2,480 functions, 306 public
-exports, 48 modules, 125 edges, 115 construction sites, eight writers, and zero
+currently at 312 files, 23,754 effective lines, 2,534 functions, 307 public
+exports, 49 modules, 125 edges, 115 construction sites, nine writers, and zero
 findings.
 
 ## Established Foundation Governance

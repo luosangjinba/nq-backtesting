@@ -6,6 +6,10 @@
       "omittedModuleId": "adapter.replay-workspace-ui"
     },
     {
+      "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "adapter.server-state-sync"
+    },
+    {
       "consumerModuleId": "adapter.session-browser-ui",
       "omittedModuleId": "adapter.replay-workspace-ui"
     }

@@ -11,10 +11,11 @@ function requirePort(ports, id, method) {
   return port;
 }
 
-function releaseApplication(browser, replayWorkspace) {
+async function releaseApplication(browser, replayWorkspace, stateSync) {
   const errors = [];
   try { browser?.dispose(); } catch (error) { errors.push(error); }
   try { replayWorkspace?.dispose(); } catch (error) { errors.push(error); }
+  try { await stateSync?.dispose(); } catch (error) { errors.push(error); }
   if (errors.length > 0) throw new AggregateError(errors, 'Session application cleanup failed.');
 }
 
@@ -88,11 +89,16 @@ export function createProductionModuleDefinition({
       requirePort(requiredPorts, 'core.workstation-settings', 'createWorkstationSettingsRuntime');
       requirePort(requiredPorts, 'core.workstation-settings', 'createColorHistoryStore');
       const replayApi = optionalPorts['adapter.replay-workspace-ui'] ?? null;
+      const stateSyncApi = optionalPorts['adapter.server-state-sync'] ?? null;
       if (replayApi && typeof replayApi.createReplayWorkspaceSurface !== 'function') {
         throw new TypeError(`${MODULE_ID} received an invalid optional Replay Workspace port.`);
       }
+      if (stateSyncApi && typeof stateSyncApi.createServerStateSync !== 'function') {
+        throw new TypeError(`${MODULE_ID} received an invalid optional State Sync port.`);
+      }
       let browser = null;
       let replayWorkspace = null;
+      let stateSync = null;
       let status = 'created';
       let storageAvailable = false;
 
@@ -105,14 +111,16 @@ export function createProductionModuleDefinition({
         });
       }
 
-      function cleanup(nextStatus) {
+      async function cleanup(nextStatus) {
         const releasedBrowser = browser;
         const releasedReplayWorkspace = replayWorkspace;
+        const releasedStateSync = stateSync;
         browser = null;
         replayWorkspace = null;
+        stateSync = null;
         storageAvailable = false;
         status = nextStatus;
-        releaseApplication(releasedBrowser, releasedReplayWorkspace);
+        await releaseApplication(releasedBrowser, releasedReplayWorkspace, releasedStateSync);
       }
 
       return Object.freeze({
@@ -123,7 +131,20 @@ export function createProductionModuleDefinition({
           let composed = null;
           let unavailableMessage = null;
           try {
-            composed = composeStores({ ports: requiredPorts, storage: environment.readStorage() });
+            let storage = environment.readStorage();
+            if (stateSyncApi && typeof environment.fetch === 'function'
+              && typeof environment.reload === 'function') {
+              stateSync = stateSyncApi.createServerStateSync({
+                crypto: environment.crypto,
+                fetch: environment.fetch,
+                now: () => Date.now(),
+                reload: environment.reload,
+                storage,
+              });
+              await stateSync.initialize();
+              storage = stateSync.storage;
+            }
+            composed = composeStores({ ports: requiredPorts, storage });
             storageAvailable = true;
           } catch {
             unavailableMessage = 'Local Session storage could not be initialized. Check browser site-data permissions and reload.';
@@ -139,6 +160,7 @@ export function createProductionModuleDefinition({
             replayNavigationPreferences: composed?.replayNavigationPreferences ?? null,
             root: environment.root,
             store: composed?.sessionStore ?? null,
+            stateSync,
             unavailableMessage,
             workstationSettings: composed?.workstationSettings ?? null,
           });
@@ -148,11 +170,11 @@ export function createProductionModuleDefinition({
         },
         async stop() {
           lifecycleObserver('stop', MODULE_ID);
-          if (status !== 'disposed') cleanup('stopped');
+          if (status !== 'disposed') await cleanup('stopped');
         },
         async dispose() {
           lifecycleObserver('dispose', MODULE_ID);
-          if (status !== 'disposed') cleanup('disposed');
+          if (status !== 'disposed') await cleanup('disposed');
         },
       });
     },

@@ -109,6 +109,17 @@ async function run() {
   ));
   await optionalHost.stop();
 
+  const stateSyncOptionalDefinitions = await loadProductionApplicationDefinitions({
+    environment: sessionEnvironment(document.querySelector('#host-optional')),
+    omittedModuleIds: ['adapter.server-state-sync'],
+    rootModuleId: 'adapter.session-application',
+  });
+  const stateSyncOptionalHost = createModuleHost(stateSyncOptionalDefinitions);
+  const stateSyncOptionalStarted = await stateSyncOptionalHost.start();
+  const stateSyncOptionalSnapshot = stateSyncOptionalHost
+    .getPublicApi('adapter.session-application').snapshot();
+  await stateSyncOptionalHost.stop();
+
   const dataDefinitions = await loadProductionApplicationDefinitions({
     environment: {
       root: document.querySelector('#host-data'),
@@ -164,6 +175,10 @@ async function run() {
       trace: rollbackTrace,
     }),
     requiredOmissionFailureCode,
+    stateSyncOptional: Object.freeze({
+      moduleIds: stateSyncOptionalStarted.moduleIds,
+      snapshot: stateSyncOptionalSnapshot,
+    }),
     status: 'passed',
   });
 }

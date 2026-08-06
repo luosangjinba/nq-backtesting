@@ -580,3 +580,10 @@ R8.13–R8.15.
   deployment path, combined-config validation, repeat-safe import ownership,
   and main/fragment rollback; implemented after the Alibaba host exposed an
   existing Caddy site and awaiting the same real-host rerun.
+- `R10.8`: retain local Web Storage as the immediate local-first persistence
+  boundary while replicating allowlisted Session/checkpoint/preferences state
+  to one user-scoped SQLite snapshot through strict revision CAS; expose only
+  the authenticated `/v7/state/*` mutation route, preserve an optional/local
+  boot path, and require explicit conflict resolution plus real two-computer
+  confirmation. Automated implementation is complete; physical host review is
+  pending. Binding contract: `V7_SERVER_STATE_SYNC_R10_8.md`.

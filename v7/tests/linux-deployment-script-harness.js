@@ -18,6 +18,10 @@ const webTemplate = path.join(
   repositoryRoot,
   'v7/deploy/linux/systemd/replay-lab-web.service.template',
 );
+const stateTemplate = path.join(
+  repositoryRoot,
+  'v7/deploy/linux/systemd/replay-lab-state.service.template',
+);
 const negativeCases = JSON.parse(fs.readFileSync(path.join(
   repositoryRoot,
   'v7/tests/fixtures/linux-deployment/negative/cases.json',
@@ -129,8 +133,11 @@ try {
   assert.equal(privatePlan.status, 0, privatePlan.stderr);
   assert.match(privatePlan.stdout, /public proxy: disabled/);
   assert.match(privatePlan.stdout, /ssh -L 8007:127\.0\.0\.1:8007 -L 8766:127\.0\.0\.1:8766/);
-  assert.match(privatePlan.stdout, /Database copy\/write: never/);
-  assert.match(privatePlan.stdout, /Database service mount: read-only/);
+  assert.match(privatePlan.stdout, /Market database copy\/write: never/);
+  assert.match(privatePlan.stdout, /Market database service mount: read-only/);
+  assert.match(privatePlan.stdout, /User state SQLite: \/var\/lib\/replay-lab\/state\/replay-lab-state\.sqlite3/);
+  assert.match(privatePlan.stdout, /replay-lab-state\.service/);
+  assert.match(privatePlan.stdout, /ReadWritePaths=\/var\/lib\/replay-lab\/state/);
   assert.match(privatePlan.stdout, new RegExp(`ReadOnlyPaths=${database.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
   assert.match(privatePlan.stdout, /dry-run complete; no host files were changed/);
   const packageRequest = privatePlan.stdout.match(/Runtime package request: (.+)/)?.[1] ?? '';
@@ -146,13 +153,29 @@ try {
   ]);
   assert.equal(publicPlan.status, 0, publicPlan.stderr);
   assert.match(publicPlan.stdout, /public URL: https:\/\/replay\.example\.com\/v7\/app\//);
-  assert.match(publicPlan.stdout, /mutations=blocked/);
-  assert.match(publicPlan.stdout, /@(mutating) method POST PUT PATCH DELETE/);
+  assert.match(publicPlan.stdout, /user-state=enabled, market-mutations=blocked/);
+  assert.match(publicPlan.stdout, /@state_api path \/v7\/state\/\*/);
+  assert.match(publicPlan.stdout, /reverse_proxy @state_api 127\.0\.0\.1:8767/);
+  assert.match(publicPlan.stdout, /header_up X-Replay-Lab-User \{http\.auth\.user\.id\}/);
+  assert.match(publicPlan.stdout, /not path \/v7\/state\/\*/);
   assert.match(publicPlan.stdout, /reverse_proxy @v4_api 127\.0\.0\.1:8766/);
   assert.match(publicPlan.stdout, /reverse_proxy 127\.0\.0\.1:8007/);
   assert.match(publicPlan.stdout, /(basic_auth|basicauth) \{/);
   if (caddyAvailable) {
     validateRenderedCaddy(publicPlan.stdout, 'Caddyfile-domain');
+  }
+  const unauthenticatedPublicPlan = execute([
+    ...common,
+    '--domain', 'public.example.com',
+    '--allow-public-without-auth',
+  ]);
+  assert.equal(unauthenticatedPublicPlan.status, 0, unauthenticatedPublicPlan.stderr);
+  assert.match(unauthenticatedPublicPlan.stdout, /user-state=local-only, market-mutations=blocked/);
+  assert.doesNotMatch(unauthenticatedPublicPlan.stdout, /@state_api/,
+    'unauthenticated public deployment must expose no user-state route');
+  assert.match(unauthenticatedPublicPlan.stdout, /@mutating method POST PUT PATCH DELETE/);
+  if (caddyAvailable) {
+    validateRenderedCaddy(unauthenticatedPublicPlan.stdout, 'Caddyfile-unauthenticated');
   }
 
   const publicIpPlan = execute([
@@ -227,8 +250,8 @@ try {
   }
 
   const caddySource = fs.readFileSync(caddyTemplate, 'utf8');
-  assert.match(caddySource, /@mutating method POST PUT PATCH DELETE/);
-  assert.match(caddySource, /respond @mutating .* 403/);
+  assert.match(caddySource, /@@STATE_PROXY_BLOCK@@/);
+  assert.match(caddySource, /@@MUTATION_BLOCK@@/);
   assert.match(caddySource, /reverse_proxy @v4_api 127\.0\.0\.1:8766/);
   assert.match(caddySource, /reverse_proxy 127\.0\.0\.1:8007/);
   assert.match(caddySource, /@@TLS_BLOCK@@/);
@@ -244,6 +267,12 @@ try {
   assert.match(installerSource, /chmod -R u=rwX,g=rX,o= "\$venv_dir"/);
   assert.match(installerSource, /chown -R root:"\$service_group" "\$release_dir"/);
   assert.match(installerSource, /chmod -R u=rwX,g=rX,o= "\$release_dir"/);
+  assert.match(installerSource, /V7_STATE_DB=%s\/state\/replay-lab-state\.sqlite3/);
+  assert.match(installerSource, /require_managed_or_free_port 8767 replay-lab-state\.service/);
+  const rollbackSource = installerSource.match(/^rollback_release\(\) \{[\s\S]*?^\}/m)?.[0];
+  assert.ok(rollbackSource, 'release rollback must remain independently inspectable');
+  assert.match(rollbackSource,
+    /systemctl restart replay-lab-api\.service replay-lab-state\.service[\s\\\n]+replay-lab-web\.service/);
   const defaultSniSource = installerSource.match(
     /^write_caddy_default_sni\(\) \{[\s\S]*?^\}/m,
   )?.[0];
@@ -284,7 +313,8 @@ try {
 
   const apiSource = fs.readFileSync(apiTemplate, 'utf8');
   const webSource = fs.readFileSync(webTemplate, 'utf8');
-  for (const source of [apiSource, webSource]) {
+  const stateSource = fs.readFileSync(stateTemplate, 'utf8');
+  for (const source of [apiSource, webSource, stateSource]) {
     assert.match(source, /NoNewPrivileges=true/);
     assert.match(source, /ProtectSystem=full/);
     assert.match(source, /RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6/);
@@ -293,6 +323,9 @@ try {
   assert.match(apiSource, /ReadOnlyPaths=@@DATABASE_PATH@@/);
   assert.match(apiSource, /v4\/v4_api\.py/);
   assert.match(webSource, /v7\/scripts\/serve\.mjs 8007/);
+  assert.match(webSource, /EnvironmentFile=\/etc\/replay-lab\/replay-lab\.env/);
+  assert.match(stateSource, /v7\/server\/state_api\.py/);
+  assert.match(stateSource, /ReadWritePaths=@@STATE_ROOT@@\/state/);
 
   console.log('V7 Linux deployment script harness: PASS');
 } finally {

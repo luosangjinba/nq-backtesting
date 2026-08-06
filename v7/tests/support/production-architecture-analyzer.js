@@ -8,6 +8,7 @@ const WRITER_DETECTORS = Object.freeze({
   'pane-workspace-accepted-state': /export\s+function\s+createWorkspaceStateRuntime\s*\(/,
   'post-terminal-workspace-commit': /\bpaneData\.accept\s*\(/,
   'raw-provider-request': /\bprovider\.(?:requestRawBars|requestProjectedHistory)\s*\(/,
+  'replicated-state-put': /\bmethod:\s*['"]PUT['"]/,
   'replay-cursor-commit': /\bcursorEpochMs\s*=\s*value\.targetEpochMs\b/,
   'workspace-snapshot-commit': /#acceptedSnapshot\s*=/,
 });

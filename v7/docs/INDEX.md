@@ -135,11 +135,12 @@ Read in this order before V7 implementation work:
 88. `V7_LINUX_ACCEPTANCE_HOST_DEPLOYMENT_R10_1.md`
 89. `V7_LINUX_PUBLIC_IPV4_RUNTIME_COMPATIBILITY_R10_2.md`
 90. `V7_LINUX_PUBLIC_IPV4_QUICK_DEPLOY_R10_3.md`
-91. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
+91. `V7_SERVER_STATE_SYNC_R10_8.md`
+92. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-92. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
+93. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-93. `../TODO.md`
+94. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.

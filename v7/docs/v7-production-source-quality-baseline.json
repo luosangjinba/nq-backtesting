@@ -12625,6 +12625,25 @@
       "effectiveLines": 1,
       "forwardingOnly": true,
       "functions": [],
+      "kind": "adapter",
+      "moduleId": "adapter.server-state-sync",
+      "owner": "session-state-replication",
+      "ownsContract": true,
+      "path": "src/server-state-sync/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "session-state-replication"
+      ],
+      "sizeException": null,
+      "sourceHash": "6da383c3d6c504ae97ab96bffe998bc7199db5199d787b0b3c096306311c085a"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 1,
+      "forwardingOnly": true,
+      "functions": [],
       "kind": "composition",
       "moduleId": "adapter.data-acquisition-application",
       "owner": "application-composition",
@@ -13683,6 +13702,106 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 132,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requireEntries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "replacementEnvelope",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "requireServerSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "captureReplicatedEntries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "writeConflictBackup",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "readSyncMetadata",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "freezeEntries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "applyReplicatedEntries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "isReplicatedStateKey",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "entriesHash",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "writeSyncMetadata",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.server-state-sync",
+      "owner": "session-state-replication",
+      "ownsContract": false,
+      "path": "src/server-state-sync/snapshot.js",
+      "publicExports": [],
+      "responsibilities": [
+        "session-state-replication"
+      ],
+      "sizeException": null,
+      "sourceHash": "ef5359edf072964de057a23eadffa85b28e2891909748caa5606c88eb835ba4a"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 14,
       "forwardingOnly": false,
       "functions": [
@@ -13756,36 +13875,6 @@
       ],
       "sizeException": null,
       "sourceHash": "eb5bc1729a1684136df55e63356f16930a919f2d5fa2598f6c453efa51f77e40"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 14,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readStorage",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "application",
-      "owner": "application-composition",
-      "ownsContract": false,
-      "path": "app/main.js",
-      "publicExports": [],
-      "responsibilities": [
-        "application-composition"
-      ],
-      "sizeException": null,
-      "sourceHash": "c54f1ca904687bd40c64649361f01b1f8e2823ecca4086e77bda4f2b2af8a76d"
     },
     {
       "adaptsBoundary": true,
@@ -14099,116 +14188,6 @@
       ],
       "sizeException": null,
       "sourceHash": "fdc17ef1606f3fd0fa3be7806abe12f1d73424ddc788340e82d4d57f2dab9c1f"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 145,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "idFactory",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "createProductionModuleDefinition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 29,
-          "name": "start",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 32,
-          "name": "instantiate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 34,
-          "name": "composeStores",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "stop",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "releaseApplication",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "requirePort",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "cleanup",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "adapter.session-application",
-      "owner": "application-composition",
-      "ownsContract": false,
-      "path": "src/session-application/application-definition.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "application-composition. Builds the real Session Browser application as one ModuleHost lifecycle definition. Public module namespaces arrive only through registered ports; DOM, navigation, and storage resources are acquired in start and released by both partial-start rollback and normal reverse cleanup.",
-            "purpose": "expose the complete supported public contract for session application.",
-            "inputs": "validated configuration plus explicitly injected owner, persistence, and presentation ports.",
-            "outputs": "a bounded application or workspace command surface.",
-            "sideEffects": "constructs, wires, invokes, and disposes only the owners named by this composition boundary.",
-            "lifecycle": "the composed graph lives from factory creation until its exposed dispose operation.",
-            "errors": "construction and command failures propagate from the responsible owner with stable error codes.",
-            "concurrencyCancellation": "asynchronous commands preserve cancellation and current-identity checks across owner boundaries."
-          },
-          "moduleId": "adapter.session-application",
-          "name": "createProductionModuleDefinition"
-        }
-      ],
-      "responsibilities": [
-        "application-composition"
-      ],
-      "sizeException": null,
-      "sourceHash": "d5cf157f0f70a9daada33c093047885dc4f662e422621f6fcdfb3566f02e1d26"
     },
     {
       "adaptsBoundary": true,
@@ -14913,6 +14892,41 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readStorage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "reload",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "application",
+      "owner": "application-composition",
+      "ownsContract": false,
+      "path": "app/main.js",
+      "publicExports": [],
+      "responsibilities": [
+        "application-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "d565333d4afa0dd853136f8fb13071b2fada2663a6ef4200a6a339f074b77852"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 16,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 11,
           "name": "createReplayWorkspaceCommandPort",
           "reviewedDecompositionException": false
@@ -15033,6 +15047,121 @@
       ],
       "sizeException": null,
       "sourceHash": "bfbff63845ca22ce28955bf99ebe01c15b45852c1c688ef8118022016cc70253"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 167,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "idFactory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "now",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "cleanup",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "createProductionModuleDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 34,
+          "name": "composeStores",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 37,
+          "name": "instantiate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "stop",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 43,
+          "name": "start",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "releaseApplication",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "requirePort",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "adapter.session-application",
+      "owner": "application-composition",
+      "ownsContract": false,
+      "path": "src/session-application/application-definition.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "application-composition. Builds the real Session Browser application as one ModuleHost lifecycle definition. Public module namespaces arrive only through registered ports; DOM, navigation, and storage resources are acquired in start and released by both partial-start rollback and normal reverse cleanup.",
+            "purpose": "expose the complete supported public contract for session application.",
+            "inputs": "validated configuration plus explicitly injected owner, persistence, and presentation ports.",
+            "outputs": "a bounded application or workspace command surface.",
+            "sideEffects": "constructs, wires, invokes, and disposes only the owners named by this composition boundary.",
+            "lifecycle": "the composed graph lives from factory creation until its exposed dispose operation.",
+            "errors": "construction and command failures propagate from the responsible owner with stable error codes.",
+            "concurrencyCancellation": "asynchronous commands preserve cancellation and current-identity checks across owner boundaries."
+          },
+          "moduleId": "adapter.session-application",
+          "name": "createProductionModuleDefinition"
+        }
+      ],
+      "responsibilities": [
+        "application-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "60fe692044a9f63768afac44a9f51a44f36c6d2bf0a63b3b20c238d1703d1f56"
     },
     {
       "adaptsBoundary": true,
@@ -15823,196 +15952,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 194,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-24>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-25>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-28>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-29>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onBack",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onCreate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onDelete",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onOpen",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onPersistReplayNavigationSettings",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onRetry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onSubmit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "start",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "<anonymous-17>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "commit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "applyRoute",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "<anonymous-15>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 23,
-          "name": "createSessionBrowser",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 29,
-          "name": "<anonymous-19>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 30,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "deleteSession",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "openSession",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "renderList",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "createSession",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requirePort",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "start",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "onPersistWorkspaceCheckpoint",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "refreshList",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "readRoute",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.session-browser-ui",
-      "owner": "session-store",
-      "ownsContract": false,
-      "path": "src/session-browser-ui/session-browser.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "session-store UI adapter.",
-            "purpose": "translate Session Browser DOM intents into explicit Session Store commands while rendering only immutable view models.",
-            "inputs": "owned root, Session Store, navigation, identity/time/config ports.",
-            "outputs": "start/dispose controller API.",
-            "sideEffects": "owns DOM under root and one navigation subscription.",
-            "lifecycle": "mounted listeners and DOM resources remain owned until dispose or unmount.",
-            "errors": "operation failures become visible error/unavailable states.",
-            "concurrencyCancellation": "UI callbacks delegate asynchronous cancellation and stale-result checks to runtime owners."
-          },
-          "moduleId": "adapter.session-browser-ui",
-          "name": "createSessionBrowser"
-        }
-      ],
-      "responsibilities": [
-        "session-store"
-      ],
-      "sizeException": null,
-      "sourceHash": "38594a3c48b5ae1e9d0c50e6e5ce2ce4e7f8f28ac04a0face2c9652e3d31285c"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 2,
       "forwardingOnly": true,
       "functions": [],
@@ -16570,6 +16509,216 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 212,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-28>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-29>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-32>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-33>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onBack",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onCreate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onDelete",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onOpen",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onPersistReplayNavigationSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onRetry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onRetryStateSync",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onSubmit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onUseDeviceState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onUseServerState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "start",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "applyRoute",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "commit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "<anonymous-22>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-27>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 30,
+          "name": "createSessionBrowser",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "deleteSession",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "openSession",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "renderList",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "createSession",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requirePort",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "onPersistWorkspaceCheckpoint",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "refreshList",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "start",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "readRoute",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.session-browser-ui",
+      "owner": "session-store",
+      "ownsContract": false,
+      "path": "src/session-browser-ui/session-browser.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "session-store UI adapter.",
+            "purpose": "translate Session Browser DOM intents into explicit Session Store commands while rendering only immutable view models.",
+            "inputs": "owned root, Session Store, navigation, identity/time/config ports.",
+            "outputs": "start/dispose controller API.",
+            "sideEffects": "owns DOM under root and one navigation subscription.",
+            "lifecycle": "mounted listeners and DOM resources remain owned until dispose or unmount.",
+            "errors": "operation failures become visible error/unavailable states.",
+            "concurrencyCancellation": "UI callbacks delegate asynchronous cancellation and stale-result checks to runtime owners."
+          },
+          "moduleId": "adapter.session-browser-ui",
+          "name": "createSessionBrowser"
+        }
+      ],
+      "responsibilities": [
+        "session-store"
+      ],
+      "sizeException": null,
+      "sourceHash": "83f3e1188e7fc7d22214802ca4e1fe0f7d7bb697712b1c5f9553153deb33183b"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 214,
       "forwardingOnly": false,
       "functions": [
@@ -16785,91 +16934,6 @@
       ],
       "sizeException": null,
       "sourceHash": "9050ac500f4dc8b9786e316670c2f6e398fe347f6173b70d904e1d065d0a5d99"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 216,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onClick",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onClick",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "shell",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 2,
-          "name": "<anonymous-11>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 23,
-          "name": "statePanel",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 52,
-          "name": "openedScreen",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 53,
-          "name": "listScreen",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 53,
-          "name": "sessionCard",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "renderSessionBrowserSurface",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.session-browser-ui",
-      "owner": "session-store",
-      "ownsContract": false,
-      "path": "src/session-browser-ui/surface.js",
-      "publicExports": [],
-      "responsibilities": [
-        "session-store"
-      ],
-      "sizeException": null,
-      "sourceHash": "6d04a57c8a6aa22d5e2a59a06c763ef4bd0ce7053c334cb85e9336277f0e9ac8"
     },
     {
       "adaptsBoundary": true,
@@ -17653,6 +17717,186 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 295,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-26>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "getItem",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "key",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "length",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requireOptions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "readRemote",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "upload",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "acceptRemote",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "pushCurrent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "resolveConflict",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "replaceRemote",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "hash",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 39,
+          "name": "createServerStateSync",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "removeItem",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "setItem",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "publish",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "retry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "subscribe",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "enqueueSync",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "flush",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "metadata",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "requestTimeoutMs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 71,
+          "name": "reconcile",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "initialize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "publicSnapshot",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.server-state-sync",
+      "owner": "session-state-replication",
+      "ownsContract": false,
+      "path": "src/server-state-sync/state-sync-client.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "session-state-replication.",
+            "purpose": "expose optional local-first replication without changing Session Store ownership.",
+            "inputs": "explicit fetch, Web Storage, Web Crypto, reload, and clock ports.",
+            "outputs": "initialized synchronized storage plus observable sync/conflict controls.",
+            "sideEffects": "reads/writes allowlisted local storage and one bounded state endpoint.",
+            "lifecycle": "initialize before Session owners; flush and dispose after they stop.",
+            "errors": "invalid ports throw; network failures become explicit local/offline state.",
+            "concurrencyCancellation": "serialized snapshot PUTs use revision CAS; stale writers conflict."
+          },
+          "moduleId": "adapter.server-state-sync",
+          "name": "createServerStateSync"
+        }
+      ],
+      "responsibilities": [
+        "session-state-replication"
+      ],
+      "sizeException": null,
+      "sourceHash": "53b82230a26c035f74b419ccc00a9651c4d0ce85bc609a49579f5049c9ff623a"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 3,
       "forwardingOnly": true,
       "functions": [],
@@ -17837,6 +18081,106 @@
       ],
       "sizeException": null,
       "sourceHash": "582d35f6e5a098342f3139812a51cfed0c8b844ad677e3f280d9213e1e3b2eb8"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 300,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onClick",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onClick",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "syncPresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "renderSessionBrowserSurface",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "shell",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "statePanel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "updateStateSyncPresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 43,
+          "name": "stateSyncAlert",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 52,
+          "name": "openedScreen",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 53,
+          "name": "listScreen",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 53,
+          "name": "sessionCard",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.session-browser-ui",
+      "owner": "session-store",
+      "ownsContract": false,
+      "path": "src/session-browser-ui/surface.js",
+      "publicExports": [],
+      "responsibilities": [
+        "session-store"
+      ],
+      "sizeException": null,
+      "sourceHash": "46dcb76dba344e1e3bab690ef239b366f11df964ff5bffcb77eff702af0a7cc7"
     },
     {
       "adaptsBoundary": true,
@@ -23034,11 +23378,11 @@
   ],
   "schemaVersion": 1,
   "summary": {
-    "effectiveLines": 23200,
-    "files": 309,
-    "functions": 2480,
-    "publicExports": 306
+    "effectiveLines": 23754,
+    "files": 312,
+    "functions": 2534,
+    "publicExports": 307
   },
-  "deliveryStep": "R8.12",
-  "generatedFromCommit": "ce42eb9f"
+  "deliveryStep": "R10.8",
+  "generatedFromCommit": "40ea69b9"
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R8.12",
+  "deliveryStep": "R10.8",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -57,6 +57,7 @@
     ],
     "adapter": [
       "adapter.lightweight-chart",
+      "adapter.server-state-sync",
       "adapter.v4-bars-provider"
     ],
     "persistence": [

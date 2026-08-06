@@ -67,6 +67,30 @@ identity, revisions, and transient playback/presentation state remain absent.
 Soft re-entry and hard refresh rebrand Viewports under the new activation and
 materialize every Pane once at the saved cursor through Workspace Transaction.
 
+### Server State Replication Adapter
+
+R10.8 adds optional `adapter.server-state-sync` outside the Session Store
+command boundary. Local Web Storage remains the immediate synchronous durable
+write: Session Store, Replay Navigation Preferences, Workstation Settings, and
+color history keep their existing owners and APIs. The adapter observes only
+their allowlisted durable keys and serializes one complete immutable snapshot
+after local success; network availability can never enter a Session CAS or
+Workspace visible transaction.
+
+The loopback state service persists one SQLite row per authenticated user and
+uses a strictly increasing global snapshot revision. Replacement requires the
+caller's expected revision. A stale writer receives the current snapshot and
+the browser enters an explicit conflict state; it never silently merges or
+uses last-write-wins. Empty-device hydration, first-device import, offline
+local continuity, device/server backups, and both conflict choices are owned by
+this adapter. Market bars, DuckDB, credentials, native Chart state, activation
+identity, and pending transactions never enter the replicated schema.
+
+The module is removable. Without its port or without a trusted state route,
+the application boots with the original local-only persistence behavior. The
+binding state, identity, proxy, and deployment contract is
+`V7_SERVER_STATE_SYNC_R10_8.md`.
+
 ### Replay Runtime
 
 Owns the accepted cursor, revealed-through boundary, playback state, and source

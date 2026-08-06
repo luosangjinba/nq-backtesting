@@ -192,7 +192,90 @@ function openedScreen(model, actions, workstationSettings) {
   return element('div', { className: 'page page-opened' }, [model.workspace ? null : header, content]);
 }
 
-function shell(content, { immersive = false } = {}) {
+function syncPresentation(snapshot) {
+  const status = snapshot?.status ?? 'local';
+  return {
+    badge: {
+      conflict: 'Conflict', offline: 'Local-first', synced: 'Synced', syncing: 'Syncing',
+    }[status] ?? 'Local-first',
+    note: snapshot?.message ?? 'Stored on this device',
+    status,
+  };
+}
+
+function stateSyncAlert(snapshot, actions) {
+  const status = snapshot?.status ?? 'local';
+  const alert = element('aside', {
+    className: 'state-sync-alert',
+    role: 'alert',
+    dataset: { stateSyncAlert: '' },
+  }, [
+    element('strong', {
+      dataset: { stateSyncAlertTitle: '' },
+      text: status === 'offline' ? 'Server sync offline' : 'Saved-state conflict',
+    }),
+    element('span', {
+      dataset: { stateSyncAlertMessage: '' },
+      text: snapshot?.message ?? 'This device and the server contain different saved state.',
+    }),
+    element('div', {
+      className: 'state-sync-alert-actions',
+      dataset: { stateSyncConflictActions: '' },
+    }, [
+      element('button', {
+        className: 'button button-secondary', type: 'button', text: 'Use server',
+        onClick: actions.onUseServerState,
+      }),
+      element('button', {
+        className: 'button button-primary', type: 'button', text: 'Keep this device',
+        onClick: actions.onUseDeviceState,
+      }),
+    ]),
+    element('div', {
+      className: 'state-sync-alert-actions',
+      dataset: { stateSyncOfflineActions: '' },
+    }, [
+      element('button', {
+        className: 'button button-primary', type: 'button', text: 'Retry sync',
+        onClick: actions.onRetryStateSync,
+      }),
+    ]),
+  ]);
+  alert.querySelector('[data-state-sync-conflict-actions]').hidden = status !== 'conflict';
+  alert.querySelector('[data-state-sync-offline-actions]').hidden = status !== 'offline';
+  alert.hidden = !['conflict', 'offline'].includes(status);
+  return alert;
+}
+
+/** Update sync-only DOM without remounting Session or Replay owners. */
+export function updateStateSyncPresentation(root, snapshot) {
+  const presentation = syncPresentation(snapshot);
+  const footer = root.querySelector('[data-state-sync-status]');
+  if (footer) {
+    footer.dataset.stateSyncStatus = presentation.status;
+    const badge = footer.querySelector('.foundation-badge');
+    const note = footer.querySelector('.local-note');
+    if (badge) badge.textContent = presentation.badge;
+    if (note) note.textContent = presentation.note;
+  }
+  const alert = root.querySelector('[data-state-sync-alert]');
+  if (alert) {
+    const conflict = presentation.status === 'conflict';
+    const offline = presentation.status === 'offline';
+    alert.hidden = !conflict && !offline;
+    const title = alert.querySelector('[data-state-sync-alert-title]');
+    const message = alert.querySelector('[data-state-sync-alert-message]');
+    const conflictActions = alert.querySelector('[data-state-sync-conflict-actions]');
+    const offlineActions = alert.querySelector('[data-state-sync-offline-actions]');
+    if (title) title.textContent = offline ? 'Server sync offline' : 'Saved-state conflict';
+    if (message) message.textContent = presentation.note;
+    if (conflictActions) conflictActions.hidden = !conflict;
+    if (offlineActions) offlineActions.hidden = !offline;
+  }
+}
+
+function shell(content, { immersive = false, stateSync = null, syncActions } = {}) {
+  const sync = syncPresentation(stateSync);
   return element('div', { className: 'workstation-shell' }, [
     immersive ? null : element('aside', { className: 'app-rail', 'aria-label': 'Primary navigation' }, [
       element('a', { className: 'product-mark', href: '#/sessions', 'aria-label': 'Replay Lab sessions' }, [
@@ -203,21 +286,26 @@ function shell(content, { immersive = false } = {}) {
         element('a', { className: 'rail-link is-active', href: '#/sessions' }, [icon('sessions'), element('span', { text: 'Sessions' })]),
         element('a', { className: 'rail-link', href: './data-acquisition.html' }, [icon('database'), element('span', { text: 'Data acquisition' })]),
       ]),
-      element('div', { className: 'rail-footer' }, [
-        element('span', { className: 'foundation-badge', text: 'Local-first' }),
-        element('span', { className: 'local-note', text: 'Stored on this device' }),
+      element('div', { className: 'rail-footer', dataset: { stateSyncStatus: sync.status } }, [
+        element('span', { className: 'foundation-badge', text: sync.badge }),
+        element('span', { className: 'local-note', text: sync.note }),
       ]),
     ]),
     element('main', { className: `main-surface${immersive ? ' main-surface-immersive' : ''}` }, [content]),
+    stateSyncAlert(stateSync, syncActions),
   ]);
 }
 
 /** Render one complete, atomic Session Browser snapshot into its owned root. */
-export function renderSessionBrowserSurface(root, model, actions, workstationSettings) {
+export function renderSessionBrowserSurface(root, model, actions, workstationSettings, stateSync = null) {
   const content = model.screen === 'opened'
     ? openedScreen(model, actions, workstationSettings)
     : listScreen(model, actions, workstationSettings);
-  root.replaceChildren(shell(content, { immersive: model.screen === 'opened' && model.workspace }));
+  root.replaceChildren(shell(content, {
+    immersive: model.screen === 'opened' && model.workspace,
+    stateSync,
+    syncActions: actions,
+  }));
   root.dataset.viewState = model.state;
   root.dataset.screen = model.screen;
 }

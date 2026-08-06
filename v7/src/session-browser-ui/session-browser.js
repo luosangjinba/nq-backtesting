@@ -1,6 +1,6 @@
 import { createSessionId, serializeSessionId } from '../session-identity/public.js';
 import { createSessionDialog } from './create-dialog.js';
-import { renderSessionBrowserSurface } from './surface.js';
+import { renderSessionBrowserSurface, updateStateSyncPresentation } from './surface.js';
 import { createOpenedSessionViewModel, createSessionListViewModel } from './view-model.js';
 
 function readRoute(hash) {
@@ -35,9 +35,11 @@ class SessionBrowserController {
     this.workstationSettings = options.workstationSettings ?? null;
     this.colorHistory = options.colorHistory ?? null;
     this.unavailableMessage = options.unavailableMessage;
+    this.stateSync = options.stateSync ?? null;
     this.records = [];
     this.stopped = false;
     this.unsubscribe = null;
+    this.unsubscribeStateSync = null;
     this.dialog = createSessionDialog({
       dateAvailability: options.dateAvailability,
       instruments: this.instruments,
@@ -49,6 +51,9 @@ class SessionBrowserController {
       onDelete: (token) => this.deleteSession(token),
       onBack: () => this.navigation.go('#/sessions'),
       onRetry: () => this.applyRoute(),
+      onRetryStateSync: () => { void this.stateSync?.retry(); },
+      onUseDeviceState: () => { void this.stateSync?.resolveConflict('device'); },
+      onUseServerState: () => { void this.stateSync?.resolveConflict('server'); },
     });
   }
 
@@ -60,6 +65,7 @@ class SessionBrowserController {
       model,
       this.actions,
       this.workstationSettings?.snapshot().settings,
+      this.stateSync?.snapshot() ?? null,
     );
     this.root.append(this.dialog.element);
   }
@@ -166,6 +172,9 @@ class SessionBrowserController {
 
   start() {
     if (this.stopped || this.unsubscribe) return;
+    this.unsubscribeStateSync = this.stateSync?.subscribe((snapshot) => (
+      updateStateSyncPresentation(this.root, snapshot)
+    )) ?? null;
     this.commit(createSessionListViewModel({ state: 'loading', instrumentLabels: this.labels }));
     this.unsubscribe = this.navigation.subscribe(() => this.applyRoute());
     this.schedule(() => this.applyRoute());
@@ -176,6 +185,8 @@ class SessionBrowserController {
     this.stopped = true;
     this.unsubscribe?.();
     this.unsubscribe = null;
+    this.unsubscribeStateSync?.();
+    this.unsubscribeStateSync = null;
     this.openedSessionSurface?.unmount();
     this.dialog.dispose();
     this.root.replaceChildren();
@@ -203,6 +214,13 @@ export function createSessionBrowser(options) {
       'Workstation Settings',
     );
     requirePort(options.colorHistory, ['record', 'snapshot'], 'Color history');
+  }
+  if (options.stateSync) {
+    requirePort(
+      options.stateSync,
+      ['resolveConflict', 'retry', 'snapshot', 'subscribe'],
+      'Server state sync',
+    );
   }
   const controller = new SessionBrowserController({
     ...options,

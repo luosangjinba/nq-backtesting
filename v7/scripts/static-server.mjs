@@ -13,9 +13,13 @@ const CONTENT_TYPES = Object.freeze({
 });
 
 /** Create the no-cache local static server used by V7 manual and browser gates. */
-export function createStaticServer(repositoryRoot) {
+export function createStaticServer(repositoryRoot, { stateProxy = null } = {}) {
   const root = path.resolve(repositoryRoot);
   return http.createServer((request, response) => {
+    if (stateProxy?.handles(request)) {
+      stateProxy.forward(request, response);
+      return;
+    }
     if (request.method !== 'GET' && request.method !== 'HEAD') {
       response.writeHead(405, { Allow: 'GET, HEAD' });
       response.end();

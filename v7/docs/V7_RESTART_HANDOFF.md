@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-05 after Session/Replay overall-acceptance corrections
+Last updated: 2026-08-05 after R10.8 authenticated cross-device state sync
 
 ## Current Overall Acceptance State
 
@@ -70,6 +70,20 @@ selection, and Exact GoTo now names the minute to reveal while translating to
 the unchanged exclusive no-future cutoff. Automated browser evidence passes;
 all six items await human confirmation on the deployed acceptance host.
 
+R10.8 addresses the next cloud finding: browser-local storage could not restore
+a Session on a different computer. V7 remains local-first, but the optional
+`adapter.server-state-sync` now replicates only allowlisted durable Session,
+Workspace checkpoint, Replay preference, Workstation Settings, and color-
+history keys to a user-scoped SQLite snapshot through revision CAS. The current
+Caddy Basic Auth username is the state identity. Divergence never silently
+overwrites either side: the UI exposes Offline retry and explicit Use server /
+Keep this device choices with local backups. The installer now owns a third
+loopback service on 8767, exposes only authenticated `/v7/state/*` mutations,
+keeps market DuckDB read-only, and preserves state data across code rollback.
+Automated service, client, two-profile browser, optional-removal, and deployment
+evidence is implemented; physical two-computer and state backup/restore review
+remain open.
+
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
 required for normal startup.
@@ -116,7 +130,8 @@ handoff was committed.
 - immutable pre-remediation checkpoint: `fa561599`
 - recovery state: R8 is complete and inactive; normal-delivery scope is
   active, phase-one overall acceptance remains open, R9.4 retains focused
-  human review, and parallel R10.1 awaits real-host validation;
+  human review, R10.8 automated state sync is implemented, and physical two-
+  computer/backup-restore validation remains open;
 - the separate R7.3/R7.3c Data Acquisition admin human gate remains open;
 - R8.1 recovery constitution is commit `7dbabbed`;
 - R8.2 production architecture analyzer is commit `f19b7f32`;
@@ -225,8 +240,8 @@ handoff was committed.
   the two-consumer Replay Workspace optional-removal matrix;
 - H018 was recovered with two production-path negative controls; the remaining
   recovery regressions were assigned to and closed through R8.12–R8.14;
-- the exact production baseline now scans 48 modules, 125 dependency edges,
-  115 construction sites, 15 declared writer surfaces, and seven critical
+- the exact production baseline now scans 49 modules, 125 dependency edges,
+  115 construction sites, 16 declared writer surfaces, and nine critical
   writer sites with zero blocking production architecture findings;
 - R8.12 binds all production source to exact size, responsibility, public-
   contract, invariant, debt, and source-drift evidence with no exceptions;
@@ -326,12 +341,13 @@ listed above.
 16. `docs/V7_CALENDAR_CAPABILITY_RTH_LOCATE_REDERIVATION_R8_13.md`;
 17. `docs/V7_FULL_PRODUCTION_REGRESSION_MATRIX_R8_14.md`;
 18. `docs/V7_HUMAN_ACCEPTANCE_ZERO_DEBT_CLOSURE_R8_15.md`;
-19. `docs/INDEX.md`;
-20. `TODO.md`;
-21. `docs/V7_ARCHITECTURE.md`;
-22. `docs/V7_HARNESS_STANDARD.md`;
-23. `docs/V7_EXECUTION_ROADMAP.md`;
-24. only the documents directly relevant to the explicitly selected next step.
+19. `docs/V7_SERVER_STATE_SYNC_R10_8.md`;
+20. `docs/INDEX.md`;
+21. `TODO.md`;
+22. `docs/V7_ARCHITECTURE.md`;
+23. `docs/V7_HARNESS_STANDARD.md`;
+24. `docs/V7_EXECUTION_ROADMAP.md`;
+25. only the documents directly relevant to the explicitly selected next step.
 
 Do not resume from the historical status narrative alone. The R8 plan, R8.15
 closure evidence, and machine-readable inactive recovery state override earlier
@@ -834,9 +850,12 @@ After restart, do not resume either NQ or ES repair: both full-chain writes are
 complete. Continue the open overall checklist from `v7/tmp/验收1.md`; R9.4's
 aggregated-bucket hover review is one pending focused check inside that broader
 acceptance, not the entire gate. In parallel, run R10.1 first in private SSH-
-tunnel mode on a clean lightweight Linux host, then optionally authenticated
-HTTPS, and record resource/latency/restart/rollback plus unchanged-database
-evidence. R8 recovery remains human accepted and inactive. The separate
+tunnel mode on a clean lightweight Linux host, then authenticated HTTPS. For
+R10.8, use two physical computers with the same reviewer login to confirm the
+same Session/Workspace checkpoint, exercise conflict and Offline retry, and
+prove state SQLite backup/restore plus an unchanged market-database fingerprint.
+Record resource/latency/restart/rollback evidence. R8 recovery remains human
+accepted and inactive. The separate
 R7.3/R7.3c Data Acquisition admin human gate and the proposed multi-source
 acquisition/plugin project remain deferred; neither is implicitly authorized by
 the completed historical repairs or the read-only deployment path.

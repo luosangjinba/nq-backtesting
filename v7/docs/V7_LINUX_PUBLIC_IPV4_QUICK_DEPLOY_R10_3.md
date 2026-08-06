@@ -18,7 +18,9 @@ browser password; and invokes `install.sh` with authenticated public IPv4.
 The explicit `--replace-legacy` option may stop only a listener whose inspected
 command line matches `v4_api.py` on 8766 or `serve.mjs 8007` on 8007. Unknown
 processes fail closed. The wrapper cannot edit Alibaba Cloud security groups;
-80/443 remain a human prerequisite and 8007/8766 remain private.
+80/443 remain a human prerequisite and 8007/8766/8767 remain private. R10.8
+adds authenticated state sync behind the same public login without expanding
+that firewall boundary.
 
 Shell syntax, help behavior, safety-source controls, both Caddy validation
 paths, the deployment Harness, and architecture/source gates are executable.

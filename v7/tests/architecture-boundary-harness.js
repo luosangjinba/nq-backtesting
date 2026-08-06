@@ -92,6 +92,7 @@ assert.deepEqual(manifest.writerInventories, {
   layoutSyncPolicy: ['core.session-store'],
   replayNavigationPreferences: ['core.replay-navigation-preference-store'],
   workstationSettings: ['core.workstation-settings'],
+  replicatedUserState: ['adapter.server-state-sync'],
   calendarSurfaceDom: ['adapter.calendar-surface'],
   sessionBrowserDom: ['adapter.session-browser-ui'],
   replayWorkspaceDom: ['adapter.replay-workspace-ui'],
@@ -102,7 +103,7 @@ assert.deepEqual(manifest.writerInventories, {
   rawMarketDataRetention: ['core.bar-data-runtime'],
   rawBarRequest: ['core.bar-data-runtime'],
   replayCursor: ['core.replay-runtime'],
-}, 'R4.5 activates one concrete chart writer and one Replay Workspace DOM owner');
+}, 'active writer inventory must name every sole state and presentation owner');
 
 assert.deepEqual(manifest.moduleContract.descriptorRequiredFields, [
   'id',

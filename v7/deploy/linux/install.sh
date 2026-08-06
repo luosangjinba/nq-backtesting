@@ -48,9 +48,10 @@ Package control:
                                (when --domain is used) to be installed already.
   --help                       Show this help.
 
-Public deployments are read-only at the proxy: POST, PUT, PATCH, and DELETE
-return HTTP 403. Data Acquisition/Contract Roll stays a separate acceptance
-gate and this script never grants database-write authority.
+Authenticated public deployments allow bounded user-state PUT only under
+/v7/state/*. Every other POST, PUT, PATCH, and DELETE returns HTTP 403. Data
+Acquisition/Contract Roll stays a separate acceptance gate, and this script
+never grants market-database-write authority.
 USAGE
 }
 
@@ -126,10 +127,13 @@ render_template() {
     line="${line//@@PYTHON_BIN@@/$venv_python}"
     line="${line//@@NODE_BIN@@/$node_bin}"
     line="${line//@@DATABASE_PATH@@/$db_path}"
+    line="${line//@@STATE_ROOT@@/$state_root}"
     line="${line//@@SITE_ADDRESS@@/$public_host}"
     line="${line//@@GLOBAL_OPTIONS@@/$global_options_block}"
     line="${line//@@AUTH_BLOCK@@/$auth_block}"
     line="${line//@@TLS_BLOCK@@/$tls_block}"
+    line="${line//@@STATE_PROXY_BLOCK@@/$state_proxy_block}"
+    line="${line//@@MUTATION_BLOCK@@/$mutation_block}"
     printf '%s\n' "$line"
   done < "$input" > "$output"
 }
@@ -392,7 +396,8 @@ rollback_release() {
     warn "no previous release exists; removing failed current link"
     sudo_cmd unlink "$current_release" 2>/dev/null || true
   fi
-  sudo_cmd systemctl restart replay-lab-api.service replay-lab-web.service 2>/dev/null || true
+  sudo_cmd systemctl restart replay-lab-api.service replay-lab-state.service \
+    replay-lab-web.service 2>/dev/null || true
 }
 
 restore_caddy_configuration() {
@@ -602,6 +607,7 @@ node_bin="$(command -v node || printf '/usr/bin/node')"
 template_root="$repo_root/v7/deploy/linux"
 api_template="$template_root/systemd/replay-lab-api.service.template"
 web_template="$template_root/systemd/replay-lab-web.service.template"
+state_template="$template_root/systemd/replay-lab-state.service.template"
 caddy_template="$template_root/caddy/Caddyfile.template"
 runtime_requirements="$template_root/requirements-runtime.txt"
 previous_release=""
@@ -609,9 +615,14 @@ global_options_block=""
 auth_block=""
 auth_directive="basic_auth"
 tls_block=""
+state_proxy_block=""
+mutation_block=$'\n  # Data Acquisition and market-data mutation remain blocked.\n  @mutating method POST PUT PATCH DELETE\n  respond @mutating "Remote mutation is disabled on this acceptance host." 403'
+state_sync_user=""
 
-for required_file in "$api_template" "$web_template" "$caddy_template" "$runtime_requirements" \
-  "$repo_root/v4/v4_api.py" "$repo_root/v7/scripts/serve.mjs" "$repo_root/v7/package-lock.json"; do
+for required_file in "$api_template" "$web_template" "$state_template" "$caddy_template" \
+  "$runtime_requirements" "$repo_root/v4/v4_api.py" "$repo_root/v7/scripts/serve.mjs" \
+  "$repo_root/v7/server/state_api.py" "$repo_root/v7/server/state_store.py" \
+  "$repo_root/v7/package-lock.json"; do
   [[ -f "$required_file" ]] || die "required deployment file is missing: $required_file"
 done
 
@@ -644,11 +655,18 @@ if [[ -n "$public_host" ]]; then
     else
       auth_block=$'\n  '"$auth_directive"$' {\n    '"$auth_user __HASH_FROM_PASSWORD_FILE__"$'\n  }'
     fi
+    state_proxy_block=$'\n  # Only authenticated user-state snapshots may mutate this acceptance host.\n  @state_api path /v7/state/*\n  reverse_proxy @state_api 127.0.0.1:8767 {\n    header_up X-Replay-Lab-User {http.auth.user.id}\n  }'
+    mutation_block=$'\n  # Market data and Data Acquisition remain read-only.\n  @mutating {\n    method POST PUT PATCH DELETE\n    not path /v7/state/*\n  }\n  respond @mutating "Remote market/data mutation is disabled on this acceptance host." 403'
+    state_sync_user="$auth_user"
   fi
+else
+  state_sync_user="local"
 fi
 
 render_template "$api_template" "$rendered_api"
 render_template "$web_template" "$rendered_web"
+rendered_state="$tmp_dir/replay-lab-state.service"
+render_template "$state_template" "$rendered_state"
 render_template "$caddy_template" "$rendered_caddy"
 
 printf 'Replay Lab V7 Linux deployment %s\n' "$([[ "$dry_run" -eq 1 ]] && printf 'dry-run' || printf 'apply')"
@@ -664,7 +682,7 @@ info "Node candidate: $(command -v node 2>/dev/null || printf 'installation requ
 info "release: $release_dir"
 if [[ -n "$public_host" ]]; then
   info "public URL: https://$public_host/v7/app/"
-  info "proxy policy: authenticated=$([[ -n "$auth_user" ]] && printf yes || printf no), mutations=blocked"
+  info "proxy policy: authenticated=$([[ -n "$auth_user" ]] && printf yes || printf no), user-state=$([[ -n "$auth_user" ]] && printf enabled || printf local-only), market-mutations=blocked"
   if [[ -n "$public_ip" ]]; then
     info "certificate: Let's Encrypt short-lived IPv4 certificate; inbound 80/443 required"
   fi
@@ -677,6 +695,7 @@ printf '\nRendered systemd service summary\n'
 printf '%s\n' '--------------------------------'
 grep -E '^(User|Group|WorkingDirectory|EnvironmentFile|ExecStart|ReadOnlyPaths)=' "$rendered_api"
 grep -E '^(User|Group|WorkingDirectory|ExecStart)=' "$rendered_web"
+grep -E '^(User|Group|WorkingDirectory|EnvironmentFile|ExecStart|ReadWritePaths)=' "$rendered_state"
 if [[ -n "$public_host" ]]; then
   printf '\nRendered Caddy preview\n'
   printf '%s\n' '----------------------'
@@ -692,6 +711,7 @@ printf 'Create shared virtualenv: %s\n' "$venv_dir"
 printf 'Write: /etc/replay-lab/replay-lab.env\n'
 printf 'Write: /etc/systemd/system/replay-lab-api.service\n'
 printf 'Write: /etc/systemd/system/replay-lab-web.service\n'
+printf 'Write: /etc/systemd/system/replay-lab-state.service\n'
 if [[ -n "$public_host" ]]; then
   if [[ "$preserve_caddy" -eq 1 ]]; then
     printf 'Back up and preserve: /etc/caddy/Caddyfile\n'
@@ -700,8 +720,9 @@ if [[ -n "$public_host" ]]; then
     printf 'Back up then replace: /etc/caddy/Caddyfile\n'
   fi
 fi
-printf 'Database copy/write: never\n'
-printf 'Database service mount: read-only\n'
+printf 'Market database copy/write: never\n'
+printf 'Market database service mount: read-only\n'
+printf 'User state SQLite: %s/state/replay-lab-state.sqlite3 (service-user writable)\n' "$state_root"
 
 if [[ "$dry_run" -eq 1 ]]; then
   ok "dry-run complete; no host files were changed"
@@ -714,6 +735,7 @@ fi
 command -v systemctl >/dev/null 2>&1 || die "systemd is required for --apply"
 require_managed_or_free_port 8766 replay-lab-api.service
 require_managed_or_free_port 8007 replay-lab-web.service
+require_managed_or_free_port 8767 replay-lab-state.service
 
 if [[ "$skip_package_install" -eq 0 ]]; then
   install_base_packages
@@ -736,6 +758,7 @@ if [[ -n "$auth_user" && -n "$auth_hash" ]]; then
 fi
 render_template "$api_template" "$rendered_api"
 render_template "$web_template" "$rendered_web"
+render_template "$state_template" "$rendered_state"
 render_template "$caddy_template" "$rendered_caddy"
 
 if [[ -n "$public_host" ]]; then
@@ -744,6 +767,7 @@ fi
 
 run_step sudo_cmd install -d -m 0755 "$install_root" "$install_root/releases" "$install_root/shared"
 run_step sudo_cmd install -d -m 0750 -o "$service_user" -g "$service_group" "$state_root"
+run_step sudo_cmd install -d -m 0750 -o "$service_user" -g "$service_group" "$state_root/state"
 
 if [[ ! -x "$venv_python" ]]; then
   run_step sudo_cmd "$python_bin" -m venv "$venv_dir"
@@ -774,6 +798,11 @@ env_file="$tmp_dir/replay-lab.env"
   printf 'V4_API_PORT=8766\n'
   printf 'V4_TRADING_DB=%s\n' "$db_path"
   printf 'V4_MARKET_DATA_BACKUP_DIR=%s/backups/market-data\n' "$state_root"
+  printf 'V7_STATE_HOST=127.0.0.1\n'
+  printf 'V7_STATE_PORT=8767\n'
+  printf 'V7_STATE_DB=%s/state/replay-lab-state.sqlite3\n' "$state_root"
+  printf 'REPLAY_LAB_STATE_API_ORIGIN=http://127.0.0.1:8767\n'
+  printf 'REPLAY_LAB_STATE_USER=%s\n' "$state_sync_user"
   if [[ -n "$public_host" ]]; then
     printf 'V4_ALLOWED_WEB_ORIGINS=https://%s\n' "$public_host"
   else
@@ -785,6 +814,7 @@ run_step sudo_cmd install -d -m 0755 /etc/replay-lab /etc/systemd/system
 run_step sudo_cmd install -m 0600 "$env_file" /etc/replay-lab/replay-lab.env
 run_step sudo_cmd install -m 0644 "$rendered_api" /etc/systemd/system/replay-lab-api.service
 run_step sudo_cmd install -m 0644 "$rendered_web" /etc/systemd/system/replay-lab-web.service
+run_step sudo_cmd install -m 0644 "$rendered_state" /etc/systemd/system/replay-lab-state.service
 
 if [[ -L "$current_release" ]]; then
   previous_release="$(readlink -f "$current_release")"
@@ -845,8 +875,8 @@ if [[ -n "$public_host" ]]; then
 fi
 
 run_step sudo_cmd systemctl daemon-reload
-run_step sudo_cmd systemctl enable replay-lab-api.service replay-lab-web.service
-if ! sudo_cmd systemctl restart replay-lab-api.service replay-lab-web.service; then
+run_step sudo_cmd systemctl enable replay-lab-api.service replay-lab-state.service replay-lab-web.service
+if ! sudo_cmd systemctl restart replay-lab-api.service replay-lab-state.service replay-lab-web.service; then
   if [[ -n "$public_host" ]]; then
     restore_caddy_configuration
   fi
@@ -854,8 +884,9 @@ if ! sudo_cmd systemctl restart replay-lab-api.service replay-lab-web.service; t
   die "Replay Lab services failed to restart"
 fi
 if ! wait_for_url http://127.0.0.1:8766/v4/health \
+  || ! wait_for_url http://127.0.0.1:8767/v7/state/health \
   || ! wait_for_url http://127.0.0.1:8007/v7/app/; then
-  sudo_cmd journalctl -u replay-lab-api.service -u replay-lab-web.service -n 80 --no-pager || true
+  sudo_cmd journalctl -u replay-lab-api.service -u replay-lab-state.service -u replay-lab-web.service -n 80 --no-pager || true
   if [[ -n "$public_host" ]]; then
     restore_caddy_configuration
   fi
@@ -877,6 +908,7 @@ fi
 printf '\nHealth result\n'
 printf '%s\n' '-------------'
 ok "http://127.0.0.1:8766/v4/health"
+ok "http://127.0.0.1:8767/v7/state/health"
 ok "http://127.0.0.1:8007/v7/app/"
 if [[ -n "$public_host" ]]; then
   if [[ -n "$auth_user" ]]; then
@@ -897,9 +929,9 @@ fi
 
 printf '\nOperations\n'
 printf '%s\n' '----------'
-printf 'sudo systemctl status replay-lab-api replay-lab-web%s\n' "$([[ -n "$public_host" ]] && printf ' caddy' || true)"
-printf 'sudo journalctl -u replay-lab-api -u replay-lab-web -f\n'
+printf 'sudo systemctl status replay-lab-api replay-lab-state replay-lab-web%s\n' "$([[ -n "$public_host" ]] && printf ' caddy' || true)"
+printf 'sudo journalctl -u replay-lab-api -u replay-lab-state -u replay-lab-web -f\n'
 printf 'Active release: %s\n' "$release_dir"
 printf 'Previous release: %s\n' "${previous_release:-none}"
-printf 'Database was not copied or modified. Public mutation methods remain blocked.\n'
+printf 'Market database was not copied or modified. Only authenticated user-state PUT is allowed.\n'
 ok "deployment complete"

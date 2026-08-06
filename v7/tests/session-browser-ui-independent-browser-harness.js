@@ -49,9 +49,29 @@ try {
   assert.equal(booted.dialogPresent, true);
   assert.ok(booted.childCount > 0);
   assert.equal(booted.unsubscribeCount, 0);
+  assert.equal(booted.stateSyncStatus, 'offline');
+  assert.equal(booted.stateSyncTitle, 'Server sync offline');
+  assert.equal(booted.stateSyncAlertHidden, false);
+
+  await evaluate(cdp, `document.querySelector('[data-state-sync-offline-actions] button').click()`);
+  await waitFor(cdp, `document.querySelector('[data-state-sync-status]')?.dataset.stateSyncStatus === 'synced'`);
+  const retried = await evaluate(cdp, `globalThis.__sessionBrowserIndependent.snapshot()`);
+  assert.equal(retried.retryCount, 1);
+  assert.equal(retried.stateSyncAlertHidden, true);
+
+  await evaluate(cdp, `globalThis.__sessionBrowserIndependent.showConflict()`);
+  await waitFor(cdp, `document.querySelector('[data-state-sync-status]')?.dataset.stateSyncStatus === 'conflict'`);
+  assert.equal(await evaluate(cdp, `document.querySelector('[data-state-sync-alert-title]').textContent`),
+    'Saved-state conflict');
+  await evaluate(cdp, `document.querySelector('[data-state-sync-conflict-actions] button').click()`);
+  await waitFor(cdp, `globalThis.__sessionBrowserIndependent.snapshot().resolvedStrategy === 'server'`);
 
   const disposed = await evaluate(cdp, `globalThis.__sessionBrowserIndependent.dispose()`);
-  assert.deepEqual(disposed, { childCount: 0, unsubscribeCount: 1 });
+  assert.deepEqual(disposed, {
+    childCount: 0,
+    stateSyncUnsubscribeCount: 1,
+    unsubscribeCount: 1,
+  });
   const duplicateDispose = await evaluate(cdp, `globalThis.__sessionBrowserIndependent.dispose()`);
   assert.deepEqual(duplicateDispose, disposed, 'independent disposal must be idempotent');
 } finally {
@@ -73,4 +93,4 @@ try {
   });
 }
 
-console.log('v7 Session Browser UI independent harness passed (public boot, optional absence, disposal)');
+console.log('v7 Session Browser UI independent harness passed (public boot, sync retry/conflict, disposal)');

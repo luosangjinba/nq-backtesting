@@ -26,7 +26,7 @@ Options:
   --help                 Show this help.
 
 This wrapper does not open a cloud security group. Allow inbound TCP 80/443 in
-the provider console, and do not expose 8007/8766.
+the provider console, and do not expose 8007/8766/8767.
 USAGE
 }
 

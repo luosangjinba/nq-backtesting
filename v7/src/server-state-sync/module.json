@@ -1,0 +1,12 @@
+{
+  "id": "adapter.server-state-sync",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "session-state-replication",
+  "publicEntry": "src/server-state-sync/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/server-state-sync-harness.js",
+  "removable": true
+}

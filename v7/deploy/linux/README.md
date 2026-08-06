@@ -1,19 +1,22 @@
 # Replay Lab V7 Linux One-Click Deployment
 
-Status: R10.3 public-IPv4 quick-deploy boundary
+Status: R10.8 authenticated cross-device state-sync boundary
 
 `install.sh` deploys the current committed V7 tree as an immutable release,
 installs the minimal V4 read runtime and V7 browser dependencies, and creates
-two loopback-only systemd services:
+three loopback-only systemd services:
 
 - `replay-lab-api.service` on `127.0.0.1:8766`;
+- `replay-lab-state.service` on `127.0.0.1:8767`;
 - `replay-lab-web.service` on `127.0.0.1:8007`.
 
 The external DuckDB file is required but is never copied, replaced, repaired,
 or made writable by the installer. The API service receives a systemd read-only
-mount of that exact file, while public Caddy mode additionally rejects every
-`POST`, `PUT`, `PATCH`, and `DELETE` request. It is therefore suitable for the
-current main-program acceptance pass, not the separate Data Acquisition or
+mount of that exact file. Authenticated Caddy mode permits only revision-
+checked V7 user-state requests under `/v7/state/*`; it rejects every other
+`POST`, `PUT`, `PATCH`, and `DELETE`. User state is stored separately in
+`/var/lib/replay-lab/state/replay-lab-state.sqlite3`. This remains suitable for
+the current main-program acceptance pass, not the separate Data Acquisition or
 Contract Roll write review.
 
 ## Fastest Direct-IP Path
@@ -108,7 +111,9 @@ ssh \
 ```
 
 Then open `http://127.0.0.1:8007/v7/app/`. Both forwards are necessary because
-the local-browser compatibility path resolves the V4 API on port `8766`.
+the local-browser compatibility path resolves the V4 API on port `8766`. The
+web service proxies `/v7/state/*` to the loopback state service as identity
+`local`, so port `8767` is never forwarded or exposed.
 
 ## Public HTTPS Deployment
 
@@ -136,10 +141,13 @@ sudo bash v7/deploy/linux/install.sh \
   --auth-password-file /root/replay-lab-secrets/web-password
 ```
 
-Caddy obtains and renews HTTPS certificates and protects both the V7 surface
-and `/v4/*` with the same credentials. The installer does not remove the
-password file. Public access without authentication requires the deliberately
-named `--allow-public-without-auth` override.
+Caddy obtains and renews HTTPS certificates and protects the V7 surface,
+`/v4/*`, and user state with the same credentials. The authenticated username
+is the state namespace, so separate configured Basic Auth users do not share a
+snapshot. The installer does not remove the password file. Public access
+without authentication requires the deliberately named
+`--allow-public-without-auth` override and deliberately disables remote state
+sync.
 
 ## Direct Public IPv4 HTTPS
 
@@ -177,7 +185,7 @@ sudo bash v7/deploy/linux/install.sh \
 ```
 
 Open `https://43.110.32.34/v7/app/` and enter the configured credentials.
-Do not expose 8007 or 8766 in the cloud security group.
+Do not expose 8007, 8766, or 8767 in the cloud security group.
 
 Apply mode fails before host mutation when either loopback port is owned by a
 legacy process rather than the Replay Lab systemd units. Inspect and stop the
@@ -191,26 +199,34 @@ Each run archives committed `HEAD` into
 dependencies, validates the database as the service user, and atomically moves
 the `/opt/replay-lab/current` symlink. Tracked source changes block apply mode.
 
-If local API/Web health fails after activation, the script restores the prior
-release symlink and restarts both services. Old releases are intentionally not
-deleted automatically.
+If local API/state/Web health fails after activation, the script restores the
+prior release symlink and restarts all three services. Old releases are
+intentionally not deleted automatically. The user-state SQLite file is durable
+host state and is neither deleted nor reverted with a code release.
 
 Manual rollback remains explicit:
 
 ```bash
 sudo ln -sfn /opt/replay-lab/releases/PREVIOUS /opt/replay-lab/current.next
 sudo mv -Tf /opt/replay-lab/current.next /opt/replay-lab/current
-sudo systemctl restart replay-lab-api replay-lab-web
+sudo systemctl restart replay-lab-api replay-lab-state replay-lab-web
 ```
 
 ## Operations
 
 ```bash
-sudo systemctl status replay-lab-api replay-lab-web caddy
-sudo journalctl -u replay-lab-api -u replay-lab-web -f
+sudo systemctl status replay-lab-api replay-lab-state replay-lab-web caddy
+sudo journalctl -u replay-lab-api -u replay-lab-state -u replay-lab-web -f
 curl -fsS http://127.0.0.1:8766/v4/health
+curl -fsS http://127.0.0.1:8767/v7/state/health
 curl -I http://127.0.0.1:8007/v7/app/
 ```
+
+Back up the server-side Session memory before a host migration or destructive
+storage change. Stop only the state service, copy the SQLite file plus its
+ownership/mode, then restart it; ordinary immutable code deployments do not
+require this step. Restore follows the same stop/copy/start sequence and must
+be tested before the source host is retired.
 
 The installer does not configure a cloud firewall, upload source/data, install
 Databento credentials, run historical repair manifests, or enable remote data

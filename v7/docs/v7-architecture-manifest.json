@@ -73,6 +73,7 @@
     "docs/V7_VIEWPORT_RUNTIME.md",
     "docs/V7_LIGHTWEIGHT_CHART_SLICE.md",
     "docs/V7_EXECUTION_ROADMAP.md",
+    "docs/V7_SERVER_STATE_SYNC_R10_8.md",
     "TODO.md"
   ],
   "owners": [
@@ -97,6 +98,7 @@
     "layout-sync-domain",
     "calendar-surface",
     "workstation-settings",
+    "session-state-replication",
     "workspace-checkpoint-domain",
     "data-acquisition-admin"
   ],
@@ -157,6 +159,7 @@
     "src/workspace-replacement-runtime/module.json",
     "src/bar-data-runtime/module.json",
     "src/session-persistence/module.json",
+    "src/server-state-sync/module.json",
     "src/session-store/module.json",
     "src/calendar-surface/module.json",
     "src/session-browser-ui/module.json",
@@ -228,6 +231,7 @@
     "layoutSyncPolicy": ["core.session-store"],
     "replayNavigationPreferences": ["core.replay-navigation-preference-store"],
     "workstationSettings": ["core.workstation-settings"],
+    "replicatedUserState": ["adapter.server-state-sync"],
     "calendarSurfaceDom": ["adapter.calendar-surface"],
     "sessionBrowserDom": ["adapter.session-browser-ui"],
     "replayWorkspaceDom": ["adapter.replay-workspace-ui"],

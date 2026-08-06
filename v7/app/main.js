@@ -5,6 +5,8 @@ const definitions = await loadProductionApplicationDefinitions({
   environment: {
     browserWindow: window,
     crypto: window.crypto,
+    fetch: window.fetch.bind(window),
+    reload: () => window.location.reload(),
     readStorage: () => window.localStorage,
     root: document.querySelector('#app'),
   },

@@ -43,6 +43,13 @@
         ]
       },
       {
+        "surface": "replicatedUserState",
+        "detectorId": "replicated-state-put",
+        "allowedModuleIds": [
+          "adapter.server-state-sync"
+        ]
+      },
+      {
         "surface": "replayCursor",
         "detectorId": "replay-cursor-commit",
         "allowedModuleIds": [
@@ -58,7 +65,7 @@
       }
     ]
   },
-  "deliveryStep": "R8.12",
+  "deliveryStep": "R10.8",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -911,6 +918,12 @@
           "adapter.replay-workspace-ui"
         ],
         "surface": "replayWorkspaceDom"
+      },
+      {
+        "moduleIds": [
+          "adapter.server-state-sync"
+        ],
+        "surface": "replicatedUserState"
       },
       {
         "moduleIds": [
@@ -3921,7 +3934,8 @@
           "stop"
         ],
         "declaredOptionalPorts": [
-          "adapter.replay-workspace-ui"
+          "adapter.replay-workspace-ui",
+          "adapter.server-state-sync"
         ],
         "declaredRequiredPorts": [
           "adapter.session-browser-ui",
@@ -3985,6 +3999,25 @@
         ],
         "owner": "data-acquisition-admin",
         "publicEntry": "src/data-acquisition-ui/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/server-state-sync/module.json",
+        "id": "adapter.server-state-sync",
+        "importSites": [],
+        "independentHarness": "tests/server-state-sync-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/server-state-sync/state-sync-client.js"
+        ],
+        "owner": "session-state-replication",
+        "publicEntry": "src/server-state-sync/public.js"
       },
       {
         "actualDependencies": [],
@@ -4278,6 +4311,12 @@
         "sourceFile": "src/bar-data-runtime/projected-history-runtime.js",
         "sourceModuleId": "core.bar-data-runtime",
         "surface": "rawBarRequest"
+      },
+      {
+        "detectorId": "replicated-state-put",
+        "sourceFile": "src/server-state-sync/state-sync-client.js",
+        "sourceModuleId": "adapter.server-state-sync",
+        "surface": "replicatedUserState"
       },
       {
         "detectorId": "workspace-snapshot-commit",
