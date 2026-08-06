@@ -24,6 +24,7 @@ ProtectKernelModules=true
 ProtectKernelTunables=true
 ProtectSystem=full
 ReadWritePaths=@@STATE_ROOT@@/state
+ReadOnlyPaths=@@DATABASE_PARENT@@ @@STATE_ROOT@@/database-import
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 
 [Install]

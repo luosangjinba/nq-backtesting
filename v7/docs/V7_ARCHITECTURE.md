@@ -37,6 +37,26 @@ maintenance commands are retained single-owner background jobs; browser polling
 is presentation and does not become a second job owner. The binding contract is
 `V7_DATA_ACQUISITION_MILESTONE_R7_3.md`.
 
+### First-Run Database Import
+
+R10.9 extends the same administrator surface with a bounded database-setup
+panel, but does not give the V4 Maintenance API or chart path new authority.
+The panel calls a separate loopback importer through an authenticated proxy.
+That service alone owns uploaded-file staging, strict CSV-to-DuckDB conversion,
+candidate validation, and create-if-absent activation. It supports only a
+missing `V4_TRADING_DB` target; once a database exists, the import surface is
+locked and cannot replace or merge it.
+
+The CSV schema and DuckDB `futures_1m` schema are exact. Validation rejects
+unsupported instruments, nulls, duplicate `(instrument, ts)` keys, non-minute
+timestamps, and invalid OHLC/volume instead of normalizing them. API, Web, and
+user-state systemd namespaces mount the complete database parent read-only;
+only the importer namespace receives that parent as writable. Public access is
+limited to authenticated `/v7/database/*`, port 8768 remains loopback-only, and
+all unrelated mutation methods remain blocked. The chart-side one-way read flow
+is unchanged. The binding contract is
+`V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`.
+
 ## State Owners
 
 ### Session Store

@@ -32,7 +32,7 @@ The user explicitly answered `验收通过` on 2026-07-31.
   warm provider requests;
 - production architecture: 49 modules, 125 edges, 115 construction sites,
   nine writers, zero findings;
-- production source: 312 files, 23,754 effective lines, 2,534 functions, 307
+- production source: 314 files, 24,107 effective lines, 2,572 functions, 310
   public exports, zero source exceptions, zero debt comments;
 - final focused lifecycle/matrix controls and `git diff --check` passed before
   commit.

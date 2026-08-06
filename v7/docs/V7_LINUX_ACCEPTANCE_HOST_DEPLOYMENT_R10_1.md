@@ -21,10 +21,11 @@ browser
   -> optional Caddy HTTPS + Basic Auth
     -> /v4/* -> 127.0.0.1:8766 -> V4 read API -> external DuckDB
     -> /v7/state/* -> 127.0.0.1:8767 -> user-scoped SQLite state
+    -> bootstrap-only /v7/database/* -> 127.0.0.1:8768 -> first database importer
     -> all other paths -> 127.0.0.1:8007 -> V7 static server
 ```
 
-All three application services bind loopback only and run under an explicitly
+All four application services bind loopback only and run under an explicitly
 selected existing Linux user. Without `--domain`, no public proxy is installed;
 the reviewer uses SSH forwards for both `8007` and `8766`. With `--domain`,
 Caddy obtains HTTPS and authentication is required unless the operator supplies
@@ -36,7 +37,10 @@ the deliberately named unauthenticated-public override.
   opened read-only by query paths, and mounted read-only into the API service's
   systemd filesystem namespace;
 - the installer never copies, replaces, repairs, changes permissions on, or
-  writes the database;
+  writes an existing database;
+- R10.9 adds an explicit `--bootstrap` exception only while the configured
+  target is absent: an isolated service may validate and create the first
+  database, after which the import route locks and cannot replace it;
 - authenticated Caddy acceptance mode allows only bounded, revision-checked
   `/v7/state/*` requests and returns `403` for every other public `POST`, `PUT`,
   `PATCH`, and `DELETE`; unauthenticated public mode exposes no state route;
@@ -64,9 +68,9 @@ systemd distributions can use preinstalled dependencies with
 proxy uses the official Caddy package route, loopback reverse proxy, automatic
 HTTPS, and version-compatible `basicauth`/`basic_auth` rendering.
 
-The script deliberately does not manage DNS, cloud firewalls, source/database
-upload, database backups, or market-data maintenance. Those operations have
-provider- and host-specific authority outside a generic installer.
+The script deliberately does not manage DNS, cloud firewalls, database backups,
+or market-data maintenance. R10.9 adds bounded authenticated first-database
+upload without changing those provider- and host-specific boundaries.
 
 ## Executable Evidence
 

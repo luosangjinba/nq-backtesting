@@ -587,3 +587,13 @@ R8.13–R8.15.
   boot path, and require explicit conflict resolution plus real two-computer
   confirmation. Automated implementation is complete; physical host review is
   pending. Binding contract: `V7_SERVER_STATE_SYNC_R10_8.md`.
+- `R10.9`: allow a clean Linux host to start with one missing market-database
+  target; add a visual administrator upload for strict UTF-8 CSV conversion or
+  DuckDB validation, an isolated loopback import service, authenticated exact
+  proxy route, candidate evidence, and create-if-absent activation. It performs
+  no normalization, merge, append, or replacement, and locks permanently after
+  first activation through a durable marker. Retained task discovery restores
+  upload/validation state after browser or service restart. Automated
+  implementation is complete; clean-host large-file and visual review is
+  pending. Binding contract:
+  `V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`.

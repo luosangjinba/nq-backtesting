@@ -12724,25 +12724,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 10,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "ui",
-      "moduleId": "adapter.data-acquisition-ui",
-      "owner": "data-acquisition-admin",
-      "ownsContract": true,
-      "path": "src/data-acquisition-ui/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "data-acquisition-admin"
-      ],
-      "sizeException": null,
-      "sourceHash": "600b7d1261f270165295e2170802d1caf3329958381923e382850b86a0ae5d02"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 100,
       "forwardingOnly": false,
       "functions": [
@@ -13313,6 +13294,146 @@
       ],
       "sizeException": null,
       "sourceHash": "3321b19bc32dc286ad211a0944e668db25b5b7af7d2dd2c33beb59fc3edaaee9"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 111,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "abort",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "current",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "health",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "watch",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "parseResponse",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "createDatabaseImportClient",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "delay",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "activate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "upload",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "jsonRequest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "prepare",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.data-acquisition-ui",
+      "owner": "data-acquisition-admin",
+      "ownsContract": false,
+      "path": "src/data-acquisition-ui/database-import-client.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "data-acquisition-admin.",
+            "purpose": "expose the complete supported public contract for data acquisition ui.",
+            "inputs": "validated view models, DOM hosts, and explicitly supplied callback ports.",
+            "outputs": "a UI surface handle and its owned DOM root.",
+            "sideEffects": "mutates only its owned DOM subtree and invokes supplied callbacks.",
+            "lifecycle": "mounted listeners and DOM resources remain owned until dispose or unmount.",
+            "errors": "invalid hosts or view models throw; callback failures remain owned by the caller boundary.",
+            "concurrencyCancellation": "UI callbacks delegate asynchronous cancellation and stale-result checks to runtime owners."
+          },
+          "moduleId": "adapter.data-acquisition-ui",
+          "name": "createDatabaseImportClient"
+        }
+      ],
+      "responsibilities": [
+        "data-acquisition-admin"
+      ],
+      "sizeException": null,
+      "sourceHash": "d11a9373e88d165d046bc7d48593d5ec6d4c06bf0612e7d28e23ee0f4769427f"
     },
     {
       "adaptsBoundary": true,
@@ -14308,6 +14429,25 @@
       ],
       "sizeException": null,
       "sourceHash": "3f2d438a454b87604c16e5338df8af0e2ac37bb94931c736450cd88c73ccbf3b"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 15,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "ui",
+      "moduleId": "adapter.data-acquisition-ui",
+      "owner": "data-acquisition-admin",
+      "ownsContract": true,
+      "path": "src/data-acquisition-ui/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "data-acquisition-admin"
+      ],
+      "sizeException": null,
+      "sourceHash": "ffc0660acc02eba03abbd06f969ce3c03afaeb22e7821779ca412eefa6dc38c7"
     },
     {
       "adaptsBoundary": true,
@@ -17028,6 +17168,135 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 225,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "find",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "formatBytes",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "renderJob",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 34,
+          "name": "createDatabaseImportPanel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 37,
+          "name": "databaseImportTemplate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "coverageText",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "setState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 44,
+          "name": "refreshHealth",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "onProgress",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "renderActions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.data-acquisition-ui",
+      "owner": "data-acquisition-admin",
+      "ownsContract": false,
+      "path": "src/data-acquisition-ui/database-import-panel.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "data-acquisition-admin.",
+            "purpose": "expose the complete supported public contract for data acquisition ui.",
+            "inputs": "validated view models, DOM hosts, and explicitly supplied callback ports.",
+            "outputs": "a UI surface handle and its owned DOM root.",
+            "sideEffects": "mutates only its owned DOM subtree and invokes supplied callbacks.",
+            "lifecycle": "mounted listeners and DOM resources remain owned until dispose or unmount.",
+            "errors": "invalid hosts or view models throw; callback failures remain owned by the caller boundary.",
+            "concurrencyCancellation": "UI callbacks delegate asynchronous cancellation and stale-result checks to runtime owners."
+          },
+          "moduleId": "adapter.data-acquisition-ui",
+          "name": "createDatabaseImportPanel"
+        },
+        {
+          "documentation": {
+            "owner": "data-acquisition-admin.",
+            "purpose": "expose the complete supported public contract for data acquisition ui.",
+            "inputs": "validated view models, DOM hosts, and explicitly supplied callback ports.",
+            "outputs": "a UI surface handle and its owned DOM root.",
+            "sideEffects": "mutates only its owned DOM subtree and invokes supplied callbacks.",
+            "lifecycle": "mounted listeners and DOM resources remain owned until dispose or unmount.",
+            "errors": "invalid hosts or view models throw; callback failures remain owned by the caller boundary.",
+            "concurrencyCancellation": "UI callbacks delegate asynchronous cancellation and stale-result checks to runtime owners."
+          },
+          "moduleId": "adapter.data-acquisition-ui",
+          "name": "databaseImportTemplate"
+        }
+      ],
+      "responsibilities": [
+        "data-acquisition-admin"
+      ],
+      "sizeException": null,
+      "sourceHash": "3a47480c137c9fb5826c0feee30274ac7ec60ccf967fd57bebeaad520fa5b455"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 233,
       "forwardingOnly": false,
       "functions": [
@@ -18773,266 +19042,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 405,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-18>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-23>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-24>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-35>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-36>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-37>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-38>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-39>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-40>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-41>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-42>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-43>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-44>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "find",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onStatus",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onStatus",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "setBusy",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "verifySelectedRead",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "runRollReport",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "resumeRetainedJob",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "updateSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 21,
-          "name": "<anonymous-19>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 23,
-          "name": "renderGates",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "formatNumber",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "onStatus",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-16>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-33>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-34>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "requireRoot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 40,
-          "name": "refreshStatus",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 46,
-          "name": "runWorkflowAction",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "onCommitted",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "resetVerifyGate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "shiftInputMinute",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 50,
-          "name": "createDataAcquisitionSurface",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "appendOutput",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "applyCoverageStart",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "renderCoverage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 79,
-          "name": "template",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "easternInput",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "selection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "<anonymous-20>",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.data-acquisition-ui",
-      "owner": "data-acquisition-admin",
-      "ownsContract": false,
-      "path": "src/data-acquisition-ui/surface.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "data-acquisition-admin.",
-            "purpose": "expose the complete supported public contract for data acquisition ui.",
-            "inputs": "validated view models, DOM hosts, and explicitly supplied callback ports.",
-            "outputs": "a UI surface handle and its owned DOM root.",
-            "sideEffects": "mutates only its owned DOM subtree and invokes supplied callbacks.",
-            "lifecycle": "mounted listeners and DOM resources remain owned until dispose or unmount.",
-            "errors": "invalid hosts or view models throw; callback failures remain owned by the caller boundary.",
-            "concurrencyCancellation": "UI callbacks delegate asynchronous cancellation and stale-result checks to runtime owners."
-          },
-          "moduleId": "adapter.data-acquisition-ui",
-          "name": "createDataAcquisitionSurface"
-        }
-      ],
-      "responsibilities": [
-        "data-acquisition-admin"
-      ],
-      "sizeException": null,
-      "sourceHash": "796684cc8b6d8fc43919f1b351f9798864021e334c0053cd630d982eda28d663"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 41,
       "forwardingOnly": false,
       "functions": [
@@ -19458,6 +19467,271 @@
       ],
       "sizeException": null,
       "sourceHash": "f154db0f0c762a87a52f3cd258c3b7b14896ee76026b1ddf1a992f05e0bf9e17"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 417,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-23>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-24>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-36>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-37>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-38>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-39>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-40>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-41>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-42>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-43>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-44>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-45>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "find",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onStatus",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onStatus",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "setBusy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "verifySelectedRead",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "runRollReport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "resumeRetainedJob",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "updateSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "renderGates",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "formatNumber",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "onActivated",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "onStatus",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-34>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-35>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "requireRoot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 40,
+          "name": "refreshStatus",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 46,
+          "name": "runWorkflowAction",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "onCommitted",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "resetVerifyGate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "shiftInputMinute",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 57,
+          "name": "createDataAcquisitionSurface",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "appendOutput",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "applyCoverageStart",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "renderCoverage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "easternInput",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "selection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 80,
+          "name": "template",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.data-acquisition-ui",
+      "owner": "data-acquisition-admin",
+      "ownsContract": false,
+      "path": "src/data-acquisition-ui/surface.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "data-acquisition-admin.",
+            "purpose": "expose the complete supported public contract for data acquisition ui.",
+            "inputs": "validated view models, DOM hosts, and explicitly supplied callback ports.",
+            "outputs": "a UI surface handle and its owned DOM root.",
+            "sideEffects": "mutates only its owned DOM subtree and invokes supplied callbacks.",
+            "lifecycle": "mounted listeners and DOM resources remain owned until dispose or unmount.",
+            "errors": "invalid hosts or view models throw; callback failures remain owned by the caller boundary.",
+            "concurrencyCancellation": "UI callbacks delegate asynchronous cancellation and stale-result checks to runtime owners."
+          },
+          "moduleId": "adapter.data-acquisition-ui",
+          "name": "createDataAcquisitionSurface"
+        }
+      ],
+      "responsibilities": [
+        "data-acquisition-admin"
+      ],
+      "sizeException": null,
+      "sourceHash": "9603840b08a7f60a2e2ed493ff56b8ebc1ca2dd903e09df70af4223ebce497d8"
     },
     {
       "adaptsBoundary": true,
@@ -23378,11 +23652,11 @@
   ],
   "schemaVersion": 1,
   "summary": {
-    "effectiveLines": 23754,
-    "files": 312,
-    "functions": 2534,
-    "publicExports": 307
+    "effectiveLines": 24107,
+    "files": 314,
+    "functions": 2572,
+    "publicExports": 310
   },
-  "deliveryStep": "R10.8",
-  "generatedFromCommit": "40ea69b9"
+  "deliveryStep": "R10.9",
+  "generatedFromCommit": "working-tree-r10.9"
 }

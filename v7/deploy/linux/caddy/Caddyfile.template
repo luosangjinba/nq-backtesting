@@ -3,6 +3,7 @@
 @@TLS_BLOCK@@
 @@AUTH_BLOCK@@
 @@STATE_PROXY_BLOCK@@
+@@DATABASE_PROXY_BLOCK@@
 @@MUTATION_BLOCK@@
 
   @v4_api path /v4/*

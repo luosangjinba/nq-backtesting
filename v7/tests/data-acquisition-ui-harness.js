@@ -3,11 +3,19 @@ import fs from 'node:fs';
 
 import {
   createAcquisitionWorkflow,
+  createDatabaseImportClient,
   rollCalendarTemplate,
+  databaseImportTemplate,
   createMaintenanceClient,
   parseOutputMetric,
   resolveMaintenanceApiBase,
 } from '../src/data-acquisition-ui/public.js';
+
+const databaseTemplate = databaseImportTemplate();
+assert.match(databaseTemplate, /Database setup/);
+assert.match(databaseTemplate, /instrument,ts,open,high,low,close,volume/);
+assert.match(databaseTemplate, /no automatic renaming/);
+assert.match(databaseTemplate, /ACTIVATE DATABASE/);
 
 const rollTemplate = rollCalendarTemplate();
 assert.match(rollTemplate, /Contract Roll/);
@@ -162,5 +170,80 @@ const dirtyCoverageResult = await dirtyCoverageClient.request(
 );
 assert.equal(dirtyCoverageResult.coverage[0].duplicateTimestamps, 1,
   'structured dirty coverage must remain visible while keeping writes blocked');
+
+const databaseCalls = [];
+const databaseResponses = [
+  new Response(JSON.stringify({ databaseReady: false, importAllowed: true }), { status: 200 }),
+  new Response(JSON.stringify({
+    error: { code: 'DATABASE_UPLOAD_NOT_FOUND', message: 'upload was not found' },
+  }), { status: 404 }),
+  new Response(JSON.stringify({ uploadId: 'a'.repeat(32), state: 'preparing' }), { status: 202 }),
+  new Response(JSON.stringify({
+    uploadId: 'a'.repeat(32), state: 'ready', summary: { rows: 2 },
+  }), { status: 200 }),
+  new Response(JSON.stringify({ databaseReady: true, state: 'activated' }), { status: 200 }),
+];
+class FakeUploadRequest {
+  constructor() {
+    this.listeners = new Map();
+    this.uploadListeners = new Map();
+    this.headers = {};
+    this.upload = { addEventListener: (name, listener) => this.uploadListeners.set(name, listener) };
+  }
+
+  open(method, url) { this.method = method; this.url = url; }
+
+  setRequestHeader(name, value) { this.headers[name] = value; }
+
+  addEventListener(name, listener) { this.listeners.set(name, listener); }
+
+  send(file) {
+    this.file = file;
+    this.status = 201;
+    this.response = { uploadId: 'b'.repeat(32), filename: file.name, state: 'uploaded' };
+    this.uploadListeners.get('progress')?.({ lengthComputable: true, loaded: file.size, total: file.size });
+    this.listeners.get('load')?.();
+  }
+
+  abort() { this.listeners.get('abort')?.(); }
+}
+let fakeXhr;
+const databaseClient = createDatabaseImportClient({
+  fetchImpl: async (url, options = {}) => {
+    databaseCalls.push({ options, url });
+    return databaseResponses.shift();
+  },
+  pollIntervalMs: 0,
+  xhrFactory() {
+    fakeXhr = new FakeUploadRequest();
+    return fakeXhr;
+  },
+});
+assert.equal((await databaseClient.health()).importAllowed, true);
+await assert.rejects(() => databaseClient.current(), (error) => (
+  error.status === 404 && error.code === 'DATABASE_UPLOAD_NOT_FOUND'
+));
+const progressEvents = [];
+const uploaded = await databaseClient.upload({
+  name: 'market.csv', size: 12, type: 'text/csv',
+}, { onProgress: (...progress) => progressEvents.push(progress) });
+assert.equal(uploaded.state, 'uploaded');
+assert.equal(fakeXhr.method, 'PUT');
+assert.equal(fakeXhr.url, '/v7/database/import/upload');
+assert.equal(fakeXhr.headers['X-Replay-Lab-File-Name'], 'market.csv');
+assert.deepEqual(progressEvents, [[12, 12]]);
+const preparedDatabase = await databaseClient.prepare('a'.repeat(32));
+assert.equal(preparedDatabase.state, 'ready');
+assert.equal(preparedDatabase.summary.rows, 2);
+assert.equal((await databaseClient.activate(
+  'a'.repeat(32), 'ACTIVATE DATABASE',
+)).databaseReady, true);
+assert.equal(databaseCalls[2].url, '/v7/database/import/prepare');
+assert.deepEqual(JSON.parse(databaseCalls[2].options.body), { uploadId: 'a'.repeat(32) });
+assert.match(databaseCalls[3].url, /\/v7\/database\/import\/status\?uploadId=/);
+assert.equal(databaseCalls[4].url, '/v7/database/import/activate');
+assert.deepEqual(JSON.parse(databaseCalls[4].options.body), {
+  confirmation: 'ACTIVATE DATABASE', uploadId: 'a'.repeat(32),
+});
 
 console.log('v7 data acquisition UI harness passed');

@@ -65,6 +65,25 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .coverage-card dd { margin: 0; color: var(--admin-text); font-size: 12px; font-variant-numeric: tabular-nums; }
 .environment-strip { margin-top: 14px; padding: 11px 13px; border: 1px solid var(--admin-border); border-radius: 8px; color: var(--admin-secondary); background: #080b0f; font-size: 11px; }
 
+.database-import-state { padding: 5px 9px; border-radius: 99px; background: rgba(242,180,93,.1); color: var(--admin-warning); font-size: 10px; font-weight: 720; text-transform: uppercase; }
+.database-import-state[data-state="ready"] { background: rgba(67,211,162,.1); color: var(--admin-positive); }
+.database-import-state[data-state="error"] { background: rgba(255,104,120,.1); color: var(--admin-danger); }
+.database-contract { display: grid; grid-template-columns: auto minmax(300px, 1fr); align-items: center; gap: 8px 16px; padding: 14px; border: 1px solid var(--admin-border); border-radius: 9px; background: #080b0f; }
+.database-contract strong { color: var(--admin-text); font-size: 11px; }
+.database-contract code { color: #9bd0ff; font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.database-contract span { grid-column: 1 / -1; color: var(--admin-muted); font-size: 10px; line-height: 1.5; }
+.database-import-controls { display: grid; grid-template-columns: minmax(320px, 1fr) auto auto; align-items: end; gap: 10px; margin-top: 16px; }
+.database-file-field { display: grid; gap: 7px; color: var(--admin-secondary); font-size: 11px; font-weight: 650; }
+.database-file-field input { min-height: 40px; padding: 7px; border: 1px solid var(--admin-border); border-radius: 7px; background: #070a0e; color: var(--admin-text); }
+.database-file-field input::file-selector-button { height: 26px; margin-right: 10px; border: 1px solid var(--admin-border-strong); border-radius: 5px; background: #11171e; color: var(--admin-text); cursor: pointer; }
+.database-file-field span { color: var(--admin-muted); font-size: 9px; font-weight: 500; }
+.database-progress { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; margin-top: 12px; }
+.database-progress > div { height: 5px; overflow: hidden; border-radius: 99px; background: var(--admin-hover); }
+.database-progress span { display: block; width: 0; height: 100%; background: var(--admin-accent); }
+.database-progress strong { min-width: 36px; color: var(--admin-secondary); font-size: 9px; font-variant-numeric: tabular-nums; text-align: right; }
+.database-validation-report { min-height: 92px; max-height: 180px; overflow: auto; margin: 14px 0 0; padding: 13px; border: 1px solid var(--admin-border); border-radius: 8px; background: #050709; color: #c5d0db; font: 10px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; }
+.database-activation-row { display: grid; grid-template-columns: minmax(260px, 1fr) auto; align-items: end; gap: 10px; margin-top: 12px; }
+
 .roll-health-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .roll-health-card { padding: 16px; border: 1px solid var(--admin-border); border-radius: 10px; background: #080b0f; }
 .roll-health-card > div { display: flex; align-items: center; justify-content: space-between; }
@@ -112,12 +131,14 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 
 .data-output-actions { display: flex; gap: 8px; }
 .data-output-section pre { min-height: 260px; max-height: 440px; overflow: auto; margin: 0; padding: 16px; border: 1px solid var(--admin-border); border-radius: 9px; background: #050709; color: #c5d0db; font: 11px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; }
-[data-busy="true"] .data-admin-section:not(.data-output-section) { opacity: .86; }
+[data-busy="true"] .data-admin-section:not(.data-output-section):not(.database-import-section) { opacity: .86; }
 
 @media (max-width: 1050px) {
   .data-refresh-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .data-action-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .roll-scan-form, .roll-confirm-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .database-import-controls { grid-template-columns: 1fr 1fr; }
+  .database-file-field { grid-column: 1 / -1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

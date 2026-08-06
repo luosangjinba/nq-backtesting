@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-05 after R10.8 authenticated cross-device state sync
+Last updated: 2026-08-05 after R10.9 first-run database bootstrap/import
 
 ## Current Overall Acceptance State
 
@@ -84,6 +84,22 @@ Automated service, client, two-profile browser, optional-removal, and deployment
 evidence is implemented; physical two-computer and state backup/restore review
 remain open.
 
+R10.9 addresses clean-host market-data onboarding. `--bootstrap` now permits a
+single missing DuckDB target and exposes a visual Database Setup panel inside
+the trusted Data Acquisition route. CSV is converted on the server under an
+exact seven-column contract; uploaded DuckDB is copied to a candidate and
+opened read-only. Both paths reject invalid schema, nulls, unsupported symbols,
+duplicates, non-minute timestamps, and invalid OHLC/volume without automatic
+normalization. Exact confirmation creates the target only if it is still
+absent, then writes a durable lock that survives target removal. Retained-task
+discovery restores uploaded/ready state after browser or service restart. A
+fourth loopback systemd service owns port 8768 and the only writable database-
+parent mount; API, Web, and State mount that complete parent read-only.
+Authenticated Caddy exposes only
+`/v7/database/*` during bootstrap. Automated service, real-browser, deployment,
+and existing-database regression evidence passes; representative large-file
+clean-host CSV/DuckDB review remains open.
+
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
 required for normal startup.
@@ -130,8 +146,9 @@ handoff was committed.
 - immutable pre-remediation checkpoint: `fa561599`
 - recovery state: R8 is complete and inactive; normal-delivery scope is
   active, phase-one overall acceptance remains open, R9.4 retains focused
-  human review, R10.8 automated state sync is implemented, and physical two-
-  computer/backup-restore validation remains open;
+  human review, R10.8 automated state sync is implemented with physical two-
+  computer/backup-restore validation open, and R10.9 automated database
+  bootstrap/import is implemented with clean-host large-file review open;
 - the separate R7.3/R7.3c Data Acquisition admin human gate remains open;
 - R8.1 recovery constitution is commit `7dbabbed`;
 - R8.2 production architecture analyzer is commit `f19b7f32`;
@@ -854,6 +871,10 @@ tunnel mode on a clean lightweight Linux host, then authenticated HTTPS. For
 R10.8, use two physical computers with the same reviewer login to confirm the
 same Session/Workspace checkpoint, exercise conflict and Offline retry, and
 prove state SQLite backup/restore plus an unchanged market-database fingerprint.
+For R10.9, use a separate clean target with `--bootstrap`, execute one realistic
+CSV conversion and one direct DuckDB upload on disposable hosts, then prove
+activation, V4/V7 read behavior, restart persistence, and permanent importer
+lock without opening 8768 publicly.
 Record resource/latency/restart/rollback evidence. R8 recovery remains human
 accepted and inactive. The separate
 R7.3/R7.3c Data Acquisition admin human gate and the proposed multi-source

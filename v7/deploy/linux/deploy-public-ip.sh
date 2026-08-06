@@ -10,12 +10,14 @@ Usage:
   sudo bash v7/deploy/linux/deploy-public-ip.sh \
     --public-ip 203.0.113.10 \
     --db /srv/replay-lab-data/trading_data.duckdb \
+    [--bootstrap] \
     [--preserve-caddy] \
     [--replace-legacy]
 
 Options:
   --public-ip IPV4       Public IPv4 address opened on cloud TCP 80/443.
-  --db PATH              Existing DuckDB file. Default: /srv/replay-lab-data/trading_data.duckdb
+  --db PATH              DuckDB target. Default: /srv/replay-lab-data/trading_data.duckdb
+  --bootstrap            Allow a missing target and enable first-run CSV/DuckDB upload.
   --auth-user USER       Browser login user. Default: reviewer
   --service-user USER    Dedicated Linux service user. Default: replay
   --password-file PATH   Persistent root-only password file.
@@ -26,7 +28,7 @@ Options:
   --help                 Show this help.
 
 This wrapper does not open a cloud security group. Allow inbound TCP 80/443 in
-the provider console, and do not expose 8007/8766/8767.
+the provider console, and do not expose 8007/8766/8767/8768.
 USAGE
 }
 
@@ -101,6 +103,7 @@ password_file="/etc/replay-lab/secrets/web-password"
 reset_password=0
 replace_legacy=0
 preserve_caddy=0
+bootstrap=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -113,6 +116,10 @@ while [[ $# -gt 0 ]]; do
       [[ $# -ge 2 ]] || die "--db requires a value"
       db_path="$2"
       shift 2
+      ;;
+    --bootstrap)
+      bootstrap=1
+      shift
       ;;
     --auth-user)
       [[ $# -ge 2 ]] || die "--auth-user requires a value"
@@ -155,7 +162,19 @@ done
 [[ -x "$installer" ]] || die "installer is missing: $installer"
 [[ -n "$public_ip" ]] || die "--public-ip is required"
 validate_ipv4 "$public_ip" || die "--public-ip must be a valid IPv4 address"
-[[ "$db_path" = /* && -f "$db_path" ]] || die "DuckDB file is missing: $db_path"
+[[ "$db_path" = /* ]] || die "--db must be absolute"
+if [[ "$bootstrap" -eq 1 ]]; then
+  [[ ! -e "$db_path" && ! -L "$db_path" ]] \
+    || die "--bootstrap requires a missing database target: $db_path"
+  db_parent="$(dirname -- "$db_path")"
+  case "$db_parent" in
+    /|/srv|/opt|/var|/etc|/usr|/home|/root|/tmp)
+      die "--bootstrap database parent is too broad: $db_parent"
+      ;;
+  esac
+else
+  [[ -f "$db_path" ]] || die "DuckDB file is missing: $db_path"
+fi
 [[ "$password_file" = /* ]] || die "--password-file must be absolute"
 [[ "$auth_user" =~ ^[A-Za-z0-9._-]{1,64}$ ]] || die "invalid --auth-user"
 [[ "$service_user" =~ ^[A-Za-z_][A-Za-z0-9_.-]*[$]?$ ]] || die "invalid --service-user"
@@ -166,10 +185,16 @@ if ! id "$service_user" >/dev/null 2>&1; then
     --shell /sbin/nologin "$service_user"
 fi
 service_group="$(id -gn "$service_user")"
-chown root:"$service_group" "$db_path"
-chmod 0640 "$db_path"
-runuser -u "$service_user" -- test -r "$db_path" \
-  || die "service user cannot read DuckDB after permission preparation"
+if [[ "$bootstrap" -eq 1 ]]; then
+  install -d -m 0770 -o root -g "$service_group" "$db_parent"
+  runuser -u "$service_user" -- test -w "$db_parent" \
+    || die "service user cannot write the database bootstrap directory"
+else
+  chown root:"$service_group" "$db_path"
+  chmod 0640 "$db_path"
+  runuser -u "$service_user" -- test -r "$db_path" \
+    || die "service user cannot read DuckDB after permission preparation"
+fi
 
 install -d -m 0700 "$(dirname -- "$password_file")"
 if [[ "$reset_password" -eq 1 || ! -s "$password_file" ]]; then
@@ -193,7 +218,7 @@ chmod 0600 "$password_file"
 stop_identified_listener 8766 replay-lab-api.service
 stop_identified_listener 8007 replay-lab-web.service
 
-info "cloud security group prerequisite: inbound TCP 80/443; keep 8007/8766 closed"
+info "cloud security group prerequisite: inbound TCP 80/443; keep 8007/8766/8767/8768 closed"
 installer_arguments=(
   --apply --yes
   --db "$db_path"
@@ -203,7 +228,11 @@ installer_arguments=(
   --auth-password-file "$password_file"
 )
 [[ "$preserve_caddy" -eq 0 ]] || installer_arguments+=(--preserve-caddy)
+[[ "$bootstrap" -eq 0 ]] || installer_arguments+=(--bootstrap)
 bash "$installer" "${installer_arguments[@]}"
 
 printf '\nDirect browser URL: https://%s/v7/app/\n' "$public_ip"
 printf 'Browser user: %s\n' "$auth_user"
+if [[ "$bootstrap" -eq 1 ]]; then
+  printf 'Database setup: https://%s/v7/app/data-acquisition.html\n' "$public_ip"
+fi

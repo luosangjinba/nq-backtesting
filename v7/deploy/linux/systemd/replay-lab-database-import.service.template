@@ -1,5 +1,5 @@
 [Unit]
-Description=Replay Lab V4 market-data API
+Description=Replay Lab first-run market database importer
 After=network-online.target
 Wants=network-online.target
 
@@ -7,9 +7,9 @@ Wants=network-online.target
 Type=simple
 User=@@SERVICE_USER@@
 Group=@@SERVICE_GROUP@@
-WorkingDirectory=@@CURRENT_RELEASE@@/v4
+WorkingDirectory=@@CURRENT_RELEASE@@/v7/server
 EnvironmentFile=/etc/replay-lab/replay-lab.env
-ExecStart=@@PYTHON_BIN@@ @@CURRENT_RELEASE@@/v4/v4_api.py
+ExecStart=@@PYTHON_BIN@@ @@CURRENT_RELEASE@@/v7/server/database_import_api.py
 Restart=on-failure
 RestartSec=3
 TimeoutStopSec=20
@@ -23,7 +23,8 @@ ProtectKernelLogs=true
 ProtectKernelModules=true
 ProtectKernelTunables=true
 ProtectSystem=full
-ReadOnlyPaths=@@DATABASE_PARENT@@ @@STATE_ROOT@@/state @@STATE_ROOT@@/database-import
+ReadWritePaths=@@STATE_ROOT@@/database-import @@DATABASE_PARENT@@
+ReadOnlyPaths=@@STATE_ROOT@@/state
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 
 [Install]

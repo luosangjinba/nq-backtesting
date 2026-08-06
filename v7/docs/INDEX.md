@@ -27,8 +27,10 @@ machine-readable baseline, then
 deployment is recorded in `V7_LINUX_ACCEPTANCE_HOST_DEPLOYMENT_R10_1.md`; it
 is corrected for direct-IP/runtime compatibility in
 `V7_LINUX_PUBLIC_IPV4_RUNTIME_COMPATIBILITY_R10_2.md`, with the one-command
-operator path in `V7_LINUX_PUBLIC_IPV4_QUICK_DEPLOY_R10_3.md`. None closes the
-ongoing phase-one overall acceptance pass. Read those before the normal
+operator path in `V7_LINUX_PUBLIC_IPV4_QUICK_DEPLOY_R10_3.md`. Authenticated
+cross-device state is bound by `V7_SERVER_STATE_SYNC_R10_8.md`, and clean-host
+CSV/DuckDB first-run setup is bound by `V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`.
+None closes the ongoing phase-one overall acceptance pass. Read those before the normal
 implementation reading order below. The deferred
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and
 `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` record possible next
@@ -136,11 +138,12 @@ Read in this order before V7 implementation work:
 89. `V7_LINUX_PUBLIC_IPV4_RUNTIME_COMPATIBILITY_R10_2.md`
 90. `V7_LINUX_PUBLIC_IPV4_QUICK_DEPLOY_R10_3.md`
 91. `V7_SERVER_STATE_SYNC_R10_8.md`
-92. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
+92. `V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`
+93. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-93. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
+94. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-94. `../TODO.md`
+95. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.

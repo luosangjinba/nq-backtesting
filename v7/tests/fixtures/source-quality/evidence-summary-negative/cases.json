@@ -5,8 +5,8 @@
       "operation": "replace-text",
       "path": "docs/V7_HUMAN_ACCEPTANCE_ZERO_DEBT_CLOSURE_R8_15.md",
       "replace": {
-        "from": "23,754 effective lines",
-        "to": "23,753 effective lines"
+        "from": "24,107 effective lines",
+        "to": "24,106 effective lines"
       },
       "expectedFailureCode": "production-source-summary-drift"
     },

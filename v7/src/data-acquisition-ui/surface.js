@@ -1,4 +1,5 @@
 import { createMaintenanceClient } from './maintenance-client.js';
+import { createDatabaseImportPanel, databaseImportTemplate } from './database-import-panel.js';
 import { createRollCalendarPanel, rollCalendarTemplate } from './roll-calendar-panel.js';
 import { createAcquisitionWorkflow, parseOutputMetric } from './workflow-state.js';
 
@@ -48,6 +49,7 @@ function template() {
         </header>
 
         <div class="data-admin-content">
+          ${databaseImportTemplate()}
           <section class="data-admin-section" aria-labelledby="coverageTitle">
             <div class="data-admin-section-heading">
               <div><h2 id="coverageTitle">Authoritative coverage</h2><p>Read-only DuckDB state. Duplicate timestamps are a hard stop.</p></div>
@@ -122,6 +124,7 @@ export function createDataAcquisitionSurface(options) {
   let busy = false;
   let activeSelectionKey = JSON.stringify(workflow.snapshot().selection);
   let rollPanel = null;
+  let databaseImportPanel = null;
 
   root.innerHTML = template();
   const find = (selector) => root.querySelector(selector);
@@ -203,6 +206,7 @@ export function createDataAcquisitionSurface(options) {
     busy = next;
     root.dataset.busy = String(next);
     root.querySelectorAll('button, input, select').forEach((control) => {
+      if (control.closest('.database-import-section')) return;
       if (control.id === 'clearOutput') return;
       control.disabled = next;
     });
@@ -304,6 +308,13 @@ export function createDataAcquisitionSurface(options) {
       workflow.clearEvidence();
       resetVerifyGate();
       await refreshStatus();
+    },
+  });
+  databaseImportPanel = createDatabaseImportPanel({
+    root,
+    client: options.databaseImportClient,
+    async onActivated() {
+      await refreshStatus({ resetStart: true });
     },
   });
 
@@ -426,6 +437,7 @@ export function createDataAcquisitionSurface(options) {
       if (disposed) return;
       disposed = true;
       abortController.abort();
+      databaseImportPanel?.dispose();
       rollPanel?.dispose();
       root.replaceChildren();
     },

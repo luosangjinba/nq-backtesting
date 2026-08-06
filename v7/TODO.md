@@ -7,6 +7,32 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
+### R10.9 First-Run Database Bootstrap And Import — Implemented, Host Review Pending
+
+- [x] keep database setup in the trusted Data Acquisition administrator surface
+  without granting Bar Data, Replay, Workspace, Chart, Session, or V4 query
+  paths new write authority;
+- [x] support bounded `.csv` and `.duckdb` upload with progress, SHA-256 staging,
+  one retained/recoverable preparation task, safe validation summaries, and
+  stable errors across page/service restart;
+- [x] convert exact UTF-8 seven-column CSV on the server and perform no automatic
+  rename, coercion, timezone conversion, instrument normalization, or deduplication;
+- [x] validate the exact `futures_1m` schema, ES/NQ scope, required values,
+  unique minute keys, minute alignment, finite/ordered OHLC, and non-negative volume;
+- [x] require exact `ACTIVATE DATABASE` confirmation and use atomic
+  create-if-absent activation plus a durable lock so an existing/appearing
+  target is never replaced and later target removal cannot reopen import;
+- [x] add `--bootstrap` to both Linux entries, a loopback 8768 unit,
+  authenticated `/v7/database/*`, public unauthenticated rejection, and
+  database-parent read-only mounts for every non-import service;
+- [x] bind service, client, real-browser upload/activation, existing-database UI
+  lock, Caddy rendering, hardened-unit, and non-bootstrap regression evidence;
+- [ ] execute a clean-host CSV run and a separate clean-host DuckDB run with
+  representative large files, record disk/RAM/time, restart services, verify V4
+  bars/V7 charts, and prove upload remains locked after activation.
+
+Binding contract: `docs/V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`.
+
 ### R10.8 Authenticated Cross-Device State Sync — Implemented, Host Review Pending
 
 - [x] decide on one server-side, user-scoped state snapshot while retaining the
@@ -534,8 +560,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 312 files, 23,754 effective
-lines, 2,534 functions, and 307 public exports; the architecture baseline
+The current production source baseline contains 314 files, 24,107 effective
+lines, 2,572 functions, and 310 public exports; the architecture baseline
 remains 49 modules, 125 edges, 115 construction sites, nine writers, and zero
 findings.
 
@@ -547,7 +573,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 312 files, 23,754 effective lines, 2,534 functions, 307 public
+currently at 314 files, 24,107 effective lines, 2,572 functions, 310 public
 exports, 49 modules, 125 edges, 115 construction sites, nine writers, and zero
 findings.
 

@@ -65,7 +65,7 @@
       }
     ]
   },
-  "deliveryStep": "R10.8",
+  "deliveryStep": "R10.9",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -3994,6 +3994,7 @@
         "independentHarnessMode": "public-entry-direct",
         "kind": "adapter",
         "observedDisposeSites": [
+          "src/data-acquisition-ui/database-import-panel.js",
           "src/data-acquisition-ui/roll-calendar-panel.js",
           "src/data-acquisition-ui/surface.js"
         ],

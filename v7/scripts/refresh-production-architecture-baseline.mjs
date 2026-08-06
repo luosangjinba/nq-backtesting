@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { analyzeProductionArchitecture } from '../tests/support/production-architecture-analyzer.js';
 
 const V7_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const deliveryStep = process.argv[2] ?? 'R10.9';
 const baselinePath = path.join(V7_ROOT, 'docs/v7-production-architecture-baseline.json');
 const baseline = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
 const manifest = JSON.parse(fs.readFileSync(
@@ -20,7 +21,7 @@ if (report.violations.length > 0) {
 }
 fs.writeFileSync(baselinePath, `${JSON.stringify({
   ...baseline,
-  deliveryStep: 'R8.12',
+  deliveryStep,
   snapshot: report.snapshot,
 }, null, 2)}\n`);
 console.log(

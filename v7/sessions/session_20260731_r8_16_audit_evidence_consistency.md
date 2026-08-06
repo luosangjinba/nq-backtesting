@@ -11,8 +11,8 @@ production source or browser behavior and does not reactivate recovery mode.
 
 ## Finding
 
-The canonical production source baseline now contains 312 files, 23,754
-effective lines, 2,534 functions, and 307 public exports. R8.16 originally
+The canonical production source baseline now contains 314 files, 24,107
+effective lines, 2,572 functions, and 310 public exports. R8.16 originally
 found six current prose occurrences reporting an older line count. Existing source
 analysis still passed because it compared production AST output with the exact
 JSON baseline but did not reconcile human-readable summaries.
@@ -36,7 +36,7 @@ summary evidence can drift while the exact source Harness remains green.
 
 ## Verification
 
-- Source Quality passes against 312 production files, 307 public exports, and
+- Source Quality passes against 314 production files, 310 public exports, and
   17 negative controls;
 - Architecture Boundary, Architecture Hardening, and Production Architecture
   pass with zero findings;

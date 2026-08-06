@@ -74,6 +74,7 @@
     "docs/V7_LIGHTWEIGHT_CHART_SLICE.md",
     "docs/V7_EXECUTION_ROADMAP.md",
     "docs/V7_SERVER_STATE_SYNC_R10_8.md",
+    "docs/V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md",
     "TODO.md"
   ],
   "owners": [

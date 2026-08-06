@@ -63,6 +63,14 @@ const fetchStub = `{
   let jobCounter = 0;
   globalThis.fetch = async (url, options = {}) => {
     const target = String(url);
+    if (target.includes('/v7/database/health')) {
+      return new Response(JSON.stringify({
+        status: 'ok', version: 1, databaseReady: true, activationLocked: true,
+        bootstrapEnabled: false, importAllowed: false,
+        maxUploadBytes: 5000000000,
+        requiredColumns: ['instrument', 'ts', 'open', 'high', 'low', 'close', 'volume']
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
     if (target.includes('/v4/bars?')) {
       return new Response(JSON.stringify({ bars: [
         { time: '2026-07-22 15:59', open: 1, high: 2, low: 0.5, close: 1.5, volume: 10 },
@@ -163,7 +171,11 @@ try {
   await cdp.send('Page.addScriptToEvaluateOnNewDocument', { source: fetchStub });
   await cdp.send('Page.navigate', { url: `http://127.0.0.1:${webPort}/v7/app/data-acquisition.html` });
   await waitFor(cdp, `document.querySelector('#serviceState')?.dataset.state === 'ready'`);
+  await waitFor(cdp, `document.querySelector('#databaseImportState')?.textContent === 'Database active'`);
   assert.equal(await evaluate(cdp, `document.querySelectorAll('.coverage-card').length`), 2);
+  assert.equal(await evaluate(cdp, `document.querySelector('#databaseImportState').textContent`), 'Database active');
+  assert.equal(await evaluate(cdp, `document.querySelector('#databaseFile').disabled`), true,
+    'first-run importer must lock when an authoritative database already exists');
   assert.equal(await evaluate(cdp, `document.querySelectorAll('.roll-health-card').length`), 2);
   assert.equal(await evaluate(cdp, `document.querySelector('.roll-health-card').textContent.includes('ESU6 → ESZ6')`), true);
   assert.equal(await evaluate(cdp, `document.querySelector('#dryRun').disabled`), true);
