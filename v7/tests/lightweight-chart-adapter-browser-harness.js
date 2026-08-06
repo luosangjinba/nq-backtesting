@@ -167,7 +167,9 @@ await assert.rejects(requirePaintedCandles({
 
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-lwc-adapter-'));
-const server = createStaticServer(REPOSITORY_ROOT);
+const server = createStaticServer(REPOSITORY_ROOT, {
+  additionalPublicPathPrefixes: ['/v7/tests/fixtures/lightweight-chart-adapter/'],
+});
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 const webPort = server.address().port;
 const chrome = spawn('/usr/bin/google-chrome', [

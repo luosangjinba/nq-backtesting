@@ -1,6 +1,6 @@
 # V7 Bounded Bar Data Runtime
 
-Status: R8.5 sole raw-retention owner (2026-07-30)
+Status: R11.1 transaction identity and dataset-revision recovery implemented
 
 ## Responsibility
 
@@ -58,6 +58,19 @@ coverage; removed Panes release coverage; Replay traversal uses an ephemeral
 lease and returns only derived target evidence. Caller cancellation cannot
 obtain a stale lease, and runtime disposal revokes every live read and clears
 all raw state.
+
+R11.1 keys every staged lease bucket by equality of the complete branded
+Workspace Transaction identity, never by Pane, Session, or transaction token
+alone. Finalize/reject for transaction A cannot release or promote transaction
+B. Projected-history work is a shared provider task with independent consumer
+subscriptions: aborting one consumer preserves work still used elsewhere, and
+aborting the last consumer aborts the provider request and removes all signal
+listeners.
+
+Raw retained coverage also carries the authoritative V4 dataset revision.
+When a health or response revision changes, old-revision windows are discarded
+rather than merged with the new database. Revision mismatch is a hard response
+failure and cannot enter raw or projected cache.
 
 Replay Workspace UI now retains only lease capabilities during a transaction
 and immutable projected snapshots after commit. Its source/display ledgers and

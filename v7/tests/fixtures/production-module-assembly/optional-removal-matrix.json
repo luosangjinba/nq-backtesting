@@ -2,6 +2,10 @@
   "schemaVersion": 1,
   "cases": [
     {
+      "consumerModuleId": "adapter.data-acquisition-application",
+      "omittedModuleId": "adapter.database-bootstrap-ui"
+    },
+    {
       "consumerModuleId": "adapter.session-application",
       "omittedModuleId": "adapter.replay-workspace-ui"
     },

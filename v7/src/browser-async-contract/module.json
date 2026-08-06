@@ -1,0 +1,12 @@
+{
+  "id": "core.browser-async-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "browser-async-contract",
+  "publicEntry": "src/browser-async-contract/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/browser-async-contract-harness.js",
+  "removable": false
+}

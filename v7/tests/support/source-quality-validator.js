@@ -26,6 +26,18 @@ const CRITICAL_INVARIANTS = [
   'projection-alignment',
   'viewport-wall',
 ];
+const INTERNAL_RESPONSIBILITY = 'internal-state-or-pure-computation';
+const SIDE_EFFECT_RESPONSIBILITIES = Object.freeze({
+  'browser-persistence': 'external-state-io',
+  'remote-io': 'external-state-io',
+  'visual-surface-mutation': 'visual-surface-mutation',
+});
+
+function sourceDerivedResponsibilities(file) {
+  const responsibilities = [...new Set((file.sideEffectConcerns ?? [])
+    .map(({ concern }) => SIDE_EFFECT_RESPONSIBILITIES[concern] ?? `unknown:${concern}`))].sort();
+  return responsibilities.length > 0 ? responsibilities : [INTERNAL_RESPONSIBILITY];
+}
 
 function hasApprovedException(file) {
   const exception = file.sizeException;
@@ -50,6 +62,12 @@ export function validateSourceQuality(model) {
       continue;
     }
 
+    if (Array.isArray(file.sideEffectConcerns)) {
+      const expectedResponsibilities = sourceDerivedResponsibilities(file);
+      if (JSON.stringify(file.responsibilities ?? []) !== JSON.stringify(expectedResponsibilities)) {
+        violations.push({ code: 'source-concern-evidence-inconsistent', file: file.path });
+      }
+    }
     if ((file.responsibilities ?? []).length !== 1) {
       violations.push({ code: 'mixed-or-missing-file-responsibility', file: file.path });
     }
@@ -75,6 +93,14 @@ export function validateSourceQuality(model) {
         if (!(exported.documentation?.[field]?.trim?.())) {
           violations.push({ code: 'undocumented-public-contract', file: file.path, export: exported.name, field });
         }
+      }
+      if (Array.isArray(exported.semanticTerms)
+        && ((exported.semanticTerms.length === 0) || (exported.semanticMatches ?? []).length === 0)) {
+        violations.push({
+          code: 'generic-public-contract-documentation',
+          file: file.path,
+          export: exported.name,
+        });
       }
     }
 

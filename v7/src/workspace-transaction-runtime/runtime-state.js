@@ -42,6 +42,7 @@ class WorkspaceTransactionRuntimeState {
   #active = new Map();
   #currentIdentity = null;
   #disposed = false;
+  #poisonCode = null;
   #scope;
   #seenTransactionKeys = new Set();
 
@@ -77,8 +78,18 @@ class WorkspaceTransactionRuntimeState {
     }
   }
 
-  begin(identity) {
+  #requireHealthy() {
     this.#requireActive();
+    if (this.#poisonCode !== null) {
+      throw new WorkspaceTransactionRuntimeError(
+        'WORKSPACE_TRANSACTION_RUNTIME_POISONED',
+        `Workspace Transaction Runtime cannot accept work after ${this.#poisonCode}.`,
+      );
+    }
+  }
+
+  begin(identity) {
+    this.#requireHealthy();
     requireScopedIdentity(identity, this.#scope);
     const key = transactionKey(identity);
     if (this.#seenTransactionKeys.has(key)) {
@@ -97,6 +108,9 @@ class WorkspaceTransactionRuntimeState {
 
   currency(identity) {
     if (this.#disposed) return Object.freeze({ code: 'runtime-disposed', status: 'cancelled' });
+    if (this.#poisonCode !== null) {
+      return Object.freeze({ code: 'runtime-poisoned', status: 'cancelled' });
+    }
     if (!this.#currentIdentity) {
       return Object.freeze({ code: 'transaction-superseded', status: 'stale' });
     }
@@ -164,6 +178,18 @@ class WorkspaceTransactionRuntimeState {
     return this.#disposed;
   }
 
+  isDecisionCommitted(identity) {
+    return this.#acceptedSnapshot?.identity !== undefined
+      && this.#acceptedSnapshot.identity !== null
+      && workspaceTransactionIdentitiesEqual(identity, this.#acceptedSnapshot.identity);
+  }
+
+  poison(code) {
+    if (this.#poisonCode !== null) return;
+    this.#poisonCode = code;
+    for (const record of this.#active.values()) record.controller.abort('runtime-poisoned');
+  }
+
   matchesCurrent(identity) {
     return this.#currentIdentity !== null
       && workspaceTransactionIdentitiesEqual(identity, this.#currentIdentity);
@@ -176,7 +202,9 @@ class WorkspaceTransactionRuntimeState {
       acceptedSnapshot: this.#acceptedSnapshot,
       activationGeneration: this.#scope.activationGeneration,
       currentIdentity: this.#currentIdentity,
+      health: this.#poisonCode === null ? 'ready' : 'poisoned',
       inFlightCount: this.#active.size,
+      poisonCode: this.#poisonCode,
       sessionId: this.#scope.sessionId,
     });
   }

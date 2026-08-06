@@ -21,7 +21,9 @@ const negativeCases = JSON.parse(fs.readFileSync(path.join(
 assert.equal(negativeCases.schemaVersion, 1);
 assert.equal(negativeCases.cases.length, 2);
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-production-host-'));
-const server = createStaticServer(REPOSITORY_ROOT);
+const server = createStaticServer(REPOSITORY_ROOT, {
+  additionalPublicPathPrefixes: ['/v7/tests/fixtures/production-application-host/'],
+});
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 const webPort = server.address().port;
 const chrome = spawn('/usr/bin/google-chrome', [
@@ -76,6 +78,9 @@ try {
   assert.equal(evidence.data.running.status, 'running');
   assert.equal(evidence.data.stopped.status, 'disposed');
   assert.equal(evidence.data.childrenAfterStop, 0);
+  assert.equal(evidence.dataBootstrapOptional.moduleIds.includes('adapter.database-bootstrap-ui'), false);
+  assert.equal(evidence.dataBootstrapOptional.panelPresent, false);
+  assert.equal(evidence.dataBootstrapOptional.snapshot.status, 'running');
   assert.equal(evidence.rollback.failureCode, 'MODULE_HOST_START_FAILED');
   assert.equal(evidence.rollback.status, 'failed');
   assert.equal(evidence.rollback.children, 0);

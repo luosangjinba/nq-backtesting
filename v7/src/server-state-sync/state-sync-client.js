@@ -2,10 +2,13 @@ import {
   applyReplicatedEntries,
   captureReplicatedEntries,
   entriesHash,
+  isStateSnapshotRollbackError,
   isReplicatedStateKey,
   readSyncMetadata,
   replacementEnvelope,
   requireServerSnapshot,
+  STATE_SYNC_METADATA_KEY,
+  StateSnapshotRollbackError,
   writeConflictBackup,
   writeSyncMetadata,
 } from './snapshot.js';
@@ -40,6 +43,14 @@ function publicSnapshot(state) {
   });
 }
 
+class StateSyncPoisonedError extends Error {
+  constructor(message, options = {}) {
+    super(message, options);
+    this.name = 'StateSyncPoisonedError';
+    this.code = 'STATE_SYNC_RELOAD_REQUIRED';
+  }
+}
+
 /** Own local-first replication of allowlisted V7 Web Storage state. */
 export function createServerStateSync(rawOptions) {
   const options = requireOptions(rawOptions);
@@ -57,9 +68,35 @@ export function createServerStateSync(rawOptions) {
   let pending = Promise.resolve();
 
   function publish(next) {
+    if (disposed || (state.status === 'poisoned' && next.status !== 'poisoned')) {
+      return publicSnapshot(state);
+    }
     state = { ...state, ...next };
     const snapshot = publicSnapshot(state);
     for (const listener of listeners) listener(snapshot);
+    return snapshot;
+  }
+
+  function poison(error) {
+    remoteConflict = null;
+    syncScheduled = false;
+    publish({
+      message: 'Local saved state could not be restored exactly. Reload this page before continuing.',
+      status: 'poisoned',
+    });
+    return new StateSyncPoisonedError(
+      'State synchronization is poisoned because local rollback was incomplete.',
+      { cause: error },
+    );
+  }
+
+  function requireHealthyMutation() {
+    if (disposed) throw new Error('State synchronization is disposed.');
+    if (state.status === 'poisoned') {
+      throw new StateSyncPoisonedError(
+        'State synchronization requires a page reload before local state may change.',
+      );
+    }
   }
 
   async function hash(entries) {
@@ -67,6 +104,7 @@ export function createServerStateSync(rawOptions) {
   }
 
   function metadata(snapshot, contentHash) {
+    requireHealthyMutation();
     writeSyncMetadata(rawStorage, {
       contentHash,
       remoteRevision: snapshot.revision,
@@ -87,6 +125,7 @@ export function createServerStateSync(rawOptions) {
   }
 
   async function replaceRemote(expectedRevision, entries) {
+    requireHealthyMutation();
     const response = await options.fetch(endpoint, {
       body: JSON.stringify(replacementEnvelope(expectedRevision, entries)),
       cache: 'no-store',
@@ -95,7 +134,9 @@ export function createServerStateSync(rawOptions) {
       method: 'PUT',
       signal: AbortSignal.timeout(timeoutMs),
     });
+    requireHealthyMutation();
     const body = await response.json().catch(() => null);
+    requireHealthyMutation();
     if (response.status === 409) {
       const current = requireServerSnapshot(body?.current);
       remoteConflict = current;
@@ -111,13 +152,42 @@ export function createServerStateSync(rawOptions) {
     return requireServerSnapshot(body);
   }
 
-  async function acceptRemote(remote) {
+  function restoreMetadata(rawValue) {
+    if (rawValue === null) rawStorage.removeItem(STATE_SYNC_METADATA_KEY);
+    else rawStorage.setItem(STATE_SYNC_METADATA_KEY, rawValue);
+  }
+
+  async function hydrateRemote(remote, { backupDevice = false, contentHash } = {}) {
     const localEntries = captureReplicatedEntries(rawStorage);
-    writeConflictBackup(rawStorage, 'device', {
-      entries: localEntries, revision: state.revision, userId: state.userId,
-    }, options.now());
-    applyReplicatedEntries(rawStorage, remote.entries);
-    metadata(remote, await hash(remote.entries));
+    const previousMetadata = rawStorage.getItem(STATE_SYNC_METADATA_KEY);
+    const remoteHash = contentHash ?? await hash(remote.entries);
+    requireHealthyMutation();
+    try {
+      if (backupDevice) {
+        writeConflictBackup(rawStorage, 'device', {
+          entries: localEntries, revision: state.revision, userId: state.userId,
+        }, options.now());
+      }
+      applyReplicatedEntries(rawStorage, remote.entries);
+      metadata(remote, remoteHash);
+    } catch (hydrateError) {
+      try {
+        applyReplicatedEntries(rawStorage, localEntries);
+        restoreMetadata(previousMetadata);
+      } catch (rollbackError) {
+        throw new StateSnapshotRollbackError(
+          [hydrateError, rollbackError],
+          'Remote state hydration failed and its rollback was incomplete.',
+        );
+      }
+      if (isStateSnapshotRollbackError(hydrateError)) {
+        throw new Error('Remote state hydration failed; the outer snapshot was restored.', {
+          cause: hydrateError,
+        });
+      }
+      throw hydrateError;
+    }
+    requireHealthyMutation();
     remoteConflict = null;
     publish({
       message: `Synced as ${remote.userId}`,
@@ -127,11 +197,30 @@ export function createServerStateSync(rawOptions) {
     });
   }
 
+  async function hydrateAutomatically(remote, contentHash) {
+    try {
+      await hydrateRemote(remote, { contentHash });
+    } catch (error) {
+      if (isStateSnapshotRollbackError(error)) {
+        poison(error);
+        return;
+      }
+      publish({
+        message: `Saved on this device; server hydration failed. ${error.message}`,
+        status: 'offline',
+      });
+    }
+  }
+
   async function upload(entries, expectedRevision) {
+    requireHealthyMutation();
     publish({ message: 'Saving this device to the server…', status: 'syncing' });
     const remote = await replaceRemote(expectedRevision, entries);
+    requireHealthyMutation();
     if (remote === null) return false;
-    metadata(remote, await hash(entries));
+    const contentHash = await hash(entries);
+    requireHealthyMutation();
+    metadata(remote, contentHash);
     remoteConflict = null;
     publish({
       message: `Synced as ${remote.userId}`,
@@ -143,7 +232,7 @@ export function createServerStateSync(rawOptions) {
   }
 
   async function reconcile() {
-    if (disposed) return;
+    if (disposed || state.status === 'poisoned') return;
     publish({ message: 'Checking server state…', status: 'syncing' });
     let remote;
     try {
@@ -155,12 +244,14 @@ export function createServerStateSync(rawOptions) {
       });
       return;
     }
+    if (disposed || state.status === 'poisoned') return;
     if (remote === null) {
       publish({ message: 'Stored on this device', revision: null, status: 'local', userId: null });
       return;
     }
     const localEntries = captureReplicatedEntries(rawStorage);
     const [localHash, remoteHash] = await Promise.all([hash(localEntries), hash(remote.entries)]);
+    if (disposed || state.status === 'poisoned') return;
     const known = readSyncMetadata(rawStorage);
     if (localHash === remoteHash) {
       metadata(remote, remoteHash);
@@ -177,28 +268,14 @@ export function createServerStateSync(rawOptions) {
       return;
     }
     if (localEntries.length === 0) {
-      applyReplicatedEntries(rawStorage, remote.entries);
-      metadata(remote, remoteHash);
-      publish({
-        message: `Synced as ${remote.userId}`,
-        revision: remote.revision,
-        status: 'synced',
-        userId: remote.userId,
-      });
+      await hydrateAutomatically(remote, remoteHash);
       return;
     }
     const sameUser = known?.userId === remote.userId;
     const localUnchanged = sameUser && known.contentHash === localHash;
     const remoteUnchanged = sameUser && known.remoteRevision === remote.revision;
     if (localUnchanged && !remoteUnchanged) {
-      applyReplicatedEntries(rawStorage, remote.entries);
-      metadata(remote, remoteHash);
-      publish({
-        message: `Synced as ${remote.userId}`,
-        revision: remote.revision,
-        status: 'synced',
-        userId: remote.userId,
-      });
+      await hydrateAutomatically(remote, remoteHash);
       return;
     }
     if (!localUnchanged && remoteUnchanged) {
@@ -215,9 +292,11 @@ export function createServerStateSync(rawOptions) {
   }
 
   async function pushCurrent() {
-    if (disposed || !initialized || !['synced', 'syncing'].includes(state.status)) return;
+    if (disposed || !initialized || state.status === 'poisoned'
+      || !['synced', 'syncing'].includes(state.status)) return;
     const entries = captureReplicatedEntries(rawStorage);
     const contentHash = await hash(entries);
+    if (disposed || state.status === 'poisoned') return;
     const known = readSyncMetadata(rawStorage);
     if (known?.userId === state.userId && known.contentHash === contentHash) return;
     try {
@@ -231,7 +310,7 @@ export function createServerStateSync(rawOptions) {
   }
 
   function enqueueSync() {
-    if (syncScheduled || disposed || !initialized) return;
+    if (syncScheduled || disposed || !initialized || state.status === 'poisoned') return;
     syncScheduled = true;
     queueMicrotask(() => {
       syncScheduled = false;
@@ -244,16 +323,19 @@ export function createServerStateSync(rawOptions) {
     key(index) { return rawStorage.key(index); },
     getItem(key) { return rawStorage.getItem(key); },
     removeItem(key) {
+      requireHealthyMutation();
       rawStorage.removeItem(key);
       if (isReplicatedStateKey(key)) enqueueSync();
     },
     setItem(key, value) {
+      requireHealthyMutation();
       rawStorage.setItem(key, value);
       if (isReplicatedStateKey(key)) enqueueSync();
     },
   });
 
   async function flush() {
+    if (disposed || state.status === 'poisoned') return;
     if (syncScheduled) {
       syncScheduled = false;
       pending = pending.then(pushCurrent);
@@ -266,6 +348,11 @@ export function createServerStateSync(rawOptions) {
       if (disposed) throw new Error('State sync is disposed.');
       if (!initialized) {
         await reconcile();
+        if (state.status === 'poisoned') {
+          throw new StateSyncPoisonedError(
+            'State synchronization requires a page reload before application initialization.',
+          );
+        }
         initialized = true;
       }
       return publicSnapshot(state);
@@ -278,16 +365,28 @@ export function createServerStateSync(rawOptions) {
       return () => listeners.delete(listener);
     },
     async retry() {
-      if (disposed) return publicSnapshot(state);
+      if (disposed || state.status === 'poisoned') return publicSnapshot(state);
       await reconcile();
       return publicSnapshot(state);
     },
     async resolveConflict(strategy) {
       if (state.status !== 'conflict' || remoteConflict === null) return false;
       if (strategy === 'server') {
-        await acceptRemote(remoteConflict);
-        options.reload();
-        return true;
+        try {
+          await hydrateRemote(remoteConflict, { backupDevice: true });
+          options.reload();
+          return true;
+        } catch (error) {
+          if (isStateSnapshotRollbackError(error)) {
+            poison(error);
+            return false;
+          }
+          publish({
+            message: `Server copy could not be applied; this device was restored. ${error.message}`,
+            status: 'conflict',
+          });
+          return false;
+        }
       }
       if (strategy === 'device') {
         const localEntries = captureReplicatedEntries(rawStorage);
@@ -306,7 +405,7 @@ export function createServerStateSync(rawOptions) {
     flush,
     async dispose() {
       if (disposed) return;
-      await flush();
+      if (state.status !== 'poisoned') await flush();
       disposed = true;
       listeners.clear();
     },

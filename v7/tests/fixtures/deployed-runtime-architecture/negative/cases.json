@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "unowned-deployed-file",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_FILE_UNOWNED",
+      "mutation": {
+        "operation": "remove",
+        "path": ["components", { "id": "service.v7-state" }, "ownedPaths"],
+        "value": "v7/server/state_store.py"
+      }
+    },
+    {
+      "id": "multiple-deployed-owners",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_FILE_MULTIPLE_OWNERS",
+      "mutation": {
+        "operation": "append",
+        "path": ["components", { "id": "service.v7-web" }, "ownedPaths"],
+        "value": "v7/server/state_store.py"
+      }
+    },
+    {
+      "id": "dependency-cycle",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_DEPENDENCY_CYCLE",
+      "mutation": {
+        "operation": "append",
+        "path": ["components", { "id": "service.v7-state" }, "requiredComponents"],
+        "value": "deployment.linux"
+      }
+    },
+    {
+      "id": "writer-owner-mismatch",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_WRITER_OWNER_MISMATCH",
+      "mutation": {
+        "operation": "set",
+        "path": ["writerInventories", "userStateSqlite"],
+        "value": "service.v7-web"
+      }
+    },
+    {
+      "id": "writer-zero-evidence",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_WRITER_ZERO_OBSERVED_SITES",
+      "mutation": {
+        "operation": "removeObject",
+        "path": ["writerEvidence"],
+        "match": { "surface": "marketDatabaseActivation" }
+      }
+    },
+    {
+      "id": "read-only-service-gains-writer",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_READ_ONLY_WRITER_SURFACE",
+      "mutation": {
+        "operation": "append",
+        "path": ["components", { "id": "service.v4-market-data-read" }, "writerSurfaces"],
+        "value": "legacyWorkspace"
+      }
+    },
+    {
+      "id": "required-optional-overlap",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_DEPENDENCY_CONTRACT_INVALID",
+      "mutation": {
+        "operation": "append",
+        "path": ["components", { "id": "service.v7-web" }, "requiredComponents"],
+        "value": "service.v7-state"
+      }
+    },
+    {
+      "id": "optional-web-dependency-omitted",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_WEB_OPTIONAL_DEPENDENCY_INVENTORY_OPEN",
+      "mutation": {
+        "operation": "remove",
+        "path": ["components", { "id": "service.v7-web" }, "optionalComponents"],
+        "value": "service.v7-database-import"
+      }
+    },
+    {
+      "id": "systemd-entry-drift",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_SYSTEMD_EXEC_ENTRY_MISMATCH",
+      "mutation": {
+        "operation": "set",
+        "path": ["components", { "id": "service.v4-market-data-read" }, "entry"],
+        "value": "v4/server/market_data_read_handler.py"
+      }
+    },
+    {
+      "id": "listen-evidence-missing",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_SERVICE_LISTEN_EVIDENCE_MISSING",
+      "mutation": {
+        "operation": "set",
+        "path": ["serviceUnits", { "component": "service.v7-state" }, "listenEvidence", "text"],
+        "value": "V7_STATE_PORT=9876"
+      }
+    },
+    {
+      "id": "proxy-target-endpoint-drift",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_PROXY_ROUTE_TARGET_ENDPOINT_MISMATCH",
+      "mutation": {
+        "operation": "set",
+        "path": ["proxyRoutes", { "id": "caddy.v4-market-data" }, "targetEndpoint"],
+        "value": "127.0.0.1:9876"
+      }
+    },
+    {
+      "id": "proxy-matcher-unwired",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_PROXY_ROUTE_WIRING_MISSING",
+      "mutation": {
+        "operation": "set",
+        "path": ["proxyRoutes", { "id": "caddy.v7-state" }, "matcher"],
+        "value": "@missing_state"
+      }
+    },
+    {
+      "id": "proxy-target-unrouted",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_PROXY_TARGET_UNROUTED",
+      "mutation": {
+        "operation": "removeObject",
+        "path": ["proxyRoutes"],
+        "match": { "id": "caddy.v7-database-import" }
+      }
+    },
+    {
+      "id": "dataset-revision-smoke-omitted",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_READ_ONLY_SMOKE_CAPABILITY_MISSING",
+      "mutation": {
+        "operation": "removeObject",
+        "path": ["crossRuntimeSmokes"],
+        "match": { "capability": "dataset-revision" }
+      }
+    }
+  ]
+}

@@ -31,6 +31,20 @@ the reviewer uses SSH forwards for both `8007` and `8766`. With `--domain`,
 Caddy obtains HTTPS and authentication is required unless the operator supplies
 the deliberately named unauthenticated-public override.
 
+The V7 static service no longer maps arbitrary repository paths. Its default
+allowlist is `/v7/app/*`, `/v7/src/*`, the two reviewed browser dependencies,
+and the exact architecture manifest consumed by ModuleHost. Documentation,
+tests, Python services, V4 source, Git metadata, and other repository files
+return `404`. Browser Harness fixtures are exposed only through an explicit
+test-process-only prefix injection and are absent from production `serve.mjs`.
+
+The deployed 8766 unit starts `v4/read_api.py`, not the mutable local
+`v4_api.py` entry. Its handler has an explicit market-data GET allowlist,
+returns `405` for POST/PUT/PATCH/DELETE, exposes no legacy Workspace route, and
+still runs inside the read-only database/systemd filesystem boundary. The
+legacy V4 package remains source-visible for compatibility and architecture
+inventory, but it is not the deployed HTTP entry.
+
 ## Data And Mutation Boundary
 
 - the database path is mandatory, absolute, external to release deployment,
@@ -51,14 +65,46 @@ the deliberately named unauthenticated-public override.
 ## Release And Failure Contract
 
 Apply mode rejects tracked working-tree changes, archives exact committed
-`HEAD`, installs locked browser packages and a minimal pinned Python runtime,
-then moves `/opt/replay-lab/current` atomically to the new immutable release.
-systemd owns all three service lifecycles. If any local health endpoint fails,
-the prior release symlink is restored and all three services restart against
-it. The separate user-state SQLite file is retained across code rollback.
+`HEAD`, installs locked browser packages and a minimal pinned Python runtime
+inside that exact immutable release, then moves `/opt/replay-lab/current`
+atomically. No shared virtualenv is mutated underneath the previous release.
+systemd owns all four application service lifecycles.
 
-Old releases are retained. Caddy and systemd files are not deleted by the
-installer. An existing Caddyfile is timestamp-backed up before replacement.
+R11.1 begins a host transaction before release/runtime mutation. It records the
+prior current link, env and unit files, Caddy main/fragment, systemd enablement
+links, exact active-unit set, and metadata of existing runtime directories. Any
+unexpected command, validation, restart, or health failure restores those
+files and permissions, daemon-reloads, and returns each service (including
+Caddy) to its prior active/inactive state. A previously active API, State,
+Database Import, or Web service must also recover its documented loopback
+health endpoint; service restart success alone is not rollback evidence. The
+quick public-IP wrapper also restores the original DuckDB uid/gid/mode on every
+non-zero shell exit. Newly created state directories are retained rather than
+recursively deleted because they may contain user data; the separate user-state
+SQLite and any successfully activated market database are never destroyed by
+code rollback.
+
+The exact release path is proven absent before mutation. If that deployment
+fails, the newly created release is moved out of the immutable release namespace
+to root-only `/opt/replay-lab/failed-releases/`, then its partial release-owned
+`.venv` is removed. The helper refuses to quarantine a symlink, a path outside
+`releases/`, or the target still selected by `current`; such a refusal makes
+rollback incomplete rather than risking removal of an accepted release. If
+virtualenv cleanup itself fails, the complete failed release remains isolated
+behind the root-only quarantine instead of being exposed as a rollback target.
+
+An incomplete rollback preserves the exact host-file backup, directory
+metadata ledger, prior active-unit set, failure context, and quarantine result
+under root-only `/var/lib/replay-lab/recovery/rollback-*`. Only a complete
+rollback deletes the transient copy. If recovery-snapshot creation also fails,
+the installer retains its root-only temporary directory and prints that path;
+it never silently deletes the last recovery evidence.
+
+Old completed releases are retained. Failed, quarantined releases are never
+listed as completed rollback targets. A successful deployment retains its
+managed Caddy and systemd files; failure removes only files/enablement links
+which were absent before the transaction. An existing Caddyfile is additionally
+timestamp-backed up before replacement.
 
 ## Platform Boundary
 
@@ -76,7 +122,7 @@ upload without changing those provider- and host-specific boundaries.
 
 `tests/linux-deployment-script-harness.js` executes private and authenticated
 public dry runs, extracts and validates the real rendered Caddyfile when Caddy
-is installed, inspects all three hardened systemd units, and proves failures
+is installed, inspects all four hardened systemd units, and proves failures
 for:
 
 - relative or missing database paths;

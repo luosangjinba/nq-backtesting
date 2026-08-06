@@ -33,6 +33,20 @@ function sourceSummaryTuples(text) {
   return tuples;
 }
 
+function sourceDerivedResponsibilityPolicyIsValid(policy) {
+  const declared = policy?.sourceDerivedResponsibilities;
+  const expected = {
+    'browser-persistence': 'external-state-io',
+    'remote-io': 'external-state-io',
+    'visual-surface-mutation': 'visual-surface-mutation',
+  };
+  const concernEntries = Object.entries(declared?.concernResponsibilities ?? {});
+  return declared?.model === 'ast-side-effect-authority-v1'
+    && declared?.internalResponsibility === 'internal-state-or-pure-computation'
+    && concernEntries.length === Object.keys(expected).length
+    && concernEntries.every(([concern, responsibility]) => expected[concern] === responsibility);
+}
+
 /**
  * Owner: Test Governance.
  * Purpose: keep current human-readable source summaries equal to the exact machine baseline.
@@ -165,6 +179,13 @@ export function validateProductionSourceQualitySnapshot(snapshot, policy) {
     [finding.file, finding.function, finding.export, finding.field].filter(Boolean).join(':'),
     'production source violates the binding source-quality contract',
   ));
+  if (!sourceDerivedResponsibilityPolicyIsValid(policy)) {
+    violations.push(violation(
+      'production-source-responsibility-policy-invalid',
+      'sourceDerivedResponsibilities',
+      'the AST-derived side-effect authority model must be bound explicitly',
+    ));
+  }
   const evidence = new Map();
   for (const file of snapshot.files) {
     for (const invariant of file.criticalInvariants) {

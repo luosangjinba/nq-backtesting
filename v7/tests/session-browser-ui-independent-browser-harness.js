@@ -10,7 +10,9 @@ import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-session-browser-independent-'));
-const server = createStaticServer(REPOSITORY_ROOT);
+const server = createStaticServer(REPOSITORY_ROOT, {
+  additionalPublicPathPrefixes: ['/v7/tests/fixtures/session-browser-ui-independent/'],
+});
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 const webPort = server.address().port;
 const chrome = spawn('/usr/bin/google-chrome', [

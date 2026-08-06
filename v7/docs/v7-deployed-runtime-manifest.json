@@ -1,0 +1,301 @@
+{
+  "schemaVersion": 2,
+  "status": "r11-recovery",
+  "productionRoots": [
+    { "path": "v7/server", "extensions": [".py"] },
+    { "path": "v7/scripts", "extensions": [".mjs"] },
+    { "path": "v7/deploy/linux", "extensions": [".sh", ".template", ".txt", ".md"] },
+    { "path": "v4/read_api.py", "extensions": [".py"] },
+    { "path": "v4/v4_api.py", "extensions": [".py"] },
+    { "path": "v4/server", "extensions": [".py"] }
+  ],
+  "components": [
+    {
+      "id": "service.v7-web",
+      "kind": "service",
+      "owner": "web-delivery",
+      "entry": "v7/scripts/serve.mjs",
+      "ownedPaths": [
+        "v7/scripts/serve.mjs",
+        "v7/scripts/static-server.mjs",
+        "v7/scripts/state-proxy.mjs",
+        "v7/scripts/database-import-proxy.mjs"
+      ],
+      "requiredComponents": [
+        "service.v4-market-data-read"
+      ],
+      "optionalComponents": [
+        "service.v7-state",
+        "service.v7-database-import"
+      ],
+      "writerSurfaces": [],
+      "independentHarnesses": [
+        "v7/tests/static-server-public-surface-harness.js",
+        "v7/tests/production-application-host-browser-harness.js"
+      ]
+    },
+    {
+      "id": "service.v7-state",
+      "kind": "service",
+      "owner": "replicated-user-state",
+      "entry": "v7/server/state_api.py",
+      "ownedPaths": ["v7/server/state_api.py", "v7/server/state_store.py"],
+      "requiredComponents": [],
+      "optionalComponents": [],
+      "writerSurfaces": ["userStateSqlite"],
+      "independentHarnesses": ["v7/tests/state-service-harness.js"]
+    },
+    {
+      "id": "service.v7-database-import",
+      "kind": "service",
+      "owner": "first-database-import",
+      "entry": "v7/server/database_import_api.py",
+      "ownedPaths": [
+        "v7/server/database_import_api.py",
+        "v7/server/database_import_store.py",
+        "v7/server/database_import_validation.py"
+      ],
+      "requiredComponents": [],
+      "optionalComponents": [],
+      "writerSurfaces": [
+        "databaseImportStaging",
+        "marketDatabaseActivation",
+        "marketDatabaseActivationLock"
+      ],
+      "independentHarnesses": ["v7/tests/database-import-service-harness.js"]
+    },
+    {
+      "id": "service.v4-market-data-read",
+      "kind": "read-only-service",
+      "owner": "deployed-market-data-read-boundary",
+      "entry": "v4/read_api.py",
+      "ownedPaths": [
+        "v4/read_api.py",
+        "v4/server/__init__.py",
+        "v4/server/bars_handler.py",
+        "v4/server/bars_service.py",
+        "v4/server/economic_calendar_handler.py",
+        "v4/server/economic_calendar_service.py",
+        "v4/server/market_data_calendar_handler.py",
+        "v4/server/market_data_calendar_service.py",
+        "v4/server/market_data_read_handler.py",
+        "v4/server/market_data_revision.py",
+        "v4/server/price_lookup.py",
+        "v4/server/projected_history_service.py",
+        "v4/server/target_bars_service.py"
+      ],
+      "requiredComponents": [],
+      "optionalComponents": [],
+      "writerSurfaces": [],
+      "independentHarnesses": [
+        "v4/scripts/read_api_deployment_smoke.py",
+        "v4/tests/dataset-revision-cache-smoke.py"
+      ]
+    },
+    {
+      "id": "tooling.v4-maintenance",
+      "kind": "legacy-maintenance-tooling",
+      "owner": "v4-local-maintenance-boundary",
+      "entry": "v4/v4_api.py",
+      "ownedPaths": [
+        "v4/v4_api.py",
+        "v4/server/databento_roll_chain_audit.py",
+        "v4/server/economic_manual_import.py",
+        "v4/server/historical_roll_repair_plan.py",
+        "v4/server/historical_roll_repair_service.py",
+        "v4/server/legacy_continuous_roll_audit.py",
+        "v4/server/local_env_service.py",
+        "v4/server/maintenance_handler.py",
+        "v4/server/maintenance_service.py",
+        "v4/server/manifest_historical_roll_repair_service.py",
+        "v4/server/manifest_roll_repair_registry.py",
+        "v4/server/market_data_backup_service.py",
+        "v4/server/market_data_coverage_service.py",
+        "v4/server/roll_calendar_service.py",
+        "v4/server/roll_maintenance_service.py",
+        "v4/server/workspace_handler.py",
+        "v4/server/workspace_store.py"
+      ],
+      "requiredComponents": ["service.v4-market-data-read"],
+      "optionalComponents": [],
+      "writerSurfaces": ["legacyWorkspace", "localEnvironment", "marketDatabaseAppend"],
+      "independentHarnesses": ["v4/tests/backend-handler-boundary-smoke.py"]
+    },
+    {
+      "id": "deployment.linux",
+      "kind": "deployment",
+      "owner": "linux-host-transaction",
+      "entry": "v7/deploy/linux/install.sh",
+      "ownedPaths": ["v7/deploy/linux/"],
+      "requiredComponents": [
+        "service.v4-market-data-read",
+        "service.v7-web",
+        "service.v7-state",
+        "service.v7-database-import"
+      ],
+      "optionalComponents": [],
+      "writerSurfaces": [
+        "databaseFileMetadata",
+        "hostServiceConfiguration",
+        "proxyConfiguration",
+        "releaseFilesystem"
+      ],
+      "independentHarnesses": [
+        "v7/tests/linux-deployment-script-harness.js",
+        "v7/tests/linux-host-transaction-harness.js"
+      ]
+    },
+    {
+      "id": "tooling.v7-architecture-baseline",
+      "kind": "tooling",
+      "owner": "architecture-governance",
+      "entry": "v7/scripts/refresh-production-architecture-baseline.mjs",
+      "ownedPaths": [
+        "v7/scripts/refresh-production-architecture-baseline.mjs",
+        "v7/scripts/refresh-production-source-quality-baseline.mjs"
+      ],
+      "requiredComponents": [],
+      "optionalComponents": [],
+      "writerSurfaces": ["architectureBaseline", "sourceQualityBaseline"],
+      "independentHarnesses": [
+        "v7/tests/production-architecture-harness.js",
+        "v7/tests/source-quality-harness.js"
+      ]
+    }
+  ],
+  "serviceUnitDirectory": "v7/deploy/linux/systemd",
+  "serviceUnits": [
+    {
+      "component": "service.v4-market-data-read",
+      "listenEndpoint": "127.0.0.1:8766",
+      "listenEvidence": {
+        "path": "v7/deploy/linux/install.sh",
+        "text": "V4_API_PORT=8766"
+      },
+      "template": "v7/deploy/linux/systemd/replay-lab-api.service.template",
+      "unitName": "replay-lab-api.service"
+    },
+    {
+      "component": "service.v7-state",
+      "listenEndpoint": "127.0.0.1:8767",
+      "listenEvidence": {
+        "path": "v7/deploy/linux/install.sh",
+        "text": "V7_STATE_PORT=8767"
+      },
+      "template": "v7/deploy/linux/systemd/replay-lab-state.service.template",
+      "unitName": "replay-lab-state.service"
+    },
+    {
+      "component": "service.v7-database-import",
+      "listenEndpoint": "127.0.0.1:8768",
+      "listenEvidence": {
+        "path": "v7/deploy/linux/install.sh",
+        "text": "V7_DATABASE_IMPORT_PORT=8768"
+      },
+      "template": "v7/deploy/linux/systemd/replay-lab-database-import.service.template",
+      "unitName": "replay-lab-database-import.service"
+    },
+    {
+      "component": "service.v7-web",
+      "listenEndpoint": "127.0.0.1:8007",
+      "listenEvidence": {
+        "path": "v7/deploy/linux/systemd/replay-lab-web.service.template",
+        "text": "serve.mjs 8007"
+      },
+      "template": "v7/deploy/linux/systemd/replay-lab-web.service.template",
+      "unitName": "replay-lab-web.service"
+    }
+  ],
+  "proxyConfigurationPaths": [
+    "v7/deploy/linux/caddy/Caddyfile.template",
+    "v7/deploy/linux/install.sh"
+  ],
+  "proxyRoutes": [
+    {
+      "activation": "always",
+      "configurationPath": "v7/deploy/linux/caddy/Caddyfile.template",
+      "id": "caddy.v4-market-data",
+      "matcher": "@v4_api",
+      "pathPattern": "/v4/*",
+      "sourceComponent": "deployment.linux",
+      "targetComponent": "service.v4-market-data-read",
+      "targetEndpoint": "127.0.0.1:8766"
+    },
+    {
+      "activation": "authenticated",
+      "configurationPath": "v7/deploy/linux/install.sh",
+      "id": "caddy.v7-state",
+      "matcher": "@state_api",
+      "pathPattern": "/v7/state/*",
+      "sourceComponent": "deployment.linux",
+      "targetComponent": "service.v7-state",
+      "targetEndpoint": "127.0.0.1:8767"
+    },
+    {
+      "activation": "authenticated-bootstrap",
+      "configurationPath": "v7/deploy/linux/install.sh",
+      "id": "caddy.v7-database-import",
+      "matcher": "@database_import",
+      "pathPattern": "/v7/database/*",
+      "sourceComponent": "deployment.linux",
+      "targetComponent": "service.v7-database-import",
+      "targetEndpoint": "127.0.0.1:8768"
+    },
+    {
+      "activation": "always",
+      "configurationPath": "v7/deploy/linux/caddy/Caddyfile.template",
+      "id": "caddy.v7-web",
+      "matcher": null,
+      "pathPattern": "/*",
+      "sourceComponent": "deployment.linux",
+      "targetComponent": "service.v7-web",
+      "targetEndpoint": "127.0.0.1:8007"
+    }
+  ],
+  "crossRuntimeSmokes": [
+    {
+      "capability": "read-only-boundary",
+      "component": "service.v4-market-data-read",
+      "path": "v4/scripts/read_api_deployment_smoke.py",
+      "runtime": "python",
+      "successText": "V4 deployed read-only API smoke: PASS"
+    },
+    {
+      "capability": "dataset-revision",
+      "component": "service.v4-market-data-read",
+      "path": "v4/tests/dataset-revision-cache-smoke.py",
+      "runtime": "python",
+      "successText": "dataset revision cache smoke passed"
+    }
+  ],
+  "writerInventories": {
+    "architectureBaseline": "tooling.v7-architecture-baseline",
+    "databaseFileMetadata": "deployment.linux",
+    "databaseImportStaging": "service.v7-database-import",
+    "hostServiceConfiguration": "deployment.linux",
+    "legacyWorkspace": "tooling.v4-maintenance",
+    "localEnvironment": "tooling.v4-maintenance",
+    "marketDatabaseActivation": "service.v7-database-import",
+    "marketDatabaseActivationLock": "service.v7-database-import",
+    "marketDatabaseAppend": "tooling.v4-maintenance",
+    "proxyConfiguration": "deployment.linux",
+    "releaseFilesystem": "deployment.linux",
+    "sourceQualityBaseline": "tooling.v7-architecture-baseline",
+    "userStateSqlite": "service.v7-state"
+  },
+  "writerEvidence": [
+    { "surface": "architectureBaseline", "path": "v7/scripts/refresh-production-architecture-baseline.mjs", "pattern": "writeFileSync" },
+    { "surface": "databaseFileMetadata", "path": "v7/deploy/linux/deploy-public-ip.sh", "pattern": "chown root:" },
+    { "surface": "databaseImportStaging", "path": "v7/server/database_import_store.py", "pattern": "staging_root" },
+    { "surface": "hostServiceConfiguration", "path": "v7/deploy/linux/install.sh", "pattern": "/etc/systemd/system" },
+    { "surface": "legacyWorkspace", "path": "v4/v4_api.py", "pattern": "write_workspace_document" },
+    { "surface": "localEnvironment", "path": "v4/v4_api.py", "pattern": "environment_write" },
+    { "surface": "marketDatabaseActivation", "path": "v7/server/database_import_store.py", "pattern": "os.link" },
+    { "surface": "marketDatabaseActivationLock", "path": "v7/server/database_import_store.py", "pattern": "activation_lock" },
+    { "surface": "marketDatabaseAppend", "path": "v4/v4_api.py", "pattern": "--write" },
+    { "surface": "proxyConfiguration", "path": "v7/deploy/linux/install.sh", "pattern": "/etc/caddy/Caddyfile" },
+    { "surface": "releaseFilesystem", "path": "v7/deploy/linux/install.sh", "pattern": "current.next" },
+    { "surface": "sourceQualityBaseline", "path": "v7/scripts/refresh-production-source-quality-baseline.mjs", "pattern": "writeFileSync" },
+    { "surface": "userStateSqlite", "path": "v7/server/state_store.py", "pattern": "BEGIN IMMEDIATE" }
+  ]
+}

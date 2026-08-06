@@ -14,6 +14,7 @@ export function createRevisionCache(now) {
     set(key, datasetRevision) {
       entries.set(key, { datasetRevision, cachedAtEpochMs: now() });
     },
+    delete(key) { entries.delete(key); },
     clear() { entries.clear(); },
   });
 }

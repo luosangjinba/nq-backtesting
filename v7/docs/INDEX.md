@@ -30,6 +30,12 @@ is corrected for direct-IP/runtime compatibility in
 operator path in `V7_LINUX_PUBLIC_IPV4_QUICK_DEPLOY_R10_3.md`. Authenticated
 cross-device state is bound by `V7_SERVER_STATE_SYNC_R10_8.md`, and clean-host
 CSV/DuckDB first-run setup is bound by `V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`.
+The 2026-08-06 full-code review and binding repair sequence are recorded in
+`V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md`; read it before changing any
+transaction, cache, state-sync, deployment, public-server, or production-gate
+boundary. Its automated closure evidence is
+`../sessions/session_20260806_r11_1_architecture_integrity_recovery.md`; the
+real-host and visual gates listed there remain open.
 None closes the ongoing phase-one overall acceptance pass. Read those before the normal
 implementation reading order below. The deferred
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and
@@ -139,14 +145,19 @@ Read in this order before V7 implementation work:
 90. `V7_LINUX_PUBLIC_IPV4_QUICK_DEPLOY_R10_3.md`
 91. `V7_SERVER_STATE_SYNC_R10_8.md`
 92. `V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`
-93. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
+93. `V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md`
+94. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-94. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
+95. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-95. `../TODO.md`
+96. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.
+Cross-process production ownership, service dependencies, host writers, and
+previously excluded Node/Python/V4/deployment paths live in
+`v7-deployed-runtime-manifest.json` and are enforced separately from the
+browser module graph.
 Critical rule lifecycle and activation metadata lives in
 `v7-harness-rules.json`.
 Foundation/unplanned-candidate interaction ownership and visible-completion metadata lives

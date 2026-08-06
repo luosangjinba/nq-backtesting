@@ -14,6 +14,8 @@ const apiTemplate = path.join(
   repositoryRoot,
   'v7/deploy/linux/systemd/replay-lab-api.service.template',
 );
+const readApiEntry = path.join(repositoryRoot, 'v4/read_api.py');
+const readApiHandler = path.join(repositoryRoot, 'v4/server/market_data_read_handler.py');
 const webTemplate = path.join(
   repositoryRoot,
   'v7/deploy/linux/systemd/replay-lab-web.service.template',
@@ -105,8 +107,12 @@ try {
   assert.match(quickHelp.stdout, /8768/);
   const quickSource = fs.readFileSync(quickDeployScript, 'utf8');
   assert.match(quickSource, /refusing to stop unknown PID/);
+  assert.match(quickSource, /"read_api\.py"/,
+    'quick deploy may replace the managed read-only V4 listener');
   assert.match(quickSource, /Browser password for \$auth_user/);
   assert.match(quickSource, /previous_umask="\$\(umask\)"[\s\S]*umask 077[\s\S]*umask "\$previous_umask"/);
+  assert.match(quickSource, /trap 'quick_deploy_exit "\$\?"' EXIT/,
+    'database metadata rollback must also run for explicit die/exit failures');
   assert.match(quickSource,
     /installer_arguments=\([\s\S]*--auth-password-file "\$password_file"[\s\S]*bash "\$installer" "\$\{installer_arguments\[@\]\}"/);
   const quickListenerStopSource = quickSource.match(
@@ -298,6 +304,8 @@ try {
   assert.match(installerSource, /-c 'import ensurepip'/,
     'Python discovery must reject interpreters whose Debian venv package is absent');
   assert.match(installerSource, /venv_runtime_ready\(\)/);
+  assert.match(installerSource, /venv_dir="\$release_dir\/\.venv"/,
+    'each immutable release must own its Python runtime');
   assert.match(installerSource, /-m venv --clear "\$venv_dir"/,
     'a failed partial virtualenv must be repaired on rerun');
   assert.match(installerSource, /already used outside \$unit; stop the legacy listener before apply/);
@@ -305,10 +313,20 @@ try {
   assert.match(installerSource, /import \/etc\/caddy\/replay-lab\.Caddyfile/);
   assert.match(installerSource, /combined Caddy configuration is invalid; restoring/);
   assert.match(installerSource, /write_caddy_default_sni/);
-  assert.match(installerSource, /chown -R root:"\$service_group" "\$venv_dir"/);
-  assert.match(installerSource, /chmod -R u=rwX,g=rX,o= "\$venv_dir"/);
   assert.match(installerSource, /chown -R root:"\$service_group" "\$release_dir"/);
   assert.match(installerSource, /chmod -R u=rwX,g=rX,o= "\$release_dir"/);
+  assert.match(installerSource, /replay_lab_host_transaction_begin/);
+  assert.match(installerSource, /replay_lab_host_transaction_commit/);
+  assert.match(installerSource, /trap 'handle_apply_error/,
+    'unexpected host mutation failures must enter the rollback boundary');
+  assert.match(installerSource, /replay_lab_quarantine_failed_release/,
+    'failed deployment must isolate a newly-created release before removing its partial runtime');
+  assert.match(installerSource, /verify_restored_service_health \|\| failed=1/,
+    'rollback must prove the local health contracts of previously active application services');
+  assert.match(installerSource, /preserve_incomplete_rollback_snapshot \|\| true/,
+    'an incomplete rollback must retain root-only transaction recovery evidence');
+  assert.match(installerSource, /cleanup_tmp_dir=0/,
+    'recovery snapshot failure must suppress unconditional temporary-evidence deletion');
   assert.match(installerSource, /V7_STATE_DB=%s\/state\/replay-lab-state\.sqlite3/);
   assert.match(installerSource, /require_managed_or_free_port 8767 replay-lab-state\.service/);
   assert.match(installerSource, /require_managed_or_free_port 8768 replay-lab-database-import\.service/);
@@ -316,8 +334,13 @@ try {
   assert.match(installerSource, /V7_DATABASE_IMPORT_ENABLED=%s/);
   const rollbackSource = installerSource.match(/^rollback_release\(\) \{[\s\S]*?^\}/m)?.[0];
   assert.ok(rollbackSource, 'release rollback must remain independently inspectable');
-  assert.match(rollbackSource,
-    /systemctl restart replay-lab-api\.service replay-lab-state\.service[\s\\\n]+replay-lab-database-import\.service replay-lab-web\.service/);
+  assert.match(rollbackSource, /restore_active_unit_states \|\| failed=1/,
+    'rollback must restore the exact pre-deploy active service set');
+  assert.match(rollbackSource, /quarantine_failed_release \|\| failed=1/,
+    'rollback must not leave a failed release in the immutable release namespace');
+  assert.match(installerSource, /capture_active_unit_states/);
+  assert.match(installerSource, /multi-user\.target\.wants\/\$unit/,
+    'systemd enablement links must belong to the host transaction');
   const defaultSniSource = installerSource.match(
     /^write_caddy_default_sni\(\) \{[\s\S]*?^\}/m,
   )?.[0];
@@ -368,7 +391,17 @@ try {
   assert.match(apiSource, /EnvironmentFile=\/etc\/replay-lab\/replay-lab\.env/);
   assert.match(apiSource, /ReadOnlyPaths=@@DATABASE_PARENT@@/);
   assert.match(apiSource, /@@STATE_ROOT@@\/state @@STATE_ROOT@@\/database-import/);
-  assert.match(apiSource, /v4\/v4_api\.py/);
+  assert.match(apiSource, /v4\/read_api\.py/);
+  assert.doesNotMatch(apiSource, /v4\/v4_api\.py/,
+    'deployed market-data service must not start the mutable local V4 entry');
+  const readApiEntrySource = fs.readFileSync(readApiEntry, 'utf8');
+  const readApiHandlerSource = fs.readFileSync(readApiHandler, 'utf8');
+  assert.doesNotMatch(readApiEntrySource, /(?:from|import)\s+v4_api/,
+    'deployed read-only entry must not import the mutable local V4 entry');
+  assert.doesNotMatch(readApiHandlerSource, /maintenance|workspace/i,
+    'deployed read-only handler must not depend on maintenance or workspace routes');
+  assert.match(readApiHandlerSource, /def do_POST\(self\):\s+self\._reject_mutation\(\)/);
+  assert.match(readApiHandlerSource, /def do_PUT\(self\):\s+self\._reject_mutation\(\)/);
   assert.match(webSource, /v7\/scripts\/serve\.mjs 8007/);
   assert.match(webSource, /EnvironmentFile=\/etc\/replay-lab\/replay-lab\.env/);
   assert.match(webSource, /ReadOnlyPaths=@@DATABASE_PARENT@@/);

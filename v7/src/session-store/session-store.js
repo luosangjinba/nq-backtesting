@@ -22,7 +22,14 @@ function fail(code, message) {
 }
 
 function requireRepository(repository) {
-  for (const method of ['insert', 'read', 'listSessionIds', 'compareAndSwap', 'remove']) {
+  for (const method of [
+    'insert',
+    'read',
+    'listSessionIds',
+    'compareAndSwap',
+    'compareAndSwapReversible',
+    'remove',
+  ]) {
     if (typeof repository?.[method] !== 'function') {
       fail('INVALID_SESSION_REPOSITORY', `Session repository must implement ${method}().`);
     }
@@ -79,6 +86,26 @@ export function createSessionStore({ repository, migrations = {} }) {
       fail('SESSION_REVISION_MISMATCH', 'Session record and repository revisions disagree.');
     }
     return record;
+  }
+
+  function workspaceCheckpointUpdate(sessionId, {
+    checkpoint,
+    layout,
+    layoutSync,
+    nowEpochMs,
+  }) {
+    const current = requireExisting(sessionId);
+    const next = SESSION_RECORD_INTERNALS.freezeRecord({
+      ...current,
+      revision: current.revision + 1,
+      metadata: { ...current.metadata, updatedAtEpochMs: nowEpochMs },
+      workspace: configuredWorkspace(current, {
+        checkpoint: serializeWorkspaceCheckpoint(checkpoint),
+        layoutSync: serializeLayoutSync(layoutSync),
+        paneLayout: serializePaneLayout(layout),
+      }),
+    });
+    return Object.freeze({ current, next });
   }
 
   return Object.freeze({
@@ -141,19 +168,38 @@ export function createSessionStore({ repository, migrations = {} }) {
       layoutSync,
       nowEpochMs,
     }) {
-      const current = requireExisting(sessionId);
-      const next = SESSION_RECORD_INTERNALS.freezeRecord({
-        ...current,
-        revision: current.revision + 1,
-        metadata: { ...current.metadata, updatedAtEpochMs: nowEpochMs },
-        workspace: configuredWorkspace(current, {
-          checkpoint: serializeWorkspaceCheckpoint(checkpoint),
-          layoutSync: serializeLayoutSync(layoutSync),
-          paneLayout: serializePaneLayout(layout),
-        }),
+      const { current, next } = workspaceCheckpointUpdate(sessionId, {
+        checkpoint, layout, layoutSync, nowEpochMs,
       });
       port.compareAndSwap(sessionId, current.revision, serializeSessionRecord(next));
       return next;
+    },
+    saveWorkspaceCheckpointReversible(sessionId, {
+      checkpoint,
+      layout,
+      layoutSync,
+      nowEpochMs,
+    }) {
+      const { current, next } = workspaceCheckpointUpdate(sessionId, {
+        checkpoint, layout, layoutSync, nowEpochMs,
+      });
+      const persistence = port.compareAndSwapReversible(
+        sessionId,
+        current.revision,
+        serializeSessionRecord(next),
+      );
+      return Object.freeze({
+        finalize() {
+          persistence.finalize();
+          return next;
+        },
+        record: next,
+        rollback() {
+          persistence.rollback();
+          return current;
+        },
+        snapshot: persistence.snapshot,
+      });
     },
   });
 }

@@ -36,19 +36,6 @@ function assertCurrent(state, identity) {
   }
 }
 
-function safeReject(replayPort, proposal) {
-  if (proposal === null) return;
-  try {
-    replayPort.reject(proposal);
-  } catch {
-    // Rejection is cleanup only and cannot replace the transaction terminal result.
-  }
-}
-
-function safeCleanup(method, value) {
-  try { method(value); } catch { /* Cleanup cannot replace the terminal result. */ }
-}
-
 function requireSynchronous(result, participant, operation) {
   if (result && typeof result.then === 'function') {
     throw new WorkspaceTransactionRuntimeError(
@@ -154,26 +141,99 @@ async function applyPreparedTransaction({ description, prepared, state }) {
   for (const entry of prepared.participants.slice(1)) {
     entry.receipt = requireSynchronous(entry.handle.apply(), entry.participant, 'apply');
   }
-  // Protected invariant — atomic-commit: every non-Chart owner applies and all
-  // participants finalize in the same synchronous turn after the Chart paint gate.
-  for (const entry of prepared.participants) {
-    requireSynchronous(entry.handle.finalize(entry.receipt), entry.participant, 'finalize');
-  }
 }
 
 async function rollbackPreparedTransaction(prepared) {
-  if (prepared === null) return;
+  const failures = [];
+  if (prepared === null) return failures;
   for (const entry of [...prepared.participants].reverse()) {
-    const status = entry.handle.snapshot().status;
+    let status;
+    try {
+      status = entry.handle.snapshot().status;
+    } catch (error) {
+      failures.push(Object.freeze({ error, participant: entry.participant }));
+      continue;
+    }
     if (status !== 'prepared' && status !== 'applied') continue;
     try {
       const result = entry.handle.rollback(status === 'applied' ? entry.receipt : null);
       if (entry.participant === 'chart') await result;
       else requireSynchronous(result, entry.participant, 'rollback');
-    } catch {
-      // Continue restoring every other owner; the first transaction failure remains authoritative.
+    } catch (error) {
+      failures.push(Object.freeze({ error, participant: entry.participant }));
     }
   }
+  return failures;
+}
+
+function recordCleanupFailure(failures, participant, operation, callback) {
+  try {
+    requireSynchronous(callback(), participant, operation);
+  } catch (error) {
+    failures.push(Object.freeze({ error, participant }));
+  }
+}
+
+async function restoreRejectedTransaction({ description, ports, prepared, proposal, state }) {
+  const failures = await rollbackPreparedTransaction(prepared);
+  if (proposal !== null) {
+    recordCleanupFailure(failures, 'replay', 'reject', () => ports.replayPort.reject(proposal));
+  }
+  recordCleanupFailure(
+    failures,
+    'workspace-state',
+    'reject',
+    () => ports.workspaceStatePort.reject(description.identity),
+  );
+  recordCleanupFailure(
+    failures,
+    'publication',
+    'reject',
+    () => ports.publicationPort.reject(description.identity),
+  );
+  if (failures.length > 0) state.poison('workspace-transaction-recovery-failed');
+  return failures;
+}
+
+function finalizePreparedTransaction({ description, prepared, state }) {
+  const publication = prepared.participants.find(({ participant }) => participant === 'publication');
+  const remaining = prepared.participants.filter(({ participant }) => participant !== 'publication');
+  const failures = [];
+
+  // Protected invariant — atomic-commit: publication publishes the accepted
+  // coordinator snapshot first and is the sole irreversible decision point.
+  // Failures before that point roll every participant back. Failures after it
+  // cannot truthfully change the terminal result from committed; all remaining
+  // owners receive a finalization attempt and the activation is poisoned when
+  // any owner cannot prove completion.
+  try {
+    requireSynchronous(
+      publication.handle.finalize(publication.receipt),
+      publication.participant,
+      'finalize',
+    );
+  } catch (error) {
+    if (!state.isDecisionCommitted(description.identity)) throw error;
+    failures.push(Object.freeze({ error, participant: publication.participant }));
+  }
+
+  if (!state.isDecisionCommitted(description.identity)) {
+    state.poison('workspace-transaction-decision-missing');
+    throw new WorkspaceTransactionRuntimeError(
+      'WORKSPACE_TRANSACTION_COMMIT_DECISION_MISSING',
+      'Publication finalized without publishing the Workspace commit decision.',
+    );
+  }
+
+  for (const entry of remaining) {
+    try {
+      requireSynchronous(entry.handle.finalize(entry.receipt), entry.participant, 'finalize');
+    } catch (error) {
+      failures.push(Object.freeze({ error, participant: entry.participant }));
+    }
+  }
+  if (failures.length > 0) state.poison('workspace-transaction-finalize-failed');
+  return failures;
 }
 
 function failureTerminal({ description, error, plan, state }) {
@@ -200,21 +260,28 @@ export async function executeWorkspaceTransaction({ input, intent, ports, semant
   const record = state.begin(description.identity);
   const plan = createWorkspaceTransactionPlan(intent);
   let prepared = { participants: [], proposal: null, workspaceSnapshot: null };
-  let committed = false;
+  let decisionCommitted = false;
   try {
     await prepareTransaction({
       description, immutableInput, ports, prepared, record, semantic, state,
     });
     await applyPreparedTransaction({ description, prepared, state });
-    committed = true;
+    finalizePreparedTransaction({ description, prepared, state });
+    decisionCommitted = true;
     return settleWorkspaceTransaction(plan, { status: 'committed' });
   } catch (error) {
-    if (!committed) {
-      await rollbackPreparedTransaction(prepared);
-      safeReject(ports.replayPort, record.proposal);
-      safeCleanup(ports.workspaceStatePort.reject.bind(ports.workspaceStatePort), description.identity);
-      safeCleanup(ports.publicationPort.reject.bind(ports.publicationPort), description.identity);
+    decisionCommitted = decisionCommitted || state.isDecisionCommitted(description.identity);
+    if (decisionCommitted) {
+      state.poison('workspace-transaction-finalize-failed');
+      return settleWorkspaceTransaction(plan, { status: 'committed' });
     }
+    await restoreRejectedTransaction({
+      description,
+      ports,
+      prepared,
+      proposal: record.proposal,
+      state,
+    });
     return failureTerminal({ description, error, plan, state });
   } finally {
     state.finish(record);

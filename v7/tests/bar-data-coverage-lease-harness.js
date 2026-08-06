@@ -159,6 +159,32 @@ assert.equal(owner.oldestCoverageEpochMs('pane-main'), null,
   'inactive consumers release their accepted coverage');
 owner.dispose();
 
+const revisionOwner = runtime({ requestRawBars: (rawRequest) => batch(rawRequest) });
+const revisionOneRequest = request(5_000, 7_000);
+const revisionOneLease = await revisionOwner.acquireCoverageLease({
+  consumerId: 'pane-main',
+  identity: identity(30),
+  operation: 'source-replacement',
+  request: revisionOneRequest,
+  signal: new AbortController().signal,
+});
+revisionOwner.commitCoverageLeases({ activeConsumerIds: ['pane-main'], leases: [revisionOneLease] });
+const revisionTwoRequest = Object.freeze({
+  ...request(3_000, 5_000),
+  datasetRevision: 'dataset-r2',
+});
+const revisionTwoLease = await revisionOwner.acquireCoverageLease({
+  consumerId: 'pane-main',
+  identity: identity(31),
+  operation: 'history-extension',
+  request: revisionTwoRequest,
+  signal: new AbortController().signal,
+});
+assert.deepEqual(revisionTwoLease.requests, [revisionTwoRequest],
+  'a new dataset revision must replace accepted coverage instead of joining old cached windows');
+revisionOwner.commitCoverageLeases({ activeConsumerIds: ['pane-main'], leases: [revisionTwoLease] });
+revisionOwner.dispose();
+
 const gate = deferred();
 let delayedCalls = 0;
 const delayed = runtime({

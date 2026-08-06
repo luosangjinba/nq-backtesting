@@ -599,6 +599,31 @@ R8.13–R8.15.
   `V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`.
 - `R10.10`: correct Debian/Ubuntu Python readiness by requiring importable
   `ensurepip`, allowing package planning to install the matching distribution
-  venv package, and recreating an incomplete shared environment with
-  `venv --clear`; implemented after a clean host exposed the false-positive
-  `python -m venv --help` probe and awaiting that host's rerun.
+  venv package; R11 supersedes its incomplete shared-environment repair with a
+  release-owned `.venv` and failed-release quarantine. The affected host still
+  awaits a deployment/rollback rerun.
+
+## R11 — Architecture Integrity Recovery
+
+The 2026-08-06 full-code review reopened architecture integrity under V7's
+original modularity standard. R11 repairs semantic transaction recovery,
+transaction-scoped temporary state, authoritative dataset revision, atomic
+state hydration, complete host rollback, explicit public assets, independently
+composed administration capabilities, and cross-runtime production governance.
+The binding sequence and acceptance conditions live in
+`V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md`.
+
+R11 does not invalidate the useful R8 browser module graph, but R8's static
+zero-finding result cannot close R11 because it did not cover deployed Python,
+Node service, V4 provider, and Linux deployment boundaries or real finalize /
+rollback semantics.
+
+### R11.1 — Cross-Runtime Integrity Recovery
+
+R11.1 delivers the binding recovery workstreams as one inseparable architecture
+change. All workstreams and negative controls pass together, and automated
+repository recovery is closed by
+`sessions/session_20260806_r11_1_architecture_integrity_recovery.md`. Real-host
+rollback, cross-device synchronization, and the three retained full-sweep
+visual scenarios remain explicit human gates, so repository implementation
+does not close phase-one overall acceptance.

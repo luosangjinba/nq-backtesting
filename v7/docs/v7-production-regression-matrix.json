@@ -1,7 +1,30 @@
 {
   "schemaVersion": 1,
-  "status": "accepted",
-  "humanAcceptanceEvidence": "sessions/session_20260731_r8_15_human_acceptance_zero_debt.md",
+  "status": "known-failures",
+  "humanAcceptanceEvidence": null,
+  "knownFailures": [
+    {
+      "scenarioId": "session-create-open-browser",
+      "bugId": "BUG-V7-VISUAL-SESSION-DATE-PICKER",
+      "outputPattern": "date-time-picker-open visual fixture changed",
+      "evidence": "sessions/session_20260805_r10_9_database_bootstrap_import.md"
+    },
+    {
+      "scenarioId": "replay-navigation-browser",
+      "bugId": "BUG-V7-VISUAL-PANE-MIXED",
+      "outputPattern": "multi-mixed-1440x900\\.png visual pixels changed",
+      "evidence": "sessions/session_20260805_r10_9_database_bootstrap_import.md"
+    }
+  ],
+  "runtimeDependencies": {
+    "v4ReadApi": {
+      "baseUrl": "http://127.0.0.1:8766",
+      "healthPath": "/v4/health",
+      "requiredRevisionField": "datasetRevision",
+      "startEntry": "v4/read_api.py",
+      "databaseEnvironmentVariable": "V4_TRADING_DB"
+    }
+  },
   "executionPolicy": {
     "requiredAxes": [
       "paneCount",

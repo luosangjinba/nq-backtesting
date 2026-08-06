@@ -1,6 +1,6 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule (R10.3 Linux public-IPv4 quick deploy, 2026-08-05)
+Status: binding delivery rule (R11.1 automated recovery closed, 2026-08-06)
 
 ## Delivery IDs
 
@@ -20,12 +20,14 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current repository-changing delivery step is `R10.3`, the real-host Linux
-direct-IP quick-deploy wrapper. R8 remains closed at R8.16 commit
-`364c6b27`; R9.1–R9.4 retain their recorded implementation and human-review
-states, and the phase-one overall checklist remains open. R10.3 is exactly one
-commit and stops for the Alibaba Linux rerun. Broad `R<n>` headings
-remain milestones only.
+The current repository-changing delivery step is `R11.1`, the cross-runtime
+architecture-integrity recovery opened and automatically closed by the
+2026-08-06 review. R8 remains
+closed at R8.16 commit `364c6b27`; R9.1–R9.4 and R10.1–R10.10 retain their
+recorded implementation and human-review states, and the phase-one overall
+checklist and H087/H088/H091 remain open. R11.1 is one recovery commit with inseparable W1–W8
+workstreams; those workstream labels are not delivery IDs. Broad `R<n>`
+headings remain milestones only.
 
 ## Other Stable IDs
 

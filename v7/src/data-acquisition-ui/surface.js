@@ -1,5 +1,4 @@
 import { createMaintenanceClient } from './maintenance-client.js';
-import { createDatabaseImportPanel, databaseImportTemplate } from './database-import-panel.js';
 import { createRollCalendarPanel, rollCalendarTemplate } from './roll-calendar-panel.js';
 import { createAcquisitionWorkflow, parseOutputMetric } from './workflow-state.js';
 
@@ -22,7 +21,7 @@ function formatNumber(value) {
   return new Intl.NumberFormat('en-US').format(Number(value) || 0);
 }
 
-function template() {
+function template(databaseBootstrapApi) {
   return `
     <div class="data-admin-shell">
       <aside class="data-admin-rail" aria-label="Admin navigation">
@@ -49,7 +48,7 @@ function template() {
         </header>
 
         <div class="data-admin-content">
-          ${databaseImportTemplate()}
+          ${databaseBootstrapApi?.databaseImportTemplate?.() ?? ''}
           <section class="data-admin-section" aria-labelledby="coverageTitle">
             <div class="data-admin-section-heading">
               <div><h2 id="coverageTitle">Authoritative coverage</h2><p>Read-only DuckDB state. Duplicate timestamps are a hard stop.</p></div>
@@ -115,6 +114,12 @@ function requireRoot(root) {
 export function createDataAcquisitionSurface(options) {
   const root = requireRoot(options.root);
   const client = options.client ?? createMaintenanceClient(options.clientOptions);
+  const databaseBootstrapApi = options.databaseBootstrapApi ?? null;
+  if (databaseBootstrapApi !== null
+    && (typeof databaseBootstrapApi.createDatabaseImportPanel !== 'function'
+      || typeof databaseBootstrapApi.databaseImportTemplate !== 'function')) {
+    throw new TypeError('Database bootstrap capability must expose its public panel contract.');
+  }
   const abortController = new AbortController();
   const defaultEnd = easternInput();
   const defaultStart = easternInput(new Date(Date.now() - 24 * 60 * 60 * 1000));
@@ -126,7 +131,7 @@ export function createDataAcquisitionSurface(options) {
   let rollPanel = null;
   let databaseImportPanel = null;
 
-  root.innerHTML = template();
+  root.innerHTML = template(databaseBootstrapApi);
   const find = (selector) => root.querySelector(selector);
   const controls = {
     instrument: find('#instrument'), start: find('#start'), end: find('#end'), chunkDays: find('#chunkDays'),
@@ -310,13 +315,15 @@ export function createDataAcquisitionSurface(options) {
       await refreshStatus();
     },
   });
-  databaseImportPanel = createDatabaseImportPanel({
-    root,
-    client: options.databaseImportClient,
-    async onActivated() {
-      await refreshStatus({ resetStart: true });
-    },
-  });
+  if (databaseBootstrapApi !== null) {
+    databaseImportPanel = databaseBootstrapApi.createDatabaseImportPanel({
+      root,
+      client: options.databaseImportClient,
+      async onActivated() {
+        await refreshStatus({ resetStart: true });
+      },
+    });
+  }
 
   async function runWorkflowAction(action) {
     let taskStarted = false;

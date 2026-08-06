@@ -1,18 +1,19 @@
 {
   "schemaVersion": 2,
-  "currentStep": "R10.3",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15", "R8.16", "R9", "R9.1", "R9.2", "R9.3", "R9.4", "R10", "R10.1", "R10.2", "R10.3"],
+  "currentStep": "R11.1",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15", "R8.16", "R9", "R9.1", "R9.2", "R9.3", "R9.4", "R10", "R10.1", "R10.2", "R10.3", "R10.4", "R10.5", "R10.6", "R10.7", "R10.8", "R10.9", "R10.10", "R11", "R11.1"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
     "active": false,
-    "milestone": "R8",
-    "plan": "docs/V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md",
-    "checkpointCommit": "fa561599",
+    "milestone": "R11",
+    "plan": "docs/V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md",
+    "checkpointCommit": "6a101270ed68c4b0c094952bea9edb58baaf6bb0",
     "allowedWork": "normal-delivery",
     "freezeFeatureDelivery": false,
     "regressedRuleIds": [],
-    "closureStep": "R8.15",
-    "closureEvidence": "sessions/session_20260731_r8_15_human_acceptance_zero_debt.md"
+    "requiredClosureStep": "R11.1",
+    "closureStep": "R11.1",
+    "closureEvidence": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md"
   },
   "rules": [
     {
@@ -1604,12 +1605,14 @@
         "src/bar-data-runtime/bar-data-runtime.js",
         "src/bar-data-runtime/coverage-lease-runtime.js",
         "src/bar-data-runtime/raw-coverage-store.js",
+        "src/bar-data-runtime/projected-history-runtime.js",
         "src/raw-coverage-lease-contract/public.js",
         "src/raw-coverage-lease-contract/module.json",
         "src/raw-coverage-lease-contract/scope-contract.js",
         "src/raw-coverage-lease-contract/lease-contract.js",
         "tests/raw-coverage-lease-contract-harness.js",
         "tests/bar-data-coverage-lease-harness.js",
+        "tests/projected-history-runtime-harness.js",
         "docs/v7-architecture-manifest.json",
         "docs/v7-production-architecture-baseline.json",
         "tests/production-architecture-harness.js",
@@ -1620,7 +1623,10 @@
         "tests/fixtures/production-architecture/negative/cases.json"
       ],
       "humanReviewRequired": false,
-      "acceptanceEvidence": "sessions/session_20260730_r8_5_sole_bar_data_retention_owner.md"
+      "acceptanceEvidence": "sessions/session_20260730_r8_5_sole_bar_data_retention_owner.md",
+      "regressionEvidence": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md",
+      "recoveryStep": "R11.1",
+      "recoveryEvidence": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md"
     },
     {
       "id": "H075",
@@ -1666,6 +1672,8 @@
         "src/workspace-state-runtime/prepared-workspace-state-commit.js",
         "src/workspace-transaction-runtime/prepared-publication.js",
         "src/workspace-transaction-runtime/transaction-executor.js",
+        "src/session-persistence/reversible-session-write.js",
+        "src/replay-workspace-composition/workspace-checkpoint-persistence.js",
         "src/lightweight-chart-adapter/pane-set-adapter.js",
         "tests/prepared-commit-contract-harness.js",
         "tests/pane-set-materialization-harness.js",
@@ -1678,7 +1686,10 @@
         "tests/fixtures/workspace-transaction-runtime/negative/global-atomic-cases.json"
       ],
       "humanReviewRequired": false,
-      "acceptanceEvidence": "sessions/session_20260730_r8_9_global_atomic_workspace_transaction.md"
+      "acceptanceEvidence": "sessions/session_20260730_r8_9_global_atomic_workspace_transaction.md",
+      "regressionEvidence": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md",
+      "recoveryStep": "R11.1",
+      "recoveryEvidence": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md"
     },
     {
       "id": "H077",
@@ -1840,6 +1851,173 @@
       ],
       "negativeFixtures": [
         "tests/fixtures/linux-deployment/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "H084",
+      "name": "workspace-decision-recovery-and-transaction-scoped-temporary-state",
+      "owner": "workspace-transaction-runtime",
+      "v6FailurePrevented": "post-publication cleanup was reported as a failed transaction and rollback or shared leases could corrupt a newer workspace",
+      "activationStep": "R11.1",
+      "state": "accepted",
+      "harness": "tests/workspace-global-atomic-commit-harness.js",
+      "positiveEvidence": [
+        "docs/V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md",
+        "src/workspace-transaction-runtime/transaction-executor.js",
+        "src/bar-data-runtime/projected-history-runtime.js",
+        "tests/workspace-transaction-runtime-harness.js",
+        "tests/workspace-global-atomic-commit-harness.js",
+        "tests/projected-history-runtime-harness.js"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/workspace-transaction-runtime/negative/global-atomic-cases.json"
+      ],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md"
+    },
+    {
+      "id": "H085",
+      "name": "authoritative-market-dataset-revision",
+      "owner": "bar-data-runtime",
+      "v6FailurePrevented": "immutable cache labels allowed bars from different DuckDB activations to coexist under one provider identity",
+      "activationStep": "R11.1",
+      "state": "accepted",
+      "harness": "tests/v4-bars-provider-adapter-harness.js",
+      "positiveEvidence": [
+        "../v4/server/market_data_revision.py",
+        "../v4/tests/dataset-revision-cache-smoke.py",
+        "src/provider-execution-runtime/revision-cache.js",
+        "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+        "tests/provider-execution-runtime-harness.js",
+        "tests/v4-bars-provider-adapter-harness.js"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/market-dataset-revision/negative/cases.json"
+      ],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md"
+    },
+    {
+      "id": "H086",
+      "name": "replicated-state-hydration-local-atomicity",
+      "owner": "session-state-replication",
+      "v6FailurePrevented": "a Web Storage failure left a partially hydrated device while the synchronizer reported conflict or acceptance",
+      "activationStep": "R11.1",
+      "state": "accepted",
+      "harness": "tests/server-state-sync-harness.js",
+      "positiveEvidence": [
+        "src/server-state-sync/snapshot.js",
+        "src/server-state-sync/state-sync-client.js",
+        "tests/server-state-sync-harness.js"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/server-state-sync/negative/cases.json"
+      ],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md"
+    },
+    {
+      "id": "H087",
+      "name": "linux-host-transaction-and-versioned-runtime",
+      "owner": "linux-host-transaction",
+      "v6FailurePrevented": "a failed deployment mutated the shared Python runtime, unit files, proxy, permissions, enablement, or active service set behind the restored current link",
+      "activationStep": "R11.1",
+      "state": "executable",
+      "harness": "tests/linux-host-transaction-harness.js",
+      "positiveEvidence": [
+        "deploy/linux/lib/host-transaction.sh",
+        "deploy/linux/install.sh",
+        "deploy/linux/deploy-public-ip.sh",
+        "tests/linux-host-transaction-harness.js",
+        "tests/linux-deployment-script-harness.js"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/linux-deployment/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "H088",
+      "name": "reviewed-static-surface-and-removable-database-bootstrap",
+      "owner": "application-composition",
+      "v6FailurePrevented": "the web service exposed repository internals and one unavailable administration capability disabled unrelated maintenance UI",
+      "activationStep": "R11.1",
+      "state": "executable",
+      "harness": "tests/production-application-host-browser-harness.js",
+      "positiveEvidence": [
+        "scripts/static-server.mjs",
+        "src/database-bootstrap-ui/public.js",
+        "src/data-acquisition-application/application-definition.js",
+        "tests/static-server-public-surface-harness.js",
+        "tests/database-bootstrap-ui-harness.js",
+        "tests/production-application-host-browser-harness.js"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/production-application-host/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "H089",
+      "name": "deployed-cross-runtime-owner-topology",
+      "owner": "architecture-governance",
+      "v6FailurePrevented": "browser-only architecture evidence excluded Node, Python, V4, deployment, and their persistent writers",
+      "activationStep": "R11.1",
+      "state": "accepted",
+      "harness": "tests/deployed-runtime-architecture-harness.js",
+      "positiveEvidence": [
+        "docs/v7-deployed-runtime-manifest.json",
+        "../v4/read_api.py",
+        "../v4/server/market_data_read_handler.py",
+        "../v4/scripts/read_api_deployment_smoke.py",
+        "tests/support/deployed-runtime-architecture-validator.js",
+        "tests/deployed-runtime-architecture-harness.js"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/deployed-runtime-architecture/negative/cases.json"
+      ],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md"
+    },
+    {
+      "id": "H090",
+      "name": "sole-writer-policy-inventory-evidence-closure",
+      "owner": "architecture-governance",
+      "v6FailurePrevented": "declared writer ownership passed with missing detectors, false factory matches, or zero observed write sites",
+      "activationStep": "R11.1",
+      "state": "accepted",
+      "harness": "tests/production-writer-closure-harness.js",
+      "positiveEvidence": [
+        "docs/v7-production-writer-policy.json",
+        "tests/support/production-architecture-analyzer.js",
+        "tests/support/production-architecture-validator.js",
+        "tests/production-writer-closure-harness.js"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/production-architecture/negative/cases.json"
+      ],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md"
+    },
+    {
+      "id": "H091",
+      "name": "production-regression-matrix-executes-evidence",
+      "owner": "test-governance",
+      "v6FailurePrevented": "a manually labelled matrix stayed accepted while its referenced browser harnesses were failing",
+      "activationStep": "R11.1",
+      "state": "executable",
+      "harness": "tests/production-regression-matrix-harness.js",
+      "positiveEvidence": [
+        "docs/v7-production-regression-matrix.json",
+        "tests/support/production-regression-matrix-validator.js",
+        "tests/production-regression-matrix-harness.js"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/production-regression-matrix/negative/cases.json"
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": null

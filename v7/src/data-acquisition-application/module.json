@@ -5,7 +5,7 @@
   "owner": "application-composition",
   "publicEntry": "src/data-acquisition-application/public.js",
   "requiredPorts": ["adapter.data-acquisition-ui"],
-  "optionalPorts": [],
+  "optionalPorts": ["adapter.database-bootstrap-ui"],
   "lifecycle": ["start", "stop", "dispose"],
   "independentHarness": "tests/production-application-host-browser-harness.js",
   "removable": false

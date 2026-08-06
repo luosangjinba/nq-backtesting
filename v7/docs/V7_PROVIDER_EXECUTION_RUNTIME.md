@@ -1,6 +1,6 @@
 # V7 Provider Execution Runtime
 
-Status: R3.2b3 deterministic fake-provider execution boundary (2026-07-20)
+Status: R11.1 authoritative dataset-revision boundary implemented
 
 ## Responsibility
 
@@ -18,6 +18,19 @@ The wrapper owns only provider-operational state:
 - batch/coverage response validation and exact identity matching;
 - last validated exact-window coverage reports;
 - deterministic disposal and propagation of caller/root abort signals.
+
+## R11.1 Dataset Revision Contract
+
+V4 health discovers a revision derived from the authoritative DuckDB main
+file, WAL, and `futures_1m` table identity. Raw-bars and projected-history
+requests carry the expected revision; V4 returns `409` before querying when it
+does not match and verifies again after querying so a mutation cannot publish a
+mixed result. Every successful response repeats the exact revision.
+
+The provider revision cache is an optimization only. A `409` or response
+revision mismatch clears it immediately. Raw and projected cache keys include
+that revision, so activation of a different database can never reuse evidence
+from the previous file under a fixed product constant.
 
 ## Automatic Plan Acquisition
 

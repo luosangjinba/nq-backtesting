@@ -8,7 +8,6 @@ import {
 import {
   createV4BarsAdapter,
   createV4ProjectedHistoryProvider,
-  V4_BARS_DATASET_REVISION,
   V4_BARS_PROVIDER_ID,
   V4_PROJECTED_HISTORY_PROVIDER_ID,
 } from '../src/v4-bars-provider-adapter/public.js';
@@ -16,6 +15,11 @@ import {
 const capabilities = createFoundationCapabilities();
 const rawProvider = createV4BarsAdapter();
 const projectedProvider = createV4ProjectedHistoryProvider();
+const datasetRevision = await rawProvider.resolveDatasetRevision({
+  instrumentId: FOUNDATION_IDS.instrument,
+  providerId: V4_BARS_PROVIDER_ID,
+  sourceResolutionId: FOUNDATION_IDS.resolution,
+});
 const durationMs = 240 * 60_000;
 const startEpochMs = Date.parse('2025-10-20T00:00:00Z');
 const windowEndEpochMs = Date.parse('2025-11-20T04:00:00Z');
@@ -27,7 +31,7 @@ for (const sessionHoursMode of ['eth', 'rth']) {
     timeframeId: 'timeframe.display-4-hour',
   });
   const raw = (await rawProvider.requestRawBars(createRawBarRequest({
-    datasetRevision: V4_BARS_DATASET_REVISION,
+    datasetRevision,
     instrumentId: FOUNDATION_IDS.instrument,
     providerId: V4_BARS_PROVIDER_ID,
     schemaVersion: 1,
@@ -53,7 +57,7 @@ for (const sessionHoursMode of ['eth', 'rth']) {
     alignmentKind: 'fixed-duration',
     alignmentPolicyId: null,
     calendarRevision: selection.calendar.revision,
-    datasetRevision: V4_BARS_DATASET_REVISION,
+    datasetRevision,
     displayTimeframeId: selection.displayTimeframe.id,
     durationMs,
     instrumentId: FOUNDATION_IDS.instrument,
@@ -79,7 +83,7 @@ for (const sessionHoursMode of ['eth', 'rth']) {
     const calendarStartEpochMs = capabilities.historyPlanning(selection)
       .alignStartEpochMs(Date.parse('2025-10-15T16:00:00Z'));
     const raw = (await rawProvider.requestRawBars(createRawBarRequest({
-      datasetRevision: V4_BARS_DATASET_REVISION,
+      datasetRevision,
       instrumentId: FOUNDATION_IDS.instrument,
       providerId: V4_BARS_PROVIDER_ID,
       schemaVersion: 1,
@@ -105,7 +109,7 @@ for (const sessionHoursMode of ['eth', 'rth']) {
       alignmentKind: 'calendar',
       alignmentPolicyId: selection.displayTimeframe.alignment.policyId,
       calendarRevision: selection.calendar.revision,
-      datasetRevision: V4_BARS_DATASET_REVISION,
+      datasetRevision,
       displayTimeframeId: selection.displayTimeframe.id,
       durationMs: null,
       instrumentId: FOUNDATION_IDS.instrument,

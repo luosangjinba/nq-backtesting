@@ -133,14 +133,17 @@ class SessionBrowserController {
           this.openedSessionSurface.mount({
             initialNavigationSettings: this.replayNavigationPreferences.snapshot(),
             onBack: this.actions.onBack,
-            onPersistWorkspaceCheckpoint: ({ checkpoint, layout, layoutSync }) => (
-              this.store.saveWorkspaceCheckpoint(record.sessionId, {
+            onPersistWorkspaceCheckpoint: ({ checkpoint, layout, layoutSync, reversible = false }) => {
+              const input = {
                 checkpoint,
                 layout,
                 layoutSync,
                 nowEpochMs: this.now(),
-              })
-            ),
+              };
+              return reversible
+                ? this.store.saveWorkspaceCheckpointReversible(record.sessionId, input)
+                : this.store.saveWorkspaceCheckpoint(record.sessionId, input);
+            },
             onPersistReplayNavigationSettings: (settings) => this.replayNavigationPreferences.save(settings),
             record,
             root: this.root.querySelector('.replay-workspace-slot'),

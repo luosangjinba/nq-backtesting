@@ -47,14 +47,32 @@ class PreparedPublicationValue {
         resultingRevision: snapshot.targetRevision,
       });
     } catch (error) {
-      try { requireSynchronous(this.#port.rollback(this.#stage), 'rollback'); } catch { /* Preserve apply failure. */ }
+      let recoveryFailure = null;
+      try {
+        requireSynchronous(this.#port.rollback(this.#stage), 'rollback');
+      } catch (rollbackError) {
+        recoveryFailure = rollbackError;
+      }
+      if (recoveryFailure !== null) {
+        throw new WorkspaceTransactionRuntimeError(
+          'WORKSPACE_PUBLICATION_RECOVERY_FAILED',
+          'Publication apply failed and its accepted state could not be restored.',
+          { cause: new AggregateError([error, recoveryFailure]) },
+        );
+      }
       try {
         this.#contract.rollback({
           commitReceipt: null,
           identity: this.#identity,
           resultingRevision: snapshot.baseRevision,
         });
-      } catch { /* Owner apply may already have crossed the branded boundary. */ }
+      } catch (rollbackError) {
+        throw new WorkspaceTransactionRuntimeError(
+          'WORKSPACE_PUBLICATION_RECOVERY_FAILED',
+          'Publication owner restored, but its prepared lifecycle could not roll back.',
+          { cause: new AggregateError([error, rollbackError]) },
+        );
+      }
       throw error;
     }
   }
@@ -70,16 +88,21 @@ class PreparedPublicationValue {
     const snapshot = this.#contract.snapshot();
     requireMatchingPreparedCommitReceipt(commitReceipt, this.#contract);
     this.#state.requirePublishable(this.#identity, snapshot.baseRevision);
-    requireSynchronous(this.#port.finalize(this.#stage), 'finalize');
+    // Publishing the coordinator snapshot is the one irreversible commit
+    // decision. Owner finalization after this point is cleanup/retention work:
+    // it may poison the runtime, but it must never turn the accepted decision
+    // back into a failed transaction that attempts partial rollback.
     this.#state.publish({
       candidate: snapshot.candidate,
       expectedRevision: snapshot.targetRevision,
     });
-    return this.#contract.finalize({
+    const finalized = this.#contract.finalize({
       commitReceipt,
       identity: this.#identity,
       resultingRevision: snapshot.targetRevision,
     });
+    requireSynchronous(this.#port.finalize(this.#stage), 'finalize');
+    return finalized;
   }
 
   rollback(commitReceipt = null) {

@@ -47,6 +47,41 @@
       "expectedSubject": "rawMarketDataRetention:src/session-browser-ui/rogue-raw-ledger.js"
     },
     {
+      "name": "observed writer surface is absent from policy and inventory",
+      "operation": "add-undeclared-writer-surface",
+      "expectedFailureCode": "writer-evidence-undeclared-surface",
+      "expectedSubject": "undeclaredSurface:app/rogue-writer.js"
+    },
+    {
+      "name": "declared writer surface has zero real evidence",
+      "operation": "remove-real-writer-evidence",
+      "expectedFailureCode": "writer-evidence-missing",
+      "expectedSubject": "replayCursor"
+    },
+    {
+      "name": "observed writer uses a detector outside its surface policy",
+      "operation": "replace-writer-detector",
+      "expectedFailureCode": "writer-evidence-detector-mismatch"
+    },
+    {
+      "name": "writer inventory omits an executable policy surface",
+      "operation": "remove-writer-inventory",
+      "expectedFailureCode": "writer-inventory-missing",
+      "expectedSubject": "replayCursor"
+    },
+    {
+      "name": "writer inventory has no executable policy",
+      "operation": "remove-writer-policy",
+      "expectedFailureCode": "writer-policy-missing",
+      "expectedSubject": "inventoryOnlySurface"
+    },
+    {
+      "name": "writer policy owner differs from inventory owner",
+      "operation": "change-writer-inventory-owner",
+      "expectedFailureCode": "writer-policy-owner-mismatch",
+      "expectedSubject": "replayCursor"
+    },
+    {
       "name": "production construction changes behind fixture evidence",
       "operation": "drift-production-construction",
       "expectedFailureCode": "production-snapshot-drift"

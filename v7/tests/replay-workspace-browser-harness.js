@@ -49,7 +49,7 @@ const fridayMarket = createFoundationMarket({
     startEpochMs: fridayStart,
     endEpochMs: Date.parse('2026-05-11T19:40:00Z'),
   } },
-});
+}, { initialDatasetRevision: 'test-dataset-r1' });
 const weekendPlan = fridayMarket.planEligibleMinutes({
   count: 1,
   cursorEpochMs: Date.parse('2026-05-01T21:00:00Z'),
@@ -86,7 +86,7 @@ const premarketMarket = createFoundationMarket({
     startEpochMs: premarketStart,
     endEpochMs: Date.parse('2026-05-31T09:48:00Z'),
   } },
-});
+}, { initialDatasetRevision: 'test-dataset-r1' });
 const premarketRthOneMinute = premarketMarket.catalog.get({
   instrumentId: premarketMarket.defaultTarget.instrumentId,
   sessionHoursMode: 'rth',

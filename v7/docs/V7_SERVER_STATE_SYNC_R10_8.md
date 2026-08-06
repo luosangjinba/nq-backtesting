@@ -65,8 +65,23 @@ then hydrates and reloads. `Keep this device` first saves the server snapshot as
 a device-local backup, then performs a revision-checked replacement. Another
 concurrent write may reject that replacement and keep the conflict visible.
 
-The customer-visible states are `Local`, `Syncing`, `Synced`, `Offline`, and
-`Conflict`. Every remote read/write has a five-second hard timeout. Failure to
+R11.1 makes local hydration an exact storage transaction. Before applying a
+remote snapshot the adapter captures byte-identical prior values for every
+allowlisted entry and its replication metadata. If any remove/set operation
+fails, it restores all captured values and metadata before reporting failure;
+the server revision is not accepted and conflict/offline state remains
+truthful. Timeout, polling, upload, and hydration paths release their timer,
+AbortSignal, and XHR listeners on every terminal outcome.
+
+If both application and restoration fail, exact local state can no longer be
+proven. The adapter enters a terminal `poisoned` / reload-required state,
+rejects subsequent synchronized-storage mutations, blocks ordinary Retry, and
+prevents Session application initialization. A new page lifecycle is required
+before synchronization or Session mutation can resume.
+
+The customer-visible states are `Local`, `Syncing`, `Synced`, `Offline`,
+`Conflict`, and the exceptional reload-required state. Every remote read/write
+has a five-second hard timeout. Failure to
 reach an unavailable or hanging state service preserves local V7 operation; it
 never reports remote durability. Offline presentation includes an explicit
 retry action.

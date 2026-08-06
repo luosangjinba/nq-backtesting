@@ -3,6 +3,20 @@ const SNAPSHOT_VERSION = 1;
 const METADATA_SCHEMA = 'v7.state-sync-client';
 const METADATA_VERSION = 1;
 
+/** Stable failure proving that an allowlisted storage rollback is incomplete. */
+export class StateSnapshotRollbackError extends AggregateError {
+  constructor(errors, message = 'State snapshot rollback was incomplete.') {
+    super(errors, message);
+    this.name = 'StateSnapshotRollbackError';
+    this.code = 'STATE_SNAPSHOT_ROLLBACK_INCOMPLETE';
+  }
+}
+
+/** Return whether a failure means exact local state can no longer be proven. */
+export function isStateSnapshotRollbackError(error) {
+  return error?.code === 'STATE_SNAPSHOT_ROLLBACK_INCOMPLETE';
+}
+
 export const STATE_SYNC_METADATA_KEY = 'v7.state-sync:metadata';
 export const STATE_SYNC_BACKUP_PREFIX = 'v7.state-sync:backup:';
 
@@ -46,9 +60,27 @@ export function captureReplicatedEntries(storage) {
 /** Replace only allowlisted V7 keys without touching unrelated site storage. */
 export function applyReplicatedEntries(storage, entries) {
   const normalized = requireEntries(entries);
-  const existing = captureReplicatedEntries(storage);
-  for (const { key } of existing) storage.removeItem(key);
-  for (const { key, value } of normalized) storage.setItem(key, value);
+  const original = captureReplicatedEntries(storage);
+
+  function replace(nextEntries) {
+    const existing = captureReplicatedEntries(storage);
+    for (const { key } of existing) storage.removeItem(key);
+    for (const { key, value } of nextEntries) storage.setItem(key, value);
+  }
+
+  try {
+    replace(normalized);
+  } catch (applyError) {
+    try {
+      replace(original);
+    } catch (rollbackError) {
+      throw new StateSnapshotRollbackError(
+        [applyError, rollbackError],
+        'State snapshot replacement failed and its rollback was incomplete.',
+      );
+    }
+    throw applyError;
+  }
 }
 
 export function requireEntries(value) {

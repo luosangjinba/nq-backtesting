@@ -37,6 +37,16 @@
       "name": "accepted-matrix-without-human-evidence",
       "operation": "remove-human-acceptance",
       "expectedFailureCode": "PRODUCTION_MATRIX_HUMAN_ACCEPTANCE_MISSING"
+    },
+    {
+      "name": "accepted-matrix-with-open-known-failures",
+      "operation": "mark-accepted",
+      "expectedFailureCode": "PRODUCTION_MATRIX_ACCEPTED_WITH_KNOWN_FAILURES"
+    },
+    {
+      "name": "implicit-v4-runtime-dependency",
+      "operation": "remove-runtime-dependency",
+      "expectedFailureCode": "PRODUCTION_MATRIX_RUNTIME_DEPENDENCY_INVALID"
     }
   ]
 }

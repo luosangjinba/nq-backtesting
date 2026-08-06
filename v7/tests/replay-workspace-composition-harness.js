@@ -2,15 +2,24 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createActivationGeneration } from '../src/activation-generation/public.js';
+import { createLayoutSync } from '../src/layout-sync-domain/public.js';
+import { createPaneLayout } from '../src/pane-layout-domain/public.js';
 import {
   AUTOPLAY_SPEED_OPTIONS,
   createReplayWorkspaceComposition,
   supportsFoundationWorkspace,
   WORKSPACE_PANE_IDS,
 } from '../src/replay-workspace-composition/public.js';
+import { createPaneDataComposition } from '../src/replay-workspace-composition/pane-data-composition.js';
+import { createWorkspaceCheckpointPersistence } from '../src/replay-workspace-composition/workspace-checkpoint-persistence.js';
 import { createPaneProjectionMemo } from '../src/replay-workspace-composition/pane-projection-memo.js';
 import { createWorkspaceReplayCommands } from '../src/replay-workspace-composition/workspace-replay-commands.js';
 import { brandProjectedPaneSnapshot } from '../src/projection-domain/projected-pane-snapshot.js';
+import { createSessionId } from '../src/session-identity/public.js';
+import { createTransactionId } from '../src/transaction-identity/public.js';
+import { createWorkspaceTransactionIdentity } from '../src/workspace-transaction-contract/public.js';
+import { createWorkspaceCheckpoint } from '../src/workspace-checkpoint-domain/public.js';
 import { validateReplayWorkspaceBoundary } from './support/replay-workspace-boundary-validator.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -134,6 +143,200 @@ memo.project({
   selection,
 });
 assert.equal(projectionCalls, 2, 'different source identity must not reuse Pane projection');
+
+const leaseCommits = [];
+const leaseRejections = [];
+let leaseSequence = 0;
+const leaseBarData = Object.freeze({
+  async acquireCoverageLease() {
+    leaseSequence += 1;
+    return Object.freeze({ id: `lease-${leaseSequence}` });
+  },
+  commitCoverageLeases(value) { leaseCommits.push(value); },
+  oldestCoverageEpochMs: () => null,
+  rejectCoverageLeases(value) { leaseRejections.push(value); },
+});
+const paneSelection = Object.freeze({
+  id: 'selection.test',
+  instrument: Object.freeze({ id: 'instrument.cme.nq' }),
+});
+const leasePaneData = createPaneDataComposition({
+  barData: leaseBarData,
+  market: Object.freeze({
+    catalog: Object.freeze({ get: () => paneSelection }),
+    requestForTimeLocation: (oldestEpochMs, targetEpochMs) => Object.freeze({
+      oldestEpochMs, targetEpochMs,
+    }),
+    resolveDatasetRevision: async () => 'dataset-r1',
+    supportsProjectedHistory: () => false,
+  }),
+  projectedHistoryData: Object.freeze({ acquire: async () => Object.freeze({}) }),
+  readAcceptedSnapshot: () => null,
+});
+function scopedIdentity(transactionToken) {
+  return createWorkspaceTransactionIdentity({
+    activationGeneration: createActivationGeneration(9),
+    sessionId: createSessionId('pane-data-isolation'),
+    transactionId: createTransactionId(transactionToken),
+  });
+}
+function leaseContext(identityValue, paneId) {
+  return Object.freeze({
+    identity: identityValue,
+    paneRequest: Object.freeze({
+      request: Object.freeze({
+        kind: 'time-location-history',
+        oldestEpochMs: 1_000,
+        responsePlan: Object.freeze({ sessionHours: Object.freeze({ mode: 'eth' }) }),
+        targetEpochMs: 2_000,
+      }),
+    }),
+    paneResponse: Object.freeze({
+      instrumentId: 'instrument.cme.nq', paneId, timeframeId: 'timeframe.fixed.1-minute',
+    }),
+    signal: new AbortController().signal,
+  });
+}
+const leaseIdentityA = scopedIdentity('pane-data-a');
+const leaseIdentityB = scopedIdentity('pane-data-b');
+const acquiredLeaseA = await leasePaneData.acquisitionPort.acquirePane(
+  leaseContext(leaseIdentityA, 'pane-main'),
+);
+const acquiredLeaseB = await leasePaneData.acquisitionPort.acquirePane(
+  leaseContext(leaseIdentityB, 'pane-secondary'),
+);
+leasePaneData.reject(scopedIdentity('pane-data-a'));
+assert.deepEqual(leaseRejections, [[acquiredLeaseA.lease]],
+  'reject must settle only the complete matching transaction identity bucket');
+leasePaneData.finalize(scopedIdentity('pane-data-b'), ['pane-secondary']);
+assert.deepEqual(leaseCommits, [{
+  activeConsumerIds: ['pane-secondary'], leases: [acquiredLeaseB.lease],
+}], 'finalize must not commit a superseded transaction lease');
+
+let projectedCallerSignal = null;
+const projectedPaneData = createPaneDataComposition({
+  barData: leaseBarData,
+  market: Object.freeze({
+    catalog: Object.freeze({ get: () => paneSelection }),
+    requestProjectedHistoryBefore: () => Object.freeze({ kind: 'projected-request' }),
+    resolveDatasetRevision: async () => 'dataset-r1',
+    supportsProjectedHistory: () => true,
+  }),
+  projectedHistoryData: Object.freeze({
+    acquire: async (_request, { signal }) => {
+      projectedCallerSignal = signal;
+      return Object.freeze({});
+    },
+  }),
+  readAcceptedSnapshot: () => null,
+});
+const projectedController = new AbortController();
+await projectedPaneData.acquisitionPort.acquirePane(Object.freeze({
+  identity: scopedIdentity('projected-signal'),
+  paneRequest: Object.freeze({
+    request: Object.freeze({
+      historyDisplayBars: 100,
+      kind: 'history-extension',
+      oldestEpochMs: 1_000,
+      responsePlan: Object.freeze({ sessionHours: Object.freeze({ mode: 'eth' }) }),
+    }),
+  }),
+  paneResponse: Object.freeze({
+    instrumentId: 'instrument.cme.nq', paneId: 'pane-main', timeframeId: 'timeframe.fixed.1-hour',
+  }),
+  signal: projectedController.signal,
+}));
+assert.equal(projectedCallerSignal, projectedController.signal,
+  'Pane Data must pass the Workspace transaction AbortSignal to Projected History');
+
+const checkpointContext = Object.freeze({
+  historicalRange: Object.freeze({ startEpochMs: 100, endEpochMs: 1_000 }),
+  instrumentIds: Object.freeze(['instrument.cme.nq']),
+});
+function checkpoint(cursorEpochMs) {
+  return createWorkspaceCheckpoint({
+    activePaneId: 'pane-main',
+    cursorEpochMs,
+    panes: [{
+      instrumentId: 'instrument.cme.nq',
+      paneId: 'pane-main',
+      timeframeId: 'timeframe.display-1-minute',
+      viewport: { latestOffsetBars: 12, origin: 'default', spanBars: null },
+    }],
+    sessionHoursMode: 'eth',
+  }, checkpointContext);
+}
+const acceptedCheckpoint = checkpoint(500);
+const candidateCheckpoint = checkpoint(600);
+const acceptedLayout = createPaneLayout();
+const acceptedLayoutSync = createLayoutSync();
+let currentCheckpoint = acceptedCheckpoint;
+const persistedCheckpoints = [];
+let durableCheckpoint = acceptedCheckpoint;
+let durableRevision = 11;
+const checkpointPersistence = createWorkspaceCheckpointPersistence({
+  initialCheckpoint: acceptedCheckpoint,
+  initialLayout: acceptedLayout,
+  initialLayoutSync: acceptedLayoutSync,
+  persist: ({ checkpoint: value, reversible }) => {
+    persistedCheckpoints.push(value);
+    const previous = Object.freeze({ checkpoint: durableCheckpoint, revision: durableRevision });
+    durableCheckpoint = value;
+    durableRevision += 1;
+    if (!reversible) return undefined;
+    let status = 'applied';
+    return Object.freeze({
+      finalize() { status = 'finalized'; },
+      rollback() {
+        durableCheckpoint = previous.checkpoint;
+        durableRevision = previous.revision;
+        status = 'rolled-back';
+      },
+      snapshot: () => Object.freeze({ status }),
+    });
+  },
+  readLayout: () => acceptedLayout,
+  readLayoutSync: () => acceptedLayoutSync,
+  view: Object.freeze({ setState() {} }),
+  workspaceState: Object.freeze({ checkpoint: () => currentCheckpoint }),
+});
+currentCheckpoint = candidateCheckpoint;
+assert.equal(checkpointPersistence.save({ rethrow: true, reversible: true }), true);
+assert.equal(persistedCheckpoints.at(-1), candidateCheckpoint);
+assert.equal(checkpointPersistence.restore({
+  checkpoint: acceptedCheckpoint,
+  layout: acceptedLayout,
+  layoutSync: acceptedLayoutSync,
+}), true);
+assert.equal(durableCheckpoint, acceptedCheckpoint);
+assert.equal(durableRevision, 11,
+  'transaction rollback must restore the exact prior durable revision');
+
+let failedPersistenceCalls = 0;
+currentCheckpoint = candidateCheckpoint;
+const atomicFailurePersistence = createWorkspaceCheckpointPersistence({
+  initialCheckpoint: acceptedCheckpoint,
+  initialLayout: acceptedLayout,
+  initialLayoutSync: acceptedLayoutSync,
+  persist: () => {
+    failedPersistenceCalls += 1;
+    throw new Error('injected atomic storage failure');
+  },
+  readLayout: () => acceptedLayout,
+  readLayoutSync: () => acceptedLayoutSync,
+  view: Object.freeze({ setState() {} }),
+  workspaceState: Object.freeze({ checkpoint: () => currentCheckpoint }),
+});
+assert.throws(() => atomicFailurePersistence.save({ rethrow: true }),
+  /injected atomic storage failure/);
+assert.equal(failedPersistenceCalls, 1);
+assert.equal(atomicFailurePersistence.restore({
+  checkpoint: acceptedCheckpoint,
+  layout: acceptedLayout,
+  layoutSync: acceptedLayoutSync,
+}), true);
+assert.equal(failedPersistenceCalls, 1,
+  'rollback after an atomic failed write must not manufacture a compensating Session revision');
 
 const negativeCases = Object.freeze([
   {

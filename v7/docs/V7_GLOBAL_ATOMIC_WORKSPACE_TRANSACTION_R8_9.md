@@ -2,14 +2,23 @@
 
 Status: completed recovery activation (2026-07-30)
 
+R11.1 correction: R8.9's participant set and reverse-rollback boundary remain,
+but publication of the accepted coordinator snapshot is now the explicit
+irreversible decision. Pre-decision failures roll back exactly. Post-decision
+finalizer failures remain committed, attempt every remaining finalizer, and
+poison the activation. The current binding semantics are defined in
+`V7_WORKSPACE_TRANSACTION_RUNTIME.md` and
+`V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md`.
+
 ## Outcome
 
 R8.9 makes `core.workspace-transaction-runtime` the only global commit
 coordinator for Chart, Replay, semantic Workspace State, accepted publication,
-and the persistence-facing/UI handoff. A transaction now returns `committed`
-only after all four prepared participants have applied the same candidate and
-finalized under one final synchronous decision. Any earlier failure restores
-every participant to its exact prior object and revision.
+and the persistence-facing/UI handoff. All four prepared participants apply the
+same candidate; publication finalize then records the accepted coordinator
+decision. Any earlier failure restores every participant and durable Session
+envelope to its exact prior object, bytes, and revision. Later cleanup failure
+cannot truthfully turn that accepted decision into `failed`.
 
 The UI no longer calls Workspace State acceptance, Raw Coverage acceptance,
 view publication, or checkpoint persistence after receiving a committed
@@ -25,7 +34,8 @@ Replay proposal -> acquire -> project
   -> apply Chart and await paint
   -> final currency check
   -> synchronously apply Replay / Workspace State / publication+persistence
-  -> finalize all exact receipts
+  -> finalize publication and record the irreversible decision
+  -> attempt every remaining exact finalizer
   -> return committed terminal
 ```
 
@@ -34,7 +44,9 @@ again after its paint completes. Replay, Workspace State, publication, and
 persistence then apply in one synchronous JavaScript turn, so a newer command
 cannot observe or derive work from a reversible intermediate cursor or
 semantic revision. Finalizers receive already-validated exact receipts and
-only release retained state/resources.
+only release retained state/resources. Publication finalizes first and owns
+the decision; an incomplete later finalizer poisons the activation while the
+terminal remains committed.
 
 Rollback visits prepared participants in reverse order. A preparation that did
 not apply is released without mutation; an applied preparation must present its

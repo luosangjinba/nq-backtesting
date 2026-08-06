@@ -85,18 +85,23 @@ class PreparedChartApplicationValue {
       failChartApplication('CHART_APPLICATION_STALE', 'Chart preparation is stale.');
     }
     this.#state.requirePublishable(this.#identity, contractSnapshot.baseRevision);
-    this.#adapter.finalizeVisible(this.#staged);
     this.#state.publish(
       this.#identity,
       this.#workspaceSnapshot,
       contractSnapshot.targetRevision,
       contractSnapshot.targetRevision,
     );
-    return this.#contract.finalize({
+    const finalized = this.#contract.finalize({
       commitReceipt,
       identity: this.#identity,
       resultingRevision: contractSnapshot.targetRevision,
     });
+    // Adapter finalization only releases obsolete native resources. Publishing
+    // the accepted Chart snapshot first ensures a cleanup failure is reported
+    // as a post-decision poison instead of exposing an old accepted revision
+    // beside the already-visible candidate.
+    this.#adapter.finalizeVisible(this.#staged);
+    return finalized;
   }
 
   async rollback(commitReceipt = null) {

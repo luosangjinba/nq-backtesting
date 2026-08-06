@@ -4,16 +4,27 @@ import { fileURLToPath } from 'node:url';
 import { analyzeProductionArchitecture } from '../tests/support/production-architecture-analyzer.js';
 
 const V7_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const deliveryStep = process.argv[2] ?? 'R10.9';
+const harnessRules = JSON.parse(fs.readFileSync(
+  path.join(V7_ROOT, 'docs/v7-harness-rules.json'),
+  'utf8',
+));
+const deliveryStep = process.argv[2] ?? harnessRules.currentStep;
 const baselinePath = path.join(V7_ROOT, 'docs/v7-production-architecture-baseline.json');
 const baseline = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
 const manifest = JSON.parse(fs.readFileSync(
   path.join(V7_ROOT, 'docs/v7-architecture-manifest.json'),
   'utf8',
 ));
+const writerPolicy = JSON.parse(fs.readFileSync(
+  path.join(V7_ROOT, 'docs/v7-production-writer-policy.json'),
+  'utf8',
+));
 const report = analyzeProductionArchitecture({
   manifest,
-  policy: baseline.analysisPolicy,
+  policy: Object.freeze({
+    ...baseline.analysisPolicy,
+    writerPolicies: writerPolicy.writerPolicies,
+  }),
   v7Root: V7_ROOT,
 });
 if (report.violations.length > 0) {
@@ -21,6 +32,10 @@ if (report.violations.length > 0) {
 }
 fs.writeFileSync(baselinePath, `${JSON.stringify({
   ...baseline,
+  analysisPolicy: {
+    ...baseline.analysisPolicy,
+    writerPolicies: writerPolicy.writerPolicies,
+  },
   deliveryStep,
   snapshot: report.snapshot,
 }, null, 2)}\n`);

@@ -3,17 +3,17 @@
     {
       "name": "human-readable source summary drifts from machine baseline",
       "operation": "replace-text",
-      "path": "docs/V7_HUMAN_ACCEPTANCE_ZERO_DEBT_CLOSURE_R8_15.md",
+      "path": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md",
       "replace": {
-        "from": "24,107 effective lines",
-        "to": "24,106 effective lines"
+        "from": "24,824 effective lines",
+        "to": "24,823 effective lines"
       },
       "expectedFailureCode": "production-source-summary-drift"
     },
     {
       "name": "current source summary is omitted from policy inventory",
       "operation": "remove-policy-entry",
-      "path": "sessions/session_20260731_r8_16_audit_evidence_consistency.md",
+      "path": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md",
       "expectedFailureCode": "production-source-summary-policy-omission"
     }
   ]

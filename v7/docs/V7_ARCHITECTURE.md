@@ -24,8 +24,10 @@ asynchronous business-process chain and never trigger a second materialization.
 
 R7.3 adds `adapter.data-acquisition-ui` outside the chart state flow. It owns a
 trusted local administrator DOM, selected-range safety evidence, and a client
-for the guarded V4 Maintenance API. V4 remains the only Databento and DuckDB
-writer. The administrator path requires Preflight, clean Dry Run, verified
+for the guarded V4 Maintenance API. V4 remains the only Databento acquisition
+and existing-market-database append writer; the separately composed first-run
+importer below may only create one missing database. The administrator path
+requires Preflight, clean Dry Run, verified
 recoverable backup, exact confirmation, insert-only write, and a V7-facing
 read verification. It has no Replay, Pane, chart-series, Workspace Snapshot,
 or raw-bar-cache authority.
@@ -39,9 +41,13 @@ is presentation and does not become a second job owner. The binding contract is
 
 ### First-Run Database Import
 
-R10.9 extends the same administrator surface with a bounded database-setup
-panel, but does not give the V4 Maintenance API or chart path new authority.
-The panel calls a separate loopback importer through an authenticated proxy.
+R10.9 adds a bounded database-setup capability beside Data Acquisition rather
+than inside its UI owner. `adapter.database-bootstrap-ui` owns the optional
+panel/client and is injected into `adapter.data-acquisition-ui` only when its
+public port is present. Removing that module leaves the maintenance surface
+available and removes the setup panel cleanly. It does not give the V4
+Maintenance API or chart path new authority. The panel calls a separate
+loopback importer through an authenticated proxy.
 That service alone owns uploaded-file staging, strict CSV-to-DuckDB conversion,
 candidate validation, and create-if-absent activation. It supports only a
 missing `V4_TRADING_DB` target; once a database exists, the import surface is
@@ -87,6 +93,13 @@ identity, revisions, and transient playback/presentation state remain absent.
 Soft re-entry and hard refresh rebrand Viewports under the new activation and
 materialize every Pane once at the saved cursor through Workspace Transaction.
 
+R11.1 adds an owner-bounded reversible checkpoint write. Session Repository
+applies one raw record envelope under revision CAS and returns the only
+finalize/rollback receipt; Session Store translates that receipt to the exact
+Workspace checkpoint record. Before the global publication decision, rollback
+restores the byte-identical prior envelope rather than creating a compensating
+Session revision. After the decision, finalize only seals the accepted write.
+
 ### Server State Replication Adapter
 
 R10.8 adds optional `adapter.server-state-sync` outside the Session Store
@@ -105,6 +118,13 @@ uses last-write-wins. Empty-device hydration, first-device import, offline
 local continuity, device/server backups, and both conflict choices are owned by
 this adapter. Market bars, DuckDB, credentials, native Chart state, activation
 identity, and pending transactions never enter the replicated schema.
+
+R11.1 makes remote hydration an exact allowlisted local transaction. Apply or
+metadata failure restores the captured entries and metadata. If restoration
+also fails, the adapter enters terminal `poisoned` / reload-required state,
+blocks Retry and synchronized-storage mutations, and prevents Session
+application initialization; an unprovably restored device is never presented
+as merely Offline or Conflict.
 
 The module is removable. Without its port or without a trusted state route,
 the application boots with the original local-only persistence behavior. The
@@ -259,6 +279,14 @@ Raw future bars may be cached but never projected past the accepted cursor.
 Detailed performance and chunking rules are binding in
 `V7_CACHE_AND_LATENCY_CONTRACT.md`.
 
+R11.1 replaces any build-time or constant label with the authoritative V4
+DuckDB revision derived from the main database/WAL filesystem identity and
+governed table facts. Health discovery supplies it before requests; every bars
+and projected-history response echoes the exact expected revision, and V4
+checks again after a query before returning. Revision mismatch is a hard stale
+failure. Raw Coverage, projected-history caches, and provider revision caches
+therefore cannot reuse evidence across database activation or mutation.
+
 Before the runtime is activated, `core.bar-data-contract` owns only immutable
 provider-neutral request/bar/batch values. Raw identity is exactly provider,
 instrument, source resolution, bounded half-open window, and dataset revision.
@@ -374,11 +402,20 @@ the only owner of the four-participant decision. It prepares one immutable
 semantic candidate across Chart, Replay, Workspace State, and publication/
 persistence. After reversible Chart paint and a final currency check, the
 coordinator applies the remaining participants in one synchronous turn,
-finalizes exact receipts, and only then returns `committed`. Any preparation,
-Chart, Replay, Workspace State, publication, or persistence failure triggers
-reverse rollback to the exact prior accepted objects and revisions. Replay
-Workspace UI no longer commits semantic state, coverage, publication, or
-persistence after a terminal response.
+then publication finalize records the sole irreversible coordinator decision.
+Any failure before that decision triggers reverse rollback to the exact prior
+accepted objects, raw durable bytes, and revisions. Once publication records
+the decision, the terminal result remains `committed`; every remaining
+finalizer is still attempted, and any incomplete finalization poisons the
+activation so later commands cannot reuse uncertain resources. A failed
+rollback/reject likewise poisons the activation. Replay Workspace UI no longer
+commits semantic state, coverage, publication, or persistence after a terminal
+response.
+
+R11.1 also scopes Raw Coverage leases and shared projected-history consumers to
+the full branded Workspace Transaction identity. Stale rejection cannot touch
+a newer transaction's lease, and a cancelled caller detaches independently;
+only the last consumer aborts shared provider work.
 
 R3.2b1 adds `core.provider-policy-contract` as a pure transport-neutral policy
 boundary. Provider revision freshness, request limits, failure deadline,
@@ -558,6 +595,38 @@ DOM, persistence, vertical-scale policy, or Lightweight Charts dependency.
 R4.5 adds the mutable pane controller inside the same owner. The real adapter
 may request a projection or submit a native logical-range measurement; it
 cannot replace intent through data application.
+
+## Deployed Runtime And Public Surface
+
+R11.1 extends architecture ownership beyond browser modules. The binding
+`v7-deployed-runtime-manifest.json` inventories the Node web delivery entry,
+optional Python state/import services, deployed V4 market-data entry, legacy
+offline V4 maintenance tooling, Linux deployment transaction, proxy routes,
+and their persistent writer surfaces. Required and optional dependencies are
+distinct; absence of State Sync or Database Bootstrap cannot disable Web or
+the read-only market provider.
+
+Linux systemd starts `v4/read_api.py`, never the mutable legacy `v4_api.py`.
+The read entry admits only reviewed market-data GET paths, rejects every
+mutation method, and has no persistent writer surface. Legacy maintenance
+modules remain packaged for local administration/reference but form a separate
+non-service component with explicit writer ownership. Caddy exposes `/v4/*`
+to the read service, optional `/v7/state/*` and `/v7/database/*` to their
+isolated services, and the remaining application path to Web; internal ports
+stay loopback-only.
+
+The static server maps each reviewed URL prefix to one exact filesystem root.
+It rejects decoded traversal segments and separators, verifies lexical and
+realpath containment, and refuses symlink escape. Repository docs, tests,
+server/deploy source, V4 source, Git metadata, and arbitrary dependency trees
+are not a web asset surface.
+
+Deployment is one host transaction over the immutable release and its owned
+Python environment, environment file, units, proxy configuration, filesystem
+metadata, enablement/active state, and `current` link. Failure restores the
+captured host snapshot and verifies restored service health; an incomplete
+rollback retains a root-only recovery snapshot rather than deleting its only
+repair evidence.
 
 ## Modular Assembly Contract
 

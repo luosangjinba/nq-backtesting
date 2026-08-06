@@ -1,7 +1,23 @@
 from datetime import timezone
 
+from server.market_data_revision import (
+    DatasetRevisionMismatch,
+    DatasetRevisionUnstable,
+    require_expected_revision,
+)
 
-def handle_bars_request(params, *, send_json, send_error, db_path, table_name, validate_range, query_bars):
+
+def handle_bars_request(
+    params,
+    *,
+    send_json,
+    send_error,
+    db_path,
+    table_name,
+    validate_range,
+    query_bars,
+    resolve_dataset_revision,
+):
     start = params.get("start", [None])[0]
     end = params.get("end", [None])[0]
     instrument = params.get("instrument", ["NQ"])[0]
@@ -13,18 +29,35 @@ def handle_bars_request(params, *, send_json, send_error, db_path, table_name, v
     try:
         tf = int(params.get("tf", ["1"])[0])
         validation = validate_range(start, end, tf)
-        bars = query_bars(db_path, table_name, instrument, start, end, tf)
+        expected_revision = params.get("datasetRevision", [None])[0]
+        bars = None
+        dataset_revision = None
+        for _attempt in range(2):
+            dataset_revision = resolve_dataset_revision(db_path, table_name)
+            require_expected_revision(expected_revision, dataset_revision)
+            bars = query_bars(db_path, table_name, instrument, start, end, tf)
+            revision_after_read = resolve_dataset_revision(db_path, table_name)
+            if revision_after_read == dataset_revision:
+                break
+            require_expected_revision(expected_revision, revision_after_read)
+        else:
+            raise DatasetRevisionUnstable(
+                "market database changed repeatedly while bars were being read"
+            )
         start_dt = validation["start_dt"]
         end_dt = validation["end_dt"]
         requested_start_ts = int(start_dt.replace(tzinfo=timezone.utc).timestamp())
         requested_end_ts = int(end_dt.replace(tzinfo=timezone.utc).timestamp())
         send_json({
             "bars": bars,
+            "datasetRevision": dataset_revision,
             "requestedRange": {
                 "startTs": requested_start_ts,
                 "endTs": requested_end_ts,
             },
         })
+    except DatasetRevisionMismatch as exc:
+        send_error(str(exc), 409)
     except OverflowError as exc:
         send_error(str(exc), 413)
     except ValueError as exc:
@@ -71,8 +104,17 @@ def handle_projected_history_request(
         return
     try:
         send_json(query_projected_history(
-            db_path, table_name, instrument, start, end, timeframe, session_mode
+            db_path,
+            table_name,
+            instrument,
+            start,
+            end,
+            timeframe,
+            session_mode,
+            expected_dataset_revision=params.get("datasetRevision", [None])[0],
         ))
+    except DatasetRevisionMismatch as exc:
+        send_error(str(exc), 409)
     except ValueError as exc:
         send_error(str(exc), 400)
     except Exception as exc:

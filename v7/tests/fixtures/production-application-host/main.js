@@ -134,6 +134,21 @@ async function run() {
   await dataHost.stop();
   const dataStopped = dataApi.snapshot();
 
+  const dataBootstrapOptionalDefinitions = await loadProductionApplicationDefinitions({
+    environment: {
+      root: document.querySelector('#host-data'),
+      surfaceOptions: { client: fakeMaintenanceClient() },
+    },
+    omittedModuleIds: ['adapter.database-bootstrap-ui'],
+    rootModuleId: 'adapter.data-acquisition-application',
+  });
+  const dataBootstrapOptionalHost = createModuleHost(dataBootstrapOptionalDefinitions);
+  const dataBootstrapOptionalStarted = await dataBootstrapOptionalHost.start();
+  const dataBootstrapOptionalSnapshot = dataBootstrapOptionalHost
+    .getPublicApi('adapter.data-acquisition-application').snapshot();
+  const dataBootstrapPanelPresent = document.querySelector('#databaseImportTitle') !== null;
+  await dataBootstrapOptionalHost.stop();
+
   const rollbackTrace = [];
   const rollbackDefinitions = await loadProductionApplicationDefinitions({
     environment: sessionEnvironment(document.querySelector('#host-rollback')),
@@ -159,6 +174,11 @@ async function run() {
       childrenAfterStop: document.querySelector('#host-data').childElementCount,
       running: dataRunning,
       stopped: dataStopped,
+    }),
+    dataBootstrapOptional: Object.freeze({
+      moduleIds: dataBootstrapOptionalStarted.moduleIds,
+      panelPresent: dataBootstrapPanelPresent,
+      snapshot: dataBootstrapOptionalSnapshot,
     }),
     isolationAfterFirstStop,
     isolationBefore,

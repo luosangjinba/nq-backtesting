@@ -8,10 +8,10 @@
     ],
     "writerPolicies": [
       {
-        "surface": "rawMarketDataRetention",
-        "detectorId": "market-data-retention-ledger",
+        "surface": "calendarSurfaceDom",
+        "detectorId": "calendar-surface-dom-commit",
         "allowedModuleIds": [
-          "core.bar-data-runtime"
+          "adapter.calendar-surface"
         ]
       },
       {
@@ -22,17 +22,17 @@
         ]
       },
       {
+        "surface": "layoutSyncPolicy",
+        "detectorId": "layout-sync-policy-commit",
+        "allowedModuleIds": [
+          "core.session-store"
+        ]
+      },
+      {
         "surface": "paneWorkspace",
         "detectorId": "pane-workspace-accepted-state",
         "allowedModuleIds": [
           "core.workspace-state-runtime"
-        ]
-      },
-      {
-        "surface": "workspaceSemanticCommit",
-        "detectorId": "post-terminal-workspace-commit",
-        "allowedModuleIds": [
-          "core.workspace-transaction-runtime"
         ]
       },
       {
@@ -43,10 +43,10 @@
         ]
       },
       {
-        "surface": "replicatedUserState",
-        "detectorId": "replicated-state-put",
+        "surface": "rawMarketDataRetention",
+        "detectorId": "market-data-retention-ledger",
         "allowedModuleIds": [
-          "adapter.server-state-sync"
+          "core.bar-data-runtime"
         ]
       },
       {
@@ -57,15 +57,71 @@
         ]
       },
       {
+        "surface": "replayNavigationPreferences",
+        "detectorId": "replay-navigation-preferences-commit",
+        "allowedModuleIds": [
+          "core.replay-navigation-preference-store"
+        ]
+      },
+      {
+        "surface": "replayWorkspaceDom",
+        "detectorId": "replay-workspace-dom-commit",
+        "allowedModuleIds": [
+          "adapter.replay-workspace-ui"
+        ]
+      },
+      {
+        "surface": "replicatedUserState",
+        "detectorId": "replicated-state-put",
+        "allowedModuleIds": [
+          "adapter.server-state-sync"
+        ]
+      },
+      {
+        "surface": "sessionBrowserDom",
+        "detectorId": "session-browser-dom-commit",
+        "allowedModuleIds": [
+          "adapter.session-browser-ui"
+        ]
+      },
+      {
+        "surface": "sessionRecord",
+        "detectorId": "session-record-commit",
+        "allowedModuleIds": [
+          "core.session-store"
+        ]
+      },
+      {
+        "surface": "viewportIntent",
+        "detectorId": "viewport-intent-commit",
+        "allowedModuleIds": [
+          "core.viewport-runtime"
+        ]
+      },
+      {
+        "surface": "workspaceCheckpoint",
+        "detectorId": "workspace-checkpoint-commit",
+        "allowedModuleIds": [
+          "core.session-store"
+        ]
+      },
+      {
         "surface": "workspaceSnapshot",
         "detectorId": "workspace-snapshot-commit",
         "allowedModuleIds": [
           "core.workspace-transaction-runtime"
         ]
+      },
+      {
+        "surface": "workstationSettings",
+        "detectorId": "workstation-settings-commit",
+        "allowedModuleIds": [
+          "core.workstation-settings"
+        ]
       }
     ]
   },
-  "deliveryStep": "R10.9",
+  "deliveryStep": "R11.1",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -1675,6 +1731,16 @@
           },
           {
             "importedNames": [
+              "createV4BarsProvider",
+              "createV4ProjectedHistoryProvider"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+            "targetFile": "src/v4-bars-provider-adapter/public.js",
+            "targetModuleId": "adapter.v4-bars-provider",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
               "createWorkspaceReplacementCatalog"
             ],
             "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
@@ -1894,6 +1960,16 @@
           },
           {
             "importedNames": [
+              "requireWorkspaceTransactionIdentity",
+              "workspaceTransactionIdentitiesEqual"
+            ],
+            "sourceFile": "src/replay-workspace-composition/pane-data-composition.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
               "retargetProjectedPaneSnapshot"
             ],
             "sourceFile": "src/replay-workspace-composition/pane-projection-memo.js",
@@ -1930,32 +2006,20 @@
           },
           {
             "importedNames": [
-              "V4_BARS_DATASET_REVISION",
-              "createV4BarsProvider",
-              "createV4ProjectedHistoryProvider"
-            ],
-            "sourceFile": "src/replay-workspace-composition/foundation-market.js",
-            "targetFile": "src/v4-bars-provider-adapter/public.js",
-            "targetModuleId": "adapter.v4-bars-provider",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "V4_BARS_DATASET_REVISION",
-              "V4_PROJECTED_HISTORY_PROVIDER_ID"
-            ],
-            "sourceFile": "src/replay-workspace-composition/foundation-projected-history.js",
-            "targetFile": "src/v4-bars-provider-adapter/public.js",
-            "targetModuleId": "adapter.v4-bars-provider",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
               "V4_BARS_PROVIDER_ID",
               "createNewYorkWallEpochConverter",
               "newYorkWallEpochToInstantMs"
             ],
             "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
+            "targetFile": "src/v4-bars-provider-adapter/public.js",
+            "targetModuleId": "adapter.v4-bars-provider",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "V4_PROJECTED_HISTORY_PROVIDER_ID"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-projected-history.js",
             "targetFile": "src/v4-bars-provider-adapter/public.js",
             "targetModuleId": "adapter.v4-bars-provider",
             "throughPublicEntry": true
@@ -3386,6 +3450,74 @@
       },
       {
         "actualDependencies": [
+          "core.browser-async-contract"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.browser-async-contract"
+        ],
+        "descriptorPath": "src/data-acquisition-ui/module.json",
+        "id": "adapter.data-acquisition-ui",
+        "importSites": [
+          {
+            "importedNames": [
+              "abortableDelay"
+            ],
+            "sourceFile": "src/data-acquisition-ui/maintenance-client.js",
+            "targetFile": "src/browser-async-contract/public.js",
+            "targetModuleId": "core.browser-async-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/data-acquisition-ui-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/data-acquisition-ui/roll-calendar-panel.js",
+          "src/data-acquisition-ui/surface.js"
+        ],
+        "owner": "data-acquisition-admin",
+        "publicEntry": "src/data-acquisition-ui/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.browser-async-contract"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.browser-async-contract"
+        ],
+        "descriptorPath": "src/database-bootstrap-ui/module.json",
+        "id": "adapter.database-bootstrap-ui",
+        "importSites": [
+          {
+            "importedNames": [
+              "abortReason",
+              "abortableDelay"
+            ],
+            "sourceFile": "src/database-bootstrap-ui/database-import-client.js",
+            "targetFile": "src/browser-async-contract/public.js",
+            "targetModuleId": "core.browser-async-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/database-bootstrap-ui-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/database-bootstrap-ui/database-import-panel.js"
+        ],
+        "owner": "database-bootstrap-admin",
+        "publicEntry": "src/database-bootstrap-ui/public.js"
+      },
+      {
+        "actualDependencies": [
           "core.chart-snapshot-application",
           "core.pane-set-materialization",
           "core.replay-contract",
@@ -3934,6 +4066,31 @@
           "stop"
         ],
         "declaredOptionalPorts": [
+          "adapter.database-bootstrap-ui"
+        ],
+        "declaredRequiredPorts": [
+          "adapter.data-acquisition-ui"
+        ],
+        "descriptorPath": "src/data-acquisition-application/module.json",
+        "id": "adapter.data-acquisition-application",
+        "importSites": [],
+        "independentHarness": "tests/production-application-host-browser-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/data-acquisition-application/application-definition.js"
+        ],
+        "owner": "application-composition",
+        "publicEntry": "src/data-acquisition-application/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [
+          "dispose",
+          "start",
+          "stop"
+        ],
+        "declaredOptionalPorts": [
           "adapter.replay-workspace-ui",
           "adapter.server-state-sync"
         ],
@@ -3956,50 +4113,6 @@
         ],
         "owner": "application-composition",
         "publicEntry": "src/session-application/public.js"
-      },
-      {
-        "actualDependencies": [],
-        "declaredLifecycle": [
-          "dispose",
-          "start",
-          "stop"
-        ],
-        "declaredOptionalPorts": [],
-        "declaredRequiredPorts": [
-          "adapter.data-acquisition-ui"
-        ],
-        "descriptorPath": "src/data-acquisition-application/module.json",
-        "id": "adapter.data-acquisition-application",
-        "importSites": [],
-        "independentHarness": "tests/production-application-host-browser-harness.js",
-        "independentHarnessMode": "public-entry-direct",
-        "kind": "adapter",
-        "observedDisposeSites": [
-          "src/data-acquisition-application/application-definition.js"
-        ],
-        "owner": "application-composition",
-        "publicEntry": "src/data-acquisition-application/public.js"
-      },
-      {
-        "actualDependencies": [],
-        "declaredLifecycle": [
-          "dispose"
-        ],
-        "declaredOptionalPorts": [],
-        "declaredRequiredPorts": [],
-        "descriptorPath": "src/data-acquisition-ui/module.json",
-        "id": "adapter.data-acquisition-ui",
-        "importSites": [],
-        "independentHarness": "tests/data-acquisition-ui-harness.js",
-        "independentHarnessMode": "public-entry-direct",
-        "kind": "adapter",
-        "observedDisposeSites": [
-          "src/data-acquisition-ui/database-import-panel.js",
-          "src/data-acquisition-ui/roll-calendar-panel.js",
-          "src/data-acquisition-ui/surface.js"
-        ],
-        "owner": "data-acquisition-admin",
-        "publicEntry": "src/data-acquisition-ui/public.js"
       },
       {
         "actualDependencies": [],
@@ -4086,6 +4199,21 @@
         "observedDisposeSites": [],
         "owner": "session-store",
         "publicEntry": "src/activation-generation/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/browser-async-contract/module.json",
+        "id": "core.browser-async-contract",
+        "importSites": [],
+        "independentHarness": "tests/browser-async-contract-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "browser-async-contract",
+        "publicEntry": "src/browser-async-contract/public.js"
       },
       {
         "actualDependencies": [],
@@ -4272,6 +4400,18 @@
     ],
     "writerSites": [
       {
+        "detectorId": "calendar-surface-dom-commit",
+        "sourceFile": "src/calendar-surface/date-time-control.js",
+        "sourceModuleId": "adapter.calendar-surface",
+        "surface": "calendarSurfaceDom"
+      },
+      {
+        "detectorId": "layout-sync-policy-commit",
+        "sourceFile": "src/session-store/session-store.js",
+        "sourceModuleId": "core.session-store",
+        "surface": "layoutSyncPolicy"
+      },
+      {
         "detectorId": "market-data-retention-ledger",
         "sourceFile": "src/bar-data-runtime/raw-coverage-store.js",
         "sourceModuleId": "core.bar-data-runtime",
@@ -4314,16 +4454,64 @@
         "surface": "rawBarRequest"
       },
       {
+        "detectorId": "replay-cursor-commit",
+        "sourceFile": "src/replay-runtime/replay-runtime.js",
+        "sourceModuleId": "core.replay-runtime",
+        "surface": "replayCursor"
+      },
+      {
+        "detectorId": "replay-navigation-preferences-commit",
+        "sourceFile": "src/replay-navigation-preference-store/preference-store.js",
+        "sourceModuleId": "core.replay-navigation-preference-store",
+        "surface": "replayNavigationPreferences"
+      },
+      {
+        "detectorId": "replay-workspace-dom-commit",
+        "sourceFile": "src/replay-workspace-ui/replay-workspace-mount.js",
+        "sourceModuleId": "adapter.replay-workspace-ui",
+        "surface": "replayWorkspaceDom"
+      },
+      {
         "detectorId": "replicated-state-put",
         "sourceFile": "src/server-state-sync/state-sync-client.js",
         "sourceModuleId": "adapter.server-state-sync",
         "surface": "replicatedUserState"
       },
       {
+        "detectorId": "session-browser-dom-commit",
+        "sourceFile": "src/session-browser-ui/surface.js",
+        "sourceModuleId": "adapter.session-browser-ui",
+        "surface": "sessionBrowserDom"
+      },
+      {
+        "detectorId": "session-record-commit",
+        "sourceFile": "src/session-store/session-store.js",
+        "sourceModuleId": "core.session-store",
+        "surface": "sessionRecord"
+      },
+      {
+        "detectorId": "viewport-intent-commit",
+        "sourceFile": "src/viewport-runtime/viewport-controller.js",
+        "sourceModuleId": "core.viewport-runtime",
+        "surface": "viewportIntent"
+      },
+      {
+        "detectorId": "workspace-checkpoint-commit",
+        "sourceFile": "src/session-store/session-store.js",
+        "sourceModuleId": "core.session-store",
+        "surface": "workspaceCheckpoint"
+      },
+      {
         "detectorId": "workspace-snapshot-commit",
         "sourceFile": "src/workspace-transaction-runtime/runtime-state.js",
         "sourceModuleId": "core.workspace-transaction-runtime",
         "surface": "workspaceSnapshot"
+      },
+      {
+        "detectorId": "workstation-settings-commit",
+        "sourceFile": "src/workstation-settings/settings-runtime.js",
+        "sourceModuleId": "core.workstation-settings",
+        "surface": "workstationSettings"
       }
     ]
   },

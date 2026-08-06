@@ -18,8 +18,65 @@ function violation(code, subject, detail) {
 export function validateProductionArchitectureSnapshot(snapshot, policy) {
   const violations = [];
   const lifecycleExemptions = new Set(policy.lifecycleFactoryExemptions.map(({ moduleId }) => moduleId));
+  const policySurfaceCounts = new Map();
+  for (const entry of policy.writerPolicies) {
+    policySurfaceCounts.set(entry.surface, (policySurfaceCounts.get(entry.surface) ?? 0) + 1);
+  }
+  for (const [surface, count] of policySurfaceCounts) {
+    if (count > 1) {
+      violations.push(violation(
+        'writer-policy-duplicate',
+        surface,
+        `writer surface has ${count} executable detection policies`,
+      ));
+    }
+  }
   const writerPolicies = new Map(policy.writerPolicies.map((entry) => [entry.surface, entry]));
+  const inventorySurfaceCounts = new Map();
+  for (const entry of snapshot.declaredWriterSurfaces) {
+    inventorySurfaceCounts.set(entry.surface, (inventorySurfaceCounts.get(entry.surface) ?? 0) + 1);
+  }
+  for (const [surface, count] of inventorySurfaceCounts) {
+    if (count > 1) {
+      violations.push(violation(
+        'writer-inventory-duplicate',
+        surface,
+        `writer surface has ${count} inventory declarations`,
+      ));
+    }
+  }
+  const writerInventories = new Map(snapshot.declaredWriterSurfaces.map((entry) => [entry.surface, entry]));
   const modulesById = new Map(snapshot.modules.map((module) => [module.id, module]));
+
+  for (const [surface, inventory] of writerInventories) {
+    const writerPolicy = writerPolicies.get(surface);
+    if (!writerPolicy) {
+      violations.push(violation(
+        'writer-policy-missing',
+        surface,
+        'declared writer inventory has no executable detection policy',
+      ));
+      continue;
+    }
+    const inventoryOwners = [...inventory.moduleIds].sort();
+    const policyOwners = [...writerPolicy.allowedModuleIds].sort();
+    if (JSON.stringify(inventoryOwners) !== JSON.stringify(policyOwners)) {
+      violations.push(violation(
+        'writer-policy-owner-mismatch',
+        surface,
+        `inventory owners ${inventoryOwners.join(', ')} differ from policy owners ${policyOwners.join(', ')}`,
+      ));
+    }
+  }
+  for (const surface of writerPolicies.keys()) {
+    if (!writerInventories.has(surface)) {
+      violations.push(violation(
+        'writer-inventory-missing',
+        surface,
+        'executable writer policy has no declared writer inventory',
+      ));
+    }
+  }
 
   for (const module of snapshot.modules) {
     const declaredPorts = new Set([...module.declaredRequiredPorts, ...module.declaredOptionalPorts]);
@@ -105,12 +162,36 @@ export function validateProductionArchitectureSnapshot(snapshot, policy) {
 
   for (const site of snapshot.writerSites) {
     const writerPolicy = writerPolicies.get(site.surface);
-    if (!writerPolicy) throw new TypeError(`Missing writer policy for ${site.surface}.`);
+    const writerInventory = writerInventories.get(site.surface);
+    if (!writerPolicy || !writerInventory) {
+      violations.push(violation(
+        'writer-evidence-undeclared-surface',
+        `${site.surface}:${site.sourceFile}`,
+        'observed writer evidence must belong to both policy and inventory',
+      ));
+      continue;
+    }
+    if (site.detectorId !== writerPolicy.detectorId) {
+      violations.push(violation(
+        'writer-evidence-detector-mismatch',
+        `${site.surface}:${site.sourceFile}`,
+        `observed ${site.detectorId}; policy requires ${writerPolicy.detectorId}`,
+      ));
+    }
     if (!writerPolicy.allowedModuleIds.includes(site.sourceModuleId)) {
       violations.push(violation(
         'writer-outside-declared-owner',
         `${site.surface}:${site.sourceFile}`,
         `${site.sourceModuleId} writes ${site.surface}; allowed: ${writerPolicy.allowedModuleIds.join(', ')}`,
+      ));
+    }
+  }
+  for (const surface of writerInventories.keys()) {
+    if (!snapshot.writerSites.some((site) => site.surface === surface)) {
+      violations.push(violation(
+        'writer-evidence-missing',
+        surface,
+        'declared sole-writer surface has no observed production write evidence',
       ));
     }
   }

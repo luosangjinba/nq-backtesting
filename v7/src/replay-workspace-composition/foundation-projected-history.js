@@ -1,6 +1,5 @@
 import { createProjectedHistoryRequest } from '../projected-history-contract/public.js';
 import {
-  V4_BARS_DATASET_REVISION,
   V4_PROJECTED_HISTORY_PROVIDER_ID,
 } from '../v4-bars-provider-adapter/public.js';
 import { planSingleHistoryWindow } from './history-window-plan.js';
@@ -21,6 +20,7 @@ export function createFoundationProjectedHistory({
   isEligibleMinute,
   maximumRequestSourceBars,
   plannedEntryHistoryStart,
+  readDatasetRevision,
   targetHistoryDisplayBars,
 }) {
   function requiresReplacement(request, selection, displayBars) {
@@ -46,6 +46,10 @@ export function createFoundationProjectedHistory({
     const alignment = selection.displayTimeframe.alignment;
     const planning = capabilities.historyPlanning(selection);
     const displayBars = Math.ceil(targetDisplayBars ?? targetHistoryDisplayBars);
+    const datasetRevision = readDatasetRevision();
+    if (datasetRevision === null) {
+      throw new TypeError('Projected History dataset revision must be resolved before planning data.');
+    }
     const windowStartEpochMs = alignment.kind === 'calendar'
       ? planning.alignStartEpochMs(Math.max(
         0,
@@ -66,7 +70,7 @@ export function createFoundationProjectedHistory({
       alignmentKind: alignment.kind,
       alignmentPolicyId: alignment.kind === 'calendar' ? alignment.policyId : null,
       calendarRevision: selection.calendar.revision,
-      datasetRevision: V4_BARS_DATASET_REVISION,
+      datasetRevision,
       displayTimeframeId: selection.displayTimeframe.id,
       durationMs: alignment.kind === 'fixed-duration' ? alignment.durationMs : null,
       instrumentId: selection.instrument.id,

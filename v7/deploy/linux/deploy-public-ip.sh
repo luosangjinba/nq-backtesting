@@ -24,7 +24,7 @@ Options:
                          Default: /etc/replay-lab/secrets/web-password
   --reset-password       Prompt for a new browser password even when the file exists.
   --preserve-caddy       Keep existing Caddy sites and import a Replay Lab fragment.
-  --replace-legacy       Stop only identified legacy v4_api.py/serve.mjs listeners on 8766/8007.
+  --replace-legacy       Stop only identified V4 API/serve.mjs listeners on 8766/8007.
   --help                 Show this help.
 
 This wrapper does not open a cloud security group. Allow inbound TCP 80/443 in
@@ -39,6 +39,10 @@ die() {
 
 info() {
   printf 'INFO: %s\n' "$*"
+}
+
+warn() {
+  printf 'WARN: %s\n' "$*" >&2
 }
 
 validate_ipv4() {
@@ -76,7 +80,8 @@ stop_identified_listener() {
   for pid in "${pids[@]}"; do
     [[ -r "/proc/$pid/cmdline" ]] || die "cannot inspect listener PID $pid on port $port"
     command_line="$(tr '\0' ' ' < "/proc/$pid/cmdline")"
-    if [[ "$port" == "8766" && "$command_line" == *"v4_api.py"* ]]; then
+    if [[ "$port" == "8766"
+      && ("$command_line" == *"v4_api.py"* || "$command_line" == *"read_api.py"*) ]]; then
       :
     elif [[ "$port" == "8007" && "$command_line" == *"serve.mjs"* && "$command_line" == *"8007"* ]]; then
       :
@@ -179,6 +184,26 @@ fi
 [[ "$auth_user" =~ ^[A-Za-z0-9._-]{1,64}$ ]] || die "invalid --auth-user"
 [[ "$service_user" =~ ^[A-Za-z_][A-Za-z0-9_.-]*[$]?$ ]] || die "invalid --service-user"
 
+database_metadata_changed=0
+database_original_uid=""
+database_original_gid=""
+database_original_mode=""
+restore_database_metadata() {
+  [[ "$database_metadata_changed" -eq 1 ]] || return 0
+  chown "$database_original_uid:$database_original_gid" "$db_path"
+  chmod "$database_original_mode" "$db_path"
+  database_metadata_changed=0
+}
+quick_deploy_exit() {
+  local status="$1"
+  trap - EXIT
+  if [[ "$status" -ne 0 ]] && ! restore_database_metadata; then
+    warn "deployment failed and the original database metadata could not be restored"
+  fi
+  exit "$status"
+}
+trap 'quick_deploy_exit "$?"' EXIT
+
 if ! id "$service_user" >/dev/null 2>&1; then
   info "creating system service user: $service_user"
   useradd --system --home-dir /var/lib/replay-lab --create-home \
@@ -190,8 +215,12 @@ if [[ "$bootstrap" -eq 1 ]]; then
   runuser -u "$service_user" -- test -w "$db_parent" \
     || die "service user cannot write the database bootstrap directory"
 else
+  database_original_uid="$(stat -c '%u' "$db_path")"
+  database_original_gid="$(stat -c '%g' "$db_path")"
+  database_original_mode="$(stat -c '%a' "$db_path")"
   chown root:"$service_group" "$db_path"
   chmod 0640 "$db_path"
+  database_metadata_changed=1
   runuser -u "$service_user" -- test -r "$db_path" \
     || die "service user cannot read DuckDB after permission preparation"
 fi
@@ -230,6 +259,8 @@ installer_arguments=(
 [[ "$preserve_caddy" -eq 0 ]] || installer_arguments+=(--preserve-caddy)
 [[ "$bootstrap" -eq 0 ]] || installer_arguments+=(--bootstrap)
 bash "$installer" "${installer_arguments[@]}"
+database_metadata_changed=0
+trap - EXIT
 
 printf '\nDirect browser URL: https://%s/v7/app/\n' "$public_ip"
 printf 'Browser user: %s\n' "$auth_user"

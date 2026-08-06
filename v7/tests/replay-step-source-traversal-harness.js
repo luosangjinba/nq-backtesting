@@ -13,6 +13,7 @@ const RANGE_START_EPOCH_MS = epoch('2026-05-01T12:00:00.000Z');
 const capabilities = createFoundationCapabilities();
 const bars = [];
 const requests = [];
+let datasetRevisionCalls = 0;
 
 function bar(value) {
   return Object.freeze({
@@ -32,6 +33,12 @@ function setBars(values) {
 const market = Object.freeze({
   catalog: capabilities.catalog,
   defaultTarget: capabilities.defaultTarget,
+  async resolveDatasetRevision(instrumentId, { signal }) {
+    assert.equal(instrumentId, FOUNDATION_IDS.instrument);
+    assert.equal(signal.aborted, false);
+    datasetRevisionCalls += 1;
+    return 'fixture-dataset-revision';
+  },
   requestThrough(exclusiveEndEpochMs, selection) {
     const requiredMinutes = Math.max(
       1,
@@ -168,6 +175,8 @@ assert.equal(resolved.targetEpochMs, epoch('2026-05-02T00:00:00.000Z'),
   'a partial 12h RTH bucket completes on its shared clock slot without inventing a source bar');
 
 assert.ok(requests.length >= 5, 'target lookup remains delegated through Bar Data Runtime');
+assert.equal(datasetRevisionCalls, requests.length,
+  'every source traversal resolves dataset identity before acquiring cached coverage');
 console.log('v7 Replay step source traversal harness passed', {
   scope: 'completion grid, missing minute, RTH weekend gap, Previous symmetry, hidden authority evidence, 12h partial',
 });

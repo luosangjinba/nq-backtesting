@@ -1,10 +1,19 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R10.8",
+  "deliveryStep": "R11.1",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
     "owner": "application-composition"
+  },
+  "sourceDerivedResponsibilities": {
+    "model": "ast-side-effect-authority-v1",
+    "internalResponsibility": "internal-state-or-pure-computation",
+    "concernResponsibilities": {
+      "browser-persistence": "external-state-io",
+      "remote-io": "external-state-io",
+      "visual-surface-mutation": "visual-surface-mutation"
+    }
   },
   "moduleKinds": {
     "composition": [
@@ -15,6 +24,7 @@
     "contract": [
       "core.activation-generation",
       "core.bar-data-contract",
+      "core.browser-async-contract",
       "core.capability-contract",
       "core.coverage-planning-contract",
       "core.prepared-commit-contract",
@@ -67,6 +77,7 @@
     "ui": [
       "adapter.calendar-surface",
       "adapter.data-acquisition-ui",
+      "adapter.database-bootstrap-ui",
       "adapter.replay-workspace-ui",
       "adapter.session-browser-ui"
     ]
@@ -110,6 +121,10 @@
     },
     {
       "path": "sessions/session_20260801_r9_1_replay_four_hour_cap_latency.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md",
       "expectedOccurrences": 1
     }
   ],

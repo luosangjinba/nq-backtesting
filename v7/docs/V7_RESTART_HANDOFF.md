@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-05 after R10.10 Debian/Ubuntu venv recovery
+Last updated: 2026-08-06 after R11.1 automated architecture-integrity closure
 
 ## Current Overall Acceptance State
 
@@ -10,14 +10,29 @@ overall product gate. The current machine-local reviewer sequence is
 `v7/tmp/验收1.md`; continue from its actual checkbox state. Data Acquisition and
 Contract Roll remain a separate checklist/gate.
 
+R11 is the current repository delivery and its automated recovery is closed;
+normal-delivery scope is restored. Its immutable pre-remediation checkpoint is
+`6a101270`; the
+binding plan is `V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md`. R11.1 repairs the
+global decision/rollback boundary, transaction-scoped leases and cancellation,
+DuckDB dataset revision, atomic/poisoned state hydration, Linux host rollback,
+the reviewed static public surface, removable Database Bootstrap UI, and
+cross-runtime topology/writer evidence. Repository recovery may close from
+automated evidence while the separately marked real-host, cross-device, and
+visual human gates remain executable and phase-one acceptance stays open.
+
 R10.1 adds a parallel Linux acceptance-host installer at
 `v7/deploy/linux/install.sh`. It is implemented with automated dry-run/config
 evidence but has not yet passed its real lightweight-cloud-host gate. Its
 read-only public boundary must not be interpreted as Data Acquisition approval.
 The 2026-08-04 full Harness sweep also left two reproducible pre-existing visual
 findings open: a small Pane Workspace fixture delta and a Replay Workspace
-render with candle wicks but missing filled bodies. No baseline was updated;
-both remain part of overall acceptance rather than R10.1 production changes.
+render with candle wicks but missing filled bodies. R11.1 refreshed only the
+architecture/source evidence baselines; no visual baseline was updated. Both
+visual findings remain part of overall acceptance rather than R10.1 production
+changes. The R11.1 sweep also retains the Session date-picker pixel drift, so
+the current full-suite inventory has three visual gates and zero unexpected
+functional/architecture failure.
 
 The first Alibaba Linux apply stopped before host mutation on a NodeSource/
 distribution npm conflict and exposed an unmanaged V4 listener on 8766. R10.2
@@ -104,13 +119,15 @@ This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
 required for normal startup.
 
-R10.10 corrects the newest clean-host deployment finding. Debian/Ubuntu may
+R10.10 corrected the clean-host interpreter finding. Debian/Ubuntu may
 provide Python 3.12 and let `python3.12 -m venv --help` succeed while omitting
-`ensurepip`, causing actual environment creation to stop and leave a partial
-`/opt/replay-lab/shared/venv`. Python discovery now requires `import ensurepip`,
-so package planning installs the venv dependency; apply also validates pip and
-recreates any partial environment with `venv --clear`. The affected host still
-needs the same deployment command rerun after pulling this correction.
+`ensurepip`, causing actual environment creation to stop and leave the then-
+shared virtualenv partial. Python discovery requires `import ensurepip`, so
+package planning installs the matching venv dependency. R11 supersedes the
+shared environment with a release-owned `.venv`; failed releases are
+quarantined and an incomplete host rollback retains root-only recovery
+evidence. The affected host still needs the deployment rerun and human health/
+rollback validation.
 
 ## Pre-Reboot Durable Snapshot
 
@@ -151,9 +168,10 @@ handoff was committed.
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
-- immutable pre-remediation checkpoint: `fa561599`
-- recovery state: R8 is complete and inactive; normal-delivery scope is
-  active, phase-one overall acceptance remains open, R9.4 retains focused
+- immutable R11 pre-remediation checkpoint: `6a101270`
+- recovery state: R11.1 automated architecture recovery is complete and
+  inactive; normal-delivery scope is active, phase-one overall acceptance
+  remains open, H087/H088/H091 retain human review, R9.4 retains focused
   human review, R10.8 automated state sync is implemented with physical two-
   computer/backup-restore validation open, and R10.9 automated database
   bootstrap/import is implemented with clean-host large-file review open;
@@ -265,8 +283,8 @@ handoff was committed.
   the two-consumer Replay Workspace optional-removal matrix;
 - H018 was recovered with two production-path negative controls; the remaining
   recovery regressions were assigned to and closed through R8.12–R8.14;
-- the exact production baseline now scans 49 modules, 125 dependency edges,
-  115 construction sites, 16 declared writer surfaces, and nine critical
+- the exact production baseline now scans 51 modules, 127 dependency edges,
+  115 construction sites, 16 declared writer surfaces, and 19 observed
   writer sites with zero blocking production architecture findings;
 - R8.12 binds all production source to exact size, responsibility, public-
   contract, invariant, debt, and source-drift evidence with no exceptions;
@@ -350,7 +368,7 @@ listed above.
 
 1. repository `AGENTS.md`;
 2. this file;
-3. `docs/V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md`;
+3. `docs/V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md`;
 4. `docs/V7_PRODUCTION_ARCHITECTURE_ANALYZER_R8_2.md`;
 5. `docs/v7-production-architecture-baseline.json`;
 6. `docs/V7_DESCRIPTOR_LIFECYCLE_INDEPENDENT_HARNESS_REPAIR_R8_3.md`;
@@ -374,9 +392,9 @@ listed above.
 24. `docs/V7_EXECUTION_ROADMAP.md`;
 25. only the documents directly relevant to the explicitly selected next step.
 
-Do not resume from the historical status narrative alone. The R8 plan, R8.15
-closure evidence, and machine-readable inactive recovery state override earlier
-statements that recovery or its feature-delivery freeze remains active.
+Do not resume from the historical status narrative alone. The R11.1 closure
+record and machine-readable inactive recovery state override earlier statements
+that recovery or its feature-delivery freeze remains active.
 
 Do not load all historical `sessions/` records. For R6 planning, read only the
 R6-relevant architecture/roadmap documents plus:
@@ -884,7 +902,10 @@ CSV conversion and one direct DuckDB upload on disposable hosts, then prove
 activation, V4/V7 read behavior, restart persistence, and permanent importer
 lock without opening 8768 publicly.
 Record resource/latency/restart/rollback evidence. R8 recovery remains human
-accepted and inactive. The separate
+accepted and inactive; R11 repository recovery is also inactive. H087 requires
+the real Linux host transaction/health pass, H088 requires visible static and
+Data Acquisition/Bootstrap review, and H091 remains open while the three known
+visual failures exist. The separate
 R7.3/R7.3c Data Acquisition admin human gate and the proposed multi-source
 acquisition/plugin project remain deferred; neither is implicitly authorized by
 the completed historical repairs or the read-only deployment path.

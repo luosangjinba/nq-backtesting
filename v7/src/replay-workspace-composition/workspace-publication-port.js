@@ -37,9 +37,9 @@ export function createWorkspacePublicationPort({
         applyCandidate(record.candidate);
         record.state = 'applied';
       } catch (error) {
-        try { rollbackCandidate(record.previous, record.candidate); } catch { /* Preserve publication failure. */ }
-        try { rejectCandidate(); } catch { /* Preserve publication failure. */ }
-        record.state = 'rolled-back';
+        // Leave the stage rollback-capable. The prepared participant owns the
+        // one recovery attempt so a restore failure remains observable to the
+        // coordinator and can poison the activation.
         throw error;
       }
     },
@@ -48,11 +48,11 @@ export function createWorkspacePublicationPort({
       if (record.state !== 'applied') {
         throw new TypeError('Only an applied Workspace publication may finalize.');
       }
-      finalizeCandidate(record.candidate);
       accepted = record.candidate;
       record.state = 'finalized';
+      finalizeCandidate(record.candidate);
     },
-    reject() { rejectCandidate(); },
+    reject(identity) { rejectCandidate(identity); },
     rollback(stage) {
       const record = recordFor(stage);
       if (record.state === 'rolled-back') return;
@@ -62,7 +62,7 @@ export function createWorkspacePublicationPort({
       if (record.state === 'applied' || record.state === 'applying') {
         rollbackCandidate(record.previous, record.candidate);
       }
-      rejectCandidate();
+      rejectCandidate(record.candidate.identity);
       record.state = 'rolled-back';
     },
     snapshot: () => Object.freeze({ accepted }),

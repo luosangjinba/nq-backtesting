@@ -15,7 +15,7 @@ export function createProductionModuleDefinition({
   if (!environment?.root) throw new TypeError(`${MODULE_ID} requires a root.`);
   return Object.freeze({
     descriptor,
-    instantiate({ requiredPorts }) {
+    instantiate({ optionalPorts, requiredPorts }) {
       lifecycleObserver('instantiate', MODULE_ID);
       const surfaceApi = requiredPorts['adapter.data-acquisition-ui'];
       if (!surfaceApi || typeof surfaceApi.createDataAcquisitionSurface !== 'function') {
@@ -37,6 +37,7 @@ export function createProductionModuleDefinition({
           status = 'starting';
           surface = surfaceApi.createDataAcquisitionSurface({
             ...(environment.surfaceOptions ?? {}),
+            databaseBootstrapApi: optionalPorts['adapter.database-bootstrap-ui'] ?? null,
             root: environment.root,
           });
           status = 'running';

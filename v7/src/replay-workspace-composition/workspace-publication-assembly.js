@@ -40,6 +40,28 @@ export function createWorkspacePublicationAssembly({
     presentation.setState(workspaceSnapshot === null ? 'loading' : readyPanes.length === 0 ? 'empty' : 'ready');
   }
 
+  function restore(previous) {
+    if (previous === null) return;
+    const failures = [];
+    try {
+      checkpointPersistence.restore({
+        checkpoint: previous.workspaceState.checkpoint,
+        layout: previous.publication.layout,
+        layoutSync: previous.publication.layoutSync,
+      });
+    } catch (error) {
+      failures.push(error);
+    }
+    try {
+      render(previous);
+    } catch (error) {
+      failures.push(error);
+    }
+    if (failures.length > 0) {
+      throw new AggregateError(failures, 'Workspace publication rollback could not restore accepted state.');
+    }
+  }
+
   const initialSemanticState = session.semanticState();
   const initialAccepted = Object.freeze({
     identity: initialSemanticState.identity,
@@ -59,13 +81,30 @@ export function createWorkspacePublicationAssembly({
         layout: candidate.publication.layout,
         layoutSync: candidate.publication.layoutSync,
         rethrow: true,
+        reversible: true,
       });
     },
-    onFinalize: (candidate) => data.paneData.finalize(
-      workspaceState.paneIds(candidate.workspaceState.paneWorkspace),
-    ),
-    onReject: data.paneData.reject,
-    onRollback: (previous) => { if (previous !== null) render(previous); },
+    onFinalize(candidate) {
+      const failures = [];
+      try {
+        checkpointPersistence.finalize();
+      } catch (error) {
+        failures.push(error);
+      }
+      try {
+        data.paneData.finalize(
+          candidate.identity,
+          workspaceState.paneIds(candidate.workspaceState.paneWorkspace),
+        );
+      } catch (error) {
+        failures.push(error);
+      }
+      if (failures.length > 0) {
+        throw new AggregateError(failures, 'Workspace publication finalization was incomplete.');
+      }
+    },
+    onReject: (identity) => data.paneData.reject(identity),
+    onRollback: restore,
   });
   return Object.freeze({ publicationPort, publicationValue });
 }

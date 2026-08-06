@@ -2,7 +2,6 @@ import { createRawBarRequest } from '../bar-data-contract/public.js';
 import {
   createV4BarsProvider,
   createV4ProjectedHistoryProvider,
-  V4_BARS_DATASET_REVISION,
 } from '../v4-bars-provider-adapter/public.js';
 import { createFoundationCapabilities, FOUNDATION_IDS } from './foundation-capabilities.js';
 import {
@@ -23,12 +22,14 @@ const MAXIMUM_SINGLE_HISTORY_WINDOW_MS = MAXIMUM_SINGLE_HISTORY_DAYS * 24 * 60 *
 
 /** Concrete NQ-primary Session market composition, isolated outside all core owners. */
 export function createFoundationMarket(record, {
+  initialDatasetRevision = null,
   projectedHistoryProvider = createV4ProjectedHistoryProvider(),
   provider = createV4BarsProvider(),
 } = {}) {
   const configuredInstrumentIds = record?.configuration?.instrumentIds ?? [FOUNDATION_IDS.instrument];
   const capabilities = createFoundationCapabilities(configuredInstrumentIds);
   const range = record.configuration.historicalRange;
+  let datasetRevision = initialDatasetRevision;
   const contextStartEpochMs = Math.max(0, range.startEpochMs - (ENTRY_PREFIX_BARS * MINUTE));
   const entryHistoryEndEpochMs = range.startEpochMs + MINUTE;
   function historySourceBars(selection, displayBars = TARGET_HISTORY_DISPLAY_BARS) {
@@ -45,8 +46,11 @@ export function createFoundationMarket(record, {
       && selection?.sessionHoursMode === capabilities.defaultTarget.sessionHoursMode;
   }
   function rawRequest({ instrumentId, windowEndEpochMs, windowStartEpochMs }) {
+    if (datasetRevision === null) {
+      throw new TypeError('Foundation market dataset revision must be resolved before planning data.');
+    }
     return createRawBarRequest({
-      datasetRevision: V4_BARS_DATASET_REVISION,
+      datasetRevision,
       instrumentId,
       providerId: FOUNDATION_IDS.provider,
       schemaVersion: 1,
@@ -152,6 +156,7 @@ export function createFoundationMarket(record, {
     isEligibleMinute,
     maximumRequestSourceBars: MAXIMUM_REQUEST_SOURCE_BARS,
     plannedEntryHistoryStart,
+    readDatasetRevision: () => datasetRevision,
     targetHistoryDisplayBars: TARGET_HISTORY_DISPLAY_BARS,
   });
   function requestForTimeLocation(
@@ -177,7 +182,6 @@ export function createFoundationMarket(record, {
       ),
     });
   }
-  const request = requestThrough(range.startEpochMs + MINUTE);
   function planEligibleMinutes({ count, cursorEpochMs, selection }) {
     let remaining = count;
     let lastEligibleEpochMs = null;
@@ -208,7 +212,17 @@ export function createFoundationMarket(record, {
     planEligibleMinutes,
     provider,
     projectedHistoryProvider,
-    request,
+    async resolveDatasetRevision(instrumentId, { signal } = {}) {
+      if (typeof provider.resolveDatasetRevision !== 'function') {
+        throw new TypeError('Foundation market provider must resolve its dataset revision.');
+      }
+      datasetRevision = await provider.resolveDatasetRevision({
+        instrumentId,
+        providerId: FOUNDATION_IDS.provider,
+        sourceResolutionId: FOUNDATION_IDS.resolution,
+      }, { signal });
+      return datasetRevision;
+    },
     requestBefore,
     requestProjectedHistoryBefore: projectedHistory.requestBefore,
     requestForTimeLocation,

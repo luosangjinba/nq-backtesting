@@ -4,7 +4,7 @@
   "kind": "adapter",
   "owner": "data-acquisition-admin",
   "publicEntry": "src/data-acquisition-ui/public.js",
-  "requiredPorts": [],
+  "requiredPorts": ["core.browser-async-contract"],
   "optionalPorts": [],
   "lifecycle": ["dispose"],
   "independentHarness": "tests/data-acquisition-ui-harness.js",

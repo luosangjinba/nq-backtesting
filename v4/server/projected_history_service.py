@@ -2,8 +2,14 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from datetime import datetime, timedelta, timezone
+from threading import Lock
 from typing import Dict, Tuple, Union
 
+from server.market_data_revision import (
+    DatasetRevisionUnstable,
+    require_expected_revision,
+    resolve_dataset_revision,
+)
 from server.price_lookup import open_db, _parse_datetime
 
 
@@ -17,8 +23,9 @@ SUPPORTED_SESSION_MODES = frozenset({"eth", "rth"})
 MAXIMUM_PROJECTED_HISTORY_DAYS = 25 * 366
 PROJECTED_HISTORY_CACHE_LIMIT = 64
 _PROJECTED_HISTORY_CACHE: OrderedDict[
-    Tuple[str, Union[int, str], str, str, str, str], Dict[str, object]
+    Tuple[str, Union[int, str], str, str, str, str, str], Dict[str, object]
 ] = OrderedDict()
+_PROJECTED_HISTORY_CACHE_LOCK = Lock()
 
 
 def _normalize_timeframe(value) -> Union[int, str]:
@@ -156,10 +163,21 @@ order by trading_period_start
 
 
 def clear_projected_history_cache():
-    _PROJECTED_HISTORY_CACHE.clear()
+    with _PROJECTED_HISTORY_CACHE_LOCK:
+        _PROJECTED_HISTORY_CACHE.clear()
 
 
-def query_projected_history(db_path, table, instrument, start, end, tf, session_mode):
+def query_projected_history(
+    db_path,
+    table,
+    instrument,
+    start,
+    end,
+    tf,
+    session_mode,
+    expected_dataset_revision=None,
+    _revision_attempt=0,
+):
     target_timeframe = _normalize_timeframe(tf)
     mode = _normalize_session_mode(session_mode)
     start_dt = _parse_datetime(start)
@@ -169,6 +187,8 @@ def query_projected_history(db_path, table, instrument, start, end, tf, session_
     if end_dt - start_dt > timedelta(days=MAXIMUM_PROJECTED_HISTORY_DAYS):
         raise ValueError("projected history window exceeds the twenty-five-year limit")
 
+    dataset_revision = resolve_dataset_revision(db_path, table)
+    require_expected_revision(expected_dataset_revision, dataset_revision)
     normalized_instrument = str(instrument or "NQ").strip().upper()
     key = (
         normalized_instrument,
@@ -176,11 +196,32 @@ def query_projected_history(db_path, table, instrument, start, end, tf, session_
         mode,
         str(start).strip(),
         str(end).strip(),
-        "projected-history-v3",
+        dataset_revision,
+        "projected-history-v4",
     )
-    cached = _PROJECTED_HISTORY_CACHE.get(key)
+    with _PROJECTED_HISTORY_CACHE_LOCK:
+        cached = _PROJECTED_HISTORY_CACHE.get(key)
+        if cached:
+            _PROJECTED_HISTORY_CACHE.move_to_end(key)
     if cached:
-        _PROJECTED_HISTORY_CACHE.move_to_end(key)
+        revision_after_cache_read = resolve_dataset_revision(db_path, table)
+        require_expected_revision(expected_dataset_revision, revision_after_cache_read)
+        if revision_after_cache_read != dataset_revision:
+            if _revision_attempt >= 1:
+                raise DatasetRevisionUnstable(
+                    "market database changed repeatedly while projected history was being read"
+                )
+            return query_projected_history(
+                db_path,
+                table,
+                instrument,
+                start,
+                end,
+                tf,
+                session_mode,
+                expected_dataset_revision=expected_dataset_revision,
+                _revision_attempt=_revision_attempt + 1,
+            )
         return {**cached, "cacheHit": True}
 
     bars = []
@@ -269,17 +310,37 @@ order by bucket
                     "volume": int(row[5]) if row[5] is not None else 0,
                 })
 
+    revision_after_read = resolve_dataset_revision(db_path, table)
+    require_expected_revision(expected_dataset_revision, revision_after_read)
+    if revision_after_read != dataset_revision:
+        if _revision_attempt >= 1:
+            raise DatasetRevisionUnstable(
+                "market database changed repeatedly while projected history was being read"
+            )
+        return query_projected_history(
+            db_path,
+            table,
+            instrument,
+            start,
+            end,
+            tf,
+            session_mode,
+            expected_dataset_revision=expected_dataset_revision,
+            _revision_attempt=_revision_attempt + 1,
+        )
+
     record = {
         "bars": bars,
         "cacheHit": False,
-        "datasetRevision": "v4-local-futures-1m-r1",
+        "datasetRevision": dataset_revision,
         "sessionHoursMode": mode,
         "source": "projected-history-service",
         "targetTimeframe": str(target_timeframe),
     }
     if isinstance(target_timeframe, int):
         record["targetDurationMinutes"] = target_timeframe
-    _PROJECTED_HISTORY_CACHE[key] = record
-    while len(_PROJECTED_HISTORY_CACHE) > PROJECTED_HISTORY_CACHE_LIMIT:
-        _PROJECTED_HISTORY_CACHE.popitem(last=False)
+    with _PROJECTED_HISTORY_CACHE_LOCK:
+        _PROJECTED_HISTORY_CACHE[key] = record
+        while len(_PROJECTED_HISTORY_CACHE) > PROJECTED_HISTORY_CACHE_LIMIT:
+            _PROJECTED_HISTORY_CACHE.popitem(last=False)
     return record

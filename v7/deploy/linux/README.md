@@ -43,7 +43,7 @@ It prompts twice for the browser password when no saved password exists. The
 as an imported `/etc/caddy/replay-lab.Caddyfile` fragment. Omit it only on a
 dedicated host where replacing the whole Caddyfile is intentional. The
 `--replace-legacy` option stops only command lines positively identified as the
-old `v4_api.py` on 8766 or `serve.mjs 8007`; an unknown listener still fails
+V4 `v4_api.py`/`read_api.py` process on 8766 or `serve.mjs 8007`; an unknown listener still fails
 closed. Omit that option when no legacy process exists.
 
 ## Supported Hosts
@@ -69,19 +69,21 @@ selection.
 On Debian/Ubuntu, interpreter discovery also verifies that `ensurepip` is
 actually importable. `python -m venv --help` alone is insufficient there: it
 can succeed while the matching `python3-venv` package is absent. Apply mode now
-installs the distribution venv package and recreates an incomplete shared
-virtualenv with `--clear` on rerun.
+installs the distribution venv package. Each immutable release owns its own
+virtualenv; an apply failure quarantines that release and removes the partial
+runtime before a later run creates a fresh release.
 
 If an older installer already stopped with an error naming
-`python3.12-venv`, recover the host without deleting releases:
+`python3.12-venv`, install the matching package and rerun the current installer;
+do not repair or reuse the old shared virtualenv:
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y python3.12-venv
-sudo python3.12 -m venv --clear /opt/replay-lab/shared/venv
 ```
 
-Then rerun the same deployment command.
+The new attempt creates a fresh release-owned runtime and safely isolates any
+new failed release.
 
 A practical small-host starting point is 2 vCPU, 2 GB RAM plus swap, and at
 least 3 GB free space in addition to the market database. The current verified
@@ -245,9 +247,21 @@ dependencies, validates the database as the service user, and atomically moves
 the `/opt/replay-lab/current` symlink. Tracked source changes block apply mode.
 
 If local API/state/import/Web health fails after activation, the script restores the
-prior release symlink and restarts all four services. Old releases are
-intentionally not deleted automatically. The user-state SQLite file is durable
-host state and is neither deleted nor reverted with a code release.
+prior release symlink, restores the exact previous active/inactive unit set, and
+checks the loopback health endpoint of every previously active application
+service. Old completed releases are intentionally not deleted automatically.
+The failed new release is moved to root-only
+`/opt/replay-lab/failed-releases/`; its partial `.venv` is removed after
+isolation. The user-state SQLite file is durable host state and is neither
+deleted nor reverted with a code release.
+
+If any file, metadata, unit-state, endpoint, or quarantine restoration cannot
+be proven, rollback is incomplete. The installer preserves root-only recovery
+evidence under `/var/lib/replay-lab/recovery/rollback-*` and prints the exact
+path. Do not treat the previous deployment as healthy until that manifest and
+the referenced service logs have been reviewed. If snapshot creation itself
+fails, the root-only installer temporary directory is retained instead of
+being deleted.
 
 Manual rollback remains explicit:
 

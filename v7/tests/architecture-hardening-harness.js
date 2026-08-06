@@ -130,6 +130,19 @@ for (const testCase of recoveryNegativeFixture.cases) {
     firstRegressed.state = 'regressed';
     invalidCatalog.recoveryMode.regressedRuleIds = [firstRegressed.id];
   }
+  const closedRecoveryOperations = new Set([
+    'retain-feature-freeze-after-closure',
+    'remove-closure-evidence',
+    'replace-closure-step',
+  ]);
+  if (closedRecoveryOperations.has(testCase.operation)) {
+    invalidCatalog.recoveryMode.active = false;
+    invalidCatalog.recoveryMode.allowedWork = 'normal-delivery';
+    invalidCatalog.recoveryMode.freezeFeatureDelivery = false;
+    invalidCatalog.recoveryMode.requiredClosureStep = 'R8.15';
+    invalidCatalog.recoveryMode.closureStep = 'R8.15';
+    invalidCatalog.recoveryMode.closureEvidence = 'sessions/session_20260731_r8_15_human_acceptance_zero_debt.md';
+  }
   if (testCase.operation === 'deactivate-recovery') {
     invalidCatalog.recoveryMode.active = false;
   } else if (testCase.operation === 'remove-regression-evidence') {

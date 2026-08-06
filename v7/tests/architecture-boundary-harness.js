@@ -19,9 +19,16 @@ const productionBaseline = JSON.parse(fs.readFileSync(
   path.join(V7_ROOT, 'docs/v7-production-architecture-baseline.json'),
   'utf8',
 ));
+const productionWriterPolicy = JSON.parse(fs.readFileSync(
+  path.join(V7_ROOT, 'docs/v7-production-writer-policy.json'),
+  'utf8',
+));
 const productionArchitecture = analyzeProductionArchitecture({
   manifest,
-  policy: productionBaseline.analysisPolicy,
+  policy: {
+    ...productionBaseline.analysisPolicy,
+    writerPolicies: productionWriterPolicy.writerPolicies,
+  },
   v7Root: V7_ROOT,
 });
 assert.deepEqual(

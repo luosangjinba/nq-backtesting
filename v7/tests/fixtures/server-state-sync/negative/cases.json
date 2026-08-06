@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "ordinary-apply-failure-restores-exact-snapshot",
+      "driver": "snapshot-exact-rollback",
+      "failureMode": "once-before-mutation",
+      "mutationOrdinal": 3,
+      "expectedFailureCode": "STORAGE_MUTATION_FAILED"
+    },
+    {
+      "id": "apply-and-rollback-failure-requires-reload",
+      "driver": "initial-hydration-poison",
+      "failureMode": "persistent-after-mutation",
+      "mutationOrdinal": 1,
+      "expectedFailureCode": "STATE_SYNC_RELOAD_REQUIRED"
+    },
+    {
+      "id": "late-put-cannot-clear-reload-required",
+      "driver": "late-put-poison-seal",
+      "failureMode": "persistent-after-mutation",
+      "mutationOrdinal": 2,
+      "expectedFailureCode": "STATE_SYNC_RELOAD_REQUIRED"
+    }
+  ]
+}

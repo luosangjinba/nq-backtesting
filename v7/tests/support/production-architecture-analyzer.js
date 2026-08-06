@@ -3,14 +3,22 @@ import path from 'node:path';
 import { validateProductionArchitectureSnapshot } from './production-architecture-validator.js';
 
 const WRITER_DETECTORS = Object.freeze({
-  'market-data-retention-ledger': /export\s+function\s+createRawCoverageStore\s*\(/,
+  'calendar-surface-dom-commit': /\breplaceChildren\s*\(\s*this\.nodes\.body\s*,/,
+  'layout-sync-policy-commit': /\bsaveLayoutSync\s*\([^)]*\)\s*\{[\s\S]*?configuredWorkspace\s*\(\s*current\s*,\s*\{\s*layoutSync:/,
+  'market-data-retention-ledger': /\bacceptedByConsumer\.set\s*\(/,
   'native-chart-series': /\b(?:series|futureTimeAxisSeries)\.(?:setData|update)\s*\(/,
-  'pane-workspace-accepted-state': /export\s+function\s+createWorkspaceStateRuntime\s*\(/,
-  'post-terminal-workspace-commit': /\bpaneData\.accept\s*\(/,
+  'pane-workspace-accepted-state': /\bsnapshot\s*=\s*candidateSnapshot\b/,
   'raw-provider-request': /\bprovider\.(?:requestRawBars|requestProjectedHistory)\s*\(/,
+  'replay-navigation-preferences-commit': /\bport\.write\s*\(\s*storageKey\s*,\s*JSON\.stringify\(wire\)\s*\)/,
   'replicated-state-put': /\bmethod:\s*['"]PUT['"]/,
-  'replay-cursor-commit': /\bcursorEpochMs\s*=\s*value\.targetEpochMs\b/,
+  'replay-cursor-commit': /\bcursorEpochMs\s*=\s*(?:candidate|previous)\.cursorEpochMs\b/,
+  'replay-workspace-dom-commit': /\boptions\.root\.replaceChildren\s*\(\s*view\.root\s*\)/,
+  'session-browser-dom-commit': /\broot\.replaceChildren\s*\(\s*shell\s*\(/,
+  'session-record-commit': /\bport\.(?:insert|compareAndSwap|remove)\s*\(\s*(?:record\.sessionId|sessionId)\b/,
+  'viewport-intent-commit': /\bintent\s*=\s*(?:candidate|(?:move|promote|reset)ViewportIntent[A-Za-z]*)/,
+  'workspace-checkpoint-commit': /\bfunction\s+workspaceCheckpointUpdate\s*\([\s\S]*?configuredWorkspace\s*\(\s*current\s*,\s*\{[\s\S]*?checkpoint:/,
   'workspace-snapshot-commit': /#acceptedSnapshot\s*=/,
+  'workstation-settings-commit': /\bport\.write\s*\(\s*storageKey\s*,\s*JSON\.stringify\(recordWire\s*\(/,
 });
 
 function sorted(values) {

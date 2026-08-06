@@ -18,8 +18,8 @@ const expectedRemovalMatrix = JSON.parse(fs.readFileSync(
 assert.equal(expectedRemovalMatrix.schemaVersion, 1);
 const result = await verifyProductionModuleAssembly({ manifest, v7Root: V7_ROOT });
 assert.equal(result.moduleIds.length, manifest.activeProductionModules.length);
-assert.equal(result.moduleIds.length, 49);
-assert.equal(result.lifecycleModuleIds.length, 17);
+assert.equal(result.moduleIds.length, 51);
+assert.equal(result.lifecycleModuleIds.length, 18);
 assert.deepEqual(result.optionalRemovalMatrix, expectedRemovalMatrix.cases);
 
 console.log(

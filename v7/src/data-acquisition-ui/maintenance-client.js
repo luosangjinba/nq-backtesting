@@ -1,3 +1,5 @@
+import { abortableDelay } from '../browser-async-contract/public.js';
+
 const MAINTENANCE_HEADER = 'data-maintenance';
 const POLL_INTERVAL_MS = 1000;
 const REQUEST_TIMEOUT_MS = 15000;
@@ -6,20 +8,6 @@ export function resolveMaintenanceApiBase(locationLike = globalThis.location) {
   const hostname = locationLike?.hostname || '127.0.0.1';
   if (locationLike?.protocol === 'https:') return '';
   return `http://${hostname}:8766`;
-}
-
-function delay(milliseconds, signal, setTimer, clearTimer) {
-  return new Promise((resolve, reject) => {
-    if (signal?.aborted) {
-      reject(signal.reason ?? new DOMException('Aborted', 'AbortError'));
-      return;
-    }
-    const timer = setTimer(resolve, milliseconds);
-    signal?.addEventListener('abort', () => {
-      clearTimer(timer);
-      reject(signal.reason ?? new DOMException('Aborted', 'AbortError'));
-    }, { once: true });
-  });
 }
 
 async function parseJsonResponse(response) {
@@ -87,7 +75,7 @@ export function createMaintenanceClient(options = {}) {
 
   async function watchJob(jobId, { onStatus = () => {}, signal } = {}) {
     while (true) {
-      await delay(pollIntervalMs, signal, setTimer, clearTimer);
+      await abortableDelay(pollIntervalMs, signal, setTimer, clearTimer);
       const status = await request({ action: 'job_status', jobId }, { signal });
       const job = status.job;
       if (!job) throw new Error(status.output || 'The maintenance job is no longer available.');

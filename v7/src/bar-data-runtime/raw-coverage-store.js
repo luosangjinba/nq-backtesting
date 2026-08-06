@@ -46,6 +46,7 @@ function contiguousPrefix(accepted, acquired) {
   let requiredEndEpochMs = acquired.request.windowStartEpochMs;
   for (let index = accepted.length - 1; index >= 0; index -= 1) {
     const candidate = accepted[index];
+    if (!sameSourceScope(candidate.request, acquired.request)) break;
     if (candidate.request.windowEndEpochMs > requiredEndEpochMs) continue;
     if (candidate.request.windowEndEpochMs < requiredEndEpochMs) break;
     prefix.unshift(candidate);
@@ -125,8 +126,11 @@ export function createRawCoverageStore({
     }
     const batch = createRawBarBatch(acquired);
     const accepted = acceptedByConsumer.get(consumer) ?? Object.freeze([]);
+    const sourceChanged = accepted.length > 0
+      && !sameSourceScope(accepted[0].request, batch.request);
     let batches;
-    if (operation === 'history-extension') batches = [batch, ...accepted];
+    if (sourceChanged) batches = [batch];
+    else if (operation === 'history-extension') batches = [batch, ...accepted];
     else if (operation === 'source-replacement') batches = [batch];
     else if (covers(accepted, batch.request)) batches = accepted;
     else batches = [...contiguousPrefix(accepted, batch), batch];

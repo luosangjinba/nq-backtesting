@@ -1,5 +1,33 @@
 # V7 TODO
 
+## R11 Architecture Integrity Recovery — Automated Closure, Human Gates Open
+
+The 2026-08-06 full-code review reapplies V7's original modularity and
+decoupling rules to the complete deployed product. Binding plan:
+`docs/V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md`.
+
+- [x] make Workspace Transaction failure atomic across Chart, Replay,
+  Workspace State, publication, and durable checkpoint persistence;
+- [x] poison and reconstruct an activation when rollback cannot be proven;
+- [x] isolate Raw Coverage leases by full transaction identity and cancel stale
+  projected-history consumers;
+- [x] replace the immutable V4 dataset constant with an authoritative database
+  revision and invalidate every affected cache;
+- [x] make cross-device local hydration exactly reversible under every storage
+  failure;
+- [x] make Linux rollback restore code, venv, env, units, proxy configuration,
+  permissions, and service health as one host transaction;
+- [x] serve only reviewed web assets instead of the repository root;
+- [x] separate database bootstrap from optional local Maintenance UI capability;
+- [x] include Node/Python/V4/deployment production owners and writer surfaces in
+  architecture/source-quality evidence;
+- [x] execute regression-matrix scenarios and update the H-rule lifecycle
+  through the current delivery step;
+- [x] run all 93 top-level Harnesses with zero unexpected failure and preserve
+  the three known visual failures explicitly;
+- [ ] complete H087/H088/H091, the clean-host/cross-device checks, and the
+  remaining overall-acceptance human gates.
+
 ## Phase-One Overall Acceptance — In Progress
 
 The main-program acceptance pass is still active. R8 architecture recovery
@@ -7,14 +35,15 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
-### R10.10 Debian/Ubuntu Versioned Venv Recovery — Implemented, Host Rerun Pending
+### R10.10 Debian/Ubuntu Venv Recovery — Superseded by R11 Host Transaction
 
 - [x] identify `python -m venv --help` as a false-positive readiness probe when
   Debian/Ubuntu has the interpreter but not its matching `python3-venv` package;
 - [x] require importable `ensurepip` before selecting a Python interpreter so
   apply mode requests the distribution venv package when it is missing;
-- [x] detect a partially created shared virtualenv and recreate it safely with
-  `venv --clear` instead of skipping it because a Python symlink exists;
+- [x] detect a partially created environment; R11 supersedes the shared
+  `venv --clear` repair with one release-owned `.venv` and failed-release
+  quarantine;
 - [x] bind the discovery and partial-environment repair invariants in the Linux
   deployment Harness and document the exact Python 3.12 host recovery command;
 - [ ] pull the correction on the affected Debian/Ubuntu host, rerun the same
@@ -573,9 +602,9 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 314 files, 24,107 effective
-lines, 2,572 functions, and 310 public exports; the architecture baseline
-remains 49 modules, 125 edges, 115 construction sites, nine writers, and zero
+The current production source baseline contains 318 files, 24,824 effective
+lines, 2,633 functions, and 311 public exports; the architecture baseline
+remains 51 modules, 127 edges, 115 construction sites, 19 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -586,8 +615,8 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 314 files, 24,107 effective lines, 2,572 functions, 310 public
-exports, 49 modules, 125 edges, 115 construction sites, nine writers, and zero
+currently at 318 files, 24,824 effective lines, 2,633 functions, 311 public
+exports, 51 modules, 127 edges, 115 construction sites, 19 writers, and zero
 findings.
 
 ## Established Foundation Governance

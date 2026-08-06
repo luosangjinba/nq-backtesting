@@ -56,6 +56,172 @@ function parseProductionFile(absolutePath) {
   return Object.freeze({ absolutePath, ast, comments, source });
 }
 
+const INTERNAL_RESPONSIBILITY = 'internal-state-or-pure-computation';
+const SIDE_EFFECT_RESPONSIBILITIES = Object.freeze({
+  'browser-persistence': 'external-state-io',
+  'remote-io': 'external-state-io',
+  'visual-surface-mutation': 'visual-surface-mutation',
+});
+
+function requireSourceDerivedResponsibilityPolicy(policy) {
+  const declared = policy?.sourceDerivedResponsibilities;
+  const concernEntries = Object.entries(declared?.concernResponsibilities ?? {});
+  if (declared?.model !== 'ast-side-effect-authority-v1'
+    || declared?.internalResponsibility !== INTERNAL_RESPONSIBILITY
+    || concernEntries.length !== Object.keys(SIDE_EFFECT_RESPONSIBILITIES).length
+    || concernEntries.some(([concern, responsibility]) => (
+      SIDE_EFFECT_RESPONSIBILITIES[concern] !== responsibility
+    ))) {
+    throw new TypeError('Source-derived responsibility policy must bind the supported AST concern model exactly.');
+  }
+}
+const SEMANTIC_STOP_WORDS = new Set([
+  'adapter', 'application', 'async', 'browser', 'contract', 'core', 'create',
+  'default', 'define', 'definition', 'error', 'from', 'get', 'has', 'make',
+  'module', 'public', 'read', 'require', 'resolve', 'runtime', 'service', 'set',
+  'surface', 'value', 'with',
+]);
+
+function identifierWords(value) {
+  return String(value ?? '')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word.length >= 3 && !SEMANTIC_STOP_WORDS.has(word));
+}
+
+function memberPropertyName(node) {
+  if (node?.type !== 'MemberExpression') return '';
+  if (!node.computed && node.property?.type === 'Identifier') return node.property.name;
+  if (node.computed && node.property?.type === 'Literal') return String(node.property.value);
+  return '';
+}
+
+function memberRootName(node) {
+  let candidate = node;
+  while (candidate?.type === 'MemberExpression') candidate = candidate.object;
+  return candidate?.type === 'Identifier' ? candidate.name : '';
+}
+
+function isDomRootName(value) {
+  return /(?:document|element|node|root|container|host|menu|dialog|button|input|label|select|option|pane|canvas|fragment|view|list|toolbar|control|overlay|status|message|content|row|field)/i
+    .test(value);
+}
+
+function concernOperation(node) {
+  if (node.type === 'NewExpression' && node.callee?.type === 'Identifier'
+    && node.callee.name === 'XMLHttpRequest') {
+    return ['remote-io', 'new XMLHttpRequest'];
+  }
+  if (node.type === 'CallExpression' && node.callee?.type === 'Identifier'
+    && /^(?:fetch|fetchImpl)$/i.test(node.callee.name)) {
+    return ['remote-io', `${node.callee.name}()`];
+  }
+  if (node.type === 'CallExpression' && node.callee?.type === 'MemberExpression') {
+    const property = memberPropertyName(node.callee);
+    const root = memberRootName(node.callee);
+    const domRoot = isDomRootName(root);
+    if (property === 'fetch') return ['remote-io', `${root}.fetch()`];
+    if ((['localStorage', 'sessionStorage'].includes(root) || /storage/i.test(root))
+      && ['setItem', 'removeItem', 'clear'].includes(property)) {
+      return ['browser-persistence', `${root}.${property}()`];
+    }
+    if (root === 'indexedDB' && ['open', 'deleteDatabase'].includes(property)) {
+      return ['browser-persistence', `indexedDB.${property}()`];
+    }
+    if ((domRoot && ['append', 'appendChild', 'replaceChildren', 'setAttribute', 'toggleAttribute'].includes(property))
+      || (domRoot && node.callee.object?.type === 'MemberExpression'
+        && memberPropertyName(node.callee.object) === 'classList'
+        && ['add', 'remove', 'replace', 'toggle'].includes(property))) {
+      return ['visual-surface-mutation', `${property}()`];
+    }
+    if (['setData', 'setVisibleRange', 'setLogicalRange', 'fitContent', 'addSeries',
+      'removeSeries', 'createPriceLine'].includes(property)) {
+      return ['visual-surface-mutation', `${property}()`];
+    }
+    if (property === 'update' && /(?:series|chart)/i.test(root)) {
+      return ['visual-surface-mutation', `${root}.update()`];
+    }
+  }
+  if (node.type === 'CallExpression' && node.callee?.type === 'Identifier'
+    && node.callee.name === 'createChart') {
+    return ['visual-surface-mutation', 'createChart()'];
+  }
+  if (node.type === 'AssignmentExpression' && node.left?.type === 'MemberExpression'
+    && isDomRootName(memberRootName(node.left))
+    && ['innerHTML', 'outerHTML', 'textContent', 'className', 'hidden', 'disabled']
+      .includes(memberPropertyName(node.left))) {
+    return ['visual-surface-mutation', `${memberPropertyName(node.left)}=`];
+  }
+  return null;
+}
+
+function sourceConcernEvidence(record, range = record.ast) {
+  const operations = new Map();
+  walkAst(range, (node) => {
+    const operation = concernOperation(node);
+    if (!operation) return;
+    const [concern, evidence] = operation;
+    if (!operations.has(concern)) operations.set(concern, new Set());
+    operations.get(concern).add(evidence);
+  });
+  return Object.freeze([...operations.entries()]
+    .map(([concern, evidence]) => Object.freeze({ concern, evidence: [...evidence].sort() }))
+    .sort((left, right) => left.concern.localeCompare(right.concern)));
+}
+
+function responsibilityNames(sideEffectConcerns) {
+  const responsibilities = [...new Set(sideEffectConcerns
+    .map(({ concern }) => SIDE_EFFECT_RESPONSIBILITIES[concern]))].sort();
+  return responsibilities.length > 0
+    ? responsibilities
+    : [INTERNAL_RESPONSIBILITY];
+}
+
+function exportSemanticEvidence({ documentation, moduleId, name }) {
+  const semanticTerms = [...new Set([
+    ...identifierWords(moduleId),
+    ...identifierWords(name),
+  ])].sort();
+  const semanticText = [
+    documentation.purpose,
+    documentation.inputs,
+    documentation.outputs,
+    documentation.errors,
+  ].join(' ');
+  const documentationTerms = new Set(identifierWords(semanticText));
+  const semanticMatches = semanticTerms.filter((term) => {
+    const forms = [term];
+    if (term.endsWith('able') && term.length > 6) forms.push(term.slice(0, -4));
+    if (term.endsWith('ible') && term.length > 6) forms.push(term.slice(0, -4));
+    return forms.some((form) => documentationTerms.has(form));
+  });
+  return Object.freeze({ semanticMatches, semanticTerms });
+}
+
+/** Derive semantic linkage between one public export and its structured documentation. */
+export function analyzePublicDocumentationSemantics({ documentation, moduleId, name }) {
+  return exportSemanticEvidence({ documentation, moduleId, name });
+}
+
+/** Analyze one source string for source-derived long-lived side-effect authority. */
+export function analyzeSourceConcernEvidence(source, sourcePath = '<inline>') {
+  const comments = [];
+  const ast = parse(source, {
+    allowHashBang: true,
+    ecmaVersion: 'latest',
+    locations: true,
+    onComment: comments,
+    sourceType: 'module',
+  });
+  const record = Object.freeze({ absolutePath: sourcePath, ast, comments, source });
+  const sideEffectConcerns = sourceConcernEvidence(record);
+  return Object.freeze({
+    responsibilities: Object.freeze(responsibilityNames(sideEffectConcerns)),
+    sideEffectConcerns,
+  });
+}
+
 function maskedSource(record) {
   const characters = [...record.source];
   for (const comment of record.comments) {
@@ -309,6 +475,7 @@ function policyIndex(policy) {
  */
 export function analyzeProductionSourceQuality({ manifest, policy, v7Root }) {
   const absoluteV7Root = path.resolve(v7Root);
+  requireSourceDerivedResponsibilityPolicy(policy);
   const records = moduleRecords({ manifest, v7Root: absoluteV7Root });
   const kindsByModuleId = policyIndex(policy);
   const activeIds = new Set(records.map(({ descriptor }) => descriptor.id));
@@ -338,6 +505,7 @@ export function analyzeProductionSourceQuality({ manifest, policy, v7Root }) {
     const functionExceptions = new Set((policy.functionExceptions ?? [])
       .filter((exception) => exception.path === relativePath).map(({ name }) => name));
     const sizeException = (policy.sizeExceptions ?? []).find((exception) => exception.path === relativePath);
+    const sideEffectConcerns = sourceConcernEvidence(record);
     filesByPath.set(record.absolutePath, {
       adaptsBoundary: ['adapter', 'composition', 'persistence', 'ui'].includes(kind),
       criticalInvariants: criticalInvariants(record),
@@ -355,7 +523,8 @@ export function analyzeProductionSourceQuality({ manifest, policy, v7Root }) {
       ownsContract: module?.publicEntry === record.absolutePath,
       path: relativePath,
       publicExports: [],
-      responsibilities: [owner],
+      responsibilities: responsibilityNames(sideEffectConcerns),
+      sideEffectConcerns,
       sizeException: sizeException ?? null,
       sourceHash: sourceHash(record.source),
     });
@@ -370,10 +539,17 @@ export function analyzeProductionSourceQuality({ manifest, policy, v7Root }) {
         declarationRecord,
         exported.declarationNode,
       ));
-      filesByPath.get(exported.declarationFile).publicExports.push(Object.freeze({
-        documentation: mergeDocumentation(exported.facadeDocumentation, declarationDocumentation),
+      const documentation = mergeDocumentation(exported.facadeDocumentation, declarationDocumentation);
+      const semanticEvidence = exportSemanticEvidence({
+        documentation,
         moduleId: exported.moduleId,
         name: exported.name,
+      });
+      filesByPath.get(exported.declarationFile).publicExports.push(Object.freeze({
+        documentation,
+        moduleId: exported.moduleId,
+        name: exported.name,
+        ...semanticEvidence,
       }));
     }
   }
@@ -384,7 +560,7 @@ export function analyzeProductionSourceQuality({ manifest, policy, v7Root }) {
   })));
   return Object.freeze({
     files,
-    schemaVersion: 1,
+    schemaVersion: 2,
     summary: Object.freeze({
       effectiveLines: files.reduce((total, file) => total + file.effectiveLines, 0),
       files: files.length,

@@ -196,7 +196,8 @@ function syncPresentation(snapshot) {
   const status = snapshot?.status ?? 'local';
   return {
     badge: {
-      conflict: 'Conflict', offline: 'Local-first', synced: 'Synced', syncing: 'Syncing',
+      conflict: 'Conflict', offline: 'Local-first', poisoned: 'Reload required',
+      synced: 'Synced', syncing: 'Syncing',
     }[status] ?? 'Local-first',
     note: snapshot?.message ?? 'Stored on this device',
     status,
@@ -212,7 +213,8 @@ function stateSyncAlert(snapshot, actions) {
   }, [
     element('strong', {
       dataset: { stateSyncAlertTitle: '' },
-      text: status === 'offline' ? 'Server sync offline' : 'Saved-state conflict',
+      text: status === 'offline' ? 'Server sync offline'
+        : status === 'poisoned' ? 'Local state recovery incomplete' : 'Saved-state conflict',
     }),
     element('span', {
       dataset: { stateSyncAlertMessage: '' },
@@ -243,7 +245,7 @@ function stateSyncAlert(snapshot, actions) {
   ]);
   alert.querySelector('[data-state-sync-conflict-actions]').hidden = status !== 'conflict';
   alert.querySelector('[data-state-sync-offline-actions]').hidden = status !== 'offline';
-  alert.hidden = !['conflict', 'offline'].includes(status);
+  alert.hidden = !['conflict', 'offline', 'poisoned'].includes(status);
   return alert;
 }
 
@@ -262,12 +264,14 @@ export function updateStateSyncPresentation(root, snapshot) {
   if (alert) {
     const conflict = presentation.status === 'conflict';
     const offline = presentation.status === 'offline';
-    alert.hidden = !conflict && !offline;
+    const poisoned = presentation.status === 'poisoned';
+    alert.hidden = !conflict && !offline && !poisoned;
     const title = alert.querySelector('[data-state-sync-alert-title]');
     const message = alert.querySelector('[data-state-sync-alert-message]');
     const conflictActions = alert.querySelector('[data-state-sync-conflict-actions]');
     const offlineActions = alert.querySelector('[data-state-sync-offline-actions]');
-    if (title) title.textContent = offline ? 'Server sync offline' : 'Saved-state conflict';
+    if (title) title.textContent = offline ? 'Server sync offline'
+      : poisoned ? 'Local state recovery incomplete' : 'Saved-state conflict';
     if (message) message.textContent = presentation.note;
     if (conflictActions) conflictActions.hidden = !conflict;
     if (offlineActions) offlineActions.hidden = !offline;

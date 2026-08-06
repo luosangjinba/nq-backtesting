@@ -288,10 +288,10 @@ assert.deepEqual(success.trace, [
   'replay-apply',
   'workspace-state-apply',
   'publication-apply',
+  'publication-finalize',
   'chart-finalize',
   'replay-finalize',
   'workspace-state-finalize',
-  'publication-finalize',
 ]);
 assert.equal(success.clock.snapshot().cursorEpochMs, 3_000);
 assert.equal(success.runtime.snapshot().acceptedRevision, 1);

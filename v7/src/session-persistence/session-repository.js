@@ -3,6 +3,7 @@ import {
   requireSessionId,
   serializeSessionId,
 } from '../session-identity/public.js';
+import { applyReversibleSessionWrite } from './reversible-session-write.js';
 import { SessionPersistenceError } from './storage-adapter.js';
 
 const INDEX_SCHEMA = 'v7.session-repository-index';
@@ -55,6 +56,15 @@ export function createSessionRepository({ storage, namespace = 'v7.session-store
   const indexKey = `${namespace}:index`;
   const recordKey = (sessionId) => `${namespace}:record:${encodeURIComponent(serializeSessionId(sessionId).value)}`;
 
+  function serializeEntry(revision, value) {
+    return JSON.stringify({
+      schema: ENTRY_SCHEMA,
+      version: SCHEMA_VERSION,
+      revision: requireRevision(revision),
+      value: clone(value),
+    });
+  }
+
   function readIndex() {
     const raw = storage.read(indexKey);
     if (raw === null) return [];
@@ -93,12 +103,38 @@ export function createSessionRepository({ storage, namespace = 'v7.session-store
   }
 
   function writeEntry(sessionId, revision, value) {
-    storage.write(recordKey(sessionId), JSON.stringify({
-      schema: ENTRY_SCHEMA,
-      version: SCHEMA_VERSION,
-      revision: requireRevision(revision),
-      value: clone(value),
-    }));
+    storage.write(recordKey(sessionId), serializeEntry(revision, value));
+  }
+
+  function compareAndSwapReversible(sessionId, expectedRevision, nextValue) {
+    requireRevision(expectedRevision);
+    const current = readEntry(sessionId);
+    if (current === null) fail('SESSION_NOT_FOUND', 'Session does not exist.');
+    if (current.revision !== expectedRevision) {
+      fail('SESSION_REVISION_CONFLICT', 'Session changed before compare-and-swap commit.');
+    }
+    const revision = expectedRevision + 1;
+    requireRevision(revision);
+    const key = recordKey(sessionId);
+    const previousRaw = storage.read(key);
+    const nextRaw = serializeEntry(revision, nextValue);
+    const lifecycle = applyReversibleSessionWrite({
+      key, nextRaw, previousRaw, revision, storage,
+    });
+    const value = clone(nextValue);
+    return Object.freeze({
+      finalize() {
+        lifecycle.finalize();
+        return Object.freeze({ revision, value: clone(value) });
+      },
+      revision,
+      rollback() {
+        lifecycle.rollback();
+        return Object.freeze({ revision: expectedRevision, value: clone(current.value) });
+      },
+      snapshot: lifecycle.snapshot,
+      value,
+    });
   }
 
   return Object.freeze({
@@ -123,17 +159,9 @@ export function createSessionRepository({ storage, namespace = 'v7.session-store
       return Object.freeze([...readIndex()]);
     },
     compareAndSwap(sessionId, expectedRevision, nextValue) {
-      requireRevision(expectedRevision);
-      const current = readEntry(sessionId);
-      if (current === null) fail('SESSION_NOT_FOUND', 'Session does not exist.');
-      if (current.revision !== expectedRevision) {
-        fail('SESSION_REVISION_CONFLICT', 'Session changed before compare-and-swap commit.');
-      }
-      const revision = expectedRevision + 1;
-      requireRevision(revision);
-      writeEntry(sessionId, revision, nextValue);
-      return Object.freeze({ revision, value: clone(nextValue) });
+      return compareAndSwapReversible(sessionId, expectedRevision, nextValue).finalize();
     },
+    compareAndSwapReversible,
     remove(sessionId, expectedRevision) {
       requireSessionId(sessionId);
       requireRevision(expectedRevision);

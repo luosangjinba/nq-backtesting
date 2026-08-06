@@ -22,6 +22,7 @@ function requestUrl(request, apiBase) {
   const timeframe = targetTimeframe(request);
   if (timeframe === null) throw new TypeError('V4 Projected History does not map this calendar alignment.');
   const parameters = new URLSearchParams({
+    datasetRevision: request.datasetRevision,
     end: formatExchangeWallMinute(request.windowEndEpochMs),
     instrument: resolveV4InstrumentCode(request.instrumentId),
     session: request.sessionHoursMode,
@@ -33,6 +34,13 @@ function requestUrl(request, apiBase) {
 
 function failure(message) {
   return { kind: 'unavailable', message, retryAfterMs: null };
+}
+
+function responseFailure(response, payload) {
+  if (response.status === 409) {
+    return { kind: 'revision-mismatch', message: payload?.error || 'Dataset revision changed.', retryAfterMs: null };
+  }
+  return failure(payload?.error || `Projected History HTTP ${response.status}`);
 }
 
 export function createV4ProjectedHistoryProvider({
@@ -67,10 +75,16 @@ export function createV4ProjectedHistoryProvider({
       }
       const payload = await response.json().catch(() => null);
       if (!response.ok || !payload || !Array.isArray(payload.bars)) {
-        throw failure(payload?.error || `Projected History HTTP ${response.status}`);
+        throw responseFailure(response, payload);
       }
-      if (payload.datasetRevision !== request.datasetRevision
-        || payload.sessionHoursMode !== request.sessionHoursMode
+      if (payload.datasetRevision !== request.datasetRevision) {
+        throw {
+          kind: 'revision-mismatch',
+          message: 'Projected History response dataset revision differs from its request.',
+          retryAfterMs: null,
+        };
+      }
+      if (payload.sessionHoursMode !== request.sessionHoursMode
         || payload.targetTimeframe !== targetTimeframe(request)) {
         throw failure('Projected History response provenance differs from its request.');
       }

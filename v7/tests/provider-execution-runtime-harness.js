@@ -96,6 +96,27 @@ assert.equal(provider.coverageFor(request()).segments[0].kind, 'data');
 barRuntime.dispose();
 provider.dispose();
 
+let mismatchRevisionCalls = 0;
+const mismatchProvider = api.createPolicyBoundProvider({
+  policy: policy(),
+  adapter: {
+    providerId: 'test.fake-provider',
+    resolveDatasetRevision() {
+      mismatchRevisionCalls += 1;
+      return `mismatch-revision-${mismatchRevisionCalls}`;
+    },
+    requestRawBars() {
+      throw { kind: 'revision-mismatch', message: 'database changed', retryAfterMs: null };
+    },
+  },
+});
+assert.equal(await mismatchProvider.resolveDatasetRevision(scope), 'mismatch-revision-1');
+await assert.rejects(mismatchProvider.requestRawBars(request()),
+  (error) => error.kind === 'revision-mismatch');
+assert.equal(await mismatchProvider.resolveDatasetRevision(scope), 'mismatch-revision-2',
+  'a backend revision mismatch must invalidate provider revision discovery immediately');
+mismatchProvider.dispose();
+
 // Caller teardown propagates through the wrapper to the concrete adapter.
 let propagatedSignal;
 const abortGate = deferred();

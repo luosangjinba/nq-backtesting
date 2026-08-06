@@ -37,12 +37,16 @@ V4 query API
   -> configured DuckDB parent mounted read-only
 ```
 
-The existing `adapter.data-acquisition-ui` owns only file selection, upload
-progress, workflow presentation, validation evidence, confirmation, and calls
-to the import service. It receives no Bar Data, Replay, Workspace, Chart, or
-Session authority. The new Python service owns staging, candidate lifecycle,
-validation, and first activation. V4 remains the only customer query API and
-never receives write permission.
+R11.1 separates `adapter.database-bootstrap-ui` from
+`adapter.data-acquisition-ui`. The optional bootstrap capability owns file
+selection, upload progress, validation evidence, confirmation, and calls to the
+import service. The maintenance surface receives it only through an optional
+public port and starts normally when it is omitted or unavailable; maintenance
+health and bootstrap health can no longer collapse into one status. Neither UI
+module receives Bar Data, Replay, Workspace, Chart, or Session authority. The
+Python service owns staging, candidate lifecycle, validation, and first
+activation. V4 remains the only customer query API and never receives write
+permission.
 
 API, Web, and user-state systemd units mount the complete market-database
 parent directory read-only. Only the import unit receives a writable mount of
@@ -144,8 +148,12 @@ does not remove an activated database or its durable importer lock.
   through upload progress, validation evidence, hard-refresh task recovery,
   exact confirmation, activation, control locking, and a final read-only DuckDB
   smoke.
-- `tests/data-acquisition-ui-harness.js` binds the exact UI contract and client
-  request sequence.
+- `tests/database-bootstrap-ui-harness.js` binds the independent optional
+  bootstrap public contract and request sequence;
+- `tests/data-acquisition-ui-harness.js` binds the maintenance UI contract;
+- `tests/production-application-host-browser-harness.js` removes the bootstrap
+  module and proves the real maintenance application still starts without its
+  panel;
 - `tests/data-acquisition-ui-browser-harness.js` proves an existing database
   visibly locks the first-run controls while the prior maintenance workflow
   remains functional.

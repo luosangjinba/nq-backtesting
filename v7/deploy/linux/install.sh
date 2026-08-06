@@ -400,17 +400,156 @@ wait_for_url() {
   return 1
 }
 
+capture_active_unit_states() {
+  : > "$active_units_before_path"
+  local unit=""
+  for unit in "${deployment_units[@]}"; do
+    if sudo_cmd systemctl is-active --quiet "$unit"; then
+      printf '%s\n' "$unit" >> "$active_units_before_path"
+    fi
+  done
+}
+
+restore_active_unit_states() {
+  local failed=0
+  local unit=""
+  for unit in "${deployment_units[@]}"; do
+    if grep -Fxq "$unit" "$active_units_before_path"; then
+      if ! sudo_cmd systemctl restart "$unit"; then
+        warn "could not restart previously active unit during rollback: $unit"
+        failed=1
+      elif ! sudo_cmd systemctl is-active --quiet "$unit"; then
+        warn "previously active unit is not active after rollback: $unit"
+        failed=1
+      fi
+    else
+      sudo_cmd systemctl stop "$unit" 2>/dev/null || true
+      if sudo_cmd systemctl is-active --quiet "$unit"; then
+        warn "previously inactive unit remained active after rollback: $unit"
+        failed=1
+      fi
+    fi
+  done
+  return "$failed"
+}
+
+verify_restored_service_health() {
+  local failed=0
+  local unit=""
+  local url=""
+  while IFS=$'\t' read -r unit url; do
+    [[ -n "$unit" && -n "$url" ]] || continue
+    if grep -Fxq "$unit" "$active_units_before_path" \
+      && ! wait_for_url "$url" 5; then
+      warn "restored service did not recover its local health contract: $unit ($url)"
+      failed=1
+    fi
+  done <<'HEALTH_CONTRACTS'
+replay-lab-api.service	http://127.0.0.1:8766/v4/health
+replay-lab-state.service	http://127.0.0.1:8767/v7/state/health
+replay-lab-database-import.service	http://127.0.0.1:8768/v7/database/health
+replay-lab-web.service	http://127.0.0.1:8007/v7/app/
+HEALTH_CONTRACTS
+  return "$failed"
+}
+
+preserve_incomplete_rollback_snapshot() {
+  local manifest_path="$tmp_dir/recovery-manifest"
+  local snapshot_name="rollback-${release_id}-$$"
+  local recovery_root="$state_root/recovery"
+  local sources=("$manifest_path")
+  {
+    printf 'failure_context=%s\n' "${rollback_failure_context:-unspecified}"
+    printf 'failed_release=%s\n' "$release_dir"
+    printf 'previous_release=%s\n' "${previous_release:-none}"
+    printf 'current_release=%s\n' "$current_release"
+    printf 'failed_release_quarantine=%s\n' \
+      "${REPLAY_LAB_FAILED_RELEASE_QUARANTINE_PATH:-none}"
+    printf 'failed_release_venv_retained=%s\n' \
+      "${REPLAY_LAB_FAILED_RELEASE_VENV_RETAINED:-0}"
+    printf 'host_transaction_active=%s\n' "$REPLAY_LAB_HOST_TRANSACTION_ACTIVE"
+    printf 'host_metadata_active=%s\n' "$REPLAY_LAB_HOST_METADATA_ACTIVE"
+  } > "$manifest_path"
+  chmod 0600 "$manifest_path"
+  [[ -d "$REPLAY_LAB_HOST_TRANSACTION_BACKUP_ROOT" ]] \
+    && sources+=("$REPLAY_LAB_HOST_TRANSACTION_BACKUP_ROOT")
+  [[ -f "$REPLAY_LAB_HOST_METADATA_PATH" ]] \
+    && sources+=("$REPLAY_LAB_HOST_METADATA_PATH")
+  [[ -f "$active_units_before_path" ]] && sources+=("$active_units_before_path")
+
+  if replay_lab_host_preserve_recovery_snapshot \
+    "$recovery_root" "$snapshot_name" root root "${sources[@]}"; then
+    warn "incomplete rollback evidence preserved root-only at: $REPLAY_LAB_HOST_RECOVERY_SNAPSHOT_PATH"
+    return 0
+  fi
+  cleanup_tmp_dir=0
+  sudo_cmd chmod 0700 -- "$tmp_dir" 2>/dev/null || true
+  sudo_cmd chown root:root -- "$tmp_dir" 2>/dev/null || true
+  warn "could not create the recovery snapshot; root-only temporary evidence was retained at: $tmp_dir"
+  return 1
+}
+
+quarantine_failed_release() {
+  [[ "$release_was_absent" -eq 1 ]] || return 0
+  if replay_lab_quarantine_failed_release \
+    "$install_root" "$release_dir" "$current_release" "failed-$$" root root; then
+    if [[ -n "$REPLAY_LAB_FAILED_RELEASE_QUARANTINE_PATH" ]]; then
+      info "failed release quarantined: $REPLAY_LAB_FAILED_RELEASE_QUARANTINE_PATH"
+      if [[ "$REPLAY_LAB_FAILED_RELEASE_VENV_RETAINED" -eq 0 ]]; then
+        info "failed release virtualenv removed from quarantine"
+      fi
+    fi
+    return 0
+  fi
+  warn "failed release could not be quarantined safely: $release_dir"
+  return 1
+}
+
 rollback_release() {
+  local failed=0
   if [[ -n "$previous_release" ]]; then
     info "restoring previous release: $previous_release"
-    sudo_cmd ln -sfn "$previous_release" "$install_root/current.rollback"
-    sudo_cmd mv -Tf "$install_root/current.rollback" "$current_release"
+    sudo_cmd ln -sfn "$previous_release" "$install_root/current.rollback" || failed=1
+    sudo_cmd mv -Tf "$install_root/current.rollback" "$current_release" || failed=1
   else
     warn "no previous release exists; removing failed current link"
-    sudo_cmd unlink "$current_release" 2>/dev/null || true
+    if sudo_cmd test -L "$current_release"; then
+      sudo_cmd unlink "$current_release" || failed=1
+    fi
   fi
-  sudo_cmd systemctl restart replay-lab-api.service replay-lab-state.service \
-    replay-lab-database-import.service replay-lab-web.service 2>/dev/null || true
+  replay_lab_host_transaction_restore || failed=1
+  replay_lab_host_metadata_restore || failed=1
+  sudo_cmd systemctl daemon-reload || failed=1
+  restore_active_unit_states || failed=1
+  verify_restored_service_health || failed=1
+  quarantine_failed_release || failed=1
+  if [[ "$failed" -ne 0 ]]; then
+    preserve_incomplete_rollback_snapshot || true
+  fi
+  return "$failed"
+}
+
+rollback_after_failure() {
+  rollback_failure_context="$1"
+  rollback_in_progress=1
+  if ! rollback_release; then
+    warn "automatic rollback was incomplete; do not treat the previous release as healthy"
+    [[ -z "$REPLAY_LAB_HOST_RECOVERY_SNAPSHOT_PATH" ]] \
+      || warn "recovery snapshot: $REPLAY_LAB_HOST_RECOVERY_SNAPSHOT_PATH"
+  fi
+}
+
+handle_apply_error() {
+  local status="$1"
+  local line="$2"
+  trap - ERR
+  if [[ "${deployment_mutation_started:-0}" -eq 1 \
+    && "${deployment_committed:-0}" -eq 0 \
+    && "${rollback_in_progress:-0}" -eq 0 ]]; then
+    warn "deployment failed at line $line; restoring the complete previous host configuration"
+    rollback_after_failure "unexpected-command-line-$line"
+  fi
+  exit "$status"
 }
 
 restore_caddy_configuration() {
@@ -430,6 +569,7 @@ restore_caddy_configuration() {
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd -- "$script_dir/../../.." && pwd)"
+source "$script_dir/lib/host-transaction.sh"
 db_path=""
 database_parent=""
 install_root="/opt/replay-lab"
@@ -635,7 +775,7 @@ short_commit="$(repo_git rev-parse --short=12 HEAD)"
 release_id="$(date -u +%Y%m%dT%H%M%SZ)-$short_commit"
 release_dir="$install_root/releases/$release_id"
 current_release="$install_root/current"
-venv_dir="$install_root/shared/venv"
+venv_dir="$release_dir/.venv"
 venv_python="$venv_dir/bin/python"
 node_bin="$(command -v node || printf '/usr/bin/node')"
 template_root="$repo_root/v7/deploy/linux"
@@ -646,6 +786,24 @@ database_import_template="$template_root/systemd/replay-lab-database-import.serv
 caddy_template="$template_root/caddy/Caddyfile.template"
 runtime_requirements="$template_root/requirements-runtime.txt"
 previous_release=""
+release_was_absent=0
+deployment_mutation_started=0
+deployment_committed=0
+rollback_in_progress=0
+rollback_failure_context=""
+cleanup_tmp_dir=1
+active_units_before_path=""
+deployment_units=(
+  replay-lab-api.service
+  replay-lab-state.service
+  replay-lab-database-import.service
+  replay-lab-web.service
+)
+caddy_backup=""
+caddy_main_existed=0
+caddy_fragment_path="/etc/caddy/replay-lab.Caddyfile"
+caddy_fragment_backup=""
+caddy_fragment_existed=0
 global_options_block=""
 auth_block=""
 auth_directive="basic_auth"
@@ -658,7 +816,10 @@ database_import_user=""
 
 for required_file in "$api_template" "$web_template" "$state_template" \
   "$database_import_template" "$caddy_template" \
-  "$runtime_requirements" "$repo_root/v4/v4_api.py" "$repo_root/v7/scripts/serve.mjs" \
+  "$runtime_requirements" "$repo_root/v4/read_api.py" \
+  "$repo_root/v4/server/market_data_read_handler.py" "$repo_root/v4/v4_api.py" \
+  "$repo_root/v7/scripts/serve.mjs" \
+  "$script_dir/lib/host-transaction.sh" \
   "$repo_root/v7/server/state_api.py" "$repo_root/v7/server/state_store.py" \
   "$repo_root/v7/server/database_import_api.py" \
   "$repo_root/v7/server/database_import_store.py" \
@@ -674,7 +835,13 @@ if [[ "$apply" -eq 1 ]]; then
 fi
 
 tmp_dir="$(mktemp -d)"
-trap '[[ -n "${tmp_dir:-}" ]] && rm -rf "$tmp_dir"' EXIT
+cleanup_installer_tmp() {
+  if [[ -n "${tmp_dir:-}" && "${cleanup_tmp_dir:-1}" -eq 1 ]]; then
+    rm -rf -- "$tmp_dir"
+  fi
+}
+trap cleanup_installer_tmp EXIT
+active_units_before_path="$tmp_dir/active-units-before"
 rendered_api="$tmp_dir/replay-lab-api.service"
 rendered_web="$tmp_dir/replay-lab-web.service"
 rendered_caddy="$tmp_dir/Caddyfile"
@@ -765,7 +932,7 @@ printf '%s\n' '--------------------'
 printf 'Install runtime packages: %s\n' "$([[ "$skip_package_install" -eq 1 ]] && printf no || printf yes)"
 printf 'Runtime package request: %s (%s)\n' "${base_packages[*]}" "$package_manager"
 printf 'Create immutable release: %s\n' "$release_dir"
-printf 'Create shared virtualenv: %s\n' "$venv_dir"
+printf 'Create release virtualenv: %s\n' "$venv_dir"
 printf 'Write: /etc/replay-lab/replay-lab.env\n'
 printf 'Write: /etc/systemd/system/replay-lab-api.service\n'
 printf 'Write: /etc/systemd/system/replay-lab-web.service\n'
@@ -827,7 +994,44 @@ if [[ -n "$public_host" ]]; then
   run_step caddy validate --config "$rendered_caddy"
 fi
 
-run_step sudo_cmd install -d -m 0755 "$install_root" "$install_root/releases" "$install_root/shared"
+if [[ -L "$current_release" ]]; then
+  previous_release="$(readlink -f "$current_release")"
+fi
+if sudo_cmd test -e "$release_dir" || sudo_cmd test -L "$release_dir"; then
+  die "immutable release target already exists: $release_dir"
+fi
+release_was_absent=1
+host_transaction_paths=(
+  /etc/replay-lab/replay-lab.env
+  /etc/systemd/system/replay-lab-api.service
+  /etc/systemd/system/replay-lab-web.service
+  /etc/systemd/system/replay-lab-state.service
+  /etc/systemd/system/replay-lab-database-import.service
+)
+if [[ -n "$public_host" ]]; then
+  deployment_units+=(caddy.service)
+  host_transaction_paths+=(/etc/caddy/Caddyfile "$caddy_fragment_path")
+fi
+for unit in "${deployment_units[@]}"; do
+  host_transaction_paths+=("/etc/systemd/system/multi-user.target.wants/$unit")
+done
+capture_active_unit_states
+replay_lab_host_transaction_begin "$tmp_dir/host-transaction" "${host_transaction_paths[@]}"
+host_metadata_paths=(
+  "$install_root"
+  "$install_root/releases"
+  "$state_root"
+  "$state_root/state"
+  "$state_root/database-import"
+)
+if [[ "$bootstrap" -eq 1 ]]; then
+  host_metadata_paths+=("$database_parent")
+fi
+replay_lab_host_metadata_begin "$tmp_dir/host-metadata" "${host_metadata_paths[@]}"
+deployment_mutation_started=1
+trap 'handle_apply_error "$?" "$LINENO"' ERR
+
+run_step sudo_cmd install -d -m 0755 "$install_root" "$install_root/releases"
 run_step sudo_cmd install -d -m 0750 -o "$service_user" -g "$service_group" "$state_root"
 run_step sudo_cmd install -d -m 0750 -o "$service_user" -g "$service_group" "$state_root/state"
 run_step sudo_cmd install -d -m 0750 -o "$service_user" -g "$service_group" "$state_root/database-import"
@@ -838,9 +1042,14 @@ if [[ "$bootstrap" -eq 1 ]]; then
   run_step as_service_user test -w "$database_parent"
 fi
 
+archive_path="$tmp_dir/release.tar"
+run_step repo_git archive --format=tar --output="$archive_path" "$repository_commit"
+run_step sudo_cmd install -d -m 0755 "$release_dir"
+run_step sudo_cmd tar -xf "$archive_path" -C "$release_dir"
+run_step sudo_cmd npm ci --omit=dev --no-audit --no-fund --prefix "$release_dir/v7"
 if ! venv_runtime_ready; then
   if sudo_cmd test -d "$venv_dir"; then
-    info "recreating incomplete shared virtualenv: $venv_dir"
+    info "recreating incomplete release virtualenv: $venv_dir"
     run_step sudo_cmd "$python_bin" -m venv --clear "$venv_dir"
   else
     run_step sudo_cmd "$python_bin" -m venv "$venv_dir"
@@ -848,14 +1057,6 @@ if ! venv_runtime_ready; then
 fi
 run_step sudo_cmd "$venv_python" -m pip install --disable-pip-version-check --upgrade pip wheel
 run_step sudo_cmd "$venv_python" -m pip install --disable-pip-version-check -r "$runtime_requirements"
-run_step sudo_cmd chown -R root:"$service_group" "$venv_dir"
-run_step sudo_cmd chmod -R u=rwX,g=rX,o= "$venv_dir"
-
-archive_path="$tmp_dir/release.tar"
-run_step repo_git archive --format=tar --output="$archive_path" "$repository_commit"
-run_step sudo_cmd install -d -m 0755 "$release_dir"
-run_step sudo_cmd tar -xf "$archive_path" -C "$release_dir"
-run_step sudo_cmd npm ci --omit=dev --no-audit --no-fund --prefix "$release_dir/v7"
 run_step sudo_cmd chown -R root:"$service_group" "$release_dir"
 run_step sudo_cmd chmod -R u=rwX,g=rX,o= "$release_dir"
 
@@ -901,17 +1102,9 @@ run_step sudo_cmd install -m 0644 "$rendered_web" /etc/systemd/system/replay-lab
 run_step sudo_cmd install -m 0644 "$rendered_state" /etc/systemd/system/replay-lab-state.service
 run_step sudo_cmd install -m 0644 "$rendered_database_import" /etc/systemd/system/replay-lab-database-import.service
 
-if [[ -L "$current_release" ]]; then
-  previous_release="$(readlink -f "$current_release")"
-fi
 run_step sudo_cmd ln -sfn "$release_dir" "$install_root/current.next"
 run_step sudo_cmd mv -Tf "$install_root/current.next" "$current_release"
 
-caddy_backup=""
-caddy_main_existed=0
-caddy_fragment_path="/etc/caddy/replay-lab.Caddyfile"
-caddy_fragment_backup=""
-caddy_fragment_existed=0
 if [[ -n "$public_host" ]]; then
   run_step sudo_cmd install -d -m 0755 /etc/caddy
   if sudo_cmd test -f /etc/caddy/Caddyfile; then
@@ -929,7 +1122,7 @@ if [[ -n "$public_host" ]]; then
     fi
     if [[ -n "$public_ip" ]]; then
       if ! write_caddy_default_sni "$source_caddy" "$merged_caddy" "$public_ip"; then
-        rollback_release
+        rollback_after_failure "caddy-default-sni-conflict"
         die "cannot preserve a Caddyfile with a conflicting default_sni"
       fi
     else
@@ -954,7 +1147,7 @@ if [[ -n "$public_host" ]]; then
   if ! sudo_cmd caddy validate --config /etc/caddy/Caddyfile; then
     warn "combined Caddy configuration is invalid; restoring the previous configuration"
     restore_caddy_configuration
-    rollback_release
+    rollback_after_failure "caddy-validation-failed"
     die "combined Caddy configuration validation failed"
   fi
 fi
@@ -967,7 +1160,7 @@ if ! sudo_cmd systemctl restart replay-lab-api.service replay-lab-state.service 
   if [[ -n "$public_host" ]]; then
     restore_caddy_configuration
   fi
-  rollback_release
+  rollback_after_failure "application-service-restart-failed"
   die "Replay Lab services failed to restart"
 fi
 if ! wait_for_url http://127.0.0.1:8766/v4/health \
@@ -979,7 +1172,7 @@ if ! wait_for_url http://127.0.0.1:8766/v4/health \
   if [[ -n "$public_host" ]]; then
     restore_caddy_configuration
   fi
-  rollback_release
+  rollback_after_failure "application-health-failed"
   die "local health checks failed; previous release was restored when available"
 fi
 
@@ -989,10 +1182,15 @@ if [[ -n "$public_host" ]]; then
     warn "Caddy reload failed; restoring the previous configuration"
     restore_caddy_configuration
     sudo_cmd systemctl reload caddy || true
-    rollback_release
+    rollback_after_failure "caddy-reload-failed"
     die "Caddy reload failed"
   fi
 fi
+
+replay_lab_host_transaction_commit
+replay_lab_host_metadata_commit
+deployment_committed=1
+trap - ERR
 
 printf '\nHealth result\n'
 printf '%s\n' '-------------'

@@ -20,13 +20,29 @@ const baseline = JSON.parse(fs.readFileSync(
   path.join(V7_ROOT, 'docs/v7-production-architecture-baseline.json'),
   'utf8',
 ));
+const writerPolicy = JSON.parse(fs.readFileSync(
+  path.join(V7_ROOT, 'docs/v7-production-writer-policy.json'),
+  'utf8',
+));
+const harnessRules = JSON.parse(fs.readFileSync(
+  path.join(V7_ROOT, 'docs/v7-harness-rules.json'),
+  'utf8',
+));
+const analysisPolicy = Object.freeze({
+  ...baseline.analysisPolicy,
+  writerPolicies: writerPolicy.writerPolicies,
+});
 
 assert.equal(baseline.schemaVersion, 1);
-assert.equal(baseline.deliveryStep, 'R10.9');
+assert.equal(writerPolicy.schemaVersion, 1);
+assert.equal(writerPolicy.status, 'r11-sole-writer-closure');
+assert.equal(baseline.deliveryStep, harnessRules.currentStep);
 assert.equal(baseline.status, 'blocking-recovery-baseline');
+assert.deepEqual(baseline.analysisPolicy.writerPolicies, writerPolicy.writerPolicies,
+  'the committed architecture baseline must embed the effective sole-writer policy');
 const report = analyzeProductionArchitecture({
   manifest,
-  policy: baseline.analysisPolicy,
+  policy: analysisPolicy,
   v7Root: V7_ROOT,
 });
 assert.deepEqual(
@@ -158,6 +174,31 @@ function mutateSnapshot(snapshot, operation) {
       sourceModuleId: 'adapter.session-browser-ui',
       surface: 'rawMarketDataRetention',
     });
+  } else if (operation === 'add-undeclared-writer-surface') {
+    candidate.writerSites.push({
+      detectorId: 'rogue-writer-detector',
+      sourceFile: 'app/rogue-writer.js',
+      sourceModuleId: 'application',
+      surface: 'undeclaredSurface',
+    });
+  } else if (operation === 'remove-real-writer-evidence') {
+    candidate.writerSites = candidate.writerSites
+      .filter(({ surface }) => surface !== 'replayCursor');
+  } else if (operation === 'replace-writer-detector') {
+    const site = candidate.writerSites.find(({ surface }) => surface === 'chartSeries');
+    site.detectorId = 'rogue-writer-detector';
+  } else if (operation === 'remove-writer-policy') {
+    candidate.declaredWriterSurfaces.push({
+      moduleIds: ['core.session-store'],
+      surface: 'inventoryOnlySurface',
+    });
+  } else if (operation === 'remove-writer-inventory') {
+    candidate.declaredWriterSurfaces = candidate.declaredWriterSurfaces
+      .filter(({ surface }) => surface !== 'replayCursor');
+  } else if (operation === 'change-writer-inventory-owner') {
+    const inventory = candidate.declaredWriterSurfaces
+      .find(({ surface }) => surface === 'replayCursor');
+    inventory.moduleIds = ['application'];
   } else if (operation === 'drift-production-construction') {
     candidate.constructionSites.pop();
   } else {
@@ -175,7 +216,7 @@ for (const testCase of negativeFixture.cases) {
   const invalidSnapshot = mutateSnapshot(report.snapshot, testCase.operation);
   const failures = testCase.operation === 'drift-production-construction'
     ? compareProductionArchitectureSnapshots(baseline.snapshot, invalidSnapshot)
-    : validateProductionArchitectureSnapshot(invalidSnapshot, baseline.analysisPolicy);
+    : validateProductionArchitectureSnapshot(invalidSnapshot, analysisPolicy);
   assert.ok(failures.some(({ code, subject }) => (
     code === testCase.expectedFailureCode
       && (testCase.expectedSubject === undefined || subject === testCase.expectedSubject)

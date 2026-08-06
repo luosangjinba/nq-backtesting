@@ -19,20 +19,25 @@ Every critical rule has one machine-readable record with:
 - executable harness path when executable;
 - positive evidence;
 - at least one negative fixture when executable;
-- required human review;
-- acceptance evidence only after human approval.
+- whether human review is required;
+- durable acceptance/recovery evidence, plus explicit human approval only when
+  `humanReviewRequired` is true.
 
 Allowed enforcement states:
 
 - `declared`: binding rule, implementation boundary does not exist yet;
 - `scaffolded`: harness shape exists but cannot yet exercise production;
 - `executable`: positive and negative automated evidence runs;
-- `accepted`: executable evidence plus recorded human acceptance.
+- `accepted`: executable evidence plus recorded durable acceptance; when
+  `humanReviewRequired` is true that evidence must include human acceptance.
 - `regressed`: production evidence has disproved an accepted invariant; its
   historical acceptance remains recorded but current conformance is blocked.
 
-A rule cannot skip states or be marked accepted by an automated run. When its
-activation step begins, `declared` is a blocking failure.
+A rule cannot skip states. An automated architecture rule may advance from
+`executable` to `accepted` only when `humanReviewRequired` is false and its
+durable closure evidence records the production path and negative control.
+Human-reviewed rules cannot be accepted by automation. When an activation step
+begins, `declared` is a blocking failure.
 
 ### Regression Lifecycle
 
@@ -52,14 +57,18 @@ may land and product/feature acceptance is prohibited.
 
 A rule returns from `regressed` to `accepted` only when its recovery step adds
 production-path positive evidence, a negative control reproducing the failure,
-new recovery evidence, and the required human approval. Historical acceptance
-and regression records are never erased or rewritten.
+and new recovery evidence. Required human approval is additionally mandatory
+only for `humanReviewRequired` rules. Historical acceptance and regression
+records are never erased or rewritten.
 
 Recovery mode may be deactivated only by its declared closure step after the
-inventory has no regressed rules and the closure gate records explicit human
-acceptance. Closed recovery metadata must name the closure step and evidence,
-set `allowedWork` to `normal-delivery`, and clear the feature-delivery freeze;
-the lifecycle Harness rejects incomplete or internally contradictory closure.
+inventory has no regressed rules and the closure gate records durable recovery
+evidence. Separate product, visual, host, or operational rules that require
+human review remain `executable` and open; they do not masquerade as accepted,
+but they also do not prevent repository architecture recovery from closing.
+Closed recovery metadata must name the closure step and evidence, set
+`allowedWork` to `normal-delivery`, and clear the feature-delivery freeze; the
+lifecycle Harness rejects incomplete or internally contradictory closure.
 
 ## Negative-Control Rule
 

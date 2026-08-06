@@ -7,7 +7,8 @@ const MINUTE = 60_000;
 const API_CHUNK_DURATION_MS = 7 * 24 * 60 * MINUTE;
 const API_TRANSPORT_CONCURRENCY = 2;
 const MAXIMUM_LOGICAL_REQUEST_MINUTES = 210 * 24 * 60;
-export const V4_BARS_DATASET_REVISION = 'v4-local-futures-1m-r1';
+const DATASET_REVISION_MAX_AGE_MS = 1;
+const V4_SOURCE_RESOLUTION_ID = 'resolution.fixed-1-minute';
 export const V4_BARS_PROVIDER_ID = 'provider.local-v4-bars';
 const V4_INSTRUMENT_CODES = Object.freeze({
   'instrument.cme.es': 'ES',
@@ -30,6 +31,7 @@ function requestUrl(request, apiBase) {
     request.windowEndEpochMs - MINUTE,
   );
   const parameters = new URLSearchParams({
+    datasetRevision: request.datasetRevision,
     end: formatExchangeWallMinute(inclusiveEndEpochMs),
     instrument: resolveV4InstrumentCode(request.instrumentId),
     start: formatExchangeWallMinute(request.windowStartEpochMs),
@@ -46,6 +48,7 @@ function httpFailure(response, payload) {
   const message = payload?.error || `V4 bars API HTTP ${response.status}`;
   if (response.status === 429) return failure('rate-limited', message);
   if (response.status === 401 || response.status === 403) return failure('authorization', message);
+  if (response.status === 409) return failure('revision-mismatch', message);
   if (response.status >= 500) return failure('unavailable', message);
   return failure('invalid-request', message);
 }
@@ -53,6 +56,9 @@ function httpFailure(response, payload) {
 function normalizeBars(payload, request) {
   if (!payload || !Array.isArray(payload.bars)) {
     throw failure('invalid-response', 'V4 bars response must contain a bars array.');
+  }
+  if (payload.datasetRevision !== request.datasetRevision) {
+    throw failure('revision-mismatch', 'V4 bars response dataset revision differs from its request.');
   }
   const bars = [];
   for (const bar of payload.bars) {
@@ -120,7 +126,30 @@ export function createV4BarsAdapter({
   const transport = createTransportQueue();
   return Object.freeze({
     providerId: V4_BARS_PROVIDER_ID,
-    resolveDatasetRevision: () => V4_BARS_DATASET_REVISION,
+    async resolveDatasetRevision(scope, { signal } = {}) {
+      if (scope?.providerId !== V4_BARS_PROVIDER_ID
+        || resolveV4InstrumentCode(scope?.instrumentId) === null
+        || scope?.sourceResolutionId !== V4_SOURCE_RESOLUTION_ID) {
+        throw failure('unsupported', 'V4 bars adapter does not support this revision scope.');
+      }
+      let response;
+      try {
+        response = await fetchImpl(`${apiBase}/v4/health`, {
+          headers: { Accept: 'application/json' }, signal,
+        });
+      } catch (error) {
+        throw failure('unavailable', error?.message || 'V4 bars API is unavailable.');
+      }
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) throw httpFailure(response, payload);
+      if (payload?.databaseReady !== true
+        || typeof payload.datasetRevision !== 'string'
+        || payload.datasetRevision.length === 0
+        || payload.datasetRevision.trim() !== payload.datasetRevision) {
+        throw failure('unavailable', 'V4 market database is not ready.');
+      }
+      return payload.datasetRevision;
+    },
     async requestRawBars(requestValue, { signal } = {}) {
       const request = createRawBarRequest(requestValue);
       if (request.providerId !== V4_BARS_PROVIDER_ID) {
@@ -128,6 +157,9 @@ export function createV4BarsAdapter({
       }
       if (resolveV4InstrumentCode(request.instrumentId) === null) {
         throw failure('unsupported', 'V4 bars adapter does not support this instrument identity.');
+      }
+      if (request.sourceResolutionId !== V4_SOURCE_RESOLUTION_ID) {
+        throw failure('unsupported', 'V4 bars adapter supports only one-minute source bars.');
       }
       const chunks = chunkRequests(request);
       const chunkBars = await Promise.all(chunks.map((chunk) => transport(async () => {
@@ -169,7 +201,7 @@ export function createV4BarsProvider(options = {}) {
     policy: {
       schemaVersion: 1,
       providerId: V4_BARS_PROVIDER_ID,
-      revision: { mode: 'immutable', maxAgeMs: null },
+      revision: { mode: 'discover', maxAgeMs: DATASET_REVISION_MAX_AGE_MS },
       requestLimits: {
         maxBarsPerRequest: MAXIMUM_LOGICAL_REQUEST_MINUTES,
         maxWindowDurationMs: MAXIMUM_LOGICAL_REQUEST_MINUTES * MINUTE,

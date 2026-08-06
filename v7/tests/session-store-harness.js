@@ -165,6 +165,19 @@ assert.deepEqual(readWorkspaceCheckpoint(deserializeWorkspaceCheckpoint(
   checkpointedA.configuration,
 )), readWorkspaceCheckpoint(checkpointA));
 assert.equal(readPaneLayout(deserializePaneLayout(checkpointedA.workspace.paneLayout)).paneCount, 4);
+const sessionARecordKey = `acceptance.sessions:record:${serializeSessionId(sessionA).value}`;
+const exactCheckpointRecord = webStorage.getItem(sessionARecordKey);
+const reversibleCheckpoint = store.saveWorkspaceCheckpointReversible(sessionA, {
+  checkpoint: checkpointA,
+  layout: fourPaneLayout,
+  layoutSync: setLayoutSync(createLayoutSync(), 'crosshair', true),
+  nowEpochMs: 58,
+});
+assert.equal(reversibleCheckpoint.record.revision, checkpointedA.revision + 1);
+reversibleCheckpoint.rollback();
+assert.equal(webStorage.getItem(sessionARecordKey), exactCheckpointRecord,
+  'Workspace checkpoint rollback must restore the byte-identical Session envelope');
+assert.equal(store.getSession(sessionA).revision, checkpointedA.revision);
 assert.throws(
   () => store.savePaneLayout(sessionA, { layout: createPaneLayout(), nowEpochMs: 58 }),
   (error) => error instanceof SessionStoreError && error.code === 'INVALID_SESSION_WORKSPACE',

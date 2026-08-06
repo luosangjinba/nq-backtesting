@@ -8,17 +8,23 @@ import {
   createV4ProjectedHistoryProvider,
   exchangeWallSecondsToInstantMs,
   formatExchangeWallMinute,
-  V4_BARS_DATASET_REVISION,
   V4_BARS_PROVIDER_ID,
   V4_PROJECTED_HISTORY_PROVIDER_ID,
 } from '../src/v4-bars-provider-adapter/public.js';
+import { createPolicyBoundProvider } from '../src/provider-execution-runtime/public.js';
 import { createProjectedHistoryRequest } from '../src/projected-history-contract/public.js';
+import { createFoundationMarket } from '../src/replay-workspace-composition/public.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const negativeCases = JSON.parse(fs.readFileSync(path.join(
   TEST_DIR, 'fixtures/v4-bars-provider-adapter/negative/cases.json',
 ), 'utf8'));
 assert.deepEqual(negativeCases, ['http-source-unavailable', 'unsupported-instrument']);
+const datasetRevisionNegativeCases = JSON.parse(fs.readFileSync(path.join(
+  TEST_DIR, 'fixtures/market-dataset-revision/negative/cases.json',
+), 'utf8'));
+assert.equal(datasetRevisionNegativeCases.schemaVersion, 1);
+assert.equal(Array.isArray(datasetRevisionNegativeCases.cases), true);
 const productionMarketSource = fs.readFileSync(path.join(
   TEST_DIR, '../src/replay-workspace-composition/foundation-market.js',
 ), 'utf8');
@@ -26,6 +32,7 @@ assert.doesNotMatch(productionMarketSource, /Math\.sin|generateBars|sampleMinute
   'production workspace must not retain a synthetic market generator');
 
 const MINUTE = 60_000;
+const DATASET_REVISION = 'v4-duckdb-stat-v1-test';
 const startEpochMs = Date.parse('2026-05-01T19:40:00Z');
 const request = {
   schemaVersion: 1,
@@ -34,7 +41,7 @@ const request = {
   sourceResolutionId: 'resolution.fixed-1-minute',
   windowStartEpochMs: startEpochMs,
   windowEndEpochMs: startEpochMs + (2 * MINUTE),
-  datasetRevision: V4_BARS_DATASET_REVISION,
+  datasetRevision: DATASET_REVISION,
 };
 
 assert.equal(formatExchangeWallMinute(startEpochMs), '2026-05-01 15:40');
@@ -50,10 +57,19 @@ const adapter = createV4BarsAdapter({
   apiBase: 'http://127.0.0.1:8766',
   fetchImpl: async (url, options) => {
     calls.push({ options, url });
+    if (url.endsWith('/v4/health')) {
+      return {
+        ok: true,
+        async json() {
+          return { databaseReady: true, datasetRevision: DATASET_REVISION };
+        },
+      };
+    }
     return {
       ok: true,
       async json() {
         return {
+          datasetRevision: DATASET_REVISION,
           bars: [
             { timestamp: wallSeconds(15, 39), open: 99, high: 100, low: 98, close: 99.5, volume: 1 },
             { timestamp: wallSeconds(15, 40), open: 100, high: 102, low: 99, close: 101, volume: 10 },
@@ -66,14 +82,18 @@ const adapter = createV4BarsAdapter({
   },
 });
 
-assert.equal(await adapter.resolveDatasetRevision(), V4_BARS_DATASET_REVISION);
+assert.equal(await adapter.resolveDatasetRevision({
+  instrumentId: 'instrument.cme.nq',
+  providerId: V4_BARS_PROVIDER_ID,
+  sourceResolutionId: 'resolution.fixed-1-minute',
+}), DATASET_REVISION);
 const result = await adapter.requestRawBars(request);
-assert.equal(calls.length, 1);
+assert.equal(calls.length, 2);
 assert.equal(
-  calls[0].url,
-  'http://127.0.0.1:8766/v4/bars?end=2026-05-01+15%3A41&instrument=NQ&start=2026-05-01+15%3A40&tf=1',
+  calls[1].url,
+  'http://127.0.0.1:8766/v4/bars?datasetRevision=v4-duckdb-stat-v1-test&end=2026-05-01+15%3A41&instrument=NQ&start=2026-05-01+15%3A40&tf=1',
 );
-assert.equal(calls[0].options.headers.Accept, 'application/json');
+assert.equal(calls[1].options.headers.Accept, 'application/json');
 assert.deepEqual(result.batch.bars, [
   { startEpochMs, open: 100, high: 102, low: 99, close: 101, volume: 10 },
   { startEpochMs: startEpochMs + MINUTE, open: 101, high: 103, low: 100, close: 102, volume: 11 },
@@ -95,7 +115,7 @@ const chunked = createV4BarsAdapter({
     maximumActiveChunkCalls = Math.max(maximumActiveChunkCalls, activeChunkCalls);
     await new Promise((resolve) => setTimeout(resolve, 0));
     activeChunkCalls -= 1;
-    return { ok: true, async json() { return { bars: [] }; } };
+    return { ok: true, async json() { return { bars: [], datasetRevision: DATASET_REVISION }; } };
   },
 });
 await chunked.requestRawBars({
@@ -119,6 +139,95 @@ await assert.rejects(
   (error) => error.kind === 'unavailable' && error.message === 'database unavailable',
 );
 
+const datasetRevisionNegativeActions = {
+  'stale-dataset-revision-response': async () => {
+    const staleResponse = createV4BarsAdapter({
+      fetchImpl: async () => ({
+        ok: true,
+        status: 200,
+        async json() { return { bars: [], datasetRevision: 'different-revision' }; },
+      }),
+    });
+    try {
+      await staleResponse.requestRawBars(request);
+    } catch (error) {
+      return error?.kind ?? null;
+    }
+    return null;
+  },
+  'revision-mismatch-invalidates-revision-bound-cache': async () => {
+    let revisionCalls = 0;
+    const revisionProvider = createPolicyBoundProvider({
+      now: () => 1_000,
+      policy: {
+        schemaVersion: 1,
+        providerId: V4_BARS_PROVIDER_ID,
+        revision: { mode: 'discover', maxAgeMs: 60_000 },
+        requestLimits: {
+          maxBarsPerRequest: 2,
+          maxWindowDurationMs: 2 * MINUTE,
+          maxConcurrentRequests: 1,
+        },
+        deadlineMs: 1_000,
+        retry: { maxAttempts: 1, backoffMs: [], retryableFailureKinds: [] },
+      },
+      adapter: createV4BarsAdapter({
+        fetchImpl: async (url) => {
+          if (url.endsWith('/v4/health')) {
+            revisionCalls += 1;
+            return {
+              ok: true,
+              status: 200,
+              async json() {
+                return { databaseReady: true, datasetRevision: `cache-revision-${revisionCalls}` };
+              },
+            };
+          }
+          return {
+            ok: true,
+            status: 200,
+            async json() { return { bars: [], datasetRevision: 'cache-revision-2' }; },
+          };
+        },
+      }),
+    });
+    try {
+      const revisionScope = {
+        instrumentId: 'instrument.cme.nq',
+        providerId: V4_BARS_PROVIDER_ID,
+        sourceResolutionId: 'resolution.fixed-1-minute',
+      };
+      const firstRevision = await revisionProvider.resolveDatasetRevision(revisionScope);
+      let failureCode = null;
+      try {
+        await revisionProvider.requestRawBars({ ...request, datasetRevision: firstRevision });
+      } catch (error) {
+        assert.equal(error?.kind, 'revision-mismatch');
+        failureCode = error?.code ?? null;
+      }
+      assert.equal(await revisionProvider.resolveDatasetRevision(revisionScope), 'cache-revision-2',
+        'revision mismatch must invalidate the revision-bound cache before the next discovery');
+      assert.equal(revisionCalls, 2,
+        'cache invalidation must force a fresh authoritative dataset revision request');
+      return failureCode;
+    } finally {
+      revisionProvider.dispose();
+    }
+  },
+};
+
+for (const fixture of datasetRevisionNegativeCases.cases) {
+  assert.equal(typeof fixture.expectedFailureCode, 'string',
+    `${fixture.case} must declare a stable expectedFailureCode`);
+  assert.equal(typeof datasetRevisionNegativeActions[fixture.case], 'function',
+    `${fixture.case} must have an executable negative action`);
+  assert.equal(
+    await datasetRevisionNegativeActions[fixture.case](),
+    fixture.expectedFailureCode,
+    `${fixture.case} must fail with its declared code`,
+  );
+}
+
 let unsupportedFetches = 0;
 const unsupported = createV4BarsAdapter({
   fetchImpl: async () => {
@@ -140,7 +249,7 @@ const projectedRequest = createProjectedHistoryRequest({
   alignmentKind: 'fixed-duration',
   alignmentPolicyId: null,
   calendarRevision: 'calendar-r1',
-  datasetRevision: V4_BARS_DATASET_REVISION,
+  datasetRevision: DATASET_REVISION,
   displayTimeframeId: 'timeframe.display-4-hour',
   durationMs: 240 * MINUTE,
   instrumentId: 'instrument.cme.nq',
@@ -168,7 +277,7 @@ const projectedProvider = createV4ProjectedHistoryProvider({
             timestamp: projectedStartEpochMs / 1_000,
             volume: 20,
           }],
-          datasetRevision: V4_BARS_DATASET_REVISION,
+          datasetRevision: DATASET_REVISION,
           sessionHoursMode: 'eth',
           targetDurationMinutes: 240,
           targetTimeframe: '240',
@@ -179,7 +288,7 @@ const projectedProvider = createV4ProjectedHistoryProvider({
 });
 const projectedBatch = await projectedProvider.requestProjectedHistory(projectedRequest);
 assert.equal(projectedCalls[0],
-  'http://127.0.0.1:8766/v4/projected_history?end=2026-05-01+12%3A00&instrument=NQ&session=eth&start=2026-05-01+08%3A00&tf=240');
+  'http://127.0.0.1:8766/v4/projected_history?datasetRevision=v4-duckdb-stat-v1-test&end=2026-05-01+12%3A00&instrument=NQ&session=eth&start=2026-05-01+08%3A00&tf=240');
 assert.equal(projectedBatch.bars.length, 1);
 assert.equal(projectedBatch.bars[0].displayEpochMs, projectedStartEpochMs + (239 * MINUTE));
 
@@ -226,4 +335,34 @@ await assert.rejects(
   /unsupported instrument/,
 );
 
-console.log('v7 V4 bars provider adapter harness passed');
+const plannedRevisions = ['dataset-discovered-r1', 'dataset-discovered-r2'];
+const revisionAwareMarket = createFoundationMarket({
+  configuration: {
+    historicalRange: {
+      endEpochMs: startEpochMs + (10 * MINUTE),
+      startEpochMs,
+    },
+  },
+}, {
+  projectedHistoryProvider: { dispose() {} },
+  provider: {
+    dispose() {},
+    resolveDatasetRevision: async () => plannedRevisions.shift(),
+  },
+});
+await revisionAwareMarket.resolveDatasetRevision('instrument.cme.nq');
+assert.equal(revisionAwareMarket.requestWindow({
+  instrumentId: 'instrument.cme.nq',
+  windowEndEpochMs: startEpochMs + MINUTE,
+  windowStartEpochMs: startEpochMs,
+}).datasetRevision, 'dataset-discovered-r1');
+await revisionAwareMarket.resolveDatasetRevision('instrument.cme.nq');
+assert.equal(revisionAwareMarket.requestWindow({
+  instrumentId: 'instrument.cme.nq',
+  windowEndEpochMs: startEpochMs + MINUTE,
+  windowStartEpochMs: startEpochMs,
+}).datasetRevision, 'dataset-discovered-r2',
+  'foundation request planning must adopt a newly discovered database revision');
+revisionAwareMarket.dispose();
+
+console.log(`v7 V4 bars provider adapter harness passed (${datasetRevisionNegativeCases.cases.length} dataset-revision negative controls)`);

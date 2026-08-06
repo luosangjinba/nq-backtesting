@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "status": "r11-sole-writer-closure",
+  "writerPolicies": [
+    {
+      "surface": "calendarSurfaceDom",
+      "detectorId": "calendar-surface-dom-commit",
+      "allowedModuleIds": ["adapter.calendar-surface"]
+    },
+    {
+      "surface": "chartSeries",
+      "detectorId": "native-chart-series",
+      "allowedModuleIds": ["adapter.lightweight-chart"]
+    },
+    {
+      "surface": "layoutSyncPolicy",
+      "detectorId": "layout-sync-policy-commit",
+      "allowedModuleIds": ["core.session-store"]
+    },
+    {
+      "surface": "paneWorkspace",
+      "detectorId": "pane-workspace-accepted-state",
+      "allowedModuleIds": ["core.workspace-state-runtime"]
+    },
+    {
+      "surface": "rawBarRequest",
+      "detectorId": "raw-provider-request",
+      "allowedModuleIds": ["core.bar-data-runtime"]
+    },
+    {
+      "surface": "rawMarketDataRetention",
+      "detectorId": "market-data-retention-ledger",
+      "allowedModuleIds": ["core.bar-data-runtime"]
+    },
+    {
+      "surface": "replayCursor",
+      "detectorId": "replay-cursor-commit",
+      "allowedModuleIds": ["core.replay-runtime"]
+    },
+    {
+      "surface": "replayNavigationPreferences",
+      "detectorId": "replay-navigation-preferences-commit",
+      "allowedModuleIds": ["core.replay-navigation-preference-store"]
+    },
+    {
+      "surface": "replayWorkspaceDom",
+      "detectorId": "replay-workspace-dom-commit",
+      "allowedModuleIds": ["adapter.replay-workspace-ui"]
+    },
+    {
+      "surface": "replicatedUserState",
+      "detectorId": "replicated-state-put",
+      "allowedModuleIds": ["adapter.server-state-sync"]
+    },
+    {
+      "surface": "sessionBrowserDom",
+      "detectorId": "session-browser-dom-commit",
+      "allowedModuleIds": ["adapter.session-browser-ui"]
+    },
+    {
+      "surface": "sessionRecord",
+      "detectorId": "session-record-commit",
+      "allowedModuleIds": ["core.session-store"]
+    },
+    {
+      "surface": "viewportIntent",
+      "detectorId": "viewport-intent-commit",
+      "allowedModuleIds": ["core.viewport-runtime"]
+    },
+    {
+      "surface": "workspaceCheckpoint",
+      "detectorId": "workspace-checkpoint-commit",
+      "allowedModuleIds": ["core.session-store"]
+    },
+    {
+      "surface": "workspaceSnapshot",
+      "detectorId": "workspace-snapshot-commit",
+      "allowedModuleIds": ["core.workspace-transaction-runtime"]
+    },
+    {
+      "surface": "workstationSettings",
+      "detectorId": "workstation-settings-commit",
+      "allowedModuleIds": ["core.workstation-settings"]
+    }
+  ]
+}

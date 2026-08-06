@@ -13,6 +13,7 @@ import {
   readReplayCursorProposal,
 } from '../src/replay-contract/public.js';
 import { createReplayRuntime } from '../src/replay-runtime/public.js';
+import { createWorkspacePublicationPort } from '../src/replay-workspace-composition/workspace-publication-port.js';
 import { createSessionId } from '../src/session-identity/public.js';
 import { createTransactionId } from '../src/transaction-identity/public.js';
 import {
@@ -54,20 +55,36 @@ function identity(label) {
   });
 }
 
-function failingHandle(handle, participant, readFailure) {
+function failingHandle(
+  handle,
+  participant,
+  readFailure,
+  readFinalizeFailure,
+  readRollbackFailure,
+) {
   return Object.freeze({
     apply() {
       if (readFailure() === participant) throw new Error(`${participant} injected failure`);
       return handle.apply();
     },
     dispose: handle.dispose.bind(handle),
-    finalize: handle.finalize.bind(handle),
-    rollback: handle.rollback.bind(handle),
+    finalize(receipt) {
+      if (readFinalizeFailure() === participant) {
+        throw new Error(`${participant} injected finalize failure`);
+      }
+      return handle.finalize(receipt);
+    },
+    rollback(receipt) {
+      if (readRollbackFailure() === participant) {
+        throw new Error(`${participant} injected rollback failure`);
+      }
+      return handle.rollback(receipt);
+    },
     snapshot: handle.snapshot.bind(handle),
   });
 }
 
-function chartAdapter(readFailure) {
+function chartAdapter(readFailure, readFinalizeFailure, readRollbackFailure) {
   let revision = 0;
   let visible = null;
   const trace = [];
@@ -89,10 +106,18 @@ function chartAdapter(readFailure) {
           workspaceSnapshot: context.workspaceSnapshot,
         });
       },
-      finalizeVisible(stage) { stages.get(stage).state = 'finalized'; },
+      finalizeVisible(stage) {
+        if (readFinalizeFailure() === 'chart-adapter') {
+          throw new Error('chart adapter injected finalize failure');
+        }
+        stages.get(stage).state = 'finalized';
+      },
       async rollbackVisible(stage) {
         const record = stages.get(stage);
         if (!record || record.state === 'rolled-back') return;
+        if (readRollbackFailure() === 'chart-adapter') {
+          throw new Error('chart adapter injected rollback failure');
+        }
         if (record.state === 'applied') {
           revision = record.previousRevision;
           visible = record.previousVisible;
@@ -111,51 +136,47 @@ function chartAdapter(readFailure) {
   });
 }
 
-function publicationPort(readFailure) {
+function publicationPort(readFailure, readFinalizeFailure, readRollbackFailure) {
   const state = { persistenceRevision: 0, value: null };
   const trace = [];
-  const stages = new WeakMap();
+  let previous = null;
+  const port = createWorkspacePublicationPort({
+    initialAccepted: null,
+    onApply(candidate) {
+      previous = Object.freeze({ ...state });
+      state.value = candidate;
+      trace.push(Object.freeze({ type: 'publication-candidate-visible', value: state.value }));
+      if (readFailure() === 'publication') throw new Error('publication injected failure');
+      state.persistenceRevision += 1;
+      trace.push(Object.freeze({
+        persistenceRevision: state.persistenceRevision,
+        type: 'persistence-candidate-written',
+      }));
+      if (readFailure() === 'persistence') throw new Error('persistence injected failure');
+    },
+    onFinalize() {
+      if (readFinalizeFailure() === 'publication-port') {
+        throw new Error('publication port injected finalize failure');
+      }
+    },
+    onReject() {},
+    onRollback() {
+      if (readRollbackFailure() === 'publication-port') {
+        throw new Error('publication port injected rollback failure');
+      }
+      if (previous !== null) {
+        state.persistenceRevision = previous.persistenceRevision;
+        state.value = previous.value;
+      }
+      trace.push(Object.freeze({
+        persistenceRevision: state.persistenceRevision,
+        type: 'publication-and-persistence-restored',
+        value: state.value,
+      }));
+    },
+  });
   return Object.freeze({
-    port: Object.freeze({
-      apply(stage) {
-        const record = stages.get(stage);
-        record.state = 'applying';
-        state.value = record.candidate;
-        trace.push(Object.freeze({ type: 'publication-candidate-visible', value: state.value }));
-        if (readFailure() === 'publication') throw new Error('publication injected failure');
-        state.persistenceRevision += 1;
-        trace.push(Object.freeze({
-          persistenceRevision: state.persistenceRevision,
-          type: 'persistence-candidate-written',
-        }));
-        if (readFailure() === 'persistence') throw new Error('persistence injected failure');
-        record.state = 'applied';
-      },
-      finalize(stage) { stages.get(stage).state = 'finalized'; },
-      reject() {},
-      rollback(stage) {
-        const record = stages.get(stage);
-        if (record.state === 'applying' || record.state === 'applied') {
-          state.persistenceRevision = record.previous.persistenceRevision;
-          state.value = record.previous.value;
-          trace.push(Object.freeze({
-            persistenceRevision: state.persistenceRevision,
-            type: 'publication-and-persistence-restored',
-            value: state.value,
-          }));
-        }
-        record.state = 'rolled-back';
-      },
-      stage({ candidate }) {
-        const stage = Object.freeze({});
-        stages.set(stage, {
-          candidate,
-          previous: Object.freeze({ ...state }),
-          state: 'staged',
-        });
-        return stage;
-      },
-    }),
+    port,
     snapshot: () => Object.freeze({ ...state }),
     trace: () => Object.freeze([...trace]),
   });
@@ -181,8 +202,12 @@ function projectedSnapshot(proposal, close) {
 
 function fixture() {
   let failure = null;
+  let finalizeFailure = null;
+  let rollbackFailure = null;
   let close = 100;
   const readFailure = () => failure;
+  const readFinalizeFailure = () => finalizeFailure;
+  const readRollbackFailure = () => rollbackFailure;
   const replay = createReplayRuntime({
     activationGeneration,
     initialCursorEpochMs: 1_200_000,
@@ -211,13 +236,13 @@ function fixture() {
     sessionHoursModes: ['eth', 'rth'],
     sessionId,
   });
-  const adapter = chartAdapter(readFailure);
+  const adapter = chartAdapter(readFailure, readFinalizeFailure, readRollbackFailure);
   const chart = createChartSnapshotApplication({
     activationGeneration,
     adapter: adapter.port,
     sessionId,
   });
-  const publication = publicationPort(readFailure);
+  const publication = publicationPort(readFailure, readFinalizeFailure, readRollbackFailure);
   const runtime = createWorkspaceTransactionRuntime({
     activationGeneration,
     acquisitionPort: Object.freeze({ async acquire() { return Object.freeze({}); } }),
@@ -232,7 +257,7 @@ function fixture() {
           visibleThroughEpochMs: readReplayCursorProposal(
             workspaceSnapshot.provenance.cursorProposal,
           ).targetEpochMs - 60_000,
-        }), 'replay', readFailure);
+        }), 'replay', readFailure, readFinalizeFailure, readRollbackFailure);
       },
       propose: ({ identity: transactionIdentity }) => replay.proposeAdvance({
         advance, identity: transactionIdentity,
@@ -243,7 +268,13 @@ function fixture() {
     workspaceStatePort: Object.freeze({
       begin: workspaceState.begin,
       prepare(input) {
-        return failingHandle(workspaceState.prepare(input), 'workspace-state', readFailure);
+        return failingHandle(
+          workspaceState.prepare(input),
+          'workspace-state',
+          readFailure,
+          readFinalizeFailure,
+          readRollbackFailure,
+        );
       },
       reject: workspaceState.reject,
     }),
@@ -274,6 +305,8 @@ function fixture() {
     replay,
     runtime,
     setFailure(value) { failure = value; },
+    setFinalizeFailure(value) { finalizeFailure = value; },
+    setRollbackFailure(value) { rollbackFailure = value; },
     workspaceState,
   });
 }
@@ -316,6 +349,64 @@ for (const failure of cases) {
   assert.equal(target.workspaceState.snapshot(), prior.workspaceState, `${failure}: semantic state restored`);
   assert.equal(target.runtime.snapshot().acceptedSnapshot, prior.runtime, `${failure}: publication restored`);
   assert.deepEqual(target.publication.snapshot(), prior.publication, `${failure}: persistence restored`);
+  assert.equal(target.runtime.snapshot().health, 'ready', `${failure}: exact recovery keeps runtime healthy`);
 }
 
-console.log(`v7 Workspace global atomic commit harness passed (${cases.length} participant failures)`);
+for (const failure of ['chart-adapter', 'replay', 'workspace-state', 'publication-port']) {
+  const target = fixture();
+  assert.equal((await target.execute(`accepted-before-finalize-${failure}`)).status, 'committed');
+  const prior = target.runtime.snapshot().acceptedSnapshot;
+  target.setFinalizeFailure(failure);
+  assert.equal((await target.execute(`finalize-${failure}`)).status, 'committed',
+    `${failure}: a post-decision finalize failure cannot report a false failed terminal`);
+  assert.notEqual(target.runtime.snapshot().acceptedSnapshot, prior,
+    `${failure}: the accepted decision remains the new candidate`);
+  assert.equal(target.runtime.snapshot().health, 'poisoned');
+  assert.equal(target.runtime.snapshot().poisonCode, 'workspace-transaction-finalize-failed');
+  await assert.rejects(
+    target.execute(`after-finalize-${failure}`),
+    (error) => error?.code === 'WORKSPACE_TRANSACTION_RUNTIME_POISONED',
+    `${failure}: poisoned runtime must reject subsequent transactions`,
+  );
+}
+
+const rollbackFailure = fixture();
+assert.equal((await rollbackFailure.execute('accepted-before-rollback-failure')).status, 'committed');
+const priorRollbackDecision = rollbackFailure.runtime.snapshot().acceptedSnapshot;
+const priorRollbackVisible = rollbackFailure.adapter.snapshot().visible;
+rollbackFailure.setFailure('replay');
+rollbackFailure.setRollbackFailure('chart-adapter');
+assert.equal((await rollbackFailure.execute('rollback-failure')).status, 'failed');
+assert.equal(rollbackFailure.runtime.snapshot().acceptedSnapshot, priorRollbackDecision,
+  'pre-decision failure must not advance the coordinator decision');
+assert.notEqual(rollbackFailure.adapter.snapshot().visible, priorRollbackVisible,
+  'fault injection must prove the visible Chart could not be restored');
+assert.equal(rollbackFailure.runtime.snapshot().health, 'poisoned');
+assert.equal(rollbackFailure.runtime.snapshot().poisonCode, 'workspace-transaction-recovery-failed');
+await assert.rejects(
+  rollbackFailure.execute('after-rollback-failure'),
+  (error) => error?.code === 'WORKSPACE_TRANSACTION_RUNTIME_POISONED',
+  'a runtime with unproven recovery cannot accept another transaction',
+);
+
+const durableRollbackFailure = fixture();
+assert.equal((await durableRollbackFailure.execute('accepted-before-durable-rollback')).status, 'committed');
+const priorDurableDecision = durableRollbackFailure.runtime.snapshot().acceptedSnapshot;
+const priorDurablePublication = durableRollbackFailure.publication.snapshot();
+durableRollbackFailure.setFailure('persistence');
+durableRollbackFailure.setRollbackFailure('publication-port');
+assert.equal((await durableRollbackFailure.execute('durable-rollback-failure')).status, 'failed');
+assert.equal(durableRollbackFailure.runtime.snapshot().acceptedSnapshot, priorDurableDecision);
+assert.notDeepEqual(durableRollbackFailure.publication.snapshot(), priorDurablePublication,
+  'failed durable restoration must remain observable instead of being reported as recovered');
+assert.equal(durableRollbackFailure.runtime.snapshot().health, 'poisoned');
+await assert.rejects(
+  durableRollbackFailure.execute('after-durable-rollback-failure'),
+  (error) => error?.code === 'WORKSPACE_TRANSACTION_RUNTIME_POISONED',
+);
+
+console.log('v7 Workspace global atomic commit harness passed', {
+  applyFailures: cases.length,
+  finalizeFailures: 4,
+  rollbackFailures: 2,
+});

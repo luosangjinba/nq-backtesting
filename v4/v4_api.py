@@ -34,6 +34,7 @@ from server import maintenance_service
 from server import market_data_backup_service
 from server import market_data_coverage_service
 from server import market_data_calendar_service
+from server import market_data_revision
 from server import manifest_roll_repair_registry
 from server import roll_maintenance_service
 from server import economic_calendar_service
@@ -582,9 +583,18 @@ class V4Handler(BaseHTTPRequestHandler):
         params = parse_qs(parsed.query)
 
         if path == "/v4/health":
+            try:
+                dataset_revision = market_data_revision.resolve_dataset_revision_if_ready(
+                    DB_PATH, TABLE_NAME
+                )
+            except OSError as exc:
+                self._send_error(f"market database cannot be inspected: {exc}", 503)
+                return
             self._send_json({
                 "status": "ok",
                 "version": "4.0",
+                "databaseReady": dataset_revision is not None,
+                "datasetRevision": dataset_revision,
                 "capabilities": {
                     "bars": True,
                     "availableDates": True,
@@ -681,6 +691,7 @@ class V4Handler(BaseHTTPRequestHandler):
             table_name=TABLE_NAME,
             validate_range=_validate_bars_request_range,
             query_bars=query_v4_bars,
+            resolve_dataset_revision=market_data_revision.resolve_dataset_revision,
         )
 
     def _handle_available_dates(self, params):

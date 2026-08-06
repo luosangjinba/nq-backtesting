@@ -76,6 +76,8 @@ export function createFoundationSourceTraversal({ barData, market }) {
   async function withWindow(context, startEpochMs, endEpochMs, visit) {
     active(context.signal);
     const selected = selection(context);
+    await market.resolveDatasetRevision(context.instrumentId, { signal: context.signal });
+    active(context.signal);
     const result = await barData.withAcquiredCoverage({
       identity: context.identity,
       request: market.requestWindow({
@@ -94,6 +96,8 @@ export function createFoundationSourceTraversal({ barData, market }) {
     if (typeof market.requestThrough !== 'function') return null;
     active(context.signal);
     const selected = selection(context);
+    await market.resolveDatasetRevision(context.instrumentId, { signal: context.signal });
+    active(context.signal);
     const request = market.requestThrough(
       exclusiveEndEpochMs,
       selected,

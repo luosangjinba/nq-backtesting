@@ -54,6 +54,18 @@ export function validateHarnessRuleCatalogRecovery(catalog, { pathExists = () =>
         'active recovery must freeze feature delivery',
       ));
     }
+    if (!catalog.stepOrder?.includes(recovery.requiredClosureStep)) {
+      violations.push(violation(
+        'invalid-required-recovery-closure-step',
+        'active recovery requires a known future closure step',
+      ));
+    }
+    if (recovery.closureStep !== null || recovery.closureEvidence !== null) {
+      violations.push(violation(
+        'premature-recovery-closure-evidence',
+        'active recovery cannot carry completion evidence',
+      ));
+    }
   }
 
   if (recovery?.active === false) {
@@ -69,17 +81,18 @@ export function validateHarnessRuleCatalogRecovery(catalog, { pathExists = () =>
         'closed recovery must release the feature-delivery freeze',
       ));
     }
-    if (recovery.closureStep !== 'R8.15') {
+    if (!catalog.stepOrder?.includes(recovery.requiredClosureStep)
+      || recovery.closureStep !== recovery.requiredClosureStep) {
       violations.push(violation(
         'invalid-recovery-closure-step',
-        'recovery may close only through R8.15',
+        'recovery may close only through its declared closure step',
       ));
     }
     if (!isRelativeEvidencePath(recovery.closureEvidence)
       || !pathExists(recovery.closureEvidence)) {
       violations.push(violation(
         'missing-recovery-closure-evidence',
-        'closed recovery requires durable R8.15 human acceptance evidence',
+        'closed recovery requires durable recovery evidence',
       ));
     }
   }

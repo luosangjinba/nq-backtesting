@@ -28,14 +28,32 @@ export function validateProductionRegressionMatrix(model, { pathExists = () => t
   const policy = model?.executionPolicy ?? {};
   const requiredAxes = values(policy.requiredAxes);
   const allowedKinds = new Set(values(policy.allowedExecutionKinds));
+  const v4Dependency = model?.runtimeDependencies?.v4ReadApi;
 
-  if (model?.schemaVersion !== 1 || !['executable', 'accepted'].includes(model?.status)) {
+  if (model?.schemaVersion !== 1
+    || !['executable', 'known-failures', 'accepted'].includes(model?.status)) {
     violations.push(violation('PRODUCTION_MATRIX_HEADER_INVALID'));
+  }
+  if (typeof v4Dependency?.baseUrl !== 'string'
+    || v4Dependency.baseUrl !== 'http://127.0.0.1:8766'
+    || typeof v4Dependency?.healthPath !== 'string'
+    || v4Dependency.requiredRevisionField !== 'datasetRevision'
+    || typeof v4Dependency?.startEntry !== 'string'
+    || !pathExists(`../${v4Dependency.startEntry}`)
+    || v4Dependency.databaseEnvironmentVariable !== 'V4_TRADING_DB') {
+    violations.push(violation('PRODUCTION_MATRIX_RUNTIME_DEPENDENCY_INVALID'));
   }
   if (model?.status === 'accepted'
     && (typeof model.humanAcceptanceEvidence !== 'string'
       || !pathExists(model.humanAcceptanceEvidence))) {
     violations.push(violation('PRODUCTION_MATRIX_HUMAN_ACCEPTANCE_MISSING'));
+  }
+  const knownFailures = values(model?.knownFailures);
+  if (model?.status === 'known-failures' && knownFailures.length === 0) {
+    violations.push(violation('PRODUCTION_MATRIX_KNOWN_FAILURES_MISSING'));
+  }
+  if (model?.status === 'accepted' && knownFailures.length > 0) {
+    violations.push(violation('PRODUCTION_MATRIX_ACCEPTED_WITH_KNOWN_FAILURES'));
   }
   if (requiredAxes.length === 0
     || Object.keys(axes).sort().join('\u0000') !== [...requiredAxes].sort().join('\u0000')) {
@@ -70,6 +88,27 @@ export function validateProductionRegressionMatrix(model, { pathExists = () => t
         || values(covered).length === 0
         || values(covered).some((value) => !values(axes[axis]).includes(value))) {
         violations.push(violation('PRODUCTION_MATRIX_SCENARIO_COVERAGE_INVALID', `${scenario?.id}:${axis}`));
+      }
+    }
+  }
+
+  const knownScenarioIds = new Set();
+  for (const known of knownFailures) {
+    if (typeof known?.scenarioId !== 'string' || !ids.has(known.scenarioId)
+      || knownScenarioIds.has(known.scenarioId)) {
+      violations.push(violation('PRODUCTION_MATRIX_KNOWN_FAILURE_SCENARIO_INVALID', known?.scenarioId ?? null));
+    } else {
+      knownScenarioIds.add(known.scenarioId);
+    }
+    if (typeof known?.bugId !== 'string' || known.bugId.length === 0
+      || typeof known?.outputPattern !== 'string' || known.outputPattern.length === 0
+      || typeof known?.evidence !== 'string' || !pathExists(known.evidence)) {
+      violations.push(violation('PRODUCTION_MATRIX_KNOWN_FAILURE_EVIDENCE_INVALID', known?.scenarioId ?? null));
+    } else {
+      try {
+        new RegExp(known.outputPattern);
+      } catch {
+        violations.push(violation('PRODUCTION_MATRIX_KNOWN_FAILURE_PATTERN_INVALID', known.scenarioId));
       }
     }
   }

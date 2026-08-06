@@ -19,6 +19,10 @@ const negativeCases = JSON.parse(fs.readFileSync(
   path.join(TEST_DIR, 'fixtures/module-host/negative/cases.json'),
   'utf8',
 ));
+const expectedOptionalRemoval = JSON.parse(fs.readFileSync(
+  path.join(TEST_DIR, 'fixtures/production-module-assembly/optional-removal-matrix.json'),
+  'utf8',
+));
 normalizeModuleDescriptor(readDescriptor('module-host'));
 
 function readDescriptor(directory) {
@@ -232,7 +236,8 @@ const manifest = JSON.parse(fs.readFileSync(
 ));
 const productionAssembly = await verifyProductionModuleAssembly({ manifest, v7Root: V7_ROOT });
 assert.equal(productionAssembly.moduleIds.length, manifest.activeProductionModules.length);
-assert.equal(productionAssembly.optionalRemovalMatrix.length, 3);
+assert.deepEqual(productionAssembly.optionalRemovalMatrix, expectedOptionalRemoval.cases,
+  'Module Host must execute the complete declared optional-removal matrix');
 
 console.log(
   `v7 module host harness passed (${negativeCases.length} negative controls, `

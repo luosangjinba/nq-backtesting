@@ -1,0 +1,36 @@
+{
+  "expectedFailureCode": "generic-public-contract-documentation",
+  "model": {
+    "files": [
+      {
+        "path": "replay-contract/public.js",
+        "kind": "contract",
+        "effectiveLines": 40,
+        "responsibilities": ["internal-state-or-pure-computation"],
+        "sideEffectConcerns": [],
+        "ownsContract": true,
+        "forwardingOnly": false,
+        "functions": [],
+        "publicExports": [
+          {
+            "name": "advanceReplayCursor",
+            "semanticTerms": ["advance", "cursor", "replay"],
+            "semanticMatches": [],
+            "documentation": {
+              "owner": "module owner",
+              "purpose": "provide the supported function",
+              "inputs": "input values",
+              "outputs": "output value",
+              "sideEffects": "none",
+              "lifecycle": "one call",
+              "errors": "throws an error",
+              "concurrencyCancellation": "synchronous"
+            }
+          }
+        ],
+        "criticalInvariants": [],
+        "debtComments": []
+      }
+    ]
+  }
+}

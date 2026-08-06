@@ -161,6 +161,16 @@ export function createPolicyBoundProvider({
         if (disposed) throw new ProviderExecutionError('PROVIDER_EXECUTOR_DISPOSED', 'Provider executor is disposed.');
         coverage.set(result.coverage.requestKey, result.coverage);
         return result.batch;
+      })
+      .catch((error) => {
+        if (error?.kind === 'revision-mismatch') {
+          revisions.delete(revisionKey({
+            instrumentId: request.instrumentId,
+            providerId: request.providerId,
+            sourceResolutionId: request.sourceResolutionId,
+          }));
+        }
+        throw error;
       });
   }
 

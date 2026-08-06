@@ -1,0 +1,12 @@
+{
+  "id": "adapter.database-bootstrap-ui",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "database-bootstrap-admin",
+  "publicEntry": "src/database-bootstrap-ui/public.js",
+  "requiredPorts": ["core.browser-async-contract"],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/database-bootstrap-ui-harness.js",
+  "removable": true
+}

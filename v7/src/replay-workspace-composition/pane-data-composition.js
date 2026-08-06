@@ -5,6 +5,10 @@ import {
   projectedHistoryOldestEpochMs,
   ProjectionDomainError,
 } from '../projection-domain/public.js';
+import {
+  requireWorkspaceTransactionIdentity,
+  workspaceTransactionIdentitiesEqual,
+} from '../workspace-transaction-contract/public.js';
 import { projectRawPane } from './pane-projection-routing.js';
 import { createPaneProjectionMemo } from './pane-projection-memo.js';
 
@@ -73,8 +77,34 @@ export function createPaneDataComposition({
   projectedHistoryData,
   readAcceptedSnapshot,
 }) {
-  const stagedLeases = new Set();
+  const stagedLeaseBuckets = new Map();
   const projectionMemo = createPaneProjectionMemo();
+
+  function matchingBucket(identity) {
+    const acceptedIdentity = requireWorkspaceTransactionIdentity(identity);
+    for (const [bucketIdentity, leases] of stagedLeaseBuckets) {
+      if (workspaceTransactionIdentitiesEqual(bucketIdentity, acceptedIdentity)) {
+        return Object.freeze({ bucketIdentity, leases });
+      }
+    }
+    return null;
+  }
+
+  function stageLease(identity, lease) {
+    const existing = matchingBucket(identity);
+    if (existing !== null) {
+      existing.leases.add(lease);
+      return;
+    }
+    stagedLeaseBuckets.set(requireWorkspaceTransactionIdentity(identity), new Set([lease]));
+  }
+
+  function takeLeases(identity) {
+    const bucket = matchingBucket(identity);
+    if (bucket === null) return [];
+    stagedLeaseBuckets.delete(bucket.bucketIdentity);
+    return [...bucket.leases];
+  }
 
   function selection(paneResponse, responsePlan) {
     return market.catalog.get({
@@ -89,24 +119,26 @@ export function createPaneDataComposition({
   }
 
   return Object.freeze({
-    finalize(activePaneIds) {
+    finalize(identity, activePaneIds) {
       barData.commitCoverageLeases({
         activeConsumerIds: activePaneIds,
-        leases: [...stagedLeases],
+        leases: takeLeases(identity),
       });
-      stagedLeases.clear();
     },
     acquisitionPort: Object.freeze({
       async acquirePane(context) {
         const descriptor = context.paneRequest.request;
         const selected = selection(context.paneResponse, descriptor.responsePlan);
+        await market.resolveDatasetRevision(selected.instrument.id, { signal: context.signal });
         const plan = planAcquisitionRequest(context, descriptor, selected, market);
 
         let lease = null;
         let projectedBatch = null;
         let replacementProjectedBatch = null;
         if (plan.projectedHistoryRequest) {
-          projectedBatch = await projectedHistoryData.acquire(plan.request);
+          projectedBatch = await projectedHistoryData.acquire(plan.request, {
+            signal: context.signal,
+          });
         } else {
           lease = await barData.acquireCoverageLease({
             consumerId: context.paneResponse.paneId,
@@ -115,10 +147,11 @@ export function createPaneDataComposition({
             request: plan.request,
             signal: context.signal,
           });
-          stagedLeases.add(lease);
+          stageLease(context.identity, lease);
           if (plan.replacementProjectedRequest) {
             replacementProjectedBatch = await projectedHistoryData.acquire(
               plan.replacementProjectedRequest,
+              { signal: context.signal },
             );
           }
         }
@@ -199,9 +232,8 @@ export function createPaneDataComposition({
         });
       },
     }),
-    reject() {
-      barData.rejectCoverageLeases([...stagedLeases]);
-      stagedLeases.clear();
+    reject(identity) {
+      barData.rejectCoverageLeases(takeLeases(identity));
     },
     oldestEpochMs(paneId) {
       const rawOldest = barData.oldestCoverageEpochMs(paneId);

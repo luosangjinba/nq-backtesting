@@ -1,6 +1,6 @@
 # V7 Workspace Transaction Runtime
 
-Status: R4.1 foundation with R8.9 global atomic activation (2026-07-30)
+Status: R11.1 recovery semantics implemented; automated closure in progress
 
 ## Ownership
 
@@ -28,15 +28,25 @@ R8.9 invokes injected public ports in one direction:
 4. reversibly apply Chart and await its painted receipt;
 5. perform the final complete-identity currency check;
 6. synchronously apply Replay, Workspace State, and publication/persistence;
-7. finalize all four exact receipts and publish the accepted coordinator
-   revision;
-8. return exactly one committed terminal lifecycle envelope.
+7. finalize publication first; publishing the accepted coordinator revision is
+   the single irreversible decision;
+8. attempt finalization of Chart, Replay, and Workspace State even if another
+   post-decision finalizer fails;
+9. return exactly one committed terminal lifecycle envelope.
 
 Any preparation or application failure rolls back every retained participant
 in reverse order. Cleanup continues after an individual cleanup failure. The
 last accepted Chart, Replay clock, semantic Workspace State, publication model,
 persistence value, and coordinator revision therefore remain one coherent prior
 revision.
+
+If rollback or reject cannot prove that prior state was restored, the runtime
+enters `poisoned`, aborts every active record, and rejects every later `begin()`
+until the containing Session activation is reconstructed. If failure occurs
+after publication has made the irreversible decision, the result remains
+`committed`; remaining finalizers are still attempted and any incomplete
+cleanup poisons the activation. A committed workspace is therefore never
+misreported as failed and never receives an invalid partial rollback.
 
 ## Historical R4.1 Stage Order
 
@@ -94,6 +104,8 @@ Chart Runtime/Adapter exists.
 - disposal cancels pending work and prevents later acceptance;
 - Replay proposals remain inert until exact visible completion returns;
 - accepted workspace revision advances once per committed intent only.
+- runtime health is explicit (`ready` or `poisoned`); poison is a fail-closed
+  recovery state, not a retryable transaction failure.
 
 No events orchestrate a second pipeline. Append, replace, cached, and uncached
 strategies remain future implementation details behind the same transaction.
@@ -131,3 +143,6 @@ disposal, duplicate/scope identity, immutable inputs, and revision exhaustion.
 `tests/workspace-global-atomic-commit-harness.js` boots the real four owners and
 independently injects Chart, Replay, Workspace State, publication, and
 persistence failures while proving exact prior-state restoration.
+R11.1 extends the same gate with real rollback/reject failures, post-decision
+finalizer failures, committed-with-poison semantics, and refusal of subsequent
+work on an activation whose recovery can no longer be proven.

@@ -18,8 +18,3 @@ export {
   createMaintenanceClient,
   resolveMaintenanceApiBase,
 } from './maintenance-client.js';
-export { createDatabaseImportClient } from './database-import-client.js';
-export {
-  createDatabaseImportPanel,
-  databaseImportTemplate,
-} from './database-import-panel.js';

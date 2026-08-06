@@ -18,9 +18,13 @@
     "docs/V7_UI_COMPOSITION_SPLIT_R8_10.md",
     "docs/V7_PRODUCTION_MODULE_HOST_BOOT_R8_11.md",
     "docs/V7_SOURCE_AND_DOCUMENTATION_CLOSURE_R8_12.md",
+    "docs/V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md",
     "docs/v7-production-architecture-baseline.json",
+    "docs/v7-production-writer-policy.json",
     "docs/v7-production-source-quality-policy.json",
     "docs/v7-production-source-quality-baseline.json",
+    "docs/v7-deployed-runtime-manifest.json",
+    "docs/v7-production-regression-matrix.json",
     "docs/V7_PRODUCT_AND_SCOPE.md",
     "docs/V7_ARCHITECTURE.md",
     "docs/V7_V6_MIGRATION_DENYLIST.md",
@@ -101,7 +105,9 @@
     "workstation-settings",
     "session-state-replication",
     "workspace-checkpoint-domain",
-    "data-acquisition-admin"
+    "data-acquisition-admin",
+    "browser-async-contract",
+    "database-bootstrap-admin"
   ],
   "requiredIdentityFields": [
     "sessionId",
@@ -164,7 +170,9 @@
     "src/session-store/module.json",
     "src/calendar-surface/module.json",
     "src/session-browser-ui/module.json",
+    "src/browser-async-contract/module.json",
     "src/data-acquisition-ui/module.json",
+    "src/database-bootstrap-ui/module.json",
     "src/session-application/module.json",
     "src/data-acquisition-application/module.json"
   ],

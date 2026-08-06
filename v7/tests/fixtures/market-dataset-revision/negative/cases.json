@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "case": "stale-dataset-revision-response",
+      "expectedFailureCode": "revision-mismatch"
+    },
+    {
+      "case": "revision-mismatch-invalidates-revision-bound-cache",
+      "expectedFailureCode": "PROVIDER_REQUEST_FAILED"
+    }
+  ]
+}

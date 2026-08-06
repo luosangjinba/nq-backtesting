@@ -26,22 +26,54 @@ export function createWorkspaceCheckpointPersistence({
     layout: initialLayout,
     layoutSync: initialLayoutSync,
   });
+  let reversibleWrite = null;
 
   function capture() { return workspaceState.checkpoint(); }
+
+  function requireReversibleWrite(value) {
+    if (!value || typeof value.finalize !== 'function'
+      || typeof value.rollback !== 'function' || typeof value.snapshot !== 'function') {
+      throw new TypeError('Reversible Workspace persistence requires a durable write receipt.');
+    }
+    return value;
+  }
+
+  function persistExact({ checkpoint, layout, layoutSync }, { reversible = false } = {}) {
+    if (reversibleWrite !== null) {
+      throw new TypeError('A reversible Workspace persistence write is already pending.');
+    }
+    const key = persistenceKey({ checkpoint, layout, layoutSync });
+    const previousKey = persistedKey;
+    const result = persist?.({ checkpoint, layout, layoutSync, reversible });
+    if (reversible && persist) {
+      let receipt;
+      try {
+        receipt = requireReversibleWrite(result);
+      } catch (error) {
+        const failures = [error];
+        try { result?.rollback?.(); } catch (rollbackError) { failures.push(rollbackError); }
+        throw failures.length === 1
+          ? error
+          : new AggregateError(failures, 'Invalid Workspace persistence receipt could not roll back.');
+      }
+      reversibleWrite = Object.freeze({ candidateKey: key, previousKey, receipt });
+    }
+    persistedKey = key;
+    return true;
+  }
 
   function save({
     layout = readLayout(),
     layoutSync = readLayoutSync(),
     message = 'Workspace changes could not be saved locally.',
     rethrow = false,
+    reversible = false,
   } = {}) {
     const checkpoint = capture();
     const key = persistenceKey({ checkpoint, layout, layoutSync });
     if (key === persistedKey) return true;
     try {
-      persist?.({ checkpoint, layout, layoutSync });
-      persistedKey = key;
-      return true;
+      return persistExact({ checkpoint, layout, layoutSync }, { reversible });
     } catch (error) {
       if (rethrow) throw error;
       view.setState('error', { message });
@@ -49,5 +81,38 @@ export function createWorkspaceCheckpointPersistence({
     }
   }
 
-  return Object.freeze({ capture, save });
+  /**
+   * Restore one captured accepted checkpoint during transaction rollback.
+   *
+   * A synchronous persistence failure leaves `persistedKey` at the last
+   * accepted value. A successful reversible write is compensated through its
+   * Session Repository receipt, which restores the exact prior envelope bytes
+   * instead of creating a new logical Session revision.
+   */
+  function restore({ checkpoint, layout, layoutSync }) {
+    const key = persistenceKey({ checkpoint, layout, layoutSync });
+    if (reversibleWrite === null) {
+      // No successful reversible write crossed the persistence boundary. The
+      // last accepted durable bytes are therefore already untouched, even
+      // when an uninitialized Session has no semantic `persistedKey` yet.
+      return true;
+    }
+    const pending = reversibleWrite;
+    if (pending.previousKey !== key || pending.candidateKey !== persistedKey) {
+      throw new TypeError('Workspace persistence rollback does not match its accepted checkpoint.');
+    }
+    pending.receipt.rollback();
+    persistedKey = pending.previousKey;
+    reversibleWrite = null;
+    return true;
+  }
+
+  function finalize() {
+    if (reversibleWrite === null) return true;
+    reversibleWrite.receipt.finalize();
+    reversibleWrite = null;
+    return true;
+  }
+
+  return Object.freeze({ capture, finalize, restore, save });
 }
