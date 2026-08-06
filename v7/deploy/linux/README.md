@@ -66,6 +66,23 @@ package. Python 3.13 through 3.10 are auto-detected before generic `python3`;
 use `--python-bin python3.11` only when an unusual host needs an explicit
 selection.
 
+On Debian/Ubuntu, interpreter discovery also verifies that `ensurepip` is
+actually importable. `python -m venv --help` alone is insufficient there: it
+can succeed while the matching `python3-venv` package is absent. Apply mode now
+installs the distribution venv package and recreates an incomplete shared
+virtualenv with `--clear` on rerun.
+
+If an older installer already stopped with an error naming
+`python3.12-venv`, recover the host without deleting releases:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y python3.12-venv
+sudo python3.12 -m venv --clear /opt/replay-lab/shared/venv
+```
+
+Then rerun the same deployment command.
+
 A practical small-host starting point is 2 vCPU, 2 GB RAM plus swap, and at
 least 3 GB free space in addition to the market database. The current verified
 ES/NQ DuckDB is about 902 MB. Actual memory and latency remain part of the host

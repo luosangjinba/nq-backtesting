@@ -222,11 +222,19 @@ find_supported_python() {
     [[ -n "$resolved" ]] || continue
     "$resolved" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' \
       >/dev/null 2>&1 || continue
+    "$resolved" -c 'import ensurepip' >/dev/null 2>&1 || continue
     "$resolved" -m venv --help >/dev/null 2>&1 || continue
     printf '%s' "$resolved"
     return 0
   done
   return 1
+}
+
+venv_runtime_ready() {
+  [[ -x "$venv_python" ]] \
+    && sudo_cmd "$venv_python" -c \
+      'import pip,sys; raise SystemExit(0 if sys.version_info >= (3, 10) and sys.prefix != sys.base_prefix else 1)' \
+      >/dev/null 2>&1
 }
 
 node_runtime_ready() {
@@ -830,8 +838,13 @@ if [[ "$bootstrap" -eq 1 ]]; then
   run_step as_service_user test -w "$database_parent"
 fi
 
-if [[ ! -x "$venv_python" ]]; then
-  run_step sudo_cmd "$python_bin" -m venv "$venv_dir"
+if ! venv_runtime_ready; then
+  if sudo_cmd test -d "$venv_dir"; then
+    info "recreating incomplete shared virtualenv: $venv_dir"
+    run_step sudo_cmd "$python_bin" -m venv --clear "$venv_dir"
+  else
+    run_step sudo_cmd "$python_bin" -m venv "$venv_dir"
+  fi
 fi
 run_step sudo_cmd "$venv_python" -m pip install --disable-pip-version-check --upgrade pip wheel
 run_step sudo_cmd "$venv_python" -m pip install --disable-pip-version-check -r "$runtime_requirements"

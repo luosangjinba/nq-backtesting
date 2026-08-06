@@ -7,6 +7,19 @@ closure and individual R9 implementations do not close it. The current
 machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
 Contract Roll retain their separate gate.
 
+### R10.10 Debian/Ubuntu Versioned Venv Recovery — Implemented, Host Rerun Pending
+
+- [x] identify `python -m venv --help` as a false-positive readiness probe when
+  Debian/Ubuntu has the interpreter but not its matching `python3-venv` package;
+- [x] require importable `ensurepip` before selecting a Python interpreter so
+  apply mode requests the distribution venv package when it is missing;
+- [x] detect a partially created shared virtualenv and recreate it safely with
+  `venv --clear` instead of skipping it because a Python symlink exists;
+- [x] bind the discovery and partial-environment repair invariants in the Linux
+  deployment Harness and document the exact Python 3.12 host recovery command;
+- [ ] pull the correction on the affected Debian/Ubuntu host, rerun the same
+  deployment command, and record successful virtualenv plus service health.
+
 ### R10.9 First-Run Database Bootstrap And Import — Implemented, Host Review Pending
 
 - [x] keep database setup in the trusted Data Acquisition administrator surface

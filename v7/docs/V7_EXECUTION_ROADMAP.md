@@ -597,3 +597,8 @@ R8.13–R8.15.
   implementation is complete; clean-host large-file and visual review is
   pending. Binding contract:
   `V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`.
+- `R10.10`: correct Debian/Ubuntu Python readiness by requiring importable
+  `ensurepip`, allowing package planning to install the matching distribution
+  venv package, and recreating an incomplete shared environment with
+  `venv --clear`; implemented after a clean host exposed the false-positive
+  `python -m venv --help` probe and awaiting that host's rerun.

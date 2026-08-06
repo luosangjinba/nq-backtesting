@@ -295,6 +295,11 @@ try {
 
   const installerSource = fs.readFileSync(script, 'utf8');
   assert.match(installerSource, /if ! node_runtime_ready; then\s+base_packages\+=\(nodejs npm\)/);
+  assert.match(installerSource, /-c 'import ensurepip'/,
+    'Python discovery must reject interpreters whose Debian venv package is absent');
+  assert.match(installerSource, /venv_runtime_ready\(\)/);
+  assert.match(installerSource, /-m venv --clear "\$venv_dir"/,
+    'a failed partial virtualenv must be repaired on rerun');
   assert.match(installerSource, /already used outside \$unit; stop the legacy listener before apply/);
   assert.match(installerSource, /caddy_version_at_least 2 10 2/);
   assert.match(installerSource, /import \/etc\/caddy\/replay-lab\.Caddyfile/);

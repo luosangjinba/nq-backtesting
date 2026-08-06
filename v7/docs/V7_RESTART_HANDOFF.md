@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-05 after R10.9 first-run database bootstrap/import
+Last updated: 2026-08-05 after R10.10 Debian/Ubuntu venv recovery
 
 ## Current Overall Acceptance State
 
@@ -103,6 +103,14 @@ clean-host CSV/DuckDB review remains open.
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
 required for normal startup.
+
+R10.10 corrects the newest clean-host deployment finding. Debian/Ubuntu may
+provide Python 3.12 and let `python3.12 -m venv --help` succeed while omitting
+`ensurepip`, causing actual environment creation to stop and leave a partial
+`/opt/replay-lab/shared/venv`. Python discovery now requires `import ensurepip`,
+so package planning installs the venv dependency; apply also validates pip and
+recreates any partial environment with `venv --clear`. The affected host still
+needs the same deployment command rerun after pulling this correction.
 
 ## Pre-Reboot Durable Snapshot
 
