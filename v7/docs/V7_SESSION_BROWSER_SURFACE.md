@@ -51,10 +51,13 @@ market-data availability or Session state.
 
 The Session Browser's separate market-date policy owns CME Saturday boundary
 shorthand. A Saturday is selectable for Start when the following Sunday is
-source-backed and resolves to Sunday `18:00 America/New_York`; it is selectable
-for End when the preceding Friday is source-backed and resolves to Friday
-`16:59 America/New_York`. The generic Calendar Surface receives only enabled-
-date predicates and never acquires CME schedule or market-data ownership.
+source-backed and the fixed `18:00 America/New_York` boundary is inside shared
+source coverage. It is selectable for End when the preceding Friday is source-
+backed and `16:59` is inside shared coverage. Start resolves to Sunday `18:00`;
+End remains customer-visible as Friday `16:59` while Session creation stores
+Friday `17:00` as Replay's exclusive cutoff. The generic Calendar Surface
+receives only enabled-date predicates and never acquires CME schedule or market-
+data ownership.
 
 No fake Replay, chart, order, Journal, campaign, plugin, or unavailable future
 control may appear. Revision, activation generation, internal phase names, and

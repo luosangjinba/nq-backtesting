@@ -68,10 +68,22 @@ export function sessionBoundaryMarketDates(availabilityByInstrument, instrumentI
     throw new TypeError('Session boundary must be start or end.');
   }
   const sourceDates = intersectMarketDates(availabilityByInstrument, instrumentIds);
+  if (sourceDates.length === 0) return sourceDates;
+  const bounds = sharedMarketTimeBounds(availabilityByInstrument, instrumentIds);
   const dates = new Set(sourceDates);
   for (const date of sourceDates) {
-    if (boundary === 'start' && weekday(date) === 0) dates.add(shiftMarketDate(date, -1));
-    if (boundary === 'end' && weekday(date) === 5) dates.add(shiftMarketDate(date, 1));
+    if (boundary === 'start' && weekday(date) === 0) {
+      const resolved = `${date}T18:00`;
+      if (resolved >= bounds.firstTimestamp && resolved <= bounds.latestTimestamp) {
+        dates.add(shiftMarketDate(date, -1));
+      }
+    }
+    if (boundary === 'end' && weekday(date) === 5) {
+      const resolved = `${date}T16:59`;
+      if (resolved >= bounds.firstTimestamp && resolved <= bounds.latestTimestamp) {
+        dates.add(shiftMarketDate(date, 1));
+      }
+    }
   }
   return Object.freeze([...dates].sort());
 }
@@ -87,6 +99,13 @@ export function resolveSessionBoundaryWallMinute(value, boundary) {
   return boundary === 'start'
     ? `${shiftMarketDate(date, 1)}T18:00`
     : `${shiftMarketDate(date, -1)}T16:59`;
+}
+
+/** Translate the customer-visible boundary into Replay's exclusive range cutoff. */
+export function resolveSessionRangeWallMinute(value, boundary) {
+  const resolved = resolveSessionBoundaryWallMinute(value, boundary);
+  if (boundary !== 'end' || resolved === value) return resolved;
+  return `${resolved.slice(0, 10)}T17:00`;
 }
 
 export function sharedMarketTimeBounds(availabilityByInstrument, instrumentIds) {

@@ -22,7 +22,7 @@ function toCard(record, instrumentLabels) {
     name: record.metadata.name,
     updatedAtEpochMs: record.metadata.updatedAtEpochMs,
     startEpochMs: record.configuration.historicalRange.startEpochMs,
-    endEpochMs: record.configuration.historicalRange.endEpochMs,
+    endEpochMs: record.configuration.historicalRange.presentationEndEpochMs,
     instruments: Object.freeze(record.configuration.instrumentIds.map((id) => Object.freeze({
       id,
       label: instrumentLabels[id] ?? id,

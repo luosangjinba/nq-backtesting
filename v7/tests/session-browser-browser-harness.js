@@ -184,12 +184,14 @@ try {
       saturdayStartEnabled: !start.querySelector('[data-date="2026-06-06"]').disabled,
       saturdayEndEnabled: !document.querySelectorAll('.date-time-control')[1]
         .querySelector('[data-date="2026-06-06"]').disabled,
+      partialLatestSaturdayEndDisabled: document.querySelectorAll('.date-time-control')[1]
+        .querySelector('[data-date="2026-06-13"]').disabled,
     };
   })()`);
   assert.deepEqual(datePickerEvidence, {
     open: true, dayCount: 42, heading: 'June2026', monthCount: 12, yearCount: 10,
     availableEnabled: true, unavailableDisabled: true, outsideDisabled: true,
-    saturdayStartEnabled: true, saturdayEndEnabled: true,
+    saturdayStartEnabled: true, saturdayEndEnabled: true, partialLatestSaturdayEndDisabled: true,
   }, 'Session picker must disable source-empty and outside-month dates while retaining navigation views');
   await capture(cdp, 'date-time-picker-open');
   const todayEvidence = await evaluate(cdp, `(() => {
@@ -300,10 +302,12 @@ try {
     'Session Alpha': {
       startEpochMs: Date.parse('2026-05-01T13:30:00Z'),
       endEpochMs: Date.parse('2026-05-05T20:00:00Z'),
+      presentationEndEpochMs: Date.parse('2026-05-05T20:00:00Z'),
     },
     'Session Beta': {
       startEpochMs: Date.parse('2026-05-03T22:00:00Z'),
-      endEpochMs: Date.parse('2026-05-08T20:59:00Z'),
+      endEpochMs: Date.parse('2026-05-08T21:00:00Z'),
+      presentationEndEpochMs: Date.parse('2026-05-08T20:59:00Z'),
     },
   }, 'Session creation must persist New York input and resolve Saturday to adjacent CME boundaries');
   assert.equal(storageEvidence.keys.some((key) => /active|current|last-opened/i.test(key)), false);

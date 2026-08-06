@@ -11,6 +11,7 @@ import {
 } from '../src/session-browser-ui/public.js';
 import {
   resolveSessionBoundaryWallMinute,
+  resolveSessionRangeWallMinute,
   sessionBoundaryMarketDates,
 } from '../src/session-browser-ui/market-date-policy.js';
 
@@ -48,9 +49,13 @@ assert.equal('createdAtEpochMs' in opened.session, false,
 const availability = Object.freeze({
   'instrument.cme.nq': Object.freeze({
     dates: Object.freeze(['2026-05-01', '2026-05-03', '2026-05-08']),
+    firstTimestamp: '2026-05-01T09:30',
+    latestTimestamp: '2026-05-08T16:59',
   }),
   'instrument.cme.es': Object.freeze({
     dates: Object.freeze(['2026-05-01', '2026-05-03', '2026-05-08']),
+    firstTimestamp: '2026-05-01T09:30',
+    latestTimestamp: '2026-05-08T16:59',
   }),
 });
 assert.deepEqual(sessionBoundaryMarketDates(
@@ -61,7 +66,21 @@ assert.deepEqual(sessionBoundaryMarketDates(
 ), ['2026-05-01', '2026-05-02', '2026-05-03', '2026-05-08', '2026-05-09']);
 assert.equal(resolveSessionBoundaryWallMinute('2026-05-02T12:34', 'start'), '2026-05-03T18:00');
 assert.equal(resolveSessionBoundaryWallMinute('2026-05-09T12:34', 'end'), '2026-05-08T16:59');
+assert.equal(resolveSessionRangeWallMinute('2026-05-09T12:34', 'end'), '2026-05-08T17:00');
 assert.equal(resolveSessionBoundaryWallMinute('2026-05-08T12:34', 'end'), '2026-05-08T12:34');
+const partialBoundaryAvailability = Object.freeze({
+  'instrument.cme.nq': Object.freeze({
+    dates: Object.freeze(['2026-05-03', '2026-05-08']),
+    firstTimestamp: '2026-05-03T18:30',
+    latestTimestamp: '2026-05-08T16:00',
+  }),
+});
+assert.deepEqual(sessionBoundaryMarketDates(
+  partialBoundaryAvailability, ['instrument.cme.nq'], 'start',
+), ['2026-05-03', '2026-05-08']);
+assert.deepEqual(sessionBoundaryMarketDates(
+  partialBoundaryAvailability, ['instrument.cme.nq'], 'end',
+), ['2026-05-03', '2026-05-08']);
 for (const fixture of negativeCases) {
   const operation = fixture.operation === 'list'
     ? () => createSessionListViewModel({ state: fixture.state, records: [] })

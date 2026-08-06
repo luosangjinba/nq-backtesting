@@ -994,11 +994,33 @@ try {
   await evaluate(cdp, `(() => {
     document.querySelector('.timeframe-toggle').click();
     document.querySelector('[data-timeframe-id="timeframe.display-5-minute"]').click();
+    document.querySelector('.replay-next').click();
   })()`);
-  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '2'`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '3'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`);
+  assert.equal(await evaluate(cdp, `document.querySelector('.replay-next').disabled`), false,
+    'Manual Next queued during a real Workspace replacement must execute after the idle publication');
   const requestsBeforeCadence = await evaluate(cdp,
     `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`);
-  let cadenceRevision = 2;
+  let cadenceRevision = 3;
+  const rapidNextStartRevision = cadenceRevision;
+  await evaluate(cdp, `(async () => {
+    const next = document.querySelector('.replay-next');
+    next.click();
+    await Promise.resolve();
+    next.click();
+    next.click();
+  })()`);
+  cadenceRevision += 3;
+  await waitFor(cdp,
+    `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) === ${cadenceRevision}
+      && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`);
+  assert.equal(
+    Number(await evaluate(cdp, `document.querySelector('.replay-workspace').dataset.workspaceRevision`))
+      - rapidNextStartRevision,
+    3,
+    'three rapid Manual Next pointer intents must commit three ordered Workspace revisions',
+  );
   const cadenceSamples = [];
   const adapterApplySamples = [];
   const adapterMutationSamples = [];
@@ -1043,7 +1065,7 @@ try {
   assert.ok(latencySummary.maxMs < 250, `aggregate Next max exceeded budget: ${latencySummary.maxMs}ms`);
   assert.equal(await evaluate(cdp,
     `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`),
-    requestsBeforeCadence, '100 cache-hit aggregate Next actions must issue zero provider requests');
+    requestsBeforeCadence, 'the rapid burst and 100 cache-hit aggregate Next actions must issue zero provider requests');
 } finally {
   cdp?.close();
   const exited = new Promise((resolve) => chrome.once('exit', resolve));

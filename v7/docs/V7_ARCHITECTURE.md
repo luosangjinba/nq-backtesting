@@ -46,6 +46,11 @@ workspace layout, pane intents, Replay checkpoint, and schema version. Every
 read/write requires an explicit `sessionId`; there is no implicit active-session
 persistence key.
 
+The historical range stores its authoritative exclusive `endEpochMs` plus a
+validated `presentationEndEpochMs` inside that range. Existing records default
+the presentation End to the authoritative End; Saturday-close shorthand uses
+Friday `16:59` for customer surfaces and Friday `17:00` for Replay's cutoff.
+
 R2.4 adds explicit revision-checked Session deletion through the same owner.
 Repository removes the indexed identity and its record key as one bounded
 operation; Session Browser may dispatch the command only after visible user
@@ -802,8 +807,10 @@ transaction, rewriting series data, or changing Pane/Viewport revisions.
 Session creation's market-date policy remains owned by Session Browser rather
 than Calendar Surface. It adds source-backed Saturday shorthand: Start resolves
 to the following Sunday `18:00`, while End resolves to the preceding Friday
-`16:59`, both in New York time. Calendar Surface still owns only generic date-
-time DOM, formatting, and epoch conversion.
+`16:59`, both in New York time and only when the fixed boundary is inside shared
+source coverage. The End presentation translates to Friday `17:00` for the
+stored exclusive Replay range so the `16:59` bar remains visible. Calendar
+Surface still owns only generic date-time DOM, formatting, and epoch conversion.
 
 The overall-acceptance Manual Next correction keeps the UI target enabled once
 an accepted Chart exists and queues click intents in command order. Workspace

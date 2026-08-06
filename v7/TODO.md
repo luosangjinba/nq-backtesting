@@ -15,7 +15,8 @@ Contract Roll retain their separate gate.
   removing its existing multi-select capability;
 - [x] keep eligible Saturdays selectable at the Session Browser-owned market-
   date boundary, mapping Start to the following Sunday `18:00` and End to the
-  preceding Friday `16:59` in New York time;
+  preceding Friday `16:59` in New York time, while storing Friday `17:00` as
+  Replay's exclusive cutoff;
 - [x] retain Manual Next as an enabled pointer target during accepted-chart
   refresh and serialize every rapid click through the existing single-flight
   Workspace execution boundary instead of dropping overlap;
@@ -513,8 +514,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 309 files, 23,158 effective
-lines, 2,478 functions, and 306 public exports; the architecture baseline
+The current production source baseline contains 309 files, 23,200 effective
+lines, 2,480 functions, and 306 public exports; the architecture baseline
 remains 48 modules, 125 edges, 115 construction sites, eight writers, and zero
 findings.
 
@@ -526,7 +527,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 309 files, 23,158 effective lines, 2,478 functions, 306 public
+currently at 309 files, 23,200 effective lines, 2,480 functions, 306 public
 exports, 48 modules, 125 edges, 115 construction sites, eight writers, and zero
 findings.
 

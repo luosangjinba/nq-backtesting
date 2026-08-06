@@ -16,11 +16,14 @@ function element(tag, options = {}, children = []) {
 function requireRange(range) {
   const startEpochMs = range?.startEpochMs;
   const endEpochMs = range?.endEpochMs;
+  const presentationEndEpochMs = range?.presentationEndEpochMs ?? endEpochMs;
   if (!Number.isSafeInteger(startEpochMs) || startEpochMs < 0
-    || !Number.isSafeInteger(endEpochMs) || endEpochMs < startEpochMs) {
+    || !Number.isSafeInteger(endEpochMs) || endEpochMs < startEpochMs
+    || !Number.isSafeInteger(presentationEndEpochMs)
+    || presentationEndEpochMs < startEpochMs || presentationEndEpochMs > endEpochMs) {
     throw new TypeError('Exact GoTo requires one ordered Replay Session range.');
   }
-  return Object.freeze({ endEpochMs, startEpochMs });
+  return Object.freeze({ endEpochMs, presentationEndEpochMs, startEpochMs });
 }
 
 /** Own the separate Workspace-level Exact GoTo trigger and range-aware dialog. */
@@ -85,7 +88,7 @@ export function createExactGotoDialog({ getDefaultEpochMs, onSubmit, replayRange
     dateTimeHost.replaceChildren(dateTime.element);
     if (Number.isSafeInteger(selectedEpochMs)) dateTime.setEpochMs(selectedEpochMs);
     rangeText = `${presentation.formatDateTime(range.startEpochMs, { timeZoneName: false })} – `
-      + `${presentation.formatDateTime(range.endEpochMs, { timeZoneName: false })}`
+      + `${presentation.formatDateTime(range.presentationEndEpochMs, { timeZoneName: false })}`
       + ` · ${presentation.timeZoneLabel}`;
     rangeCopy.textContent = `Replay Session · ${rangeText}`;
     instruction.textContent = `Choose the exact minute to reveal in ${presentation.timeZoneLabel}.`;

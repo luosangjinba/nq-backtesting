@@ -13,6 +13,13 @@ import {
 import { createFoundationMarket } from './foundation-market.js';
 import { WORKSPACE_PANE_IDS } from './pane-identity.js';
 
+function sessionRangePresentation(range) {
+  return Object.freeze({
+    endEpochMs: range.presentationEndEpochMs ?? range.endEpochMs,
+    startEpochMs: range.startEpochMs,
+  });
+}
+
 function validateRestoredWorkspace(restored, market) {
   if (restored && !market.sessionHoursModes.includes(restored.sessionHoursMode)) {
     throw new TypeError('Restored Session Hours mode is not supported by this workspace.');
@@ -118,7 +125,7 @@ export function createWorkspaceSessionState({
     return setReplayStep(synchronizedReplayStepId(active.timeframeId), publish);
   }
 
-  presentation.setSessionRange({ endEpochMs: range.endEpochMs, startEpochMs: range.startEpochMs });
+  presentation.setSessionRange(sessionRangePresentation(range));
   presentation.setSelection({ sessionHoursMode: initialSessionHoursMode });
   presentation.setLayout(paneLayout, workspaceState.paneIds());
   presentation.setWorkspace(acceptedPaneWorkspace());

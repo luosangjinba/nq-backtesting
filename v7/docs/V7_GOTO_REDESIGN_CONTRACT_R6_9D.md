@@ -70,14 +70,16 @@ failures retain their existing failure semantics.
 ## Exact GoTo Contract
 
 Exact GoTo remains the existing `goto-exact` action and may move forward,
-backward, or retain the cursor. Its selected New York date/time is an exclusive
-Replay cutoff: visible source data must precede it. A target is valid only in
-the closed cursor range from Replay Session start through Replay Session end.
+backward, or retain the cursor. Following the 2026-08-05 acceptance correction,
+its customer-selected date/time names the minute to reveal and the UI translates
+it forward by one minute into Replay's exclusive cutoff. A visible-minute target
+is valid from Replay Session Start through the final minute strictly before
+Replay Session End.
 
-The later presentation slice must provide a separate Workspace-level entry,
-default to the current Replay cursor, highlight the Replay Session date range,
-disable dates outside it, validate time on the boundary dates, and retain the
-dialog with explicit New York lower/upper-bound feedback after invalid input.
+The presentation provides a separate Workspace-level entry, defaults to the
+latest actually revealed minute, highlights the Replay Session date range,
+disables dates outside it, validates time on the boundary dates, and retains the
+dialog with explicit display-zone lower/upper-bound feedback after invalid input.
 It must not place an active-Pane-local control because every Pane shares the
 same Replay clock.
 

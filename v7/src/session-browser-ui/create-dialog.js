@@ -4,6 +4,7 @@ import { createInstrumentPicker } from './instrument-picker.js';
 import {
   marketDateId,
   resolveSessionBoundaryWallMinute,
+  resolveSessionRangeWallMinute,
   sessionBoundaryMarketDates,
   sharedMarketTimeBounds,
 } from './market-date-policy.js';
@@ -63,29 +64,33 @@ function readIntent(controls, availability) {
   }
   const bounds = sharedMarketTimeBounds(availability.byInstrument, instrumentIds);
   let startWallMinute;
-  let endWallMinute;
+  let endBoundaryWallMinute;
+  let endRangeWallMinute;
   try {
-    startWallMinute = resolveSessionBoundaryWallMinute(controls.start.value(), 'start');
-    endWallMinute = resolveSessionBoundaryWallMinute(controls.end.value(), 'end');
+    startWallMinute = resolveSessionRangeWallMinute(controls.start.value(), 'start');
+    endBoundaryWallMinute = resolveSessionBoundaryWallMinute(controls.end.value(), 'end');
+    endRangeWallMinute = resolveSessionRangeWallMinute(controls.end.value(), 'end');
   } catch {
     return { error: 'Choose valid start and end dates and times.' };
   }
   const startEpochMs = parseLocalDateTimeValue(startWallMinute, MARKET_TIME_ZONE);
-  const endEpochMs = parseLocalDateTimeValue(endWallMinute, MARKET_TIME_ZONE);
+  const presentationEndEpochMs = parseLocalDateTimeValue(endBoundaryWallMinute, MARKET_TIME_ZONE);
+  const endEpochMs = parseLocalDateTimeValue(endRangeWallMinute, MARKET_TIME_ZONE);
   if (startWallMinute < bounds.firstTimestamp) {
     return { error: `Start time must be on or after ${bounds.firstTimestamp.replace('T', ' ')} New York time.` };
   }
-  if (endWallMinute > bounds.latestTimestamp) {
+  if (endBoundaryWallMinute > bounds.latestTimestamp) {
     return { error: `End time must be on or before ${bounds.latestTimestamp.replace('T', ' ')} New York time.` };
   }
-  if (!Number.isFinite(startEpochMs) || !Number.isFinite(endEpochMs) || endEpochMs <= startEpochMs) {
+  if (!Number.isFinite(startEpochMs) || !Number.isFinite(presentationEndEpochMs)
+    || !Number.isFinite(endEpochMs) || endEpochMs <= startEpochMs) {
     return { error: 'End time must be later than start time.' };
   }
   return {
     intent: {
       name: controls.name.value,
       instrumentIds,
-      historicalRange: { startEpochMs, endEpochMs },
+      historicalRange: { startEpochMs, endEpochMs, presentationEndEpochMs },
     },
   };
 }

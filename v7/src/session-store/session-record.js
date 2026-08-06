@@ -43,14 +43,25 @@ function requireName(value) {
 function requireConfiguration(value) {
   const start = requireEpoch(value?.historicalRange?.startEpochMs, 'historicalRange.startEpochMs');
   const end = requireEpoch(value?.historicalRange?.endEpochMs, 'historicalRange.endEpochMs');
+  const presentationEnd = requireEpoch(
+    value?.historicalRange?.presentationEndEpochMs ?? end,
+    'historicalRange.presentationEndEpochMs',
+  );
   if (end <= start) fail('INVALID_SESSION_RANGE', 'Historical range end must be later than start.');
+  if (presentationEnd < start || presentationEnd > end) {
+    fail('INVALID_SESSION_RANGE_PRESENTATION', 'Historical range presentation end must remain inside its range.');
+  }
   if (!Array.isArray(value?.instrumentIds) || value.instrumentIds.length === 0
     || value.instrumentIds.some((id) => typeof id !== 'string' || id.length === 0)
     || new Set(value.instrumentIds).size !== value.instrumentIds.length) {
     fail('INVALID_SESSION_INSTRUMENTS', 'Session instruments must be unique non-empty capability ids.');
   }
   return Object.freeze({
-    historicalRange: Object.freeze({ startEpochMs: start, endEpochMs: end }),
+    historicalRange: Object.freeze({
+      startEpochMs: start,
+      endEpochMs: end,
+      presentationEndEpochMs: presentationEnd,
+    }),
     instrumentIds: Object.freeze([...value.instrumentIds]),
   });
 }

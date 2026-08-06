@@ -25,8 +25,10 @@ Escape cancellation of truncation, and Exact GoTo appearing one minute early.
   ambiguous creation timestamp.
 - Each instrument selection closes the dropdown; reopening still permits NQ+ES
   multi-selection.
-- A source-backed Saturday Start resolves to Sunday `18:00 New York`, while a
-  source-backed Saturday End resolves to Friday `16:59 New York`.
+- A Saturday Start resolves to Sunday `18:00 New York`, while a Saturday End
+  remains customer-visible as Friday `16:59 New York` and stores Friday `17:00`
+  as the exclusive Replay cutoff. A shorthand date is enabled only when that
+  fixed boundary is inside shared source coverage.
 - Manual Next stays enabled during accepted-chart refresh. Rapid clicks are
   queued in order and executed one at a time through the existing transaction.
 - Escape invokes the existing truncation toggle and restores navigation.
@@ -38,18 +40,20 @@ Escape cancellation of truncation, and Exact GoTo appearing one minute early.
 ## Verification
 
 - Session Browser pure and real-Chrome harnesses prove Saturday predicates,
-  persisted Sunday/Friday epochs, picker collapse, card text, and six reviewed
-  fixtures.
+  partial-coverage edge rejection, the persisted Friday `17:00` cutoff with a
+  Friday `16:59` card, picker collapse, card text, and six reviewed fixtures.
 - Replay Workspace composition proves three rapid Next intents execute in
-  strict order; the real chart harness proves Next never enters disabled state
-  during refresh and retains the 100-step performance gate.
+  strict order; the real chart harness now also queues Next during a real
+  timeframe replacement, commits three rapid pointer intents, proves Next never
+  enters disabled state during refresh, and retains the 100-step performance
+  gate.
 - Replay Pane Workspace real Chrome proves Escape cancellation and an Exact
   `13:00` choice visibly ends at `13:00`, with an intentionally updated Exact
   dialog fixture. Its retained 39-pixel environment delta was not rebaselined.
 - Calendar, Replay navigation/response, UI-independent, architecture, and
   source-quality gates pass. The committed baselines remain clean at 48
   modules, 125 dependency edges, 115 construction sites, eight writer sites,
-  309 production files, 23,158 effective lines, 2,478 functions, and 306
+  309 production files, 23,200 effective lines, 2,480 functions, and 306
   public exports.
 
 Human confirmation remains open on the original cloud/browser path.

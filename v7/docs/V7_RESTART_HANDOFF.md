@@ -63,7 +63,8 @@ and v1–v6 migration pass. The cloud path awaits human review.
 The completed checklist then identified six bounded interaction findings.
 Session cards no longer show a misleading creation timestamp; instrument
 selection collapses its picker; eligible Saturdays map Start to Sunday 18:00
-and End to Friday 16:59. Manual Next remains clickable and queues rapid intents
+and customer-visible End to Friday 16:59, backed by a Friday 17:00 exclusive
+cutoff. Manual Next remains clickable and queues rapid intents
 through the existing single-flight Workspace executor, Escape exits truncation
 selection, and Exact GoTo now names the minute to reveal while translating to
 the unchanged exclusive no-future cutoff. Automated browser evidence passes;

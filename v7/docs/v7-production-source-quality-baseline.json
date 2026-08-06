@@ -2906,148 +2906,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 137,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "isStoreError",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "createSessionRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "deserializeSessionRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "requireConfiguration",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "serializeSessionRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "migrate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 27,
-          "name": "freezeRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "fail",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireEpoch",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireName",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireWorkspace",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "core.session-store",
-      "owner": "session-store",
-      "ownsContract": false,
-      "path": "src/session-store/session-record.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "session-store.",
-            "purpose": "construct the only R2.1 durable Session record without bars, Replay, pane state, viewport state, or an implicit active Session.",
-            "inputs": "branded SessionId, exact metadata, historical range, and instruments.",
-            "outputs": "deeply frozen revision-one Session record.",
-            "sideEffects": "none.",
-            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
-            "errors": "SessionStoreError or SessionIdentityError for invalid fields.",
-            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
-          },
-          "moduleId": "core.session-store",
-          "name": "createSessionRecord"
-        },
-        {
-          "documentation": {
-            "owner": "session-store.",
-            "purpose": "expose the complete supported public contract for session store.",
-            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
-            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
-            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
-            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
-            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
-            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
-          },
-          "moduleId": "core.session-store",
-          "name": "SessionStoreError"
-        },
-        {
-          "documentation": {
-            "owner": "session-store.",
-            "purpose": "restore and deliberately migrate a persisted Session record.",
-            "inputs": "wire record and optional map keyed by source schema version.",
-            "outputs": "deeply frozen current Session record.",
-            "sideEffects": "invokes only explicitly supplied migration functions.",
-            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
-            "errors": "unsupported schema/version, invalid migration, or invalid record data.",
-            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
-          },
-          "moduleId": "core.session-store",
-          "name": "deserializeSessionRecord"
-        },
-        {
-          "documentation": {
-            "owner": "session-store.",
-            "purpose": "serialize a Session record through one versioned persistence schema.",
-            "inputs": "valid frozen or structural Session record.",
-            "outputs": "frozen JSON-compatible wire record.",
-            "sideEffects": "none.",
-            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
-            "errors": "SessionStoreError or identity contract errors.",
-            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
-          },
-          "moduleId": "core.session-store",
-          "name": "serializeSessionRecord"
-        }
-      ],
-      "responsibilities": [
-        "session-store"
-      ],
-      "sizeException": null,
-      "sourceHash": "20318319556e1a7d8e3264f91786dc4bbfcfb8896c9b9ea735bf1cc80c628b6b"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 139,
       "forwardingOnly": false,
       "functions": [
@@ -3463,6 +3321,148 @@
       ],
       "sizeException": null,
       "sourceHash": "db8026f20f94f0f4af4350145b03e9786295fb14e503898a9a3b6ec1619b5327"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 148,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "isStoreError",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "createSessionRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "deserializeSessionRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "serializeSessionRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "migrate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "requireConfiguration",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "freezeRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "fail",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireEpoch",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireName",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireWorkspace",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.session-store",
+      "owner": "session-store",
+      "ownsContract": false,
+      "path": "src/session-store/session-record.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "session-store.",
+            "purpose": "construct the only R2.1 durable Session record without bars, Replay, pane state, viewport state, or an implicit active Session.",
+            "inputs": "branded SessionId, exact metadata, historical range, and instruments.",
+            "outputs": "deeply frozen revision-one Session record.",
+            "sideEffects": "none.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "SessionStoreError or SessionIdentityError for invalid fields.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.session-store",
+          "name": "createSessionRecord"
+        },
+        {
+          "documentation": {
+            "owner": "session-store.",
+            "purpose": "expose the complete supported public contract for session store.",
+            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
+            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
+            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.session-store",
+          "name": "SessionStoreError"
+        },
+        {
+          "documentation": {
+            "owner": "session-store.",
+            "purpose": "restore and deliberately migrate a persisted Session record.",
+            "inputs": "wire record and optional map keyed by source schema version.",
+            "outputs": "deeply frozen current Session record.",
+            "sideEffects": "invokes only explicitly supplied migration functions.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "unsupported schema/version, invalid migration, or invalid record data.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.session-store",
+          "name": "deserializeSessionRecord"
+        },
+        {
+          "documentation": {
+            "owner": "session-store.",
+            "purpose": "serialize a Session record through one versioned persistence schema.",
+            "inputs": "valid frozen or structural Session record.",
+            "outputs": "frozen JSON-compatible wire record.",
+            "sideEffects": "none.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "SessionStoreError or identity contract errors.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.session-store",
+          "name": "serializeSessionRecord"
+        }
+      ],
+      "responsibilities": [
+        "session-store"
+      ],
+      "sizeException": null,
+      "sourceHash": "af50ac2567994242156249df3e5960c3ad5b0feb704fe0a8106ed60947cefd03"
     },
     {
       "adaptsBoundary": false,
@@ -13960,81 +13960,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 142,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "submit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 26,
-          "name": "replaceDateTime",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "closeDialog",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "setWorkstationSettings",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "setDisabled",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 58,
-          "name": "createExactGotoDialog",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "open",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "element",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "requireRange",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.replay-workspace-ui",
-      "owner": "replay-workspace-ui",
-      "ownsContract": false,
-      "path": "src/replay-workspace-ui/exact-goto-dialog.js",
-      "publicExports": [],
-      "responsibilities": [
-        "replay-workspace-ui"
-      ],
-      "sizeException": null,
-      "sourceHash": "432c224fdfb725376c7d2d562c8e5fb314dbd89aca72502e5000c1b7b737f5e9"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 144,
       "forwardingOnly": false,
       "functions": [
@@ -14289,156 +14214,76 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 146,
+      "effectiveLines": 145,
       "forwardingOnly": false,
       "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-15>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-17>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
         {
           "effectiveLines": 1,
           "name": "<anonymous-8>",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 1,
-          "name": "<anonymous-9>",
+          "effectiveLines": 12,
+          "name": "requireRange",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 1,
-          "name": "acceptedPaneWorkspace",
+          "effectiveLines": 19,
+          "name": "submit",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 1,
-          "name": "readLayoutSync",
+          "effectiveLines": 26,
+          "name": "replaceDateTime",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 1,
-          "name": "readLayoutSyncValue",
+          "effectiveLines": 4,
+          "name": "closeDialog",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 1,
-          "name": "readNavigationSchedule",
+          "effectiveLines": 4,
+          "name": "setWorkstationSettings",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 1,
-          "name": "readPaneLayout",
+          "effectiveLines": 5,
+          "name": "dispose",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 1,
-          "name": "readSyncTimeframe",
+          "effectiveLines": 5,
+          "name": "setDisabled",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 1,
-          "name": "readTruncationSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "semanticState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setLayoutSyncReader",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setNavigationSchedule",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setPaneLayout",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setSyncTimeframe",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "setTruncationSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "validateRestoredWorkspace",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "synchronizedReplayStepId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 41,
-          "name": "createSessionOwners",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 59,
-          "name": "createWorkspaceSessionState",
+          "effectiveLines": 58,
+          "name": "createExactGotoDialog",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 6,
-          "name": "desiredReplayStep",
+          "name": "open",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 6,
-          "name": "syncReplayStep",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "setReplayStep",
+          "effectiveLines": 8,
+          "name": "element",
           "reviewedDecompositionException": false
         }
       ],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
+      "kind": "ui",
+      "moduleId": "adapter.replay-workspace-ui",
+      "owner": "replay-workspace-ui",
       "ownsContract": false,
-      "path": "src/replay-workspace-composition/workspace-session-state.js",
+      "path": "src/replay-workspace-ui/exact-goto-dialog.js",
       "publicExports": [],
       "responsibilities": [
-        "replay-workspace-composition"
+        "replay-workspace-ui"
       ],
       "sizeException": null,
-      "sourceHash": "4f0a0cebf00f7212d9f3b35fbab9d864e758aed842e15ccdb3a9a91f3945e5f7"
+      "sourceHash": "7414c0ce272143d9879c5b9f4d6f97dc2d171e7ae3fd9513f0293690edfe9952"
     },
     {
       "adaptsBoundary": true,
@@ -14589,6 +14434,166 @@
       ],
       "sizeException": null,
       "sourceHash": "11c8fb73bb62c0ea713af494f905eb0f80b79cd210a574889e83f21069708643"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 152,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "acceptedPaneWorkspace",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readLayoutSync",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readLayoutSyncValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readNavigationSchedule",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readPaneLayout",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readSyncTimeframe",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readTruncationSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "semanticState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setLayoutSyncReader",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setNavigationSchedule",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setPaneLayout",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setSyncTimeframe",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "setTruncationSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "validateRestoredWorkspace",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "synchronizedReplayStepId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 41,
+          "name": "createSessionOwners",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 59,
+          "name": "createWorkspaceSessionState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "desiredReplayStep",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "sessionRangePresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "syncReplayStep",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "setReplayStep",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/workspace-session-state.js",
+      "publicExports": [],
+      "responsibilities": [
+        "replay-workspace-composition"
+      ],
+      "sizeException": null,
+      "sourceHash": "6c423f22c077f67d0e510a2fdc03e187ddd19ac87bc5b03cefdd1d8a2604ec0d"
     },
     {
       "adaptsBoundary": true,
@@ -16546,7 +16551,26 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 209,
+      "effectiveLines": 21,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "adapter",
+      "moduleId": "adapter.v4-bars-provider",
+      "owner": "bar-data-runtime",
+      "ownsContract": true,
+      "path": "src/v4-bars-provider-adapter/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "bar-data-runtime"
+      ],
+      "sizeException": null,
+      "sourceHash": "dc9e2b59ead6a2ff27b1da0f809c730d8c54e42cfb38fe2bb43f7ec154500db8"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 214,
       "forwardingOnly": false,
       "functions": [
         {
@@ -16600,7 +16624,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 44,
+          "effectiveLines": 48,
           "name": "readIntent",
           "reviewedDecompositionException": false
         },
@@ -16655,26 +16679,7 @@
         "session-store"
       ],
       "sizeException": null,
-      "sourceHash": "a79c3b9bcbbd8dd5ddeea2c2c9e7ee2045f178704975a2c3b80b3a7153b909e0"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 21,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "adapter",
-      "moduleId": "adapter.v4-bars-provider",
-      "owner": "bar-data-runtime",
-      "ownsContract": true,
-      "path": "src/v4-bars-provider-adapter/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "bar-data-runtime"
-      ],
-      "sizeException": null,
-      "sourceHash": "dc9e2b59ead6a2ff27b1da0f809c730d8c54e42cfb38fe2bb43f7ec154500db8"
+      "sourceHash": "6e12014441c3f5ba8f770a7e1efd5079c84b35c3415aba3458a6bfd9e0fe45ce"
     },
     {
       "adaptsBoundary": true,
@@ -20884,7 +20889,7 @@
         "session-store"
       ],
       "sizeException": null,
-      "sourceHash": "207dbd54b8ec02e557fddf9890bb856ec98508c4a9ff1e23bd217687f2a95a5e"
+      "sourceHash": "cda4591fb648ea9f024dec75fed67cbbffab474766bf1ea3f074393c9de96fe6"
     },
     {
       "adaptsBoundary": true,
@@ -21957,106 +21962,6 @@
       "forwardingOnly": false,
       "functions": [
         {
-          "effectiveLines": 1,
-          "name": "<anonymous-13>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-15>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-16>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "resolveSessionBoundaryWallMinute",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "intersectMarketDates",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "sessionBoundaryMarketDates",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "sharedMarketTimeBounds",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-14>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "pad",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "weekday",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "marketDateId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "shiftMarketDate",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.session-browser-ui",
-      "owner": "session-store",
-      "ownsContract": false,
-      "path": "src/session-browser-ui/market-date-policy.js",
-      "publicExports": [],
-      "responsibilities": [
-        "session-store"
-      ],
-      "sizeException": null,
-      "sourceHash": "5760c2dc1b83f4acd8682cac6309c20871cf9f4acf726c503412368c00c2ecca"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 82,
-      "forwardingOnly": false,
-      "functions": [
-        {
           "effectiveLines": 3,
           "name": "onDocumentClick",
           "reviewedDecompositionException": false
@@ -22898,6 +22803,111 @@
     },
     {
       "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 99,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "resolveSessionBoundaryWallMinute",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "intersectMarketDates",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "sharedMarketTimeBounds",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "sessionBoundaryMarketDates",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "pad",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "weekday",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "resolveSessionRangeWallMinute",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "marketDateId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "shiftMarketDate",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.session-browser-ui",
+      "owner": "session-store",
+      "ownsContract": false,
+      "path": "src/session-browser-ui/market-date-policy.js",
+      "publicExports": [],
+      "responsibilities": [
+        "session-store"
+      ],
+      "sizeException": null,
+      "sourceHash": "0b6d34e37b0aa05d55cd12b82364d46c9242739b7b12842d3d73503e662db67e"
+    },
+    {
+      "adaptsBoundary": true,
       "criticalInvariants": [
         {
           "id": "session-identity",
@@ -23024,9 +23034,9 @@
   ],
   "schemaVersion": 1,
   "summary": {
-    "effectiveLines": 23158,
+    "effectiveLines": 23200,
     "files": 309,
-    "functions": 2478,
+    "functions": 2480,
     "publicExports": 306
   },
   "deliveryStep": "R8.12",

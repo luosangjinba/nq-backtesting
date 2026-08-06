@@ -73,6 +73,24 @@ const createdB = store.createSession({
 });
 assert.equal(createdA.activationGeneration, null);
 assert.equal(createdB.activationGeneration, null);
+assert.equal(createdA.configuration.historicalRange.presentationEndEpochMs, 200,
+  'legacy/exclusive Session input must default its presented End to the stored End');
+const presentedEndRecord = createSessionRecord({
+  ...base,
+  historicalRange: { startEpochMs: 100, endEpochMs: 201, presentationEndEpochMs: 200 },
+  sessionId: createSessionId('session-presented-end'),
+});
+assert.deepEqual(presentedEndRecord.configuration.historicalRange, {
+  startEpochMs: 100, endEpochMs: 201, presentationEndEpochMs: 200,
+});
+assert.throws(
+  () => createSessionRecord({
+    ...base,
+    historicalRange: { startEpochMs: 100, endEpochMs: 200, presentationEndEpochMs: 201 },
+    sessionId: createSessionId('session-invalid-presented-end'),
+  }),
+  (error) => error instanceof SessionStoreError && error.code === 'INVALID_SESSION_RANGE_PRESENTATION',
+);
 assert.equal(store.listSessions().length, 2);
 assert.equal(store.getSession(sessionA).metadata.name, 'Alpha');
 assert.equal(store.getSession(sessionB).metadata.name, 'Beta');
