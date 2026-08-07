@@ -763,3 +763,20 @@ Gate: fresh and repeat review of local, direct-public, public-domain, and
 private-domain modes, proving no-argument profile reuse, client CA trust where
 applicable, unchanged data, unrelated-site continuity, health, authentication,
 and rollback. Binding contract: `V7_UNIFIED_DEPLOYMENT_ENTRY_R12_7.md`.
+
+## Deferred Product Boundary — Second-Level Replay
+
+Second-level/tick-sourced Replay has no delivery number and is not the next
+R12 step. Minute-sourced V7 remains a valid product without simulated-live
+execution. During open phase-one acceptance there is no authorized provider
+purchase, prototype, new cache/service, or production implementation.
+
+After acceptance closes, investigation requires at least three activation
+signals from the pre-decision memo. Any implementation requires all hard data-
+rights, training-scope, representative-sample, performance, supported-host,
+no-future, atomicity, and ownership gates. A possible first slice is canonical
+`1s` plus derived `5s`, remains bar-centric, and extends the existing Bar Data,
+Replay, and Chart owners rather than creating a parallel seconds product.
+
+Deferred decision record:
+`V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md`.

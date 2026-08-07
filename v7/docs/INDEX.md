@@ -73,6 +73,10 @@ implementation reading order below. The deferred
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and
 `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` record possible next
 product directions but authorize no work before current human-review closure.
+The seconds/tick memo additionally records the current decision that minute-
+sourced V7 remains valid without simulated-live training, defines the three-
+of-four investigation signals, and keeps every future seconds path behind the
+existing Bar Data/Replay/Chart owners.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

@@ -9,7 +9,9 @@ runtime.
 Status: implementation and automated gates are active; phase-one overall human
 acceptance is still in progress. The current concrete product boundary is ES/NQ
 historical replay. Live trading, order execution, Journal, Validation Campaigns,
-and a general multi-user account system are not part of the current release.
+second-level/tick replay, and a general multi-user account system are not part
+of the current release. Minute-sourced V7 remains a valid product without
+simulated-live execution; seconds are explicitly deferred, not silently assumed.
 
 For operation in Chinese, start with the
 [V7 中文用户指南](docs/V7_USER_GUIDE.zh-CN.md).

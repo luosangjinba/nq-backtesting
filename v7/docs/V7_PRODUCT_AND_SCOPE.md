@@ -12,6 +12,22 @@ V7 is not a feature restart and not a rewrite of everything. It replaces the
 unreliable replay/chart execution core while retaining reviewed product
 decisions, V4 market-data/API capabilities, and reusable pure domain behavior.
 
+## Current Resolution And Simulation Boundary
+
+The current product is minute-sourced historical Replay with registered higher
+timeframe projections. Second-level bars, raw-tick navigation, simulated order
+execution, fill modeling, and simulated-live scoring are not phase-one
+requirements. V7 remains a valid validation and deliberate-practice product
+without them.
+
+Second-level Replay is deferred rather than permanently rejected. It may be
+reconsidered only after current human acceptance closes and the activation
+signals, data economics, training outcome, and measured performance in
+`V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` are satisfied. No
+second Replay runtime, Chart writer, or client cache owner may be created; any
+future seconds-capable path must extend the existing registered capability and
+Bar Data ownership boundaries.
+
 ## Why V7 Exists
 
 V6 manual review repeatedly exposed systemic failures:

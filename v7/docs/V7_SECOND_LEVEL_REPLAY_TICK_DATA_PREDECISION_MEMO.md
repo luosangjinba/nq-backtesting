@@ -1,14 +1,18 @@
 # V7 Second-Level Replay And Tick-Sourced Data — Pre-Decision Memo
 
 Date: 2026-08-01
-Status: discussion captured; decision and implementation explicitly deferred
+Updated: 2026-08-06
+Status: current deferral decision recorded; future product decision and
+implementation explicitly deferred
 
 ## Purpose And Activation Boundary
 
 This memo preserves the product and architecture discussion for a possible
-second-level historical Replay capability. It is not a binding product
-decision, does not allocate a delivery step, does not select a data vendor,
-and authorizes no implementation.
+second-level historical Replay capability. It binds the present decision not
+to activate that capability: the current minute-sourced V7 product remains
+valid without simulated-live training, and second-level work is deferred rather
+than rejected. It does not approve a future product, allocate a delivery step,
+select a data vendor, or authorize research or implementation.
 
 Work may begin only after the current system's human-review obligations are
 closed. At activation time, every applicable `humanReviewRequired` rule must
@@ -20,6 +24,61 @@ As of 2026-08-01, the registry still reports H001, H003, H004, H070, H080,
 H081, and H082 without acceptance evidence. This memo resolves none of them.
 The registry and TODO must be inspected again when the proposed work is
 eligible to start.
+
+## Current Product Decision
+
+V7 will not productize second-level data during the open phase-one acceptance
+pass. Minute-sourced Replay and its derived higher timeframes remain the
+supported product. Second-level data is not an acceptance requirement and the
+absence of simulated-live execution does not prevent the workstation from
+delivering historical Replay, validation, and deliberate practice.
+
+The decision is based on four current facts:
+
+1. direct-second or tick history has a materially higher recurring data cost
+   and stricter licensing/export requirements;
+2. one-second source data can increase source-point volume by roughly sixty
+   times relative to one-minute data, expanding storage, transport, decode,
+   aggregation, cache, and low-memory-host obligations;
+3. without an accepted simulated-order, fill, feedback, or scoring workflow,
+   finer visual bars do not yet form a complete new product outcome;
+4. mature competitors already specialize in simulated-live training, so
+   feature parity alone is not a sufficient reason to divert effort from V7's
+   Replay reliability and validation workflow.
+
+No second-data subscription, production ingestion path, dedicated service,
+cache tier, UI control, or speculative core abstraction is authorized now.
+Ordinary foundation work should remain capability-driven and avoid new
+minute-only assumptions, but must not generalize code solely for this deferred
+candidate.
+
+An observed pause when another product switches between minute and second
+timeframes is not evidence of its internal cache architecture. It could be a
+resolution-tier fetch, decompression, aggregation, chart rebuild, or cold-cache
+operation. V7 must base any later design on its own measurements rather than
+reverse-engineering an interface symptom.
+
+## Activation Signals And Hard Gates
+
+After every applicable human-review obligation is explicitly closed, formal
+investigation should begin only when at least three of these four signals are
+present:
+
+1. repeated training evidence shows that one-minute data causes materially
+   invalid entry/exit practice;
+2. simulated execution and feedback is accepted as a next-phase core workflow,
+   or second-level visual practice is separately shown to deliver enough value;
+3. a provider's complete recurring cost, usage rights, durable export, and
+   derived-data terms are sustainable;
+4. a representative offline sample indicates that `1s`/`5s` can meet proposed
+   cold/warm latency, storage, and supported-host resource budgets.
+
+Meeting three signals only authorizes a measured investigation. Product
+implementation still requires all hard evidence: an explicit training scope,
+acceptable data rights and total cost, representative sample reconciliation,
+accepted one/four-pane browser performance, a supported-host policy including
+an explicit decision for the 512 MB class, and preserved no-future/atomicity/
+single-owner contracts.
 
 ## Product Motivation
 
@@ -91,6 +150,12 @@ or later separating transport services does not permit separate client-side
 request/cache ownership: the existing Bar Data owner remains the sole raw
 market-data acquisition and retention boundary.
 
+A later implementation may use different internal storage partitions or cold/
+warm materializations for minute and second resolutions, but those are adapters
+behind the same Bar Data ownership boundary. A distinct source-resolution
+cache must not become a second client-side cache owner, Replay runtime, or
+Chart writer.
+
 Extending `/v4/bars` is possible for a disposable prototype but is not the
 preferred final boundary. Its current adapter hardcodes one-minute requests,
 seven-day transport chunks, and a one-minute dataset revision. Those are
@@ -123,10 +188,12 @@ not label trade-only evidence as quote- or order-book-accurate execution.
 
 ## Replay And Execution Precision
 
-The first candidate scope should remain bar-centric:
+If later approved, the first candidate scope should remain deliberately small
+and bar-centric:
 
 - Replay advances on registered second-duration steps;
-- the Chart displays `1s`, `5s`, or other registered aggregate bars;
+- the initial Chart catalog is limited to canonical `1s` and derived `5s`
+  unless benchmark evidence justifies another registered aggregate;
 - a tick-derived dataset is aggregated before normal Pane projection;
 - raw ticks remain optional evidence for ordering events inside a second.
 
@@ -235,8 +302,8 @@ The future decision package must include:
 
 ## Deferred Decision Questions
 
-- Is the initial display catalog `1s`/`5s`, or should it also include
-  `10s`/`15s`/`30s`?
+- Do measured `1s`/`5s` results justify productization, and is there evidence
+  for adding any later `10s`/`15s`/`30s` catalog?
 - Is second-level visual/manual training the complete first scope, or is
   tick-ordered fill simulation required at launch?
 - Which event types are available in the user's data, and what ordering and
@@ -254,9 +321,14 @@ The future decision package must include:
 After all current human-review obligations are explicitly closed:
 
 1. re-audit the rule registry and TODO for zero silently pending blockers;
-2. inspect a representative tick sample and record its exact semantics;
-3. research current direct-second and tick-provider offerings;
-4. benchmark a throwaway offline `tick -> 1s` pipeline without changing V7;
-5. convert this memo into a binding product/architecture decision;
-6. only then assign a delivery step, budgets, contracts, harnesses, and an
+2. confirm that at least three activation signals are evidenced;
+3. define the training outcome before selecting data or UI;
+4. inspect a representative tick/direct-second sample and record its exact
+   semantics;
+5. research current direct-second and tick-provider offerings;
+6. benchmark a throwaway offline `tick -> 1s` pipeline without changing V7;
+7. decide whether the 512 MB class remains supported for seconds or receives
+   an explicit higher minimum;
+8. convert this memo into a binding product/architecture decision;
+9. only then assign a delivery step, budgets, contracts, harnesses, and an
    implementation plan.

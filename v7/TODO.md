@@ -652,12 +652,18 @@ Deferred memo:
 - [x] preserve the product motivation, candidate data/API boundary,
   performance constraints, provider criteria, and unresolved decisions in a
   non-binding pre-decision memo;
+- [x] record the current decision that minute-sourced V7 remains a valid
+  product boundary without simulated-live training, defer seconds rather than
+  reject them, and prohibit parity-driven data purchase, a second Replay/cache
+  owner, or implementation during open phase-one acceptance;
 - [ ] activate no research prototype, formal decision, delivery step, or
   implementation until every then-applicable human-review obligation is
   explicitly accepted or governed as retired/superseded;
-- [ ] after that gate, audit a representative tick sample and current direct-
-  seconds/tick providers, benchmark a throwaway `tick -> 1s` pipeline, and
-  convert the memo into a binding decision before implementation.
+- [ ] after that gate, require at least three of four documented activation
+  signals before investing in investigation; define the training outcome,
+  audit a representative sample and current providers, benchmark a throwaway
+  `tick -> 1s` pipeline, decide the 512 MB support boundary, and satisfy every
+  hard data-rights/performance/ownership gate before implementation.
 
 Deferred memo:
 `docs/V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md`.

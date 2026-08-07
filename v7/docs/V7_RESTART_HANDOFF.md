@@ -989,7 +989,12 @@ Data Acquisition/Bootstrap review, and H091 remains open while the three known
 visual failures exist. The separate
 R7.3/R7.3c Data Acquisition admin human gate and the proposed multi-source
 acquisition/plugin project remain deferred; neither is implicitly authorized by
-the completed historical repairs or the read-only deployment path.
+the completed historical repairs or the read-only deployment path. Second-
+level/tick-sourced Replay is also explicitly deferred: minute-sourced V7 remains
+a valid product without simulated-live execution, and no provider purchase,
+prototype, delivery step, second cache owner, or implementation is authorized
+until acceptance closes and the activation/hard gates in
+`V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` are satisfied.
 
 ## Standing Workflow
 
