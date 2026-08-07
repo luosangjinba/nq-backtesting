@@ -157,8 +157,7 @@ database file. Transfer the database separately so a code deployment can never
 overwrite market data:
 
 ```bash
-git clone --branch v7/rebuild --single-branch \
-  https://github.com/luosangjinba/nq-backtesting.git backtesting-v7
+git clone https://github.com/luosangjinba/nq-backtesting.git backtesting-v7
 cd backtesting-v7
 ```
 

@@ -1,6 +1,27 @@
 # V7 TODO
 
-## R12.8 Acceptance Capability-Aware Status — Implemented, Cloud Rerun Pending
+## V7.0.0 Foundation Milestone — Accepted 2026-08-07
+
+- [x] accept the current standalone ES/NQ minute-replay product as a complete,
+  useful loop even if no later feature is implemented;
+- [x] close phase-one foundation acceptance from the completed automated gates
+  and the user's two human acceptance rounds;
+- [x] retain V7's modular ownership and plugin-friendly boundaries as the
+  required starting point for forks and later development;
+- [x] make `main` the default V7 branch and freeze this checkpoint as the
+  annotated `v7.0.0` tag;
+- [x] record seconds/tick data, full multi-user accounts, Journal, Validation
+  Campaigns, live trading, and optional Maintenance writers as outside the
+  accepted milestone scope;
+- [ ] continue cloud/provider, clean-host, low-memory, Caddy, and physical
+  cross-device checks as non-blocking operational evidence.
+
+Unchecked human-host items retained in older sections below are follow-up
+evidence, not retroactive blockers for V7.0.0, unless a later product decision
+explicitly promotes one to a release gate. Binding closure:
+`docs/V7_FOUNDATION_MILESTONE_V7_0_0.md`.
+
+## R12.8 Acceptance Capability-Aware Status — Milestone Closed
 
 - [x] separate active database readiness, first-run import authority, and
   optional Maintenance authority in deployment and browser presentation;
@@ -16,9 +37,10 @@
   browser evidence as H099;
 - [x] record that every other item in the second human acceptance pass was
   accepted;
-- [ ] redeploy one existing-database cloud host, hard-refresh Data Acquisition,
-  and confirm `Database active`, `Read-only data ready`, ES/NQ ranges, and no
-  false HTTP 403/404/importer/Maintenance error.
+- [ ] as non-blocking operational evidence, redeploy one existing-database
+  cloud host, hard-refresh Data Acquisition, and confirm `Database active`,
+  `Read-only data ready`, ES/NQ ranges, and no false HTTP
+  403/404/importer/Maintenance error.
 
 Binding correction: `docs/V7_ACCEPTANCE_CAPABILITY_STATUS_R12_8.md`.
 

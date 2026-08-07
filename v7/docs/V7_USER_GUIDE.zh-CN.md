@@ -1,9 +1,9 @@
 # Replay Lab V7 中文用户指南
 
-适用分支：`v7/rebuild`
+适用分支：`main`（V7.0.0 标签为基础里程碑快照）
 
-当前状态：V7 基础功能已经实现，阶段一总体验收仍在进行中。本指南描述当前可用行为，
-不代表所有人工验收门已经关闭。
+当前状态：V7 基础功能里程碑已经验收并进入 `main`。主机矩阵复验和后续产品方向属于
+非阻塞跟进，不改变 V7.0.0 已形成分钟数据回放闭环的结论。
 
 ## 1. V7 是什么
 
@@ -37,12 +37,12 @@ NQ 分钟数据，用于创建回放 Session、多周期/多窗格观察、逐�
 全新主机执行：
 
 ```bash
-git clone --branch v7/rebuild --single-branch \
-  https://github.com/luosangjinba/nq-backtesting.git backtesting-v7
+git clone https://github.com/luosangjinba/nq-backtesting.git backtesting-v7
 cd backtesting-v7
 ```
 
-不要只拉取默认 `main` 分支；V7 当前工作位于 `v7/rebuild`。
+默认 `main` 已包含 V7。需要复现本次基础里程碑时可检出 `v7.0.0` 标签；日常部署和
+升级使用 `main`。
 
 ## 3. 一键部署
 
@@ -156,7 +156,7 @@ Git 或代码 release，也不会在部署时被自动修复或替换。
 
 ```bash
 cd ~/backtesting-v7
-git pull --ff-only origin v7/rebuild
+git pull --ff-only origin main
 sudo bash v7/deploy/linux/deploy.sh
 ```
 
@@ -400,7 +400,7 @@ sudo journalctl \
 `Optional maintenance disabled`。拉取新代码后必须重新执行部署，不能只刷新浏览器：
 
 ```bash
-git pull --ff-only origin v7/rebuild
+git pull --ff-only origin main
 sudo bash v7/deploy/linux/deploy.sh
 ```
 

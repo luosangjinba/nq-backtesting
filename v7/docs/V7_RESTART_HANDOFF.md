@@ -1,19 +1,21 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-07 during R12.8 second-acceptance correction
+Last updated: 2026-08-07 at V7.0.0 foundation milestone closure
 
 ## Current Overall Acceptance State
 
-Phase-one main-program acceptance is still in progress. R8's architecture
-recovery closure and the individual R9 implementation records do not close the
-overall product gate. The current machine-local reviewer sequence is
-`v7/tmp/验收2-人工步骤.md`; the user accepted every second-round item except the
-existing-database Data Acquisition status mismatch now corrected by R12.8. Its
-focused cloud redeploy/hard-refresh check remains open. Separate clean-host
-bootstrap and multi-mode deployment gates are not implicitly closed.
+Phase-one foundation acceptance is closed as V7.0.0. The user accepted the
+current standalone ES/NQ minute-replay system as a useful, complete product loop
+that can remain valuable without later features and can serve as the stable
+base for forks. Both human acceptance rounds and the binding automated gates
+support that decision. The existing-database Data Acquisition mismatch found in
+the second round is corrected by R12.8. Its focused cloud redeploy check, clean-
+host bootstrap permutations, and multi-mode deployment matrix remain useful
+non-blocking operational evidence rather than open milestone gates. Binding
+closure: `V7_FOUNDATION_MILESTONE_V7_0_0.md`.
 
-R11 is the current repository delivery and its automated recovery is closed;
-normal-delivery scope is restored. Its immutable pre-remediation checkpoint is
+R11 is the closed architecture-recovery record underlying the accepted
+milestone; normal-delivery scope is restored. Its immutable pre-remediation checkpoint is
 `6a101270`; the
 binding plan is `V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md`. R11.1 repairs the
 global decision/rollback boundary, transaction-scoped leases and cancellation,
@@ -21,7 +23,8 @@ DuckDB dataset revision, atomic/poisoned state hydration, Linux host rollback,
 the reviewed static public surface, removable Database Bootstrap UI, and
 cross-runtime topology/writer evidence. Repository recovery may close from
 automated evidence while the separately marked real-host, cross-device, and
-visual human gates remain executable and phase-one acceptance stays open.
+visual checks remain executable as non-blocking follow-up after V7.0.0
+foundation acceptance.
 
 R12.1 added the bounded re-upload recovery after clean-host acceptance exposed
 that a retained upload could be recovered but not discarded without host/API
@@ -80,7 +83,8 @@ Caddy's internal CA for LAN/VPN DNS. A successful first run installs the
 non-secret `/etc/replay-lab/deployment.conf` inside the host transaction;
 subsequent upgrades normally omit the exposure option. The old public-IP
 script forwards all arguments. R12.7/H098 automated evidence is implemented;
-fresh/repeat local, IP, and domain host gates remain open. Binding contract:
+fresh/repeat local, IP, and domain host checks remain open as non-blocking
+operational evidence. Binding contract:
 `V7_UNIFIED_DEPLOYMENT_ENTRY_R12_7.md`.
 
 R12.8 corrects the remaining second-acceptance mismatch without reopening
@@ -177,7 +181,7 @@ loopback service on 8767, exposes only authenticated `/v7/state/*` mutations,
 keeps market DuckDB read-only, and preserves state data across code rollback.
 Automated service, client, two-profile browser, optional-removal, and deployment
 evidence is implemented; physical two-computer and state backup/restore review
-remain open.
+remain non-blocking follow-up.
 
 R10.9 addresses clean-host market-data onboarding. `--bootstrap` now permits a
 single missing DuckDB target and exposes a visual Database Setup panel inside
@@ -193,7 +197,7 @@ parent mount; API, Web, and State mount that complete parent read-only.
 Authenticated Caddy exposes only
 `/v7/database/*` during bootstrap. Automated service, real-browser, deployment,
 and existing-database regression evidence passes; representative large-file
-clean-host CSV/DuckDB review remains open.
+clean-host CSV/DuckDB review remains non-blocking follow-up.
 
 The first real DuckDB host run then proved the recovery gap: the large upload
 survived a failed Validate/redeploy as designed, but selecting it again hit the
@@ -255,17 +259,16 @@ handoff was committed.
 ## Repository State
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
-- branch: `v7/rebuild`
+- default release branch: `main`
+- accepted release tag: `v7.0.0`
+- historical delivery branch: `v7/rebuild`
 - immutable R11 pre-remediation checkpoint: `6a101270`
 - recovery state: R11.1 automated architecture recovery is complete and
-  inactive; R12.2 standalone V7 runtime separation is the current
-  normal-delivery step, while R12.1 Database Bootstrap re-upload retains its
-  host visual/large-file review; phase-one overall acceptance
-  remains open, H087/H088/H091 retain human review, R9.4 retains focused
-  human review, R10.8 automated state sync is implemented with physical two-
-  computer/backup-restore validation open, and R10.9 automated database
-  bootstrap/import is implemented with clean-host large-file review open;
-- the separate R7.3/R7.3c Data Acquisition admin human gate remains open;
+  inactive; the V7.0.0 foundation milestone is accepted. Historical human-host
+  checks retained by R12.1/R12.2, H087/H088/H091, R9.4, R10.8, and R10.9 are
+  non-blocking operational evidence, not open V7.0.0 product gates;
+- the separate R7.3/R7.3c Data Acquisition admin review remains deferred and
+  non-blocking;
 - R8.1 recovery constitution is commit `7dbabbed`;
 - R8.2 production architecture analyzer is commit `f19b7f32`;
 - R8.3 descriptor/lifecycle/independent-harness repair is commit `60b92d93`;
@@ -397,7 +400,8 @@ handoff was committed.
 - R9.1 limits Replay choices to `4h`, maps higher synchronized Pane timeframes
   to that maximum, cuts the measured `4h` provider cadence from 51/100 to
   3/128, and records 125 warm-cache samples at p95 `210.8ms`; H080 is
-  executable and the hard-reload rapid-click human gate remains pending;
+  executable and the historical hard-reload rapid-click check remains useful
+  non-blocking evidence;
 - R9.4 preserves completion-slot candle coordinates while formatting fixed
   aggregate labels from bucket start, formats daily/weekly/monthly labels from
   explicit trading-period dates without time, and passes native formatter,
@@ -938,7 +942,8 @@ with duckdb.connect(db, read_only=True) as conn:
 
 Expected results:
 
-- branch is `v7/rebuild`;
+- branch is `main` for a normal release checkout, or detached at `v7.0.0` when
+  reproducing the accepted milestone;
 - `git status --short` is empty;
 - ES reports 6,494,880 rows and NQ reports 6,167,407 rows.
 
@@ -994,18 +999,18 @@ For R10.9, use a separate clean target with `--bootstrap`, execute one realistic
 CSV conversion and one direct DuckDB upload on disposable hosts, then prove
 activation, V7 market-data/Session read behavior, restart persistence, and permanent importer
 lock without opening 8768 publicly.
-Record resource/latency/restart/rollback evidence. R8 recovery remains human
-accepted and inactive; R11 repository recovery is also inactive. H087 requires
-the real Linux host transaction/health pass, H088 requires visible static and
-Data Acquisition/Bootstrap review, and H091 remains open while the three known
-visual failures exist. The separate
+Record resource/latency/restart/rollback evidence as non-blocking operational
+follow-up. R8 recovery remains human accepted and inactive; R11 repository
+recovery is also inactive. H087 retains the real Linux host transaction/health
+pass, H088 retains visible static and Data Acquisition/Bootstrap review, and
+H091 retains the three known visual fixtures without blocking V7.0.0. The separate
 R7.3/R7.3c Data Acquisition admin human gate and the proposed multi-source
 acquisition/plugin project remain deferred; neither is implicitly authorized by
 the completed historical repairs or the read-only deployment path. Second-
 level/tick-sourced Replay is also explicitly deferred: minute-sourced V7 remains
 a valid product without simulated-live execution, and no provider purchase,
 prototype, delivery step, second cache owner, or implementation is authorized
-until acceptance closes and the activation/hard gates in
+until a new product decision satisfies the activation/hard gates in
 `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` are satisfied.
 
 ## Standing Workflow

@@ -1,6 +1,6 @@
 # V7 Acceptance Capability-Aware Status — R12.8
 
-Status: implemented with automated browser evidence; acceptance-host rerun pending
+Status: implemented and included in the accepted V7.0.0 foundation milestone
 
 ## Trigger
 
@@ -88,7 +88,7 @@ Caddy fragment change together.
 - Production Architecture, Source Quality, Deployed Runtime Architecture, and
   Standalone Runtime remain binding gates.
 
-## Human Gate
+## Non-Blocking Operational Verification
 
 Redeploy one existing-database cloud host, hard-refresh
 `/v7/app/data-acquisition.html`, and confirm:
@@ -99,6 +99,9 @@ Redeploy one existing-database cloud host, hard-refresh
   Roll, or selected-range write control is presented;
 - `/v7/app/` still loads the same Sessions and Replay data.
 
-This focused rerun is the remaining item from the second acceptance pass; it
-does not retroactively close any separate clean-host bootstrap or multi-mode
-deployment gate.
+This focused rerun remains useful deployment evidence, but the 2026-08-07
+milestone decision classifies it as non-blocking. The user accepted the second
+round apart from this defect, the correction is covered by automated browser,
+deployment, and architecture evidence, and V7.0.0 does not claim that every
+cloud/provider permutation has been physically exercised. Separate clean-host
+bootstrap and multi-mode deployment checks remain operational follow-ups.

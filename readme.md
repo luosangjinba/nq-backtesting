@@ -6,9 +6,11 @@ practice with ES/NQ historical candles. V7 owns its browser application,
 market-data service, cross-device state service, and first-run database importer;
 V4/V5/V6 remain only as legacy or design references.
 
-Status: the V7 foundation is implemented and the phase-one overall human
-acceptance pass is still in progress. This repository does not provide live
-trading or order execution.
+Status: the V7 foundation milestone is accepted as V7.0.0. It is a complete
+minute-data replay loop that can be used and extended independently; the
+remaining host-matrix checks and deferred product ideas are non-blocking
+follow-up work. This repository does not provide live trading or order
+execution.
 
 ## Start Here
 
@@ -18,11 +20,10 @@ trading or order execution.
 - [V7 documentation index](v7/docs/INDEX.md)
 - [Current V7 TODO](v7/TODO.md)
 
-## Clone The Current V7 Branch
+## Clone V7
 
 ```bash
-git clone --branch v7/rebuild --single-branch \
-  https://github.com/luosangjinba/nq-backtesting.git backtesting-v7
+git clone https://github.com/luosangjinba/nq-backtesting.git backtesting-v7
 cd backtesting-v7
 ```
 
@@ -51,7 +52,7 @@ After a successful first deployment, the non-secret host profile is retained.
 Upgrade with:
 
 ```bash
-git pull --ff-only origin v7/rebuild
+git pull --ff-only origin main
 sudo bash v7/deploy/linux/deploy.sh
 ```
 
@@ -63,7 +64,8 @@ selects a bounded runtime profile and provisions persistent swap when needed.
 - `v7/` — current product, services, deployment, tests, and specifications;
 - `v6/` — prior design/reference implementation;
 - `v5/` and `v4/` — legacy/reference work;
-- `v7/tmp/验收1.md` — current human acceptance checklist and findings.
+- `v7/docs/V7_FOUNDATION_MILESTONE_V7_0_0.md` — accepted scope, evidence,
+  known limitations, and non-blocking follow-up work.
 
 Market databases and server-side user state are runtime data and are not
 committed to Git.

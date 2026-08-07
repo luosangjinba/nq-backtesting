@@ -6,6 +6,8 @@ read-only product, interaction, data-contract, and failure-evidence reference.
 User and operator entry points:
 
 - `../README.md` — V7 product overview and quick start;
+- `V7_FOUNDATION_MILESTONE_V7_0_0.md` — accepted V7.0.0 scope, evidence,
+  limitations, and non-blocking follow-ups;
 - `V7_USER_GUIDE.zh-CN.md` — Chinese installation, data setup, Replay use,
   cross-device state, backup, and troubleshooting guide;
 - `../deploy/linux/README.md` — detailed Linux deployment, security, rollback,
@@ -73,8 +75,11 @@ The second-acceptance correction is
 importer health, Data Acquisition reports read-only Market Data coverage
 without false Maintenance/import failures, and Replay UI does not leak internal
 failure codes.
-None closes the ongoing phase-one overall acceptance pass. Read those before the normal
-implementation reading order below. The deferred
+`V7_FOUNDATION_MILESTONE_V7_0_0.md` closes the phase-one foundation milestone;
+unchecked provider/host-matrix evidence in the historical records is retained
+as non-blocking follow-up unless a later decision explicitly promotes it to a
+release gate. Read those records before the normal implementation reading order
+below. The deferred
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and
 `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` record possible next
 product directions but authorize no work before current human-review closure.

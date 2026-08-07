@@ -6,12 +6,13 @@ navigation, persistent sessions, strict first-run market-data import, and
 authenticated cross-device state without depending on an older application
 runtime.
 
-Status: implementation and automated gates are active; phase-one overall human
-acceptance is still in progress. The current concrete product boundary is ES/NQ
-historical replay. Live trading, order execution, Journal, Validation Campaigns,
-second-level/tick replay, and a general multi-user account system are not part
-of the current release. Minute-sourced V7 remains a valid product without
-simulated-live execution; seconds are explicitly deferred, not silently assumed.
+Status: the V7 foundation milestone is accepted as V7.0.0. The current concrete
+product boundary is ES/NQ historical replay. Live trading, order execution,
+Journal, Validation Campaigns, second-level/tick replay, and a general multi-
+user account system are not part of the current release. Minute-sourced V7 is a
+complete product loop without simulated-live execution; seconds are explicitly
+deferred, not silently assumed. Remaining host-matrix checks are operational
+follow-up evidence and do not block this milestone.
 
 For operation in Chinese, start with the
 [V7 中文用户指南](docs/V7_USER_GUIDE.zh-CN.md).
@@ -35,11 +36,10 @@ For operation in Chinese, start with the
 
 ## Quick Deployment
 
-Clone the active branch:
+Clone the default `main` branch:
 
 ```bash
-git clone --branch v7/rebuild --single-branch \
-  https://github.com/luosangjinba/nq-backtesting.git backtesting-v7
+git clone https://github.com/luosangjinba/nq-backtesting.git backtesting-v7
 cd backtesting-v7
 ```
 
@@ -65,12 +65,29 @@ supported host is the provider 512 MB class.
 After the first successful install, update with the same no-argument command:
 
 ```bash
-git pull --ff-only origin v7/rebuild
+git pull --ff-only origin main
 sudo bash v7/deploy/linux/deploy.sh
 ```
 
 Deployment details, security boundaries, rollback, and host diagnostics are in
 the [Linux deployment guide](deploy/linux/README.md).
+
+## Known Limitations
+
+- the supported market-data and product scope is ES/NQ minute replay;
+- second-level and tick replay are deferred because they require a separate
+  data-cost, cache, and capacity decision;
+- live brokerage connectivity, order execution, Journal, and Validation
+  Campaigns are outside V7.0.0;
+- Basic Auth provides one state namespace per username, not registration,
+  roles, tenancy administration, or a general multi-user account system;
+- historical maintenance and Contract Roll writes are optional and disabled in
+  the standalone read-only deployment; this does not block Session or Replay;
+- Linux support starts at the provider 512 MB class and relies on deployer-
+  managed swap and bounded DuckDB settings on low-memory hosts.
+
+The accepted scope, evidence, and non-blocking operational follow-ups are frozen
+in the [V7.0.0 foundation milestone record](docs/V7_FOUNDATION_MILESTONE_V7_0_0.md).
 
 ## First Use
 
@@ -153,5 +170,5 @@ node v7/tests/standalone-v7-runtime-harness.js
 ```
 
 See the [documentation index](docs/INDEX.md), [current TODO](TODO.md), and
-[overall acceptance checklist](tmp/验收1.md) before changing product or runtime
-boundaries.
+[V7.0.0 milestone record](docs/V7_FOUNDATION_MILESTONE_V7_0_0.md) before
+changing product or runtime boundaries.
