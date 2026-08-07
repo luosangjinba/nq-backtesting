@@ -46,6 +46,26 @@ to catch up. If data is unavailable, playback waits behind a bounded refresh
 gate; it does not move the cursor invisibly. Active-tab scheduler drift is
 measured separately from projection/application work.
 
+R12.5 additionally binds the cloud hot path. The standalone production DuckDB
+is immutable for one active market-data service/runtime lifetime. Its
+authoritative revision is discovered once per provider/instrument/source scope
+and remains in the Provider Execution revision cache until disposal or an
+HTTP 409 invalidates it. Replacing the external database requires a service
+restart/redeployment; warm Replay never polls health to discover an
+out-of-contract replacement.
+
+After revision discovery and acquisition of the accepted forward coverage, a
+warm Manual Next or Autoplay advance performs zero market-data network
+requests. Crossing a coverage wall remains a separately measured cache miss.
+Dataset revision remains part of every raw and projected cache identity, so a
+detected mismatch cannot reuse evidence from another database.
+
+Autoplay uses start-to-start cadence without overlap. It subtracts the
+completed transaction duration from the selected cadence and schedules one
+successor with the non-negative remainder. It accumulates no missed deadlines,
+skips no bars, and creates no catch-up burst. See
+`V7_CLOUD_REPLAY_HOT_PATH_R12_5.md`.
+
 ## TF And ETH/RTH Refresh
 
 On a TF or ETH/RTH intent:

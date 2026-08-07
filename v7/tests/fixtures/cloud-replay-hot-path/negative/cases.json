@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "case": "warm-network-request",
+      "expectedFailureCode": "network-coupled-warm-replay"
+    },
+    {
+      "case": "mutable-runtime-revision",
+      "expectedFailureCode": "network-coupled-warm-replay"
+    },
+    {
+      "case": "database-replacement-without-restart",
+      "expectedFailureCode": "network-coupled-warm-replay"
+    },
+    {
+      "case": "completion-plus-full-cadence",
+      "expectedFailureCode": "uncompensated-or-overlapping-autoplay-cadence"
+    }
+  ]
+}

@@ -8,12 +8,14 @@ function method(port, name) {
 }
 
 /**
- * Owns completion-driven Autoplay cadence only. Replay Runtime remains the
- * playback/cursor owner and Workspace Execution remains the transaction owner.
+ * Owns single-flight start-to-start Autoplay cadence only. Replay Runtime
+ * remains the playback/cursor owner and Workspace Execution remains the
+ * transaction owner.
  */
 export function createReplayAutoplayScheduler({
   cadenceMs = DEFAULT_AUTOPLAY_CADENCE_MS,
   clearTimer = clearTimeout,
+  now = () => globalThis.performance?.now?.() ?? Date.now(),
   playbackPort,
   runNext,
   setTimer = setTimeout,
@@ -23,7 +25,8 @@ export function createReplayAutoplayScheduler({
     throw new TypeError('Replay Autoplay cadence must be between 1 and 60000ms.');
   }
   let currentCadenceMs = assertCadence(cadenceMs);
-  if (typeof clearTimer !== 'function' || typeof setTimer !== 'function' || typeof runNext !== 'function') {
+  if (typeof clearTimer !== 'function' || typeof now !== 'function'
+    || typeof setTimer !== 'function' || typeof runNext !== 'function') {
     throw new TypeError('Replay Autoplay scheduler ports are invalid.');
   }
   const pausePlayback = method(playbackPort, 'pause');
@@ -53,19 +56,20 @@ export function createReplayAutoplayScheduler({
     return state();
   }
 
-  function schedule(token) {
+  function schedule(token, delayMs = currentCadenceMs) {
     if (disposed || !active || token !== generation) return;
     clearScheduled();
     timerId = setTimer(() => {
       timerId = null;
       void tick(token);
-    }, currentCadenceMs);
+    }, delayMs);
   }
 
   async function tick(token) {
     if (disposed || !active || ticking || token !== generation) return state();
     const before = readPlayback();
     if (before.playback !== 'playing' || before.complete) return stop();
+    const startedAt = now();
     ticking = true;
     try {
       const result = await runNext();
@@ -74,7 +78,8 @@ export function createReplayAutoplayScheduler({
       if (!result || result.status !== 'committed' || replay.playback !== 'playing' || replay.complete) {
         return stop();
       }
-      schedule(token);
+      const elapsedMs = Math.max(0, now() - startedAt);
+      schedule(token, Math.max(0, currentCadenceMs - elapsedMs));
       return state();
     } catch {
       return stop();

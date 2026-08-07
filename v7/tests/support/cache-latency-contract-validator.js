@@ -36,6 +36,15 @@ export function validateCacheLatencyContract(model) {
     violations.push({ code: 'invalid-latency-measurement-contract' });
   }
 
+  const hotPath = model.hotPath ?? {};
+  if (hotPath.warmMarketDataRequestsPerAdvance !== 0
+    || hotPath.datasetRevision?.policy !== 'immutable-runtime'
+    || hotPath.datasetRevision?.discovery !== 'once-per-provider-instrument-source-scope'
+    || hotPath.datasetRevision?.replacementRequiresServiceRestart !== true
+    || hotPath.datasetRevision?.revisionMismatchInvalidatesImmediately !== true) {
+    violations.push({ code: 'network-coupled-warm-replay' });
+  }
+
   const profiles = model.profiles ?? {};
   const fourHour = profiles['manual-next-four-hour-bulk-reveal'] ?? {};
   if (fourHour.replayStepDurationMs !== 14_400_000
@@ -54,6 +63,15 @@ export function validateCacheLatencyContract(model) {
     if (!boundedLatency(profiles[id]?.cacheHitVisible)) {
       violations.push({ code: 'unbounded-cache-hit-latency', profile: id });
     }
+  }
+  const autoplay = profiles['auto-replay-cache-tiered'] ?? {};
+  if (autoplay.cadenceBasis !== 'tick-start-to-tick-start'
+    || autoplay.processingTimeCompensated !== true
+    || autoplay.maximumScheduledSuccessors !== 1
+    || autoplay.accumulatedCatchUpAllowed !== false
+    || autoplay.overlappingAdvanceAllowed !== false
+    || autoplay.skipOrCatchUpAllowed !== false) {
+    violations.push({ code: 'uncompensated-or-overlapping-autoplay-cadence' });
   }
   for (const id of ['manual-next-cache-tiered', 'auto-replay-cache-tiered', 'projection-switch-cache-tiered', 'miss-overhead-and-feedback']) {
     if (!boundedLatency(profiles[id]?.postResponseVisible)) {
@@ -137,6 +155,7 @@ export function validateCacheLatencyContract(model) {
     rawCache.coalesceIdenticalInflightRequests !== true ||
     rawCache.boundedEvictionRequired !== true ||
     rawCache.projectionStillEnforcesNoFuture !== true ||
+    rawCache.revisionPolicy !== 'immutable-runtime' ||
     !(rawCache.prefetch?.minimumAheadReplaySteps >= 2) ||
     !(rawCache.prefetch?.lowWatermarkReplaySteps >= 1) ||
     !(rawCache.prefetch?.targetVisibleSourceWindows >= 1) ||

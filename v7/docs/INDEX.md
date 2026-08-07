@@ -47,6 +47,10 @@ swap settings instead of relying on host-specific operator commands.
 Its pushed-host correction is `V7_SWAP_ACCOUNTING_TOLERANCE_R12_4.md`, which
 accounts for the small `mkswap` header without accepting a material capacity
 shortfall or requiring destructive operator repair.
+The current cloud-playback correction is
+`V7_CLOUD_REPLAY_HOT_PATH_R12_5.md`: it removes database revision discovery
+from warm Replay network traffic and makes Autoplay cadence account for
+transaction duration without introducing overlap or a second Replay owner.
 None closes the ongoing phase-one overall acceptance pass. Read those before the normal
 implementation reading order below. The deferred
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and
@@ -158,11 +162,12 @@ Read in this order before V7 implementation work:
 92. `V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`
 93. `V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md`
 94. `V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md`
-95. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
+95. `V7_CLOUD_REPLAY_HOT_PATH_R12_5.md`
+96. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-96. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
+97. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-97. `../TODO.md`
+98. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.

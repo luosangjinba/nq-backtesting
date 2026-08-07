@@ -15473,119 +15473,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 100,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "pause",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 20,
-          "name": "tick",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 29,
-          "name": "createReplayAutoplayScheduler",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "state",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "assertCadence",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "clearScheduled",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "method",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "schedule",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "setCadenceMs",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "stop",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "play",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
-      "ownsContract": false,
-      "path": "src/replay-workspace-composition/autoplay-scheduler.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "replay-workspace-composition.",
-            "purpose": "expose the complete supported public contract for replay workspace composition.",
-            "inputs": "validated configuration plus explicitly injected owner, persistence, and presentation ports.",
-            "outputs": "a bounded application or workspace command surface.",
-            "sideEffects": "constructs, wires, invokes, and disposes only the owners named by this composition boundary.",
-            "lifecycle": "the composed graph lives from factory creation until its exposed dispose operation.",
-            "errors": "construction and command failures propagate from the responsible owner with stable error codes.",
-            "concurrencyCancellation": "asynchronous commands preserve cancellation and current-identity checks across owner boundaries."
-          },
-          "moduleId": "core.replay-workspace-composition",
-          "name": "createReplayAutoplayScheduler",
-          "semanticMatches": [
-            "composition",
-            "replay",
-            "workspace"
-          ],
-          "semanticTerms": [
-            "autoplay",
-            "composition",
-            "replay",
-            "scheduler",
-            "workspace"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "165d15091a2bd6b5d5af1cee9ceceb9d94304f84471b9962f0c6d93907a766d6"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 102,
       "forwardingOnly": false,
       "functions": [
@@ -15768,6 +15655,124 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "50b706eb43ddf980b93f8bc3f2f0d05e4c981bd4049833049cfd83efbb17e644"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 104,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "pause",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "tick",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "state",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 31,
+          "name": "createReplayAutoplayScheduler",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "assertCadence",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "clearScheduled",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "method",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "schedule",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "setCadenceMs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "stop",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "play",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/autoplay-scheduler.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "replay-workspace-composition.",
+            "purpose": "expose the complete supported public contract for replay workspace composition.",
+            "inputs": "validated configuration plus explicitly injected owner, persistence, and presentation ports.",
+            "outputs": "a bounded application or workspace command surface.",
+            "sideEffects": "constructs, wires, invokes, and disposes only the owners named by this composition boundary.",
+            "lifecycle": "the composed graph lives from factory creation until its exposed dispose operation.",
+            "errors": "construction and command failures propagate from the responsible owner with stable error codes.",
+            "concurrencyCancellation": "asynchronous commands preserve cancellation and current-identity checks across owner boundaries."
+          },
+          "moduleId": "core.replay-workspace-composition",
+          "name": "createReplayAutoplayScheduler",
+          "semanticMatches": [
+            "composition",
+            "replay",
+            "workspace"
+          ],
+          "semanticTerms": [
+            "autoplay",
+            "composition",
+            "replay",
+            "scheduler",
+            "workspace"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "cf25ad617387faccd1dddc5022b878029903983c1a1742ac06f597b060ea9bb7"
     },
     {
       "adaptsBoundary": true,
@@ -19495,7 +19500,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 206,
+      "effectiveLines": 205,
       "forwardingOnly": false,
       "functions": [
         {
@@ -19726,7 +19731,7 @@
         }
       ],
       "sizeException": null,
-      "sourceHash": "8a1c02f2d2fa76f3e5d2e5e9057b4e41b1313f58ef89e6a50f0e7905890d9f56"
+      "sourceHash": "8bba9a95064a2fd5d886fd1e5f4b118abac9f548e6dc5a56fc870a6b3ee47e5c"
     },
     {
       "adaptsBoundary": true,
@@ -27883,11 +27888,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 24940,
+    "effectiveLines": 24943,
     "files": 319,
-    "functions": 2640,
+    "functions": 2641,
     "publicExports": 311
   },
-  "deliveryStep": "R12.4",
-  "generatedFromCommit": "working-tree-r12.4"
+  "deliveryStep": "R12.5",
+  "generatedFromCommit": "working-tree-r12.5"
 }

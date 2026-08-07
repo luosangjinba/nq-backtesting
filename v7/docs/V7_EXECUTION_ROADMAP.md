@@ -706,3 +706,22 @@ network locations. Binding contract:
 Gate: pull the correction on the affected lightweight host and complete the
 same one-command deployment. Binding correction:
 `V7_SWAP_ACCOUNTING_TOLERANCE_R12_4.md`.
+
+### R12.5 — Cloud Replay Hot Path
+
+- treat the standalone read-only DuckDB revision as immutable for one active
+  service/runtime lifetime so repeated warm Replay resolution performs no
+  market-data HTTP request;
+- retain dataset revision in every raw/projected cache identity, immediate
+  HTTP 409 invalidation, failed-transaction atomicity, and explicit service
+  restart/redeployment for database replacement;
+- schedule Autoplay by consecutive tick starts, subtracting the completed
+  transaction duration from the selected cadence while retaining one
+  in-flight transaction, one timer, no skipped bar, and no accumulated catch-up;
+- bind zero-network warm advancement and deterministic cadence behavior in the
+  cache/latency descriptor and H096.
+
+Gate: deploy to 43.110.32.34 and measure at least 100 identical warm Replay
+steps from the same client, proving no per-step market-data request and
+recording browser-visible, host-resource, and cache-miss evidence separately.
+Binding contract: `V7_CLOUD_REPLAY_HOT_PATH_R12_5.md`.

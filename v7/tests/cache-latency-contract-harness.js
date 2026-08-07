@@ -20,6 +20,27 @@ assert.ok(validateCacheLatencyContract(invalidFourHour)
   .some(({ code }) => code === fourHourNegative.expectedFailureCode),
 '4h Replay bulk-reveal request bound must fail closed');
 
+const hotPathNegativeCases = JSON.parse(fs.readFileSync(path.join(
+  TEST_DIR, 'fixtures/cloud-replay-hot-path/negative/cases.json',
+), 'utf8'));
+const hotPathMutations = {
+  'warm-network-request': (model) => { model.hotPath.warmMarketDataRequestsPerAdvance = 1; },
+  'mutable-runtime-revision': (model) => { model.hotPath.datasetRevision.policy = 'discover-ttl'; },
+  'database-replacement-without-restart': (model) => {
+    model.hotPath.datasetRevision.replacementRequiresServiceRestart = false;
+  },
+  'completion-plus-full-cadence': (model) => {
+    model.profiles['auto-replay-cache-tiered'].processingTimeCompensated = false;
+  },
+};
+for (const fixture of hotPathNegativeCases.cases) {
+  const model = structuredClone(positive);
+  hotPathMutations[fixture.case](model);
+  assert.ok(validateCacheLatencyContract(model)
+    .some(({ code }) => code === fixture.expectedFailureCode),
+  `${fixture.case} must fail with ${fixture.expectedFailureCode}`);
+}
+
 const interactions = JSON.parse(
   fs.readFileSync(path.join(V7_ROOT, 'docs/v7-foundation-interactions.json'), 'utf8'),
 );
@@ -49,4 +70,4 @@ for (const file of files) {
   );
 }
 
-console.log(`v7 cache/latency contract harness passed (${Object.keys(positive.profiles).length} profiles, ${files.length} negative controls)`);
+console.log(`v7 cache/latency contract harness passed (${Object.keys(positive.profiles).length} profiles, ${files.length + hotPathNegativeCases.cases.length} negative controls)`);

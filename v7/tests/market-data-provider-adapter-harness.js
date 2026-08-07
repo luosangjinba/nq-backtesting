@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   createMarketDataAdapter,
+  createMarketDataProvider,
   createMarketDateAvailability,
   createMarketDataProjectedHistoryProvider,
   exchangeWallSecondsToInstantMs,
@@ -105,6 +106,30 @@ assert.deepEqual(result.coverage.segments[0], {
   kind: 'data',
 });
 
+let warmRevisionHealthCalls = 0;
+const warmRevisionProvider = createMarketDataProvider({
+  fetchImpl: async (url) => {
+    assert.match(url, /\/v7\/market-data\/health$/);
+    warmRevisionHealthCalls += 1;
+    return {
+      ok: true,
+      status: 200,
+      async json() { return { databaseReady: true, datasetRevision: DATASET_REVISION }; },
+    };
+  },
+});
+const warmRevisionScope = {
+  instrumentId: 'instrument.cme.nq',
+  providerId: MARKET_DATA_PROVIDER_ID,
+  sourceResolutionId: 'resolution.fixed-1-minute',
+};
+for (let advance = 0; advance < 128; advance += 1) {
+  assert.equal(await warmRevisionProvider.resolveDatasetRevision(warmRevisionScope), DATASET_REVISION);
+}
+assert.equal(warmRevisionHealthCalls, 1,
+  'one active read-only runtime must not put revision HTTP discovery in each warm Replay advance');
+warmRevisionProvider.dispose();
+
 const chunkCalls = [];
 let activeChunkCalls = 0;
 let maximumActiveChunkCalls = 0;
@@ -162,7 +187,7 @@ const datasetRevisionNegativeActions = {
       policy: {
         schemaVersion: 1,
         providerId: MARKET_DATA_PROVIDER_ID,
-        revision: { mode: 'discover', maxAgeMs: 60_000 },
+        revision: { mode: 'immutable', maxAgeMs: null },
         requestLimits: {
           maxBarsPerRequest: 2,
           maxWindowDurationMs: 2 * MINUTE,

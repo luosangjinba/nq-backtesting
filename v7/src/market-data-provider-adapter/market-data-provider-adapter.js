@@ -7,7 +7,6 @@ const MINUTE = 60_000;
 const API_CHUNK_DURATION_MS = 7 * 24 * 60 * MINUTE;
 const API_TRANSPORT_CONCURRENCY = 2;
 const MAXIMUM_LOGICAL_REQUEST_MINUTES = 210 * 24 * 60;
-const DATASET_REVISION_MAX_AGE_MS = 1;
 const MARKET_DATA_SOURCE_RESOLUTION_ID = 'resolution.fixed-1-minute';
 export const MARKET_DATA_PROVIDER_ID = 'provider.local-market-data';
 const MARKET_DATA_INSTRUMENT_CODES = Object.freeze({
@@ -201,7 +200,10 @@ export function createMarketDataProvider(options = {}) {
     policy: {
       schemaVersion: 1,
       providerId: MARKET_DATA_PROVIDER_ID,
-      revision: { mode: 'discover', maxAgeMs: DATASET_REVISION_MAX_AGE_MS },
+      // The standalone database is mounted read-only for one active runtime.
+      // Replacement establishes a new service/runtime boundary; an unexpected
+      // 409 still invalidates this entry inside Provider Execution.
+      revision: { mode: 'immutable', maxAgeMs: null },
       requestLimits: {
         maxBarsPerRequest: MAXIMUM_LOGICAL_REQUEST_MINUTES,
         maxWindowDurationMs: MAXIMUM_LOGICAL_REQUEST_MINUTES * MINUTE,

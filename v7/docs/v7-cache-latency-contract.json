@@ -10,6 +10,15 @@
     "artificialProductionDelayMs": 0,
     "requiredRecordedContext": ["machine", "browser", "paneCount", "loadedBars", "cacheClass", "providerDelayMs"]
   },
+  "hotPath": {
+    "warmMarketDataRequestsPerAdvance": 0,
+    "datasetRevision": {
+      "policy": "immutable-runtime",
+      "discovery": "once-per-provider-instrument-source-scope",
+      "replacementRequiresServiceRestart": true,
+      "revisionMismatchInvalidatesImmediately": true
+    }
+  },
   "profiles": {
     "manual-next-cache-tiered": {
       "cacheHitVisible": { "p95Ms": 100, "p99Ms": 150, "maxMs": 250 },
@@ -34,6 +43,10 @@
       "cacheMissFeedback": { "p95Ms": 50, "p99Ms": 100 },
       "postResponseVisible": { "p95Ms": 100, "p99Ms": 150, "maxMs": 250 },
       "activeTabSchedulerDrift": { "p95Ms": 50, "p99Ms": 100 },
+      "cadenceBasis": "tick-start-to-tick-start",
+      "processingTimeCompensated": true,
+      "maximumScheduledSuccessors": 1,
+      "accumulatedCatchUpAllowed": false,
       "overlappingAdvanceAllowed": false,
       "skipOrCatchUpAllowed": false,
       "waitsWhenDataUnavailable": true
@@ -92,6 +105,7 @@
     "boundedEvictionRequired": true,
     "futureRawBarsMayBeCached": true,
     "projectionStillEnforcesNoFuture": true,
+    "revisionPolicy": "immutable-runtime",
     "prefetch": {
       "minimumAheadReplaySteps": 2,
       "lowWatermarkReplaySteps": 1,

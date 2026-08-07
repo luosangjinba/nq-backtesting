@@ -1,5 +1,23 @@
 # V7 TODO
 
+## R12.5 Cloud Replay Hot Path — Implemented, Cloud Review Pending
+
+- [x] measure the public acceptance path separately from the local loopback
+  baseline and identify the one-millisecond revision TTL as foreground network
+  work despite accepted forward coverage;
+- [x] decide that the read-only standalone DuckDB revision is immutable for one
+  active service/runtime lifetime and that replacement requires restart;
+- [x] make repeated warm revision resolution network-free while preserving
+  revision-bound raw/projected identities and HTTP 409 invalidation;
+- [x] compensate successful Autoplay transaction duration inside the selected
+  start-to-start cadence without overlap, skipped bars, or accumulated catch-up;
+- [x] bind the zero-network hot path, cadence semantics, negative controls, and
+  focused regression evidence as H096;
+- [ ] deploy to 43.110.32.34 and compare at least 100 identical warm steps with
+  browser Network, visible latency, host CPU/RAM/swap, and cache misses recorded.
+
+Binding contract: `docs/V7_CLOUD_REPLAY_HOT_PATH_R12_5.md`.
+
 ## R12.4 Managed Swap Accounting Tolerance — Implemented, Host Rerun Pending
 
 - [x] identify `mkswap` header accounting as the nominal 512 MiB/observed
@@ -681,8 +699,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 319 files, 24,940 effective
-lines, 2,640 functions, and 311 public exports; the architecture baseline
+The current production source baseline contains 319 files, 24,943 effective
+lines, 2,641 functions, and 311 public exports; the architecture baseline
 remains 51 modules, 127 edges, 115 construction sites, 19 writers, and zero
 findings.
 
@@ -694,7 +712,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 319 files, 24,940 effective lines, 2,640 functions, 311 public
+currently at 319 files, 24,943 effective lines, 2,641 functions, 311 public
 exports, 51 modules, 127 edges, 115 construction sites, 19 writers, and zero
 findings.
 

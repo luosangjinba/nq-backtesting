@@ -12,8 +12,13 @@ function deferred() {
   return { promise, resolve };
 }
 
-function fixture({ completeAfter = Number.POSITIVE_INFINITY, gate = null } = {}) {
+function fixture({
+  completeAfter = Number.POSITIVE_INFINITY,
+  gate = null,
+  transactionDurationMs = 0,
+} = {}) {
   const scheduled = new Map();
+  let clockMs = 0;
   let nextTimerId = 0;
   let cursor = 0;
   let playback = 'paused';
@@ -21,6 +26,7 @@ function fixture({ completeAfter = Number.POSITIVE_INFINITY, gate = null } = {})
   const scheduler = createReplayAutoplayScheduler({
     cadenceMs: 500,
     clearTimer: (timerId) => scheduled.delete(timerId),
+    now: () => clockMs,
     playbackPort: Object.freeze({
       pause() {
         playback = 'paused';
@@ -39,6 +45,7 @@ function fixture({ completeAfter = Number.POSITIVE_INFINITY, gate = null } = {})
     async runNext() {
       runs += 1;
       if (gate) await gate.promise;
+      clockMs += transactionDurationMs;
       cursor += 1;
       if (cursor >= completeAfter) playback = 'paused';
       return Object.freeze({ status: 'committed' });
@@ -54,6 +61,7 @@ function fixture({ completeAfter = Number.POSITIVE_INFINITY, gate = null } = {})
       const [timerId, pending] = scheduled.entries().next().value ?? [];
       if (!pending) return false;
       scheduled.delete(timerId);
+      clockMs += pending.delayMs;
       pending.callback();
       await Promise.resolve();
       await Promise.resolve();
@@ -84,6 +92,28 @@ assert.deepEqual(target.read(), { cursor: 2, delayMs: 250, playback: 'playing', 
 target.scheduler.pause();
 assert.deepEqual(target.read(), { cursor: 2, delayMs: null, playback: 'paused', runs: 2, scheduled: 0 });
 assert.equal(await target.fire(), false, 'Pause removes all future cadence work');
+
+target = fixture({ transactionDurationMs: 180 });
+target.scheduler.play();
+await Promise.resolve();
+await Promise.resolve();
+assert.deepEqual(target.read(), { cursor: 1, delayMs: 320, playback: 'playing', runs: 1, scheduled: 1 },
+  'Autoplay subtracts committed transaction time from the start-to-start cadence');
+await target.fire();
+assert.deepEqual(target.read(), { cursor: 2, delayMs: 320, playback: 'playing', runs: 2, scheduled: 1 },
+  'each successor keeps one compensated timer without accumulating drift');
+target.scheduler.pause();
+
+target = fixture({ transactionDurationMs: 650 });
+target.scheduler.play();
+await Promise.resolve();
+await Promise.resolve();
+assert.deepEqual(target.read(), { cursor: 1, delayMs: 0, playback: 'playing', runs: 1, scheduled: 1 },
+  'work above cadence saturates at one zero-delay successor instead of creating a backlog');
+await target.fire();
+assert.deepEqual(target.read(), { cursor: 2, delayMs: 0, playback: 'playing', runs: 2, scheduled: 1 },
+  'zero-delay saturation still advances exactly once and retains one future timer');
+target.scheduler.pause();
 
 const pendingGate = deferred();
 target = fixture({ gate: pendingGate });
@@ -129,5 +159,5 @@ assert.equal(DEFAULT_AUTOPLAY_SPEED, readAutoplaySpeed('autoplay-speed-1x'));
 assert.throws(() => readAutoplaySpeed('autoplay-speed-unknown'), /Unsupported/);
 
 console.log('v7 Replay Autoplay scheduler harness passed', {
-  scope: 'continuous dynamic cadence, no backlog, Pause, in-flight settlement, Session end',
+  scope: 'start-to-start cadence, bounded compensation, no backlog, Pause, in-flight settlement, Session end',
 });

@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-06 during R12.4 swap-accounting correction
+Last updated: 2026-08-06 during R12.5 cloud Replay hot-path implementation
 
 ## Current Overall Acceptance State
 
@@ -52,7 +52,16 @@ Data and Database Import separate spill directories. H094 is automated; the
 43.110.32.34 upgrade, 512 MB large-file retry/reboot, database fingerprints,
 and same-client Play-bar latency comparison remain human gates.
 
-R12.4 is the current repository-changing correction. The first adaptive run
+R12.5 is the current repository-changing delivery. Cloud acceptance measured
+about 176 ms RTT to 43.110.32.34 and exposed the production provider's
+one-millisecond dataset-revision TTL as a market-data health request on almost
+every warm Replay transaction. R12.5 binds the read-only DuckDB revision to one
+active service/runtime lifetime, retains HTTP 409 invalidation and restart for
+replacement, and compensates completed transaction time inside the selected
+single-flight Autoplay cadence. Binding contract:
+`V7_CLOUD_REPLAY_HOT_PATH_R12_5.md`.
+
+R12.4 remains the current pushed deployment correction. The first adaptive run
 created and activated nominal swap but rejected Linux's slightly smaller
 post-`mkswap` reported capacity. An explicit 8 MiB accounting tolerance and
 matching allocation overhead now accept that existing file on rerun while a
