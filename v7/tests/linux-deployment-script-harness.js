@@ -13,6 +13,14 @@ const resourceProfilePolicy = path.join(
   repositoryRoot,
   'v7/deploy/linux/lib/resource-profile.sh',
 );
+const caddyReconciler = path.join(
+  repositoryRoot,
+  'v7/deploy/linux/lib/caddy-site-reconciler.py',
+);
+const deploymentState = path.join(
+  repositoryRoot,
+  'v7/deploy/linux/lib/deployment-state.sh',
+);
 const caddyTemplate = path.join(repositoryRoot, 'v7/deploy/linux/caddy/Caddyfile.template');
 const marketDataTemplate = path.join(
   repositoryRoot,
@@ -111,6 +119,9 @@ try {
   assert.match(quickHelp.stdout, /--replace-legacy/);
   assert.match(quickHelp.stdout, /--preserve-caddy/);
   assert.match(quickHelp.stdout, /--bootstrap/);
+  assert.match(quickHelp.stdout, /--require-existing-db/);
+  assert.match(quickHelp.stdout, /--replace-caddy/);
+  assert.match(quickHelp.stdout, /detects first versus repeat deployment/);
   assert.match(quickHelp.stdout, /512 MB class/);
   assert.match(quickHelp.stdout, /inbound TCP 80\/443/);
   assert.match(quickHelp.stdout, /8768/);
@@ -128,6 +139,49 @@ try {
     'database metadata rollback must also run for explicit die/exit failures');
   assert.match(quickSource,
     /installer_arguments=\([\s\S]*--auth-password-file "\$password_file"[\s\S]*bash "\$installer" "\$\{installer_arguments\[@\]\}"/);
+  assert.match(quickSource, /preserve_caddy=1/,
+    'the universal public-IP entry must preserve unrelated sites by default');
+  assert.match(quickSource, /replace_legacy=1/,
+    'identified Replay Lab listeners migrate without another host-specific flag');
+  assert.match(quickSource, /bootstrap_mode="auto"/);
+  assert.match(quickSource, /database state: target absent; selecting first-run browser upload/);
+  assert.match(quickSource, /legacy_password_file="\/root\/replay-lab-secrets\/web-password"/);
+  assert.match(quickSource, /credential state: reusing the existing legacy root-only password file/);
+  const existingState = spawnSync('bash', ['-c', [
+    'source "$1"',
+    'replay_lab_select_database_mode "$2" auto',
+  ].join('\n'), 'bash', deploymentState, database], { encoding: 'utf8' });
+  assert.equal(existingState.status, 0, existingState.stderr);
+  assert.equal(existingState.stdout, 'existing');
+  const missingState = spawnSync('bash', ['-c', [
+    'source "$1"',
+    'replay_lab_select_database_mode "$2" auto',
+  ].join('\n'), 'bash', deploymentState, path.join(temporaryDirectory, 'absent.duckdb')], {
+    encoding: 'utf8',
+  });
+  assert.equal(missingState.status, 0, missingState.stderr);
+  assert.equal(missingState.stdout, 'bootstrap');
+  const invalidDatabaseState = spawnSync('bash', ['-c', [
+    'source "$1"',
+    'replay_lab_select_database_mode "$2" auto',
+  ].join('\n'), 'bash', deploymentState, temporaryDirectory], { encoding: 'utf8' });
+  assert.notEqual(invalidDatabaseState.status, 0);
+  assert.match(invalidDatabaseState.stdout, /not a regular file/);
+  const explicitDatabaseState = spawnSync('bash', ['-c', [
+    'source "$1"',
+    'replay_lab_select_database_mode "$2" required',
+  ].join('\n'), 'bash', deploymentState, database], { encoding: 'utf8' });
+  assert.notEqual(explicitDatabaseState.status, 0);
+  assert.match(explicitDatabaseState.stdout, /--bootstrap requires a missing database target/);
+  const legacyPassword = path.join(temporaryDirectory, 'legacy-password');
+  fs.writeFileSync(legacyPassword, 'secret');
+  const selectedPassword = spawnSync('bash', ['-c', [
+    'source "$1"',
+    'replay_lab_select_password_file "$2" 0 "$3"',
+  ].join('\n'), 'bash', deploymentState,
+  path.join(temporaryDirectory, 'new-password'), legacyPassword], { encoding: 'utf8' });
+  assert.equal(selectedPassword.status, 0, selectedPassword.stderr);
+  assert.equal(selectedPassword.stdout, legacyPassword);
   const quickListenerStopSource = quickSource.match(
     /^stop_identified_listener\(\) \{[\s\S]*?^\}/m,
   )?.[0];
@@ -328,9 +382,13 @@ try {
     'a failed partial virtualenv must be repaired on rerun');
   assert.match(installerSource, /already used outside managed units/);
   assert.match(installerSource, /caddy_version_at_least 2 10 2/);
-  assert.match(installerSource, /import \/etc\/caddy\/replay-lab\.Caddyfile/);
+  assert.match(installerSource,
+    /caddy_fragment_path="\/etc\/caddy\/replay-lab\.Caddyfile"/);
   assert.match(installerSource, /combined Caddy configuration is invalid; restoring/);
-  assert.match(installerSource, /write_caddy_default_sni/);
+  assert.match(installerSource, /caddy-site-reconciler\.py/);
+  assert.match(installerSource,
+    /reconciler_arguments\+=\(--manage-default-sni\)/,
+    'direct IPv4 preserve mode must reconcile the global default SNI');
   assert.match(installerSource, /chown -R root:"\$service_group" "\$release_dir"/);
   assert.match(installerSource, /chmod -R u=rwX,g=rX,o= "\$release_dir"/);
   assert.match(installerSource, /replay_lab_host_transaction_begin/);
@@ -378,30 +436,10 @@ try {
   assert.match(installerSource, /capture_active_unit_states/);
   assert.match(installerSource, /multi-user\.target\.wants\/\$unit/,
     'systemd enablement links must belong to the host transaction');
-  const defaultSniSource = installerSource.match(
-    /^write_caddy_default_sni\(\) \{[\s\S]*?^\}/m,
-  )?.[0];
-  assert.ok(defaultSniSource, 'default SNI merger must remain independently executable');
-  const existingGlobalOptions = path.join(temporaryDirectory, 'existing-global.Caddyfile');
-  const mergedGlobalOptions = path.join(temporaryDirectory, 'merged-global.Caddyfile');
-  fs.writeFileSync(existingGlobalOptions, [
-    '{',
-    '  email reviewer@example.com',
-    '}',
-    '',
-    'recap.example.com {',
-    '  respond "existing"',
-    '}',
-    '',
-  ].join('\n'));
-  const defaultSniMerge = spawnSync('bash', ['-c', [
-    defaultSniSource,
-    'write_caddy_default_sni "$1" "$2" 43.110.32.34',
-  ].join('\n'), 'bash', existingGlobalOptions, mergedGlobalOptions], { encoding: 'utf8' });
-  assert.equal(defaultSniMerge.status, 0, defaultSniMerge.stderr);
-  const mergedGlobalSource = fs.readFileSync(mergedGlobalOptions, 'utf8');
-  assert.match(mergedGlobalSource, /email reviewer@example\.com/);
-  assert.match(mergedGlobalSource, /default_sni 43\.110\.32\.34/);
+  const caddyReconcilerSource = fs.readFileSync(caddyReconciler, 'utf8');
+  assert.match(caddyReconcilerSource, /legacy-managed-site-migrated/);
+  assert.match(caddyReconcilerSource, /owned by an unmanaged Caddy site/);
+  assert.match(caddyReconcilerSource, /multiple Caddy import globs/);
   const listenerGuardSource = installerSource.match(
     /^require_managed_or_free_port\(\) \{[\s\S]*?^\}/m,
   )?.[0];

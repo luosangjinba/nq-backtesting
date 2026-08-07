@@ -9,26 +9,30 @@ Replay Lab direct-public-IPv4 quick deployment
 Usage:
   sudo bash v7/deploy/linux/deploy-public-ip.sh \
     --public-ip 203.0.113.10 \
-    --db /srv/replay-lab-data/trading_data.duckdb \
-    [--bootstrap] \
-    [--preserve-caddy] \
-    [--replace-legacy]
+    [--db /srv/replay-lab-data/trading_data.duckdb]
 
 Options:
   --public-ip IPV4       Public IPv4 address opened on cloud TCP 80/443.
   --db PATH              DuckDB target. Default: /srv/replay-lab-data/trading_data.duckdb
-  --bootstrap            Allow a missing target and enable first-run CSV/DuckDB upload.
+  --bootstrap            Require a missing target and force first-run upload mode.
+  --require-existing-db  Disable automatic bootstrap and require an existing DuckDB.
   --auth-user USER       Browser login user. Default: reviewer
   --service-user USER    Dedicated Linux service user. Default: replay
   --password-file PATH   Persistent root-only password file.
                          Default: /etc/replay-lab/secrets/web-password
+                         Existing /root/replay-lab-secrets/web-password is reused.
   --reset-password       Prompt for a new browser password even when the file exists.
-  --preserve-caddy       Keep existing Caddy sites and import a Replay Lab fragment.
-  --replace-legacy       Stop only identified Replay Lab listeners on 8766/8007.
+  --preserve-caddy       Preserve/reconcile existing sites (default; retained for compatibility).
+  --replace-caddy        Replace Caddyfile; only for an intentionally dedicated host.
+  --replace-legacy       Auto-migrate identified Replay Lab listeners (default compatibility flag).
   --help                 Show this help.
 
-The command auto-selects a resource profile, rejects hosts below the supported
-512 MB class, and provisions persistent swap when the selected profile needs it.
+The command detects first versus repeat deployment, selects bootstrap from the
+database target, reconciles current/legacy Replay Lab Caddy layouts, preserves
+unrelated sites, migrates identified legacy listeners, auto-selects a resource
+profile, rejects hosts below the supported 512 MB class, and provisions swap.
+Unknown listeners and Caddy sites that already own the requested IP still fail
+closed. Only --public-ip is host-specific.
 This wrapper does not open a cloud security group. Allow inbound TCP 80/443 in
 the provider console, and do not expose 8007/8766/8767/8768.
 USAGE
@@ -110,15 +114,18 @@ stop_identified_listener() {
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 installer="$script_dir/install.sh"
 source "$script_dir/lib/resource-profile.sh"
+source "$script_dir/lib/deployment-state.sh"
 db_path="/srv/replay-lab-data/trading_data.duckdb"
 public_ip=""
 auth_user="reviewer"
 service_user="replay"
 password_file="/etc/replay-lab/secrets/web-password"
+password_file_explicit=0
 reset_password=0
-replace_legacy=0
-preserve_caddy=0
+replace_legacy=1
+preserve_caddy=1
 bootstrap=0
+bootstrap_mode="auto"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -133,7 +140,15 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --bootstrap)
-      bootstrap=1
+      [[ "$bootstrap_mode" != "disabled" ]] \
+        || die "use only one of --bootstrap or --require-existing-db"
+      bootstrap_mode="required"
+      shift
+      ;;
+    --require-existing-db)
+      [[ "$bootstrap_mode" != "required" ]] \
+        || die "use only one of --bootstrap or --require-existing-db"
+      bootstrap_mode="disabled"
       shift
       ;;
     --auth-user)
@@ -149,6 +164,7 @@ while [[ $# -gt 0 ]]; do
     --password-file)
       [[ $# -ge 2 ]] || die "--password-file requires a value"
       password_file="$2"
+      password_file_explicit=1
       shift 2
       ;;
     --reset-password)
@@ -157,6 +173,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --preserve-caddy)
       preserve_caddy=1
+      shift
+      ;;
+    --replace-caddy)
+      preserve_caddy=0
       shift
       ;;
     --replace-legacy)
@@ -182,21 +202,46 @@ replay_lab_require_minimum_memory "$detected_memory_mib" \
 [[ -n "$public_ip" ]] || die "--public-ip is required"
 validate_ipv4 "$public_ip" || die "--public-ip must be a valid IPv4 address"
 [[ "$db_path" = /* ]] || die "--db must be absolute"
+if ! selected_database_mode="$(replay_lab_select_database_mode "$db_path" "$bootstrap_mode")"; then
+  die "$selected_database_mode"
+fi
+if [[ "$selected_database_mode" == "bootstrap" ]]; then
+  bootstrap=1
+  info "database state: target absent; selecting first-run browser upload"
+else
+  bootstrap=0
+  info "database state: existing DuckDB; selecting read-only deployment"
+fi
 if [[ "$bootstrap" -eq 1 ]]; then
-  [[ ! -e "$db_path" && ! -L "$db_path" ]] \
-    || die "--bootstrap requires a missing database target: $db_path"
   db_parent="$(dirname -- "$db_path")"
   case "$db_parent" in
     /|/srv|/opt|/var|/etc|/usr|/home|/root|/tmp)
       die "--bootstrap database parent is too broad: $db_parent"
       ;;
   esac
-else
-  [[ -f "$db_path" ]] || die "DuckDB file is missing: $db_path"
 fi
 [[ "$password_file" = /* ]] || die "--password-file must be absolute"
 [[ "$auth_user" =~ ^[A-Za-z0-9._-]{1,64}$ ]] || die "invalid --auth-user"
 [[ "$service_user" =~ ^[A-Za-z_][A-Za-z0-9_.-]*[$]?$ ]] || die "invalid --service-user"
+
+legacy_password_file="/root/replay-lab-secrets/web-password"
+selected_password_file="$(replay_lab_select_password_file \
+  "$password_file" "$password_file_explicit" "$legacy_password_file")"
+if [[ "$selected_password_file" != "$password_file" ]]; then
+  password_file="$selected_password_file"
+  info "credential state: reusing the existing legacy root-only password file"
+fi
+
+if [[ "$(replay_lab_classify_release /opt/replay-lab/current)" == "upgrade" ]]; then
+  info "host state: existing Replay Lab release; selecting idempotent upgrade"
+else
+  info "host state: no active Replay Lab release; selecting first deployment"
+fi
+if [[ "$preserve_caddy" -eq 1 ]]; then
+  info "Caddy state: preserve and reconcile managed Replay Lab configuration"
+else
+  warn "Caddy state: explicit replacement mode will replace /etc/caddy/Caddyfile"
+fi
 
 database_metadata_changed=0
 database_original_uid=""

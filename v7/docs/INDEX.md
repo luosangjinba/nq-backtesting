@@ -51,6 +51,11 @@ The current cloud-playback correction is
 `V7_CLOUD_REPLAY_HOT_PATH_R12_5.md`: it removes database revision discovery
 from warm Replay network traffic and makes Autoplay cadence account for
 transaction duration without introducing overlap or a second Replay owner.
+The current deployment correction is
+`V7_HOST_ADAPTIVE_IDEMPOTENT_DEPLOYMENT_R12_6.md`: one public-IP entry now
+detects database/release state, preserves shared Caddy by default, and migrates
+recognized legacy Replay Lab layouts without taking ownership of foreign
+sites.
 None closes the ongoing phase-one overall acceptance pass. Read those before the normal
 implementation reading order below. The deferred
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and

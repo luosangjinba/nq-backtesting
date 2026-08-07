@@ -1,6 +1,6 @@
 # Replay Lab V7 Linux One-Click Deployment
 
-Status: R12.3 standalone V7 runtime with adaptive 512 MB-class deployment
+Status: R12.6 host-adaptive, idempotent standalone V7 deployment
 
 `install.sh` deploys only the current committed V7 tree as an immutable release,
 installs the V7 read-only market-data runtime and browser dependencies, and creates
@@ -25,33 +25,35 @@ Databento refresh, Contract Roll, merge, append, or database replacement.
 
 ## Fastest Direct-IP Path
 
-After pulling the current `v7/rebuild` branch and opening cloud TCP 80/443, one
-interactive command prepares the dedicated service identity, database read
-permission, root-only password file, recognized legacy listeners, and the
-reviewed installer:
+After pulling the current `v7/rebuild` branch and opening cloud TCP 80/443, the
+same interactive command handles first install, missing-database bootstrap,
+ordinary upgrade, and repeated deployment:
 
 ```bash
 sudo bash v7/deploy/linux/deploy-public-ip.sh \
-  --public-ip 43.110.32.34 \
-  --db /srv/replay-lab-data/trading_data.duckdb \
-  --preserve-caddy \
-  --replace-legacy
+  --public-ip 43.110.32.34
 ```
 
-It prompts twice for the browser password when no saved password exists. The
-same command automatically detects physical memory and CPUs, rejects hosts
-below the supported 512 MB class, provisions persistent swap when required,
-and applies a bounded DuckDB memory/thread/disk-spill profile. No resource flags
-are required. The
-`--preserve-caddy` option retains existing Caddy sites and installs Replay Lab
-as an imported `/etc/caddy/replay-lab.Caddyfile` fragment. Omit it only on a
-dedicated host where replacing the whole Caddyfile is intentional. The
-`--replace-legacy` option stops only command lines positively identified as a
-Replay Lab `market_data_api.py`, legacy `v4_api.py`/`read_api.py`, or
-`serve.mjs 8007` process; an unknown listener still fails closed. A managed
-`replay-lab-api.service` is not killed by the wrapper: the installer retires it
-inside the rollback-protected host transaction. Omit the option when no manual
-legacy process exists.
+It prompts twice for the browser password only when no saved password exists.
+If the new default is absent but the known
+`/root/replay-lab-secrets/web-password` file exists, it is reused without
+printing or copying the secret.
+An existing DuckDB selects normal read-only deployment; an absent target
+selects strict browser bootstrap. Existing Caddy sites are preserved by
+default, old direct Replay Lab blocks are migrated to the managed fragment,
+duplicate imports are reconciled, and an existing release selects an
+idempotent upgrade. Recognized manual Replay Lab listeners migrate
+automatically; an unknown listener or foreign Caddy owner still fails closed.
+
+The same command detects physical memory and CPUs, rejects hosts below the
+supported 512 MB class, provisions persistent swap when required, and applies
+a bounded DuckDB memory/thread/disk-spill profile. No host-state or resource
+flags are required. Use `--require-existing-db` when a missing database must be
+a hard error, `--bootstrap` to explicitly require first-run mode, or
+`--replace-caddy` only on an intentionally dedicated host. Existing
+`--preserve-caddy` and `--replace-legacy` arguments remain accepted but express
+the defaults. A managed `replay-lab-api.service` is not killed by the wrapper:
+the installer retires it inside the rollback-protected host transaction.
 
 ## Supported Hosts
 
@@ -132,15 +134,12 @@ unambiguous.
 
 ## Fresh Host Without A Database
 
-Do not create an empty DuckDB file. Leave the target absent and run the direct-
-IP wrapper with `--bootstrap`:
+Do not create an empty DuckDB file. Leave the target absent and run the normal
+direct-IP command; the wrapper selects bootstrap automatically:
 
 ```bash
 sudo bash v7/deploy/linux/deploy-public-ip.sh \
-  --public-ip 43.110.32.34 \
-  --db /srv/replay-lab-data/trading_data.duckdb \
-  --bootstrap \
-  --preserve-caddy
+  --public-ip 43.110.32.34
 ```
 
 Then sign in and open
@@ -152,8 +151,8 @@ type, or duplicate is automatically repaired. After activation the upload
 controls and service lock. Before activation, use `Upload another file` and its
 button confirmation to discard a retained upload or validated candidate; do
 not remove staging files or invoke the importer from the shell. Validation in
-progress must first finish or recover to a stable state. Re-run ordinary
-deployment without `--bootstrap` for later code releases.
+progress must first finish or recover to a stable state. Later code releases
+use the same command; the now-existing DuckDB selects read-only mode.
 
 ## Private Deployment (Recommended First Test)
 
@@ -193,12 +192,12 @@ web service proxies `/v7/state/*` to the loopback state service as identity
 ## Public HTTPS Deployment
 
 Point the domain's DNS A/AAAA record at the host and allow inbound TCP 80/443.
-Use this mode on a dedicated acceptance host: the installer backs up and then
-replaces `/etc/caddy/Caddyfile` rather than merging with unrelated sites.
-On a shared host, add `--preserve-caddy` and omit `--email`; the installer
-backs up the main file, writes a managed Replay Lab fragment, adds one absolute
-import when absent, validates the combined configuration, and restores both
-files if validation or reload fails.
+The public-IP wrapper preserves Caddy by default. It backs up the main file,
+writes a managed Replay Lab fragment, reconciles a fresh/shared/repeated or
+legacy-direct layout, validates the combined configuration, and restores both
+files if validation or reload fails. A foreign owner of the requested host is
+never removed automatically. Use lower-level replacement mode only when the
+host is deliberately dedicated to Replay Lab.
 Put a strong password in a root-readable file; passing plaintext on the command
 line would leak it into shell history:
 

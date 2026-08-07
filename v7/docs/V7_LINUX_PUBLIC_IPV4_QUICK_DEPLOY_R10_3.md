@@ -1,6 +1,6 @@
 # V7 Linux Public IPv4 Quick Deploy — R10.3
 
-Status: implemented; real-host run pending (2026-08-05)
+Status: implemented; defaults generalized by R12.6 (2026-08-06)
 
 ## Request
 
@@ -15,14 +15,15 @@ DuckDB; creates the dedicated service identity when absent; prepares group-only
 database read permission; securely prompts twice for a persistent root-only
 browser password; and invokes `install.sh` with authenticated public IPv4.
 
-R10.9 extends the wrapper with `--bootstrap`: the default database target may
-be absent, its dedicated parent is prepared for the isolated importer, and the
-authenticated Database Setup page can create the first validated database.
-Without that flag, the original existing/read-only DuckDB requirement remains.
+R10.9 added strict first-run bootstrap. R12.6 now selects it automatically when
+the target is absent and selects read-only deployment when the DuckDB exists.
+`--bootstrap` and `--require-existing-db` remain explicit assertions.
 
-The explicit `--replace-legacy` option may stop only a listener whose inspected
-command line matches `v4_api.py` on 8766 or `serve.mjs 8007` on 8007. Unknown
-processes fail closed. The wrapper cannot edit Alibaba Cloud security groups;
+R12.6 also makes preservation/reconciliation of shared Caddy and migration of
+positively identified Replay Lab listeners the defaults. Compatibility flags
+remain accepted; destructive Caddy replacement requires `--replace-caddy`.
+Unknown processes and foreign Caddy owners fail closed. The wrapper cannot edit
+cloud security groups;
 80/443 remain a human prerequisite and 8007/8766/8767/8768 remain private. R10.8
 adds authenticated state sync behind the same public login without expanding
 that firewall boundary.

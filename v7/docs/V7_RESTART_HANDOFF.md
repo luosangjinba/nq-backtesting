@@ -52,7 +52,7 @@ Data and Database Import separate spill directories. H094 is automated; the
 43.110.32.34 upgrade, 512 MB large-file retry/reboot, database fingerprints,
 and same-client Play-bar latency comparison remain human gates.
 
-R12.5 is the current repository-changing delivery. Cloud acceptance measured
+R12.5 measured
 about 176 ms RTT to 43.110.32.34 and exposed the production provider's
 one-millisecond dataset-revision TTL as a market-data health request on almost
 every warm Replay transaction. R12.5 binds the read-only DuckDB revision to one
@@ -61,7 +61,16 @@ replacement, and compensates completed transaction time inside the selected
 single-flight Autoplay cadence. Binding contract:
 `V7_CLOUD_REPLAY_HOT_PATH_R12_5.md`.
 
-R12.4 remains the current pushed deployment correction. The first adaptive run
+R12.6 is the current repository-changing delivery. A repeat deployment on
+146.190.100.212 found an old direct Replay Lab Caddy site plus the current
+managed fragment, so Caddy rejected the duplicate public-IP owner. The public-
+IP wrapper now infers first/repeat and database/bootstrap state, preserves
+shared Caddy and migrates known listeners by default, and reconciles only
+positively identified Replay Lab Caddy layouts. Foreign ownership still fails
+closed. Binding contract:
+`V7_HOST_ADAPTIVE_IDEMPOTENT_DEPLOYMENT_R12_6.md`.
+
+R12.4 remains a prior deployment correction. The first adaptive run
 created and activated nominal swap but rejected Linux's slightly smaller
 post-`mkswap` reported capacity. An explicit 8 MiB accounting tolerance and
 matching allocation overhead now accept that existing file on rerun while a

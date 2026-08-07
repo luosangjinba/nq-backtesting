@@ -1,6 +1,6 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule (R12.5 implementation, cloud review open, 2026-08-06)
+Status: binding delivery rule (R12.6 implementation, two-host review open, 2026-08-06)
 
 ## Delivery IDs
 
@@ -20,9 +20,9 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current repository-changing delivery step is `R12.5`, the bounded cloud
-Replay hot-path correction after the public acceptance host exposed per-step
-revision discovery and completion-plus-cadence slowdown. R12.1–R12.4 retain
+The current repository-changing delivery step is `R12.6`, the host-adaptive
+idempotent deployment correction after a repeated public-IP deployment exposed
+an old direct Caddy site plus managed-fragment ambiguity. R12.1–R12.5 retain
 their committed implementation and open host gates.
 R11.1 remains the automatically
 closed cross-runtime architecture-integrity recovery; R12 does not reopen it.
@@ -35,8 +35,9 @@ H092 records the automatically accepted staged-discard safety invariant for
 R12.1. H093 records the standalone V7 runtime invariant for R12.2. H094 records
 the minimum-memory/adaptive-resource invariant for R12.3. H095 records the
 bounded swap-accounting recovery for R12.4. H096 records the network-free warm
-Replay and compensated single-flight Autoplay invariant for R12.5. Broad
-`R<n>` headings remain milestones only.
+Replay and compensated single-flight Autoplay invariant for R12.5. H097 records
+automatic first/repeat/bootstrap detection and safe idempotent Caddy-layout
+migration for R12.6. Broad `R<n>` headings remain milestones only.
 
 ## Other Stable IDs
 

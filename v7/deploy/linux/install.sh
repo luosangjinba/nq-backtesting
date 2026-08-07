@@ -148,49 +148,6 @@ render_template() {
   done < "$input" > "$output"
 }
 
-write_caddy_default_sni() {
-  local input="$1"
-  local output="$2"
-  local server_name="$3"
-  local existing=""
-  local first_code_line=""
-  existing="$(awk '$1 == "default_sni" { print $2; exit }' "$input")"
-  if [[ -n "$existing" ]]; then
-    if [[ "$existing" != "$server_name" ]]; then
-      printf 'ERROR: existing Caddy default_sni conflicts with public IP: %s\n' "$existing" >&2
-      return 1
-    fi
-    cp -- "$input" "$output"
-    return 0
-  fi
-  first_code_line="$(awk '
-    /^[[:space:]]*$/ || /^[[:space:]]*#/ { next }
-    {
-      line=$0
-      sub(/^[[:space:]]*/, "", line)
-      sub(/[[:space:]]*$/, "", line)
-      print line
-      exit
-    }
-  ' "$input")"
-  if [[ "$first_code_line" == "{" ]]; then
-    awk -v server_name="$server_name" '
-      !inserted && /^[[:space:]]*\{[[:space:]]*$/ {
-        print
-        print "  default_sni " server_name
-        inserted=1
-        next
-      }
-      { print }
-    ' "$input" > "$output"
-  else
-    {
-      printf '{\n  default_sni %s\n}\n\n' "$server_name"
-      cat "$input"
-    } > "$output"
-  fi
-}
-
 detect_caddy_auth_directive() {
   local raw=""
   local version=""
@@ -830,6 +787,7 @@ web_template="$template_root/systemd/replay-lab-web.service.template"
 state_template="$template_root/systemd/replay-lab-state.service.template"
 database_import_template="$template_root/systemd/replay-lab-database-import.service.template"
 caddy_template="$template_root/caddy/Caddyfile.template"
+caddy_reconciler="$template_root/lib/caddy-site-reconciler.py"
 runtime_requirements="$template_root/requirements-runtime.txt"
 previous_release=""
 release_was_absent=0
@@ -863,6 +821,7 @@ database_import_user=""
 
 for required_file in "$market_data_template" "$web_template" "$state_template" \
   "$database_import_template" "$caddy_template" \
+  "$caddy_reconciler" \
   "$runtime_requirements" "$repo_root/v7/server/market_data_api.py" \
   "$repo_root/v7/server/duckdb_runtime.py" \
   "$repo_root/v7/server/market_data_read_handler.py" \
@@ -1186,29 +1145,28 @@ if [[ -n "$public_host" ]]; then
   if [[ "$preserve_caddy" -eq 1 ]]; then
     merged_caddy="$tmp_dir/Caddyfile.preserved"
     source_caddy="$tmp_dir/Caddyfile.existing"
+    existing_fragment_copy="$tmp_dir/replay-lab.Caddyfile.existing"
+    reconciler_arguments=(
+      --input "$source_caddy"
+      --output "$merged_caddy"
+      --public-host "$public_host"
+      --fragment "$caddy_fragment_path"
+      --base-dir /etc/caddy
+    )
+    [[ -z "$public_ip" ]] || reconciler_arguments+=(--manage-default-sni)
     if [[ "$caddy_main_existed" -eq 1 ]]; then
       sudo_cmd cat /etc/caddy/Caddyfile > "$source_caddy"
     else
       : > "$source_caddy"
     fi
-    if [[ -n "$public_ip" ]]; then
-      if ! write_caddy_default_sni "$source_caddy" "$merged_caddy" "$public_ip"; then
-        rollback_after_failure "caddy-default-sni-conflict"
-        die "cannot preserve a Caddyfile with a conflicting default_sni"
-      fi
-    else
-      cp -- "$source_caddy" "$merged_caddy"
-    fi
-    if ! grep -Eq \
-      '^[[:space:]]*import[[:space:]]+/etc/caddy/replay-lab\.Caddyfile[[:space:]]*$' \
-      "$merged_caddy"; then
-      printf '\nimport /etc/caddy/replay-lab.Caddyfile\n' >> "$merged_caddy"
-    fi
     if sudo_cmd test -f "$caddy_fragment_path"; then
       caddy_fragment_existed=1
+      sudo_cmd cat "$caddy_fragment_path" > "$existing_fragment_copy"
+      reconciler_arguments+=(--existing-fragment "$existing_fragment_copy")
       caddy_fragment_backup="$caddy_fragment_path.backup-$(date -u +%Y%m%dT%H%M%SZ)"
       run_step sudo_cmd cp "$caddy_fragment_path" "$caddy_fragment_backup"
     fi
+    run_step "$python_bin" "$caddy_reconciler" "${reconciler_arguments[@]}"
     run_step sudo_cmd install -m 0644 "$rendered_caddy" "$caddy_fragment_path"
     run_step sudo_cmd install -m 0644 "$merged_caddy" /etc/caddy/Caddyfile
   else

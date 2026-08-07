@@ -1,5 +1,23 @@
 # V7 TODO
 
+## R12.6 Host-Adaptive Idempotent Deployment — Implemented, Two-Host Rerun Pending
+
+- [x] identify the same-IP Caddy ambiguity as an old direct Replay Lab site
+  plus the imported managed fragment rather than an application-service fault;
+- [x] make database/bootstrap, first/repeat release, shared Caddy, and known
+  legacy listener state automatic in the public-IP wrapper;
+- [x] migrate owned direct Replay Lab blocks, update an owned old-IP
+  `default_sni`, and retain one effective managed import without changing
+  unrelated Caddy sites;
+- [x] fail closed for foreign site ownership, foreign `default_sni`, multiple
+  covering globs, unbalanced input, and unknown listeners;
+- [x] bind fresh/shared/repeat/legacy/glob transitions and negative controls as
+  H097 with real Caddy validation;
+- [ ] pull R12.6 on `146.190.100.212` and `43.110.32.34`, run the same minimal
+  command twice per host, and record service/Caddy/database continuity.
+
+Binding contract: `docs/V7_HOST_ADAPTIVE_IDEMPOTENT_DEPLOYMENT_R12_6.md`.
+
 ## R12.5 Cloud Replay Hot Path — Implemented, Cloud Review Pending
 
 - [x] measure the public acceptance path separately from the local loopback

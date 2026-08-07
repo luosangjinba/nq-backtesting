@@ -1,6 +1,10 @@
 # V7 Linux Existing-Caddy Coexistence — R10.4
 
-Status: implemented; real Alibaba Linux rerun pending (2026-08-05)
+Status: implemented; legacy-layout migration corrected by R12.6 (2026-08-06)
+
+R12.6 extends this preserve contract to fresh, repeat, old direct-site, old-IP,
+duplicate-import, and shared-site layouts. Its binding correction is
+`V7_HOST_ADAPTIVE_IDEMPOTENT_DEPLOYMENT_R12_6.md`.
 
 ## Trigger
 

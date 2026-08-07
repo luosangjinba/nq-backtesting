@@ -725,3 +725,21 @@ Gate: deploy to 43.110.32.34 and measure at least 100 identical warm Replay
 steps from the same client, proving no per-step market-data request and
 recording browser-visible, host-resource, and cache-miss evidence separately.
 Binding contract: `V7_CLOUD_REPLAY_HOT_PATH_R12_5.md`.
+
+### R12.6 — Host-Adaptive Idempotent Deployment
+
+- make the public-IP wrapper infer strict first-run bootstrap from an absent
+  target and ordinary read-only deployment from an existing DuckDB;
+- detect first/repeat release state, preserve Caddy by default, and migrate
+  positively identified Replay Lab listeners without additional flags;
+- reconcile fresh, shared, repeated, legacy-direct, old-IP, duplicate-import,
+  and covering-glob Caddy layouts into one managed fragment;
+- preserve unrelated Caddy sites and refuse foreign host/default-SNI ownership,
+  ambiguous glob ownership, unbalanced configuration, and unknown listeners;
+- bind seven positive transitions, idempotence, real Caddy validation, and four
+  negative controls as H097.
+
+Gate: run the same minimal command twice on both known cloud hosts, preserve
+unrelated sites and database fingerprints, and prove four application health
+checks plus authenticated HTTPS. Binding contract:
+`V7_HOST_ADAPTIVE_IDEMPOTENT_DEPLOYMENT_R12_6.md`.

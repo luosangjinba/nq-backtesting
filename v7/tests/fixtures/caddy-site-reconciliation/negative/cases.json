@@ -1,0 +1,26 @@
+[
+  {
+    "id": "foreign-requested-host-owner",
+    "source": "@@PUBLIC_IP@@ {\n  respond \"foreign owner\"\n}\n",
+    "existingFragment": false,
+    "expectedMessage": "owned by an unmanaged Caddy site"
+  },
+  {
+    "id": "foreign-default-sni-owner",
+    "source": "{\n  default_sni foreign.example.com\n}\n",
+    "existingFragment": false,
+    "expectedMessage": "unmanaged default_sni conflicts"
+  },
+  {
+    "id": "multiple-covering-import-globs",
+    "source": "{\n  default_sni @@PUBLIC_IP@@\n}\n\nimport *.Caddyfile\nimport replay-*.Caddyfile\n",
+    "existingFragment": true,
+    "expectedMessage": "multiple Caddy import globs"
+  },
+  {
+    "id": "unbalanced-existing-config",
+    "source": "recap.example.com {\n  respond \"incomplete\"\n",
+    "existingFragment": false,
+    "expectedMessage": "unbalanced Caddy block"
+  }
+]
