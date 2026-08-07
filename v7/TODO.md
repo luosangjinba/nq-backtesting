@@ -1,5 +1,27 @@
 # V7 TODO
 
+## R13.1 Drawing And Semantic Annotation Foundation — Spec Drafted, Human Review Pending
+
+- [x] reserve `asset` for tradable instruments and choose Drawing/Annotation
+  terminology for the new foundation;
+- [x] separate immutable geometry, generic drawings, typed semantic artifacts,
+  declarative projections, and adapter-local render primitives;
+- [x] define FVG/OB/Breaker/BSL/EQL as semantic artifacts rather than line or
+  rectangle subtypes;
+- [x] retain one removable Annotation Document writer and the existing sole
+  Chart visual writer;
+- [x] bind market-coordinate persistence, Replay/no-future provenance,
+  revision-checked transactions, undo/redo, and plugin type registration;
+- [x] record official Lightweight Charts Primitive, Rectangle, and Trend Line
+  references without adopting their examples as V7 domain state;
+- [ ] receive explicit human approval of ADR-V7-001 terminology, ownership,
+  semantic composition, and delivery order;
+- [ ] after approval, allocate R13.2 for the pure Geometry contract; do not
+  begin UI, persistence, FVG, OB, or automatic detection in R13.1.
+
+Binding proposal:
+`docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`.
+
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
 - [x] accept the current standalone ES/NQ minute-replay product as a complete,

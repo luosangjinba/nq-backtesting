@@ -790,6 +790,17 @@ coordinate through a workflow module, but they cannot receive private owner
 state or bypass public commands. Workflow modules orchestrate; they do not
 become alternate state owners.
 
+ADR-V7-001 proposes the first detailed semantic-drawing boundary in
+`V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. It separates
+market-coordinate `DrawingGeometry`, generic `DrawingEntity`, typed
+`SemanticArtifact`, declarative `ArtifactProjection`, and adapter-local
+`RenderPrimitive`. One removable Annotation Runtime remains the sole writer of
+its document; the existing Chart Runtime/Adapter remains the sole visual
+writer. FVG, OB, Breaker, BSL, and EQL are semantic artifacts which may produce
+several projections, not subclasses or string labels of line/rectangle
+geometry. The proposal is not active production scope until its human gate is
+accepted.
+
 The kernel must remain small: Session identity, Replay truth, Bar Data access,
 projection transactions, Chart application, Viewport intent, module lifecycle,
 and public contract/version infrastructure. Speculative feature engines are not

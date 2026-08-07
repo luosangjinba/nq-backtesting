@@ -1,6 +1,6 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule (R12.8 implementation, cloud rerun open, 2026-08-07)
+Status: binding delivery rule (R13.1 specification review, 2026-08-07)
 
 ## Delivery IDs
 
@@ -20,14 +20,14 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current repository-changing delivery step is `R12.8`, the capability-aware
-Data Acquisition and Replay error-presentation correction from second
-acceptance. R12.1–R12.7 retain their committed implementation and open host gates.
-R11.1 remains the automatically
+The current repository-changing delivery step is `R13.1`, the proposed Drawing
+and Semantic Annotation foundation recorded as ADR-V7-001. It is a spec-only
+step with human review pending and authorizes no production implementation.
+The V7.0.0 foundation milestone is accepted; R12.1–R12.8 retain their committed
+implementation and non-blocking host follow-up. R11.1 remains the automatically
 closed cross-runtime architecture-integrity recovery; R12 does not reopen it.
 R8 remains closed at R8.16 commit `364c6b27`; R9.1–R9.4 and R10.1–R10.10 retain their
-recorded implementation and human-review states, and the phase-one overall
-checklist and H087/H088/H091 remain open. R11.1 is one recovery commit with
+recorded implementation and follow-up states. R11.1 is one recovery commit with
 inseparable W1–W8 workstreams; those workstream labels are not delivery IDs.
 H092 records the automatically accepted staged-discard safety invariant for
 R12.1. H093 records the standalone V7 runtime invariant for R12.2. H094 records
@@ -42,6 +42,9 @@ for R12.7. Broad `R<n>` headings remain milestones only.
 H099 records exact health-only importer composition, honest read-only Market
 Data fallback, unavailable Maintenance-control removal, and internal Replay
 error-code translation for R12.8.
+ADR-V7-001 records the R13.1 terminology, owner, persistence, projection,
+no-future, and implementation-order proposal; no H id is allocated until the
+spec is accepted and an executable invariant is activated.
 
 ## Other Stable IDs
 

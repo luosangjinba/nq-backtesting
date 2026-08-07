@@ -87,6 +87,12 @@ The seconds/tick memo additionally records the current decision that minute-
 sourced V7 remains valid without simulated-live training, defines the three-
 of-four investigation signals, and keeps every future seconds path behind the
 existing Bar Data/Replay/Chart owners.
+The proposed post-milestone foundation is
+`V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
+market-coordinate geometry, generic drawings, typed semantic artifacts,
+declarative projections, and adapter-local render primitives; it treats
+FVG/OB/Breaker/BSL/EQL as semantic artifacts rather than geometry subtypes. It
+authorizes no implementation until its human decision gate is accepted.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
@@ -198,7 +204,10 @@ Read in this order before V7 implementation work:
     non-binding context only
 97. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-98. `../TODO.md`
+98. `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` as the proposed
+    post-milestone architecture decision; read before any drawing or semantic
+    annotation implementation
+99. `../TODO.md`
 
 The numbered order above is for implementation work. Ordinary users should use
 the user/operator entry points instead of reading the architecture history.
