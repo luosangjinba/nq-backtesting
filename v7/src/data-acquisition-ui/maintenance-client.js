@@ -53,11 +53,11 @@ export function createMaintenanceClient(options = {}) {
       timeoutMs,
     );
     try {
-      const response = await fetchImpl(`${apiBase}/v4/data_maintenance/run`, {
+      const response = await fetchImpl(`${apiBase}/v7/maintenance/run`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-V4-Maintenance-Request': MAINTENANCE_HEADER,
+          'X-V7-Maintenance-Request': MAINTENANCE_HEADER,
         },
         body: JSON.stringify(payload),
         signal: requestController.signal,
@@ -99,7 +99,7 @@ export function createMaintenanceClient(options = {}) {
     const end = shiftWallMinute(latestTimestamp, 1);
     const start = shiftWallMinute(latestTimestamp, -29);
     const query = new URLSearchParams({ instrument, start, end, tf: '1' });
-    const response = await fetchImpl(`${apiBase}/v4/bars?${query}`, { signal });
+    const response = await fetchImpl(`${apiBase}/v7/market-data/bars?${query}`, { signal });
     const data = await parseJsonResponse(response);
     if (!response.ok || !Array.isArray(data.bars) || data.bars.length === 0) {
       throw new Error(data.error || 'V7 feed verification returned no bars.');

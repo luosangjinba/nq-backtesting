@@ -17,12 +17,12 @@
     }
   ],
   "runtimeDependencies": {
-    "v4ReadApi": {
+    "v7MarketData": {
       "baseUrl": "http://127.0.0.1:8766",
-      "healthPath": "/v4/health",
+      "healthPath": "/v7/market-data/health",
       "requiredRevisionField": "datasetRevision",
-      "startEntry": "v4/read_api.py",
-      "databaseEnvironmentVariable": "V4_TRADING_DB"
+      "startEntry": "v7/server/market_data_api.py",
+      "databaseEnvironmentVariable": "V7_MARKET_DATA_DB"
     }
   },
   "executionPolicy": {

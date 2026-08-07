@@ -19,7 +19,7 @@ function fieldsEpoch(parts) {
   );
 }
 
-/** Convert one real instant to the exchange-wall fields accepted by V4 bars. */
+/** Convert one real instant to the exchange-wall fields accepted by V7 market data. */
 export function formatExchangeWallMinute(epochMs) {
   if (!Number.isSafeInteger(epochMs) || epochMs < 0) {
     throw new TypeError('Exchange-wall request time must be a non-negative epoch millisecond.');
@@ -29,13 +29,13 @@ export function formatExchangeWallMinute(epochMs) {
 }
 
 /**
- * Convert V4's UTC-like epoch encoding of exchange wall-clock fields back to a
+ * Convert the API's UTC-like epoch encoding of exchange wall-clock fields back to a
  * real instant. The source is timezone-naive, so DST fall-back ambiguity keeps
  * the Intl-selected occurrence rather than inventing unavailable provenance.
  */
 export function exchangeWallSecondsToInstantMs(value) {
   if (!Number.isSafeInteger(value) || value < 0) {
-    throw new TypeError('V4 bar timestamp must be a non-negative epoch second.');
+    throw new TypeError('Market-data timestamp must be a non-negative epoch second.');
   }
   const wallEpochMs = value * 1_000;
   if (new Date(wallEpochMs).getUTCFullYear() >= 2007) {
@@ -48,7 +48,7 @@ export function exchangeWallSecondsToInstantMs(value) {
     if (correctionMs === 0) return instantEpochMs;
   }
   if (fieldsEpoch(partsAt(instantEpochMs)) !== wallEpochMs) {
-    throw new TypeError('V4 bar timestamp is not a valid New York exchange-wall time.');
+    throw new TypeError('Market-data timestamp is not a valid New York exchange-wall time.');
   }
   return instantEpochMs;
 }

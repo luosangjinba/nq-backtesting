@@ -93,7 +93,7 @@ const coreOwnerPaths = [
   'src/projection-domain',
   'src/replay-runtime',
   'src/replay-workspace-ui',
-  'src/v4-bars-provider-adapter',
+  'src/market-data-provider-adapter',
   'src/workspace-transaction-runtime',
 ];
 const coreOwnerSources = coreOwnerPaths.flatMap((relativePath) => {

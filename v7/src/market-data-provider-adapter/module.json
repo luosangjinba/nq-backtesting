@@ -1,9 +1,9 @@
 {
-  "id": "adapter.v4-bars-provider",
+  "id": "adapter.market-data-provider",
   "version": "1.0.0",
   "kind": "adapter",
   "owner": "bar-data-runtime",
-  "publicEntry": "src/v4-bars-provider-adapter/public.js",
+  "publicEntry": "src/market-data-provider-adapter/public.js",
   "requiredPorts": [
     "core.bar-data-contract",
     "core.coverage-planning-contract",
@@ -13,6 +13,6 @@
   ],
   "optionalPorts": [],
   "lifecycle": ["dispose"],
-  "independentHarness": "tests/v4-bars-provider-adapter-harness.js",
+  "independentHarness": "tests/market-data-provider-adapter-harness.js",
   "removable": false
 }

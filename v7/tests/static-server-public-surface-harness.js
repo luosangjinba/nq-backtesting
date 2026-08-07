@@ -49,7 +49,7 @@ try {
     '/v7/docs/V7_ARCHITECTURE.md',
     '/v7/server/state_store.py',
     '/v7/tests/static-server-public-surface-harness.js',
-    '/v4/v4_api.py',
+    '/v7/server/market_data_api.py',
     '/.git',
     '/v7/app/%2e%2e%2fdocs%2fV7_ARCHITECTURE.md',
     '/v7/src/%2e%2e%2fserver%2fstate_store.py',

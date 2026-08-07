@@ -2,6 +2,12 @@
 
 Status: controlled refresh complete, awaiting human interaction and visual review
 
+Runtime note (R12.2): this document preserves the historical R7.3 writer
+contract and evidence. Standalone V7 no longer packages or calls that V4
+service. Databento/Contract Roll remains disabled until a separately governed
+V7-native maintenance service exists; current read/deploy ownership is binding
+in `V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md`.
+
 ## Product boundary
 
 R7.3 closes the market-data acquisition prerequisite for the phase-one

@@ -36,6 +36,10 @@ transaction, cache, state-sync, deployment, public-server, or production-gate
 boundary. Its automated closure evidence is
 `../sessions/session_20260806_r11_1_architecture_integrity_recovery.md`; the
 real-host and visual gates listed there remain open.
+The current standalone runtime boundary is
+`V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md`: V7 releases contain only `v7/`,
+read market data through `/v7/market-data/*`, and treat DuckDB as external
+compatible data rather than an older-version runtime dependency.
 None closes the ongoing phase-one overall acceptance pass. Read those before the normal
 implementation reading order below. The deferred
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and
@@ -146,11 +150,12 @@ Read in this order before V7 implementation work:
 91. `V7_SERVER_STATE_SYNC_R10_8.md`
 92. `V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`
 93. `V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md`
-94. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
+94. `V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md`
+95. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-95. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
+96. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-96. `../TODO.md`
+97. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.

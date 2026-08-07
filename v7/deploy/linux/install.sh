@@ -14,7 +14,7 @@ Usage:
   bash v7/deploy/linux/install.sh --dry-run --db /absolute/path/trading_data.duckdb [options]
   sudo bash v7/deploy/linux/install.sh --apply --yes --db /absolute/path/trading_data.duckdb [options]
 
-Default mode is private: V4 and V7 listen on loopback and are reached through
+Default mode is private: V7 services listen on loopback and are reached through
 an SSH tunnel. Add --domain for a Caddy-managed HTTPS endpoint.
 
 Required:
@@ -54,7 +54,7 @@ Authenticated public deployments allow bounded user-state PUT only under
 /v7/state/*. --bootstrap additionally allows the one-time database importer
 under /v7/database/* until the first database is activated. Every other POST,
 PUT, PATCH, and DELETE returns HTTP 403. Data Acquisition/Contract Roll remains
-a separate gate; the V4 query service never receives database-write authority.
+a separate gate; the V7 market-data service never receives database-write authority.
 USAGE
 }
 
@@ -381,9 +381,30 @@ port_is_listening() {
 
 require_managed_or_free_port() {
   local port="$1"
-  local unit="$2"
-  if port_is_listening "$port" && ! systemctl is-active --quiet "$unit"; then
-    die "127.0.0.1:$port is already used outside $unit; stop the legacy listener before apply"
+  shift
+  local unit=""
+  if ! port_is_listening "$port"; then
+    return 0
+  fi
+  for unit in "$@"; do
+    if systemctl is-active --quiet "$unit"; then
+      return 0
+    fi
+  done
+  die "127.0.0.1:$port is already used outside managed units: $*; stop the unknown listener before apply"
+}
+
+retire_legacy_market_data_unit() {
+  local legacy_unit="replay-lab-api.service"
+  local legacy_path="/etc/systemd/system/$legacy_unit"
+  if sudo_cmd systemctl is-active --quiet "$legacy_unit"; then
+    run_step sudo_cmd systemctl stop "$legacy_unit"
+  fi
+  if sudo_cmd systemctl is-enabled --quiet "$legacy_unit" 2>/dev/null; then
+    run_step sudo_cmd systemctl disable "$legacy_unit"
+  fi
+  if sudo_cmd test -e "$legacy_path" || sudo_cmd test -L "$legacy_path"; then
+    run_step sudo_cmd unlink "$legacy_path"
   fi
 }
 
@@ -445,6 +466,7 @@ verify_restored_service_health() {
       failed=1
     fi
   done <<'HEALTH_CONTRACTS'
+replay-lab-market-data.service	http://127.0.0.1:8766/v7/market-data/health
 replay-lab-api.service	http://127.0.0.1:8766/v4/health
 replay-lab-state.service	http://127.0.0.1:8767/v7/state/health
 replay-lab-database-import.service	http://127.0.0.1:8768/v7/database/health
@@ -779,7 +801,7 @@ venv_dir="$release_dir/.venv"
 venv_python="$venv_dir/bin/python"
 node_bin="$(command -v node || printf '/usr/bin/node')"
 template_root="$repo_root/v7/deploy/linux"
-api_template="$template_root/systemd/replay-lab-api.service.template"
+market_data_template="$template_root/systemd/replay-lab-market-data.service.template"
 web_template="$template_root/systemd/replay-lab-web.service.template"
 state_template="$template_root/systemd/replay-lab-state.service.template"
 database_import_template="$template_root/systemd/replay-lab-database-import.service.template"
@@ -794,6 +816,7 @@ rollback_failure_context=""
 cleanup_tmp_dir=1
 active_units_before_path=""
 deployment_units=(
+  replay-lab-market-data.service
   replay-lab-api.service
   replay-lab-state.service
   replay-lab-database-import.service
@@ -814,10 +837,13 @@ mutation_block=$'\n  # Data Acquisition and market-data mutation remain blocked.
 state_sync_user=""
 database_import_user=""
 
-for required_file in "$api_template" "$web_template" "$state_template" \
+for required_file in "$market_data_template" "$web_template" "$state_template" \
   "$database_import_template" "$caddy_template" \
-  "$runtime_requirements" "$repo_root/v4/read_api.py" \
-  "$repo_root/v4/server/market_data_read_handler.py" "$repo_root/v4/v4_api.py" \
+  "$runtime_requirements" "$repo_root/v7/server/market_data_api.py" \
+  "$repo_root/v7/server/market_data_read_handler.py" \
+  "$repo_root/v7/server/market_data_queries.py" \
+  "$repo_root/v7/server/market_data_revision.py" \
+  "$repo_root/v7/server/market_data_economic_calendar.py" \
   "$repo_root/v7/scripts/serve.mjs" \
   "$script_dir/lib/host-transaction.sh" \
   "$repo_root/v7/server/state_api.py" "$repo_root/v7/server/state_store.py" \
@@ -842,7 +868,7 @@ cleanup_installer_tmp() {
 }
 trap cleanup_installer_tmp EXIT
 active_units_before_path="$tmp_dir/active-units-before"
-rendered_api="$tmp_dir/replay-lab-api.service"
+rendered_market_data="$tmp_dir/replay-lab-market-data.service"
 rendered_web="$tmp_dir/replay-lab-web.service"
 rendered_caddy="$tmp_dir/Caddyfile"
 
@@ -881,7 +907,7 @@ else
   fi
 fi
 
-render_template "$api_template" "$rendered_api"
+render_template "$market_data_template" "$rendered_market_data"
 render_template "$web_template" "$rendered_web"
 rendered_state="$tmp_dir/replay-lab-state.service"
 render_template "$state_template" "$rendered_state"
@@ -917,7 +943,7 @@ fi
 
 printf '\nRendered systemd service summary\n'
 printf '%s\n' '--------------------------------'
-grep -E '^(User|Group|WorkingDirectory|EnvironmentFile|ExecStart|ReadOnlyPaths)=' "$rendered_api"
+grep -E '^(User|Group|WorkingDirectory|EnvironmentFile|ExecStart|ReadOnlyPaths)=' "$rendered_market_data"
 grep -E '^(User|Group|WorkingDirectory|ExecStart|ReadOnlyPaths)=' "$rendered_web"
 grep -E '^(User|Group|WorkingDirectory|EnvironmentFile|ExecStart|ReadWritePaths|ReadOnlyPaths)=' "$rendered_state"
 grep -E '^(User|Group|WorkingDirectory|EnvironmentFile|ExecStart|ReadWritePaths|ReadOnlyPaths)=' "$rendered_database_import"
@@ -934,7 +960,8 @@ printf 'Runtime package request: %s (%s)\n' "${base_packages[*]}" "$package_mana
 printf 'Create immutable release: %s\n' "$release_dir"
 printf 'Create release virtualenv: %s\n' "$venv_dir"
 printf 'Write: /etc/replay-lab/replay-lab.env\n'
-printf 'Write: /etc/systemd/system/replay-lab-api.service\n'
+printf 'Write: /etc/systemd/system/replay-lab-market-data.service\n'
+printf 'Retire after staging: /etc/systemd/system/replay-lab-api.service (legacy)\n'
 printf 'Write: /etc/systemd/system/replay-lab-web.service\n'
 printf 'Write: /etc/systemd/system/replay-lab-state.service\n'
 printf 'Write: /etc/systemd/system/replay-lab-database-import.service\n'
@@ -947,7 +974,7 @@ if [[ -n "$public_host" ]]; then
   fi
 fi
 printf 'Market database bootstrap: %s\n' "$([[ "$bootstrap" -eq 1 ]] && printf 'strict first-run import' || printf disabled)"
-printf 'Market database copy/write by V4 API: never\n'
+printf 'Market database copy/write by V7 market-data service: never\n'
 printf 'Market database service mount: read-only\n'
 printf 'User state SQLite: %s/state/replay-lab-state.sqlite3 (service-user writable)\n' "$state_root"
 printf 'Database import staging: %s/database-import (service-user writable)\n' "$state_root"
@@ -961,7 +988,7 @@ if [[ "${EUID:-$(id -u)}" -ne 0 ]] && ! command -v sudo >/dev/null 2>&1; then
   die "sudo is required for --apply when not running as root"
 fi
 command -v systemctl >/dev/null 2>&1 || die "systemd is required for --apply"
-require_managed_or_free_port 8766 replay-lab-api.service
+require_managed_or_free_port 8766 replay-lab-market-data.service replay-lab-api.service
 require_managed_or_free_port 8007 replay-lab-web.service
 require_managed_or_free_port 8767 replay-lab-state.service
 require_managed_or_free_port 8768 replay-lab-database-import.service
@@ -985,7 +1012,7 @@ fi
 if [[ -n "$auth_user" && -n "$auth_hash" ]]; then
   auth_block=$'\n  '"$auth_directive"$' {\n    '"$auth_user $auth_hash"$'\n  }'
 fi
-render_template "$api_template" "$rendered_api"
+render_template "$market_data_template" "$rendered_market_data"
 render_template "$web_template" "$rendered_web"
 render_template "$state_template" "$rendered_state"
 render_template "$caddy_template" "$rendered_caddy"
@@ -1003,6 +1030,7 @@ fi
 release_was_absent=1
 host_transaction_paths=(
   /etc/replay-lab/replay-lab.env
+  /etc/systemd/system/replay-lab-market-data.service
   /etc/systemd/system/replay-lab-api.service
   /etc/systemd/system/replay-lab-web.service
   /etc/systemd/system/replay-lab-state.service
@@ -1043,7 +1071,7 @@ if [[ "$bootstrap" -eq 1 ]]; then
 fi
 
 archive_path="$tmp_dir/release.tar"
-run_step repo_git archive --format=tar --output="$archive_path" "$repository_commit"
+run_step repo_git archive --format=tar --output="$archive_path" "$repository_commit" v7
 run_step sudo_cmd install -d -m 0755 "$release_dir"
 run_step sudo_cmd tar -xf "$archive_path" -C "$release_dir"
 run_step sudo_cmd npm ci --omit=dev --no-audit --no-fund --prefix "$release_dir/v7"
@@ -1073,10 +1101,10 @@ env_file="$tmp_dir/replay-lab.env"
 {
   printf 'HOME=%s\n' "$state_root"
   printf 'PYTHONUNBUFFERED=1\n'
-  printf 'V4_API_HOST=127.0.0.1\n'
-  printf 'V4_API_PORT=8766\n'
-  printf 'V4_TRADING_DB=%s\n' "$db_path"
-  printf 'V4_MARKET_DATA_BACKUP_DIR=%s/backups/market-data\n' "$state_root"
+  printf 'V7_MARKET_DATA_HOST=127.0.0.1\n'
+  printf 'V7_MARKET_DATA_PORT=8766\n'
+  printf 'V7_MARKET_DATA_DB=%s\n' "$db_path"
+  printf 'V7_MARKET_DATA_TABLE=futures_1m\n'
   printf 'V7_STATE_HOST=127.0.0.1\n'
   printf 'V7_STATE_PORT=8767\n'
   printf 'V7_STATE_DB=%s/state/replay-lab-state.sqlite3\n' "$state_root"
@@ -1088,16 +1116,12 @@ env_file="$tmp_dir/replay-lab.env"
   printf 'REPLAY_LAB_STATE_USER=%s\n' "$state_sync_user"
   printf 'REPLAY_LAB_DATABASE_IMPORT_API_ORIGIN=http://127.0.0.1:8768\n'
   printf 'REPLAY_LAB_DATABASE_IMPORT_USER=%s\n' "$database_import_user"
-  if [[ -n "$public_host" ]]; then
-    printf 'V4_ALLOWED_WEB_ORIGINS=https://%s\n' "$public_host"
-  else
-    printf 'V4_ALLOWED_WEB_ORIGINS=http://127.0.0.1:8007,http://localhost:8007\n'
-  fi
 } > "$env_file"
 
 run_step sudo_cmd install -d -m 0755 /etc/replay-lab /etc/systemd/system
 run_step sudo_cmd install -m 0600 "$env_file" /etc/replay-lab/replay-lab.env
-run_step sudo_cmd install -m 0644 "$rendered_api" /etc/systemd/system/replay-lab-api.service
+run_step sudo_cmd install -m 0644 "$rendered_market_data" \
+  /etc/systemd/system/replay-lab-market-data.service
 run_step sudo_cmd install -m 0644 "$rendered_web" /etc/systemd/system/replay-lab-web.service
 run_step sudo_cmd install -m 0644 "$rendered_state" /etc/systemd/system/replay-lab-state.service
 run_step sudo_cmd install -m 0644 "$rendered_database_import" /etc/systemd/system/replay-lab-database-import.service
@@ -1152,10 +1176,11 @@ if [[ -n "$public_host" ]]; then
   fi
 fi
 
+retire_legacy_market_data_unit
 run_step sudo_cmd systemctl daemon-reload
-run_step sudo_cmd systemctl enable replay-lab-api.service replay-lab-state.service \
+run_step sudo_cmd systemctl enable replay-lab-market-data.service replay-lab-state.service \
   replay-lab-database-import.service replay-lab-web.service
-if ! sudo_cmd systemctl restart replay-lab-api.service replay-lab-state.service \
+if ! sudo_cmd systemctl restart replay-lab-market-data.service replay-lab-state.service \
   replay-lab-database-import.service replay-lab-web.service; then
   if [[ -n "$public_host" ]]; then
     restore_caddy_configuration
@@ -1163,11 +1188,11 @@ if ! sudo_cmd systemctl restart replay-lab-api.service replay-lab-state.service 
   rollback_after_failure "application-service-restart-failed"
   die "Replay Lab services failed to restart"
 fi
-if ! wait_for_url http://127.0.0.1:8766/v4/health \
+if ! wait_for_url http://127.0.0.1:8766/v7/market-data/health \
   || ! wait_for_url http://127.0.0.1:8767/v7/state/health \
   || ! wait_for_url http://127.0.0.1:8768/v7/database/health \
   || ! wait_for_url http://127.0.0.1:8007/v7/app/; then
-  sudo_cmd journalctl -u replay-lab-api.service -u replay-lab-state.service \
+  sudo_cmd journalctl -u replay-lab-market-data.service -u replay-lab-state.service \
     -u replay-lab-database-import.service -u replay-lab-web.service -n 80 --no-pager || true
   if [[ -n "$public_host" ]]; then
     restore_caddy_configuration
@@ -1194,7 +1219,7 @@ trap - ERR
 
 printf '\nHealth result\n'
 printf '%s\n' '-------------'
-ok "http://127.0.0.1:8766/v4/health"
+ok "http://127.0.0.1:8766/v7/market-data/health"
 ok "http://127.0.0.1:8767/v7/state/health"
 ok "http://127.0.0.1:8768/v7/database/health"
 ok "http://127.0.0.1:8007/v7/app/"
@@ -1217,8 +1242,8 @@ fi
 
 printf '\nOperations\n'
 printf '%s\n' '----------'
-printf 'sudo systemctl status replay-lab-api replay-lab-state replay-lab-database-import replay-lab-web%s\n' "$([[ -n "$public_host" ]] && printf ' caddy' || true)"
-printf 'sudo journalctl -u replay-lab-api -u replay-lab-state -u replay-lab-database-import -u replay-lab-web -f\n'
+printf 'sudo systemctl status replay-lab-market-data replay-lab-state replay-lab-database-import replay-lab-web%s\n' "$([[ -n "$public_host" ]] && printf ' caddy' || true)"
+printf 'sudo journalctl -u replay-lab-market-data -u replay-lab-state -u replay-lab-database-import -u replay-lab-web -f\n'
 printf 'Active release: %s\n' "$release_dir"
 printf 'Previous release: %s\n' "${previous_release:-none}"
 if [[ "$bootstrap" -eq 1 ]]; then

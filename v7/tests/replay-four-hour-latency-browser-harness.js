@@ -174,7 +174,7 @@ try {
       const root = document.querySelector('.replay-workspace');
       const activeVisibleRevision = Number(activeHost.dataset.visibleRevision);
       const revision = Number(root.dataset.workspaceRevision);
-      const fetchCount = globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length;
+      const fetchCount = globalThis.__fetchUrls.filter((url) => url.includes('/v7/market-data/bars?')).length;
       const startedAt = performance.now();
       return new Promise((resolve, reject) => {
         let activeVisibleMs = null;
@@ -210,7 +210,7 @@ try {
       return {
         applyMs: Math.max(...hosts.map((host) => Number(host.dataset.lastApplyMs))),
         barCounts: hosts.map((host) => Number(host.dataset.barCount)),
-        fetchCount: globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length,
+        fetchCount: globalThis.__fetchUrls.filter((url) => url.includes('/v7/market-data/bars?')).length,
         mutationModes: [...new Set(hosts.map((host) => host.dataset.lastMutationMode))],
         mutationMs: Math.max(...hosts.map((host) => Number(host.dataset.lastMutationMs))),
         paintMs: Math.max(...hosts.map((host) => Number(host.dataset.lastPaintMs))),

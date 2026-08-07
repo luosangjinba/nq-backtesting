@@ -8,18 +8,18 @@ const API_CHUNK_DURATION_MS = 7 * 24 * 60 * MINUTE;
 const API_TRANSPORT_CONCURRENCY = 2;
 const MAXIMUM_LOGICAL_REQUEST_MINUTES = 210 * 24 * 60;
 const DATASET_REVISION_MAX_AGE_MS = 1;
-const V4_SOURCE_RESOLUTION_ID = 'resolution.fixed-1-minute';
-export const V4_BARS_PROVIDER_ID = 'provider.local-v4-bars';
-const V4_INSTRUMENT_CODES = Object.freeze({
+const MARKET_DATA_SOURCE_RESOLUTION_ID = 'resolution.fixed-1-minute';
+export const MARKET_DATA_PROVIDER_ID = 'provider.local-market-data';
+const MARKET_DATA_INSTRUMENT_CODES = Object.freeze({
   'instrument.cme.es': 'ES',
   'instrument.cme.nq': 'NQ',
 });
 
-export function resolveV4InstrumentCode(instrumentId) {
-  return V4_INSTRUMENT_CODES[instrumentId] ?? null;
+export function resolveMarketDataInstrumentCode(instrumentId) {
+  return MARKET_DATA_INSTRUMENT_CODES[instrumentId] ?? null;
 }
 
-export function resolveV4BarsApiBase(locationLike = globalThis.location) {
+export function resolveMarketDataApiBase(locationLike = globalThis.location) {
   const hostname = locationLike?.hostname || '127.0.0.1';
   if (hostname !== '127.0.0.1' && hostname !== 'localhost') return '';
   return `${locationLike?.protocol === 'https:' ? 'https:' : 'http:'}//${hostname}:8766`;
@@ -33,11 +33,11 @@ function requestUrl(request, apiBase) {
   const parameters = new URLSearchParams({
     datasetRevision: request.datasetRevision,
     end: formatExchangeWallMinute(inclusiveEndEpochMs),
-    instrument: resolveV4InstrumentCode(request.instrumentId),
+    instrument: resolveMarketDataInstrumentCode(request.instrumentId),
     start: formatExchangeWallMinute(request.windowStartEpochMs),
     tf: '1',
   });
-  return `${apiBase}/v4/bars?${parameters}`;
+  return `${apiBase}/v7/market-data/bars?${parameters}`;
 }
 
 function failure(kind, message, retryAfterMs = null) {
@@ -45,7 +45,7 @@ function failure(kind, message, retryAfterMs = null) {
 }
 
 function httpFailure(response, payload) {
-  const message = payload?.error || `V4 bars API HTTP ${response.status}`;
+  const message = payload?.error || `Market data API HTTP ${response.status}`;
   if (response.status === 429) return failure('rate-limited', message);
   if (response.status === 401 || response.status === 403) return failure('authorization', message);
   if (response.status === 409) return failure('revision-mismatch', message);
@@ -55,10 +55,10 @@ function httpFailure(response, payload) {
 
 function normalizeBars(payload, request) {
   if (!payload || !Array.isArray(payload.bars)) {
-    throw failure('invalid-response', 'V4 bars response must contain a bars array.');
+    throw failure('invalid-response', 'Market data response must contain a bars array.');
   }
   if (payload.datasetRevision !== request.datasetRevision) {
-    throw failure('revision-mismatch', 'V4 bars response dataset revision differs from its request.');
+    throw failure('revision-mismatch', 'Market data response dataset revision differs from its request.');
   }
   const bars = [];
   for (const bar of payload.bars) {
@@ -102,7 +102,7 @@ function createTransportQueue(limit = API_TRANSPORT_CONCURRENCY) {
     while (active < limit && queued.length > 0) {
       const entry = queued.shift();
       if (entry.signal?.aborted) {
-        entry.reject(failure('unavailable', 'V4 bars request was aborted.'));
+        entry.reject(failure('unavailable', 'Market data request was aborted.'));
         continue;
       }
       active += 1;
@@ -118,27 +118,27 @@ function createTransportQueue(limit = API_TRANSPORT_CONCURRENCY) {
   });
 }
 
-export function createV4BarsAdapter({
-  apiBase = resolveV4BarsApiBase(),
+export function createMarketDataAdapter({
+  apiBase = resolveMarketDataApiBase(),
   fetchImpl = globalThis.fetch,
 } = {}) {
-  if (typeof fetchImpl !== 'function') throw new TypeError('V4 bars adapter requires fetch.');
+  if (typeof fetchImpl !== 'function') throw new TypeError('Market data adapter requires fetch.');
   const transport = createTransportQueue();
   return Object.freeze({
-    providerId: V4_BARS_PROVIDER_ID,
+    providerId: MARKET_DATA_PROVIDER_ID,
     async resolveDatasetRevision(scope, { signal } = {}) {
-      if (scope?.providerId !== V4_BARS_PROVIDER_ID
-        || resolveV4InstrumentCode(scope?.instrumentId) === null
-        || scope?.sourceResolutionId !== V4_SOURCE_RESOLUTION_ID) {
-        throw failure('unsupported', 'V4 bars adapter does not support this revision scope.');
+      if (scope?.providerId !== MARKET_DATA_PROVIDER_ID
+        || resolveMarketDataInstrumentCode(scope?.instrumentId) === null
+        || scope?.sourceResolutionId !== MARKET_DATA_SOURCE_RESOLUTION_ID) {
+        throw failure('unsupported', 'Market data adapter does not support this revision scope.');
       }
       let response;
       try {
-        response = await fetchImpl(`${apiBase}/v4/health`, {
+        response = await fetchImpl(`${apiBase}/v7/market-data/health`, {
           headers: { Accept: 'application/json' }, signal,
         });
       } catch (error) {
-        throw failure('unavailable', error?.message || 'V4 bars API is unavailable.');
+        throw failure('unavailable', error?.message || 'Market data API is unavailable.');
       }
       const payload = await response.json().catch(() => null);
       if (!response.ok) throw httpFailure(response, payload);
@@ -146,20 +146,20 @@ export function createV4BarsAdapter({
         || typeof payload.datasetRevision !== 'string'
         || payload.datasetRevision.length === 0
         || payload.datasetRevision.trim() !== payload.datasetRevision) {
-        throw failure('unavailable', 'V4 market database is not ready.');
+        throw failure('unavailable', 'Market database is not ready.');
       }
       return payload.datasetRevision;
     },
     async requestRawBars(requestValue, { signal } = {}) {
       const request = createRawBarRequest(requestValue);
-      if (request.providerId !== V4_BARS_PROVIDER_ID) {
-        throw failure('unsupported', 'V4 bars adapter does not support this provider identity.');
+      if (request.providerId !== MARKET_DATA_PROVIDER_ID) {
+        throw failure('unsupported', 'Market data adapter does not support this provider identity.');
       }
-      if (resolveV4InstrumentCode(request.instrumentId) === null) {
-        throw failure('unsupported', 'V4 bars adapter does not support this instrument identity.');
+      if (resolveMarketDataInstrumentCode(request.instrumentId) === null) {
+        throw failure('unsupported', 'Market data adapter does not support this instrument identity.');
       }
-      if (request.sourceResolutionId !== V4_SOURCE_RESOLUTION_ID) {
-        throw failure('unsupported', 'V4 bars adapter supports only one-minute source bars.');
+      if (request.sourceResolutionId !== MARKET_DATA_SOURCE_RESOLUTION_ID) {
+        throw failure('unsupported', 'Market data adapter supports only one-minute source bars.');
       }
       const chunks = chunkRequests(request);
       const chunkBars = await Promise.all(chunks.map((chunk) => transport(async () => {
@@ -169,7 +169,7 @@ export function createV4BarsAdapter({
             headers: { Accept: 'application/json' }, signal,
           });
         } catch (error) {
-          throw failure('unavailable', error?.message || 'V4 bars API is unavailable.');
+          throw failure('unavailable', error?.message || 'Market data API is unavailable.');
         }
         const payload = await response.json().catch(() => null);
         if (!response.ok) throw httpFailure(response, payload);
@@ -195,12 +195,12 @@ export function createV4BarsAdapter({
   });
 }
 
-export function createV4BarsProvider(options = {}) {
+export function createMarketDataProvider(options = {}) {
   return createPolicyBoundProvider({
-    adapter: createV4BarsAdapter(options),
+    adapter: createMarketDataAdapter(options),
     policy: {
       schemaVersion: 1,
-      providerId: V4_BARS_PROVIDER_ID,
+      providerId: MARKET_DATA_PROVIDER_ID,
       revision: { mode: 'discover', maxAgeMs: DATASET_REVISION_MAX_AGE_MS },
       requestLimits: {
         maxBarsPerRequest: MAXIMUM_LOGICAL_REQUEST_MINUTES,

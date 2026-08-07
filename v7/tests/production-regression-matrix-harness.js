@@ -43,7 +43,7 @@ for (const testCase of negative.cases) {
   } else if (testCase.operation === 'mark-accepted') {
     invalid.status = 'accepted';
   } else if (testCase.operation === 'remove-runtime-dependency') {
-    delete invalid.runtimeDependencies.v4ReadApi;
+    delete invalid.runtimeDependencies.v7MarketData;
   } else {
     assert.fail(`unknown production matrix negative operation ${testCase.operation}`);
   }
@@ -53,10 +53,10 @@ for (const testCase of negative.cases) {
 }
 
 const repositoryRoot = path.resolve(V7_ROOT, '..');
-const runtimeDependency = model.runtimeDependencies.v4ReadApi;
-let lastV4HealthDiagnostic = 'not checked';
+const runtimeDependency = model.runtimeDependencies.v7MarketData;
+let lastMarketDataHealthDiagnostic = 'not checked';
 
-async function v4Health() {
+async function marketDataHealth() {
   try {
     const response = await fetch(`${runtimeDependency.baseUrl}${runtimeDependency.healthPath}`, {
       signal: AbortSignal.timeout(2_000),
@@ -65,46 +65,46 @@ async function v4Health() {
     const healthy = payload?.databaseReady === true
       && typeof payload?.[runtimeDependency.requiredRevisionField] === 'string'
       && payload[runtimeDependency.requiredRevisionField].length > 0;
-    lastV4HealthDiagnostic = JSON.stringify({ healthy, status: response.status, payload });
+    lastMarketDataHealthDiagnostic = JSON.stringify({ healthy, status: response.status, payload });
     return healthy;
   } catch (error) {
     const cause = error?.cause;
-    lastV4HealthDiagnostic = `${error?.name ?? 'Error'}: ${error?.message ?? String(error)}`
+    lastMarketDataHealthDiagnostic = `${error?.name ?? 'Error'}: ${error?.message ?? String(error)}`
       + (cause ? `; cause=${cause?.code ?? cause?.name ?? 'Error'}:${cause?.message ?? String(cause)}` : '');
     return false;
   }
 }
 
-async function waitForV4(child) {
+async function waitForMarketData(child) {
   const deadline = Date.now() + 20_000;
   while (Date.now() < deadline) {
-    if (await v4Health()) return;
-    if (child.exitCode !== null) throw new Error(`V4 read API exited with ${child.exitCode}.`);
+    if (await marketDataHealth()) return;
+    if (child.exitCode !== null) throw new Error(`V7 market-data service exited with ${child.exitCode}.`);
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
-  throw new Error('Timed out waiting for the V4 read API datasetRevision health contract.');
+  throw new Error('Timed out waiting for the V7 market-data datasetRevision health contract.');
 }
 
-async function ensureV4ReadApi() {
+async function ensureMarketDataService() {
   const existingDeadline = Date.now() + 5_000;
   while (Date.now() < existingDeadline) {
-    if (await v4Health()) return null;
+    if (await marketDataHealth()) return null;
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
   const databasePath = process.env[runtimeDependency.databaseEnvironmentVariable]
-    ?? path.join(repositoryRoot, 'v4/data/trading_data.duckdb');
+    ?? '/srv/replay-lab-data/trading_data.duckdb';
   assert.ok(fs.existsSync(databasePath),
     `Set ${runtimeDependency.databaseEnvironmentVariable} to a readable acceptance DuckDB. `
-      + `Existing V4 health: ${lastV4HealthDiagnostic}`);
+      + `Existing V7 market-data health: ${lastMarketDataHealthDiagnostic}`);
   const child = spawn(process.env.PYTHON ?? 'python3', [
     path.join(repositoryRoot, runtimeDependency.startEntry),
   ], {
     cwd: repositoryRoot,
     env: {
       ...process.env,
-      V4_API_HOST: '127.0.0.1',
-      V4_API_PORT: '8766',
-      V4_TRADING_DB: path.resolve(databasePath),
+      V7_MARKET_DATA_HOST: '127.0.0.1',
+      V7_MARKET_DATA_PORT: '8766',
+      V7_MARKET_DATA_DB: path.resolve(databasePath),
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
@@ -112,7 +112,7 @@ async function ensureV4ReadApi() {
   child.stdout.on('data', (chunk) => { startupOutput += String(chunk); });
   child.stderr.on('data', (chunk) => { startupOutput += String(chunk); });
   try {
-    await waitForV4(child);
+    await waitForMarketData(child);
   } catch (error) {
     child.kill('SIGTERM');
     throw new Error(`${error.message}\n${startupOutput}`);
@@ -151,7 +151,7 @@ function runScenario(scenario, timeoutMs = 240_000) {
 }
 
 const knownFailures = new Map((model.knownFailures ?? []).map((known) => [known.scenarioId, known]));
-const ownedV4 = await ensureV4ReadApi();
+const ownedMarketData = await ensureMarketDataService();
 try {
   for (const scenario of model.scenarios) {
     console.log(`running scenario: ${scenario.id}`);
@@ -172,10 +172,10 @@ try {
     }
   }
 } finally {
-  if (ownedV4 !== null) {
-    ownedV4.kill('SIGTERM');
+  if (ownedMarketData !== null) {
+    ownedMarketData.kill('SIGTERM');
     await Promise.race([
-      new Promise((resolve) => ownedV4.once('exit', resolve)),
+      new Promise((resolve) => ownedMarketData.once('exit', resolve)),
       new Promise((resolve) => setTimeout(resolve, 5_000)),
     ]);
   }

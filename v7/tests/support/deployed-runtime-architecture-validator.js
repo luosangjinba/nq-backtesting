@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const SERVICE_KINDS = new Set(['read-only-service', 'service']);
 const ROUTE_ACTIVATIONS = new Set(['always', 'authenticated', 'authenticated-bootstrap']);
+const SMOKE_RUNTIMES = new Set(['node', 'python']);
 const READ_ONLY_SMOKE_CAPABILITIES = Object.freeze([
   'dataset-revision',
   'read-only-boundary',
@@ -87,8 +88,15 @@ function proxyRouteKey(route) {
 /** Validate the complete deployed-runtime ownership, topology, and writer closure. */
 export function validateDeployedRuntimeArchitecture(model, repositoryRoot) {
   const violations = [];
-  if (model?.schemaVersion !== 2 || model?.status !== 'r11-recovery') {
+  if (model?.schemaVersion !== 2 || model?.status !== 'standalone-v7') {
     violations.push(violation('DEPLOYED_RUNTIME_HEADER_INVALID', 'manifest'));
+  }
+  const releaseContract = model?.releaseContract;
+  if (!equalStringSets(values(releaseContract?.repositoryArchiveRoots), ['v7'])
+    || releaseContract?.marketDatabase?.delivery !== 'external-file'
+    || releaseContract?.marketDatabase?.environmentVariable !== 'V7_MARKET_DATA_DB'
+    || releaseContract?.marketDatabase?.releaseContainsDatabase !== false) {
+    violations.push(violation('DEPLOYED_RUNTIME_RELEASE_CONTRACT_INVALID', 'releaseContract'));
   }
   const components = values(model?.components);
   const byId = new Map();
@@ -332,7 +340,7 @@ export function validateDeployedRuntimeArchitecture(model, repositoryRoot) {
     const subject = `${smoke?.component ?? 'missing'}:${smoke?.capability ?? 'missing'}`;
     const component = byId.get(smoke?.component);
     if (!component || component.kind !== 'read-only-service'
-      || smoke.runtime !== 'python'
+      || !SMOKE_RUNTIMES.has(smoke.runtime)
       || typeof smoke.path !== 'string'
       || !values(component.independentHarnesses).includes(smoke.path)
       || !fs.existsSync(path.join(repositoryRoot, smoke.path))

@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-06 after R11.1 automated architecture-integrity closure
+Last updated: 2026-08-06 during R12.2 standalone V7 runtime separation
 
 ## Current Overall Acceptance State
 
@@ -21,6 +21,28 @@ cross-runtime topology/writer evidence. Repository recovery may close from
 automated evidence while the separately marked real-host, cross-device, and
 visual human gates remain executable and phase-one acceptance stays open.
 
+R12.1 added the bounded re-upload recovery after clean-host acceptance exposed
+that a retained upload could be recovered but not discarded without host/API
+commands. Database Bootstrap now owns an inline `Upload another file`
+confirmation, while the importer alone owns authenticated staged-source and
+candidate cleanup. Stable unactivated tasks may be discarded; validation in
+progress and every post-activation state remain blocked. The authoritative
+DuckDB and durable activation lock are never discard targets. Automated
+service/client/real-browser evidence is implemented, H092 is accepted, and the
+new confirmation has an exact visual fixture; the current lightweight host
+still needs the committed release deployed and its retained large-file workflow
+reviewed.
+
+R12.2 is the current repository-changing delivery. It removes the remaining
+production dependency on V4: browser market-data URLs and provider identity,
+Python read service, environment variables, systemd unit, Caddy route, release
+archive, deployed-runtime manifest, and regression startup all become V7-owned.
+The external DuckDB schema/path remains compatible data rather than executable
+legacy code. Existing hosts migrate the old unit inside the rollback-protected
+host transaction; clean releases contain only `v7/`. The historical
+Databento/Contract Roll writer is not moved into the read service and remains
+visibly disabled until a separate V7-native writer exists.
+
 R10.1 adds a parallel Linux acceptance-host installer at
 `v7/deploy/linux/install.sh`. It is implemented with automated dry-run/config
 evidence but has not yet passed its real lightweight-cloud-host gate. Its
@@ -30,9 +52,10 @@ findings open: a small Pane Workspace fixture delta and a Replay Workspace
 render with candle wicks but missing filled bodies. R11.1 refreshed only the
 architecture/source evidence baselines; no visual baseline was updated. Both
 visual findings remain part of overall acceptance rather than R10.1 production
-changes. The R11.1 sweep also retains the Session date-picker pixel drift, so
-the current full-suite inventory has three visual gates and zero unexpected
-functional/architecture failure.
+changes. The R11.1 sweep also retains the Session date-picker pixel drift. The
+integrated R12.2 run executes all 95 top-level Harnesses: 92 pass, and only
+those same three visual gates fail, with zero unexpected functional or
+architecture failure.
 
 The first Alibaba Linux apply stopped before host mutation on a NodeSource/
 distribution npm conflict and exposed an unmanaged V4 listener on 8766. R10.2
@@ -115,6 +138,14 @@ Authenticated Caddy exposes only
 and existing-database regression evidence passes; representative large-file
 clean-host CSV/DuckDB review remains open.
 
+The first real DuckDB host run then proved the recovery gap: the large upload
+survived a failed Validate/redeploy as designed, but selecting it again hit the
+single-candidate lock and required shell diagnostics. R12.1 closes that UX gap
+without turning Bootstrap into a database editor. A recovered uploaded/ready/
+failed task locks direct file selection and exposes Cancel or confirmed
+discard; confirmation clears only staging, focuses the picker, and permits the
+next upload. `DATABASE_IMPORT_BUSY` now recovers the retained task visibly.
+
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
 required for normal startup.
@@ -170,7 +201,9 @@ handoff was committed.
 - branch: `v7/rebuild`
 - immutable R11 pre-remediation checkpoint: `6a101270`
 - recovery state: R11.1 automated architecture recovery is complete and
-  inactive; normal-delivery scope is active, phase-one overall acceptance
+  inactive; R12.2 standalone V7 runtime separation is the current
+  normal-delivery step, while R12.1 Database Bootstrap re-upload retains its
+  host visual/large-file review; phase-one overall acceptance
   remains open, H087/H088/H091 retain human review, R9.4 retains focused
   human review, R10.8 automated state sync is implemented with physical two-
   computer/backup-restore validation open, and R10.9 automated database
@@ -368,29 +401,30 @@ listed above.
 
 1. repository `AGENTS.md`;
 2. this file;
-3. `docs/V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md`;
-4. `docs/V7_PRODUCTION_ARCHITECTURE_ANALYZER_R8_2.md`;
-5. `docs/v7-production-architecture-baseline.json`;
-6. `docs/V7_DESCRIPTOR_LIFECYCLE_INDEPENDENT_HARNESS_REPAIR_R8_3.md`;
-7. `docs/V7_RAW_COVERAGE_LEASE_CONTRACT_R8_4.md`;
-8. `docs/V7_SOLE_BAR_DATA_RETENTION_OWNER_R8_5.md`;
-9. `docs/V7_SOLE_WORKSPACE_STATE_OWNER_R8_6.md`;
-10. `docs/V7_PREPARED_COMMIT_CONTRACT_R8_7.md`;
-11. `docs/V7_REVERSIBLE_CHART_APPLICATION_R8_8.md`;
-12. `docs/V7_GLOBAL_ATOMIC_WORKSPACE_TRANSACTION_R8_9.md`;
-13. `docs/V7_UI_COMPOSITION_SPLIT_R8_10.md`;
-14. `docs/V7_PRODUCTION_MODULE_HOST_BOOT_R8_11.md`;
-15. `docs/V7_SOURCE_AND_DOCUMENTATION_CLOSURE_R8_12.md`;
-16. `docs/V7_CALENDAR_CAPABILITY_RTH_LOCATE_REDERIVATION_R8_13.md`;
-17. `docs/V7_FULL_PRODUCTION_REGRESSION_MATRIX_R8_14.md`;
-18. `docs/V7_HUMAN_ACCEPTANCE_ZERO_DEBT_CLOSURE_R8_15.md`;
-19. `docs/V7_SERVER_STATE_SYNC_R10_8.md`;
-20. `docs/INDEX.md`;
-21. `TODO.md`;
-22. `docs/V7_ARCHITECTURE.md`;
-23. `docs/V7_HARNESS_STANDARD.md`;
-24. `docs/V7_EXECUTION_ROADMAP.md`;
-25. only the documents directly relevant to the explicitly selected next step.
+3. `docs/V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md`;
+4. `docs/V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md`;
+5. `docs/V7_PRODUCTION_ARCHITECTURE_ANALYZER_R8_2.md`;
+6. `docs/v7-production-architecture-baseline.json`;
+7. `docs/V7_DESCRIPTOR_LIFECYCLE_INDEPENDENT_HARNESS_REPAIR_R8_3.md`;
+8. `docs/V7_RAW_COVERAGE_LEASE_CONTRACT_R8_4.md`;
+9. `docs/V7_SOLE_BAR_DATA_RETENTION_OWNER_R8_5.md`;
+10. `docs/V7_SOLE_WORKSPACE_STATE_OWNER_R8_6.md`;
+11. `docs/V7_PREPARED_COMMIT_CONTRACT_R8_7.md`;
+12. `docs/V7_REVERSIBLE_CHART_APPLICATION_R8_8.md`;
+13. `docs/V7_GLOBAL_ATOMIC_WORKSPACE_TRANSACTION_R8_9.md`;
+14. `docs/V7_UI_COMPOSITION_SPLIT_R8_10.md`;
+15. `docs/V7_PRODUCTION_MODULE_HOST_BOOT_R8_11.md`;
+16. `docs/V7_SOURCE_AND_DOCUMENTATION_CLOSURE_R8_12.md`;
+17. `docs/V7_CALENDAR_CAPABILITY_RTH_LOCATE_REDERIVATION_R8_13.md`;
+18. `docs/V7_FULL_PRODUCTION_REGRESSION_MATRIX_R8_14.md`;
+19. `docs/V7_HUMAN_ACCEPTANCE_ZERO_DEBT_CLOSURE_R8_15.md`;
+20. `docs/V7_SERVER_STATE_SYNC_R10_8.md`;
+21. `docs/INDEX.md`;
+22. `TODO.md`;
+23. `docs/V7_ARCHITECTURE.md`;
+24. `docs/V7_HARNESS_STANDARD.md`;
+25. `docs/V7_EXECUTION_ROADMAP.md`;
+26. only the documents directly relevant to the explicitly selected next step.
 
 Do not resume from the historical status narrative alone. The R11.1 closure
 record and machine-readable inactive recovery state override earlier statements
@@ -817,14 +851,15 @@ There is still no production-complete CME holiday dataset or Date-range sync.
 The registered day/week/month policy uses the current weekly ETH/RTH calendar
 and real source gaps; it does not imply holiday completeness. Active Layout
 Sync is intentionally limited to Symbol, Interval, and Crosshair.
-V7 now uses real local V4/DuckDB NQ history, but this does not imply complete
+V7 now uses real local DuckDB NQ history, but this does not imply complete
 exchange-calendar or tick-level coverage.
 
 ## Verification After Restart
 
-The machine-local `v4/.env.local` currently binds `V4_TRADING_DB` to the
-authoritative database path above. From the repository root, first confirm the
-durable checkout and database without starting services:
+The authoritative database may remain at its historical filesystem path; that
+is external data compatibility and does not reintroduce a V4 runtime. From the
+repository root, first confirm the durable checkout and database without
+starting services:
 
 ```bash
 git branch --show-current
@@ -850,11 +885,12 @@ Expected results:
 - `git status --short` is empty;
 - ES reports 6,494,880 rows and NQ reports 6,167,407 rows.
 
-Then start the two required services in separate terminals:
+Then start the two required V7 services in separate terminals:
 
 ```bash
 cd /home/leo/myworkspace/trading/backtesting-v7
-bash v4/start.sh restart
+V7_MARKET_DATA_DB=/home/leo/myworkspace/trading/backtesting/v4/data/trading_data.duckdb \
+  python3 v7/server/market_data_api.py
 ```
 
 ```bash
@@ -862,20 +898,20 @@ cd /home/leo/myworkspace/trading/backtesting-v7
 node v7/scripts/serve.mjs 8007
 ```
 
-`v4/start.sh restart` loads `v4/.env.local`, starts only the API on port 8766,
-and returns. The V7 command owns its terminal while the static server is
-running. The V4 API is required for the real chart; if it is unavailable, V7
-shows Chart unavailable and does not substitute fake bars.
+Both commands own their terminals while running. The V7 market-data service is
+required for the real chart; if it is unavailable, V7 shows Chart unavailable
+and does not substitute fake bars.
 
 After a service restart verify both endpoints:
 
 ```bash
-curl -s http://127.0.0.1:8766/v4/health
+curl -s http://127.0.0.1:8766/v7/market-data/health
 curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 ```
 
-Expected: V4 health returns JSON with `"status":"ok"`, and V7 returns HTTP
-`200`. Do not rerun either historical repair manifest during ordinary restart;
+Expected: V7 market-data health returns JSON with `"status":"ok"` and
+`"version":"7.0"`, and Web returns HTTP `200`. Do not rerun either historical
+repair manifest during ordinary restart;
 both guarded writes are already committed and verified.
 
 Installing dependencies or running the complete Harness suite is not required
@@ -899,7 +935,7 @@ same Session/Workspace checkpoint, exercise conflict and Offline retry, and
 prove state SQLite backup/restore plus an unchanged market-database fingerprint.
 For R10.9, use a separate clean target with `--bootstrap`, execute one realistic
 CSV conversion and one direct DuckDB upload on disposable hosts, then prove
-activation, V4/V7 read behavior, restart persistence, and permanent importer
+activation, V7 market-data/Session read behavior, restart persistence, and permanent importer
 lock without opening 8768 publicly.
 Record resource/latency/restart/rollback evidence. R8 recovery remains human
 accepted and inactive; R11 repository recovery is also inactive. H087 requires

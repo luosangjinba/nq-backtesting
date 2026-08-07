@@ -6,7 +6,7 @@
   "publicEntry": "src/replay-workspace-composition/public.js",
   "requiredPorts": [
     "adapter.lightweight-chart",
-    "adapter.v4-bars-provider",
+    "adapter.market-data-provider",
     "core.bar-data-contract",
     "core.bar-data-runtime",
     "core.calendar-timeframe-domain",

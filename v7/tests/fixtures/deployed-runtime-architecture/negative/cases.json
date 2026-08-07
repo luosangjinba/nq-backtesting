@@ -51,8 +51,8 @@
       "expectedFailureCode": "DEPLOYED_RUNTIME_READ_ONLY_WRITER_SURFACE",
       "mutation": {
         "operation": "append",
-        "path": ["components", { "id": "service.v4-market-data-read" }, "writerSurfaces"],
-        "value": "legacyWorkspace"
+        "path": ["components", { "id": "service.v7-market-data" }, "writerSurfaces"],
+        "value": "userStateSqlite"
       }
     },
     {
@@ -78,8 +78,8 @@
       "expectedFailureCode": "DEPLOYED_RUNTIME_SYSTEMD_EXEC_ENTRY_MISMATCH",
       "mutation": {
         "operation": "set",
-        "path": ["components", { "id": "service.v4-market-data-read" }, "entry"],
-        "value": "v4/server/market_data_read_handler.py"
+        "path": ["components", { "id": "service.v7-market-data" }, "entry"],
+        "value": "v7/server/market_data_read_handler.py"
       }
     },
     {
@@ -96,7 +96,7 @@
       "expectedFailureCode": "DEPLOYED_RUNTIME_PROXY_ROUTE_TARGET_ENDPOINT_MISMATCH",
       "mutation": {
         "operation": "set",
-        "path": ["proxyRoutes", { "id": "caddy.v4-market-data" }, "targetEndpoint"],
+        "path": ["proxyRoutes", { "id": "caddy.v7-market-data" }, "targetEndpoint"],
         "value": "127.0.0.1:9876"
       }
     },
@@ -125,6 +125,15 @@
         "operation": "removeObject",
         "path": ["crossRuntimeSmokes"],
         "match": { "capability": "dataset-revision" }
+      }
+    },
+    {
+      "id": "release-archive-includes-legacy-root",
+      "expectedFailureCode": "DEPLOYED_RUNTIME_RELEASE_CONTRACT_INVALID",
+      "mutation": {
+        "operation": "append",
+        "path": ["releaseContract", "repositoryArchiveRoots"],
+        "value": "legacy"
       }
     }
   ]

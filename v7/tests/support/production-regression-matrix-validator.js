@@ -28,19 +28,18 @@ export function validateProductionRegressionMatrix(model, { pathExists = () => t
   const policy = model?.executionPolicy ?? {};
   const requiredAxes = values(policy.requiredAxes);
   const allowedKinds = new Set(values(policy.allowedExecutionKinds));
-  const v4Dependency = model?.runtimeDependencies?.v4ReadApi;
+  const marketDataDependency = model?.runtimeDependencies?.v7MarketData;
 
   if (model?.schemaVersion !== 1
     || !['executable', 'known-failures', 'accepted'].includes(model?.status)) {
     violations.push(violation('PRODUCTION_MATRIX_HEADER_INVALID'));
   }
-  if (typeof v4Dependency?.baseUrl !== 'string'
-    || v4Dependency.baseUrl !== 'http://127.0.0.1:8766'
-    || typeof v4Dependency?.healthPath !== 'string'
-    || v4Dependency.requiredRevisionField !== 'datasetRevision'
-    || typeof v4Dependency?.startEntry !== 'string'
-    || !pathExists(`../${v4Dependency.startEntry}`)
-    || v4Dependency.databaseEnvironmentVariable !== 'V4_TRADING_DB') {
+  if (marketDataDependency?.baseUrl !== 'http://127.0.0.1:8766'
+    || marketDataDependency?.healthPath !== '/v7/market-data/health'
+    || marketDataDependency?.requiredRevisionField !== 'datasetRevision'
+    || marketDataDependency?.startEntry !== 'v7/server/market_data_api.py'
+    || !pathExists(`../${marketDataDependency.startEntry}`)
+    || marketDataDependency?.databaseEnvironmentVariable !== 'V7_MARKET_DATA_DB') {
     violations.push(violation('PRODUCTION_MATRIX_RUNTIME_DEPENDENCY_INVALID'));
   }
   if (model?.status === 'accepted'

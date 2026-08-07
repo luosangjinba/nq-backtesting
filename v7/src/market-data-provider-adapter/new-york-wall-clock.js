@@ -43,7 +43,7 @@ export function newYorkWallEpochToInstantMs(wallEpochMs) {
   const profile = profileFor(wallEpochMs);
   if (wallEpochMs >= profile.nonexistentWallStartEpochMs
     && wallEpochMs < profile.daylightStartWallEpochMs) {
-    throw new TypeError('V4 bar timestamp is not a valid New York exchange-wall time.');
+    throw new TypeError('Market-data timestamp is not a valid New York exchange-wall time.');
   }
   const offsetMs = wallEpochMs >= profile.daylightStartWallEpochMs
     && wallEpochMs < profile.daylightEndWallEpochMs ? 4 * HOUR : 5 * HOUR;

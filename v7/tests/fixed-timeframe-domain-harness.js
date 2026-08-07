@@ -15,7 +15,7 @@ import {
   resolveFixedBucketStart,
 } from '../src/fixed-timeframe-domain/public.js';
 import { projectPaneSnapshot } from '../src/projection-domain/public.js';
-import { toNewYorkWallEpoch } from '../src/v4-bars-provider-adapter/public.js';
+import { toNewYorkWallEpoch } from '../src/market-data-provider-adapter/public.js';
 import { createReplayAdvanceInput, createReplayCursorProposal } from '../src/replay-contract/public.js';
 import { createFoundationCapabilities, FOUNDATION_IDS } from '../src/replay-workspace-composition/public.js';
 import { createSessionId } from '../src/session-identity/public.js';

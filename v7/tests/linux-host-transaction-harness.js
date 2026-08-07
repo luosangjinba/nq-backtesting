@@ -182,6 +182,83 @@ if verify_restored_service_health; then exit 9; fi
   assert.equal(healthFailure.status, 0, healthFailure.stderr);
   assert.match(healthFailure.stderr, /replay-lab-state\.service/);
   assert.match(healthFailure.stderr, /127\.0\.0\.1:8767\/v7\/state\/health/);
+
+  fs.writeFileSync(activeUnits, [
+    'replay-lab-market-data.service',
+    'replay-lab-api.service',
+    '',
+  ].join('\n'));
+  const migratedHealthFailure = spawnSync('bash', ['-c', `
+set -Eeuo pipefail
+warn() { printf 'WARN: %s\\n' "$*" >&2; }
+wait_for_url() { return 1; }
+active_units_before_path="$1"
+${healthVerifier}
+if verify_restored_service_health; then exit 9; fi
+`, 'bash', activeUnits], { encoding: 'utf8' });
+  assert.equal(migratedHealthFailure.status, 0, migratedHealthFailure.stderr);
+  assert.match(migratedHealthFailure.stderr,
+    /replay-lab-market-data\.service \(http:\/\/127\.0\.0\.1:8766\/v7\/market-data\/health\)/);
+  assert.match(migratedHealthFailure.stderr,
+    /replay-lab-api\.service \(http:\/\/127\.0\.0\.1:8766\/v4\/health\)/);
+
+  const retirement = installerSource.match(
+    /^retire_legacy_market_data_unit\(\) \{[\s\S]*?^\}/m,
+  )?.[0];
+  assert.ok(retirement, 'legacy market-data retirement must remain independently inspectable');
+  const retirementCalls = path.join(temporaryDirectory, 'legacy-retirement-calls');
+  const retirementProbe = spawnSync('bash', ['-c', `
+set -Eeuo pipefail
+calls="$1"
+sudo_cmd() {
+  if [[ "$1" == "systemctl" ]]; then
+    case "$2" in
+      is-active|is-enabled) return 0 ;;
+      stop|disable) printf '%s\\n' "$2 $3" >> "$calls"; return 0 ;;
+    esac
+  fi
+  if [[ "$1" == "test" ]]; then return 1; fi
+  "$@"
+}
+run_step() { "$@"; }
+${retirement}
+retire_legacy_market_data_unit
+`, 'bash', retirementCalls], { encoding: 'utf8' });
+  assert.equal(retirementProbe.status, 0, retirementProbe.stderr);
+  assert.deepEqual(fs.readFileSync(retirementCalls, 'utf8').trim().split('\n'), [
+    'stop replay-lab-api.service',
+    'disable replay-lab-api.service',
+  ]);
+
+  assert.match(installerSource,
+    /host_transaction_paths=\([\s\S]*replay-lab-market-data\.service[\s\S]*replay-lab-api\.service/,
+    'host rollback must capture both the new and retired unit files');
+  assert.match(installerSource,
+    /deployment_units=\([\s\S]*replay-lab-market-data\.service[\s\S]*replay-lab-api\.service/,
+    'host rollback must capture both active and enabled unit states');
+  const currentSwitchIndex = installerSource.indexOf(
+    'mv -Tf "$install_root/current.next" "$current_release"',
+  );
+  const retirementIndex = installerSource.indexOf('retire_legacy_market_data_unit\n');
+  const daemonReloadIndex = installerSource.indexOf(
+    'run_step sudo_cmd systemctl daemon-reload', retirementIndex,
+  );
+  assert.ok(currentSwitchIndex >= 0
+    && retirementIndex > currentSwitchIndex
+    && daemonReloadIndex > retirementIndex,
+  'legacy unit retirement must occur after the release is staged and before the new unit starts');
+  const rollback = installerSource.match(/^rollback_release\(\) \{[\s\S]*?^\}/m)?.[0];
+  assert.ok(rollback, 'release rollback must remain independently inspectable');
+  assert.ok(
+    rollback.indexOf('mv -Tf "$install_root/current.rollback" "$current_release"')
+      < rollback.indexOf('replay_lab_host_transaction_restore'),
+    'rollback must restore the V4-capable previous release before restoring and restarting its unit',
+  );
+  assert.ok(
+    rollback.indexOf('replay_lab_host_transaction_restore')
+      < rollback.indexOf('restore_active_unit_states'),
+    'rollback must restore the legacy unit file and enablement before restoring its active state',
+  );
 } finally {
   fs.rmSync(temporaryDirectory, { recursive: true, force: true });
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "currentStep": "R11.1",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15", "R8.16", "R9", "R9.1", "R9.2", "R9.3", "R9.4", "R10", "R10.1", "R10.2", "R10.3", "R10.4", "R10.5", "R10.6", "R10.7", "R10.8", "R10.9", "R10.10", "R11", "R11.1"],
+  "currentStep": "R12.2",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15", "R8.16", "R9", "R9.1", "R9.2", "R9.3", "R9.4", "R10", "R10.1", "R10.2", "R10.3", "R10.4", "R10.5", "R10.6", "R10.7", "R10.8", "R10.9", "R10.10", "R11", "R11.1", "R12", "R12.1", "R12.2"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
     "active": false,
@@ -909,22 +909,22 @@
     },
     {
       "id": "H046",
-      "name": "real-v4-bars-no-synthetic-production-fallback",
+      "name": "real-market-data-no-synthetic-production-fallback",
       "owner": "bar-data-runtime",
       "v6FailurePrevented": "a visually plausible synthetic feed reached chart review while real local OHLC and transport failures remained hidden",
       "activationStep": "R5.6",
       "state": "accepted",
-      "harness": "tests/v4-bars-provider-adapter-harness.js",
+      "harness": "tests/market-data-provider-adapter-harness.js",
       "positiveEvidence": [
-        "src/v4-bars-provider-adapter/public.js",
-        "src/v4-bars-provider-adapter/module.json",
-        "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
-        "src/v4-bars-provider-adapter/new-york-wall-clock.js",
-        "src/v4-bars-provider-adapter/time-codec.js",
-        "tests/v4-bars-provider-adapter-harness.js",
+        "src/market-data-provider-adapter/public.js",
+        "src/market-data-provider-adapter/module.json",
+        "src/market-data-provider-adapter/market-data-provider-adapter.js",
+        "src/market-data-provider-adapter/new-york-wall-clock.js",
+        "src/market-data-provider-adapter/time-codec.js",
+        "tests/market-data-provider-adapter-harness.js",
         "docs/V7_REAL_V4_BARS_PROVIDER.md"
       ],
-      "negativeFixtures": ["tests/fixtures/v4-bars-provider-adapter/negative/cases.json"],
+      "negativeFixtures": ["tests/fixtures/market-data-provider-adapter/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": "sessions/session_20260721_r5_6m_fifth_review_acceptance.md"
     },
@@ -1131,20 +1131,20 @@
       "state": "accepted",
       "harness": "tests/lightweight-chart-adapter-browser-harness.js",
       "positiveEvidence": [
-        "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+        "src/market-data-provider-adapter/market-data-provider-adapter.js",
         "src/lightweight-chart-adapter/visible-state-rollback.js",
         "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
         "src/lightweight-chart-adapter/pane-set-adapter.js",
         "src/chart-snapshot-application/prepared-chart-application.js",
         "src/replay-workspace-ui/pane-grid-view.js",
-        "tests/v4-bars-provider-adapter-harness.js",
+        "tests/market-data-provider-adapter-harness.js",
         "tests/pane-set-materialization-harness.js",
         "tests/lightweight-chart-adapter-browser-harness.js",
         "docs/V7_CHART_SNAPSHOT_APPLICATION.md",
         "docs/V7_REVERSIBLE_CHART_APPLICATION_R8_8.md"
       ],
       "negativeFixtures": [
-        "tests/fixtures/v4-bars-provider-adapter/negative/cases.json",
+        "tests/fixtures/market-data-provider-adapter/negative/cases.json",
         "tests/fixtures/lightweight-chart-adapter/negative/crosshair-cases.json",
         "tests/fixtures/chart-snapshot-application/negative/reversible-cases.json"
       ],
@@ -1844,7 +1844,7 @@
         "sessions/session_20260805_r10_3_linux_public_ipv4_quick_deploy.md",
         "deploy/linux/install.sh",
         "deploy/linux/deploy-public-ip.sh",
-        "deploy/linux/systemd/replay-lab-api.service.template",
+        "deploy/linux/systemd/replay-lab-market-data.service.template",
         "deploy/linux/systemd/replay-lab-web.service.template",
         "deploy/linux/caddy/Caddyfile.template",
         "tests/linux-deployment-script-harness.js"
@@ -1884,14 +1884,14 @@
       "v6FailurePrevented": "immutable cache labels allowed bars from different DuckDB activations to coexist under one provider identity",
       "activationStep": "R11.1",
       "state": "accepted",
-      "harness": "tests/v4-bars-provider-adapter-harness.js",
+      "harness": "tests/market-data-provider-adapter-harness.js",
       "positiveEvidence": [
-        "../v4/server/market_data_revision.py",
-        "../v4/tests/dataset-revision-cache-smoke.py",
+        "server/market_data_revision.py",
+        "tests/market-data-service-harness.js",
         "src/provider-execution-runtime/revision-cache.js",
-        "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+        "src/market-data-provider-adapter/market-data-provider-adapter.js",
         "tests/provider-execution-runtime-harness.js",
-        "tests/v4-bars-provider-adapter-harness.js"
+        "tests/market-data-provider-adapter-harness.js"
       ],
       "negativeFixtures": [
         "tests/fixtures/market-dataset-revision/negative/cases.json"
@@ -1965,15 +1965,15 @@
       "id": "H089",
       "name": "deployed-cross-runtime-owner-topology",
       "owner": "architecture-governance",
-      "v6FailurePrevented": "browser-only architecture evidence excluded Node, Python, V4, deployment, and their persistent writers",
+      "v6FailurePrevented": "browser-only architecture evidence excluded Node, Python, deployment services, and their persistent writers",
       "activationStep": "R11.1",
       "state": "accepted",
       "harness": "tests/deployed-runtime-architecture-harness.js",
       "positiveEvidence": [
         "docs/v7-deployed-runtime-manifest.json",
-        "../v4/read_api.py",
-        "../v4/server/market_data_read_handler.py",
-        "../v4/scripts/read_api_deployment_smoke.py",
+        "server/market_data_api.py",
+        "server/market_data_read_handler.py",
+        "tests/market-data-service-harness.js",
         "tests/support/deployed-runtime-architecture-validator.js",
         "tests/deployed-runtime-architecture-harness.js"
       ],
@@ -2021,6 +2021,53 @@
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
+    },
+    {
+      "id": "H092",
+      "name": "database-bootstrap-staged-discard-safety",
+      "owner": "service.v7-database-import",
+      "v6FailurePrevented": "re-upload recovery could race candidate validation or delete the authoritative DuckDB and durable activation lock instead of only the authenticated staging task",
+      "activationStep": "R12.1",
+      "state": "accepted",
+      "harness": "tests/database-import-service-harness.js",
+      "positiveEvidence": [
+        "docs/V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md",
+        "server/database_import_api.py",
+        "server/database_import_store.py",
+        "tests/database-import-service-harness.js",
+        "sessions/session_20260806_r12_1_database_bootstrap_reupload.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/database-import/negative/discard-cases.json"
+      ],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260806_r12_1_database_bootstrap_reupload.md"
+    },
+    {
+      "id": "H093",
+      "name": "standalone-v7-runtime-no-legacy-version-dependency",
+      "owner": "architecture-governance",
+      "v6FailurePrevented": "a nominal V7 release still required an older-version service, route, environment, source tree, or unscoped repository archive to load real market data",
+      "activationStep": "R12.2",
+      "state": "accepted",
+      "harness": "tests/standalone-v7-runtime-harness.js",
+      "positiveEvidence": [
+        "docs/V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md",
+        "docs/v7-deployed-runtime-manifest.json",
+        "server/market_data_api.py",
+        "server/market_data_read_handler.py",
+        "src/market-data-provider-adapter/public.js",
+        "deploy/linux/install.sh",
+        "deploy/linux/systemd/replay-lab-market-data.service.template",
+        "tests/market-data-service-harness.js",
+        "tests/standalone-v7-runtime-harness.js",
+        "sessions/session_20260806_r12_2_standalone_v7_runtime.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/standalone-v7-runtime/negative/cases.json"
+      ],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260806_r12_2_standalone_v7_runtime.md"
     }
   ]
 }

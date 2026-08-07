@@ -1,12 +1,12 @@
 # Replay Lab V7 Linux One-Click Deployment
 
-Status: R10.9 authenticated first-run database bootstrap boundary
+Status: R12.2 standalone V7 runtime with authenticated first-run bootstrap
 
-`install.sh` deploys the current committed V7 tree as an immutable release,
-installs the minimal V4 read runtime and V7 browser dependencies, and creates
+`install.sh` deploys only the current committed V7 tree as an immutable release,
+installs the V7 read-only market-data runtime and browser dependencies, and creates
 four loopback-only systemd services:
 
-- `replay-lab-api.service` on `127.0.0.1:8766`;
+- `replay-lab-market-data.service` on `127.0.0.1:8766`;
 - `replay-lab-state.service` on `127.0.0.1:8767`;
 - `replay-lab-database-import.service` on `127.0.0.1:8768`;
 - `replay-lab-web.service` on `127.0.0.1:8007`.
@@ -14,7 +14,7 @@ four loopback-only systemd services:
 By default an external DuckDB file is required and is never copied, replaced,
 repaired, or made writable by the installer. With explicit `--bootstrap`, the
 target must be absent and the Data Acquisition page can upload a strict CSV or
-DuckDB to create it once. API, Web, and State receive a systemd read-only mount
+DuckDB to create it once. Market Data, Web, and State receive a systemd read-only mount
 of the complete database parent; only the importer receives that parent as
 writable. Authenticated Caddy mode permits only revision-checked V7 user-state
 requests under `/v7/state/*`; it rejects every other mutation unless bootstrap
@@ -42,9 +42,12 @@ It prompts twice for the browser password when no saved password exists. The
 `--preserve-caddy` option retains existing Caddy sites and installs Replay Lab
 as an imported `/etc/caddy/replay-lab.Caddyfile` fragment. Omit it only on a
 dedicated host where replacing the whole Caddyfile is intentional. The
-`--replace-legacy` option stops only command lines positively identified as the
-V4 `v4_api.py`/`read_api.py` process on 8766 or `serve.mjs 8007`; an unknown listener still fails
-closed. Omit that option when no legacy process exists.
+`--replace-legacy` option stops only command lines positively identified as a
+Replay Lab `market_data_api.py`, legacy `v4_api.py`/`read_api.py`, or
+`serve.mjs 8007` process; an unknown listener still fails closed. A managed
+`replay-lab-api.service` is not killed by the wrapper: the installer retires it
+inside the rollback-protected host transaction. Omit the option when no manual
+legacy process exists.
 
 ## Supported Hosts
 
@@ -124,8 +127,11 @@ Then sign in and open
 `ACTIVATE DATABASE`, and activate. CSV must be UTF-8 with the exact header
 `instrument,ts,open,high,low,close,volume`; no field, timezone, instrument,
 type, or duplicate is automatically repaired. After activation the upload
-controls and service lock. Re-run ordinary deployment without `--bootstrap`
-for later code releases.
+controls and service lock. Before activation, use `Upload another file` and its
+button confirmation to discard a retained upload or validated candidate; do
+not remove staging files or invoke the importer from the shell. Validation in
+progress must first finish or recover to a stable state. Re-run ordinary
+deployment without `--bootstrap` for later code releases.
 
 ## Private Deployment (Recommended First Test)
 
@@ -157,7 +163,7 @@ ssh \
 ```
 
 Then open `http://127.0.0.1:8007/v7/app/`. Both forwards are necessary because
-the local-browser compatibility path resolves the V4 API on port `8766`. The
+the local browser resolves the V7 market-data service on port `8766`. The
 web service proxies `/v7/state/*` to the loopback state service as identity
 `local`; bootstrap mode similarly proxies `/v7/database/*`. Ports `8767` and
 `8768` are never forwarded or exposed.
@@ -189,7 +195,7 @@ sudo bash v7/deploy/linux/install.sh \
 ```
 
 Caddy obtains and renews HTTPS certificates and protects the V7 surface,
-`/v4/*`, and user state with the same credentials. The authenticated username
+`/v7/market-data/*`, and user state with the same credentials. The authenticated username
 is the state namespace, so separate configured Basic Auth users do not share a
 snapshot. The installer does not remove the password file. Public access
 without authentication requires the deliberately named
@@ -241,12 +247,18 @@ an unknown listener automatically.
 
 ## Repeat Deployment And Rollback
 
-Each run archives committed `HEAD` into
+Each run archives only the committed `v7/` tree from `HEAD` into
 `/opt/replay-lab/releases/<UTC>-<commit>`, installs exact `package-lock.json`
 dependencies, validates the database as the service user, and atomically moves
 the `/opt/replay-lab/current` symlink. Tracked source changes block apply mode.
 
-If local API/state/import/Web health fails after activation, the script restores the
+On the first decoupled deployment, the host transaction stops, disables, and
+removes the legacy `replay-lab-api.service` only after the new release and proxy
+configuration have been staged and validated. If migration fails, the previous
+release, legacy unit file and enablement, environment, Caddy configuration, and
+active service state are restored before `/v4/health` is checked.
+
+If local market-data/state/import/Web health fails after activation, the script restores the
 prior release symlink, restores the exact previous active/inactive unit set, and
 checks the loopback health endpoint of every previously active application
 service. Old completed releases are intentionally not deleted automatically.
@@ -268,15 +280,20 @@ Manual rollback remains explicit:
 ```bash
 sudo ln -sfn /opt/replay-lab/releases/PREVIOUS /opt/replay-lab/current.next
 sudo mv -Tf /opt/replay-lab/current.next /opt/replay-lab/current
-sudo systemctl restart replay-lab-api replay-lab-state replay-lab-database-import replay-lab-web
+sudo systemctl restart replay-lab-market-data replay-lab-state replay-lab-database-import replay-lab-web
 ```
+
+That manual command applies only between releases which both use the V7
+market-data unit. Do not manually cross the retired V4-unit boundary; use the
+installer's automatic transaction rollback or restore its root-only recovery
+snapshot so unit, environment, Caddy, and release state stay consistent.
 
 ## Operations
 
 ```bash
-sudo systemctl status replay-lab-api replay-lab-state replay-lab-database-import replay-lab-web caddy
-sudo journalctl -u replay-lab-api -u replay-lab-state -u replay-lab-database-import -u replay-lab-web -f
-curl -fsS http://127.0.0.1:8766/v4/health
+sudo systemctl status replay-lab-market-data replay-lab-state replay-lab-database-import replay-lab-web caddy
+sudo journalctl -u replay-lab-market-data -u replay-lab-state -u replay-lab-database-import -u replay-lab-web -f
+curl -fsS http://127.0.0.1:8766/v7/market-data/health
 curl -fsS http://127.0.0.1:8767/v7/state/health
 curl -fsS http://127.0.0.1:8768/v7/database/health
 curl -I http://127.0.0.1:8007/v7/app/

@@ -627,3 +627,50 @@ repository recovery is closed by
 rollback, cross-device synchronization, and the three retained full-sweep
 visual scenarios remain explicit human gates, so repository implementation
 does not close phase-one overall acceptance.
+
+## R12 — Acceptance-Host Usability Recovery
+
+R12 addresses usability findings discovered while executing the open
+lightweight-host acceptance gate. It may improve administrator recovery without
+weakening first-run database authority, public mutation policy, or the closed
+R11 ownership boundaries.
+
+### R12.1 — Database Bootstrap Re-upload Recovery
+
+- add one authenticated command that discards only a stable, unactivated
+  staged source/candidate under the database-import owner;
+- retain an idempotent tombstone, user isolation, validation concurrency guard,
+  and permanent post-activation lock;
+- lock direct file replacement while a retained task exists and expose an
+  inline `Upload another file` confirmation with no shell/API command;
+- recover upload-busy responses into the retained task and prove cancel,
+  discard, second upload, validation, activation, restart, and target
+  non-mutation in service and real-browser Harnesses;
+- accept H092 from executable declarative race/activation-lock controls and
+  retain the visible confirmation as an exact browser fixture.
+
+Gate: automated owner/identity/restart/browser evidence passes; the deployed
+large-file path still requires human memory/disk/time and visual confirmation.
+
+### R12.2 — Standalone V7 Runtime Separation
+
+- replace the browser's versioned provider identity and every active read URL
+  with `adapter.market-data-provider` and `/v7/market-data/*`;
+- move the complete read-only DuckDB HTTP boundary into `v7/server`, retain the
+  external `futures_1m` data contract, and reject every mutation method;
+- ship only `v7/` in immutable releases, start
+  `replay-lab-market-data.service`, and write only `V7_MARKET_DATA_*`
+  configuration;
+- migrate an old enabled/running market-data unit inside the existing host
+  transaction, remove `/v4/*` after success, and restore old release/unit/
+  health state on failure;
+- keep first-run import V7-native and keep the historical Databento/Contract
+  Roll writer visibly disabled until it becomes a separately governed V7
+  service;
+- bind isolated-service, V7-only archive, zero-runtime-coupling, deployed
+  topology, regression-matrix, and complete-suite evidence.
+
+Gate: the same commit boots on an upgraded host and a clean host without any
+V4 source tree, preserves the external DuckDB fingerprint, and passes the
+existing authenticated browser acceptance path. Binding contract:
+`V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md`.

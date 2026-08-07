@@ -6,8 +6,8 @@
 @@DATABASE_PROXY_BLOCK@@
 @@MUTATION_BLOCK@@
 
-  @v4_api path /v4/*
-  reverse_proxy @v4_api 127.0.0.1:8766
+  @market_data path /v7/market-data/*
+  reverse_proxy @market_data 127.0.0.1:8766
 
   reverse_proxy 127.0.0.1:8007
 }

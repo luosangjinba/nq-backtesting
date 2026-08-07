@@ -247,7 +247,7 @@ try {
     === ${warmupRevision + 1}
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
   const restoredWarmupProviderRequestCount = Number(await evaluate(cdp,
-    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`));
+    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v7/market-data/bars?')).length`));
   assert.ok(restoredWarmupProviderRequestCount <= 1,
     'restored workspace warmup may refill at most one evicted primary forward window');
   await evaluate(cdp, `performance.clearResourceTimings()`);
@@ -306,7 +306,7 @@ try {
     adapterMutation: summarizeLatency(cadenceEvidence.adapterMutation),
     adapterPaint: summarizeLatency(cadenceEvidence.adapterPaint),
     providerRequestCount: Number(await evaluate(cdp,
-      `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`)),
+      `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v7/market-data/bars?')).length`)),
   });
   assert.ok(restoredLatency.p95Ms < 100,
     `restored mixed-Pane Next p95 exceeded budget: ${JSON.stringify(restoredLatency)}`);
@@ -328,7 +328,7 @@ try {
       replay: postCadenceState.replayCursorEpochMs,
     })}`);
   const requestsBeforeAutoplay = Number(await evaluate(cdp,
-    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`));
+    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v7/market-data/bars?')).length`));
   await evaluate(cdp, `document.querySelector('.replay-autoplay').click()`);
   await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.replayRevision)
     >= ${postCadenceState.replayRevision + 3}`, 12_000);
@@ -336,7 +336,7 @@ try {
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.replayPlayback === 'paused'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
   assert.equal(Number(await evaluate(cdp,
-    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`)),
+    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v7/market-data/bars?')).length`)),
   requestsBeforeAutoplay, 'restored cache-hit Autoplay must issue zero provider requests');
   const postAutoplayState = await evaluate(cdp, workspaceState);
   await waitFor(cdp, `${persistedWorkspace}?.checkpoint?.cursorEpochMs

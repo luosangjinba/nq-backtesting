@@ -1,7 +1,7 @@
 [Unit]
 Description=Replay Lab V7 static workstation
-After=network-online.target replay-lab-api.service replay-lab-state.service replay-lab-database-import.service
-Wants=network-online.target replay-lab-api.service replay-lab-state.service replay-lab-database-import.service
+After=network-online.target replay-lab-market-data.service replay-lab-state.service replay-lab-database-import.service
+Wants=network-online.target replay-lab-market-data.service replay-lab-state.service replay-lab-database-import.service
 
 [Service]
 Type=simple

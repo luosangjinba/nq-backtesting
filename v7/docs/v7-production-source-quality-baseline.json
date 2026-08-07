@@ -15606,7 +15606,7 @@
         },
         {
           "effectiveLines": 11,
-          "name": "createV4ProjectedHistoryProvider",
+          "name": "createMarketDataProjectedHistoryProvider",
           "reviewedDecompositionException": false
         },
         {
@@ -15641,15 +15641,15 @@
         }
       ],
       "kind": "adapter",
-      "moduleId": "adapter.v4-bars-provider",
+      "moduleId": "adapter.market-data-provider",
       "owner": "bar-data-runtime",
       "ownsContract": false,
-      "path": "src/v4-bars-provider-adapter/projected-history-adapter.js",
+      "path": "src/market-data-provider-adapter/projected-history-adapter.js",
       "publicExports": [
         {
           "documentation": {
             "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "purpose": "expose V7's complete supported local market-data provider contract.",
             "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
             "outputs": "a bounded adapter handle, staged result, or normalized external value.",
             "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
@@ -15657,15 +15657,17 @@
             "errors": "invalid input or external failures throw or reject with stable adapter errors.",
             "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
           },
-          "moduleId": "adapter.v4-bars-provider",
-          "name": "createV4ProjectedHistoryProvider",
+          "moduleId": "adapter.market-data-provider",
+          "name": "createMarketDataProjectedHistoryProvider",
           "semanticMatches": [
-            "bars",
+            "data",
+            "market",
             "provider"
           ],
           "semanticTerms": [
-            "bars",
+            "data",
             "history",
+            "market",
             "projected",
             "provider"
           ]
@@ -15673,7 +15675,7 @@
         {
           "documentation": {
             "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "purpose": "expose V7's complete supported local market-data provider contract.",
             "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
             "outputs": "a bounded adapter handle, staged result, or normalized external value.",
             "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
@@ -15681,15 +15683,17 @@
             "errors": "invalid input or external failures throw or reject with stable adapter errors.",
             "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
           },
-          "moduleId": "adapter.v4-bars-provider",
-          "name": "V4_PROJECTED_HISTORY_PROVIDER_ID",
+          "moduleId": "adapter.market-data-provider",
+          "name": "MARKET_DATA_PROJECTED_HISTORY_PROVIDER_ID",
           "semanticMatches": [
-            "bars",
+            "data",
+            "market",
             "provider"
           ],
           "semanticTerms": [
-            "bars",
+            "data",
             "history",
+            "market",
             "projected",
             "provider"
           ]
@@ -15707,7 +15711,7 @@
         }
       ],
       "sizeException": null,
-      "sourceHash": "603cb69f891f4b35f552b2e1393c0a732a67dd9482983a8394907c7b3f057db2"
+      "sourceHash": "b66be9b32c4577da5291ffca6c263426e422695ed9607aa63853e5e5945827bd"
     },
     {
       "adaptsBoundary": true,
@@ -16416,7 +16420,7 @@
         }
       ],
       "sizeException": null,
-      "sourceHash": "880c0f4d431ec5a3454c0f43db2a295572c7f6d425faa9b6cf052668ee871f15"
+      "sourceHash": "f53b0cab0b76d11f1d8d851178341968a735706c15e04b19b5d09b7a1e0e2d1d"
     },
     {
       "adaptsBoundary": true,
@@ -16703,7 +16707,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 128,
+      "effectiveLines": 133,
       "forwardingOnly": false,
       "functions": [
         {
@@ -16757,7 +16761,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 19,
+          "effectiveLines": 21,
           "name": "createDatabaseImportClient",
           "reviewedDecompositionException": false
         },
@@ -16774,6 +16778,11 @@
         {
           "effectiveLines": 5,
           "name": "activate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "discard",
           "reviewedDecompositionException": false
         },
         {
@@ -16821,8 +16830,8 @@
             "outputs": "template, client, and disposable database-bootstrap panel factories.",
             "sideEffects": "owns only its DOM subtree and authenticated database-import HTTP requests.",
             "lifecycle": "panel listeners and requests end at dispose; absence changes no maintenance owner.",
-            "errors": "service/validation failures remain inside the panel or reject through the client contract.",
-            "concurrencyCancellation": "upload, polling, and activation share one panel-owned AbortSignal."
+            "errors": "service, discard, and validation failures remain inside the panel or reject through the client contract.",
+            "concurrencyCancellation": "upload, polling, discard, and activation share one panel-owned AbortSignal."
           },
           "moduleId": "adapter.database-bootstrap-ui",
           "name": "createDatabaseImportClient",
@@ -16853,7 +16862,7 @@
         }
       ],
       "sizeException": null,
-      "sourceHash": "0a81d428db35d412f3d7fb8e97b048e6ef5c8e7ccbba97cec5de6f16168ffd3e"
+      "sourceHash": "b362d7a07859bb217ebf873b1b4453be1c8ff6cb60e9cb19df74362e8c0ee816"
     },
     {
       "adaptsBoundary": true,
@@ -18494,7 +18503,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "60fe692044a9f63768afac44a9f51a44f36c6d2bf0a63b3b20c238d1703d1f56"
+      "sourceHash": "4408bdfaa66bc010feb029988c81ce22006c40871c5cad15c158bd9ec6524b42"
     },
     {
       "adaptsBoundary": true,
@@ -18653,7 +18662,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "5e1cc61bb18d6ee0dffa20c97617cafdd12de832228b2a2bdeb01680a40e104b"
+      "sourceHash": "0b6e5e59a13258261cb63c6c01a34dc91fc7ba6b853ef70c06c47ca6f50270ef"
     },
     {
       "adaptsBoundary": true,
@@ -19195,17 +19204,17 @@
       "forwardingOnly": true,
       "functions": [],
       "kind": "adapter",
-      "moduleId": "adapter.v4-bars-provider",
+      "moduleId": "adapter.market-data-provider",
       "owner": "bar-data-runtime",
       "ownsContract": true,
-      "path": "src/v4-bars-provider-adapter/public.js",
+      "path": "src/market-data-provider-adapter/public.js",
       "publicExports": [],
       "responsibilities": [
         "internal-state-or-pure-computation"
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "512131365fdbbb8f60e94701ae5af21931a0f8c7419cff36f638e8444175b45f"
+      "sourceHash": "6666e8aa29b3d5763e46e0b64309cf740cf3d50e5ca65d610e3a3c18b263e06a"
     },
     {
       "adaptsBoundary": true,
@@ -19521,7 +19530,7 @@
         },
         {
           "effectiveLines": 14,
-          "name": "createV4BarsAdapter",
+          "name": "createMarketDataAdapter",
           "reviewedDecompositionException": false
         },
         {
@@ -19541,7 +19550,7 @@
         },
         {
           "effectiveLines": 21,
-          "name": "createV4BarsProvider",
+          "name": "createMarketDataProvider",
           "reviewedDecompositionException": false
         },
         {
@@ -19561,7 +19570,7 @@
         },
         {
           "effectiveLines": 3,
-          "name": "resolveV4InstrumentCode",
+          "name": "resolveMarketDataInstrumentCode",
           "reviewedDecompositionException": false
         },
         {
@@ -19586,7 +19595,7 @@
         },
         {
           "effectiveLines": 5,
-          "name": "resolveV4BarsApiBase",
+          "name": "resolveMarketDataApiBase",
           "reviewedDecompositionException": false
         },
         {
@@ -19601,15 +19610,15 @@
         }
       ],
       "kind": "adapter",
-      "moduleId": "adapter.v4-bars-provider",
+      "moduleId": "adapter.market-data-provider",
       "owner": "bar-data-runtime",
       "ownsContract": false,
-      "path": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+      "path": "src/market-data-provider-adapter/market-data-provider-adapter.js",
       "publicExports": [
         {
           "documentation": {
             "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "purpose": "expose V7's complete supported local market-data provider contract.",
             "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
             "outputs": "a bounded adapter handle, staged result, or normalized external value.",
             "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
@@ -19617,21 +19626,23 @@
             "errors": "invalid input or external failures throw or reject with stable adapter errors.",
             "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
           },
-          "moduleId": "adapter.v4-bars-provider",
-          "name": "createV4BarsAdapter",
+          "moduleId": "adapter.market-data-provider",
+          "name": "createMarketDataAdapter",
           "semanticMatches": [
-            "bars",
+            "data",
+            "market",
             "provider"
           ],
           "semanticTerms": [
-            "bars",
+            "data",
+            "market",
             "provider"
           ]
         },
         {
           "documentation": {
             "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "purpose": "expose V7's complete supported local market-data provider contract.",
             "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
             "outputs": "a bounded adapter handle, staged result, or normalized external value.",
             "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
@@ -19639,21 +19650,23 @@
             "errors": "invalid input or external failures throw or reject with stable adapter errors.",
             "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
           },
-          "moduleId": "adapter.v4-bars-provider",
-          "name": "createV4BarsProvider",
+          "moduleId": "adapter.market-data-provider",
+          "name": "createMarketDataProvider",
           "semanticMatches": [
-            "bars",
+            "data",
+            "market",
             "provider"
           ],
           "semanticTerms": [
-            "bars",
+            "data",
+            "market",
             "provider"
           ]
         },
         {
           "documentation": {
             "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "purpose": "expose V7's complete supported local market-data provider contract.",
             "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
             "outputs": "a bounded adapter handle, staged result, or normalized external value.",
             "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
@@ -19661,38 +19674,42 @@
             "errors": "invalid input or external failures throw or reject with stable adapter errors.",
             "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
           },
-          "moduleId": "adapter.v4-bars-provider",
-          "name": "resolveV4BarsApiBase",
+          "moduleId": "adapter.market-data-provider",
+          "name": "MARKET_DATA_PROVIDER_ID",
           "semanticMatches": [
-            "bars",
+            "data",
+            "market",
+            "provider"
+          ],
+          "semanticTerms": [
+            "data",
+            "market",
+            "provider"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "bar-data-runtime.",
+            "purpose": "expose V7's complete supported local market-data provider contract.",
+            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
+            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
+            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
+            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
+            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
+            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
+          },
+          "moduleId": "adapter.market-data-provider",
+          "name": "resolveMarketDataApiBase",
+          "semanticMatches": [
+            "data",
+            "market",
             "provider"
           ],
           "semanticTerms": [
             "api",
-            "bars",
             "base",
-            "provider"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
-            "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
-            "outputs": "a bounded adapter handle, staged result, or normalized external value.",
-            "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
-            "lifecycle": "created adapters own their external subscriptions and resources until dispose.",
-            "errors": "invalid input or external failures throw or reject with stable adapter errors.",
-            "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
-          },
-          "moduleId": "adapter.v4-bars-provider",
-          "name": "V4_BARS_PROVIDER_ID",
-          "semanticMatches": [
-            "bars",
-            "provider"
-          ],
-          "semanticTerms": [
-            "bars",
+            "data",
+            "market",
             "provider"
           ]
         }
@@ -19709,7 +19726,7 @@
         }
       ],
       "sizeException": null,
-      "sourceHash": "d5fce130fb04ee4c574d37b411d0a37c42065cf35960f7e8713f0688d1b18236"
+      "sourceHash": "8a1c02f2d2fa76f3e5d2e5e9057b4e41b1313f58ef89e6a50f0e7905890d9f56"
     },
     {
       "adaptsBoundary": true,
@@ -20340,167 +20357,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 225,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "find",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "formatBytes",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "<anonymous-14>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "<anonymous-15>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 21,
-          "name": "renderJob",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 34,
-          "name": "createDatabaseImportPanel",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 37,
-          "name": "databaseImportTemplate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "coverageText",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "setState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 44,
-          "name": "refreshHealth",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "onProgress",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "renderActions",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "<anonymous-11>",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.database-bootstrap-ui",
-      "owner": "database-bootstrap-admin",
-      "ownsContract": false,
-      "path": "src/database-bootstrap-ui/database-import-panel.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "database-bootstrap-admin.",
-            "purpose": "expose the optional first-database browser capability independently of market maintenance.",
-            "inputs": "a DOM host plus an explicitly injected database-import service client.",
-            "outputs": "template, client, and disposable database-bootstrap panel factories.",
-            "sideEffects": "owns only its DOM subtree and authenticated database-import HTTP requests.",
-            "lifecycle": "panel listeners and requests end at dispose; absence changes no maintenance owner.",
-            "errors": "service/validation failures remain inside the panel or reject through the client contract.",
-            "concurrencyCancellation": "upload, polling, and activation share one panel-owned AbortSignal."
-          },
-          "moduleId": "adapter.database-bootstrap-ui",
-          "name": "createDatabaseImportPanel",
-          "semanticMatches": [
-            "bootstrap",
-            "database",
-            "import",
-            "panel"
-          ],
-          "semanticTerms": [
-            "bootstrap",
-            "database",
-            "import",
-            "panel"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "database-bootstrap-admin.",
-            "purpose": "expose the optional first-database browser capability independently of market maintenance.",
-            "inputs": "a DOM host plus an explicitly injected database-import service client.",
-            "outputs": "template, client, and disposable database-bootstrap panel factories.",
-            "sideEffects": "owns only its DOM subtree and authenticated database-import HTTP requests.",
-            "lifecycle": "panel listeners and requests end at dispose; absence changes no maintenance owner.",
-            "errors": "service/validation failures remain inside the panel or reject through the client contract.",
-            "concurrencyCancellation": "upload, polling, and activation share one panel-owned AbortSignal."
-          },
-          "moduleId": "adapter.database-bootstrap-ui",
-          "name": "databaseImportTemplate",
-          "semanticMatches": [
-            "bootstrap",
-            "database",
-            "import",
-            "template"
-          ],
-          "semanticTerms": [
-            "bootstrap",
-            "database",
-            "import",
-            "template"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "visual-surface-mutation"
-      ],
-      "sideEffectConcerns": [
-        {
-          "concern": "visual-surface-mutation",
-          "evidence": [
-            "disabled="
-          ]
-        }
-      ],
-      "sizeException": null,
-      "sourceHash": "3a47480c137c9fb5826c0feee30274ac7ec60ccf967fd57bebeaad520fa5b455"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 228,
       "forwardingOnly": false,
       "functions": [
@@ -20623,7 +20479,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "dc2ad41a9f4637e1d1043e01c5cccf20b6f719cc50a1ae6e1c7bf5d765968748"
+      "sourceHash": "d6238bd1d765b7b61e72ef7f79906ad884cc88aa931055f9e94b1f543690001b"
     },
     {
       "adaptsBoundary": true,
@@ -21508,6 +21364,169 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 291,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "find",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "formatBytes",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "recoverRetainedJobAfterBusyUpload",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "renderActions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "renderJob",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 32,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "coverageText",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "setState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 46,
+          "name": "refreshHealth",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 49,
+          "name": "createDatabaseImportPanel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "onProgress",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "resetStagedJob",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "resetTransientControls",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.database-bootstrap-ui",
+      "owner": "database-bootstrap-admin",
+      "ownsContract": false,
+      "path": "src/database-bootstrap-ui/database-import-panel.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "database-bootstrap-admin.",
+            "purpose": "expose the optional first-database browser capability independently of market maintenance.",
+            "inputs": "a DOM host plus an explicitly injected database-import service client.",
+            "outputs": "template, client, and disposable database-bootstrap panel factories.",
+            "sideEffects": "owns only its DOM subtree and authenticated database-import HTTP requests.",
+            "lifecycle": "panel listeners and requests end at dispose; absence changes no maintenance owner.",
+            "errors": "service, discard, and validation failures remain inside the panel or reject through the client contract.",
+            "concurrencyCancellation": "upload, polling, discard, and activation share one panel-owned AbortSignal."
+          },
+          "moduleId": "adapter.database-bootstrap-ui",
+          "name": "createDatabaseImportPanel",
+          "semanticMatches": [
+            "bootstrap",
+            "database",
+            "import",
+            "panel"
+          ],
+          "semanticTerms": [
+            "bootstrap",
+            "database",
+            "import",
+            "panel"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "visual-surface-mutation"
+      ],
+      "sideEffectConcerns": [
+        {
+          "concern": "visual-surface-mutation",
+          "evidence": [
+            "disabled=",
+            "hidden=",
+            "setAttribute()",
+            "textContent="
+          ]
+        }
+      ],
+      "sizeException": null,
+      "sourceHash": "479a3bdc1a79ae5cc9cc798d214df10ee0fbb8b1e82397f5009379554711ab3d"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 3,
       "forwardingOnly": true,
       "functions": [],
@@ -21523,6 +21542,26 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "40b07e1b973e66dbdfef4fedf102e29e1602b97257dfe48984fff11570bcd996"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 3,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "ui",
+      "moduleId": "adapter.database-bootstrap-ui",
+      "owner": "database-bootstrap-admin",
+      "ownsContract": true,
+      "path": "src/database-bootstrap-ui/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "c2aae6e878bca7f25ea3b3e8c3b115492cff231de6b5890f24ed6cb9bfcf7767"
     },
     {
       "adaptsBoundary": true,
@@ -23456,7 +23495,7 @@
         }
       ],
       "sizeException": null,
-      "sourceHash": "d53270801998cb57e817a0cc62a10f3c53375cf5b26e14d372ff3b459e7650ae"
+      "sourceHash": "10155dd05226b7e2ed448b9b987bc8d2084f792f7eb0156d7af8f231d40d5081"
     },
     {
       "adaptsBoundary": true,
@@ -23743,15 +23782,15 @@
         }
       ],
       "kind": "adapter",
-      "moduleId": "adapter.v4-bars-provider",
+      "moduleId": "adapter.market-data-provider",
       "owner": "bar-data-runtime",
       "ownsContract": false,
-      "path": "src/v4-bars-provider-adapter/time-codec.js",
+      "path": "src/market-data-provider-adapter/time-codec.js",
       "publicExports": [
         {
           "documentation": {
             "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "purpose": "expose V7's complete supported local market-data provider contract.",
             "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
             "outputs": "a bounded adapter handle, staged result, or normalized external value.",
             "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
@@ -23759,16 +23798,18 @@
             "errors": "invalid input or external failures throw or reject with stable adapter errors.",
             "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
           },
-          "moduleId": "adapter.v4-bars-provider",
+          "moduleId": "adapter.market-data-provider",
           "name": "exchangeWallSecondsToInstantMs",
           "semanticMatches": [
-            "bars",
+            "data",
+            "market",
             "provider"
           ],
           "semanticTerms": [
-            "bars",
+            "data",
             "exchange",
             "instant",
+            "market",
             "provider",
             "seconds",
             "wall"
@@ -23777,7 +23818,7 @@
         {
           "documentation": {
             "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "purpose": "expose V7's complete supported local market-data provider contract.",
             "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
             "outputs": "a bounded adapter handle, staged result, or normalized external value.",
             "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
@@ -23785,16 +23826,18 @@
             "errors": "invalid input or external failures throw or reject with stable adapter errors.",
             "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
           },
-          "moduleId": "adapter.v4-bars-provider",
+          "moduleId": "adapter.market-data-provider",
           "name": "formatExchangeWallMinute",
           "semanticMatches": [
-            "bars",
+            "data",
+            "market",
             "provider"
           ],
           "semanticTerms": [
-            "bars",
+            "data",
             "exchange",
             "format",
+            "market",
             "minute",
             "provider",
             "wall"
@@ -23806,7 +23849,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "e18663eb531f18681f9ca61c62a4ca05bb67ec23452aee8f78654c958202b745"
+      "sourceHash": "a608245d9ecc63ed448f1281686e8d678a4b83b8636854f69bb43e0474e48aee"
     },
     {
       "adaptsBoundary": true,
@@ -23852,15 +23895,15 @@
         }
       ],
       "kind": "adapter",
-      "moduleId": "adapter.v4-bars-provider",
+      "moduleId": "adapter.market-data-provider",
       "owner": "bar-data-runtime",
       "ownsContract": false,
-      "path": "src/v4-bars-provider-adapter/new-york-wall-clock.js",
+      "path": "src/market-data-provider-adapter/new-york-wall-clock.js",
       "publicExports": [
         {
           "documentation": {
             "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "purpose": "expose V7's complete supported local market-data provider contract.",
             "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
             "outputs": "a bounded adapter handle, staged result, or normalized external value.",
             "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
@@ -23868,16 +23911,18 @@
             "errors": "invalid input or external failures throw or reject with stable adapter errors.",
             "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
           },
-          "moduleId": "adapter.v4-bars-provider",
+          "moduleId": "adapter.market-data-provider",
           "name": "createNewYorkWallEpochConverter",
           "semanticMatches": [
-            "bars",
+            "data",
+            "market",
             "provider"
           ],
           "semanticTerms": [
-            "bars",
             "converter",
+            "data",
             "epoch",
+            "market",
             "new",
             "provider",
             "wall",
@@ -23887,7 +23932,7 @@
         {
           "documentation": {
             "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "purpose": "expose V7's complete supported local market-data provider contract.",
             "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
             "outputs": "a bounded adapter handle, staged result, or normalized external value.",
             "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
@@ -23895,16 +23940,18 @@
             "errors": "invalid input or external failures throw or reject with stable adapter errors.",
             "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
           },
-          "moduleId": "adapter.v4-bars-provider",
+          "moduleId": "adapter.market-data-provider",
           "name": "newYorkWallEpochToInstantMs",
           "semanticMatches": [
-            "bars",
+            "data",
+            "market",
             "provider"
           ],
           "semanticTerms": [
-            "bars",
+            "data",
             "epoch",
             "instant",
+            "market",
             "new",
             "provider",
             "wall",
@@ -23914,7 +23961,7 @@
         {
           "documentation": {
             "owner": "bar-data-runtime.",
-            "purpose": "expose the complete supported public contract for v4 bars provider.",
+            "purpose": "expose V7's complete supported local market-data provider contract.",
             "inputs": "validated public values plus explicitly injected chart, provider, or host ports.",
             "outputs": "a bounded adapter handle, staged result, or normalized external value.",
             "sideEffects": "may call the adapted external engine only behind this facade and may mutate adapter-owned resources.",
@@ -23922,15 +23969,17 @@
             "errors": "invalid input or external failures throw or reject with stable adapter errors.",
             "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
           },
-          "moduleId": "adapter.v4-bars-provider",
+          "moduleId": "adapter.market-data-provider",
           "name": "toNewYorkWallEpoch",
           "semanticMatches": [
-            "bars",
+            "data",
+            "market",
             "provider"
           ],
           "semanticTerms": [
-            "bars",
+            "data",
             "epoch",
+            "market",
             "new",
             "provider",
             "wall",
@@ -23943,7 +23992,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "f9e2c9a16a6dc7edc0e0beedfc7d7964a9d244f2b63ab95ac0049a776c5ab537"
+      "sourceHash": "055d3999f0bb60cf501ce8b4ae55619eaf5fae2fadb809e05edf496cb680e90f"
     },
     {
       "adaptsBoundary": true,
@@ -24488,6 +24537,59 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 47,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 47,
+          "name": "databaseImportTemplate",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.database-bootstrap-ui",
+      "owner": "database-bootstrap-admin",
+      "ownsContract": false,
+      "path": "src/database-bootstrap-ui/database-import-template.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "database-bootstrap-admin.",
+            "purpose": "expose the optional first-database browser capability independently of market maintenance.",
+            "inputs": "a DOM host plus an explicitly injected database-import service client.",
+            "outputs": "template, client, and disposable database-bootstrap panel factories.",
+            "sideEffects": "owns only its DOM subtree and authenticated database-import HTTP requests.",
+            "lifecycle": "panel listeners and requests end at dispose; absence changes no maintenance owner.",
+            "errors": "service, discard, and validation failures remain inside the panel or reject through the client contract.",
+            "concurrencyCancellation": "upload, polling, discard, and activation share one panel-owned AbortSignal."
+          },
+          "moduleId": "adapter.database-bootstrap-ui",
+          "name": "databaseImportTemplate",
+          "semanticMatches": [
+            "bootstrap",
+            "database",
+            "import",
+            "template"
+          ],
+          "semanticTerms": [
+            "bootstrap",
+            "database",
+            "import",
+            "template"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "2ba9772ea4aa6ae25dfe8fe061870bf30e941d85e4f851b45939ce86cba006bf"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 48,
       "forwardingOnly": false,
       "functions": [
@@ -24767,26 +24869,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "7cde2c1f07859ed9ba9d5a34c95eb727def72c02864f3be02fa8ff2d7a39204f"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 5,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "ui",
-      "moduleId": "adapter.database-bootstrap-ui",
-      "owner": "database-bootstrap-admin",
-      "ownsContract": true,
-      "path": "src/database-bootstrap-ui/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "4f3b5b161fc4200ee7f4c33e5e2a1416dd8603d484978fb32ff5461e4d42a63e"
     },
     {
       "adaptsBoundary": true,
@@ -26321,7 +26403,7 @@
         },
         {
           "effectiveLines": 10,
-          "name": "createV4MarketDateAvailability",
+          "name": "createMarketDateAvailability",
           "reviewedDecompositionException": false
         },
         {
@@ -26361,14 +26443,14 @@
         }
       ],
       "kind": "adapter",
-      "moduleId": "adapter.v4-bars-provider",
+      "moduleId": "adapter.market-data-provider",
       "owner": "bar-data-runtime",
       "ownsContract": false,
-      "path": "src/v4-bars-provider-adapter/market-date-availability.js",
+      "path": "src/market-data-provider-adapter/market-date-availability.js",
       "publicExports": [
         {
           "documentation": {
-            "owner": "V4 market-data provider adapter.",
+            "owner": "market-data provider adapter.",
             "purpose": "expose New York calendar dates containing at least one source bar.",
             "inputs": "capability instrument identities and optional cancellation signal.",
             "outputs": "immutable date arrays keyed by capability instrument identity.",
@@ -26377,14 +26459,14 @@
             "errors": "invalid input or external failures throw or reject with stable adapter errors.",
             "concurrencyCancellation": "asynchronous adapter work honors cancellation and rejects stale or disposed application."
           },
-          "moduleId": "adapter.v4-bars-provider",
-          "name": "createV4MarketDateAvailability",
+          "moduleId": "adapter.market-data-provider",
+          "name": "createMarketDateAvailability",
           "semanticMatches": [
             "date"
           ],
           "semanticTerms": [
             "availability",
-            "bars",
+            "data",
             "date",
             "market",
             "provider"
@@ -26403,7 +26485,7 @@
         }
       ],
       "sizeException": null,
-      "sourceHash": "6b17ccce57d208efc44ab782adb6a0a255f2cc2438b4db5f3e686b164c566342"
+      "sourceHash": "06c3dcb86a04251049cdd4071ba428ba41db6205a1d12317fb3be189ce202e09"
     },
     {
       "adaptsBoundary": true,
@@ -27094,7 +27176,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "8dc68659cc206944054ab631b2b1bb26b5ae9fe0802cc943759960fa3a53239e"
+      "sourceHash": "61dd2b69fedfdb27e11c38e048db19f9563986a0e6a09ca6aa53804c05f638a9"
     },
     {
       "adaptsBoundary": true,
@@ -27801,11 +27883,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 24824,
-    "files": 318,
-    "functions": 2633,
+    "effectiveLines": 24940,
+    "files": 319,
+    "functions": 2640,
     "publicExports": 311
   },
-  "deliveryStep": "R11.1",
-  "generatedFromCommit": "working-tree-r11.1"
+  "deliveryStep": "R12.2",
+  "generatedFromCommit": "working-tree-r12.2"
 }

@@ -71,13 +71,13 @@ const fetchStub = `{
         requiredColumns: ['instrument', 'ts', 'open', 'high', 'low', 'close', 'volume']
       }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     }
-    if (target.includes('/v4/bars?')) {
+    if (target.includes('/v7/market-data/bars?')) {
       return new Response(JSON.stringify({ bars: [
         { time: '2026-07-22 15:59', open: 1, high: 2, low: 0.5, close: 1.5, volume: 10 },
         { time: '2026-07-22 16:00', open: 1.5, high: 2, low: 1, close: 1.75, volume: 12 }
       ] }), { status: 200 });
     }
-    if (!target.includes('/v4/data_maintenance/run')) return nativeFetch(url, options);
+    if (!target.includes('/v7/maintenance/run')) return nativeFetch(url, options);
     const payload = JSON.parse(options.body || '{}');
     let result;
     if (payload.action === 'coverage_status') {
@@ -93,7 +93,7 @@ const fetchStub = `{
       if (dirtyCoverage) result.ok = false;
     }
     else if (payload.action === 'environment_status') result = { ok: true, environment: [
-      { key: 'DATABENTO_API_KEY', processSet: true }, { key: 'V4_TRADING_DB', processSet: true }
+      { key: 'DATABENTO_API_KEY', processSet: true }, { key: 'V7_MARKET_DATA_DB', processSet: true }
     ] };
     else if (payload.action === 'roll_health') {
       if (sessionStorage.getItem('test-roll-committed') === '1'

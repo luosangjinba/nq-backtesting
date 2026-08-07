@@ -147,8 +147,8 @@ const result = await client.runJob({ action: 'dry_run', instrument: 'ES' }, {
 assert.equal(result.output, 'dry-run complete');
 assert.deepEqual(statuses, ['running', 'succeeded']);
 assert.equal(calls.length, 2);
-assert.equal(calls[0].url, 'http://127.0.0.1:8766/v4/data_maintenance/run');
-assert.equal(calls[0].options.headers['X-V4-Maintenance-Request'], 'data-maintenance');
+assert.equal(calls[0].url, 'http://127.0.0.1:8766/v7/maintenance/run');
+assert.equal(calls[0].options.headers['X-V7-Maintenance-Request'], 'data-maintenance');
 assert.deepEqual(JSON.parse(calls[0].options.body), {
   action: 'job_start',
   request: { action: 'dry_run', instrument: 'ES' },

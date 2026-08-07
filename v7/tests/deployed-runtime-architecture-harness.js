@@ -85,41 +85,35 @@ for (const testCase of negativeFixture.cases) {
   );
 }
 
-const requiredPythonHarnessOutputs = new Map([
-  ['v4/tests/backend-handler-boundary-smoke.py', 'backend handler boundary smoke passed'],
-  ['v4/tests/dataset-revision-cache-smoke.py', 'dataset revision cache smoke passed'],
-  ['v4/scripts/read_api_deployment_smoke.py', 'V4 deployed read-only API smoke: PASS'],
-]);
-const declaredPythonHarnesses = [...new Set(manifest.components.flatMap((component) => (
-  component.independentHarnesses.filter((harness) => harness.endsWith('.py'))
-)))];
-assert.deepEqual(
-  [...declaredPythonHarnesses].sort(),
-  [...requiredPythonHarnessOutputs.keys()].sort(),
-  'the cross-runtime gate must execute every declared Python boundary harness',
-);
+const declaredSmokes = [...new Map(manifest.crossRuntimeSmokes.map((smoke) => [
+  `${smoke.runtime}:${smoke.path}:${smoke.successText}`,
+  smoke,
+])).values()];
+assert.ok(declaredSmokes.length > 0, 'the cross-runtime gate must execute a native boundary smoke');
 const pythonExecutable = process.env.V7_PYTHON_BIN ?? process.env.PYTHON ?? 'python3';
-const pythonFailures = [];
-for (const harness of declaredPythonHarnesses) {
-  const result = spawnSync(pythonExecutable, [harness], {
+const runtimeCommands = Object.freeze({ node: process.execPath, python: pythonExecutable });
+const smokeFailures = [];
+for (const smoke of declaredSmokes) {
+  const executable = runtimeCommands[smoke.runtime];
+  assert.equal(typeof executable, 'string', `unsupported smoke runtime ${smoke.runtime}`);
+  const result = spawnSync(executable, [smoke.path], {
     cwd: repositoryRoot,
     encoding: 'utf8',
     maxBuffer: 10 * 1024 * 1024,
   });
-  const expectedOutput = requiredPythonHarnessOutputs.get(harness);
-  if (result.status !== 0 || !result.stdout.includes(expectedOutput)) {
-    pythonFailures.push([
-      `${harness} failed or did not report ${JSON.stringify(expectedOutput)}`,
+  if (result.status !== 0 || !result.stdout.includes(smoke.successText)) {
+    smokeFailures.push([
+      `${smoke.path} failed or did not report ${JSON.stringify(smoke.successText)}`,
       result.stdout ?? '',
       result.stderr ?? '',
     ].join('\n'));
   }
 }
-assert.deepEqual(pythonFailures, [], pythonFailures.join('\n\n'));
+assert.deepEqual(smokeFailures, [], smokeFailures.join('\n\n'));
 
 console.log('v7 deployed runtime architecture harness passed', {
   components: manifest.components.length,
-  crossRuntimeSmokes: declaredPythonHarnesses.length,
+  crossRuntimeSmokes: declaredSmokes.length,
   negativeControls: negativeFixture.cases.length,
   proxyRoutes: manifest.proxyRoutes.length,
   serviceUnits: manifest.serviceUnits.length,

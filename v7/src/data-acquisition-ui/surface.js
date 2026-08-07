@@ -40,7 +40,7 @@ function template(databaseBootstrapApi) {
           <div>
             <span class="data-admin-eyebrow">Foundation operations</span>
             <h1>Data acquisition</h1>
-            <p>Databento → guarded insert-only DuckDB → V4 bars API → V7 provider.</p>
+            <p>Database bootstrap → V7 market-data service → replay workstation.</p>
           </div>
           <div class="data-admin-service" id="serviceState" data-state="loading">
             <span aria-hidden="true"></span><strong>Checking service…</strong>
@@ -278,7 +278,7 @@ export function createDataAcquisitionSurface(options) {
       }
       renderCoverage(coverageResult.coverage || []);
       const apiKey = environmentResult.environment?.find((row) => row.key === 'DATABENTO_API_KEY');
-      const database = environmentResult.environment?.find((row) => row.key === 'V4_TRADING_DB');
+      const database = environmentResult.environment?.find((row) => row.key === 'V7_MARKET_DATA_DB');
       find('#environmentStrip').textContent = `Databento: ${apiKey?.processSet ? 'configured in API process' : 'not configured'} · Database override: ${database?.processSet ? 'active' : 'default path'} · API: ${client.apiBase || 'same origin'}`;
       service.dataset.state = coverageResult.ok ? 'ready' : 'error';
       service.querySelector('strong').textContent = coverageResult.ok
@@ -289,7 +289,7 @@ export function createDataAcquisitionSurface(options) {
     } catch (error) {
       renderGates(workflow.recordCoverage([]));
       service.dataset.state = 'error';
-      service.querySelector('strong').textContent = 'Maintenance API unavailable';
+      service.querySelector('strong').textContent = 'Optional maintenance disabled';
       const card = document.createElement('article');
       const title = document.createElement('strong');
       const detail = document.createElement('span');
@@ -298,7 +298,7 @@ export function createDataAcquisitionSurface(options) {
       detail.textContent = error.message;
       card.append(title, detail);
       find('#coverageGrid').replaceChildren(card);
-      find('#environmentStrip').textContent = 'Start the current V4 API and allow this local V7 origin before attempting maintenance.';
+      find('#environmentStrip').textContent = 'Standalone V7 keeps database bootstrap available; Databento refresh and contract-roll writes require a separate V7 maintenance service.';
       appendOutput('status', error.message);
     }
   }

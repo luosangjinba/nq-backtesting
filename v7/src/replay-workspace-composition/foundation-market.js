@@ -1,8 +1,8 @@
 import { createRawBarRequest } from '../bar-data-contract/public.js';
 import {
-  createV4BarsProvider,
-  createV4ProjectedHistoryProvider,
-} from '../v4-bars-provider-adapter/public.js';
+  createMarketDataProvider,
+  createMarketDataProjectedHistoryProvider,
+} from '../market-data-provider-adapter/public.js';
 import { createFoundationCapabilities, FOUNDATION_IDS } from './foundation-capabilities.js';
 import {
   requireTargetDisplayBars,
@@ -23,8 +23,8 @@ const MAXIMUM_SINGLE_HISTORY_WINDOW_MS = MAXIMUM_SINGLE_HISTORY_DAYS * 24 * 60 *
 /** Concrete NQ-primary Session market composition, isolated outside all core owners. */
 export function createFoundationMarket(record, {
   initialDatasetRevision = null,
-  projectedHistoryProvider = createV4ProjectedHistoryProvider(),
-  provider = createV4BarsProvider(),
+  projectedHistoryProvider = createMarketDataProjectedHistoryProvider(),
+  provider = createMarketDataProvider(),
 } = {}) {
   const configuredInstrumentIds = record?.configuration?.instrumentIds ?? [FOUNDATION_IDS.instrument];
   const capabilities = createFoundationCapabilities(configuredInstrumentIds);

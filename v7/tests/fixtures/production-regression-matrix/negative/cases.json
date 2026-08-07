@@ -44,7 +44,7 @@
       "expectedFailureCode": "PRODUCTION_MATRIX_ACCEPTED_WITH_KNOWN_FAILURES"
     },
     {
-      "name": "implicit-v4-runtime-dependency",
+      "name": "implicit-v7-market-data-runtime-dependency",
       "operation": "remove-runtime-dependency",
       "expectedFailureCode": "PRODUCTION_MATRIX_RUNTIME_DEPENDENCY_INVALID"
     }

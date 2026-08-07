@@ -1,5 +1,52 @@
 # V7 TODO
 
+## R12.2 Standalone V7 Runtime Separation — Implementation In Progress
+
+- [x] decide that a production V7 release must run from `v7/` plus external
+  data/state only, with no V4/V5/V6 code, route, environment, or service
+  dependency;
+- [x] move the read-only DuckDB HTTP owner to `v7/server`, expose only
+  `/v7/market-data/*`, and migrate the browser provider/module identity;
+- [x] finish the V7-only immutable release, `replay-lab-market-data.service`,
+  Caddy route, legacy-unit upgrade, and host-transaction rollback boundary;
+- [x] update deployed-runtime/regression manifests and add an executable
+  standalone zero-coupling/isolated-release gate;
+- [x] regenerate architecture/source-quality evidence, pass every focused gate,
+  and run all 95 top-level Harnesses with 92 passes plus only the three already
+  recorded visual failures;
+- [ ] deploy the same commit to an upgraded host and a clean lightweight host,
+  verify no deployed `v4/` tree or `/v4/*` route remains, and record unchanged
+  DuckDB fingerprints plus rollback evidence.
+
+The historical Databento/Contract Roll writer is not part of the standalone
+read service. It remains visibly disabled until it has a separate V7-native
+writer service. Binding contract:
+`docs/V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md`.
+
+## R12.1 Database Bootstrap Re-upload Recovery — Implemented, Host Review Pending
+
+- [x] keep re-upload intent inside the optional Database Bootstrap UI and all
+  staged-file deletion inside the isolated database-import service;
+- [x] add authenticated, user-scoped, idempotent discard for stable
+  `uploaded`, `ready`, and `failed` tasks while rejecting validation-in-progress
+  and every post-activation state;
+- [x] prove discard removes only the staged source/hidden candidate and never
+  creates, replaces, truncates, or deletes the authoritative DuckDB or durable
+  activation lock;
+- [x] lock misleading direct file replacement while a retained task exists and
+  add accessible `Upload another file`, Cancel, and confirm controls without a
+  typed command;
+- [x] recover `DATABASE_IMPORT_BUSY` into the authoritative retained task and
+  bind hard-refresh, cancel, discard, second-upload, validation, activation,
+  identity, restart, and permanent-lock evidence;
+- [x] bind H092 to declarative `preparing`/activated/lock negative controls and
+  retain an exact real-browser visual fixture for the inline confirmation;
+- [ ] deploy R12.1 on the current bootstrap host, discard the retained large
+  DuckDB through the page, upload it again, validate/activate it, and record
+  peak memory, swap, disk, duration, and post-activation lock behavior.
+
+Binding extension: `docs/V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`.
+
 ## R11 Architecture Integrity Recovery — Automated Closure, Human Gates Open
 
 The 2026-08-06 full-code review reapplies V7's original modularity and
@@ -52,7 +99,7 @@ Contract Roll retain their separate gate.
 ### R10.9 First-Run Database Bootstrap And Import — Implemented, Host Review Pending
 
 - [x] keep database setup in the trusted Data Acquisition administrator surface
-  without granting Bar Data, Replay, Workspace, Chart, Session, or V4 query
+  without granting Bar Data, Replay, Workspace, Chart, Session, or market-data
   paths new write authority;
 - [x] support bounded `.csv` and `.duckdb` upload with progress, SHA-256 staging,
   one retained/recoverable preparation task, safe validation summaries, and
@@ -70,8 +117,8 @@ Contract Roll retain their separate gate.
 - [x] bind service, client, real-browser upload/activation, existing-database UI
   lock, Caddy rendering, hardened-unit, and non-bootstrap regression evidence;
 - [ ] execute a clean-host CSV run and a separate clean-host DuckDB run with
-  representative large files, record disk/RAM/time, restart services, verify V4
-  bars/V7 charts, and prove upload remains locked after activation.
+  representative large files, record disk/RAM/time, restart services, verify V7
+  market-data bars/charts, and prove upload remains locked after activation.
 
 Binding contract: `docs/V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`.
 
@@ -238,7 +285,7 @@ Binding evidence: `docs/V7_LINUX_PUBLIC_IPV4_QUICK_DEPLOY_R10_3.md`.
 - [x] require Caddy 2.10.2+, Let's Encrypt's short-lived profile, HTTP-01,
   read-only DuckDB mounting, and public mutation blocking;
 - [x] validate domain and IPv4 configurations with official Caddy 2.11.3;
-- [ ] stop the reviewed legacy V4 listener and rerun apply on Alibaba Linux;
+- [ ] pull R12.2 and let the host transaction migrate the managed legacy unit;
 - [ ] prove trusted certificate issuance, authenticated browser access,
   unchanged DuckDB fingerprint, service restart, and rollback.
 
@@ -251,7 +298,7 @@ Binding correction/evidence:
   `dnf`, and `pacman` systemd hosts;
 - [x] deploy exact committed Git revisions as immutable releases with pinned
   minimal Python runtime and exact npm lock dependencies;
-- [x] keep V4/V7 services loopback-only and support two-port SSH review without
+- [x] keep V7 services loopback-only and support two-port SSH review without
   requiring a public endpoint;
 - [x] add optional Caddy automatic HTTPS with authentication required by
   default and version-compatible authentication directives;
@@ -602,8 +649,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 318 files, 24,824 effective
-lines, 2,633 functions, and 311 public exports; the architecture baseline
+The current production source baseline contains 319 files, 24,940 effective
+lines, 2,640 functions, and 311 public exports; the architecture baseline
 remains 51 modules, 127 edges, 115 construction sites, 19 writers, and zero
 findings.
 
@@ -615,7 +662,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 318 files, 24,824 effective lines, 2,633 functions, 311 public
+currently at 319 files, 24,940 effective lines, 2,640 functions, 311 public
 exports, 51 modules, 127 edges, 115 construction sites, 19 writers, and zero
 findings.
 

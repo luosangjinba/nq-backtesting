@@ -22,22 +22,21 @@ asynchronous business-process chain and never trigger a second materialization.
 
 ## Independent Data Acquisition Administration
 
-R7.3 adds `adapter.data-acquisition-ui` outside the chart state flow. It owns a
-trusted local administrator DOM, selected-range safety evidence, and a client
-for the guarded V4 Maintenance API. V4 remains the only Databento acquisition
-and existing-market-database append writer; the separately composed first-run
-importer below may only create one missing database. The administrator path
-requires Preflight, clean Dry Run, verified
-recoverable backup, exact confirmation, insert-only write, and a V7-facing
-read verification. It has no Replay, Pane, chart-series, Workspace Snapshot,
-or raw-bar-cache authority.
+R7.3 added `adapter.data-acquisition-ui` outside the chart state flow. R12.2
+retains its trusted administrator DOM and safety workflow but removes the
+historical writer runtime from the standalone product. Databento refresh and
+Contract Roll are visibly disabled until a separately authenticated,
+V7-native maintenance service owns their write/backup/rollback contract. The
+separately composed first-run importer below may still create one missing
+database. No Data Acquisition surface has Replay, Pane, chart-series,
+Workspace Snapshot, or raw-bar-cache authority.
 
 The one-way chart flow is unchanged: `core.bar-data-runtime` remains the only
-bar requester/cache owner and consumes V4 providers read-only. Chart or Session UI
-must never call Databento, start maintenance work, or mutate DuckDB. Long
-maintenance commands are retained single-owner background jobs; browser polling
-is presentation and does not become a second job owner. The binding contract is
-`V7_DATA_ACQUISITION_MILESTONE_R7_3.md`.
+bar requester/cache owner and consumes `adapter.market-data-provider`
+read-only. Chart or Session UI must never call Databento, start maintenance
+work, or mutate DuckDB. The historical maintenance contract remains provenance
+in `V7_DATA_ACQUISITION_MILESTONE_R7_3.md`; standalone runtime ownership is
+superseded by `V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md`.
 
 ### First-Run Database Import
 
@@ -45,13 +44,20 @@ R10.9 adds a bounded database-setup capability beside Data Acquisition rather
 than inside its UI owner. `adapter.database-bootstrap-ui` owns the optional
 panel/client and is injected into `adapter.data-acquisition-ui` only when its
 public port is present. Removing that module leaves the maintenance surface
-available and removes the setup panel cleanly. It does not give the V4
-Maintenance API or chart path new authority. The panel calls a separate
+available and removes the setup panel cleanly. It does not give an optional
+Maintenance service or chart path new authority. The panel calls a separate
 loopback importer through an authenticated proxy.
 That service alone owns uploaded-file staging, strict CSV-to-DuckDB conversion,
 candidate validation, and create-if-absent activation. It supports only a
-missing `V4_TRADING_DB` target; once a database exists, the import surface is
+missing `V7_MARKET_DATA_DB` target; once a database exists, the import surface is
 locked and cannot replace or merge it.
+
+R12.1 keeps re-upload recovery inside those same owners. The Bootstrap UI owns
+only the intent, inline confirmation, and control reset. The import service
+alone may discard an authenticated user's stable `uploaded`, `ready`, or
+`failed` staging task under its activation lock. Validation-in-progress and all
+post-activation states reject the command; neither the target DuckDB nor its
+durable activation lock is exposed as a discard path.
 
 The CSV schema and DuckDB `futures_1m` schema are exact. Validation rejects
 unsupported instruments, nulls, duplicate `(instrument, ts)` keys, non-minute
@@ -279,11 +285,12 @@ Raw future bars may be cached but never projected past the accepted cursor.
 Detailed performance and chunking rules are binding in
 `V7_CACHE_AND_LATENCY_CONTRACT.md`.
 
-R11.1 replaces any build-time or constant label with the authoritative V4
-DuckDB revision derived from the main database/WAL filesystem identity and
-governed table facts. Health discovery supplies it before requests; every bars
-and projected-history response echoes the exact expected revision, and V4
-checks again after a query before returning. Revision mismatch is a hard stale
+R11.1 replaces any build-time or constant label with the authoritative DuckDB
+revision derived from the main database/WAL filesystem identity and governed
+table facts. Health discovery supplies it before requests; every bars and
+projected-history response echoes the exact expected revision, and the V7
+market-data service checks again after a query before returning. Revision
+mismatch is a hard stale
 failure. Raw Coverage, projected-history caches, and provider revision caches
 therefore cannot reuse evidence across database activation or mutation.
 
@@ -291,8 +298,8 @@ Before the runtime is activated, `core.bar-data-contract` owns only immutable
 provider-neutral request/bar/batch values. Raw identity is exactly provider,
 instrument, source resolution, bounded half-open window, and dataset revision.
 It excludes Session, pane, display TF, ETH/RTH, Replay, and viewport state.
-Provider wire metadata is normalized at a future adapter boundary and cannot
-leak into the raw domain merely for V4 compatibility.
+Provider wire metadata is normalized at the adapter boundary and cannot leak
+into the raw domain.
 
 R3.2a activates one `core.bar-data-runtime` acquisition/cache path over an
 injected provider resolver. Each runtime instance owns a bounded exact-window
@@ -508,16 +515,17 @@ only for that identity; injected or unbranded snapshots still cross the full
 validation boundary. History extension and projected-history merge issue the
 same identity only after producing their final frozen snapshot.
 
-R5.6 activates `adapter.v4-bars-provider` as the concrete local market-data
-boundary. It converts real request instants to V4 New York wall-clock strings,
-normalizes V4's UTC-like wall timestamps back to real instants, removes API
-padding outside the exact half-open request, and returns validated Raw Bar and
-Coverage contracts through the existing policy executor. It has no Session,
-Replay, Projection, chart, or viewport ownership. Production has no synthetic
-bar fallback; an unavailable V4/DuckDB source remains a visible failure.
+R12.2 supersedes R5.6's versioned transport with
+`adapter.market-data-provider` as the concrete local market-data boundary. It
+converts real request instants to V7 New York wall-clock query values,
+normalizes returned wall timestamps to real instants, removes API padding
+outside the exact half-open request, and returns validated Raw Bar and Coverage
+contracts through the existing policy executor. It has no Session, Replay,
+Projection, chart, or viewport ownership. Production has no synthetic bar
+fallback; an unavailable V7/DuckDB source remains a visible failure.
 
-R7.3k extends that adapter boundary with the read-only
-`/v4/projected_history` port. The service filters source minutes under the
+The same adapter uses the read-only `/v7/market-data/projected-history` port.
+The service filters source minutes under the
 requested ETH/RTH policy and aggregates on V7's real-instant fixed grid before
 returning one bounded projected batch. The adapter validates exact request,
 dataset, timeframe, session, timestamp, and OHLCV identity. Chart Runtime still
@@ -600,25 +608,27 @@ cannot replace intent through data application.
 
 R11.1 extends architecture ownership beyond browser modules. The binding
 `v7-deployed-runtime-manifest.json` inventories the Node web delivery entry,
-optional Python state/import services, deployed V4 market-data entry, legacy
-offline V4 maintenance tooling, Linux deployment transaction, proxy routes,
-and their persistent writer surfaces. Required and optional dependencies are
+optional Python state/import services, deployed V7 market-data entry, Linux
+deployment transaction, proxy routes, and their persistent writer surfaces.
+Required and optional dependencies are
 distinct; absence of State Sync or Database Bootstrap cannot disable Web or
 the read-only market provider.
 
-Linux systemd starts `v4/read_api.py`, never the mutable legacy `v4_api.py`.
-The read entry admits only reviewed market-data GET paths, rejects every
-mutation method, and has no persistent writer surface. Legacy maintenance
-modules remain packaged for local administration/reference but form a separate
-non-service component with explicit writer ownership. Caddy exposes `/v4/*`
-to the read service, optional `/v7/state/*` and `/v7/database/*` to their
-isolated services, and the remaining application path to Web; internal ports
-stay loopback-only.
+R12.2 makes that topology standalone. Linux systemd starts
+`v7/server/market_data_api.py` as `replay-lab-market-data.service`; the release
+contains only `v7/`. The read entry admits only reviewed
+`/v7/market-data/*` GET paths, rejects every mutation method, and has no
+persistent writer surface. Historical Maintenance code is neither packaged nor
+started. Caddy exposes `/v7/market-data/*` to the read service, optional
+`/v7/state/*` and `/v7/database/*` to their isolated services, and the
+remaining application path to Web; internal ports stay loopback-only. The
+installer recognizes the old service only as transactional upgrade/rollback
+state and leaves no old route or unit after success.
 
 The static server maps each reviewed URL prefix to one exact filesystem root.
 It rejects decoded traversal segments and separators, verifies lexical and
 realpath containment, and refuses symlink escape. Repository docs, tests,
-server/deploy source, V4 source, Git metadata, and arbitrary dependency trees
+server/deploy source, legacy source, Git metadata, and arbitrary dependency trees
 are not a web asset surface.
 
 Deployment is one host transaction over the immutable release and its owned

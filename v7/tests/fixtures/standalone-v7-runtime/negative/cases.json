@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "legacy-production-root",
+      "operation": "append",
+      "path": ["productionRoots"],
+      "value": "legacy/server",
+      "expectedFailureCode": "STANDALONE_V7_PRODUCTION_ROOT_INVALID"
+    },
+    {
+      "id": "legacy-market-entry",
+      "operation": "set",
+      "path": ["marketService", "entry"],
+      "value": "legacy/read_api.py",
+      "expectedFailureCode": "STANDALONE_V7_MARKET_SERVICE_INVALID"
+    },
+    {
+      "id": "legacy-service-unit",
+      "operation": "set",
+      "path": ["marketUnit", "unitName"],
+      "value": "replay-lab-api.service",
+      "expectedFailureCode": "STANDALONE_V7_SERVICE_UNIT_INVALID"
+    },
+    {
+      "id": "legacy-proxy-route",
+      "operation": "set",
+      "path": ["marketRoute", "pathPattern"],
+      "value": "/legacy/*",
+      "expectedFailureCode": "STANDALONE_V7_PROXY_ROUTE_INVALID"
+    },
+    {
+      "id": "legacy-regression-environment",
+      "operation": "set",
+      "path": ["regressionDependency", "databaseEnvironmentVariable"],
+      "value": "LEGACY_TRADING_DB",
+      "expectedFailureCode": "STANDALONE_V7_REGRESSION_DEPENDENCY_INVALID"
+    },
+    {
+      "id": "unscoped-release-archive",
+      "operation": "set",
+      "path": ["archiveCommandScopedToV7"],
+      "value": false,
+      "expectedFailureCode": "STANDALONE_V7_RELEASE_CONTRACT_INVALID"
+    },
+    {
+      "id": "active-legacy-reference",
+      "operation": "append",
+      "path": ["legacyTokenMatches"],
+      "value": "v7/src/example.js:1: legacy route",
+      "expectedFailureCode": "STANDALONE_V7_ACTIVE_LEGACY_REFERENCE"
+    }
+  ]
+}

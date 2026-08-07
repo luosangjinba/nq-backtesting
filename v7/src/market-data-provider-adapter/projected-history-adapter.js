@@ -2,10 +2,10 @@ import {
   createProjectedHistoryBatch,
   createProjectedHistoryRequest,
 } from '../projected-history-contract/public.js';
-import { resolveV4BarsApiBase, resolveV4InstrumentCode } from './v4-bars-provider-adapter.js';
+import { resolveMarketDataApiBase, resolveMarketDataInstrumentCode } from './market-data-provider-adapter.js';
 import { formatExchangeWallMinute } from './time-codec.js';
 
-export const V4_PROJECTED_HISTORY_PROVIDER_ID = 'provider.local-v4-projected-history';
+export const MARKET_DATA_PROJECTED_HISTORY_PROVIDER_ID = 'provider.local-market-data-projected-history';
 const PROJECTED_HISTORY_DEADLINE_MS = 3_000;
 const CALENDAR_TIMEFRAME_CODES = Object.freeze({
   'alignment.calendar-day': '1D',
@@ -20,16 +20,16 @@ function targetTimeframe(request) {
 
 function requestUrl(request, apiBase) {
   const timeframe = targetTimeframe(request);
-  if (timeframe === null) throw new TypeError('V4 Projected History does not map this calendar alignment.');
+  if (timeframe === null) throw new TypeError('Projected History does not map this calendar alignment.');
   const parameters = new URLSearchParams({
     datasetRevision: request.datasetRevision,
     end: formatExchangeWallMinute(request.windowEndEpochMs),
-    instrument: resolveV4InstrumentCode(request.instrumentId),
+    instrument: resolveMarketDataInstrumentCode(request.instrumentId),
     session: request.sessionHoursMode,
     start: formatExchangeWallMinute(request.windowStartEpochMs),
     tf: timeframe,
   });
-  return `${apiBase}/v4/projected_history?${parameters}`;
+  return `${apiBase}/v7/market-data/projected-history?${parameters}`;
 }
 
 function failure(message) {
@@ -43,17 +43,17 @@ function responseFailure(response, payload) {
   return failure(payload?.error || `Projected History HTTP ${response.status}`);
 }
 
-export function createV4ProjectedHistoryProvider({
-  apiBase = resolveV4BarsApiBase(),
+export function createMarketDataProjectedHistoryProvider({
+  apiBase = resolveMarketDataApiBase(),
   fetchImpl = globalThis.fetch,
 } = {}) {
   if (typeof fetchImpl !== 'function') throw new TypeError('Projected History provider requires fetch.');
   return Object.freeze({
-    providerId: V4_PROJECTED_HISTORY_PROVIDER_ID,
+    providerId: MARKET_DATA_PROJECTED_HISTORY_PROVIDER_ID,
     async requestProjectedHistory(requestValue, { signal } = {}) {
       const request = createProjectedHistoryRequest(requestValue);
-      if (request.providerId !== V4_PROJECTED_HISTORY_PROVIDER_ID
-        || resolveV4InstrumentCode(request.instrumentId) === null
+      if (request.providerId !== MARKET_DATA_PROJECTED_HISTORY_PROVIDER_ID
+        || resolveMarketDataInstrumentCode(request.instrumentId) === null
         || targetTimeframe(request) === null) {
         throw failure('Projected History provider does not support this request identity.');
       }

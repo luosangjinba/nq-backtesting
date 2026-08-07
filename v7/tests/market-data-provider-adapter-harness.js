@@ -3,21 +3,21 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  createV4BarsAdapter,
-  createV4MarketDateAvailability,
-  createV4ProjectedHistoryProvider,
+  createMarketDataAdapter,
+  createMarketDateAvailability,
+  createMarketDataProjectedHistoryProvider,
   exchangeWallSecondsToInstantMs,
   formatExchangeWallMinute,
-  V4_BARS_PROVIDER_ID,
-  V4_PROJECTED_HISTORY_PROVIDER_ID,
-} from '../src/v4-bars-provider-adapter/public.js';
+  MARKET_DATA_PROVIDER_ID,
+  MARKET_DATA_PROJECTED_HISTORY_PROVIDER_ID,
+} from '../src/market-data-provider-adapter/public.js';
 import { createPolicyBoundProvider } from '../src/provider-execution-runtime/public.js';
 import { createProjectedHistoryRequest } from '../src/projected-history-contract/public.js';
 import { createFoundationMarket } from '../src/replay-workspace-composition/public.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const negativeCases = JSON.parse(fs.readFileSync(path.join(
-  TEST_DIR, 'fixtures/v4-bars-provider-adapter/negative/cases.json',
+  TEST_DIR, 'fixtures/market-data-provider-adapter/negative/cases.json',
 ), 'utf8'));
 assert.deepEqual(negativeCases, ['http-source-unavailable', 'unsupported-instrument']);
 const datasetRevisionNegativeCases = JSON.parse(fs.readFileSync(path.join(
@@ -32,11 +32,11 @@ assert.doesNotMatch(productionMarketSource, /Math\.sin|generateBars|sampleMinute
   'production workspace must not retain a synthetic market generator');
 
 const MINUTE = 60_000;
-const DATASET_REVISION = 'v4-duckdb-stat-v1-test';
+const DATASET_REVISION = 'v7-duckdb-stat-v1-test';
 const startEpochMs = Date.parse('2026-05-01T19:40:00Z');
 const request = {
   schemaVersion: 1,
-  providerId: V4_BARS_PROVIDER_ID,
+  providerId: MARKET_DATA_PROVIDER_ID,
   instrumentId: 'instrument.cme.nq',
   sourceResolutionId: 'resolution.fixed-1-minute',
   windowStartEpochMs: startEpochMs,
@@ -53,11 +53,11 @@ assert.equal(
 
 const calls = [];
 const wallSeconds = (hour, minute) => Date.UTC(2026, 4, 1, hour, minute) / 1_000;
-const adapter = createV4BarsAdapter({
+const adapter = createMarketDataAdapter({
   apiBase: 'http://127.0.0.1:8766',
   fetchImpl: async (url, options) => {
     calls.push({ options, url });
-    if (url.endsWith('/v4/health')) {
+    if (url.endsWith('/v7/market-data/health')) {
       return {
         ok: true,
         async json() {
@@ -84,14 +84,14 @@ const adapter = createV4BarsAdapter({
 
 assert.equal(await adapter.resolveDatasetRevision({
   instrumentId: 'instrument.cme.nq',
-  providerId: V4_BARS_PROVIDER_ID,
+  providerId: MARKET_DATA_PROVIDER_ID,
   sourceResolutionId: 'resolution.fixed-1-minute',
 }), DATASET_REVISION);
 const result = await adapter.requestRawBars(request);
 assert.equal(calls.length, 2);
 assert.equal(
   calls[1].url,
-  'http://127.0.0.1:8766/v4/bars?datasetRevision=v4-duckdb-stat-v1-test&end=2026-05-01+15%3A41&instrument=NQ&start=2026-05-01+15%3A40&tf=1',
+  'http://127.0.0.1:8766/v7/market-data/bars?datasetRevision=v7-duckdb-stat-v1-test&end=2026-05-01+15%3A41&instrument=NQ&start=2026-05-01+15%3A40&tf=1',
 );
 assert.equal(calls[1].options.headers.Accept, 'application/json');
 assert.deepEqual(result.batch.bars, [
@@ -108,7 +108,7 @@ assert.deepEqual(result.coverage.segments[0], {
 const chunkCalls = [];
 let activeChunkCalls = 0;
 let maximumActiveChunkCalls = 0;
-const chunked = createV4BarsAdapter({
+const chunked = createMarketDataAdapter({
   fetchImpl: async (url) => {
     chunkCalls.push(url);
     activeChunkCalls += 1;
@@ -129,7 +129,7 @@ assert.match(chunkCalls[2], /start=2026-05-15\+15%3A40/);
 assert.equal(maximumActiveChunkCalls, 2,
   'large logical requests must use the bounded two-transfer adapter pool');
 
-const failing = createV4BarsAdapter({
+const failing = createMarketDataAdapter({
   fetchImpl: async () => ({
     ok: false, status: 500, async json() { return { error: 'database unavailable' }; },
   }),
@@ -141,7 +141,7 @@ await assert.rejects(
 
 const datasetRevisionNegativeActions = {
   'stale-dataset-revision-response': async () => {
-    const staleResponse = createV4BarsAdapter({
+    const staleResponse = createMarketDataAdapter({
       fetchImpl: async () => ({
         ok: true,
         status: 200,
@@ -161,7 +161,7 @@ const datasetRevisionNegativeActions = {
       now: () => 1_000,
       policy: {
         schemaVersion: 1,
-        providerId: V4_BARS_PROVIDER_ID,
+        providerId: MARKET_DATA_PROVIDER_ID,
         revision: { mode: 'discover', maxAgeMs: 60_000 },
         requestLimits: {
           maxBarsPerRequest: 2,
@@ -171,9 +171,9 @@ const datasetRevisionNegativeActions = {
         deadlineMs: 1_000,
         retry: { maxAttempts: 1, backoffMs: [], retryableFailureKinds: [] },
       },
-      adapter: createV4BarsAdapter({
+      adapter: createMarketDataAdapter({
         fetchImpl: async (url) => {
-          if (url.endsWith('/v4/health')) {
+          if (url.endsWith('/v7/market-data/health')) {
             revisionCalls += 1;
             return {
               ok: true,
@@ -194,7 +194,7 @@ const datasetRevisionNegativeActions = {
     try {
       const revisionScope = {
         instrumentId: 'instrument.cme.nq',
-        providerId: V4_BARS_PROVIDER_ID,
+        providerId: MARKET_DATA_PROVIDER_ID,
         sourceResolutionId: 'resolution.fixed-1-minute',
       };
       const firstRevision = await revisionProvider.resolveDatasetRevision(revisionScope);
@@ -229,7 +229,7 @@ for (const fixture of datasetRevisionNegativeCases.cases) {
 }
 
 let unsupportedFetches = 0;
-const unsupported = createV4BarsAdapter({
+const unsupported = createMarketDataAdapter({
   fetchImpl: async () => {
     unsupportedFetches += 1;
     return { ok: true, async json() { return { bars: [] }; } };
@@ -238,7 +238,7 @@ const unsupported = createV4BarsAdapter({
 await assert.rejects(
   () => unsupported.requestRawBars({ ...request, instrumentId: 'instrument.cme.mes' }),
   (error) => error.kind === 'unsupported'
-    && error.message === 'V4 bars adapter does not support this instrument identity.',
+    && error.message === 'Market data adapter does not support this instrument identity.',
 );
 assert.equal(unsupportedFetches, 0, 'unsupported instruments must fail before any market-data request');
 
@@ -253,13 +253,13 @@ const projectedRequest = createProjectedHistoryRequest({
   displayTimeframeId: 'timeframe.display-4-hour',
   durationMs: 240 * MINUTE,
   instrumentId: 'instrument.cme.nq',
-  providerId: V4_PROJECTED_HISTORY_PROVIDER_ID,
+  providerId: MARKET_DATA_PROJECTED_HISTORY_PROVIDER_ID,
   schemaVersion: 1,
   sessionHoursMode: 'eth',
   windowEndEpochMs: projectedStartEpochMs + (240 * MINUTE),
   windowStartEpochMs: projectedStartEpochMs,
 });
-const projectedProvider = createV4ProjectedHistoryProvider({
+const projectedProvider = createMarketDataProjectedHistoryProvider({
   apiBase: 'http://127.0.0.1:8766',
   fetchImpl: async (url) => {
     projectedCalls.push(url);
@@ -288,12 +288,12 @@ const projectedProvider = createV4ProjectedHistoryProvider({
 });
 const projectedBatch = await projectedProvider.requestProjectedHistory(projectedRequest);
 assert.equal(projectedCalls[0],
-  'http://127.0.0.1:8766/v4/projected_history?datasetRevision=v4-duckdb-stat-v1-test&end=2026-05-01+12%3A00&instrument=NQ&session=eth&start=2026-05-01+08%3A00&tf=240');
+  'http://127.0.0.1:8766/v7/market-data/projected-history?datasetRevision=v7-duckdb-stat-v1-test&end=2026-05-01+12%3A00&instrument=NQ&session=eth&start=2026-05-01+08%3A00&tf=240');
 assert.equal(projectedBatch.bars.length, 1);
 assert.equal(projectedBatch.bars[0].displayEpochMs, projectedStartEpochMs + (239 * MINUTE));
 
 const dateCalls = [];
-const dateAvailability = createV4MarketDateAvailability({
+const dateAvailability = createMarketDateAvailability({
   apiBase: 'http://127.0.0.1:8766',
   fetchImpl: async (url) => {
     dateCalls.push(url);
@@ -323,7 +323,7 @@ const availableDates = await dateAvailability.loadAvailableDates([
 ]);
 assert.equal(
   dateCalls[0],
-  'http://127.0.0.1:8766/v4/available_dates?instrument=NQ&instrument=ES',
+  'http://127.0.0.1:8766/v7/market-data/available-dates?instrument=NQ&instrument=ES',
 );
 assert.deepEqual(availableDates['instrument.cme.nq'], {
   dates: ['2026-07-20', '2026-07-22'],
@@ -365,4 +365,4 @@ assert.equal(revisionAwareMarket.requestWindow({
   'foundation request planning must adopt a newly discovered database revision');
 revisionAwareMarket.dispose();
 
-console.log(`v7 V4 bars provider adapter harness passed (${datasetRevisionNegativeCases.cases.length} dataset-revision negative controls)`);
+console.log(`v7 market-data provider adapter harness passed (${datasetRevisionNegativeCases.cases.length} dataset-revision negative controls)`);

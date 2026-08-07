@@ -24,7 +24,7 @@ Options:
                          Default: /etc/replay-lab/secrets/web-password
   --reset-password       Prompt for a new browser password even when the file exists.
   --preserve-caddy       Keep existing Caddy sites and import a Replay Lab fragment.
-  --replace-legacy       Stop only identified V4 API/serve.mjs listeners on 8766/8007.
+  --replace-legacy       Stop only identified Replay Lab listeners on 8766/8007.
   --help                 Show this help.
 
 This wrapper does not open a cloud security group. Allow inbound TCP 80/443 in
@@ -69,10 +69,15 @@ listener_pids() {
 stop_identified_listener() {
   local port="$1"
   local unit="$2"
+  local legacy_unit="${3:-}"
   local pid=""
   local command_line=""
   local pids=()
   systemctl is-active --quiet "$unit" && return
+  if [[ -n "$legacy_unit" ]] && systemctl is-active --quiet "$legacy_unit"; then
+    info "legacy managed unit will be migrated transactionally: $legacy_unit"
+    return
+  fi
   mapfile -t pids < <(listener_pids "$port")
   [[ "${#pids[@]}" -gt 0 ]] || return 0
   [[ "$replace_legacy" -eq 1 ]] \
@@ -81,7 +86,9 @@ stop_identified_listener() {
     [[ -r "/proc/$pid/cmdline" ]] || die "cannot inspect listener PID $pid on port $port"
     command_line="$(tr '\0' ' ' < "/proc/$pid/cmdline")"
     if [[ "$port" == "8766"
-      && ("$command_line" == *"v4_api.py"* || "$command_line" == *"read_api.py"*) ]]; then
+      && ("$command_line" == *"market_data_api.py"* \
+        || "$command_line" == *"v4_api.py"* \
+        || "$command_line" == *"read_api.py"*) ]]; then
       :
     elif [[ "$port" == "8007" && "$command_line" == *"serve.mjs"* && "$command_line" == *"8007"* ]]; then
       :
@@ -244,7 +251,7 @@ chown root:root "$password_file"
 chmod 0600 "$password_file"
 [[ -r "$password_file" && -s "$password_file" ]] || die "password file preparation failed"
 
-stop_identified_listener 8766 replay-lab-api.service
+stop_identified_listener 8766 replay-lab-market-data.service replay-lab-api.service
 stop_identified_listener 8007 replay-lab-web.service
 
 info "cloud security group prerequisite: inbound TCP 80/443; keep 8007/8766/8767/8768 closed"

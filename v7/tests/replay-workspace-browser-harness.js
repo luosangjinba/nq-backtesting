@@ -354,7 +354,7 @@ try {
 
   const startedAt = performance.now();
   const providerRequestsAtEntry = await evaluate(cdp,
-    `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`);
+    `globalThis.__fetchUrls.filter((url) => url.includes('/v7/market-data/bars?')).length`);
   await evaluate(cdp, `(() => {
     const root = document.querySelector('.replay-workspace');
     const toolbar = document.querySelector('.replay-workspace-toolbar');
@@ -415,7 +415,7 @@ try {
   assert.equal(await evaluate(cdp, `document.querySelector('.lightweight-chart-host').dataset.lastMutationMode`),
     'tail-update', 'cache-hit 1m Next must use the adapter tail-update path');
   assert.equal(await evaluate(cdp,
-    `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`),
+    `globalThis.__fetchUrls.filter((url) => url.includes('/v7/market-data/bars?')).length`),
     providerRequestsAtEntry, 'buffered cache-hit Next must not issue another provider request');
   assert.equal(await evaluate(cdp, `document.querySelector('.replay-visible-through').textContent`),
     'Visible through · 05/01/2026, 12:41 EDT · 122 bars');
@@ -478,7 +478,7 @@ try {
   assert.equal(await evaluate(cdp, `document.querySelector('.lightweight-chart-host').dataset.lastMutationMode`),
     'full-replace', 'timeframe replacement must remain one complete series mutation');
   const providerRequestsAfterTimeframe = await evaluate(cdp,
-    `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`);
+    `globalThis.__fetchUrls.filter((url) => url.includes('/v7/market-data/bars?')).length`);
   assert.equal(providerRequestsAfterTimeframe, providerRequestsAtEntry + 1,
     'first target-history expansion must use one bounded provider request');
   assert.equal(
@@ -530,7 +530,7 @@ try {
   assert.equal(await evaluate(cdp, `document.querySelector('.lightweight-chart-host').dataset.lastMutationMode`),
     'tail-update', 'aggregate Next must update only the active or newly appended candle');
   assert.equal(await evaluate(cdp,
-    `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`),
+    `globalThis.__fetchUrls.filter((url) => url.includes('/v7/market-data/bars?')).length`),
     providerRequestsAfterTimeframe, 'cache-hit aggregate Next must not issue another provider request');
   assert.equal(manualAfter.wall, 'manual');
 
@@ -1001,7 +1001,7 @@ try {
   assert.equal(await evaluate(cdp, `document.querySelector('.replay-next').disabled`), false,
     'Manual Next queued during a real Workspace replacement must execute after the idle publication');
   const requestsBeforeCadence = await evaluate(cdp,
-    `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`);
+    `globalThis.__fetchUrls.filter((url) => url.includes('/v7/market-data/bars?')).length`);
   let cadenceRevision = 3;
   const rapidNextStartRevision = cadenceRevision;
   await evaluate(cdp, `(async () => {
@@ -1064,7 +1064,7 @@ try {
   assert.ok(latencySummary.p99Ms < 150, `aggregate Next p99 exceeded budget: ${latencySummary.p99Ms}ms`);
   assert.ok(latencySummary.maxMs < 250, `aggregate Next max exceeded budget: ${latencySummary.maxMs}ms`);
   assert.equal(await evaluate(cdp,
-    `globalThis.__fetchUrls.filter((url) => url.includes('/v4/bars?')).length`),
+    `globalThis.__fetchUrls.filter((url) => url.includes('/v7/market-data/bars?')).length`),
     requestsBeforeCadence, 'the rapid burst and 100 cache-hit aggregate Next actions must issue zero provider requests');
 } finally {
   cdp?.close();

@@ -1,7 +1,7 @@
 import { createProjectedHistoryRequest } from '../projected-history-contract/public.js';
 import {
-  V4_PROJECTED_HISTORY_PROVIDER_ID,
-} from '../v4-bars-provider-adapter/public.js';
+  MARKET_DATA_PROJECTED_HISTORY_PROVIDER_ID,
+} from '../market-data-provider-adapter/public.js';
 import { planSingleHistoryWindow } from './history-window-plan.js';
 
 const MINUTE = 60_000;
@@ -74,7 +74,7 @@ export function createFoundationProjectedHistory({
       displayTimeframeId: selection.displayTimeframe.id,
       durationMs: alignment.kind === 'fixed-duration' ? alignment.durationMs : null,
       instrumentId: selection.instrument.id,
-      providerId: V4_PROJECTED_HISTORY_PROVIDER_ID,
+      providerId: MARKET_DATA_PROJECTED_HISTORY_PROVIDER_ID,
       schemaVersion: 1,
       sessionHoursMode: selection.sessionHoursMode,
       windowEndEpochMs,

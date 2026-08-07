@@ -77,7 +77,7 @@ export function createProductionModuleDefinition({
     instantiate({ optionalPorts, requiredPorts }) {
       lifecycleObserver('instantiate', MODULE_ID);
       const browserApi = requirePort(requiredPorts, 'adapter.session-browser-ui', 'createSessionBrowser');
-      const dateApi = requirePort(requiredPorts, 'adapter.v4-bars-provider', 'createV4MarketDateAvailability');
+      const dateApi = requirePort(requiredPorts, 'adapter.market-data-provider', 'createMarketDateAvailability');
       requirePort(requiredPorts, 'adapter.session-persistence', 'createStorageAdapter');
       requirePort(requiredPorts, 'adapter.session-persistence', 'createSessionRepository');
       requirePort(requiredPorts, 'core.session-store', 'createSessionStore');
@@ -152,7 +152,7 @@ export function createProductionModuleDefinition({
           replayWorkspace = replayApi?.createReplayWorkspaceSurface() ?? null;
           browser = browserApi.createSessionBrowser({
             colorHistory: composed?.colorHistory ?? null,
-            dateAvailability: dateApi.createV4MarketDateAvailability(),
+            dateAvailability: dateApi.createMarketDateAvailability(),
             idFactory: () => `session-${environment.crypto.randomUUID()}`,
             instruments: SESSION_BROWSER_CONFIG.instruments,
             navigation: createHashNavigation(environment.browserWindow),

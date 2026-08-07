@@ -1,6 +1,6 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule (R11.1 automated recovery closed, 2026-08-06)
+Status: binding delivery rule (R12.2 implementation, host review open, 2026-08-06)
 
 ## Delivery IDs
 
@@ -20,14 +20,19 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current repository-changing delivery step is `R11.1`, the cross-runtime
-architecture-integrity recovery opened and automatically closed by the
-2026-08-06 review. R8 remains
+The current repository-changing delivery step is `R12.2`, the standalone V7
+runtime separation confirmed during lightweight-host acceptance. R12.1 remains
+the implemented Database Bootstrap re-upload recovery in the same uncommitted
+delivery set; its host gate remains open. R11.1 remains the automatically
+closed cross-runtime architecture-integrity recovery; R12 does not reopen it.
+R8 remains
 closed at R8.16 commit `364c6b27`; R9.1–R9.4 and R10.1–R10.10 retain their
 recorded implementation and human-review states, and the phase-one overall
-checklist and H087/H088/H091 remain open. R11.1 is one recovery commit with inseparable W1–W8
-workstreams; those workstream labels are not delivery IDs. Broad `R<n>`
-headings remain milestones only.
+checklist and H087/H088/H091 remain open. R11.1 is one recovery commit with
+inseparable W1–W8 workstreams; those workstream labels are not delivery IDs.
+H092 records the automatically accepted staged-discard safety invariant for
+R12.1. H093 records the standalone V7 runtime invariant for R12.2. Broad
+`R<n>` headings remain milestones only.
 
 ## Other Stable IDs
 

@@ -95,7 +95,7 @@ try {
         static now() { return 1780693200000; }
       };
       globalThis.fetch = async (input, options) => {
-        if (String(input).includes('/v4/available_dates')) {
+        if (String(input).includes('/v7/market-data/available-dates')) {
           const dates = [
             '2026-05-01', '2026-05-03', '2026-05-05', '2026-05-08',
             '2026-06-05', '2026-06-07', '2026-06-10', '2026-06-12',

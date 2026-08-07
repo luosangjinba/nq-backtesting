@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r8.12-source-documentation-closure",
+  "status": "r12.2-standalone-v7-runtime",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -79,6 +79,7 @@
     "docs/V7_EXECUTION_ROADMAP.md",
     "docs/V7_SERVER_STATE_SYNC_R10_8.md",
     "docs/V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md",
+    "docs/V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md",
     "TODO.md"
   ],
   "owners": [
@@ -137,7 +138,7 @@
     "src/provider-policy-contract/module.json",
     "src/coverage-planning-contract/module.json",
     "src/provider-execution-runtime/module.json",
-    "src/v4-bars-provider-adapter/module.json",
+    "src/market-data-provider-adapter/module.json",
     "src/replay-contract/module.json",
     "src/replay-runtime/module.json",
     "src/replay-prefetch-contract/module.json",

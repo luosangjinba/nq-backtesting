@@ -53,8 +53,8 @@ now exercises a `12h` active Pane with Sync timeframe and observes Replay `4h`
 without a cursor or enable-time Workspace transaction.
 
 Production architecture remains clean at 51 modules, 127 dependency edges,
-115 construction sites, and 19 writer sites. Current source evidence is 318
-files, 24,824 effective lines, 2,633 functions, and 311 public exports, with no
+115 construction sites, and 19 writer sites. Current source evidence is 319
+files, 24,940 effective lines, 2,640 functions, and 311 public exports, with no
 source-quality finding.
 
 ## Human Gate

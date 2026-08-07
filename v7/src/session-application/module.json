@@ -7,7 +7,7 @@
   "requiredPorts": [
     "adapter.session-browser-ui",
     "adapter.session-persistence",
-    "adapter.v4-bars-provider",
+    "adapter.market-data-provider",
     "core.replay-navigation-preference-store",
     "core.session-store",
     "core.workstation-settings"

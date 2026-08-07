@@ -1,5 +1,5 @@
 [Unit]
-Description=Replay Lab V4 market-data API
+Description=Replay Lab V7 read-only market-data service
 After=network-online.target
 Wants=network-online.target
 
@@ -7,9 +7,9 @@ Wants=network-online.target
 Type=simple
 User=@@SERVICE_USER@@
 Group=@@SERVICE_GROUP@@
-WorkingDirectory=@@CURRENT_RELEASE@@/v4
+WorkingDirectory=@@CURRENT_RELEASE@@/v7/server
 EnvironmentFile=/etc/replay-lab/replay-lab.env
-ExecStart=@@PYTHON_BIN@@ @@CURRENT_RELEASE@@/v4/read_api.py
+ExecStart=@@PYTHON_BIN@@ @@CURRENT_RELEASE@@/v7/server/market_data_api.py
 Restart=on-failure
 RestartSec=3
 TimeoutStopSec=20

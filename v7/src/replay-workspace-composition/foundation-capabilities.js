@@ -7,8 +7,8 @@ import { createWorkspaceReplacementCatalog } from '../workspace-replacement-runt
 import {
   createNewYorkWallEpochConverter,
   newYorkWallEpochToInstantMs,
-  V4_BARS_PROVIDER_ID,
-} from '../v4-bars-provider-adapter/public.js';
+  MARKET_DATA_PROVIDER_ID,
+} from '../market-data-provider-adapter/public.js';
 import {
   FOUNDATION_CALENDAR_TIMEFRAME_EXTENSION,
 } from './foundation-calendar-timeframe-capability.js';
@@ -30,7 +30,7 @@ export const FOUNDATION_IDS = Object.freeze({
     es: 'instrument.cme.es',
     nq: 'instrument.cme.nq',
   }),
-  provider: V4_BARS_PROVIDER_ID,
+  provider: MARKET_DATA_PROVIDER_ID,
   resolution: 'resolution.fixed-1-minute',
   sessionHours: Object.freeze({
     eth: 'session-hours.cme-eth',

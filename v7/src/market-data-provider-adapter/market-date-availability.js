@@ -1,7 +1,7 @@
 import {
-  resolveV4BarsApiBase,
-  resolveV4InstrumentCode,
-} from './v4-bars-provider-adapter.js';
+  resolveMarketDataApiBase,
+  resolveMarketDataInstrumentCode,
+} from './market-data-provider-adapter.js';
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const WALL_MINUTE_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
@@ -9,9 +9,9 @@ const WALL_MINUTE_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
 function requestUrl(instrumentIds, apiBase) {
   const parameters = new URLSearchParams();
   instrumentIds.forEach((instrumentId) => parameters.append(
-    'instrument', resolveV4InstrumentCode(instrumentId),
+    'instrument', resolveMarketDataInstrumentCode(instrumentId),
   ));
-  return `${apiBase}/v4/available_dates?${parameters}`;
+  return `${apiBase}/v7/market-data/available-dates?${parameters}`;
 }
 
 function normalizeInstrumentIds(instrumentIds) {
@@ -20,7 +20,7 @@ function normalizeInstrumentIds(instrumentIds) {
   }
   const normalized = [...new Set(instrumentIds)];
   if (normalized.length !== instrumentIds.length
-    || normalized.some((instrumentId) => resolveV4InstrumentCode(instrumentId) === null)) {
+    || normalized.some((instrumentId) => resolveMarketDataInstrumentCode(instrumentId) === null)) {
     throw new TypeError('Market date availability contains an unsupported instrument.');
   }
   return normalized;
@@ -50,21 +50,21 @@ function normalizePayload(payload, instrumentIds) {
     }));
   });
   return Object.freeze(Object.fromEntries(instrumentIds.map((instrumentId) => {
-    const code = resolveV4InstrumentCode(instrumentId);
+    const code = resolveMarketDataInstrumentCode(instrumentId);
     if (!byCode.has(code)) throw new TypeError('Market date availability response is incomplete.');
     return [instrumentId, byCode.get(code)];
   })));
 }
 
 /**
- * Owner: V4 market-data provider adapter.
+ * Owner: market-data provider adapter.
  * Purpose: expose New York calendar dates containing at least one source bar.
  * Inputs: capability instrument identities and optional cancellation signal.
  * Outputs: immutable date arrays keyed by capability instrument identity.
  * Side effects: performs one bounded read-only HTTP request per refresh.
  */
-export function createV4MarketDateAvailability({
-  apiBase = resolveV4BarsApiBase(),
+export function createMarketDateAvailability({
+  apiBase = resolveMarketDataApiBase(),
   fetchImpl = globalThis.fetch,
 } = {}) {
   if (typeof fetchImpl !== 'function') throw new TypeError('Market date availability requires fetch.');

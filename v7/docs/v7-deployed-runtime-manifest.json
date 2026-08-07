@@ -1,14 +1,19 @@
 {
   "schemaVersion": 2,
-  "status": "r11-recovery",
+  "status": "standalone-v7",
   "productionRoots": [
     { "path": "v7/server", "extensions": [".py"] },
     { "path": "v7/scripts", "extensions": [".mjs"] },
-    { "path": "v7/deploy/linux", "extensions": [".sh", ".template", ".txt", ".md"] },
-    { "path": "v4/read_api.py", "extensions": [".py"] },
-    { "path": "v4/v4_api.py", "extensions": [".py"] },
-    { "path": "v4/server", "extensions": [".py"] }
+    { "path": "v7/deploy/linux", "extensions": [".sh", ".template", ".txt", ".md"] }
   ],
+  "releaseContract": {
+    "repositoryArchiveRoots": ["v7"],
+    "marketDatabase": {
+      "delivery": "external-file",
+      "environmentVariable": "V7_MARKET_DATA_DB",
+      "releaseContainsDatabase": false
+    }
+  },
   "components": [
     {
       "id": "service.v7-web",
@@ -22,7 +27,7 @@
         "v7/scripts/database-import-proxy.mjs"
       ],
       "requiredComponents": [
-        "service.v4-market-data-read"
+        "service.v7-market-data"
       ],
       "optionalComponents": [
         "service.v7-state",
@@ -65,61 +70,21 @@
       "independentHarnesses": ["v7/tests/database-import-service-harness.js"]
     },
     {
-      "id": "service.v4-market-data-read",
+      "id": "service.v7-market-data",
       "kind": "read-only-service",
-      "owner": "deployed-market-data-read-boundary",
-      "entry": "v4/read_api.py",
+      "owner": "v7-market-data-read-boundary",
+      "entry": "v7/server/market_data_api.py",
       "ownedPaths": [
-        "v4/read_api.py",
-        "v4/server/__init__.py",
-        "v4/server/bars_handler.py",
-        "v4/server/bars_service.py",
-        "v4/server/economic_calendar_handler.py",
-        "v4/server/economic_calendar_service.py",
-        "v4/server/market_data_calendar_handler.py",
-        "v4/server/market_data_calendar_service.py",
-        "v4/server/market_data_read_handler.py",
-        "v4/server/market_data_revision.py",
-        "v4/server/price_lookup.py",
-        "v4/server/projected_history_service.py",
-        "v4/server/target_bars_service.py"
+        "v7/server/market_data_api.py",
+        "v7/server/market_data_economic_calendar.py",
+        "v7/server/market_data_queries.py",
+        "v7/server/market_data_read_handler.py",
+        "v7/server/market_data_revision.py"
       ],
       "requiredComponents": [],
       "optionalComponents": [],
       "writerSurfaces": [],
-      "independentHarnesses": [
-        "v4/scripts/read_api_deployment_smoke.py",
-        "v4/tests/dataset-revision-cache-smoke.py"
-      ]
-    },
-    {
-      "id": "tooling.v4-maintenance",
-      "kind": "legacy-maintenance-tooling",
-      "owner": "v4-local-maintenance-boundary",
-      "entry": "v4/v4_api.py",
-      "ownedPaths": [
-        "v4/v4_api.py",
-        "v4/server/databento_roll_chain_audit.py",
-        "v4/server/economic_manual_import.py",
-        "v4/server/historical_roll_repair_plan.py",
-        "v4/server/historical_roll_repair_service.py",
-        "v4/server/legacy_continuous_roll_audit.py",
-        "v4/server/local_env_service.py",
-        "v4/server/maintenance_handler.py",
-        "v4/server/maintenance_service.py",
-        "v4/server/manifest_historical_roll_repair_service.py",
-        "v4/server/manifest_roll_repair_registry.py",
-        "v4/server/market_data_backup_service.py",
-        "v4/server/market_data_coverage_service.py",
-        "v4/server/roll_calendar_service.py",
-        "v4/server/roll_maintenance_service.py",
-        "v4/server/workspace_handler.py",
-        "v4/server/workspace_store.py"
-      ],
-      "requiredComponents": ["service.v4-market-data-read"],
-      "optionalComponents": [],
-      "writerSurfaces": ["legacyWorkspace", "localEnvironment", "marketDatabaseAppend"],
-      "independentHarnesses": ["v4/tests/backend-handler-boundary-smoke.py"]
+      "independentHarnesses": ["v7/tests/market-data-service-harness.js"]
     },
     {
       "id": "deployment.linux",
@@ -128,7 +93,7 @@
       "entry": "v7/deploy/linux/install.sh",
       "ownedPaths": ["v7/deploy/linux/"],
       "requiredComponents": [
-        "service.v4-market-data-read",
+        "service.v7-market-data",
         "service.v7-web",
         "service.v7-state",
         "service.v7-database-import"
@@ -142,7 +107,8 @@
       ],
       "independentHarnesses": [
         "v7/tests/linux-deployment-script-harness.js",
-        "v7/tests/linux-host-transaction-harness.js"
+        "v7/tests/linux-host-transaction-harness.js",
+        "v7/tests/standalone-v7-runtime-harness.js"
       ]
     },
     {
@@ -166,14 +132,14 @@
   "serviceUnitDirectory": "v7/deploy/linux/systemd",
   "serviceUnits": [
     {
-      "component": "service.v4-market-data-read",
+      "component": "service.v7-market-data",
       "listenEndpoint": "127.0.0.1:8766",
       "listenEvidence": {
         "path": "v7/deploy/linux/install.sh",
-        "text": "V4_API_PORT=8766"
+        "text": "V7_MARKET_DATA_PORT=8766"
       },
-      "template": "v7/deploy/linux/systemd/replay-lab-api.service.template",
-      "unitName": "replay-lab-api.service"
+      "template": "v7/deploy/linux/systemd/replay-lab-market-data.service.template",
+      "unitName": "replay-lab-market-data.service"
     },
     {
       "component": "service.v7-state",
@@ -214,11 +180,11 @@
     {
       "activation": "always",
       "configurationPath": "v7/deploy/linux/caddy/Caddyfile.template",
-      "id": "caddy.v4-market-data",
-      "matcher": "@v4_api",
-      "pathPattern": "/v4/*",
+      "id": "caddy.v7-market-data",
+      "matcher": "@market_data",
+      "pathPattern": "/v7/market-data/*",
       "sourceComponent": "deployment.linux",
-      "targetComponent": "service.v4-market-data-read",
+      "targetComponent": "service.v7-market-data",
       "targetEndpoint": "127.0.0.1:8766"
     },
     {
@@ -255,17 +221,17 @@
   "crossRuntimeSmokes": [
     {
       "capability": "read-only-boundary",
-      "component": "service.v4-market-data-read",
-      "path": "v4/scripts/read_api_deployment_smoke.py",
-      "runtime": "python",
-      "successText": "V4 deployed read-only API smoke: PASS"
+      "component": "service.v7-market-data",
+      "path": "v7/tests/market-data-service-harness.js",
+      "runtime": "node",
+      "successText": "v7 market-data service harness passed"
     },
     {
       "capability": "dataset-revision",
-      "component": "service.v4-market-data-read",
-      "path": "v4/tests/dataset-revision-cache-smoke.py",
-      "runtime": "python",
-      "successText": "dataset revision cache smoke passed"
+      "component": "service.v7-market-data",
+      "path": "v7/tests/market-data-service-harness.js",
+      "runtime": "node",
+      "successText": "v7 market-data service harness passed"
     }
   ],
   "writerInventories": {
@@ -273,11 +239,8 @@
     "databaseFileMetadata": "deployment.linux",
     "databaseImportStaging": "service.v7-database-import",
     "hostServiceConfiguration": "deployment.linux",
-    "legacyWorkspace": "tooling.v4-maintenance",
-    "localEnvironment": "tooling.v4-maintenance",
     "marketDatabaseActivation": "service.v7-database-import",
     "marketDatabaseActivationLock": "service.v7-database-import",
-    "marketDatabaseAppend": "tooling.v4-maintenance",
     "proxyConfiguration": "deployment.linux",
     "releaseFilesystem": "deployment.linux",
     "sourceQualityBaseline": "tooling.v7-architecture-baseline",
@@ -288,11 +251,8 @@
     { "surface": "databaseFileMetadata", "path": "v7/deploy/linux/deploy-public-ip.sh", "pattern": "chown root:" },
     { "surface": "databaseImportStaging", "path": "v7/server/database_import_store.py", "pattern": "staging_root" },
     { "surface": "hostServiceConfiguration", "path": "v7/deploy/linux/install.sh", "pattern": "/etc/systemd/system" },
-    { "surface": "legacyWorkspace", "path": "v4/v4_api.py", "pattern": "write_workspace_document" },
-    { "surface": "localEnvironment", "path": "v4/v4_api.py", "pattern": "environment_write" },
     { "surface": "marketDatabaseActivation", "path": "v7/server/database_import_store.py", "pattern": "os.link" },
     { "surface": "marketDatabaseActivationLock", "path": "v7/server/database_import_store.py", "pattern": "activation_lock" },
-    { "surface": "marketDatabaseAppend", "path": "v4/v4_api.py", "pattern": "--write" },
     { "surface": "proxyConfiguration", "path": "v7/deploy/linux/install.sh", "pattern": "/etc/caddy/Caddyfile" },
     { "surface": "releaseFilesystem", "path": "v7/deploy/linux/install.sh", "pattern": "current.next" },
     { "surface": "sourceQualityBaseline", "path": "v7/scripts/refresh-production-source-quality-baseline.mjs", "pattern": "writeFileSync" },

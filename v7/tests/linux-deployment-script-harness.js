@@ -10,12 +10,12 @@ const repositoryRoot = path.resolve(testDirectory, '../..');
 const script = path.join(repositoryRoot, 'v7/deploy/linux/install.sh');
 const quickDeployScript = path.join(repositoryRoot, 'v7/deploy/linux/deploy-public-ip.sh');
 const caddyTemplate = path.join(repositoryRoot, 'v7/deploy/linux/caddy/Caddyfile.template');
-const apiTemplate = path.join(
+const marketDataTemplate = path.join(
   repositoryRoot,
-  'v7/deploy/linux/systemd/replay-lab-api.service.template',
+  'v7/deploy/linux/systemd/replay-lab-market-data.service.template',
 );
-const readApiEntry = path.join(repositoryRoot, 'v4/read_api.py');
-const readApiHandler = path.join(repositoryRoot, 'v4/server/market_data_read_handler.py');
+const marketDataEntry = path.join(repositoryRoot, 'v7/server/market_data_api.py');
+const marketDataHandler = path.join(repositoryRoot, 'v7/server/market_data_read_handler.py');
 const webTemplate = path.join(
   repositoryRoot,
   'v7/deploy/linux/systemd/replay-lab-web.service.template',
@@ -27,6 +27,10 @@ const stateTemplate = path.join(
 const databaseImportTemplate = path.join(
   repositoryRoot,
   'v7/deploy/linux/systemd/replay-lab-database-import.service.template',
+);
+const runtimeRequirements = path.join(
+  repositoryRoot,
+  'v7/deploy/linux/requirements-runtime.txt',
 );
 const negativeCases = JSON.parse(fs.readFileSync(path.join(
   repositoryRoot,
@@ -107,8 +111,10 @@ try {
   assert.match(quickHelp.stdout, /8768/);
   const quickSource = fs.readFileSync(quickDeployScript, 'utf8');
   assert.match(quickSource, /refusing to stop unknown PID/);
+  assert.match(quickSource, /"market_data_api\.py"/,
+    'quick deploy may replace an identified manual V7 market-data listener');
   assert.match(quickSource, /"read_api\.py"/,
-    'quick deploy may replace the managed read-only V4 listener');
+    'quick deploy recognizes a manual legacy V4 listener during migration');
   assert.match(quickSource, /Browser password for \$auth_user/);
   assert.match(quickSource, /previous_umask="\$\(umask\)"[\s\S]*umask 077[\s\S]*umask "\$previous_umask"/);
   assert.match(quickSource, /trap 'quick_deploy_exit "\$\?"' EXIT/,
@@ -124,7 +130,7 @@ try {
     'systemctl() { return 3; }',
     'listener_pids() { return 0; }',
     quickListenerStopSource,
-    'stop_identified_listener 8766 replay-lab-api.service',
+    'stop_identified_listener 8766 replay-lab-market-data.service replay-lab-api.service',
     'printf "no-listener-continues\\n"',
   ].join('\n')], { encoding: 'utf8' });
   assert.equal(noLegacyListener.status, 0, noLegacyListener.stderr);
@@ -145,7 +151,7 @@ try {
   assert.equal(privatePlan.status, 0, privatePlan.stderr);
   assert.match(privatePlan.stdout, /public proxy: disabled/);
   assert.match(privatePlan.stdout, /ssh -L 8007:127\.0\.0\.1:8007 -L 8766:127\.0\.0\.1:8766/);
-  assert.match(privatePlan.stdout, /Market database copy\/write by V4 API: never/);
+  assert.match(privatePlan.stdout, /Market database copy\/write by V7 market-data service: never/);
   assert.match(privatePlan.stdout, /Market database bootstrap: disabled/);
   assert.match(privatePlan.stdout, /Market database service mount: read-only/);
   assert.match(privatePlan.stdout, /User state SQLite: \/var\/lib\/replay-lab\/state\/replay-lab-state\.sqlite3/);
@@ -174,7 +180,7 @@ try {
   assert.match(publicPlan.stdout, /header_up X-Replay-Lab-User \{http\.auth\.user\.id\}/);
   assert.match(publicPlan.stdout, /not path \/v7\/state\/\*/);
   assert.doesNotMatch(publicPlan.stdout, /@database_import/);
-  assert.match(publicPlan.stdout, /reverse_proxy @v4_api 127\.0\.0\.1:8766/);
+  assert.match(publicPlan.stdout, /reverse_proxy @market_data 127\.0\.0\.1:8766/);
   assert.match(publicPlan.stdout, /reverse_proxy 127\.0\.0\.1:8007/);
   assert.match(publicPlan.stdout, /(basic_auth|basicauth) \{/);
   if (caddyAvailable) {
@@ -295,7 +301,8 @@ try {
   assert.match(caddySource, /@@STATE_PROXY_BLOCK@@/);
   assert.match(caddySource, /@@DATABASE_PROXY_BLOCK@@/);
   assert.match(caddySource, /@@MUTATION_BLOCK@@/);
-  assert.match(caddySource, /reverse_proxy @v4_api 127\.0\.0\.1:8766/);
+  assert.match(caddySource, /@market_data path \/v7\/market-data\/\*/);
+  assert.match(caddySource, /reverse_proxy @market_data 127\.0\.0\.1:8766/);
   assert.match(caddySource, /reverse_proxy 127\.0\.0\.1:8007/);
   assert.match(caddySource, /@@TLS_BLOCK@@/);
 
@@ -308,7 +315,7 @@ try {
     'each immutable release must own its Python runtime');
   assert.match(installerSource, /-m venv --clear "\$venv_dir"/,
     'a failed partial virtualenv must be repaired on rerun');
-  assert.match(installerSource, /already used outside \$unit; stop the legacy listener before apply/);
+  assert.match(installerSource, /already used outside managed units/);
   assert.match(installerSource, /caddy_version_at_least 2 10 2/);
   assert.match(installerSource, /import \/etc\/caddy\/replay-lab\.Caddyfile/);
   assert.match(installerSource, /combined Caddy configuration is invalid; restoring/);
@@ -332,6 +339,19 @@ try {
   assert.match(installerSource, /require_managed_or_free_port 8768 replay-lab-database-import\.service/);
   assert.match(installerSource, /V7_DATABASE_IMPORT_PORT=8768/);
   assert.match(installerSource, /V7_DATABASE_IMPORT_ENABLED=%s/);
+  assert.match(installerSource, /V7_MARKET_DATA_HOST=127\.0\.0\.1/);
+  assert.match(installerSource, /V7_MARKET_DATA_PORT=8766/);
+  assert.match(installerSource, /V7_MARKET_DATA_DB=%s/);
+  assert.match(installerSource, /V7_MARKET_DATA_TABLE=futures_1m/);
+  assert.doesNotMatch(installerSource, /printf 'V4_(?:API|TRADING_DB|MARKET_DATA)/);
+  assert.match(installerSource,
+    /repo_git archive --format=tar --output="\$archive_path" "\$repository_commit" v7/,
+    'immutable host releases must contain only the committed V7 tree');
+  assert.match(installerSource, /retire_legacy_market_data_unit/,
+    'the old systemd unit must be retired inside the host transaction');
+  assert.match(installerSource,
+    /deployment_units=\([\s\S]*replay-lab-market-data\.service[\s\S]*replay-lab-api\.service/,
+    'rollback must capture both the current and legacy market-data unit states');
   const rollbackSource = installerSource.match(/^rollback_release\(\) \{[\s\S]*?^\}/m)?.[0];
   assert.ok(rollbackSource, 'release rollback must remain independently inspectable');
   assert.match(rollbackSource, /restore_active_unit_states \|\| failed=1/,
@@ -374,34 +394,48 @@ try {
     'port_is_listening() { return 0; }',
     'systemctl() { return 3; }',
     listenerGuardSource,
-    'require_managed_or_free_port 8766 replay-lab-api.service',
+    'require_managed_or_free_port 8766 replay-lab-market-data.service replay-lab-api.service',
   ].join('\n')], { encoding: 'utf8' });
   assert.notEqual(listenerGuard.status, 0);
-  assert.match(listenerGuard.stderr, /127\.0\.0\.1:8766 is already used outside replay-lab-api\.service/);
+  assert.match(listenerGuard.stderr, /127\.0\.0\.1:8766 is already used outside managed units/);
+  const managedLegacyListener = spawnSync('bash', ['-c', [
+    'die() { printf "ERROR: %s\\n" "$*" >&2; exit 1; }',
+    'port_is_listening() { return 0; }',
+    'systemctl() { [[ "$3" == "replay-lab-api.service" ]]; }',
+    listenerGuardSource,
+    'require_managed_or_free_port 8766 replay-lab-market-data.service replay-lab-api.service',
+    'printf "managed-legacy-accepted\\n"',
+  ].join('\n')], { encoding: 'utf8' });
+  assert.equal(managedLegacyListener.status, 0, managedLegacyListener.stderr);
+  assert.match(managedLegacyListener.stdout, /managed-legacy-accepted/,
+    'an active legacy systemd unit must reach transactional migration instead of failing preflight');
 
-  const apiSource = fs.readFileSync(apiTemplate, 'utf8');
+  const marketDataSource = fs.readFileSync(marketDataTemplate, 'utf8');
   const webSource = fs.readFileSync(webTemplate, 'utf8');
   const stateSource = fs.readFileSync(stateTemplate, 'utf8');
   const databaseImportSource = fs.readFileSync(databaseImportTemplate, 'utf8');
-  for (const source of [apiSource, webSource, stateSource, databaseImportSource]) {
+  for (const source of [marketDataSource, webSource, stateSource, databaseImportSource]) {
     assert.match(source, /NoNewPrivileges=true/);
     assert.match(source, /ProtectSystem=full/);
     assert.match(source, /RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6/);
   }
-  assert.match(apiSource, /EnvironmentFile=\/etc\/replay-lab\/replay-lab\.env/);
-  assert.match(apiSource, /ReadOnlyPaths=@@DATABASE_PARENT@@/);
-  assert.match(apiSource, /@@STATE_ROOT@@\/state @@STATE_ROOT@@\/database-import/);
-  assert.match(apiSource, /v4\/read_api\.py/);
-  assert.doesNotMatch(apiSource, /v4\/v4_api\.py/,
-    'deployed market-data service must not start the mutable local V4 entry');
-  const readApiEntrySource = fs.readFileSync(readApiEntry, 'utf8');
-  const readApiHandlerSource = fs.readFileSync(readApiHandler, 'utf8');
-  assert.doesNotMatch(readApiEntrySource, /(?:from|import)\s+v4_api/,
-    'deployed read-only entry must not import the mutable local V4 entry');
-  assert.doesNotMatch(readApiHandlerSource, /maintenance|workspace/i,
+  assert.match(marketDataSource, /EnvironmentFile=\/etc\/replay-lab\/replay-lab\.env/);
+  assert.match(marketDataSource, /ReadOnlyPaths=@@DATABASE_PARENT@@/);
+  assert.match(marketDataSource, /@@STATE_ROOT@@\/state @@STATE_ROOT@@\/database-import/);
+  assert.match(marketDataSource, /v7\/server\/market_data_api\.py/);
+  assert.doesNotMatch(marketDataSource, /\/v4\//,
+    'deployed market-data unit must have no V4 runtime path');
+  const marketDataEntrySource = fs.readFileSync(marketDataEntry, 'utf8');
+  const marketDataHandlerSource = fs.readFileSync(marketDataHandler, 'utf8');
+  const runtimeRequirementsSource = fs.readFileSync(runtimeRequirements, 'utf8');
+  assert.doesNotMatch(marketDataEntrySource, /(?:from|import)\s+v4/,
+    'deployed read-only entry must not import a V4 module');
+  assert.doesNotMatch(marketDataHandlerSource, /maintenance|workspace/i,
     'deployed read-only handler must not depend on maintenance or workspace routes');
-  assert.match(readApiHandlerSource, /def do_POST\(self\):\s+self\._reject_mutation\(\)/);
-  assert.match(readApiHandlerSource, /def do_PUT\(self\):\s+self\._reject_mutation\(\)/);
+  assert.match(marketDataHandlerSource, /def do_POST\(self\):[\s\S]*self\._reject_mutation\(\)/);
+  assert.match(marketDataHandlerSource, /do_PUT = do_POST/);
+  assert.doesNotMatch(runtimeRequirementsSource, /PyYAML/i,
+    'the V7-owned market-data entry must not retain the V4 YAML runtime dependency');
   assert.match(webSource, /v7\/scripts\/serve\.mjs 8007/);
   assert.match(webSource, /EnvironmentFile=\/etc\/replay-lab\/replay-lab\.env/);
   assert.match(webSource, /ReadOnlyPaths=@@DATABASE_PARENT@@/);

@@ -121,7 +121,7 @@
       }
     ]
   },
-  "deliveryStep": "R11.1",
+  "deliveryStep": "R12.2",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -188,15 +188,15 @@
       {
         "callCount": 1,
         "factory": "createCoverageReport",
-        "sourceFile": "src/provider-execution-runtime/policy-bound-provider.js",
-        "sourceModuleId": "core.provider-execution-runtime",
+        "sourceFile": "src/market-data-provider-adapter/market-data-provider-adapter.js",
+        "sourceModuleId": "adapter.market-data-provider",
         "targetModuleId": "core.coverage-planning-contract"
       },
       {
         "callCount": 1,
         "factory": "createCoverageReport",
-        "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
-        "sourceModuleId": "adapter.v4-bars-provider",
+        "sourceFile": "src/provider-execution-runtime/policy-bound-provider.js",
+        "sourceModuleId": "core.provider-execution-runtime",
         "targetModuleId": "core.coverage-planning-contract"
       },
       {
@@ -264,6 +264,20 @@
       },
       {
         "callCount": 1,
+        "factory": "createMarketDataProjectedHistoryProvider",
+        "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+        "sourceModuleId": "core.replay-workspace-composition",
+        "targetModuleId": "adapter.market-data-provider"
+      },
+      {
+        "callCount": 1,
+        "factory": "createMarketDataProvider",
+        "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+        "sourceModuleId": "core.replay-workspace-composition",
+        "targetModuleId": "adapter.market-data-provider"
+      },
+      {
+        "callCount": 1,
         "factory": "createModuleHost",
         "sourceFile": "app/data-acquisition.js",
         "sourceModuleId": "application",
@@ -281,7 +295,7 @@
         "factory": "createNewYorkWallEpochConverter",
         "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
         "sourceModuleId": "core.replay-workspace-composition",
-        "targetModuleId": "adapter.v4-bars-provider"
+        "targetModuleId": "adapter.market-data-provider"
       },
       {
         "callCount": 1,
@@ -370,8 +384,8 @@
       {
         "callCount": 1,
         "factory": "createPolicyBoundProvider",
-        "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
-        "sourceModuleId": "adapter.v4-bars-provider",
+        "sourceFile": "src/market-data-provider-adapter/market-data-provider-adapter.js",
+        "sourceModuleId": "adapter.market-data-provider",
         "targetModuleId": "core.provider-execution-runtime"
       },
       {
@@ -426,15 +440,15 @@
       {
         "callCount": 1,
         "factory": "createProjectedHistoryBatch",
-        "sourceFile": "src/projection-domain/projected-history-composition.js",
-        "sourceModuleId": "core.projection-domain",
+        "sourceFile": "src/market-data-provider-adapter/projected-history-adapter.js",
+        "sourceModuleId": "adapter.market-data-provider",
         "targetModuleId": "core.projected-history-contract"
       },
       {
         "callCount": 1,
         "factory": "createProjectedHistoryBatch",
-        "sourceFile": "src/v4-bars-provider-adapter/projected-history-adapter.js",
-        "sourceModuleId": "adapter.v4-bars-provider",
+        "sourceFile": "src/projection-domain/projected-history-composition.js",
+        "sourceModuleId": "core.projection-domain",
         "targetModuleId": "core.projected-history-contract"
       },
       {
@@ -447,15 +461,15 @@
       {
         "callCount": 1,
         "factory": "createProjectedHistoryRequest",
-        "sourceFile": "src/replay-workspace-composition/foundation-projected-history.js",
-        "sourceModuleId": "core.replay-workspace-composition",
+        "sourceFile": "src/market-data-provider-adapter/projected-history-adapter.js",
+        "sourceModuleId": "adapter.market-data-provider",
         "targetModuleId": "core.projected-history-contract"
       },
       {
         "callCount": 1,
         "factory": "createProjectedHistoryRequest",
-        "sourceFile": "src/v4-bars-provider-adapter/projected-history-adapter.js",
-        "sourceModuleId": "adapter.v4-bars-provider",
+        "sourceFile": "src/replay-workspace-composition/foundation-projected-history.js",
+        "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.projected-history-contract"
       },
       {
@@ -468,8 +482,8 @@
       {
         "callCount": 1,
         "factory": "createRawBar",
-        "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
-        "sourceModuleId": "adapter.v4-bars-provider",
+        "sourceFile": "src/market-data-provider-adapter/market-data-provider-adapter.js",
+        "sourceModuleId": "adapter.market-data-provider",
         "targetModuleId": "core.bar-data-contract"
       },
       {
@@ -477,6 +491,13 @@
         "factory": "createRawBarBatch",
         "sourceFile": "src/bar-data-runtime/bar-data-runtime.js",
         "sourceModuleId": "core.bar-data-runtime",
+        "targetModuleId": "core.bar-data-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createRawBarBatch",
+        "sourceFile": "src/market-data-provider-adapter/market-data-provider-adapter.js",
+        "sourceModuleId": "adapter.market-data-provider",
         "targetModuleId": "core.bar-data-contract"
       },
       {
@@ -491,13 +512,6 @@
         "factory": "createRawBarBatch",
         "sourceFile": "src/raw-coverage-lease-contract/lease-contract.js",
         "sourceModuleId": "core.raw-coverage-lease-contract",
-        "targetModuleId": "core.bar-data-contract"
-      },
-      {
-        "callCount": 1,
-        "factory": "createRawBarBatch",
-        "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
-        "sourceModuleId": "adapter.v4-bars-provider",
         "targetModuleId": "core.bar-data-contract"
       },
       {
@@ -705,20 +719,6 @@
       },
       {
         "callCount": 1,
-        "factory": "createV4BarsProvider",
-        "sourceFile": "src/replay-workspace-composition/foundation-market.js",
-        "sourceModuleId": "core.replay-workspace-composition",
-        "targetModuleId": "adapter.v4-bars-provider"
-      },
-      {
-        "callCount": 1,
-        "factory": "createV4ProjectedHistoryProvider",
-        "sourceFile": "src/replay-workspace-composition/foundation-market.js",
-        "sourceModuleId": "core.replay-workspace-composition",
-        "targetModuleId": "adapter.v4-bars-provider"
-      },
-      {
-        "callCount": 1,
         "factory": "createViewportController",
         "sourceFile": "src/workspace-state-runtime/owned-pane-state.js",
         "sourceModuleId": "core.workspace-state-runtime",
@@ -867,15 +867,15 @@
       {
         "callCount": 2,
         "factory": "createRawBarRequest",
-        "sourceFile": "src/provider-execution-runtime/policy-bound-provider.js",
-        "sourceModuleId": "core.provider-execution-runtime",
+        "sourceFile": "src/market-data-provider-adapter/market-data-provider-adapter.js",
+        "sourceModuleId": "adapter.market-data-provider",
         "targetModuleId": "core.bar-data-contract"
       },
       {
         "callCount": 2,
         "factory": "createRawBarRequest",
-        "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
-        "sourceModuleId": "adapter.v4-bars-provider",
+        "sourceFile": "src/provider-execution-runtime/policy-bound-provider.js",
+        "sourceModuleId": "core.provider-execution-runtime",
         "targetModuleId": "core.bar-data-contract"
       },
       {
@@ -1428,7 +1428,7 @@
       {
         "actualDependencies": [
           "adapter.lightweight-chart",
-          "adapter.v4-bars-provider",
+          "adapter.market-data-provider",
           "core.bar-data-contract",
           "core.bar-data-runtime",
           "core.calendar-timeframe-domain",
@@ -1462,7 +1462,7 @@
         "declaredOptionalPorts": [],
         "declaredRequiredPorts": [
           "adapter.lightweight-chart",
-          "adapter.v4-bars-provider",
+          "adapter.market-data-provider",
           "core.bar-data-contract",
           "core.bar-data-runtime",
           "core.calendar-timeframe-domain",
@@ -1549,6 +1549,16 @@
             "sourceFile": "src/replay-workspace-composition/workspace-chart-assembly.js",
             "targetFile": "src/lightweight-chart-adapter/public.js",
             "targetModuleId": "adapter.lightweight-chart",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createMarketDataProjectedHistoryProvider",
+              "createMarketDataProvider"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-market.js",
+            "targetFile": "src/market-data-provider-adapter/public.js",
+            "targetModuleId": "adapter.market-data-provider",
             "throughPublicEntry": true
           },
           {
@@ -1731,16 +1741,6 @@
           },
           {
             "importedNames": [
-              "createV4BarsProvider",
-              "createV4ProjectedHistoryProvider"
-            ],
-            "sourceFile": "src/replay-workspace-composition/foundation-market.js",
-            "targetFile": "src/v4-bars-provider-adapter/public.js",
-            "targetModuleId": "adapter.v4-bars-provider",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
               "createWorkspaceReplacementCatalog"
             ],
             "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
@@ -1845,6 +1845,26 @@
             "sourceFile": "src/replay-workspace-composition/workspace-replay-commands.js",
             "targetFile": "src/replay-navigation-runtime/public.js",
             "targetModuleId": "core.replay-navigation-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "MARKET_DATA_PROJECTED_HISTORY_PROVIDER_ID"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-projected-history.js",
+            "targetFile": "src/market-data-provider-adapter/public.js",
+            "targetModuleId": "adapter.market-data-provider",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "MARKET_DATA_PROVIDER_ID",
+              "createNewYorkWallEpochConverter",
+              "newYorkWallEpochToInstantMs"
+            ],
+            "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
+            "targetFile": "src/market-data-provider-adapter/public.js",
+            "targetModuleId": "adapter.market-data-provider",
             "throughPublicEntry": true
           },
           {
@@ -2002,26 +2022,6 @@
             "sourceFile": "src/replay-workspace-composition/workspace-checkpoint-persistence.js",
             "targetFile": "src/workspace-checkpoint-domain/public.js",
             "targetModuleId": "core.workspace-checkpoint-domain",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "V4_BARS_PROVIDER_ID",
-              "createNewYorkWallEpochConverter",
-              "newYorkWallEpochToInstantMs"
-            ],
-            "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
-            "targetFile": "src/v4-bars-provider-adapter/public.js",
-            "targetModuleId": "adapter.v4-bars-provider",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
-              "V4_PROJECTED_HISTORY_PROVIDER_ID"
-            ],
-            "sourceFile": "src/replay-workspace-composition/foundation-projected-history.js",
-            "targetFile": "src/v4-bars-provider-adapter/public.js",
-            "targetModuleId": "adapter.v4-bars-provider",
             "throughPublicEntry": true
           },
           {
@@ -3050,14 +3050,14 @@
           "core.provider-execution-runtime",
           "core.provider-policy-contract"
         ],
-        "descriptorPath": "src/v4-bars-provider-adapter/module.json",
-        "id": "adapter.v4-bars-provider",
+        "descriptorPath": "src/market-data-provider-adapter/module.json",
+        "id": "adapter.market-data-provider",
         "importSites": [
           {
             "importedNames": [
               "createCoverageReport"
             ],
-            "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+            "sourceFile": "src/market-data-provider-adapter/market-data-provider-adapter.js",
             "targetFile": "src/coverage-planning-contract/public.js",
             "targetModuleId": "core.coverage-planning-contract",
             "throughPublicEntry": true
@@ -3066,7 +3066,7 @@
             "importedNames": [
               "createPolicyBoundProvider"
             ],
-            "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+            "sourceFile": "src/market-data-provider-adapter/market-data-provider-adapter.js",
             "targetFile": "src/provider-execution-runtime/public.js",
             "targetModuleId": "core.provider-execution-runtime",
             "throughPublicEntry": true
@@ -3076,7 +3076,7 @@
               "createProjectedHistoryBatch",
               "createProjectedHistoryRequest"
             ],
-            "sourceFile": "src/v4-bars-provider-adapter/projected-history-adapter.js",
+            "sourceFile": "src/market-data-provider-adapter/projected-history-adapter.js",
             "targetFile": "src/projected-history-contract/public.js",
             "targetModuleId": "core.projected-history-contract",
             "throughPublicEntry": true
@@ -3087,18 +3087,18 @@
               "createRawBarBatch",
               "createRawBarRequest"
             ],
-            "sourceFile": "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+            "sourceFile": "src/market-data-provider-adapter/market-data-provider-adapter.js",
             "targetFile": "src/bar-data-contract/public.js",
             "targetModuleId": "core.bar-data-contract",
             "throughPublicEntry": true
           }
         ],
-        "independentHarness": "tests/v4-bars-provider-adapter-harness.js",
+        "independentHarness": "tests/market-data-provider-adapter-harness.js",
         "independentHarnessMode": "public-entry-direct",
         "kind": "adapter",
         "observedDisposeSites": [],
         "owner": "bar-data-runtime",
-        "publicEntry": "src/v4-bars-provider-adapter/public.js"
+        "publicEntry": "src/market-data-provider-adapter/public.js"
       },
       {
         "actualDependencies": [
@@ -4095,9 +4095,9 @@
           "adapter.server-state-sync"
         ],
         "declaredRequiredPorts": [
+          "adapter.market-data-provider",
           "adapter.session-browser-ui",
           "adapter.session-persistence",
-          "adapter.v4-bars-provider",
           "core.replay-navigation-preference-store",
           "core.session-store",
           "core.workstation-settings"

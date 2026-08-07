@@ -6,18 +6,18 @@ import {
   FOUNDATION_IDS,
 } from '../src/replay-workspace-composition/public.js';
 import {
-  createV4BarsAdapter,
-  createV4ProjectedHistoryProvider,
-  V4_BARS_PROVIDER_ID,
-  V4_PROJECTED_HISTORY_PROVIDER_ID,
-} from '../src/v4-bars-provider-adapter/public.js';
+  createMarketDataAdapter,
+  createMarketDataProjectedHistoryProvider,
+  MARKET_DATA_PROVIDER_ID,
+  MARKET_DATA_PROJECTED_HISTORY_PROVIDER_ID,
+} from '../src/market-data-provider-adapter/public.js';
 
 const capabilities = createFoundationCapabilities();
-const rawProvider = createV4BarsAdapter();
-const projectedProvider = createV4ProjectedHistoryProvider();
+const rawProvider = createMarketDataAdapter();
+const projectedProvider = createMarketDataProjectedHistoryProvider();
 const datasetRevision = await rawProvider.resolveDatasetRevision({
   instrumentId: FOUNDATION_IDS.instrument,
-  providerId: V4_BARS_PROVIDER_ID,
+  providerId: MARKET_DATA_PROVIDER_ID,
   sourceResolutionId: FOUNDATION_IDS.resolution,
 });
 const durationMs = 240 * 60_000;
@@ -33,7 +33,7 @@ for (const sessionHoursMode of ['eth', 'rth']) {
   const raw = (await rawProvider.requestRawBars(createRawBarRequest({
     datasetRevision,
     instrumentId: FOUNDATION_IDS.instrument,
-    providerId: V4_BARS_PROVIDER_ID,
+    providerId: MARKET_DATA_PROVIDER_ID,
     schemaVersion: 1,
     sourceResolutionId: FOUNDATION_IDS.resolution,
     windowEndEpochMs,
@@ -61,7 +61,7 @@ for (const sessionHoursMode of ['eth', 'rth']) {
     displayTimeframeId: selection.displayTimeframe.id,
     durationMs,
     instrumentId: FOUNDATION_IDS.instrument,
-    providerId: V4_PROJECTED_HISTORY_PROVIDER_ID,
+    providerId: MARKET_DATA_PROJECTED_HISTORY_PROVIDER_ID,
     schemaVersion: 1,
     sessionHoursMode,
     windowEndEpochMs,
@@ -85,7 +85,7 @@ for (const sessionHoursMode of ['eth', 'rth']) {
     const raw = (await rawProvider.requestRawBars(createRawBarRequest({
       datasetRevision,
       instrumentId: FOUNDATION_IDS.instrument,
-      providerId: V4_BARS_PROVIDER_ID,
+      providerId: MARKET_DATA_PROVIDER_ID,
       schemaVersion: 1,
       sourceResolutionId: FOUNDATION_IDS.resolution,
       windowEndEpochMs: calendarEndEpochMs,
@@ -113,7 +113,7 @@ for (const sessionHoursMode of ['eth', 'rth']) {
       displayTimeframeId: selection.displayTimeframe.id,
       durationMs: null,
       instrumentId: FOUNDATION_IDS.instrument,
-      providerId: V4_PROJECTED_HISTORY_PROVIDER_ID,
+      providerId: MARKET_DATA_PROJECTED_HISTORY_PROVIDER_ID,
       schemaVersion: 1,
       sessionHoursMode,
       windowEndEpochMs: calendarEndEpochMs,
