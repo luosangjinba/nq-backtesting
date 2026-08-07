@@ -3,6 +3,14 @@
 V7 is a clean runtime rebuild of the replay/chart foundation. V6 remains a
 read-only product, interaction, data-contract, and failure-evidence reference.
 
+User and operator entry points:
+
+- `../README.md` — V7 product overview and quick start;
+- `V7_USER_GUIDE.zh-CN.md` — Chinese installation, data setup, Replay use,
+  cross-device state, backup, and troubleshooting guide;
+- `../deploy/linux/README.md` — detailed Linux deployment, security, rollback,
+  and operations reference.
+
 For the completed R8 recovery record, read
 `V7_ARCHITECTURE_CONFORMANCE_RECOVERY_PLAN.md` immediately after the restart
 handoff, followed by `V7_PRODUCTION_ARCHITECTURE_ANALYZER_R8_2.md` and its
@@ -51,11 +59,15 @@ The current cloud-playback correction is
 `V7_CLOUD_REPLAY_HOT_PATH_R12_5.md`: it removes database revision discovery
 from warm Replay network traffic and makes Autoplay cadence account for
 transaction duration without introducing overlap or a second Replay owner.
-The current deployment correction is
+The prior public-IP deployment correction is
 `V7_HOST_ADAPTIVE_IDEMPOTENT_DEPLOYMENT_R12_6.md`: one public-IP entry now
 detects database/release state, preserves shared Caddy by default, and migrates
 recognized legacy Replay Lab layouts without taking ownership of foreign
 sites.
+The current operator entry is
+`V7_UNIFIED_DEPLOYMENT_ENTRY_R12_7.md`: one `deploy.sh` covers local/private,
+automatic or explicit public IPv4, public DNS, and LAN/VPN DNS; successful
+deployments persist a strict non-secret profile for no-argument upgrades.
 None closes the ongoing phase-one overall acceptance pass. Read those before the normal
 implementation reading order below. The deferred
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and
@@ -173,6 +185,9 @@ Read in this order before V7 implementation work:
 97. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
 98. `../TODO.md`
+
+The numbered order above is for implementation work. Ordinary users should use
+the user/operator entry points instead of reading the architecture history.
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.

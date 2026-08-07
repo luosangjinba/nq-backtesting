@@ -743,3 +743,23 @@ Gate: run the same minimal command twice on both known cloud hosts, preserve
 unrelated sites and database fingerprints, and prove four application health
 checks plus authenticated HTTPS. Binding contract:
 `V7_HOST_ADAPTIVE_IDEMPOTENT_DEPLOYMENT_R12_6.md`.
+
+### R12.7 — Unified Deployment Entry
+
+- make `deploy.sh` the operator boundary for local/private, automatic or
+  explicit public IPv4, public DNS, and LAN/VPN DNS deployment;
+- persist a strict non-secret deployment profile inside the host transaction
+  and reuse it for no-argument repeat deployments;
+- isolate provider metadata and DNS discovery from release/systemd/Caddy
+  transaction ownership, rejecting all non-public endpoint candidates;
+- keep the historical public-IP script as an argument-transparent forwarding
+  entry and retain lower-level `install.sh` for plans and advanced operation;
+- migrate an owned direct-IP Caddy layout to domains by clearing only the owned
+  IPv4 `default_sni`, while every foreign owner continues to fail closed;
+- bind the exposure matrix, profile schema/negative controls, three public-IP
+  discovery paths, private-CA rendering, and Caddy migration as H098.
+
+Gate: fresh and repeat review of local, direct-public, public-domain, and
+private-domain modes, proving no-argument profile reuse, client CA trust where
+applicable, unchanged data, unrelated-site continuity, health, authentication,
+and rollback. Binding contract: `V7_UNIFIED_DEPLOYMENT_ENTRY_R12_7.md`.

@@ -261,7 +261,7 @@
   },
   "writerEvidence": [
     { "surface": "architectureBaseline", "path": "v7/scripts/refresh-production-architecture-baseline.mjs", "pattern": "writeFileSync" },
-    { "surface": "databaseFileMetadata", "path": "v7/deploy/linux/deploy-public-ip.sh", "pattern": "chown root:" },
+    { "surface": "databaseFileMetadata", "path": "v7/deploy/linux/deploy.sh", "pattern": "chown root:" },
     { "surface": "databaseImportStaging", "path": "v7/server/database_import_store.py", "pattern": "staging_root" },
     { "surface": "hostCapacityConfiguration", "path": "v7/deploy/linux/lib/resource-profile.sh", "pattern": "/etc/fstab" },
     { "surface": "hostServiceConfiguration", "path": "v7/deploy/linux/install.sh", "pattern": "/etc/systemd/system" },

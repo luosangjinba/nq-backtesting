@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-06 during R12.5 cloud Replay hot-path implementation
+Last updated: 2026-08-06 during R12.7 unified deployment implementation
 
 ## Current Overall Acceptance State
 
@@ -61,7 +61,7 @@ replacement, and compensates completed transaction time inside the selected
 single-flight Autoplay cadence. Binding contract:
 `V7_CLOUD_REPLAY_HOT_PATH_R12_5.md`.
 
-R12.6 is the current repository-changing delivery. A repeat deployment on
+R12.6 is the prior public-IP deployment foundation. A repeat deployment on
 146.190.100.212 found an old direct Replay Lab Caddy site plus the current
 managed fragment, so Caddy rejected the duplicate public-IP owner. The public-
 IP wrapper now infers first/repeat and database/bootstrap state, preserves
@@ -69,6 +69,17 @@ shared Caddy and migrates known listeners by default, and reconciles only
 positively identified Replay Lab Caddy layouts. Foreign ownership still fails
 closed. Binding contract:
 `V7_HOST_ADAPTIVE_IDEMPOTENT_DEPLOYMENT_R12_6.md`.
+
+R12.7 supersedes R12.6 only at the operator-entry layer. The normal command is
+now `deploy/linux/deploy.sh`: `--local` selects loopback-only operation,
+`--public` detects a routable IPv4, `--public-ip` is the manual override,
+`--public-domain` uses automatic public HTTPS, and `--private-domain` uses
+Caddy's internal CA for LAN/VPN DNS. A successful first run installs the
+non-secret `/etc/replay-lab/deployment.conf` inside the host transaction;
+subsequent upgrades normally omit the exposure option. The old public-IP
+script forwards all arguments. R12.7/H098 automated evidence is implemented;
+fresh/repeat local, IP, and domain host gates remain open. Binding contract:
+`V7_UNIFIED_DEPLOYMENT_ENTRY_R12_7.md`.
 
 R12.4 remains a prior deployment correction. The first adaptive run
 created and activated nominal swap but rejected Linux's slightly smaller

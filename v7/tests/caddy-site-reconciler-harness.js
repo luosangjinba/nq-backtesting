@@ -32,6 +32,7 @@ function runReconciler({
   caddySource,
   existingFragment = fragment,
   host = publicIp,
+  clearDefaultSni = false,
   manageDefaultSni = true,
 }) {
   fs.writeFileSync(source, caddySource);
@@ -45,6 +46,7 @@ function runReconciler({
   ];
   if (existingFragment) argumentsList.push('--existing-fragment', existingFragment);
   if (manageDefaultSni) argumentsList.push('--manage-default-sni');
+  if (clearDefaultSni) argumentsList.push('--clear-managed-default-sni');
   const result = spawnSync('python3', argumentsList, { encoding: 'utf8' });
   return {
     ...result,
@@ -137,14 +139,43 @@ try {
   assert.doesNotMatch(globImport.output, /BEGIN REPLAY LAB MANAGED IMPORT/);
 
   const domainShared = runReconciler({
-    caddySource: 'recap.example.com {\n  respond "existing"\n}\n',
+    caddySource: [
+      '{',
+      `  default_sni ${publicIp}`,
+      '}',
+      '',
+      'recap.example.com {',
+      '  respond "existing"',
+      '}',
+      '',
+      `import ${fragment}`,
+      '',
+    ].join('\n'),
     host: 'replay.example.com',
     manageDefaultSni: false,
-    existingFragment: null,
+    clearDefaultSni: true,
   });
   assert.equal(domainShared.status, 0, domainShared.stderr);
   assert.doesNotMatch(domainShared.output, /default_sni/);
   assert.match(domainShared.output, /recap\.example\.com/);
+
+  const foreignDefaultDuringDomainMigration = runReconciler({
+    caddySource: [
+      '{',
+      '  default_sni 43.110.32.34',
+      '}',
+      '',
+      `import ${fragment}`,
+      '',
+    ].join('\n'),
+    host: 'replay.example.com',
+    manageDefaultSni: false,
+    clearDefaultSni: true,
+  });
+  assert.equal(foreignDefaultDuringDomainMigration.status, 0,
+    foreignDefaultDuringDomainMigration.stderr);
+  assert.match(foreignDefaultDuringDomainMigration.output, /default_sni 43\.110\.32\.34/,
+    'domain migration must preserve an IPv4 default SNI not named by the managed Replay site');
 
   for (const negativeCase of negativeCases) {
     const result = runReconciler({
@@ -171,10 +202,17 @@ try {
       env: { ...process.env, XDG_DATA_HOME: temporaryDirectory },
     });
     assert.equal(validation.status, 0, `${validation.stdout}\n${validation.stderr}`);
+    fs.writeFileSync(source, domainShared.output);
+    const domainMigrationValidation = spawnSync('caddy', ['validate', '--config', source], {
+      encoding: 'utf8',
+      env: { ...process.env, XDG_DATA_HOME: temporaryDirectory },
+    });
+    assert.equal(domainMigrationValidation.status, 0,
+      `${domainMigrationValidation.stdout}\n${domainMigrationValidation.stderr}`);
   }
 
   console.log('V7 Caddy site reconciler harness: PASS', {
-    transitions: 7,
+    transitions: 8,
     negativeControls: negativeCases.length,
     validatedWithCaddy: caddyAvailable,
   });

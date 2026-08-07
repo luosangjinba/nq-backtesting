@@ -14,8 +14,8 @@ Usage:
   bash v7/deploy/linux/install.sh --dry-run --db /absolute/path/trading_data.duckdb [options]
   sudo bash v7/deploy/linux/install.sh --apply --yes --db /absolute/path/trading_data.duckdb [options]
 
-Default mode is private: V7 services listen on loopback and are reached through
-an SSH tunnel. Add --domain for a Caddy-managed HTTPS endpoint.
+Default mode is local/private: V7 services listen on loopback. Add one HTTPS
+endpoint option for Caddy-managed public, LAN, or VPN access.
 
 Required:
   --db PATH                    DuckDB market-data path.
@@ -34,8 +34,9 @@ Paths and identity:
   --service-user USER          Existing service user. Default: SUDO_USER/current user.
   --python-bin COMMAND         Python 3.10+ interpreter with venv. Default: auto-detect.
 
-Optional public HTTPS:
+Optional HTTPS:
   --domain HOST                HTTPS hostname served by Caddy; DNS must point to this host.
+  --private-domain HOST        Private/LAN hostname served with Caddy's internal CA.
   --public-ip IPV4             HTTPS directly on a public IPv4 address; no DNS required.
   --email EMAIL                Optional ACME account email.
   --auth-user USER             Caddy Basic Auth user.
@@ -44,13 +45,15 @@ Optional public HTTPS:
   --preserve-caddy             Add an imported Replay Lab fragment instead of replacing an
                                existing Caddyfile. Cannot be combined with --email.
   --allow-public-without-auth  Explicitly expose the read-only acceptance surface without auth.
+  --deployment-profile-file PATH
+                               Validated non-secret profile persisted transactionally.
 
 Package control:
   --skip-package-install       Require git, curl, Python/venv, Node/npm, systemd, and Caddy
-                               (when --domain is used) to be installed already.
+                               (when an HTTPS endpoint is used) to be installed already.
   --help                       Show this help.
 
-Authenticated public deployments allow bounded user-state PUT only under
+Authenticated HTTPS deployments allow bounded user-state PUT only under
 /v7/state/*. --bootstrap additionally allows the one-time database importer
 under /v7/database/* until the first database is activated. Every other POST,
 PUT, PATCH, and DELETE returns HTTP 403. Data Acquisition/Contract Roll remains
@@ -301,7 +304,7 @@ install_caddy() {
     run_step sudo_cmd pacman -S --needed --noconfirm caddy
     return
   fi
-  die "Caddy is required for --domain; install it manually and rerun with --skip-package-install"
+  die "Caddy is required for an HTTPS endpoint; install it manually and rerun with --skip-package-install"
 }
 
 require_runtime_commands() {
@@ -315,7 +318,7 @@ require_runtime_commands() {
   node_runtime_ready || die "Node.js 18 or newer with npm is required"
   if [[ -n "$public_host" ]]; then
     command -v caddy >/dev/null 2>&1 \
-      || die "Caddy is required when --domain or --public-ip is set"
+      || die "Caddy is required when an HTTPS endpoint is set"
   fi
   if [[ -n "$public_ip" ]] && ! caddy_version_at_least 2 10 2; then
     die "Caddy 2.10.2 or newer is required for public IPv4 HTTPS certificates"
@@ -555,6 +558,7 @@ script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd -- "$script_dir/../../.." && pwd)"
 source "$script_dir/lib/host-transaction.sh"
 source "$script_dir/lib/resource-profile.sh"
+source "$script_dir/lib/deployment-state.sh"
 db_path=""
 database_parent=""
 install_root="/opt/replay-lab"
@@ -564,6 +568,7 @@ service_group=""
 requested_python_bin=""
 python_bin=""
 domain=""
+private_domain=""
 public_ip=""
 public_host=""
 package_manager=""
@@ -579,6 +584,7 @@ dry_run=0
 apply=0
 yes=0
 skip_package_install=0
+deployment_profile_file=""
 physical_memory_mib=""
 online_cpu_count=1
 resource_profile=""
@@ -640,6 +646,11 @@ while [[ $# -gt 0 ]]; do
       domain="$2"
       shift 2
       ;;
+    --private-domain)
+      [[ $# -ge 2 ]] || die "--private-domain requires a value"
+      private_domain="$2"
+      shift 2
+      ;;
     --public-ip)
       [[ $# -ge 2 ]] || die "--public-ip requires a value"
       public_ip="$2"
@@ -672,6 +683,11 @@ while [[ $# -gt 0 ]]; do
     --allow-public-without-auth)
       allow_public_without_auth=1
       shift
+      ;;
+    --deployment-profile-file)
+      [[ $# -ge 2 ]] || die "--deployment-profile-file requires a value"
+      deployment_profile_file="$2"
+      shift 2
       ;;
     --skip-package-install)
       skip_package_install=1
@@ -709,16 +725,23 @@ fi
 id "$service_user" >/dev/null 2>&1 || die "service user does not exist: $service_user"
 service_group="$(id -gn "$service_user")"
 
-[[ -z "$domain" || -z "$public_ip" ]] || die "use only one of --domain or --public-ip"
+public_mode_count=0
+[[ -z "$domain" ]] || ((public_mode_count += 1))
+[[ -z "$private_domain" ]] || ((public_mode_count += 1))
+[[ -z "$public_ip" ]] || ((public_mode_count += 1))
+(( public_mode_count <= 1 )) \
+  || die "use only one of --domain, --private-domain, or --public-ip"
 if [[ -n "$public_ip" ]]; then
   validate_ipv4 "$public_ip" || die "--public-ip must be a valid IPv4 address"
 fi
-public_host="${domain:-$public_ip}"
+public_host="${domain:-${private_domain:-$public_ip}}"
 
 if [[ -n "$public_host" ]]; then
-  if [[ -n "$domain" ]]; then
-    [[ "$domain" =~ ^[A-Za-z0-9][A-Za-z0-9.-]*[A-Za-z0-9]$ ]] \
-      || die "--domain must be a hostname without scheme or path"
+  if [[ -n "$domain" || -n "$private_domain" ]]; then
+    domain_candidate="${domain:-$private_domain}"
+    domain_label="$([[ -n "$domain" ]] && printf '%s' --domain || printf '%s' --private-domain)"
+    [[ "$domain_candidate" =~ ^[A-Za-z0-9][A-Za-z0-9.-]*[A-Za-z0-9]$ ]] \
+      || die "$domain_label must be a hostname without scheme or path"
   fi
   [[ -z "$email" || "$email" =~ ^[^[:space:]@]+@[^[:space:]@]+$ ]] || die "invalid --email"
   [[ -z "$auth_user" || "$auth_user" =~ ^[A-Za-z0-9._-]{1,64}$ ]] || die "invalid --auth-user"
@@ -735,12 +758,41 @@ if [[ -n "$public_host" ]]; then
   fi
 else
   [[ -z "$email" && -z "$auth_user" && -z "$auth_hash" && -z "$auth_password_file" ]] \
-    || die "public/auth options require --domain or --public-ip"
+    || die "public/auth options require --domain, --private-domain, or --public-ip"
   [[ "$allow_public_without_auth" -eq 0 ]] \
-    || die "--allow-public-without-auth requires --domain or --public-ip"
+    || die "--allow-public-without-auth requires --domain, --private-domain, or --public-ip"
+fi
+if [[ -n "$deployment_profile_file" ]]; then
+  require_simple_path "--deployment-profile-file" "$deployment_profile_file"
+  [[ -r "$deployment_profile_file" ]] || die "deployment profile is not readable"
+  replay_lab_profile_valid "$deployment_profile_file" \
+    || die "deployment profile is invalid or contains unsupported fields"
+  if [[ -n "$public_ip" ]]; then
+    expected_profile_mode="public-ip"
+  elif [[ -n "$domain" ]]; then
+    expected_profile_mode="public-domain"
+  elif [[ -n "$private_domain" ]]; then
+    expected_profile_mode="private-domain"
+  else
+    expected_profile_mode="local"
+  fi
+  [[ "$(replay_lab_profile_value "$deployment_profile_file" mode)" == "$expected_profile_mode" ]] \
+    || die "deployment profile mode does not match installer exposure"
+  [[ "$(replay_lab_profile_value "$deployment_profile_file" endpoint)" == "$public_host" ]] \
+    || die "deployment profile endpoint does not match installer exposure"
+  [[ "$(replay_lab_profile_value "$deployment_profile_file" databasePath)" == "$db_path" ]] \
+    || die "deployment profile databasePath does not match --db"
+  [[ "$(replay_lab_profile_value "$deployment_profile_file" serviceUser)" == "$service_user" ]] \
+    || die "deployment profile serviceUser does not match --service-user"
+  [[ "$(replay_lab_profile_value "$deployment_profile_file" authUser)" == "$auth_user" ]] \
+    || die "deployment profile authUser does not match --auth-user"
+  [[ "$(replay_lab_profile_value "$deployment_profile_file" passwordFile)" == "$auth_password_file" ]] \
+    || die "deployment profile passwordFile does not match --auth-password-file"
+  [[ "$(replay_lab_profile_value "$deployment_profile_file" preserveCaddy)" == "$preserve_caddy" ]] \
+    || die "deployment profile preserveCaddy does not match installer mode"
 fi
 [[ "$preserve_caddy" -eq 0 || -n "$public_host" ]] \
-  || die "--preserve-caddy requires --domain or --public-ip"
+  || die "--preserve-caddy requires --domain, --private-domain, or --public-ip"
 [[ "$preserve_caddy" -eq 0 || -z "$email" ]] \
   || die "--preserve-caddy cannot be combined with --email"
 [[ "$bootstrap" -eq 0 || -z "$public_host" || -n "$auth_user" ]] \
@@ -864,7 +916,9 @@ if [[ -n "$public_host" ]]; then
   fi
   [[ -z "$global_option_lines" ]] \
     || global_options_block=$'{\n'"$global_option_lines"$'}\n\n'
-  if [[ -n "$public_ip" ]]; then
+  if [[ -n "$private_domain" ]]; then
+    tls_block=$'\n  tls internal'
+  elif [[ -n "$public_ip" ]]; then
     tls_block=$'\n  tls {\n    issuer acme https://acme-v02.api.letsencrypt.org/directory {\n      profile shortlived\n      disable_tlsalpn_challenge\n    }\n  }'
   fi
   if [[ -n "$auth_user" ]]; then
@@ -918,10 +972,15 @@ info "DuckDB budget: $duckdb_memory_limit, $duckdb_threads thread(s), disk spill
 info "swap floor: ${swap_floor_mib} MiB ($managed_swap_path when additional swap is required)"
 info "release: $release_dir"
 if [[ -n "$public_host" ]]; then
-  info "public URL: https://$public_host/v7/app/"
+  info "browser URL: https://$public_host/v7/app/"
   info "proxy policy: authenticated=$([[ -n "$auth_user" ]] && printf yes || printf no), user-state=$([[ -n "$auth_user" ]] && printf enabled || printf local-only), database-import=$([[ "$bootstrap" -eq 1 ]] && printf first-run || printf disabled), other-market-mutations=blocked"
   if [[ -n "$public_ip" ]]; then
     info "certificate: Let's Encrypt short-lived IPv4 certificate; inbound 80/443 required"
+  elif [[ -n "$private_domain" ]]; then
+    info "certificate: Caddy internal CA; client trust installation required"
+    info "network policy: private DNS/LAN/VPN only; no public ACME request"
+  else
+    info "certificate: public domain via Caddy automatic HTTPS"
   fi
 else
   info "public proxy: disabled"
@@ -939,7 +998,6 @@ if [[ -n "$public_host" ]]; then
   printf '%s\n' '----------------------'
   sed -e 's|__HASH_FROM_PASSWORD_FILE__|<generated-hash>|' "$rendered_caddy"
 fi
-
 printf '\nPlanned host changes\n'
 printf '%s\n' '--------------------'
 printf 'Install runtime packages: %s\n' "$([[ "$skip_package_install" -eq 1 ]] && printf no || printf yes)"
@@ -949,6 +1007,9 @@ printf 'Ensure persistent swap floor: %s MiB\n' "$swap_floor_mib"
 printf 'Create immutable release: %s\n' "$release_dir"
 printf 'Create release virtualenv: %s\n' "$venv_dir"
 printf 'Write: /etc/replay-lab/replay-lab.env\n'
+if [[ -n "$deployment_profile_file" ]]; then
+  printf 'Write: /etc/replay-lab/deployment.conf (non-secret deployment profile)\n'
+fi
 printf 'Write: /etc/systemd/system/replay-lab-market-data.service\n'
 printf 'Retire after staging: /etc/systemd/system/replay-lab-api.service (legacy)\n'
 printf 'Write: /etc/systemd/system/replay-lab-web.service\n'
@@ -1028,6 +1089,9 @@ host_transaction_paths=(
   /etc/systemd/system/replay-lab-state.service
   /etc/systemd/system/replay-lab-database-import.service
 )
+if [[ -n "$deployment_profile_file" ]]; then
+  host_transaction_paths+=(/etc/replay-lab/deployment.conf)
+fi
 if [[ -n "$public_host" ]]; then
   deployment_units+=(caddy.service)
   host_transaction_paths+=(/etc/caddy/Caddyfile "$caddy_fragment_path")
@@ -1125,6 +1189,10 @@ env_file="$tmp_dir/replay-lab.env"
 } > "$env_file"
 
 run_step sudo_cmd install -d -m 0755 /etc/replay-lab /etc/systemd/system
+if [[ -n "$deployment_profile_file" ]]; then
+  run_step sudo_cmd install -m 0600 "$deployment_profile_file" \
+    /etc/replay-lab/deployment.conf
+fi
 run_step sudo_cmd install -m 0600 "$env_file" /etc/replay-lab/replay-lab.env
 run_step sudo_cmd install -m 0644 "$rendered_market_data" \
   /etc/systemd/system/replay-lab-market-data.service
@@ -1153,7 +1221,11 @@ if [[ -n "$public_host" ]]; then
       --fragment "$caddy_fragment_path"
       --base-dir /etc/caddy
     )
-    [[ -z "$public_ip" ]] || reconciler_arguments+=(--manage-default-sni)
+    if [[ -n "$public_ip" ]]; then
+      reconciler_arguments+=(--manage-default-sni)
+    else
+      reconciler_arguments+=(--clear-managed-default-sni)
+    fi
     if [[ "$caddy_main_existed" -eq 1 ]]; then
       sudo_cmd cat /etc/caddy/Caddyfile > "$source_caddy"
     else
@@ -1229,7 +1301,10 @@ ok "http://127.0.0.1:8767/v7/state/health"
 ok "http://127.0.0.1:8768/v7/database/health"
 ok "http://127.0.0.1:8007/v7/app/"
 if [[ -n "$public_host" ]]; then
-  if [[ -n "$auth_user" ]]; then
+  if [[ -n "$private_domain" ]]; then
+    ok "private HTTPS proxy configured for https://$public_host/v7/app/"
+    printf 'Client trust root: /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt\n'
+  elif [[ -n "$auth_user" ]]; then
     public_status="$(curl -sS --max-time 10 -o /dev/null -w '%{http_code}' "https://$public_host/v7/app/" || true)"
     [[ "$public_status" == "401" ]] \
       && ok "https://$public_host/v7/app/ requires authentication" \

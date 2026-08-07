@@ -8,7 +8,8 @@ import { fileURLToPath } from 'node:url';
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(testDirectory, '../..');
 const script = path.join(repositoryRoot, 'v7/deploy/linux/install.sh');
-const quickDeployScript = path.join(repositoryRoot, 'v7/deploy/linux/deploy-public-ip.sh');
+const deployScript = path.join(repositoryRoot, 'v7/deploy/linux/deploy.sh');
+const legacyDeployScript = path.join(repositoryRoot, 'v7/deploy/linux/deploy-public-ip.sh');
 const resourceProfilePolicy = path.join(
   repositoryRoot,
   'v7/deploy/linux/lib/resource-profile.sh',
@@ -112,20 +113,29 @@ function negativeArguments(id, common) {
 }
 
 try {
-  const quickSyntax = spawnSync('bash', ['-n', quickDeployScript], { encoding: 'utf8' });
+  const quickSyntax = spawnSync('bash', ['-n', deployScript], { encoding: 'utf8' });
   assert.equal(quickSyntax.status, 0, quickSyntax.stderr);
-  const quickHelp = spawnSync('bash', [quickDeployScript, '--help'], { encoding: 'utf8' });
+  const legacySyntax = spawnSync('bash', ['-n', legacyDeployScript], { encoding: 'utf8' });
+  assert.equal(legacySyntax.status, 0, legacySyntax.stderr);
+  const quickHelp = spawnSync('bash', [legacyDeployScript, '--help'], { encoding: 'utf8' });
   assert.equal(quickHelp.status, 0, quickHelp.stderr);
   assert.match(quickHelp.stdout, /--replace-legacy/);
   assert.match(quickHelp.stdout, /--preserve-caddy/);
   assert.match(quickHelp.stdout, /--bootstrap/);
   assert.match(quickHelp.stdout, /--require-existing-db/);
   assert.match(quickHelp.stdout, /--replace-caddy/);
-  assert.match(quickHelp.stdout, /detects first versus repeat deployment/);
+  assert.match(quickHelp.stdout, /On a repeat deployment/);
+  assert.match(quickHelp.stdout, /--public-domain HOST/);
+  assert.match(quickHelp.stdout, /--private-domain HOST/);
+  assert.match(quickHelp.stdout, /--public\s+Auto-detect/);
+  assert.match(quickHelp.stdout, /defaults to --local/);
   assert.match(quickHelp.stdout, /512 MB class/);
   assert.match(quickHelp.stdout, /inbound TCP 80\/443/);
   assert.match(quickHelp.stdout, /8768/);
-  const quickSource = fs.readFileSync(quickDeployScript, 'utf8');
+  const legacySource = fs.readFileSync(legacyDeployScript, 'utf8');
+  assert.match(legacySource, /exec bash "\$script_dir\/deploy\.sh" "\$@"/,
+    'the historical public-IP entry must forward without rewriting arguments');
+  const quickSource = fs.readFileSync(deployScript, 'utf8');
   assert.match(quickSource, /refusing to stop unknown PID/);
   assert.match(quickSource, /"market_data_api\.py"/,
     'quick deploy may replace an identified manual V7 market-data listener');
@@ -225,6 +235,26 @@ try {
   assert.match(privatePlan.stdout, /ReadWritePaths=\/var\/lib\/replay-lab\/state/);
   assert.match(privatePlan.stdout, new RegExp(`ReadOnlyPaths=${path.dirname(database).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
   assert.match(privatePlan.stdout, /dry-run complete; no host files were changed/);
+  const deploymentProfile = path.join(temporaryDirectory, 'deployment.conf');
+  fs.writeFileSync(deploymentProfile, [
+    'schemaVersion=1',
+    'mode=local',
+    'endpoint=',
+    `databasePath=${database}`,
+    `serviceUser=${os.userInfo().username}`,
+    'authUser=',
+    'passwordFile=',
+    'preserveCaddy=0',
+    '',
+  ].join('\n'));
+  const profiledPlan = execute([...common, '--deployment-profile-file', deploymentProfile]);
+  assert.equal(profiledPlan.status, 0, profiledPlan.stderr);
+  assert.match(profiledPlan.stdout,
+    /Write: \/etc\/replay-lab\/deployment\.conf \(non-secret deployment profile\)/);
+  fs.writeFileSync(deploymentProfile, fs.readFileSync(deploymentProfile, 'utf8')
+    .replace('mode=local', 'mode=public-domain'));
+  expectFailure([...common, '--deployment-profile-file', deploymentProfile],
+    /deployment profile mode does not match installer exposure/);
   const packageRequest = privatePlan.stdout.match(/Runtime package request: (.+)/)?.[1] ?? '';
   assert.doesNotMatch(packageRequest, /\b(?:nodejs|npm)\b/,
     'an existing supported Node/npm pair must not request conflicting distribution packages');
@@ -237,7 +267,7 @@ try {
     '--auth-hash', passwordHash,
   ]);
   assert.equal(publicPlan.status, 0, publicPlan.stderr);
-  assert.match(publicPlan.stdout, /public URL: https:\/\/replay\.example\.com\/v7\/app\//);
+  assert.match(publicPlan.stdout, /browser URL: https:\/\/replay\.example\.com\/v7\/app\//);
   assert.match(publicPlan.stdout,
     /user-state=enabled, database-import=disabled, other-market-mutations=blocked/);
   assert.match(publicPlan.stdout, /@state_api path \/v7\/state\/\*/);
@@ -250,6 +280,21 @@ try {
   assert.match(publicPlan.stdout, /(basic_auth|basicauth) \{/);
   if (caddyAvailable) {
     validateRenderedCaddy(publicPlan.stdout, 'Caddyfile-domain');
+  }
+  const privateDomainPlan = execute([
+    ...common,
+    '--private-domain', 'replay.lab.example',
+    '--auth-user', 'reviewer',
+    '--auth-hash', passwordHash,
+  ]);
+  assert.equal(privateDomainPlan.status, 0, privateDomainPlan.stderr);
+  assert.match(privateDomainPlan.stdout,
+    /browser URL: https:\/\/replay\.lab\.example\/v7\/app\//);
+  assert.match(privateDomainPlan.stdout, /certificate: Caddy internal CA/);
+  assert.match(privateDomainPlan.stdout, /network policy: private DNS\/LAN\/VPN only/);
+  assert.match(renderedCaddyFrom(privateDomainPlan.stdout), /tls internal/);
+  if (caddyAvailable) {
+    validateRenderedCaddy(privateDomainPlan.stdout, 'Caddyfile-private-domain');
   }
   const bootstrapDatabase = path.join(temporaryDirectory, 'bootstrap', 'trading_data.duckdb');
   const bootstrapPlan = execute([
@@ -298,7 +343,7 @@ try {
     '--auth-hash', passwordHash,
   ]);
   assert.equal(publicIpPlan.status, 0, publicIpPlan.stderr);
-  assert.match(publicIpPlan.stdout, /public URL: https:\/\/43\.110\.32\.34\/v7\/app\//);
+  assert.match(publicIpPlan.stdout, /browser URL: https:\/\/43\.110\.32\.34\/v7\/app\//);
   assert.match(publicIpPlan.stdout, /Let's Encrypt short-lived IPv4 certificate/);
   assert.match(publicIpPlan.stdout, /profile shortlived/);
   assert.match(publicIpPlan.stdout, /disable_tlsalpn_challenge/);
@@ -348,7 +393,8 @@ try {
     );
   }
 
-  expectFailure([...common, '--preserve-caddy'], /--preserve-caddy requires --domain or --public-ip/);
+  expectFailure([...common, '--preserve-caddy'],
+    /--preserve-caddy requires --domain, --private-domain, or --public-ip/);
   expectFailure([
     ...common,
     '--domain', 'replay.example.com',

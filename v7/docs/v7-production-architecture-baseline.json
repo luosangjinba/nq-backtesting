@@ -121,7 +121,7 @@
       }
     ]
   },
-  "deliveryStep": "R12.6",
+  "deliveryStep": "R12.7",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {

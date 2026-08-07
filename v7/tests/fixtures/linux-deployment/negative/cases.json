@@ -25,7 +25,7 @@
   },
   {
     "id": "conflicting-public-host",
-    "expectedMessage": "use only one of --domain or --public-ip"
+    "expectedMessage": "use only one of --domain, --private-domain, or --public-ip"
   },
   {
     "id": "invalid-python-bin",

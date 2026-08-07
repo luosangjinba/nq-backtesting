@@ -236,6 +236,20 @@ retire_legacy_market_data_unit
   assert.match(installerSource,
     /deployment_units=\([\s\S]*replay-lab-market-data\.service[\s\S]*replay-lab-api\.service/,
     'host rollback must capture both active and enabled unit states');
+  assert.match(installerSource,
+    /host_transaction_paths=\([\s\S]*host_transaction_paths\+=\(\/etc\/replay-lab\/deployment\.conf\)/,
+    'the persisted deployment profile must join the exact host rollback set');
+  const hostTransactionIndex = installerSource.indexOf('replay_lab_host_transaction_begin');
+  const profileInstallIndex = installerSource.indexOf(
+    'install -m 0600 "$deployment_profile_file"', hostTransactionIndex,
+  );
+  const hostCommitIndex = installerSource.indexOf(
+    'replay_lab_host_transaction_commit', profileInstallIndex,
+  );
+  assert.ok(hostTransactionIndex >= 0
+    && profileInstallIndex > hostTransactionIndex
+    && hostCommitIndex > profileInstallIndex,
+  'deployment profile replacement must occur only inside the live host transaction');
   const currentSwitchIndex = installerSource.indexOf(
     'mv -Tf "$install_root/current.next" "$current_release"',
   );

@@ -37,6 +37,7 @@ const legacyTokenMatches = scannedFiles.flatMap((relativePath) => (
   ))
 ));
 for (const relativePath of [
+  'v7/deploy/linux/deploy.sh',
   'v7/deploy/linux/deploy-public-ip.sh',
   'v7/deploy/linux/install.sh',
 ]) {

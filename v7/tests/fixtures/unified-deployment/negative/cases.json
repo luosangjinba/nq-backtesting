@@ -1,0 +1,22 @@
+[
+  {
+    "id": "missing-field",
+    "profile": "schemaVersion=1\nmode=local\nendpoint=\ndatabasePath=/srv/replay-lab-data/trading_data.duckdb\nserviceUser=replay\nauthUser=\npreserveCaddy=0\n"
+  },
+  {
+    "id": "unknown-field",
+    "profile": "schemaVersion=1\nmode=local\nendpoint=\ndatabasePath=/srv/replay-lab-data/trading_data.duckdb\nserviceUser=replay\nauthUser=\npasswordFile=\npreserveCaddy=0\nextra=true\n"
+  },
+  {
+    "id": "unsupported-version",
+    "profile": "schemaVersion=2\nmode=local\nendpoint=\ndatabasePath=/srv/replay-lab-data/trading_data.duckdb\nserviceUser=replay\nauthUser=\npasswordFile=\npreserveCaddy=0\n"
+  },
+  {
+    "id": "unsupported-mode",
+    "profile": "schemaVersion=1\nmode=magic-cloud\nendpoint=example.com\ndatabasePath=/srv/replay-lab-data/trading_data.duckdb\nserviceUser=replay\nauthUser=reviewer\npasswordFile=/etc/replay-lab/secrets/web-password\npreserveCaddy=1\n"
+  },
+  {
+    "id": "duplicate-field",
+    "profile": "schemaVersion=1\nmode=local\nmode=public-ip\nendpoint=\ndatabasePath=/srv/replay-lab-data/trading_data.duckdb\nserviceUser=replay\nauthUser=\npasswordFile=\npreserveCaddy=0\n"
+  }
+]

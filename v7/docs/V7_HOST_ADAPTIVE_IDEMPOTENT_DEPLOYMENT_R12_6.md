@@ -1,7 +1,11 @@
 # V7 Host-Adaptive Idempotent Deployment — R12.6
 
 Date: 2026-08-06
-Status: implemented with automated evidence; two-host rerun pending
+Status: implemented with automated evidence; operator entry generalized by R12.7
+
+R12.7 retains this public-IP behavior and compatibility path while making
+`deploy/linux/deploy.sh` the unified local, IP, and domain entry. This document
+remains the binding record for R12.6/H097.
 
 ## Trigger
 

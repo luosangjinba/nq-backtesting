@@ -1,5 +1,27 @@
 # V7 TODO
 
+## R12.7 Unified Deployment Entry — Implemented, Multi-Mode Host Review Pending
+
+- [x] make `deploy.sh` the single local, automatic-public-IP, explicit-IP,
+  public-domain, and private-domain operator entry;
+- [x] persist one strict non-secret deployment profile transactionally and
+  reuse it when repeat deployment omits exposure arguments;
+- [x] resolve Alibaba/DigitalOcean metadata before bounded external fallback,
+  reject non-public addresses, and surface public DNS mismatch without
+  rewriting deliberate CDN/proxy topology;
+- [x] render private-domain `tls internal`, retain public-domain automatic
+  HTTPS, and clear an owned IPv4 `default_sni` during domain migration;
+- [x] preserve the historical public-IP entry as an argument-transparent
+  forwarding shim and bind four modes, three endpoint backends, profile
+  negative controls, and Caddy migration as H098;
+- [x] replace the stale repository README, add a V7 project entry and Chinese
+  user guide, and link product operation to the detailed deployment reference;
+- [ ] complete fresh/repeat local, direct-public, public-domain, and private-
+  domain host review, including no-argument profile reuse, CA trust, unrelated
+  Caddy continuity, database fingerprints, and rollback evidence.
+
+Binding contract: `docs/V7_UNIFIED_DEPLOYMENT_ENTRY_R12_7.md`.
+
 ## R12.6 Host-Adaptive Idempotent Deployment — Implemented, Two-Host Rerun Pending
 
 - [x] identify the same-IP Caddy ambiguity as an old direct Replay Lab site

@@ -1,6 +1,10 @@
 # Replay Lab V7 Linux One-Click Deployment
 
-Status: R12.6 host-adaptive, idempotent standalone V7 deployment
+Status: R12.7 unified local, cloud-IP, and domain deployment
+
+This document is the administrator/operator reference. For product setup and
+day-to-day Replay use, see the [V7 project README](../../README.md) and
+[中文用户指南](../../docs/V7_USER_GUIDE.zh-CN.md).
 
 `install.sh` deploys only the current committed V7 tree as an immutable release,
 installs the V7 read-only market-data runtime and browser dependencies, and creates
@@ -23,18 +27,38 @@ also enables `/v7/database/*`. User state is stored separately in
 the current main-program acceptance pass. Database bootstrap does not authorize
 Databento refresh, Contract Roll, merge, append, or database replacement.
 
-## Fastest Direct-IP Path
+## Unified Operator Path
 
-After pulling the current `v7/rebuild` branch and opening cloud TCP 80/443, the
-same interactive command handles first install, missing-database bootstrap,
-ordinary upgrade, and repeated deployment:
+`deploy.sh` is the normal entry on local/private and cloud hosts. Choose the
+exposure only on the first run:
 
 ```bash
-sudo bash v7/deploy/linux/deploy-public-ip.sh \
-  --public-ip 43.110.32.34
+# loopback-only local/private host
+sudo bash v7/deploy/linux/deploy.sh --local
+
+# cloud host, automatically detect its public IPv4
+sudo bash v7/deploy/linux/deploy.sh --public
+
+# public DNS or LAN/VPN DNS
+sudo bash v7/deploy/linux/deploy.sh --public-domain replay.example.com
+sudo bash v7/deploy/linux/deploy.sh --private-domain replay.home.arpa
 ```
 
-It prompts twice for the browser password only when no saved password exists.
+Use `--public-ip 43.110.32.34` only to override automatic discovery. Public
+modes require inbound TCP 80/443; local mode opens no public port. Private
+domains use Caddy's internal CA, so each client must trust
+`/var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt`.
+
+After the first successful install, the selected mode, endpoint, database,
+service identity, browser username, password-file path, and Caddy policy are
+saved without secret material in `/etc/replay-lab/deployment.conf`. Pull a new
+commit and repeat with:
+
+```bash
+sudo bash v7/deploy/linux/deploy.sh
+```
+
+It prompts twice for the browser password only when an HTTPS mode has no saved password.
 If the new default is absent but the known
 `/root/replay-lab-secrets/web-password` file exists, it is reused without
 printing or copying the secret.
@@ -52,7 +76,8 @@ flags are required. Use `--require-existing-db` when a missing database must be
 a hard error, `--bootstrap` to explicitly require first-run mode, or
 `--replace-caddy` only on an intentionally dedicated host. Existing
 `--preserve-caddy` and `--replace-legacy` arguments remain accepted but express
-the defaults. A managed `replay-lab-api.service` is not killed by the wrapper:
+the defaults. `deploy-public-ip.sh` remains an argument-transparent compatibility
+entry for previous commands. A managed `replay-lab-api.service` is not killed by the wrapper:
 the installer retires it inside the rollback-protected host transaction.
 
 ## Supported Hosts
@@ -124,6 +149,12 @@ database file. Transfer the database separately so a code deployment can never
 overwrite market data:
 
 ```bash
+git clone --branch v7/rebuild --single-branch \
+  https://github.com/luosangjinba/nq-backtesting.git backtesting-v7
+cd backtesting-v7
+```
+
+```bash
 rsync --partial --progress \
   trading_data.duckdb user@host:/srv/replay-lab-data/trading_data.duckdb
 ```
@@ -135,15 +166,14 @@ unambiguous.
 ## Fresh Host Without A Database
 
 Do not create an empty DuckDB file. Leave the target absent and run the normal
-direct-IP command; the wrapper selects bootstrap automatically:
+command; the wrapper selects bootstrap automatically:
 
 ```bash
-sudo bash v7/deploy/linux/deploy-public-ip.sh \
-  --public-ip 43.110.32.34
+sudo bash v7/deploy/linux/deploy.sh --public
 ```
 
 Then sign in and open
-`https://43.110.32.34/v7/app/data-acquisition.html`. Choose one `.csv` or
+the reported `/v7/app/data-acquisition.html` URL. Choose one `.csv` or
 `.duckdb`, upload, validate, inspect coverage, type the exact confirmation
 `ACTIVATE DATABASE`, and activate. CSV must be UTF-8 with the exact header
 `instrument,ts,open,high,low,close,volume`; no field, timezone, instrument,
@@ -154,7 +184,7 @@ not remove staging files or invoke the importer from the shell. Validation in
 progress must first finish or recover to a stable state. Later code releases
 use the same command; the now-existing DuckDB selects read-only mode.
 
-## Private Deployment (Recommended First Test)
+## Lower-Level Dry Run
 
 Run a read-only plan first:
 
@@ -164,13 +194,11 @@ bash v7/deploy/linux/install.sh \
   --db /srv/replay-lab-data/trading_data.duckdb
 ```
 
-Then install from the exact committed checkout:
+The equivalent unified local apply is:
 
 ```bash
-sudo bash v7/deploy/linux/install.sh \
-  --apply --yes \
-  --db /srv/replay-lab-data/trading_data.duckdb \
-  --service-user "$USER"
+sudo bash v7/deploy/linux/deploy.sh --local \
+  --db /srv/replay-lab-data/trading_data.duckdb
 ```
 
 No public port is opened in this mode. Connect from the review machine with
@@ -191,8 +219,8 @@ web service proxies `/v7/state/*` to the loopback state service as identity
 
 ## Public HTTPS Deployment
 
-Point the domain's DNS A/AAAA record at the host and allow inbound TCP 80/443.
-The public-IP wrapper preserves Caddy by default. It backs up the main file,
+Point the domain's DNS A record at the host (or an intentional upstream proxy)
+and allow inbound TCP 80/443. The unified wrapper preserves Caddy by default. It backs up the main file,
 writes a managed Replay Lab fragment, reconciles a fresh/shared/repeated or
 legacy-direct layout, validates the combined configuration, and restores both
 files if validation or reload fails. A foreign owner of the requested host is
@@ -205,14 +233,10 @@ line would leak it into shell history:
 sudo install -d -m 0700 /root/replay-lab-secrets
 sudo bash -c 'umask 077; read -rsp "Replay password: " password; printf "%s" "$password" > /root/replay-lab-secrets/web-password; unset password; echo'
 
-sudo bash v7/deploy/linux/install.sh \
-  --apply --yes \
-  --db /srv/replay-lab-data/trading_data.duckdb \
-  --service-user replay \
-  --domain replay.example.com \
-  --email admin@example.com \
+sudo bash v7/deploy/linux/deploy.sh \
+  --public-domain replay.example.com \
   --auth-user reviewer \
-  --auth-password-file /root/replay-lab-secrets/web-password
+  --password-file /root/replay-lab-secrets/web-password
 ```
 
 Caddy obtains and renews HTTPS certificates and protects the V7 surface,

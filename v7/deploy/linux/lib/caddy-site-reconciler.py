@@ -85,6 +85,19 @@ def replay_site(text: str) -> bool:
     return bool(has_web and has_data)
 
 
+def replay_site_hosts(text: str) -> set[str]:
+    """Return site labels proven to belong to a complete Replay Lab proxy."""
+    hosts: set[str] = set()
+    for block in top_level_blocks(text.splitlines()):
+        if not block.header or not replay_site(block.text):
+            continue
+        for label in re.split(r"[\s,]+", block.header.strip()):
+            candidate = re.sub(r"^https?://", "", label).rstrip("/")
+            if candidate:
+                hosts.add(candidate)
+    return hosts
+
+
 def header_owns_host(header: str, public_host: str) -> bool:
     """Return whether a site label directly names the requested host."""
     labels = re.split(r"[\s,]+", header.strip())
@@ -185,6 +198,30 @@ def reconcile_default_sni(
     return result
 
 
+def clear_managed_default_sni(lines: list[str], managed_hosts: set[str]) -> list[str]:
+    """Remove an old managed IPv4 default SNI when moving to a domain."""
+    if not managed_hosts:
+        return lines
+    blocks = top_level_blocks(lines)
+    global_block = next((block for block in blocks if not block.header), None)
+    if global_block is None:
+        return lines
+    result = list(lines)
+    for index in range(global_block.start + 1, global_block.end):
+        match = re.match(r"^\s*default_sni\s+(\S+)", result[index])
+        if not match:
+            continue
+        try:
+            if (
+                match.group(1) in managed_hosts
+                and ipaddress.ip_address(match.group(1)).version == 4
+            ):
+                result[index] = ""
+        except ValueError:
+            continue
+    return result
+
+
 def reconcile(
     source: str,
     public_host: str,
@@ -192,17 +229,21 @@ def reconcile(
     base_dir: str,
     existing_fragment: str,
     manage_default_sni: bool,
+    clear_default_sni: bool,
 ) -> tuple[str, int]:
     """Return one idempotent shared-host Caddy configuration."""
     original_lines = source.splitlines()
     original_managed = replay_site(source) or replay_site(existing_fragment)
     original_managed = original_managed or fragment in source
+    managed_hosts = replay_site_hosts(source) | replay_site_hosts(existing_fragment)
     without_sites, removed_count = remove_owned_sites(original_lines, public_host)
     caddy_lines = without_sites
     if manage_default_sni:
         caddy_lines = reconcile_default_sni(
             without_sites, public_host, original_managed or removed_count > 0
         )
+    elif clear_default_sni:
+        caddy_lines = clear_managed_default_sni(without_sites, managed_hosts)
     reconciled = reconcile_imports(caddy_lines, fragment, base_dir)
     return "\n".join(reconciled).rstrip() + "\n", removed_count
 
@@ -217,12 +258,16 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--base-dir", default="/etc/caddy")
     parser.add_argument("--existing-fragment")
     parser.add_argument("--manage-default-sni", action="store_true")
+    parser.add_argument("--clear-managed-default-sni", action="store_true")
     return parser.parse_args()
 
 
 def main() -> int:
     """Reconcile files and report the detected deployment transition."""
     arguments = parse_arguments()
+    if arguments.manage_default_sni and arguments.clear_managed_default_sni:
+        print("ERROR: default SNI actions are mutually exclusive", file=sys.stderr)
+        return 2
     source = Path(arguments.input).read_text(encoding="utf-8")
     existing_fragment = ""
     if arguments.existing_fragment and Path(arguments.existing_fragment).is_file():
@@ -235,6 +280,7 @@ def main() -> int:
             arguments.base_dir,
             existing_fragment,
             arguments.manage_default_sni,
+            arguments.clear_managed_default_sni,
         )
     except ValueError as error:
         print(f"ERROR: {error}", file=sys.stderr)
