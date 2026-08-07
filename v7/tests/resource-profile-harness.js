@@ -25,6 +25,19 @@ function selectProfile(memoryMib, cpuCount = 4) {
   ].join('\n'), 'bash', shellPolicy, String(memoryMib), String(cpuCount)], { encoding: 'utf8' });
 }
 
+function verifySwapFloor(currentMib, requiredMib) {
+  return spawnSync('bash', ['-c', [
+    'set -Eeuo pipefail',
+    'source "$1"',
+    'replay_lab_swap_floor_satisfied "$2" "$3" || {',
+    '  printf "swap floor below tolerance\\n" >&2',
+    '  exit 1',
+    '}',
+  ].join('\n'), 'bash', shellPolicy, String(currentMib), String(requiredMib)], {
+    encoding: 'utf8',
+  });
+}
+
 function pythonConfig(environment = {}, includeDuckdbProbe = false) {
   const script = includeDuckdbProbe ? [
     'import json, duckdb',
@@ -69,6 +82,13 @@ try {
   assert.equal(standard.status, 0, standard.stderr);
   assert.equal(standard.stdout.trim(), 'standard-4g-plus\t1024MB\t4\t0');
 
+  const nominalSwapWithHeaderOverhead = verifySwapFloor(511, 512);
+  assert.equal(
+    nominalSwapWithHeaderOverhead.status,
+    0,
+    nominalSwapWithHeaderOverhead.stderr,
+  );
+
   const configured = pythonConfig({
     V7_DUCKDB_MEMORY_LIMIT: '128MB',
     V7_DUCKDB_THREADS: '1',
@@ -85,7 +105,9 @@ try {
   for (const fixture of negativeCases) {
     const result = fixture.kind === 'shell-profile'
       ? selectProfile(fixture.memoryMib, 1)
-      : pythonConfig(fixture.environment);
+      : (fixture.kind === 'swap-floor'
+        ? verifySwapFloor(fixture.currentMib, fixture.requiredMib)
+        : pythonConfig(fixture.environment));
     assert.notEqual(result.status, 0, `${fixture.id} must fail closed`);
     assert.match(`${result.stdout}\n${result.stderr}`, new RegExp(fixture.expected));
   }

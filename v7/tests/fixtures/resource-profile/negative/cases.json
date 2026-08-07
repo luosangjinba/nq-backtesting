@@ -22,5 +22,12 @@
     "kind": "python-config",
     "environment": { "V7_DUCKDB_TEMP_DIRECTORY": "relative/tmp" },
     "expected": "must be absolute"
+  },
+  {
+    "id": "swap-shortfall-exceeds-accounting-tolerance",
+    "kind": "swap-floor",
+    "currentMib": 503,
+    "requiredMib": 512,
+    "expected": "swap floor below tolerance"
   }
 ]

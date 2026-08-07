@@ -445,6 +445,9 @@ try {
     /ReadWritePaths=.*@@STATE_ROOT@@\/duckdb-tmp\/database-import/);
   const resourceProfileSource = fs.readFileSync(resourceProfilePolicy, 'utf8');
   assert.match(resourceProfileSource, /REPLAY_LAB_MIN_MEMORY_CLASS_MIB=450/);
+  assert.match(resourceProfileSource, /REPLAY_LAB_SWAP_ACCOUNTING_TOLERANCE_MIB=8/);
+  assert.match(resourceProfileSource, /replay_lab_swap_floor_satisfied/,
+    'nominal swap floors must tolerate mkswap header accounting');
   assert.match(resourceProfileSource, /compact-512m/);
   assert.match(resourceProfileSource, /swap_floor_mib=2048/);
   assert.match(resourceProfileSource, /\/etc\/fstab/,

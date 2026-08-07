@@ -36,6 +36,11 @@ Swap is host-capacity configuration and deliberately survives application
 release rollback. Code, environment, unit, proxy, and active-release rollback
 remain owned by the existing host transaction.
 
+R12.4 corrects the pushed implementation's exact nominal-size comparison:
+Linux may report up to 8 MiB less after `mkswap` reserves its header. See
+`V7_SWAP_ACCOUNTING_TOLERANCE_R12_4.md`; the nominal profile floors remain
+unchanged.
+
 ## DuckDB Runtime Boundary
 
 `v7/server/duckdb_runtime.py` is the shared resource-policy library for the

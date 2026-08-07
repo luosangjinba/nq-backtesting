@@ -692,3 +692,17 @@ DuckDB on the 512 MB class without OOM, reboot to prove swap persistence,
 preserve database fingerprints, and compare the same Play-bar scenario on both
 network locations. Binding contract:
 `V7_ADAPTIVE_LOW_MEMORY_DEPLOYMENT_R12_3.md`.
+
+### R12.4 — Managed Swap Accounting Tolerance
+
+- correct the exact comparison between nominal swap-file size and the slightly
+  smaller kernel-reported `SwapTotal` after `mkswap` reserves its header;
+- accept only an explicit 8 MiB accounting tolerance, add that overhead to new
+  files, and keep larger capacity shortfalls as hard failures;
+- recover the already-active R12.3 file on rerun without swap deletion,
+  recreation, or operator repair commands;
+- bind the positive 511/512 MiB and negative 503/512 MiB boundaries as H095.
+
+Gate: pull the correction on the affected lightweight host and complete the
+same one-command deployment. Binding correction:
+`V7_SWAP_ACCOUNTING_TOLERANCE_R12_4.md`.

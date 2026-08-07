@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R12.3",
+  "deliveryStep": "R12.4",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",

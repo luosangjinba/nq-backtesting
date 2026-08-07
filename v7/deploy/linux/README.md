@@ -104,8 +104,11 @@ automatic profiles are:
 | 3072 MiB+ | 1 GiB | up to 4 | unmanaged |
 
 When current swap is insufficient, the installer creates only the missing
-capacity at `/var/lib/replay-lab/swap/replay-lab.swap`, keeps 512 MiB of disk
+capacity plus 8 MiB of bounded `mkswap` header overhead at
+`/var/lib/replay-lab/swap/replay-lab.swap`, keeps 512 MiB of disk
 reserve, enables it immediately, and adds one persistent `/etc/fstab` entry.
+Kernel-reported `SwapTotal` within that 8 MiB accounting delta is accepted;
+larger shortfalls still fail closed.
 The current verified ES/NQ DuckDB is about 902 MB, so the host still needs room
 for the database, immutable release, optional upload staging, DuckDB spill, and
 swap. Resource adaptation prevents known OOM behavior; actual latency remains a

@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-06 during R12.3 adaptive low-memory deployment
+Last updated: 2026-08-06 during R12.4 swap-accounting correction
 
 ## Current Overall Acceptance State
 
@@ -43,7 +43,7 @@ host transaction; clean releases contain only `v7/`. The historical
 Databento/Contract Roll writer is not moved into the read service and remains
 visibly disabled until a separate V7-native writer exists.
 
-R12.3 is the current repository-changing delivery. The 512 MB acceptance host
+R12.3 established the adaptive deployment after the 512 MB acceptance host
 proved that a successful 901.3 MB upload could still OOM-kill DuckDB during
 Validate when the host had no swap. Deployment now treats 450 MiB reported
 `MemTotal` as the provider 512 MB-class floor, auto-selects DuckDB memory and
@@ -51,6 +51,13 @@ threads, provisions a persistent profile-specific swap floor, and gives Market
 Data and Database Import separate spill directories. H094 is automated; the
 43.110.32.34 upgrade, 512 MB large-file retry/reboot, database fingerprints,
 and same-client Play-bar latency comparison remain human gates.
+
+R12.4 is the current repository-changing correction. The first adaptive run
+created and activated nominal swap but rejected Linux's slightly smaller
+post-`mkswap` reported capacity. An explicit 8 MiB accounting tolerance and
+matching allocation overhead now accept that existing file on rerun while a
+larger shortfall remains blocked. Do not manually remove or recreate managed
+swap before pulling and rerunning.
 
 R10.1 adds a parallel Linux acceptance-host installer at
 `v7/deploy/linux/install.sh`. It is implemented with automated dry-run/config

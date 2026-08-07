@@ -6,6 +6,10 @@
 # supported 512 MB class.
 
 REPLAY_LAB_MIN_MEMORY_CLASS_MIB=450
+# mkswap reserves a small header, so Linux reports slightly less SwapTotal than
+# the backing file's nominal MiB size. Eight MiB safely covers that accounting
+# difference without concealing a materially undersized swap configuration.
+REPLAY_LAB_SWAP_ACCOUNTING_TOLERANCE_MIB=8
 
 replay_lab_read_memory_mib() {
   local meminfo_path="${1:-/proc/meminfo}"
@@ -85,6 +89,13 @@ replay_lab_swap_is_active() {
     /proc/swaps
 }
 
+replay_lab_swap_floor_satisfied() {
+  local current_mib="$1"
+  local required_mib="$2"
+  [[ "$current_mib" =~ ^[0-9]+$ && "$required_mib" =~ ^[0-9]+$ ]] || return 1
+  (( current_mib + REPLAY_LAB_SWAP_ACCOUNTING_TOLERANCE_MIB >= required_mib ))
+}
+
 replay_lab_persist_managed_swap() {
   local swap_path="$1"
   if awk -v target="$swap_path" '
@@ -119,7 +130,7 @@ replay_lab_ensure_swap_floor() {
   }
   (( required_mib > 0 )) || return 0
   current_mib="$(replay_lab_read_swap_mib)" || return 1
-  if (( current_mib >= required_mib )); then
+  if replay_lab_swap_floor_satisfied "$current_mib" "$required_mib"; then
     if replay_lab_swap_is_active "$swap_path"; then
       replay_lab_persist_managed_swap "$swap_path" || return 1
     fi
@@ -136,7 +147,9 @@ replay_lab_ensure_swap_floor() {
     printf 'swapon is required to provision low-memory host capacity\n' >&2
     return 1
   }
-  missing_mib="$((required_mib - current_mib))"
+  # Add the same bounded overhead to new files so their kernel-reported
+  # SwapTotal reaches the nominal policy floor on the first attempt.
+  missing_mib="$((required_mib - current_mib + REPLAY_LAB_SWAP_ACCOUNTING_TOLERANCE_MIB))"
   parent="$(dirname -- "$swap_path")"
   sudo_cmd install -d -m 0700 -o root -g root "$parent" || return 1
 
@@ -177,7 +190,7 @@ replay_lab_ensure_swap_floor() {
   sudo_cmd swapon "$swap_path" || return 1
   replay_lab_persist_managed_swap "$swap_path" || return 1
   current_mib="$(replay_lab_read_swap_mib)" || return 1
-  (( current_mib >= required_mib )) || {
+  replay_lab_swap_floor_satisfied "$current_mib" "$required_mib" || {
     printf 'swap provisioning did not reach the required %s MiB floor\n' "$required_mib" >&2
     return 1
   }

@@ -44,6 +44,9 @@ The current lightweight-host capacity policy is
 `V7_ADAPTIVE_LOW_MEMORY_DEPLOYMENT_R12_3.md`: the provider 512 MB class is the
 minimum, and deployment automatically selects bounded DuckDB and persistent
 swap settings instead of relying on host-specific operator commands.
+Its pushed-host correction is `V7_SWAP_ACCOUNTING_TOLERANCE_R12_4.md`, which
+accounts for the small `mkswap` header without accepting a material capacity
+shortfall or requiring destructive operator repair.
 None closes the ongoing phase-one overall acceptance pass. Read those before the normal
 implementation reading order below. The deferred
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and

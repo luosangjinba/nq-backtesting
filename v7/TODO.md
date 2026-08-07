@@ -1,5 +1,19 @@
 # V7 TODO
 
+## R12.4 Managed Swap Accounting Tolerance — Implemented, Host Rerun Pending
+
+- [x] identify `mkswap` header accounting as the nominal 512 MiB/observed
+  511 MiB false failure;
+- [x] accept only a bounded 8 MiB accounting delta and keep larger shortfalls a
+  hard stop;
+- [x] add the same overhead to new managed files and recover an already-active
+  R12.3 file without destructive swap operations;
+- [x] bind the boundary and negative control as H095;
+- [ ] pull R12.4 on the affected host and complete the unchanged one-command
+  deployment.
+
+Binding correction: `docs/V7_SWAP_ACCOUNTING_TOLERANCE_R12_4.md`.
+
 ## R12.3 Adaptive Low-Memory Deployment — Implemented, Two-Host Review Pending
 
 - [x] define the provider 512 MB class as the minimum supported Linux host and
