@@ -300,6 +300,29 @@ an unknown listener automatically.
 
 ## Repeat Deployment And Rollback
 
+Update an ordinary release checkout before repeating deployment:
+
+```bash
+cd ~/backtesting-v7
+git switch main
+git pull --ff-only origin main
+sudo bash v7/deploy/linux/deploy.sh
+```
+
+For a repository originally cloned with
+`--branch v7/rebuild --single-branch`, add and check out `main` once:
+
+```bash
+cd ~/backtesting-v7
+git remote set-branches --add origin main
+git fetch origin
+git switch -c main --track origin/main
+sudo bash v7/deploy/linux/deploy.sh
+```
+
+If local `main` already exists, switch to it and pull with `--ff-only` instead
+of recreating it. Never force-reset uncommitted or unpublished host changes.
+
 Each run archives only the committed `v7/` tree from `HEAD` into
 `/opt/replay-lab/releases/<UTC>-<commit>`, installs exact `package-lock.json`
 dependencies, validates the database as the service user, and atomically moves

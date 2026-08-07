@@ -49,12 +49,30 @@ upload and validate a CSV or DuckDB before activating it once. Do not create an
 empty placeholder database.
 
 After a successful first deployment, the non-secret host profile is retained.
-Upgrade with:
+For an ordinary `main` checkout, update and redeploy with:
 
 ```bash
+cd ~/backtesting-v7
+git switch main
 git pull --ff-only origin main
 sudo bash v7/deploy/linux/deploy.sh
 ```
+
+Repositories originally cloned with
+`--branch v7/rebuild --single-branch` do not track `main`. Migrate that checkout
+once before using the normal update command:
+
+```bash
+cd ~/backtesting-v7
+git remote set-branches --add origin main
+git fetch origin
+git switch -c main --track origin/main
+sudo bash v7/deploy/linux/deploy.sh
+```
+
+If a local `main` branch already exists, replace the `git switch -c ...` line
+with `git switch main`, followed by `git pull --ff-only origin main`. Do not use
+a forced reset to discard local changes.
 
 The minimum supported Linux instance is the provider 512 MB class. The deployer
 selects a bounded runtime profile and provisions persistent swap when needed.

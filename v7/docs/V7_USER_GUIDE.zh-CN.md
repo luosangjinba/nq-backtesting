@@ -152,16 +152,39 @@ Git 或代码 release，也不会在部署时被自动修复或替换。
 
 ### 3.7 重复部署和升级
 
-第一次成功部署后，不需要再次输入主机 IP 或域名：
+第一次成功部署后，不需要再次输入主机 IP 或域名。普通 `main` 仓库使用：
 
 ```bash
 cd ~/backtesting-v7
+git switch main
 git pull --ff-only origin main
 sudo bash v7/deploy/linux/deploy.sh
 ```
 
 脚本会复用已经保存的访问模式、地址、数据库路径、服务用户和认证配置。若有未提交
 的受跟踪源码改动，正式部署会停止，避免把不可追踪代码发布到服务器。
+
+如果旧主机最初使用
+`git clone --branch v7/rebuild --single-branch ...`，该仓库不会自动跟踪
+`main`。第一次迁移执行：
+
+```bash
+cd ~/backtesting-v7
+git remote set-branches --add origin main
+git fetch origin
+git switch -c main --track origin/main
+sudo bash v7/deploy/linux/deploy.sh
+```
+
+以后就使用上面的普通更新命令。如果提示本地 `main` 已存在，不要再次创建分支，改为：
+
+```bash
+git switch main
+git pull --ff-only origin main
+sudo bash v7/deploy/linux/deploy.sh
+```
+
+不要为了更新而使用强制 reset；先提交、备份或明确处理本地修改。
 
 ## 4. 第一次配置数据库
 
@@ -400,6 +423,7 @@ sudo journalctl \
 `Optional maintenance disabled`。拉取新代码后必须重新执行部署，不能只刷新浏览器：
 
 ```bash
+git switch main
 git pull --ff-only origin main
 sudo bash v7/deploy/linux/deploy.sh
 ```

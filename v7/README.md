@@ -62,12 +62,30 @@ and the supported package manager. An absent database selects guarded browser
 bootstrap; an existing database is validated and mounted read-only. The minimum
 supported host is the provider 512 MB class.
 
-After the first successful install, update with the same no-argument command:
+After the first successful install, update an ordinary `main` checkout and
+redeploy with the saved host profile:
 
 ```bash
+cd ~/backtesting-v7
+git switch main
 git pull --ff-only origin main
 sudo bash v7/deploy/linux/deploy.sh
 ```
+
+An older checkout cloned with `--branch v7/rebuild --single-branch` must add
+`main` to its remote tracking configuration once:
+
+```bash
+cd ~/backtesting-v7
+git remote set-branches --add origin main
+git fetch origin
+git switch -c main --track origin/main
+sudo bash v7/deploy/linux/deploy.sh
+```
+
+When a local `main` already exists, use `git switch main` and
+`git pull --ff-only origin main` instead of creating it. Preserve or commit any
+local source changes; do not force-reset them during an upgrade.
 
 Deployment details, security boundaries, rollback, and host diagnostics are in
 the [Linux deployment guide](deploy/linux/README.md).
