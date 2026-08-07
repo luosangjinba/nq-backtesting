@@ -225,8 +225,9 @@ DuckDB 必须包含 `main.futures_1m`，字段为：
 不要手工删除已经激活的 `/srv/replay-lab-data/trading_data.duckdb`；删除文件不会重新
 打开初始化入口，只会让行情服务失去数据。需要迁移或恢复时，应使用已验证的备份。
 
-页面右上角出现 `Optional maintenance disabled` 是正常状态：它表示历史维护、Contract
-Roll 等可选写入服务没有启用，不影响已激活数据库的只读回放。
+已有数据库的普通只读部署会在右上角显示 `Read-only data ready`，Database Setup 显示
+`Database active`，下方列出 ES/NQ 的首尾时间和可用交易日期数量。Contract Roll、历史
+补数和其他写入区不会显示。这表示可选维护服务没有启用，行情读取和回放仍然正常。
 
 ## 5. 创建和管理 Session
 
@@ -389,19 +390,32 @@ sudo journalctl \
 防火墙和 DNS 允许 80/443。应用服务只监听 loopback 是正确的，不要把它们改成公网
 监听。
 
-### `Maintenance API unavailable` 或 `Optional maintenance disabled`
+### `Read-only data ready`
 
-这是可选历史维护写入服务未启用，不是回放 Market Data 服务故障。当前验收部署只读，
-此提示不阻止 Session 和 Replay。
+这是已有数据库的正常只读状态：Market Data 健康，第一次上传已经锁定，可选历史维护
+写入服务未启用。它不阻止 Session 和 Replay。页面显示的首尾范围来自只读 Market Data；
+重复时间戳等维护完整性检查会明确标成未启用，而不会给出未经验证的结论。
+
+旧版本可能显示 `Maintenance API unavailable` 或
+`Optional maintenance disabled`。拉取新代码后必须重新执行部署，不能只刷新浏览器：
+
+```bash
+git pull --ff-only origin v7/rebuild
+sudo bash v7/deploy/linux/deploy.sh
+```
 
 ### `Import service unavailable`
 
-检查：
+当前版本在已有数据库时只读取 importer health，并应显示 `Database active`。若仍显示
+`Import service unavailable`，通常是代码已经更新但 immutable release、Web 环境或 Caddy
+片段仍是旧版。先重新部署，再检查：
 
 ```bash
 curl -fsS http://127.0.0.1:8768/v7/database/health
 sudo journalctl -u replay-lab-database-import -n 200 --no-pager
 ```
+
+不要为消除提示而开放 8768；该端口必须保持 loopback-only。
 
 ### 上传返回 409 或不能重新上传
 

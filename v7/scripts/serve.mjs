@@ -17,10 +17,15 @@ const stateProxy = stateUser.length === 0 ? null : createStateProxy({
   userId: stateUser,
 });
 const databaseImportUser = process.env.REPLAY_LAB_DATABASE_IMPORT_USER ?? '';
-const databaseImportProxy = databaseImportUser.length === 0 ? null : createDatabaseImportProxy({
-  origin: process.env.REPLAY_LAB_DATABASE_IMPORT_API_ORIGIN ?? 'http://127.0.0.1:8768',
-  userId: databaseImportUser,
-});
+const databaseImportProxyMode = process.env.REPLAY_LAB_DATABASE_IMPORT_PROXY_MODE
+  ?? (databaseImportUser.length === 0 ? 'disabled' : 'full');
+const databaseImportProxy = databaseImportProxyMode === 'disabled'
+  ? null
+  : createDatabaseImportProxy({
+    mode: databaseImportProxyMode,
+    origin: process.env.REPLAY_LAB_DATABASE_IMPORT_API_ORIGIN ?? 'http://127.0.0.1:8768',
+    userId: databaseImportUser || 'local',
+  });
 const server = createStaticServer(repositoryRoot, { databaseImportProxy, stateProxy });
 server.listen(requestedPort, '127.0.0.1', () => {
   console.log(`V7 Session Browser: http://127.0.0.1:${requestedPort}/v7/app/`);

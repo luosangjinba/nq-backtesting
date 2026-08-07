@@ -210,6 +210,16 @@
       "targetEndpoint": "127.0.0.1:8767"
     },
     {
+      "activation": "always",
+      "configurationPath": "v7/deploy/linux/install.sh",
+      "id": "caddy.v7-database-health",
+      "matcher": "@database_health",
+      "pathPattern": "/v7/database/health",
+      "sourceComponent": "deployment.linux",
+      "targetComponent": "service.v7-database-import",
+      "targetEndpoint": "127.0.0.1:8768"
+    },
+    {
       "activation": "authenticated-bootstrap",
       "configurationPath": "v7/deploy/linux/install.sh",
       "id": "caddy.v7-database-import",

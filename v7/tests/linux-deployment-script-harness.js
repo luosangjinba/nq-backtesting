@@ -275,6 +275,9 @@ try {
   assert.match(publicPlan.stdout, /header_up X-Replay-Lab-User \{http\.auth\.user\.id\}/);
   assert.match(publicPlan.stdout, /not path \/v7\/state\/\*/);
   assert.doesNotMatch(publicPlan.stdout, /@database_import/);
+  assert.match(publicPlan.stdout, /@database_health path \/v7\/database\/health/);
+  assert.match(publicPlan.stdout, /path \/v7\/database\/health/);
+  assert.match(publicPlan.stdout, /reverse_proxy @database_health 127\.0\.0\.1:8768/);
   assert.match(publicPlan.stdout, /reverse_proxy @market_data 127\.0\.0\.1:8766/);
   assert.match(publicPlan.stdout, /reverse_proxy 127\.0\.0\.1:8007/);
   assert.match(publicPlan.stdout, /(basic_auth|basicauth) \{/);
@@ -331,6 +334,8 @@ try {
     /user-state=local-only, database-import=disabled, other-market-mutations=blocked/);
   assert.doesNotMatch(unauthenticatedPublicPlan.stdout, /@state_api/,
     'unauthenticated public deployment must expose no user-state route');
+  assert.match(unauthenticatedPublicPlan.stdout, /@database_health path \/v7\/database\/health/,
+    'read-only importer health remains observable without exposing import mutations');
   assert.match(unauthenticatedPublicPlan.stdout, /@mutating method POST PUT PATCH DELETE/);
   if (caddyAvailable) {
     validateRenderedCaddy(unauthenticatedPublicPlan.stdout, 'Caddyfile-unauthenticated');

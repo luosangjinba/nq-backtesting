@@ -1,5 +1,27 @@
 # V7 TODO
 
+## R12.8 Acceptance Capability-Aware Status — Implemented, Cloud Rerun Pending
+
+- [x] separate active database readiness, first-run import authority, and
+  optional Maintenance authority in deployment and browser presentation;
+- [x] expose only exact importer health after a database exists while keeping
+  upload, validation, discard, and activation routes unavailable;
+- [x] fall back to read-only Market Data health/available dates and show honest
+  ES/NQ first/latest ranges without claiming Maintenance integrity evidence;
+- [x] hide Contract Roll/write-only sections when their owner is absent and
+  reserve the red unavailable state for a real Market Data failure;
+- [x] translate stable Replay internal error codes at the UI adapter boundary;
+- [x] split capability/status orchestration into its own controller, inventory
+  the health-only proxy, and bind unit, deployment, architecture, and real-
+  browser evidence as H099;
+- [x] record that every other item in the second human acceptance pass was
+  accepted;
+- [ ] redeploy one existing-database cloud host, hard-refresh Data Acquisition,
+  and confirm `Database active`, `Read-only data ready`, ES/NQ ranges, and no
+  false HTTP 403/404/importer/Maintenance error.
+
+Binding correction: `docs/V7_ACCEPTANCE_CAPABILITY_STATUS_R12_8.md`.
+
 ## R12.7 Unified Deployment Entry — Implemented, Multi-Mode Host Review Pending
 
 - [x] make `deploy.sh` the single local, automatic-public-IP, explicit-IP,
@@ -745,8 +767,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 319 files, 24,943 effective
-lines, 2,641 functions, and 311 public exports; the architecture baseline
+The current production source baseline contains 322 files, 25,111 effective
+lines, 2,657 functions, and 314 public exports; the architecture baseline
 remains 51 modules, 127 edges, 115 construction sites, 19 writers, and zero
 findings.
 
@@ -758,7 +780,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 319 files, 24,943 effective lines, 2,641 functions, 311 public
+currently at 322 files, 25,111 effective lines, 2,657 functions, 314 public
 exports, 51 modules, 127 edges, 115 construction sites, 19 writers, and zero
 findings.
 

@@ -18,3 +18,7 @@ export {
   createMaintenanceClient,
   resolveMaintenanceApiBase,
 } from './maintenance-client.js';
+export {
+  createReadOnlyCoverageClient,
+  resolveMarketDataApiBase,
+} from './read-only-coverage-client.js';

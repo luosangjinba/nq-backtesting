@@ -67,6 +67,14 @@ async function waitForImportService() {
 }
 
 await waitForImportService();
+const healthOnlyProxy = createDatabaseImportProxy({
+  mode: 'health-only',
+  origin: `http://127.0.0.1:${importPort}`,
+  userId: 'local',
+});
+assert.equal(healthOnlyProxy.handles({ url: '/v7/database/health' }), true);
+assert.equal(healthOnlyProxy.handles({ url: '/v7/database/import/current' }), false);
+assert.equal(healthOnlyProxy.handles({ url: '/v7/database/import/upload' }), false);
 const webServer = createStaticServer(repositoryRoot, {
   databaseImportProxy: createDatabaseImportProxy({
     origin: `http://127.0.0.1:${importPort}`,

@@ -764,6 +764,26 @@ private-domain modes, proving no-argument profile reuse, client CA trust where
 applicable, unchanged data, unrelated-site continuity, health, authentication,
 and rollback. Binding contract: `V7_UNIFIED_DEPLOYMENT_ENTRY_R12_7.md`.
 
+### R12.8 — Acceptance Capability-Aware Status
+
+- treat active database readiness, first-run import authority, and optional
+  Maintenance authority as independent capabilities;
+- expose exact importer health after activation while retaining every
+  importer mutation lock;
+- derive existing-database ES/NQ coverage from the read-only Market Data owner
+  when Maintenance is unavailable and hide all Maintenance-owned controls;
+- map internal Replay failure codes to user-facing copy inside the Replay UI
+  adapter;
+- keep the Data Acquisition route as orchestration by extracting a focused
+  coverage status controller;
+- bind browser, deployment, source-quality, standalone, and deployed-runtime
+  behavior as H099.
+
+Gate: redeploy an existing-database acceptance host and prove `Database active`,
+`Read-only data ready`, real ES/NQ ranges, locked upload, hidden Maintenance
+writes, and no raw expected HTTP 403/404 or internal Replay code. Binding
+contract: `V7_ACCEPTANCE_CAPABILITY_STATUS_R12_8.md`.
+
 ## Deferred Product Boundary — Second-Level Replay
 
 Second-level/tick-sourced Replay has no delivery number and is not the next

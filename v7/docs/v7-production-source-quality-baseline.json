@@ -15453,26 +15453,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 10,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "ui",
-      "moduleId": "adapter.data-acquisition-ui",
-      "owner": "data-acquisition-admin",
-      "ownsContract": true,
-      "path": "src/data-acquisition-ui/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "600b7d1261f270165295e2170802d1caf3329958381923e382850b86a0ae5d02"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 102,
       "forwardingOnly": false,
       "functions": [
@@ -16611,6 +16591,94 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 118,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "find",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "latestTimestamp",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "maintenanceAvailable",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "createCoverageStatusController",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 34,
+          "name": "createCoverageCard",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 55,
+          "name": "refresh",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "setMaintenanceAvailable",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "renderCoverage",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.data-acquisition-ui",
+      "owner": "data-acquisition-admin",
+      "ownsContract": false,
+      "path": "src/data-acquisition-ui/coverage-status-controller.js",
+      "publicExports": [],
+      "responsibilities": [
+        "visual-surface-mutation"
+      ],
+      "sideEffectConcerns": [
+        {
+          "concern": "visual-surface-mutation",
+          "evidence": [
+            "append()"
+          ]
+        }
+      ],
+      "sizeException": null,
+      "sourceHash": "eb2b307ef5b645a4fa407b67aa8104f4a1f71ccf053782a07b02eedd88e61603"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 119,
       "forwardingOnly": false,
       "functions": [
@@ -16712,7 +16780,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 133,
+      "effectiveLines": 136,
       "forwardingOnly": false,
       "functions": [
         {
@@ -16761,7 +16829,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 16,
+          "effectiveLines": 19,
           "name": "parseResponse",
           "reviewedDecompositionException": false
         },
@@ -16867,7 +16935,7 @@
         }
       ],
       "sizeException": null,
-      "sourceHash": "b362d7a07859bb217ebf873b1b4453be1c8ff6cb60e9cb19df74362e8c0ee816"
+      "sourceHash": "a8c4fb21cbfa960f2427d4bb0e8980820336027823ab9dc9d0c40b78f5e94203"
     },
     {
       "adaptsBoundary": true,
@@ -17030,6 +17098,26 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "926bcf881c419c82824a9c679f758a3cb218acfe2fc419ed9e67477cbea2c041"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 14,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "ui",
+      "moduleId": "adapter.data-acquisition-ui",
+      "owner": "data-acquisition-admin",
+      "ownsContract": true,
+      "path": "src/data-acquisition-ui/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "e776d486f0adf7f8975c969e8be56d05fc391d9b325b3271fd10c81995277ce6"
     },
     {
       "adaptsBoundary": true,
@@ -17462,6 +17550,56 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "3f2d438a454b87604c16e5338df8af0e2ac37bb94931c736450cd88c73ccbf3b"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 15,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 8,
+          "name": "workspaceErrorCopy",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.replay-workspace-ui",
+      "owner": "replay-workspace-ui",
+      "ownsContract": false,
+      "path": "src/replay-workspace-ui/workspace-error-copy.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "replay-workspace-ui.",
+            "purpose": "expose the complete supported public contract for replay workspace ui.",
+            "inputs": "validated view models, DOM hosts, and explicitly supplied callback ports.",
+            "outputs": "a UI surface handle and its owned DOM root.",
+            "sideEffects": "mutates only its owned DOM subtree and invokes supplied callbacks.",
+            "lifecycle": "mounted listeners and DOM resources remain owned until dispose or unmount.",
+            "errors": "invalid hosts or view models throw; callback failures remain owned by the caller boundary.",
+            "concurrencyCancellation": "UI callbacks delegate asynchronous cancellation and stale-result checks to runtime owners."
+          },
+          "moduleId": "adapter.replay-workspace-ui",
+          "name": "workspaceErrorCopy",
+          "semanticMatches": [
+            "replay",
+            "workspace"
+          ],
+          "semanticTerms": [
+            "copy",
+            "replay",
+            "workspace"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "8649780f5206bb508dfbbc7b7933e9ff28de86ffa37f63d8a29b237b3d9edb01"
     },
     {
       "adaptsBoundary": true,
@@ -19180,26 +19318,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "8be868ea9b49f818f849d8a55fb16ac8d0bb33fbba916c2300788a6de7f6773e"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 2,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "ui",
-      "moduleId": "adapter.replay-workspace-ui",
-      "owner": "replay-workspace-ui",
-      "ownsContract": true,
-      "path": "src/replay-workspace-ui/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "db2e35651c140702587702a608963f9c85d7dba1a27e7cf60313c18c75970b02"
     },
     {
       "adaptsBoundary": true,
@@ -21072,7 +21190,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 274,
+      "effectiveLines": 277,
       "forwardingOnly": false,
       "functions": [
         {
@@ -21141,7 +21259,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 21,
+          "effectiveLines": 23,
           "name": "setState",
           "reviewedDecompositionException": false
         },
@@ -21286,7 +21404,7 @@
         }
       ],
       "sizeException": null,
-      "sourceHash": "5a7cce8fc228cf6e26424059c1a21a665ac51d436b50e12d4a71f2db98d63d9f"
+      "sourceHash": "40292e0b42895380e73d6b6c05ea3b960f8cc652243464f26262b4bd68382f51"
     },
     {
       "adaptsBoundary": true,
@@ -21567,6 +21685,26 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "c2aae6e878bca7f25ea3b3e8c3b115492cff231de6b5890f24ed6cb9bfcf7767"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 3,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "ui",
+      "moduleId": "adapter.replay-workspace-ui",
+      "owner": "replay-workspace-ui",
+      "ownsContract": true,
+      "path": "src/replay-workspace-ui/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "fb74ef54ab76f125c1bf920baa01ed84813cf9ec0fe6651932d232272938197b"
     },
     {
       "adaptsBoundary": true,
@@ -22026,6 +22164,270 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "e61afcf33314acfa038cafbdc583bdf05de1644054b529311dd4c0da3b3023f8"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 373,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-31>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-32>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-33>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-34>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-36>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-37>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-38>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-39>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-41>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "find",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onCoverage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onResetStart",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onStatus",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onStatus",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "setBusy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "verifySelectedRead",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "runRollReport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "resumeRetainedJob",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "updateSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "renderGates",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "formatNumber",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "onActivated",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "onStatus",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-29>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-30>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "requireRoot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 46,
+          "name": "runWorkflowAction",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-40>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "onCommitted",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "resetVerifyGate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "shiftInputMinute",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "appendOutput",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "applyCoverageStart",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "<anonymous-35>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 76,
+          "name": "createDataAcquisitionSurface",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "easternInput",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "selection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 80,
+          "name": "template",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.data-acquisition-ui",
+      "owner": "data-acquisition-admin",
+      "ownsContract": false,
+      "path": "src/data-acquisition-ui/surface.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "data-acquisition-admin.",
+            "purpose": "expose the complete supported public contract for data acquisition ui.",
+            "inputs": "validated view models, DOM hosts, and explicitly supplied callback ports.",
+            "outputs": "a UI surface handle and its owned DOM root.",
+            "sideEffects": "mutates only its owned DOM subtree and invokes supplied callbacks.",
+            "lifecycle": "mounted listeners and DOM resources remain owned until dispose or unmount.",
+            "errors": "invalid hosts or view models throw; callback failures remain owned by the caller boundary.",
+            "concurrencyCancellation": "UI callbacks delegate asynchronous cancellation and stale-result checks to runtime owners."
+          },
+          "moduleId": "adapter.data-acquisition-ui",
+          "name": "createDataAcquisitionSurface",
+          "semanticMatches": [
+            "acquisition",
+            "data"
+          ],
+          "semanticTerms": [
+            "acquisition",
+            "data"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "visual-surface-mutation"
+      ],
+      "sideEffectConcerns": [
+        {
+          "concern": "visual-surface-mutation",
+          "evidence": [
+            "disabled=",
+            "innerHTML=",
+            "replaceChildren()",
+            "textContent="
+          ]
+        }
+      ],
+      "sizeException": null,
+      "sourceHash": "eee9de17259b3c530ae4984b52f6139b2ba8d132d24b194c0985f21847c0481e"
     },
     {
       "adaptsBoundary": true,
@@ -23216,291 +23618,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "f154db0f0c762a87a52f3cd258c3b7b14896ee76026b1ddf1a992f05e0bf9e17"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 424,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-18>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-23>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-24>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-36>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-37>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-38>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-39>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-40>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-41>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-42>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-43>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-44>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-45>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "find",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onStatus",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onStatus",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "setBusy",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "verifySelectedRead",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "runRollReport",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "resumeRetainedJob",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "updateSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 21,
-          "name": "<anonymous-19>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 23,
-          "name": "renderGates",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "formatNumber",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "onActivated",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "onStatus",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-34>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-35>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "requireRoot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 40,
-          "name": "refreshStatus",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 46,
-          "name": "runWorkflowAction",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-16>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "onCommitted",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "resetVerifyGate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "shiftInputMinute",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "appendOutput",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "applyCoverageStart",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "renderCoverage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 65,
-          "name": "createDataAcquisitionSurface",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "easternInput",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "selection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 80,
-          "name": "template",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "<anonymous-20>",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.data-acquisition-ui",
-      "owner": "data-acquisition-admin",
-      "ownsContract": false,
-      "path": "src/data-acquisition-ui/surface.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "data-acquisition-admin.",
-            "purpose": "expose the complete supported public contract for data acquisition ui.",
-            "inputs": "validated view models, DOM hosts, and explicitly supplied callback ports.",
-            "outputs": "a UI surface handle and its owned DOM root.",
-            "sideEffects": "mutates only its owned DOM subtree and invokes supplied callbacks.",
-            "lifecycle": "mounted listeners and DOM resources remain owned until dispose or unmount.",
-            "errors": "invalid hosts or view models throw; callback failures remain owned by the caller boundary.",
-            "concurrencyCancellation": "UI callbacks delegate asynchronous cancellation and stale-result checks to runtime owners."
-          },
-          "moduleId": "adapter.data-acquisition-ui",
-          "name": "createDataAcquisitionSurface",
-          "semanticMatches": [
-            "acquisition",
-            "data"
-          ],
-          "semanticTerms": [
-            "acquisition",
-            "data"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "visual-surface-mutation"
-      ],
-      "sideEffectConcerns": [
-        {
-          "concern": "visual-surface-mutation",
-          "evidence": [
-            "append()",
-            "disabled=",
-            "innerHTML=",
-            "replaceChildren()",
-            "textContent="
-          ]
-        }
-      ],
-      "sizeException": null,
-      "sourceHash": "10155dd05226b7e2ed448b9b987bc8d2084f792f7eb0156d7af8f231d40d5081"
     },
     {
       "adaptsBoundary": true,
@@ -26162,6 +26279,120 @@
       "functions": [
         {
           "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "createReadOnlyCoverageClient",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "readJson",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "resolveMarketDataApiBase",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "readCoveragePayload",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.data-acquisition-ui",
+      "owner": "data-acquisition-admin",
+      "ownsContract": false,
+      "path": "src/data-acquisition-ui/read-only-coverage-client.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "data-acquisition-admin.",
+            "purpose": "expose the complete supported public contract for data acquisition ui.",
+            "inputs": "validated view models, DOM hosts, and explicitly supplied callback ports.",
+            "outputs": "a UI surface handle and its owned DOM root.",
+            "sideEffects": "mutates only its owned DOM subtree and invokes supplied callbacks.",
+            "lifecycle": "mounted listeners and DOM resources remain owned until dispose or unmount.",
+            "errors": "invalid hosts or view models throw; callback failures remain owned by the caller boundary.",
+            "concurrencyCancellation": "UI callbacks delegate asynchronous cancellation and stale-result checks to runtime owners."
+          },
+          "moduleId": "adapter.data-acquisition-ui",
+          "name": "createReadOnlyCoverageClient",
+          "semanticMatches": [
+            "acquisition",
+            "data"
+          ],
+          "semanticTerms": [
+            "acquisition",
+            "client",
+            "coverage",
+            "data",
+            "only"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "data-acquisition-admin.",
+            "purpose": "expose the complete supported public contract for data acquisition ui.",
+            "inputs": "validated view models, DOM hosts, and explicitly supplied callback ports.",
+            "outputs": "a UI surface handle and its owned DOM root.",
+            "sideEffects": "mutates only its owned DOM subtree and invokes supplied callbacks.",
+            "lifecycle": "mounted listeners and DOM resources remain owned until dispose or unmount.",
+            "errors": "invalid hosts or view models throw; callback failures remain owned by the caller boundary.",
+            "concurrencyCancellation": "UI callbacks delegate asynchronous cancellation and stale-result checks to runtime owners."
+          },
+          "moduleId": "adapter.data-acquisition-ui",
+          "name": "resolveMarketDataApiBase",
+          "semanticMatches": [
+            "acquisition",
+            "data"
+          ],
+          "semanticTerms": [
+            "acquisition",
+            "api",
+            "base",
+            "data",
+            "market"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "external-state-io"
+      ],
+      "sideEffectConcerns": [
+        {
+          "concern": "remote-io",
+          "evidence": [
+            "fetchImpl()"
+          ]
+        }
+      ],
+      "sizeException": null,
+      "sourceHash": "45d2889ecce7bbb3ed10216a099d6018eb9873eec3b341be25864adc80c8d849"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 75,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
           "name": "<anonymous-9>",
           "reviewedDecompositionException": false
         },
@@ -27888,11 +28119,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 24943,
-    "files": 319,
-    "functions": 2641,
-    "publicExports": 311
+    "effectiveLines": 25111,
+    "files": 322,
+    "functions": 2657,
+    "publicExports": 314
   },
-  "deliveryStep": "R12.7",
-  "generatedFromCommit": "working-tree-r12.7"
+  "deliveryStep": "R12.8",
+  "generatedFromCommit": "working-tree-r12.8"
 }

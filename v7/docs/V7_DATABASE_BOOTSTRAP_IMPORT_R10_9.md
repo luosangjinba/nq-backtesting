@@ -157,10 +157,14 @@ group. Public bootstrap requires authenticated HTTPS. Caddy routes only
 verified Basic Auth user. Unauthenticated public deployment cannot enable
 bootstrap. All unrelated public mutations remain `403`.
 
-Non-bootstrap deployment retains the prior contract: an existing DuckDB is
-validated read-only, the database route is absent, and the importer reports
-disabled locally even if the database path later disappears. Release rollback
-does not remove an activated database or its durable importer lock.
+Non-bootstrap deployment retains the write contract: an existing DuckDB is
+validated read-only and every upload/prepare/discard/activate route is absent.
+R12.8 exposes only `GET /v7/database/health` so the optional panel can report
+`Database active` without inferring readiness from a 404. The importer still
+reports importing disabled, even if the database path later disappears.
+Release rollback does not remove an activated database or its durable importer
+lock. Binding correction:
+`V7_ACCEPTANCE_CAPABILITY_STATUS_R12_8.md`.
 
 ## Automated Evidence
 
@@ -184,11 +188,13 @@ does not remove an activated database or its durable importer lock.
   module and proves the real maintenance application still starts without its
   panel;
 - `tests/data-acquisition-ui-browser-harness.js` proves an existing database
-  visibly locks the first-run controls while the prior maintenance workflow
-  remains functional.
+  visibly locks the first-run controls; when optional maintenance is disabled,
+  it derives honest read-only ES/NQ ranges from Market Data and hides write-only
+  sections without showing expected HTTP 403/404 responses as product errors.
 - `tests/linux-deployment-script-harness.js` proves missing-target bootstrap,
   authenticated Caddy routing, unauthenticated rejection, four hardened units,
-  parent-directory isolation, and unchanged non-bootstrap behavior.
+  parent-directory isolation, full bootstrap routing, and exact health-only
+  non-bootstrap behavior.
 
 ## Remaining Human Gate
 

@@ -8,23 +8,31 @@ function requireLoopbackOrigin(value) {
   return origin;
 }
 
+const PROXY_MODES = new Set(['full', 'health-only']);
+
 /** Private-path proxy that injects the deployment's trusted bootstrap identity. */
-export function createDatabaseImportProxy({ origin, userId }) {
+export function createDatabaseImportProxy({ mode = 'full', origin, userId }) {
   const target = requireLoopbackOrigin(origin);
   if (typeof userId !== 'string' || !/^[A-Za-z0-9._-]{1,64}$/.test(userId)) {
     throw new TypeError('Database import proxy requires one safe configured user id.');
   }
+  if (!PROXY_MODES.has(mode)) {
+    throw new TypeError('Database import proxy mode must be full or health-only.');
+  }
   return Object.freeze({
     handles(request) {
       try {
-        return new URL(request.url, 'http://127.0.0.1').pathname.startsWith('/v7/database/');
+        const pathname = new URL(request.url, 'http://127.0.0.1').pathname;
+        return pathname === '/v7/database/health'
+          || (mode === 'full' && pathname.startsWith('/v7/database/'));
       } catch {
         return false;
       }
     },
     forward(request, response) {
-      if (!['GET', 'POST', 'PUT'].includes(request.method)) {
-        response.writeHead(405, { Allow: 'GET, POST, PUT' });
+      const allowedMethods = mode === 'full' ? ['GET', 'POST', 'PUT'] : ['GET'];
+      if (!allowedMethods.includes(request.method)) {
+        response.writeHead(405, { Allow: allowedMethods.join(', ') });
         response.end();
         return;
       }

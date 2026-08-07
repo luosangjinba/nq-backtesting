@@ -1,4 +1,6 @@
 import { createMaintenanceClient } from './maintenance-client.js';
+import { createReadOnlyCoverageClient } from './read-only-coverage-client.js';
+import { createCoverageStatusController } from './coverage-status-controller.js';
 import { createRollCalendarPanel, rollCalendarTemplate } from './roll-calendar-panel.js';
 import { createAcquisitionWorkflow, parseOutputMetric } from './workflow-state.js';
 
@@ -51,7 +53,7 @@ function template(databaseBootstrapApi) {
           ${databaseBootstrapApi?.databaseImportTemplate?.() ?? ''}
           <section class="data-admin-section" aria-labelledby="coverageTitle">
             <div class="data-admin-section-heading">
-              <div><h2 id="coverageTitle">Authoritative coverage</h2><p>Read-only DuckDB state. Duplicate timestamps are a hard stop.</p></div>
+              <div><h2 id="coverageTitle">Authoritative coverage</h2><p id="coverageCopy">Read-only DuckDB state. Duplicate timestamps are a hard stop.</p></div>
               <button class="data-button" id="refreshCoverage" type="button">Refresh status</button>
             </div>
             <div class="coverage-grid" id="coverageGrid" aria-live="polite">
@@ -63,7 +65,7 @@ function template(databaseBootstrapApi) {
 
           ${rollCalendarTemplate()}
 
-          <section class="data-admin-section" aria-labelledby="workflowTitle">
+          <section class="data-admin-section" id="maintenanceWorkflowSection" aria-labelledby="workflowTitle">
             <div class="data-admin-section-heading">
               <div><h2 id="workflowTitle">Selected-range refresh</h2><p>Changing any range field invalidates prior Preflight and Dry Run evidence.</p></div>
               <button class="data-button" id="rollReport" type="button">Roll report</button>
@@ -91,7 +93,7 @@ function template(databaseBootstrapApi) {
             <p class="write-note">Writes never update or delete existing <code>(instrument, timestamp)</code> rows. A blocked roll segment or dirty Dry Run keeps Write disabled.</p>
           </section>
 
-          <section class="data-admin-section data-output-section" aria-labelledby="activityTitle">
+          <section class="data-admin-section data-output-section" id="maintenanceActivitySection" aria-labelledby="activityTitle">
             <div class="data-admin-section-heading">
               <div><h2 id="activityTitle">Activity</h2><p id="jobStatus">No maintenance task is running.</p></div>
               <div class="data-output-actions">
@@ -114,6 +116,8 @@ function requireRoot(root) {
 export function createDataAcquisitionSurface(options) {
   const root = requireRoot(options.root);
   const client = options.client ?? createMaintenanceClient(options.clientOptions);
+  const readOnlyCoverageClient = options.readOnlyCoverageClient
+    ?? createReadOnlyCoverageClient(options.readOnlyCoverageClientOptions);
   const databaseBootstrapApi = options.databaseBootstrapApi ?? null;
   if (databaseBootstrapApi !== null
     && (typeof databaseBootstrapApi.createDatabaseImportPanel !== 'function'
@@ -124,7 +128,6 @@ export function createDataAcquisitionSurface(options) {
   const defaultEnd = easternInput();
   const defaultStart = easternInput(new Date(Date.now() - 24 * 60 * 60 * 1000));
   const workflow = createAcquisitionWorkflow({ instrument: 'ES', start: defaultStart, end: defaultEnd, chunkDays: 3 });
-  let coverage = new Map();
   let disposed = false;
   let busy = false;
   let activeSelectionKey = JSON.stringify(workflow.snapshot().selection);
@@ -222,86 +225,23 @@ export function createDataAcquisitionSurface(options) {
     }
   }
 
-  function renderCoverage(items) {
-    coverage = new Map(items.map((item) => [item.instrument, item]));
-    find('#coverageGrid').replaceChildren(...items.map((item) => {
-      const card = document.createElement('article');
-      const header = document.createElement('div');
-      const instrument = document.createElement('strong');
-      const integrity = document.createElement('span');
-      const details = document.createElement('dl');
-      card.className = `coverage-card${item.integrity === 'ok' ? '' : ' has-error'}`;
-      instrument.textContent = item.instrument;
-      integrity.className = 'coverage-integrity';
-      integrity.textContent = item.integrity;
-      header.append(instrument, integrity);
-      [
-        ['Latest', item.latestTimestamp || 'No data'],
-        ['Age', `${item.ageHours ?? '—'} hours`],
-        ['Rows', formatNumber(item.rows)],
-        ['Duplicates', formatNumber(item.duplicateTimestamps)],
-      ].forEach(([label, value]) => {
-        const row = document.createElement('div');
-        const term = document.createElement('dt');
-        const description = document.createElement('dd');
-        term.textContent = label;
-        description.textContent = value;
-        row.append(term, description);
-        details.append(row);
-      });
-      card.append(header, details);
-      return card;
-    }));
-    renderGates(workflow.recordCoverage(items));
-  }
-
   function applyCoverageStart(instrument) {
-    const latest = coverage.get(instrument)?.latestTimestamp;
+    const latest = coverageStatus.latestTimestamp(instrument);
     if (latest) controls.start.value = shiftInputMinute(latest, 1);
     controls.end.value = easternInput();
     updateSelection();
   }
 
-  async function refreshStatus({ resetStart = false } = {}) {
-    const service = find('#serviceState');
-    try {
-      const coverageResult = await client.request(
-        { action: 'coverage_status' },
-        { signal: abortController.signal, acceptErrorResult: true },
-      );
-      const environmentResult = await client.request(
-        { action: 'environment_status' },
-        { signal: abortController.signal },
-      );
-      if (!Array.isArray(coverageResult.coverage)) {
-        throw new Error(coverageResult.output || 'Coverage check returned no structured result.');
-      }
-      renderCoverage(coverageResult.coverage || []);
-      const apiKey = environmentResult.environment?.find((row) => row.key === 'DATABENTO_API_KEY');
-      const database = environmentResult.environment?.find((row) => row.key === 'V7_MARKET_DATA_DB');
-      find('#environmentStrip').textContent = `Databento: ${apiKey?.processSet ? 'configured in API process' : 'not configured'} · Database override: ${database?.processSet ? 'active' : 'default path'} · API: ${client.apiBase || 'same origin'}`;
-      service.dataset.state = coverageResult.ok ? 'ready' : 'error';
-      service.querySelector('strong').textContent = coverageResult.ok
-        ? 'Maintenance API ready'
-        : 'Coverage integrity failed';
-      if (!coverageResult.ok) appendOutput('coverage', coverageResult);
-      if (resetStart) applyCoverageStart(controls.instrument.value);
-    } catch (error) {
-      renderGates(workflow.recordCoverage([]));
-      service.dataset.state = 'error';
-      service.querySelector('strong').textContent = 'Optional maintenance disabled';
-      const card = document.createElement('article');
-      const title = document.createElement('strong');
-      const detail = document.createElement('span');
-      card.className = 'coverage-card has-error';
-      title.textContent = 'Unavailable';
-      detail.textContent = error.message;
-      card.append(title, detail);
-      find('#coverageGrid').replaceChildren(card);
-      find('#environmentStrip').textContent = 'Standalone V7 keeps database bootstrap available; Databento refresh and contract-roll writes require a separate V7 maintenance service.';
-      appendOutput('status', error.message);
-    }
-  }
+  const coverageStatus = createCoverageStatusController({
+    appendOutput,
+    maintenanceClient: client,
+    onCoverage: (items) => renderGates(workflow.recordCoverage(items)),
+    onResetStart: () => applyCoverageStart(controls.instrument.value),
+    readOnlyCoverageClient,
+    root,
+    signal: abortController.signal,
+  });
+  const refreshStatus = coverageStatus.refresh;
 
   rollPanel = createRollCalendarPanel({
     root,
@@ -389,11 +329,11 @@ export function createDataAcquisitionSurface(options) {
   }
 
   async function verifySelectedRead() {
-    const item = coverage.get(controls.instrument.value);
-    if (!item?.latestTimestamp) throw new Error(`No ${controls.instrument.value} coverage is available to verify.`);
+    const latestTimestamp = coverageStatus.latestTimestamp(controls.instrument.value);
+    if (!latestTimestamp) throw new Error(`No ${controls.instrument.value} coverage is available to verify.`);
     const result = await client.verifyV7Read({
-      instrument: item.instrument,
-      latestTimestamp: item.latestTimestamp,
+      instrument: controls.instrument.value,
+      latestTimestamp,
       signal: abortController.signal,
     });
     find('[data-gate="verify"]').dataset.state = 'passed';
@@ -430,14 +370,22 @@ export function createDataAcquisitionSurface(options) {
   find('#backup').addEventListener('click', () => runWorkflowAction('backup'));
   find('#write').addEventListener('click', () => runWorkflowAction('write'));
   find('#rollReport').addEventListener('click', runRollReport);
-  find('#refreshCoverage').addEventListener('click', () => refreshStatus({ resetStart: true }));
+  find('#refreshCoverage').addEventListener('click', async () => {
+    const previous = coverageStatus.maintenanceAvailable();
+    const status = await refreshStatus({ resetStart: true });
+    if (status.maintenanceAvailable && previous !== true) {
+      await rollPanel.refresh().catch((error) => appendOutput('roll_health', error.message));
+    }
+  });
   find('#verifyRead').addEventListener('click', () => verifySelectedRead().catch((error) => appendOutput('v7_feed_verify', error.message)));
   find('#clearOutput').addEventListener('click', () => { controls.output.textContent = 'Ready.'; });
 
   renderGates();
-  refreshStatus({ resetStart: true })
-    .then(() => rollPanel.refresh().catch((error) => appendOutput('roll_health', error.message)))
-    .then(resumeRetainedJob);
+  refreshStatus({ resetStart: true }).then(async (status) => {
+    if (!status.maintenanceAvailable) return;
+    await rollPanel.refresh().catch((error) => appendOutput('roll_health', error.message));
+    await resumeRetainedJob();
+  });
 
   return Object.freeze({
     dispose() {

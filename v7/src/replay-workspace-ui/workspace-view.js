@@ -4,6 +4,7 @@ import { readLayoutSync } from '../layout-sync-domain/public.js';
 import { readReplayStep } from '../replay-contract/public.js';
 import { createTimePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
 import { setControlDisabled } from './control-availability.js';
+import { workspaceErrorCopy } from './workspace-error-copy.js';
 import { createWorkspaceViewElements } from './workspace-view-elements.js';
 
 export const REPLAY_WORKSPACE_STATES = Object.freeze([
@@ -112,7 +113,7 @@ export function createReplayWorkspaceView(options) {
   function setState(state, detail = {}) {
     if (!REPLAY_WORKSPACE_STATES.includes(state)) throw new TypeError(`Unsupported workspace state ${state}.`);
     viewState = state;
-    workspaceError = state === 'error' ? (detail.message ?? 'Update failed') : null;
+    workspaceError = state === 'error' ? workspaceErrorCopy(detail.message) : null;
     root.dataset.viewState = state;
     if (state === 'ready') hasAcceptedChart = true;
     overlay.hidden = state === 'ready' || state === 'stale' || (state === 'error' && hasAcceptedChart);
@@ -121,7 +122,9 @@ export function createReplayWorkspaceView(options) {
       loading: 'Preparing replay chart', empty: 'No visible bars', unavailable: 'Chart unavailable',
       stale: 'Applying complete Pane set', error: 'Replay update failed', ready: '',
     }[state];
-    overlayCopy.textContent = detail.message ?? {
+    overlayCopy.textContent = state === 'error' && detail.message !== undefined
+      ? workspaceError
+      : detail.message ?? {
       loading: 'Projecting the first no-future snapshot.', empty: 'No visible Pane has eligible bars.',
       unavailable: 'This Session asset set is not available.',
       stale: 'The last accepted Pane set remains authoritative while this update settles.',

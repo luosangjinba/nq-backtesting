@@ -1,6 +1,6 @@
 {
   "id": "adapter.replay-workspace-ui",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "kind": "adapter",
   "owner": "replay-workspace-ui",
   "publicEntry": "src/replay-workspace-ui/public.js",

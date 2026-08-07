@@ -60,6 +60,17 @@ await assert.rejects(
   /database bootstrap harness cancellation/,
 );
 
+const nonJsonClient = createDatabaseImportClient({
+  fetchImpl: async () => ({
+    ok: false,
+    status: 404,
+    text: async () => '<html>Not found</html>',
+  }),
+});
+await assert.rejects(() => nonJsonClient.health(), (error) => (
+  error.status === 404 && error.code === 'DATABASE_RESPONSE_NOT_JSON'
+));
+
 console.log(JSON.stringify({
   module: 'adapter.database-bootstrap-ui',
   routes: requests.length,

@@ -870,6 +870,7 @@ database_proxy_block=""
 mutation_block=$'\n  # Data Acquisition and market-data mutation remain blocked.\n  @mutating method POST PUT PATCH DELETE\n  respond @mutating "Remote mutation is disabled on this acceptance host." 403'
 state_sync_user=""
 database_import_user=""
+database_import_proxy_mode="disabled"
 
 for required_file in "$market_data_template" "$web_template" "$state_template" \
   "$database_import_template" "$caddy_template" \
@@ -909,6 +910,7 @@ rendered_web="$tmp_dir/replay-lab-web.service"
 rendered_caddy="$tmp_dir/Caddyfile"
 
 if [[ -n "$public_host" ]]; then
+  database_proxy_block=$'\n  # Existing-database deployments expose only importer health; mutation stays blocked.\n  @database_health path /v7/database/health\n  reverse_proxy @database_health 127.0.0.1:8768'
   global_option_lines=""
   [[ -z "$email" ]] || global_option_lines+="  email $email"$'\n'
   if [[ -n "$public_ip" && "$preserve_caddy" -eq 0 ]]; then
@@ -933,6 +935,7 @@ if [[ -n "$public_host" ]]; then
       database_proxy_block=$'\n  # Authenticated first-run import locks after the first database activation.\n  @database_import path /v7/database/*\n  reverse_proxy @database_import 127.0.0.1:8768 {\n    header_up X-Replay-Lab-User {http.auth.user.id}\n  }'
       mutation_block=$'\n  # All other market-data mutations remain blocked.\n  @mutating {\n    method POST PUT PATCH DELETE\n    not path /v7/state/* /v7/database/*\n  }\n  respond @mutating "Remote market/data mutation is disabled on this acceptance host." 403'
       database_import_user="$auth_user"
+      database_import_proxy_mode="full"
     else
       mutation_block=$'\n  # Market data and Data Acquisition remain read-only.\n  @mutating {\n    method POST PUT PATCH DELETE\n    not path /v7/state/*\n  }\n  respond @mutating "Remote market/data mutation is disabled on this acceptance host." 403'
     fi
@@ -940,8 +943,11 @@ if [[ -n "$public_host" ]]; then
   fi
 else
   state_sync_user="local"
+  database_import_user="local"
   if [[ "$bootstrap" -eq 1 ]]; then
-    database_import_user="local"
+    database_import_proxy_mode="full"
+  else
+    database_import_proxy_mode="health-only"
   fi
 fi
 
@@ -1186,6 +1192,7 @@ env_file="$tmp_dir/replay-lab.env"
   printf 'REPLAY_LAB_STATE_USER=%s\n' "$state_sync_user"
   printf 'REPLAY_LAB_DATABASE_IMPORT_API_ORIGIN=http://127.0.0.1:8768\n'
   printf 'REPLAY_LAB_DATABASE_IMPORT_USER=%s\n' "$database_import_user"
+  printf 'REPLAY_LAB_DATABASE_IMPORT_PROXY_MODE=%s\n' "$database_import_proxy_mode"
 } > "$env_file"
 
 run_step sudo_cmd install -d -m 0755 /etc/replay-lab /etc/systemd/system

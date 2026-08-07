@@ -68,6 +68,11 @@ The current operator entry is
 `V7_UNIFIED_DEPLOYMENT_ENTRY_R12_7.md`: one `deploy.sh` covers local/private,
 automatic or explicit public IPv4, public DNS, and LAN/VPN DNS; successful
 deployments persist a strict non-secret profile for no-argument upgrades.
+The second-acceptance correction is
+`V7_ACCEPTANCE_CAPABILITY_STATUS_R12_8.md`: existing-database hosts expose only
+importer health, Data Acquisition reports read-only Market Data coverage
+without false Maintenance/import failures, and Replay UI does not leak internal
+failure codes.
 None closes the ongoing phase-one overall acceptance pass. Read those before the normal
 implementation reading order below. The deferred
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and

@@ -1,6 +1,6 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule (R12.7 implementation, multi-mode host review open, 2026-08-06)
+Status: binding delivery rule (R12.8 implementation, cloud rerun open, 2026-08-07)
 
 ## Delivery IDs
 
@@ -20,9 +20,9 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current repository-changing delivery step is `R12.7`, the unified local,
-cloud-IP, and domain deployment entry with transactionally persisted host
-profile. R12.1–R12.6 retain their committed implementation and open host gates.
+The current repository-changing delivery step is `R12.8`, the capability-aware
+Data Acquisition and Replay error-presentation correction from second
+acceptance. R12.1–R12.7 retain their committed implementation and open host gates.
 R11.1 remains the automatically
 closed cross-runtime architecture-integrity recovery; R12 does not reopen it.
 R8 remains closed at R8.16 commit `364c6b27`; R9.1–R9.4 and R10.1–R10.10 retain their
@@ -39,6 +39,9 @@ migration for R12.6.
 H098 records unified exposure selection, strict saved-profile reuse, bounded
 public-IP discovery, private-domain TLS, and owned IP-to-domain Caddy migration
 for R12.7. Broad `R<n>` headings remain milestones only.
+H099 records exact health-only importer composition, honest read-only Market
+Data fallback, unavailable Maintenance-control removal, and internal Replay
+error-code translation for R12.8.
 
 ## Other Stable IDs
 

@@ -1,14 +1,16 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-06 during R12.7 unified deployment implementation
+Last updated: 2026-08-07 during R12.8 second-acceptance correction
 
 ## Current Overall Acceptance State
 
 Phase-one main-program acceptance is still in progress. R8's architecture
 recovery closure and the individual R9 implementation records do not close the
 overall product gate. The current machine-local reviewer sequence is
-`v7/tmp/验收1.md`; continue from its actual checkbox state. Data Acquisition and
-Contract Roll remain a separate checklist/gate.
+`v7/tmp/验收2-人工步骤.md`; the user accepted every second-round item except the
+existing-database Data Acquisition status mismatch now corrected by R12.8. Its
+focused cloud redeploy/hard-refresh check remains open. Separate clean-host
+bootstrap and multi-mode deployment gates are not implicitly closed.
 
 R11 is the current repository delivery and its automated recovery is closed;
 normal-delivery scope is restored. Its immutable pre-remediation checkpoint is
@@ -80,6 +82,16 @@ subsequent upgrades normally omit the exposure option. The old public-IP
 script forwards all arguments. R12.7/H098 automated evidence is implemented;
 fresh/repeat local, IP, and domain host gates remain open. Binding contract:
 `V7_UNIFIED_DEPLOYMENT_ENTRY_R12_7.md`.
+
+R12.8 corrects the remaining second-acceptance mismatch without reopening
+write authority. Existing-database deployments expose exact importer health so
+Database Setup can show `Database active`; optional Maintenance failure falls
+back to read-only Market Data coverage and shows `Read-only data ready` while
+hiding Contract Roll/write controls. Replay Workspace translates internal
+failure codes before presentation. Automated browser/deployment/architecture
+evidence is implemented; one existing-database cloud redeploy and hard refresh
+remains the focused human gate. Binding correction:
+`V7_ACCEPTANCE_CAPABILITY_STATUS_R12_8.md`.
 
 R12.4 remains a prior deployment correction. The first adaptive run
 created and activated nominal swap but rejected Linux's slightly smaller

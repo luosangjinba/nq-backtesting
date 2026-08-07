@@ -5,7 +5,9 @@ import {
   createAcquisitionWorkflow,
   rollCalendarTemplate,
   createMaintenanceClient,
+  createReadOnlyCoverageClient,
   parseOutputMetric,
+  resolveMarketDataApiBase,
   resolveMaintenanceApiBase,
 } from '../src/data-acquisition-ui/public.js';
 import {
@@ -107,6 +109,56 @@ assert.equal(
   resolveMaintenanceApiBase({ protocol: 'http:', hostname: '192.168.1.20' }),
   'http://192.168.1.20:8766',
 );
+assert.equal(resolveMarketDataApiBase({ protocol: 'https:', hostname: 'example.test' }), '');
+assert.equal(
+  resolveMarketDataApiBase({ protocol: 'http:', hostname: '192.168.1.20' }),
+  'http://192.168.1.20:8766',
+);
+
+const readOnlyCalls = [];
+const readOnlyClient = createReadOnlyCoverageClient({
+  apiBase: '',
+  fetchImpl: async (url) => {
+    readOnlyCalls.push(url);
+    if (url === '/v7/market-data/health') {
+      return new Response(JSON.stringify({ databaseReady: true, datasetRevision: 'revision-1' }));
+    }
+    return new Response(JSON.stringify({
+      schemaVersion: 1,
+      instruments: [
+        {
+          dates: ['2026-07-20', '2026-07-21'], firstTimestamp: '2026-07-20T09:30',
+          instrument: 'ES', latestTimestamp: '2026-07-21T16:59',
+        },
+        {
+          dates: ['2026-07-20'], firstTimestamp: '2026-07-20T09:31',
+          instrument: 'NQ', latestTimestamp: '2026-07-20T16:59',
+        },
+      ],
+    }));
+  },
+});
+const readOnlyStatus = await readOnlyClient.read();
+assert.deepEqual(readOnlyCalls, [
+  '/v7/market-data/health',
+  '/v7/market-data/available-dates?instrument=ES&instrument=NQ',
+]);
+assert.equal(readOnlyStatus.datasetRevision, 'revision-1');
+assert.deepEqual(readOnlyStatus.coverage.map((item) => ({
+  firstTimestamp: item.firstTimestamp,
+  instrument: item.instrument,
+  latestTimestamp: item.latestTimestamp,
+  marketDateCount: item.marketDateCount,
+})), [
+  {
+    firstTimestamp: '2026-07-20T09:30', instrument: 'ES',
+    latestTimestamp: '2026-07-21T16:59', marketDateCount: 2,
+  },
+  {
+    firstTimestamp: '2026-07-20T09:31', instrument: 'NQ',
+    latestTimestamp: '2026-07-20T16:59', marketDateCount: 1,
+  },
+]);
 
 const calls = [];
 const responses = [

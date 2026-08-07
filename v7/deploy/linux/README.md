@@ -27,6 +27,14 @@ also enables `/v7/database/*`. User state is stored separately in
 the current main-program acceptance pass. Database bootstrap does not authorize
 Databento refresh, Contract Roll, merge, append, or database replacement.
 
+After an existing database is active, the application origin retains only the
+exact read-only `/v7/database/health` route. This lets Database Setup show the
+locked active state without reopening upload/activation authority. Data
+Acquisition falls back to `/v7/market-data/health` and
+`/v7/market-data/available-dates` when optional maintenance is not installed,
+so this ordinary standalone profile reports `Read-only data ready` rather than
+a false importer or Maintenance failure.
+
 ## Unified Operator Path
 
 `deploy.sh` is the normal entry on local/private and cloud hosts. Choose the
@@ -214,8 +222,9 @@ ssh \
 Then open `http://127.0.0.1:8007/v7/app/`. Both forwards are necessary because
 the local browser resolves the V7 market-data service on port `8766`. The
 web service proxies `/v7/state/*` to the loopback state service as identity
-`local`; bootstrap mode similarly proxies `/v7/database/*`. Ports `8767` and
-`8768` are never forwarded or exposed.
+`local`; bootstrap mode proxies the full `/v7/database/*` capability, while an
+existing-database deployment proxies only `GET /v7/database/health`. Ports
+`8767` and `8768` are never forwarded or exposed.
 
 ## Public HTTPS Deployment
 

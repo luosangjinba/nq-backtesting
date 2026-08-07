@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "currentStep": "R12.7",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15", "R8.16", "R9", "R9.1", "R9.2", "R9.3", "R9.4", "R10", "R10.1", "R10.2", "R10.3", "R10.4", "R10.5", "R10.6", "R10.7", "R10.8", "R10.9", "R10.10", "R11", "R11.1", "R12", "R12.1", "R12.2", "R12.3", "R12.4", "R12.5", "R12.6", "R12.7"],
+  "currentStep": "R12.8",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15", "R8.16", "R9", "R9.1", "R9.2", "R9.3", "R9.4", "R10", "R10.1", "R10.2", "R10.3", "R10.4", "R10.5", "R10.6", "R10.7", "R10.8", "R10.9", "R10.10", "R11", "R11.1", "R12", "R12.1", "R12.2", "R12.3", "R12.4", "R12.5", "R12.6", "R12.7", "R12.8"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
     "active": false,
@@ -2194,6 +2194,32 @@
       "negativeFixtures": [
         "tests/fixtures/unified-deployment/negative/cases.json",
         "tests/fixtures/caddy-site-reconciliation/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "H099",
+      "name": "capability-aware-existing-database-status",
+      "owner": "data-acquisition-admin/deployment.linux/replay-workspace-ui",
+      "v6FailurePrevented": "an intentionally absent optional write capability appeared as a failed active database, while stable internal Replay error codes leaked into user-visible copy",
+      "activationStep": "R12.8",
+      "state": "executable",
+      "harness": "tests/data-acquisition-ui-browser-harness.js",
+      "positiveEvidence": [
+        "docs/V7_ACCEPTANCE_CAPABILITY_STATUS_R12_8.md",
+        "src/data-acquisition-ui/coverage-status-controller.js",
+        "src/data-acquisition-ui/read-only-coverage-client.js",
+        "src/replay-workspace-ui/workspace-error-copy.js",
+        "scripts/database-import-proxy.mjs",
+        "deploy/linux/install.sh",
+        "tests/data-acquisition-ui-browser-harness.js",
+        "tests/linux-deployment-script-harness.js",
+        "tests/replay-workspace-ui-independent-harness.js",
+        "sessions/session_20260807_r12_8_acceptance_capability_status.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/deployed-runtime-architecture/negative/cases.json"
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": null

@@ -59,6 +59,15 @@ alone may discard an authenticated user's stable `uploaded`, `ready`, or
 post-activation states reject the command; neither the target DuckDB nor its
 durable activation lock is exposed as a discard path.
 
+R12.8 keeps post-activation capability status equally separated. The importer
+health route remains readable so the Bootstrap UI can show a locked active
+database, but no importer mutation route is composed. A focused Data
+Acquisition coverage controller first uses optional Maintenance evidence and,
+when that capability is absent, reads only Market Data health/available dates.
+It hides Maintenance-owned controls and never manufactures duplicate/integrity
+evidence. The binding correction is
+`V7_ACCEPTANCE_CAPABILITY_STATUS_R12_8.md`.
+
 The CSV schema and DuckDB `futures_1m` schema are exact. Validation rejects
 unsupported instruments, nulls, duplicate `(instrument, ts)` keys, non-minute
 timestamps, and invalid OHLC/volume instead of normalizing them. API, Web, and

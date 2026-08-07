@@ -8,7 +8,10 @@ async function parseResponse(response) {
   try {
     payload = text ? JSON.parse(text) : {};
   } catch {
-    throw new Error(`Database service returned non-JSON HTTP ${response.status}.`);
+    const error = new Error(`Database service returned non-JSON HTTP ${response.status}.`);
+    error.code = 'DATABASE_RESPONSE_NOT_JSON';
+    error.status = response.status;
+    throw error;
   }
   if (!response.ok) {
     const error = new Error(payload.error?.message || `Database service failed with HTTP ${response.status}.`);

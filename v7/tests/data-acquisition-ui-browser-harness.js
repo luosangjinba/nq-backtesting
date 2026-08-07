@@ -71,6 +71,21 @@ const fetchStub = `{
         requiredColumns: ['instrument', 'ts', 'open', 'high', 'low', 'close', 'volume']
       }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     }
+    if (target.includes('/v7/market-data/health')) {
+      return new Response(JSON.stringify({
+        status: 'ok', databaseReady: true, datasetRevision: 'browser-read-only-revision'
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+    if (target.includes('/v7/market-data/available-dates?')) {
+      return new Response(JSON.stringify({
+        schemaVersion: 1, timeZone: 'America/New_York', instruments: [
+          { instrument: 'ES', dates: ['2026-05-01', '2026-07-22'],
+            firstTimestamp: '2026-05-01T09:30', latestTimestamp: '2026-07-22T16:00' },
+          { instrument: 'NQ', dates: ['2026-05-01', '2026-07-21', '2026-07-22'],
+            firstTimestamp: '2026-05-01T09:31', latestTimestamp: '2026-07-22T16:01' }
+        ]
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
     if (target.includes('/v7/market-data/bars?')) {
       return new Response(JSON.stringify({ bars: [
         { time: '2026-07-22 15:59', open: 1, high: 2, low: 0.5, close: 1.5, volume: 10 },
@@ -78,6 +93,11 @@ const fetchStub = `{
       ] }), { status: 200 });
     }
     if (!target.includes('/v7/maintenance/run')) return nativeFetch(url, options);
+    if (sessionStorage.getItem('test-maintenance-disabled') === '1') {
+      return new Response('Remote mutation disabled', {
+        status: 403, headers: { 'Content-Type': 'text/plain' }
+      });
+    }
     const payload = JSON.parse(options.body || '{}');
     let result;
     if (payload.action === 'coverage_status') {
@@ -258,6 +278,23 @@ try {
   assert.equal(await evaluate(cdp, `document.querySelector('#preflight').disabled`), true,
     'duplicate timestamps in authoritative coverage must disable Preflight and Write');
   assert.equal(await evaluate(cdp, `document.querySelectorAll('.coverage-card.has-error').length`), 2);
+
+  await evaluate(cdp, `sessionStorage.setItem('test-maintenance-disabled', '1')`);
+  await cdp.send('Page.reload', { ignoreCache: true });
+  await waitFor(cdp, `document.querySelector('#serviceState')?.dataset.state === 'read-only'`);
+  await waitFor(cdp, `document.querySelector('#databaseImportState')?.textContent === 'Database active'`);
+  assert.equal(await evaluate(cdp, `document.querySelector('#data-acquisition-app').dataset.maintenanceAvailable`), 'false');
+  assert.equal(await evaluate(cdp, `document.querySelector('#serviceState strong').textContent`), 'Read-only data ready');
+  assert.equal(await evaluate(cdp, `document.querySelectorAll('.coverage-card.is-read-only').length`), 2);
+  assert.equal(await evaluate(cdp, `document.querySelector('#coverageGrid').textContent.includes('2026-05-01T09:30')`), true);
+  assert.equal(await evaluate(cdp, `document.querySelector('#coverageGrid').textContent.includes('Market dates3')`), true);
+  assert.equal(await evaluate(cdp, `document.querySelector('#coverageGrid').textContent.includes('HTTP 403')`), false);
+  assert.equal(await evaluate(cdp, `document.querySelector('#coverageGrid').textContent.includes('Unavailable')`), false);
+  assert.equal(await evaluate(cdp, `document.querySelector('#rollCalendarSection').hidden`), true);
+  assert.equal(await evaluate(cdp, `document.querySelector('#maintenanceWorkflowSection').hidden`), true);
+  assert.equal(await evaluate(cdp, `document.querySelector('#maintenanceActivitySection').hidden`), true);
+  assert.equal(await evaluate(cdp, `document.querySelector('#databaseFile').disabled`), true);
+  await capture(cdp, 'read-only-deployment');
   console.log('v7 data acquisition UI browser harness passed');
 } finally {
   cdp?.close();

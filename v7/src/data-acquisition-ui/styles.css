@@ -43,6 +43,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .data-admin-service { min-width: 212px; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--admin-border); border-radius: 10px; background: #0a0d11; color: var(--admin-secondary); font-size: 12px; }
 .data-admin-service > span { width: 9px; height: 9px; border-radius: 50%; background: var(--admin-warning); box-shadow: 0 0 0 4px rgba(242,180,93,.1); }
 .data-admin-service[data-state="ready"] > span { background: var(--admin-positive); box-shadow: 0 0 0 4px rgba(67,211,162,.1); }
+.data-admin-service[data-state="read-only"] > span { background: var(--admin-accent); box-shadow: 0 0 0 4px rgba(76,165,255,.1); }
 .data-admin-service[data-state="error"] > span { background: var(--admin-danger); box-shadow: 0 0 0 4px rgba(255,104,120,.1); }
 
 .data-admin-content { width: min(1240px, calc(100% - 60px)); margin: 0 auto; padding: 34px 0 64px; }
@@ -57,6 +58,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .coverage-card strong { font-size: 18px; }
 .coverage-card > span { display: block; margin-top: 12px; color: var(--admin-secondary); }
 .coverage-integrity { padding: 4px 8px; border-radius: 99px; background: rgba(67,211,162,.1); color: var(--admin-positive); font-size: 10px; text-transform: uppercase; }
+.coverage-card.is-read-only .coverage-integrity { background: rgba(76,165,255,.1); color: var(--admin-accent); }
 .coverage-card.has-error { border-color: rgba(255,104,120,.35); }
 .coverage-card.has-error .coverage-integrity { background: rgba(255,104,120,.1); color: var(--admin-danger); }
 .coverage-card dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; margin: 18px 0 0; }
@@ -137,6 +139,9 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
 .data-output-actions { display: flex; gap: 8px; }
 .data-output-section pre { min-height: 260px; max-height: 440px; overflow: auto; margin: 0; padding: 16px; border: 1px solid var(--admin-border); border-radius: 9px; background: #050709; color: #c5d0db; font: 11px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; }
 [data-busy="true"] .data-admin-section:not(.data-output-section):not(.database-import-section) { opacity: .86; }
+#rollCalendarSection[hidden],
+#maintenanceWorkflowSection[hidden],
+#maintenanceActivitySection[hidden] { display: none !important; }
 
 @media (max-width: 1050px) {
   .data-refresh-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -115,7 +115,7 @@
       "mutation": {
         "operation": "removeObject",
         "path": ["proxyRoutes"],
-        "match": { "id": "caddy.v7-database-import" }
+        "match": { "id": "caddy.v7-state" }
       }
     },
     {
