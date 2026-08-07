@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "validation-in-progress-cannot-be-discarded",
+      "driver": "preparing-race",
+      "expectedStatus": 409,
+      "expectedFailureCode": "DATABASE_IMPORT_BUSY"
+    },
+    {
+      "id": "activated-target-cannot-be-discarded",
+      "driver": "activated-target",
+      "expectedStatus": 409,
+      "expectedFailureCode": "DATABASE_ALREADY_ACTIVE"
+    },
+    {
+      "id": "activation-lock-survives-target-removal",
+      "driver": "activation-lock",
+      "expectedStatus": 409,
+      "expectedFailureCode": "DATABASE_ALREADY_ACTIVE"
+    }
+  ]
+}

@@ -20,55 +20,23 @@ function coverageText(summary) {
   )).join('\n');
 }
 
-export function databaseImportTemplate() {
-  return `
-    <section class="data-admin-section database-import-section" aria-labelledby="databaseImportTitle">
-      <div class="data-admin-section-heading">
-        <div>
-          <h2 id="databaseImportTitle">Database setup</h2>
-          <p>First-run only. Upload CSV for server-side conversion, or upload a ready DuckDB.</p>
-        </div>
-        <span class="database-import-state" id="databaseImportState" data-state="loading">Checking…</span>
-      </div>
-      <div class="database-contract">
-        <strong>Strict input contract</strong>
-        <code>instrument,ts,open,high,low,close,volume</code>
-        <span>UTF-8 · timestamps YYYY-MM-DD HH:MM:SS · ES/NQ · no automatic renaming, timezone conversion, coercion, or deduplication.</span>
-      </div>
-      <div class="database-import-controls">
-        <label class="database-file-field">
-          Source file
-          <input id="databaseFile" type="file" accept=".csv,.duckdb,text/csv,application/octet-stream">
-          <span id="databaseFileNote">Choose one .csv or .duckdb file.</span>
-        </label>
-        <button class="data-button" id="databaseUpload" type="button" disabled>1 · Upload</button>
-        <button class="data-button data-button-primary" id="databasePrepare" type="button" disabled>2 · Validate</button>
-      </div>
-      <div class="database-progress" id="databaseProgress" hidden>
-        <div><span id="databaseProgressBar"></span></div><strong id="databaseProgressText">0%</strong>
-      </div>
-      <pre class="database-validation-report" id="databaseValidationReport" aria-live="polite">No file has been staged.</pre>
-      <div class="database-activation-row">
-        <label class="confirm-field">Activation confirmation
-          <input id="databaseConfirmation" autocomplete="off" placeholder="ACTIVATE DATABASE" disabled>
-        </label>
-        <button class="data-button data-button-danger" id="databaseActivate" type="button" disabled>3 · Activate database</button>
-      </div>
-      <p class="write-note">Activation is an atomic first-database operation. Once a database exists, this importer locks and cannot replace it.</p>
-    </section>`;
-}
-
 /** DOM-only workflow over the separately owned loopback database import service. */
 export function createDatabaseImportPanel(options) {
   const root = options.root;
   const client = options.client ?? createDatabaseImportClient(options.clientOptions);
   const signalController = new AbortController();
   const find = (selector) => root.querySelector(selector);
+  const section = find('.database-import-section');
   const state = find('#databaseImportState');
   const fileInput = find('#databaseFile');
   const fileNote = find('#databaseFileNote');
   const uploadButton = find('#databaseUpload');
   const prepareButton = find('#databasePrepare');
+  const discardButton = find('#databaseDiscard');
+  const discardConfirmation = find('#databaseDiscardConfirmation');
+  const discardMessage = find('#databaseDiscardMessage');
+  const discardCancel = find('#databaseDiscardCancel');
+  const discardConfirm = find('#databaseDiscardConfirm');
   const activateButton = find('#databaseActivate');
   const confirmation = find('#databaseConfirmation');
   const report = find('#databaseValidationReport');
@@ -78,6 +46,10 @@ export function createDatabaseImportPanel(options) {
   let upload = null;
   let busy = false;
   let importAllowed = false;
+  let discardConfirmationOpen = false;
+
+  const discardableStates = new Set(['uploaded', 'ready', 'failed']);
+  const retainedStates = new Set(['uploaded', 'preparing', 'ready', 'failed']);
 
   function setState(label, value) {
     state.textContent = label;
@@ -85,15 +57,26 @@ export function createDatabaseImportPanel(options) {
   }
 
   function renderActions() {
-    fileInput.disabled = busy || !importAllowed;
-    uploadButton.disabled = busy || !importAllowed || !fileInput.files?.[0] || upload !== null;
-    prepareButton.disabled = busy || !importAllowed || upload?.state !== 'uploaded';
-    confirmation.disabled = busy || !importAllowed || upload?.state !== 'ready';
-    activateButton.disabled = busy || !importAllowed || upload?.state !== 'ready';
+    const retained = retainedStates.has(upload?.state);
+    const workflowBlocked = busy || discardConfirmationOpen;
+    const showDiscard = importAllowed && retained;
+    section.setAttribute('aria-busy', String(busy));
+    fileInput.disabled = workflowBlocked || !importAllowed || retained;
+    uploadButton.disabled = workflowBlocked || !importAllowed || !fileInput.files?.[0] || upload !== null;
+    prepareButton.disabled = workflowBlocked || !importAllowed || upload?.state !== 'uploaded';
+    confirmation.disabled = workflowBlocked || !importAllowed || upload?.state !== 'ready';
+    activateButton.disabled = workflowBlocked || !importAllowed || upload?.state !== 'ready';
+    discardButton.hidden = !showDiscard;
+    discardButton.disabled = workflowBlocked || !discardableStates.has(upload?.state);
+    discardButton.setAttribute('aria-expanded', String(discardConfirmationOpen));
+    discardConfirmation.hidden = !discardConfirmationOpen;
+    discardCancel.disabled = busy;
+    discardConfirm.disabled = busy;
   }
 
   function renderJob(job) {
     upload = job;
+    fileNote.textContent = `Retained task: ${job.filename} · ${formatBytes(job.sizeBytes)}`;
     const summary = job.summary;
     const lines = [
       `File: ${job.filename}`,
@@ -114,11 +97,42 @@ export function createDatabaseImportPanel(options) {
     renderActions();
   }
 
+  function resetTransientControls() {
+    fileInput.value = '';
+    confirmation.value = '';
+    progress.hidden = true;
+    progressBar.style.width = '0%';
+    progressText.textContent = '0%';
+  }
+
+  function resetStagedJob() {
+    upload = null;
+    discardConfirmationOpen = false;
+    resetTransientControls();
+    fileNote.textContent = 'Choose one .csv or .duckdb file.';
+  }
+
+  async function recoverRetainedJobAfterBusyUpload() {
+    const retained = await client.current(signalController.signal);
+    resetTransientControls();
+    let current = retained;
+    renderJob(current);
+    if (current.state === 'preparing') {
+      current = await client.watch(current.uploadId, {
+        onStatus: renderJob,
+        signal: signalController.signal,
+      });
+      renderJob(current);
+    }
+    report.textContent += '\n\nA previous upload is already staged. Continue it or choose Upload another file.';
+  }
+
   async function refreshHealth() {
     try {
       const health = await client.health(signalController.signal);
       importAllowed = health.importAllowed === true;
       if (health.databaseReady) {
+        resetStagedJob();
         setState('Database active', 'ready');
         report.textContent = 'A market database is active. First-run upload and replacement are locked.';
       } else if (!health.bootstrapEnabled) {
@@ -144,6 +158,7 @@ export function createDatabaseImportPanel(options) {
           }
         } catch (error) {
           if (error.status !== 404) throw error;
+          resetStagedJob();
         }
       }
     } catch (error) {
@@ -162,6 +177,9 @@ export function createDatabaseImportPanel(options) {
   fileInput.addEventListener('change', () => {
     upload = null;
     confirmation.value = '';
+    progress.hidden = true;
+    progressBar.style.width = '0%';
+    progressText.textContent = '0%';
     const file = fileInput.files?.[0];
     fileNote.textContent = file ? `${file.name} · ${formatBytes(file.size)}` : 'Choose one .csv or .duckdb file.';
     report.textContent = file ? 'File selected. Uploading does not activate or modify the market database.' : 'No file has been staged.';
@@ -186,8 +204,19 @@ export function createDatabaseImportPanel(options) {
       progressBar.style.width = '100%';
       progressText.textContent = '100%';
     } catch (error) {
-      setState('Upload failed', 'error');
-      report.textContent = `${error.code ? `[${error.code}] ` : ''}${error.message}`;
+      let recovered = false;
+      if (error.code === 'DATABASE_IMPORT_BUSY') {
+        try {
+          await recoverRetainedJobAfterBusyUpload();
+          recovered = true;
+        } catch {
+          // Preserve the authoritative upload error when retained-task recovery is unavailable.
+        }
+      }
+      if (!recovered) {
+        setState('Upload failed', 'error');
+        report.textContent = `${error.code ? `[${error.code}] ` : ''}${error.message}`;
+      }
     } finally {
       busy = false;
       renderActions();
@@ -212,6 +241,49 @@ export function createDatabaseImportPanel(options) {
     }
   });
 
+  discardButton.addEventListener('click', () => {
+    if (!discardableStates.has(upload?.state)) return;
+    const detail = `${upload.filename} (${formatBytes(upload.sizeBytes)})`;
+    discardMessage.textContent = upload.state === 'ready'
+      ? `Discard the validated candidate ${detail}? No active database will be changed.`
+      : upload.state === 'failed'
+        ? `Clear the failed import ${detail} and choose another file? No database was activated.`
+        : `Discard the staged file ${detail}? It has not been activated.`;
+    discardConfirmationOpen = true;
+    renderActions();
+    discardConfirm.focus();
+  });
+
+  discardCancel.addEventListener('click', () => {
+    discardConfirmationOpen = false;
+    renderActions();
+    discardButton.focus();
+  });
+
+  discardConfirm.addEventListener('click', async () => {
+    if (!discardableStates.has(upload?.state)) return;
+    const uploadId = upload.uploadId;
+    busy = true;
+    setState('Clearing staged file…', 'loading');
+    renderActions();
+    let cleared = false;
+    try {
+      await client.discard(uploadId, signalController.signal);
+      resetStagedJob();
+      setState('Awaiting database', 'warning');
+      report.textContent = 'Previous staged file discarded. Choose a new CSV or DuckDB.';
+      cleared = true;
+    } catch (error) {
+      setState('Could not clear staged file', 'error');
+      report.textContent += `\nDiscard failed${error.code ? ` [${error.code}]` : ''}: ${error.message}`;
+    } finally {
+      busy = false;
+      renderActions();
+      if (cleared) fileInput.focus();
+      else discardConfirm.focus();
+    }
+  });
+
   activateButton.addEventListener('click', async () => {
     busy = true;
     setState('Activating…', 'loading');
@@ -219,6 +291,7 @@ export function createDatabaseImportPanel(options) {
     try {
       renderJob(await client.activate(upload.uploadId, confirmation.value, signalController.signal));
       importAllowed = false;
+      discardConfirmationOpen = false;
       setState('Database active', 'ready');
       await options.onActivated?.();
     } catch (error) {

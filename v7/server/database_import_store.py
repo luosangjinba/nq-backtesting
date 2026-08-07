@@ -322,7 +322,10 @@ class DatabaseImportStore:
     def current(self, user_id: str) -> dict[str, Any]:
         identity = require_user_id(user_id)
         with self._lock:
-            jobs = [job for job in self._jobs.values() if job.get("userId") == identity]
+            jobs = [
+                job for job in self._jobs.values()
+                if job.get("userId") == identity and job.get("state") != "discarded"
+            ]
             active = [job for job in jobs if job.get("state") in {"uploaded", "preparing", "ready"}]
             if active:
                 return self._public_job(active[0])
@@ -333,6 +336,69 @@ class DatabaseImportStore:
                 key=lambda job: self._manifest_path(job["uploadId"]).stat().st_mtime_ns,
             )
             return self._public_job(latest)
+
+    def discard(self, user_id: str, upload_id: str) -> dict[str, Any]:
+        identity = require_user_id(user_id)
+        with self._lock:
+            job = self._load(upload_id, identity)
+            self._assert_import_allowed()
+            state = job.get("state")
+            if state == "discarded":
+                return self._public_job(job)
+            if state == "preparing":
+                raise ImportRequestError(
+                    409,
+                    "DATABASE_IMPORT_BUSY",
+                    "database validation is in progress and cannot be discarded",
+                )
+            if state == "activated":
+                raise ImportRequestError(
+                    409,
+                    "DATABASE_ALREADY_ACTIVE",
+                    "an activated database import cannot be discarded",
+                )
+            if state not in {"uploaded", "ready", "failed"}:
+                raise ImportRequestError(
+                    409,
+                    "DATABASE_IMPORT_STATE",
+                    "database import is not discardable",
+                )
+
+            safe_id = _safe_upload_id(upload_id)
+            source = self._directory(safe_id) / (
+                "source.csv" if job.get("kind") == "csv" else "source.duckdb"
+            )
+            candidate = self.target_path.parent / (
+                f".{self.target_path.name}.import-{safe_id}.duckdb"
+            )
+            discarded = dict(job)
+            discarded["state"] = "discarded"
+            discarded["phase"] = "Staged database discarded; another file may be uploaded"
+            discarded.pop("candidatePath", None)
+            discarded.pop("summary", None)
+            discarded.pop("error", None)
+            try:
+                candidate.unlink(missing_ok=True)
+                source.unlink(missing_ok=True)
+                target_directory_fd = os.open(self.target_path.parent, os.O_RDONLY)
+                try:
+                    os.fsync(target_directory_fd)
+                finally:
+                    os.close(target_directory_fd)
+                self._persist(discarded)
+                staging_directory_fd = os.open(self._directory(safe_id), os.O_RDONLY)
+                try:
+                    os.fsync(staging_directory_fd)
+                finally:
+                    os.close(staging_directory_fd)
+            except OSError as error:
+                raise ImportRequestError(
+                    503,
+                    "DATABASE_DISCARD_FAILED",
+                    "staged database could not be discarded",
+                ) from error
+            self._jobs[safe_id] = discarded
+            return self._public_job(discarded)
 
     def prepare(self, user_id: str, upload_id: str) -> dict[str, Any]:
         identity = require_user_id(user_id)

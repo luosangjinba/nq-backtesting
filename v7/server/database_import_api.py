@@ -130,7 +130,11 @@ class DatabaseImportRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         path = urlparse(self.path).path
-        if path not in {"/v7/database/import/prepare", "/v7/database/import/activate"}:
+        if path not in {
+            "/v7/database/import/prepare",
+            "/v7/database/import/discard",
+            "/v7/database/import/activate",
+        }:
             self._error(ImportRequestError(404, "DATABASE_ROUTE_NOT_FOUND", "database route was not found"))
             return
         user_id = self._user_id()
@@ -143,6 +147,9 @@ class DatabaseImportRequestHandler(BaseHTTPRequestHandler):
             if path.endswith("/prepare"):
                 result = self.import_store.prepare(user_id, payload.get("uploadId"))
                 self._json(202, result)
+            elif path.endswith("/discard"):
+                result = self.import_store.discard(user_id, payload.get("uploadId"))
+                self._json(200, result)
             else:
                 result = self.import_store.activate(
                     user_id,
@@ -170,7 +177,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--port", type=int, default=int(os.environ.get("V7_DATABASE_IMPORT_PORT", "8768")))
     parser.add_argument(
         "--db",
-        default=os.environ.get("V4_TRADING_DB", "/srv/replay-lab-data/trading_data.duckdb"),
+        default=os.environ.get("V7_MARKET_DATA_DB", "/srv/replay-lab-data/trading_data.duckdb"),
     )
     parser.add_argument(
         "--staging-root",

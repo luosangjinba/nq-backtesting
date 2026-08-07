@@ -132,6 +132,11 @@ export function createDatabaseImportClient(options = {}) {
       method: 'POST',
       signal,
     }),
+    discard: (uploadId, signal) => jsonRequest('/v7/database/import/discard', {
+      body: { uploadId },
+      method: 'POST',
+      signal,
+    }),
     watch,
   });
 }

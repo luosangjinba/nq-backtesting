@@ -10,6 +10,8 @@ assert.match(template, /Database setup/);
 assert.match(template, /instrument,ts,open,high,low,close,volume/);
 assert.match(template, /no automatic renaming/);
 assert.match(template, /ACTIVATE DATABASE/);
+assert.match(template, /Upload another file/);
+assert.match(template, /role="group" aria-labelledby="databaseDiscardMessage"/);
 
 const requests = [];
 const response = (payload, status = 200) => ({
@@ -29,6 +31,9 @@ const client = createDatabaseImportClient({
     if (url.endsWith('/v7/database/import/activate')) {
       return response({ activated: true });
     }
+    if (url.endsWith('/v7/database/import/discard')) {
+      return response({ uploadId: 'upload-1', state: 'discarded' });
+    }
     return response({ error: { code: 'UNEXPECTED_ROUTE', message: url } }, 404);
   },
 });
@@ -36,6 +41,7 @@ const client = createDatabaseImportClient({
 assert.equal((await client.health()).importAllowed, true);
 assert.equal((await client.current()).uploadId, 'upload-1');
 assert.equal((await client.activate('upload-1', 'ACTIVATE DATABASE')).activated, true);
+assert.equal((await client.discard('upload-1')).state, 'discarded');
 assert.deepEqual(requests.map(({ options, url }) => ({
   method: options.method,
   path: new URL(url, 'https://replay.invalid').pathname,
@@ -43,7 +49,9 @@ assert.deepEqual(requests.map(({ options, url }) => ({
   { method: 'GET', path: '/v7/database/health' },
   { method: 'GET', path: '/v7/database/import/current' },
   { method: 'POST', path: '/v7/database/import/activate' },
+  { method: 'POST', path: '/v7/database/import/discard' },
 ]);
+assert.deepEqual(JSON.parse(requests.at(-1).options.body), { uploadId: 'upload-1' });
 
 const controller = new AbortController();
 controller.abort(new Error('database bootstrap harness cancellation'));

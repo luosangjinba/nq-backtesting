@@ -14,12 +14,19 @@ Data Acquisition administrator surface exposes one visual first-run workflow:
   instrument normalization, sorting repair, or deduplication.
 
 R10.9 is deliberately an initialization feature, not a general database editor.
-It accepts a target only while the configured `V4_TRADING_DB` path does not
+It accepts a target only while the configured `V7_MARKET_DATA_DB` path does not
 exist and the deployment explicitly enabled `--bootstrap`. Once the first
 database is activated, a durable staging lock keeps upload and activation
 disabled even if the target is later removed. Merge, append, replacement,
 rollback to another uploaded database, per-user market databases, and arbitrary
 instruments are outside this step.
+
+R12.1 adds a bounded recovery action before activation. An authenticated
+administrator may discard only the current staged source/candidate and return
+to the file picker through ordinary buttons; no shell command, API command, or
+typed discard phrase is required. This is not authoritative database
+replacement: the action is unavailable during validation and permanently
+blocked after activation.
 
 ## Ownership And Topology
 
@@ -33,7 +40,7 @@ Data Acquisition Database Setup panel
         -> read-only candidate validation
         -> atomic create-if-absent activation
 
-V4 query API
+V7 market-data API
   -> configured DuckDB parent mounted read-only
 ```
 
@@ -45,13 +52,14 @@ public port and starts normally when it is omitted or unavailable; maintenance
 health and bootstrap health can no longer collapse into one status. Neither UI
 module receives Bar Data, Replay, Workspace, Chart, or Session authority. The
 Python service owns staging, candidate lifecycle, validation, and first
-activation. V4 remains the only customer query API and never receives write
-permission.
+activation. The V7 market-data API is the customer read boundary and never
+receives write permission.
 
 API, Web, and user-state systemd units mount the complete market-database
 parent directory read-only. Only the import unit receives a writable mount of
 that parent and `/var/lib/replay-lab/database-import`. This directory-level
-isolation remains effective when V4 starts before the database file exists.
+isolation remains effective when Market Data starts before the database file
+exists.
 Every non-state unit mounts the user-state directory read-only, and a non-
 bootstrap deployment starts the loopback import service with importing
 explicitly disabled.
@@ -103,13 +111,21 @@ Uploaded DuckDB files are never rewritten to conform.
 3. `GET /v7/database/import/current` restores the authenticated administrator's
    retained task after a page or service restart; `GET
    /v7/database/import/status` polls it and reports `uploaded`, `preparing`,
-   `ready`, `failed`, or `activated`, including safe coverage summaries or a
-   stable rejection code. Interrupted preparation returns to `uploaded` when
-   the staged source remains intact, so validation can be explicitly retried.
-4. `POST /v7/database/import/activate` requires the exact text
+   `ready`, `failed`, `discarded`, or `activated`, including safe coverage
+   summaries or a stable rejection code. Interrupted preparation returns to
+   `uploaded` when the staged source remains intact, so validation can be
+   explicitly retried.
+4. `POST /v7/database/import/discard` accepts the exact retained `uploadId`.
+   Under the same store lock as activation it permits only `uploaded`, `ready`,
+   or `failed`, removes the controlled staged source and hidden candidate,
+   fsyncs the affected directories, and persists an idempotent `discarded`
+   tombstone. Another user receives `404`; `preparing`, disabled, target-
+   present, activation-locked, and activated states receive `409`. The target
+   DuckDB and durable activation lock are never deletion targets.
+5. `POST /v7/database/import/activate` requires the exact text
    `ACTIVATE DATABASE`. It uses a same-filesystem hard-link create so an
    independently appearing target fails with `409` and is never overwritten.
-5. Successful activation removes the candidate link/source upload, fsyncs the
+6. Successful activation removes the candidate link/source upload, fsyncs the
    target directory, writes and fsyncs the durable activation lock, and
    permanently locks this first-run service.
 
@@ -119,6 +135,14 @@ candidate cannot create the authoritative path and its rejected source is
 removed after the safe failure report is persisted. Browser disposal can stop
 UI polling but cannot turn an unvalidated candidate into the active database;
 a later authenticated page recovers the retained task.
+
+While a retained task exists, the file picker is locked instead of pretending
+a second upload can proceed. `Upload another file` opens a visible two-button
+confirmation. Cancel keeps the retained task; confirm invokes the discard
+owner, clears only transient controls/progress, focuses the file picker, and
+allows a new upload. A server-side `DATABASE_IMPORT_BUSY` response also
+recovers and displays the retained task rather than asking the administrator to
+diagnose it with host commands.
 
 ## Deployment And Security
 
@@ -142,12 +166,17 @@ does not remove an activated database or its durable importer lock.
 
 - `tests/database-import-service-harness.js` proves CSV and DuckDB paths,
   identity enforcement, extension rejection, duplicate rejection and cleanup,
-  restart recovery, target-path blocking, strict confirmation, readable
-  activated output, and permanent first-run lock.
+  restart recovery, user-scoped/idempotent staged discard, ready-candidate
+  cleanup, a controlled validation/discard race, target-path blocking, strict
+  confirmation, readable activated output, and permanent first-run lock. H092
+  binds its representative failures in
+  `tests/fixtures/database-import/negative/discard-cases.json`.
 - `tests/database-import-ui-browser-harness.js` drives a real Chrome file input
   through upload progress, validation evidence, hard-refresh task recovery,
-  exact confirmation, activation, control locking, and a final read-only DuckDB
-  smoke.
+  busy-task recovery, cancel/confirm re-upload, a second upload, exact
+  confirmation, activation, control locking, and a final read-only DuckDB
+  smoke. Its retained-candidate confirmation has an exact 1440x900 visual
+  fixture.
 - `tests/database-bootstrap-ui-harness.js` binds the independent optional
   bootstrap public contract and request sequence;
 - `tests/data-acquisition-ui-harness.js` binds the maintenance UI contract;
@@ -165,9 +194,10 @@ does not remove an activated database or its durable importer lock.
 
 On a clean lightweight host, deploy with `--bootstrap`, upload a representative
 large CSV and a representative DuckDB in separate disposable runs, inspect
-progress/error/coverage presentation, activate one candidate, verify V4 bars
-and V7 Sessions, restart all services, and prove `/v7/database/import/upload`
-returns the locked state afterward. Record peak disk, memory, conversion time,
-certificate/auth behavior, and the fact that ports 8007/8766/8767/8768 remain
-closed publicly. This visual and operational gate does not close the ongoing
-phase-one product acceptance checklist.
+progress/error/coverage presentation, discard and replace one staged candidate
+without host commands, activate the replacement, verify V7 market-data bars
+and Sessions, restart all services, and prove `/v7/database/import/upload` and
+`/v7/database/import/discard` return the locked state afterward. Record peak
+disk, memory, conversion time, certificate/auth behavior, and the fact that
+ports 8007/8766/8767/8768 remain closed publicly. This visual and operational
+gate does not close the ongoing phase-one product acceptance checklist.
