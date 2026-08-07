@@ -10,6 +10,8 @@ from typing import Any
 
 import duckdb
 
+from duckdb_runtime import duckdb_connection_config
+
 IMPORT_CONFIRMATION = "ACTIVATE DATABASE"
 REQUIRED_COLUMNS = (
     ("instrument", "VARCHAR"),
@@ -48,11 +50,7 @@ def _connect(
     return duckdb.connect(
         str(path),
         read_only=read_only,
-        config={
-            "enable_external_access": "true" if allow_external_access else "false",
-            "autoload_known_extensions": "false",
-            "autoinstall_known_extensions": "false",
-        },
+        config=duckdb_connection_config(allow_external_access=allow_external_access),
     )
 
 

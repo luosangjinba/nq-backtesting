@@ -51,6 +51,17 @@
       "independentHarnesses": ["v7/tests/state-service-harness.js"]
     },
     {
+      "id": "library.v7-duckdb-runtime",
+      "kind": "library",
+      "owner": "bounded-duckdb-resources",
+      "entry": "v7/server/duckdb_runtime.py",
+      "ownedPaths": ["v7/server/duckdb_runtime.py"],
+      "requiredComponents": [],
+      "optionalComponents": [],
+      "writerSurfaces": [],
+      "independentHarnesses": ["v7/tests/resource-profile-harness.js"]
+    },
+    {
       "id": "service.v7-database-import",
       "kind": "service",
       "owner": "first-database-import",
@@ -60,7 +71,7 @@
         "v7/server/database_import_store.py",
         "v7/server/database_import_validation.py"
       ],
-      "requiredComponents": [],
+      "requiredComponents": ["library.v7-duckdb-runtime"],
       "optionalComponents": [],
       "writerSurfaces": [
         "databaseImportStaging",
@@ -81,7 +92,7 @@
         "v7/server/market_data_read_handler.py",
         "v7/server/market_data_revision.py"
       ],
-      "requiredComponents": [],
+      "requiredComponents": ["library.v7-duckdb-runtime"],
       "optionalComponents": [],
       "writerSurfaces": [],
       "independentHarnesses": ["v7/tests/market-data-service-harness.js"]
@@ -101,6 +112,7 @@
       "optionalComponents": [],
       "writerSurfaces": [
         "databaseFileMetadata",
+        "hostCapacityConfiguration",
         "hostServiceConfiguration",
         "proxyConfiguration",
         "releaseFilesystem"
@@ -238,6 +250,7 @@
     "architectureBaseline": "tooling.v7-architecture-baseline",
     "databaseFileMetadata": "deployment.linux",
     "databaseImportStaging": "service.v7-database-import",
+    "hostCapacityConfiguration": "deployment.linux",
     "hostServiceConfiguration": "deployment.linux",
     "marketDatabaseActivation": "service.v7-database-import",
     "marketDatabaseActivationLock": "service.v7-database-import",
@@ -250,6 +263,7 @@
     { "surface": "architectureBaseline", "path": "v7/scripts/refresh-production-architecture-baseline.mjs", "pattern": "writeFileSync" },
     { "surface": "databaseFileMetadata", "path": "v7/deploy/linux/deploy-public-ip.sh", "pattern": "chown root:" },
     { "surface": "databaseImportStaging", "path": "v7/server/database_import_store.py", "pattern": "staging_root" },
+    { "surface": "hostCapacityConfiguration", "path": "v7/deploy/linux/lib/resource-profile.sh", "pattern": "/etc/fstab" },
     { "surface": "hostServiceConfiguration", "path": "v7/deploy/linux/install.sh", "pattern": "/etc/systemd/system" },
     { "surface": "marketDatabaseActivation", "path": "v7/server/database_import_store.py", "pattern": "os.link" },
     { "surface": "marketDatabaseActivationLock", "path": "v7/server/database_import_store.py", "pattern": "activation_lock" },

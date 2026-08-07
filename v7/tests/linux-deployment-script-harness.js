@@ -9,6 +9,10 @@ const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(testDirectory, '../..');
 const script = path.join(repositoryRoot, 'v7/deploy/linux/install.sh');
 const quickDeployScript = path.join(repositoryRoot, 'v7/deploy/linux/deploy-public-ip.sh');
+const resourceProfilePolicy = path.join(
+  repositoryRoot,
+  'v7/deploy/linux/lib/resource-profile.sh',
+);
 const caddyTemplate = path.join(repositoryRoot, 'v7/deploy/linux/caddy/Caddyfile.template');
 const marketDataTemplate = path.join(
   repositoryRoot,
@@ -107,6 +111,7 @@ try {
   assert.match(quickHelp.stdout, /--replace-legacy/);
   assert.match(quickHelp.stdout, /--preserve-caddy/);
   assert.match(quickHelp.stdout, /--bootstrap/);
+  assert.match(quickHelp.stdout, /512 MB class/);
   assert.match(quickHelp.stdout, /inbound TCP 80\/443/);
   assert.match(quickHelp.stdout, /8768/);
   const quickSource = fs.readFileSync(quickDeployScript, 'utf8');
@@ -116,6 +121,8 @@ try {
   assert.match(quickSource, /"read_api\.py"/,
     'quick deploy recognizes a manual legacy V4 listener during migration');
   assert.match(quickSource, /Browser password for \$auth_user/);
+  assert.match(quickSource, /replay_lab_require_minimum_memory/,
+    'quick deploy must reject undersized hosts before identity or database metadata changes');
   assert.match(quickSource, /previous_umask="\$\(umask\)"[\s\S]*umask 077[\s\S]*umask "\$previous_umask"/);
   assert.match(quickSource, /trap 'quick_deploy_exit "\$\?"' EXIT/,
     'database metadata rollback must also run for explicit die/exit failures');
@@ -154,6 +161,10 @@ try {
   assert.match(privatePlan.stdout, /Market database copy\/write by V7 market-data service: never/);
   assert.match(privatePlan.stdout, /Market database bootstrap: disabled/);
   assert.match(privatePlan.stdout, /Market database service mount: read-only/);
+  assert.match(privatePlan.stdout, /host capacity: \d+ MiB RAM, \d+ CPU, profile/);
+  assert.match(privatePlan.stdout, /DuckDB budget: \d+MB, \d+ thread\(s\), disk spill enabled/);
+  assert.match(privatePlan.stdout, /Enforce 512 MB-class minimum and memory profile:/);
+  assert.match(privatePlan.stdout, /Ensure persistent swap floor: \d+ MiB/);
   assert.match(privatePlan.stdout, /User state SQLite: \/var\/lib\/replay-lab\/state\/replay-lab-state\.sqlite3/);
   assert.match(privatePlan.stdout, /replay-lab-state\.service/);
   assert.match(privatePlan.stdout, /replay-lab-database-import\.service/);
@@ -203,7 +214,7 @@ try {
   assert.match(bootstrapPlan.stdout, /not path \/v7\/state\/\* \/v7\/database\/\*/);
   assert.match(bootstrapPlan.stdout, /Market database bootstrap: strict first-run import/);
   assert.match(bootstrapPlan.stdout, new RegExp(
-    `ReadWritePaths=/var/lib/replay-lab/database-import ${path.dirname(bootstrapDatabase)}`,
+    `ReadWritePaths=/var/lib/replay-lab/database-import /var/lib/replay-lab/duckdb-tmp/database-import ${path.dirname(bootstrapDatabase)}`,
   ));
   if (caddyAvailable) validateRenderedCaddy(bootstrapPlan.stdout, 'Caddyfile-bootstrap');
   expectFailure([
@@ -343,6 +354,12 @@ try {
   assert.match(installerSource, /V7_MARKET_DATA_PORT=8766/);
   assert.match(installerSource, /V7_MARKET_DATA_DB=%s/);
   assert.match(installerSource, /V7_MARKET_DATA_TABLE=futures_1m/);
+  assert.match(installerSource, /V7_DUCKDB_MEMORY_LIMIT=%s/);
+  assert.match(installerSource, /V7_DUCKDB_THREADS=%s/);
+  assert.match(installerSource, /V7_RESOURCE_PROFILE=%s/);
+  assert.match(installerSource, /replay_lab_ensure_swap_floor "\$swap_floor_mib" "\$managed_swap_path"/);
+  assert.match(installerSource, /duckdb-tmp\/market-data/);
+  assert.match(installerSource, /duckdb-tmp\/database-import/);
   assert.doesNotMatch(installerSource, /printf 'V4_(?:API|TRADING_DB|MARKET_DATA)/);
   assert.match(installerSource,
     /repo_git archive --format=tar --output="\$archive_path" "\$repository_commit" v7/,
@@ -419,6 +436,19 @@ try {
     assert.match(source, /ProtectSystem=full/);
     assert.match(source, /RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6/);
   }
+  assert.match(marketDataSource,
+    /Environment=V7_DUCKDB_TEMP_DIRECTORY=@@STATE_ROOT@@\/duckdb-tmp\/market-data/);
+  assert.match(marketDataSource, /ReadWritePaths=@@STATE_ROOT@@\/duckdb-tmp\/market-data/);
+  assert.match(databaseImportSource,
+    /Environment=V7_DUCKDB_TEMP_DIRECTORY=@@STATE_ROOT@@\/duckdb-tmp\/database-import/);
+  assert.match(databaseImportSource,
+    /ReadWritePaths=.*@@STATE_ROOT@@\/duckdb-tmp\/database-import/);
+  const resourceProfileSource = fs.readFileSync(resourceProfilePolicy, 'utf8');
+  assert.match(resourceProfileSource, /REPLAY_LAB_MIN_MEMORY_CLASS_MIB=450/);
+  assert.match(resourceProfileSource, /compact-512m/);
+  assert.match(resourceProfileSource, /swap_floor_mib=2048/);
+  assert.match(resourceProfileSource, /\/etc\/fstab/,
+    'managed low-memory swap must survive reboot');
   assert.match(marketDataSource, /EnvironmentFile=\/etc\/replay-lab\/replay-lab\.env/);
   assert.match(marketDataSource, /ReadOnlyPaths=@@DATABASE_PARENT@@/);
   assert.match(marketDataSource, /@@STATE_ROOT@@\/state @@STATE_ROOT@@\/database-import/);
@@ -445,7 +475,7 @@ try {
   assert.match(stateSource, /ReadOnlyPaths=@@DATABASE_PARENT@@/);
   assert.match(databaseImportSource, /v7\/server\/database_import_api\.py/);
   assert.match(databaseImportSource,
-    /ReadWritePaths=@@STATE_ROOT@@\/database-import @@DATABASE_PARENT@@/);
+    /ReadWritePaths=@@STATE_ROOT@@\/database-import @@STATE_ROOT@@\/duckdb-tmp\/database-import @@DATABASE_PARENT@@/);
   assert.match(databaseImportSource, /ReadOnlyPaths=@@STATE_ROOT@@\/state/);
 
   console.log('V7 Linux deployment script harness: PASS');

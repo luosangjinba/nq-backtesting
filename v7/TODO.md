@@ -1,5 +1,23 @@
 # V7 TODO
 
+## R12.3 Adaptive Low-Memory Deployment — Implemented, Two-Host Review Pending
+
+- [x] define the provider 512 MB class as the minimum supported Linux host and
+  fail below 450 MiB reported `MemTotal` before release mutation;
+- [x] auto-select compact/small/balanced/standard DuckDB memory and thread
+  budgets without requiring deployment flags;
+- [x] provision only missing swap capacity, preserve unrelated swap, require
+  filesystem reserve, and persist one managed `/etc/fstab` entry;
+- [x] give Market Data and Database Import separate writable spill directories
+  behind one validated V7 DuckDB runtime policy;
+- [x] bind profile thresholds, invalid resource values, real DuckDB settings,
+  systemd mounts, deployment rendering, and deployed ownership as H094;
+- [ ] upgrade 43.110.32.34 and the 512 MB validation host, verify database
+  fingerprints/reboot persistence/no OOM, and compare same-scenario Play-bar
+  latency from the same client.
+
+Binding contract: `docs/V7_ADAPTIVE_LOW_MEMORY_DEPLOYMENT_R12_3.md`.
+
 ## R12.2 Standalone V7 Runtime Separation — Implementation In Progress
 
 - [x] decide that a production V7 release must run from `v7/` plus external

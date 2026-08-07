@@ -40,6 +40,10 @@ The current standalone runtime boundary is
 `V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md`: V7 releases contain only `v7/`,
 read market data through `/v7/market-data/*`, and treat DuckDB as external
 compatible data rather than an older-version runtime dependency.
+The current lightweight-host capacity policy is
+`V7_ADAPTIVE_LOW_MEMORY_DEPLOYMENT_R12_3.md`: the provider 512 MB class is the
+minimum, and deployment automatically selects bounded DuckDB and persistent
+swap settings instead of relying on host-specific operator commands.
 None closes the ongoing phase-one overall acceptance pass. Read those before the normal
 implementation reading order below. The deferred
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and

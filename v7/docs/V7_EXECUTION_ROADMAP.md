@@ -674,3 +674,21 @@ Gate: the same commit boots on an upgraded host and a clean host without any
 V4 source tree, preserves the external DuckDB fingerprint, and passes the
 existing authenticated browser acceptance path. Binding contract:
 `V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md`.
+
+### R12.3 — Adaptive Low-Memory Deployment
+
+- make the provider 512 MB instance the minimum supported class, with a 450 MiB
+  Linux `MemTotal` floor that rejects smaller hosts before release mutation;
+- derive DuckDB memory and thread budgets from physical RAM and online CPUs;
+- ensure a profile-specific total-swap floor through an idempotent persistent
+  managed file while preserving unrelated host swap;
+- route Market Data and Database Import spills into separate service-writable
+  directories under the state root;
+- bind profile boundaries, invalid configuration, a real compact DuckDB
+  connection, rendered systemd/env policy, and deployed ownership as H094.
+
+Gate: upgrade both lightweight hosts, validate the representative 901 MB
+DuckDB on the 512 MB class without OOM, reboot to prove swap persistence,
+preserve database fingerprints, and compare the same Play-bar scenario on both
+network locations. Binding contract:
+`V7_ADAPTIVE_LOW_MEMORY_DEPLOYMENT_R12_3.md`.

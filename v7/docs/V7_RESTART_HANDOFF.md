@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-06 during R12.2 standalone V7 runtime separation
+Last updated: 2026-08-06 during R12.3 adaptive low-memory deployment
 
 ## Current Overall Acceptance State
 
@@ -33,7 +33,7 @@ new confirmation has an exact visual fixture; the current lightweight host
 still needs the committed release deployed and its retained large-file workflow
 reviewed.
 
-R12.2 is the current repository-changing delivery. It removes the remaining
+R12.2 removed the remaining
 production dependency on V4: browser market-data URLs and provider identity,
 Python read service, environment variables, systemd unit, Caddy route, release
 archive, deployed-runtime manifest, and regression startup all become V7-owned.
@@ -42,6 +42,15 @@ legacy code. Existing hosts migrate the old unit inside the rollback-protected
 host transaction; clean releases contain only `v7/`. The historical
 Databento/Contract Roll writer is not moved into the read service and remains
 visibly disabled until a separate V7-native writer exists.
+
+R12.3 is the current repository-changing delivery. The 512 MB acceptance host
+proved that a successful 901.3 MB upload could still OOM-kill DuckDB during
+Validate when the host had no swap. Deployment now treats 450 MiB reported
+`MemTotal` as the provider 512 MB-class floor, auto-selects DuckDB memory and
+threads, provisions a persistent profile-specific swap floor, and gives Market
+Data and Database Import separate spill directories. H094 is automated; the
+43.110.32.34 upgrade, 512 MB large-file retry/reboot, database fingerprints,
+and same-client Play-bar latency comparison remain human gates.
 
 R10.1 adds a parallel Linux acceptance-host installer at
 `v7/deploy/linux/install.sh`. It is implemented with automated dry-run/config

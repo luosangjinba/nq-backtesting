@@ -16,6 +16,8 @@ from typing import Dict, Tuple, Union
 
 import duckdb
 
+from duckdb_runtime import duckdb_connection_config
+
 from market_data_revision import (
     DatasetRevisionUnstable,
     require_expected_revision,
@@ -94,7 +96,11 @@ def open_database(db_path: str) -> duckdb.DuckDBPyConnection:
     path = Path(db_path).expanduser().resolve()
     if not path.is_file():
         raise FileNotFoundError(f"database file not found: {path}")
-    return duckdb.connect(str(path), read_only=True)
+    return duckdb.connect(
+        str(path),
+        read_only=True,
+        config=duckdb_connection_config(allow_external_access=False),
+    )
 
 
 def parse_datetime(text: str) -> datetime:

@@ -9,6 +9,7 @@ User=@@SERVICE_USER@@
 Group=@@SERVICE_GROUP@@
 WorkingDirectory=@@CURRENT_RELEASE@@/v7/server
 EnvironmentFile=/etc/replay-lab/replay-lab.env
+Environment=V7_DUCKDB_TEMP_DIRECTORY=@@STATE_ROOT@@/duckdb-tmp/market-data
 ExecStart=@@PYTHON_BIN@@ @@CURRENT_RELEASE@@/v7/server/market_data_api.py
 Restart=on-failure
 RestartSec=3
@@ -23,6 +24,7 @@ ProtectKernelLogs=true
 ProtectKernelModules=true
 ProtectKernelTunables=true
 ProtectSystem=full
+ReadWritePaths=@@STATE_ROOT@@/duckdb-tmp/market-data
 ReadOnlyPaths=@@DATABASE_PARENT@@ @@STATE_ROOT@@/state @@STATE_ROOT@@/database-import
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 

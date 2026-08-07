@@ -55,6 +55,11 @@ Authenticated public deployments allow bounded user-state PUT only under
 under /v7/database/* until the first database is activated. Every other POST,
 PUT, PATCH, and DELETE returns HTTP 403. Data Acquisition/Contract Roll remains
 a separate gate; the V7 market-data service never receives database-write authority.
+
+Host capacity is selected automatically. A provider 512 MB instance is the
+minimum supported class; smaller hosts fail before release mutation. Low-memory
+profiles receive persistent managed swap plus bounded DuckDB memory, threads,
+and disk-spill configuration.
 USAGE
 }
 
@@ -592,6 +597,7 @@ restore_caddy_configuration() {
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd -- "$script_dir/../../.." && pwd)"
 source "$script_dir/lib/host-transaction.sh"
+source "$script_dir/lib/resource-profile.sh"
 db_path=""
 database_parent=""
 install_root="/opt/replay-lab"
@@ -616,6 +622,13 @@ dry_run=0
 apply=0
 yes=0
 skip_package_install=0
+physical_memory_mib=""
+online_cpu_count=1
+resource_profile=""
+duckdb_memory_limit=""
+duckdb_threads=1
+swap_floor_mib=0
+managed_swap_path=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -782,6 +795,17 @@ if [[ -n "$requested_python_bin" && -z "$python_bin" ]]; then
 fi
 plan_base_packages
 
+physical_memory_mib="$(replay_lab_read_memory_mib)" \
+  || die "physical memory detection failed"
+replay_lab_require_minimum_memory "$physical_memory_mib" \
+  || die "host memory is below the supported minimum"
+online_cpu_count="$(getconf _NPROCESSORS_ONLN 2>/dev/null || printf '1')"
+[[ "$online_cpu_count" =~ ^[0-9]+$ && "$online_cpu_count" -gt 0 ]] \
+  || online_cpu_count=1
+IFS=$'\t' read -r resource_profile duckdb_memory_limit duckdb_threads swap_floor_mib \
+  <<< "$(replay_lab_select_resource_profile "$physical_memory_mib" "$online_cpu_count")"
+managed_swap_path="$state_root/swap/replay-lab.swap"
+
 repo_root="$(cd -- "$repo_root" && pwd)"
 db_path="$(readlink -m -- "$db_path")"
 database_parent="$(dirname -- "$db_path")"
@@ -840,6 +864,7 @@ database_import_user=""
 for required_file in "$market_data_template" "$web_template" "$state_template" \
   "$database_import_template" "$caddy_template" \
   "$runtime_requirements" "$repo_root/v7/server/market_data_api.py" \
+  "$repo_root/v7/server/duckdb_runtime.py" \
   "$repo_root/v7/server/market_data_read_handler.py" \
   "$repo_root/v7/server/market_data_queries.py" \
   "$repo_root/v7/server/market_data_revision.py" \
@@ -929,6 +954,9 @@ info "state root: $state_root"
 info "service identity: $service_user:$service_group"
 info "Python candidate: ${python_bin:-install/selection required during apply}"
 info "Node candidate: $(command -v node 2>/dev/null || printf 'installation required during apply')"
+info "host capacity: ${physical_memory_mib} MiB RAM, ${online_cpu_count} CPU, profile $resource_profile"
+info "DuckDB budget: $duckdb_memory_limit, $duckdb_threads thread(s), disk spill enabled"
+info "swap floor: ${swap_floor_mib} MiB ($managed_swap_path when additional swap is required)"
 info "release: $release_dir"
 if [[ -n "$public_host" ]]; then
   info "public URL: https://$public_host/v7/app/"
@@ -943,7 +971,7 @@ fi
 
 printf '\nRendered systemd service summary\n'
 printf '%s\n' '--------------------------------'
-grep -E '^(User|Group|WorkingDirectory|EnvironmentFile|ExecStart|ReadOnlyPaths)=' "$rendered_market_data"
+grep -E '^(User|Group|WorkingDirectory|EnvironmentFile|Environment|ExecStart|ReadWritePaths|ReadOnlyPaths)=' "$rendered_market_data"
 grep -E '^(User|Group|WorkingDirectory|ExecStart|ReadOnlyPaths)=' "$rendered_web"
 grep -E '^(User|Group|WorkingDirectory|EnvironmentFile|ExecStart|ReadWritePaths|ReadOnlyPaths)=' "$rendered_state"
 grep -E '^(User|Group|WorkingDirectory|EnvironmentFile|ExecStart|ReadWritePaths|ReadOnlyPaths)=' "$rendered_database_import"
@@ -957,6 +985,8 @@ printf '\nPlanned host changes\n'
 printf '%s\n' '--------------------'
 printf 'Install runtime packages: %s\n' "$([[ "$skip_package_install" -eq 1 ]] && printf no || printf yes)"
 printf 'Runtime package request: %s (%s)\n' "${base_packages[*]}" "$package_manager"
+printf 'Enforce 512 MB-class minimum and memory profile: %s\n' "$resource_profile"
+printf 'Ensure persistent swap floor: %s MiB\n' "$swap_floor_mib"
 printf 'Create immutable release: %s\n' "$release_dir"
 printf 'Create release virtualenv: %s\n' "$venv_dir"
 printf 'Write: /etc/replay-lab/replay-lab.env\n'
@@ -978,6 +1008,7 @@ printf 'Market database copy/write by V7 market-data service: never\n'
 printf 'Market database service mount: read-only\n'
 printf 'User state SQLite: %s/state/replay-lab-state.sqlite3 (service-user writable)\n' "$state_root"
 printf 'Database import staging: %s/database-import (service-user writable)\n' "$state_root"
+printf 'DuckDB spill roots: %s/duckdb-tmp/{market-data,database-import} (isolated service-user writable)\n' "$state_root"
 
 if [[ "$dry_run" -eq 1 ]]; then
   ok "dry-run complete; no host files were changed"
@@ -998,6 +1029,8 @@ if [[ "$skip_package_install" -eq 0 ]]; then
   [[ -z "$public_host" ]] || install_caddy
 fi
 require_runtime_commands
+replay_lab_ensure_swap_floor "$swap_floor_mib" "$managed_swap_path" \
+  || die "could not provision the required low-memory swap capacity"
 node_bin="$(command -v node)"
 auth_directive="$(detect_caddy_auth_directive)"
 
@@ -1051,6 +1084,9 @@ host_metadata_paths=(
   "$state_root"
   "$state_root/state"
   "$state_root/database-import"
+  "$state_root/duckdb-tmp"
+  "$state_root/duckdb-tmp/market-data"
+  "$state_root/duckdb-tmp/database-import"
 )
 if [[ "$bootstrap" -eq 1 ]]; then
   host_metadata_paths+=("$database_parent")
@@ -1063,6 +1099,9 @@ run_step sudo_cmd install -d -m 0755 "$install_root" "$install_root/releases"
 run_step sudo_cmd install -d -m 0750 -o "$service_user" -g "$service_group" "$state_root"
 run_step sudo_cmd install -d -m 0750 -o "$service_user" -g "$service_group" "$state_root/state"
 run_step sudo_cmd install -d -m 0750 -o "$service_user" -g "$service_group" "$state_root/database-import"
+run_step sudo_cmd install -d -m 0750 -o "$service_user" -g "$service_group" \
+  "$state_root/duckdb-tmp" "$state_root/duckdb-tmp/market-data" \
+  "$state_root/duckdb-tmp/database-import"
 if [[ "$bootstrap" -eq 1 ]]; then
   if ! sudo_cmd test -d "$database_parent"; then
     run_step sudo_cmd install -d -m 0770 -o root -g "$service_group" "$database_parent"
@@ -1092,8 +1131,13 @@ if [[ "$bootstrap" -eq 1 ]]; then
   ok "database bootstrap target is absent and writable by the isolated importer"
 else
   run_step as_service_user test -r "$db_path"
-  db_summary="$(as_service_user "$venv_python" -c \
-    "import duckdb; p='$db_path'; c=duckdb.connect(p, read_only=True); print(c.execute(\"select string_agg(instrument || ':' || row_count::varchar, ', ' order by instrument) from (select instrument, count(*) as row_count from futures_1m group by instrument)\").fetchone()[0]); c.close()")"
+  db_summary="$(as_service_user env \
+    "PYTHONPATH=$release_dir/v7/server" \
+    "V7_DUCKDB_MEMORY_LIMIT=$duckdb_memory_limit" \
+    "V7_DUCKDB_THREADS=$duckdb_threads" \
+    "V7_DUCKDB_TEMP_DIRECTORY=$state_root/duckdb-tmp/market-data" \
+    "$venv_python" -c \
+    "from market_data_queries import open_database; p='$db_path'; c=open_database(p); print(c.execute(\"select string_agg(instrument || ':' || row_count::varchar, ', ' order by instrument) from (select instrument, count(*) as row_count from futures_1m group by instrument)\").fetchone()[0]); c.close()")"
   ok "database read smoke: $db_summary"
 fi
 
@@ -1105,6 +1149,9 @@ env_file="$tmp_dir/replay-lab.env"
   printf 'V7_MARKET_DATA_PORT=8766\n'
   printf 'V7_MARKET_DATA_DB=%s\n' "$db_path"
   printf 'V7_MARKET_DATA_TABLE=futures_1m\n'
+  printf 'V7_DUCKDB_MEMORY_LIMIT=%s\n' "$duckdb_memory_limit"
+  printf 'V7_DUCKDB_THREADS=%s\n' "$duckdb_threads"
+  printf 'V7_RESOURCE_PROFILE=%s\n' "$resource_profile"
   printf 'V7_STATE_HOST=127.0.0.1\n'
   printf 'V7_STATE_PORT=8767\n'
   printf 'V7_STATE_DB=%s/state/replay-lab-state.sqlite3\n' "$state_root"

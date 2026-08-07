@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r12.2-standalone-v7-runtime",
+  "status": "r12.3-adaptive-low-memory-deployment",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -80,6 +80,7 @@
     "docs/V7_SERVER_STATE_SYNC_R10_8.md",
     "docs/V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md",
     "docs/V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md",
+    "docs/V7_ADAPTIVE_LOW_MEMORY_DEPLOYMENT_R12_3.md",
     "TODO.md"
   ],
   "owners": [

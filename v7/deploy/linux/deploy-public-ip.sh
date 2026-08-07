@@ -27,6 +27,8 @@ Options:
   --replace-legacy       Stop only identified Replay Lab listeners on 8766/8007.
   --help                 Show this help.
 
+The command auto-selects a resource profile, rejects hosts below the supported
+512 MB class, and provisions persistent swap when the selected profile needs it.
 This wrapper does not open a cloud security group. Allow inbound TCP 80/443 in
 the provider console, and do not expose 8007/8766/8767/8768.
 USAGE
@@ -107,6 +109,7 @@ stop_identified_listener() {
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 installer="$script_dir/install.sh"
+source "$script_dir/lib/resource-profile.sh"
 db_path="/srv/replay-lab-data/trading_data.duckdb"
 public_ip=""
 auth_user="reviewer"
@@ -172,6 +175,10 @@ done
 
 [[ "${EUID:-$(id -u)}" -eq 0 ]] || die "run this quick deploy with sudo/root"
 [[ -x "$installer" ]] || die "installer is missing: $installer"
+detected_memory_mib="$(replay_lab_read_memory_mib)" \
+  || die "physical memory detection failed"
+replay_lab_require_minimum_memory "$detected_memory_mib" \
+  || die "host memory is below the supported minimum"
 [[ -n "$public_ip" ]] || die "--public-ip is required"
 validate_ipv4 "$public_ip" || die "--public-ip must be a valid IPv4 address"
 [[ "$db_path" = /* ]] || die "--db must be absolute"

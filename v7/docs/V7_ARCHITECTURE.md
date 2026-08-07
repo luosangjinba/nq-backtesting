@@ -69,6 +69,14 @@ all unrelated mutation methods remain blocked. The chart-side one-way read flow
 is unchanged. The binding contract is
 `V7_DATABASE_BOOTSTRAP_IMPORT_R10_9.md`.
 
+R12.3 adds `v7/server/duckdb_runtime.py` as the single resource-policy library
+required by both V7 DuckDB services. It validates deployment-selected memory,
+thread, and temporary-directory settings. Market Data and Database Import keep
+separate writable spill roots; sharing the policy does not merge their read/
+write authority. The minimum-host and swap owner remain in Linux deployment,
+not in either data service. Binding contract:
+`V7_ADAPTIVE_LOW_MEMORY_DEPLOYMENT_R12_3.md`.
+
 ## State Owners
 
 ### Session Store
@@ -624,6 +632,12 @@ started. Caddy exposes `/v7/market-data/*` to the read service, optional
 remaining application path to Web; internal ports stay loopback-only. The
 installer recognizes the old service only as transactional upgrade/rollback
 state and leaves no old route or unit after success.
+
+R12.3 makes host capacity explicit in that topology. Linux deployment rejects
+instances below the provider 512 MB class, selects a bounded DuckDB profile,
+and persists only missing swap capacity as a deployment-owned writer surface.
+Managed swap survives release rollback because it is host capacity rather than
+application state; release/env/unit/Caddy rollback semantics are unchanged.
 
 The static server maps each reviewed URL prefix to one exact filesystem root.
 It rejects decoded traversal segments and separators, verifies lexical and

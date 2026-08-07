@@ -1,0 +1,26 @@
+[
+  {
+    "id": "below-512mb-class",
+    "kind": "shell-profile",
+    "memoryMib": 449,
+    "expected": "requires a 512 MB-class host"
+  },
+  {
+    "id": "invalid-duckdb-memory-limit",
+    "kind": "python-config",
+    "environment": { "V7_DUCKDB_MEMORY_LIMIT": "25 percent" },
+    "expected": "V7_DUCKDB_MEMORY_LIMIT"
+  },
+  {
+    "id": "invalid-duckdb-threads",
+    "kind": "python-config",
+    "environment": { "V7_DUCKDB_THREADS": "0" },
+    "expected": "V7_DUCKDB_THREADS"
+  },
+  {
+    "id": "relative-duckdb-temp-directory",
+    "kind": "python-config",
+    "environment": { "V7_DUCKDB_TEMP_DIRECTORY": "relative/tmp" },
+    "expected": "must be absolute"
+  }
+]

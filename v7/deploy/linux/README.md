@@ -1,6 +1,6 @@
 # Replay Lab V7 Linux One-Click Deployment
 
-Status: R12.2 standalone V7 runtime with authenticated first-run bootstrap
+Status: R12.3 standalone V7 runtime with adaptive 512 MB-class deployment
 
 `install.sh` deploys only the current committed V7 tree as an immutable release,
 installs the V7 read-only market-data runtime and browser dependencies, and creates
@@ -39,6 +39,10 @@ sudo bash v7/deploy/linux/deploy-public-ip.sh \
 ```
 
 It prompts twice for the browser password when no saved password exists. The
+same command automatically detects physical memory and CPUs, rejects hosts
+below the supported 512 MB class, provisions persistent swap when required,
+and applies a bounded DuckDB memory/thread/disk-spill profile. No resource flags
+are required. The
 `--preserve-caddy` option retains existing Caddy sites and installs Replay Lab
 as an imported `/etc/caddy/replay-lab.Caddyfile` fragment. Omit it only on a
 dedicated host where replacing the whole Caddyfile is intentional. The
@@ -88,10 +92,25 @@ sudo apt-get install -y python3.12-venv
 The new attempt creates a fresh release-owned runtime and safely isolates any
 new failed release.
 
-A practical small-host starting point is 2 vCPU, 2 GB RAM plus swap, and at
-least 3 GB free space in addition to the market database. The current verified
-ES/NQ DuckDB is about 902 MB. Actual memory and latency remain part of the host
-acceptance test rather than an installer promise.
+The minimum supported instance is the provider 512 MB class. Linux must report
+at least 450 MiB `MemTotal`; smaller hosts fail before release mutation. The
+automatic profiles are:
+
+| Reported RAM | DuckDB limit | Threads | Total swap floor |
+| --- | ---: | ---: | ---: |
+| 450–767 MiB | 128 MB | 1 | 2 GiB |
+| 768–1535 MiB | 256 MB | 1 | 1 GiB |
+| 1536–3071 MiB | 512 MB | up to 2 | 512 MiB |
+| 3072 MiB+ | 1 GiB | up to 4 | unmanaged |
+
+When current swap is insufficient, the installer creates only the missing
+capacity at `/var/lib/replay-lab/swap/replay-lab.swap`, keeps 512 MiB of disk
+reserve, enables it immediately, and adds one persistent `/etc/fstab` entry.
+The current verified ES/NQ DuckDB is about 902 MB, so the host still needs room
+for the database, immutable release, optional upload staging, DuckDB spill, and
+swap. Resource adaptation prevents known OOM behavior; actual latency remains a
+host acceptance measurement rather than an installer promise. Binding policy:
+`../../docs/V7_ADAPTIVE_LOW_MEMORY_DEPLOYMENT_R12_3.md`.
 
 ## Prepare Source And Data
 
