@@ -1,9 +1,15 @@
 # V7 Second-Level Replay And Tick-Sourced Data — Pre-Decision Memo
 
-Date: 2026-08-01
-Updated: 2026-08-06
+Memo id: `MEMO-V7-002`
+
+First formed: 2026-08-01
+
+Last substantive revision: 2026-08-06
+
 Status: current deferral decision recorded; future product decision and
 implementation explicitly deferred
+
+Registry: `V7_NON_DECISION_MEMO_REGISTRY.md`
 
 ## Purpose And Activation Boundary
 
@@ -332,3 +338,20 @@ After all current human-review obligations are explicitly closed:
 8. convert this memo into a binding product/architecture decision;
 9. only then assign a delivery step, budgets, contracts, harnesses, and an
    implementation plan.
+
+## Position History
+
+### 2026-08-01 — Initial Formation
+
+Captured the possible second-level Replay direction, direct-seconds versus
+tick-derived data alternatives, architectural constraints, provider questions,
+and evidence required before implementation. No future seconds product or
+implementation was authorized.
+
+### 2026-08-06 — Explicit Deferral Position
+
+Recorded that minute-sourced V7 remains a valid product without simulated-live
+training, seconds are deferred rather than rejected, and later investigation
+requires documented activation signals plus hard data-rights, performance,
+ownership, and reproducibility gates. This revision did not activate research,
+vendor purchase, a delivery step, or implementation.

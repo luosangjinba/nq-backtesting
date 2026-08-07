@@ -79,14 +79,23 @@ failure codes.
 unchecked provider/host-matrix evidence in the historical records is retained
 as non-blocking follow-up unless a later decision explicitly promotes it to a
 release gate. Read those records before the normal implementation reading order
-below. The deferred
-`V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` and
-`V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` record possible next
-product directions but authorize no work before current human-review closure.
+below. `V7_NON_DECISION_MEMO_REGISTRY.md` is the canonical dated index for
+unresolved ideas. It assigns stable memo ids, preserves position history, and
+records tensions that a later decision must resolve. The registered
+`V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md`,
+`V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md`, and
+`V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` record possible
+next product directions but authorize no implementation.
 The seconds/tick memo additionally records the current decision that minute-
 sourced V7 remains valid without simulated-live training, defines the three-
 of-four investigation signals, and keeps every future seconds path behind the
 existing Bar Data/Replay/Chart owners.
+The Agent-participatory learning-system memo preserves Research → Training →
+Trading Review as three evidence-linked feedback loops. Its Research Project →
+versioned Setup/Outcome definitions → Study Case → immutable Study Cohort →
+auditable Analysis Run hierarchy remains the research substrate, while governed
+Agent plans, tools, coaching, longitudinal review, and action provenance are
+candidate system-wide requirements.
 The proposed post-milestone foundation is
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
 market-coordinate geometry, generic drawings, typed semantic artifacts,
@@ -200,14 +209,19 @@ Read in this order before V7 implementation work:
 93. `V7_ARCHITECTURE_INTEGRITY_RECOVERY_R11.md`
 94. `V7_STANDALONE_RUNTIME_SEPARATION_R12_2.md`
 95. `V7_CLOUD_REPLAY_HOT_PATH_R12_5.md`
-96. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
+96. `V7_NON_DECISION_MEMO_REGISTRY.md` as the canonical dated index for every
+    unresolved product/architecture memo and its cross-memo tensions
+97. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-97. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
+98. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-98. `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` as the proposed
+99. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,
+    non-binding AI-Agent-participatory Research, Training, and Trading Review
+    context only
+100. `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` as the proposed
     post-milestone architecture decision; read before any drawing or semantic
     annotation implementation
-99. `../TODO.md`
+101. `../TODO.md`
 
 The numbered order above is for implementation work. Ordinary users should use
 the user/operator entry points instead of reading the architecture history.

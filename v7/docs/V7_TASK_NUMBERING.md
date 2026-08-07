@@ -54,6 +54,9 @@ spec is accepted and an executable invariant is activated.
   extension boundary and is not a roadmap or phase commitment.
 - `ADR-V7-###`: future architecture decisions when a choice needs a dedicated
   decision record.
+- `MEMO-V7-###`: stable non-decision memo identity. A memo preserves a dated
+  unresolved position and authorizes neither delivery nor implementation. The
+  canonical registry is `V7_NON_DECISION_MEMO_REGISTRY.md`.
 - `BUG-V7-####`: stable black-box regression identity. R8 begins with
   `BUG-V7-0001` through `BUG-V7-0005`; ids never change meaning after issue.
 

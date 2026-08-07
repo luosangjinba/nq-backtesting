@@ -417,6 +417,22 @@ whole foundation in one change:
 Business workflows must consume the accepted foundation rather than ship their
 own drawing stores or Chart renderers.
 
+## Related Unresolved Product Memo
+
+`MEMO-V7-003` in
+`V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` describes a possible
+AI-Agent-participatory Research, Training, and Trading Review system which could
+reference accepted Semantic Artifact revisions as Study Case, drill, and review
+evidence. That memo neither accepts this ADR nor authorizes Research, Training,
+Review, analytics, Agent, detector, persistence, or UI work.
+
+If both directions later proceed, the three learning loops must consume
+Annotation-owned artifact references and the accepted no-future provenance
+contract. They must not create a second semantic store, Chart writer, Replay
+owner, or Bar Data requester. Research/Training/Review ownership and the
+relationship among Study Case, Journal Setup Case, Session, and plugin contracts
+remain separate future decisions.
+
 ## Acceptance And Harness Gates
 
 R13 implementation cannot close without executable evidence for:
