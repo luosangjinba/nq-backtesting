@@ -419,6 +419,62 @@
       "functions": [
         {
           "effectiveLines": 3,
+          "name": "failGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-geometry-domain",
+      "owner": "annotation-geometry-domain",
+      "ownsContract": false,
+      "path": "src/annotation-geometry-domain/geometry-error.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "AnnotationGeometryError",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "24dee7b034749e675fbf93a1bb1adfdd954d017455afc9c4b168dddae5a276dc"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 10,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 3,
           "name": "failPaneLayout",
           "reviewedDecompositionException": false
         },
@@ -1985,6 +2041,26 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "b6499329d225579c598b12b9ad15909577c3798edd32557e626fd5e16991b2aa"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 12,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "domain",
+      "moduleId": "optional.annotation-geometry-domain",
+      "owner": "annotation-geometry-domain",
+      "ownsContract": true,
+      "path": "src/annotation-geometry-domain/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "3edf1558d3c9edb6743feff6701a204ddffdaf223f007a736ec7f57b89e855e8"
     },
     {
       "adaptsBoundary": false,
@@ -3852,6 +3928,264 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "e920a094bcae822a93b9d04ccd0c2b3fd10df8bd09ad38c2cc533596a34e5902"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 144,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "normalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "defineGeometryType",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "create",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "normalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createGeometryFromDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createPointGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createRectangleGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createSegmentGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "initialGeometryTypeDefinitions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "normalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "requireGeometryTypeDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "sameInstrument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readGeometryTypeDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireGeometryTypeId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-geometry-domain",
+      "owner": "annotation-geometry-domain",
+      "ownsContract": false,
+      "path": "src/annotation-geometry-domain/geometry-type-definition.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "define one trusted-build, market-coordinate Geometry normalization policy.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError for malformed ids, versions, fields, or normalizers.",
+            "concurrencyCancellation": "normalization is synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "defineGeometryType",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "type"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "expose safe definition identity/version metadata without the normalizer.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError for structural lookalikes.",
+            "concurrencyCancellation": "synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "readGeometryTypeDefinition",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "type"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createPointGeometry",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "point"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createRectangleGeometry",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "rectangle"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createSegmentGeometry",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "segment"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "GEOMETRY_TYPE_IDS",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "ids",
+            "optional",
+            "type"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "38900886524c6fb06e975854964b8a500a3d0870c29bfb9ea32df0804e0dfbfd"
     },
     {
       "adaptsBoundary": false,
@@ -7226,6 +7560,73 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readDrawingGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "createDrawingGeometryValue",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-geometry-domain",
+      "owner": "annotation-geometry-domain",
+      "ownsContract": false,
+      "path": "src/annotation-geometry-domain/drawing-geometry.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "expose the portable Geometry envelope without definition or vendor handles.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError for structural lookalikes.",
+            "concurrencyCancellation": "synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "readDrawingGeometry",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "drawing",
+            "geometry",
+            "optional"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "247becbe492361e2d8ea20eadd6cd0e579a5c3c77c665c6df10d1acf3ebdb308"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 24,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 11,
           "name": "createReplayRange",
           "reviewedDecompositionException": false
@@ -9684,6 +10085,108 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 42,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "createMarketAnchor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readMarketAnchor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-geometry-domain",
+      "owner": "annotation-geometry-domain",
+      "ownsContract": false,
+      "path": "src/annotation-geometry-domain/market-anchor.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "create one canonical market-coordinate anchor without vendor coordinates.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError with a stable anchor validation code.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createMarketAnchor",
+          "semanticMatches": [
+            "anchor",
+            "annotation",
+            "geometry",
+            "market"
+          ],
+          "semanticTerms": [
+            "anchor",
+            "annotation",
+            "domain",
+            "geometry",
+            "market",
+            "optional"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "read canonical market coordinates while rejecting structural lookalikes.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError when the candidate was not created by this contract.",
+            "concurrencyCancellation": "synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "readMarketAnchor",
+          "semanticMatches": [
+            "annotation",
+            "geometry",
+            "market"
+          ],
+          "semanticTerms": [
+            "anchor",
+            "annotation",
+            "domain",
+            "geometry",
+            "market",
+            "optional"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "ae3c99a9fe08c99a2337c71a899b25a99fd975cd41451e9ccf86f26f8e7c882c"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 43,
       "forwardingOnly": false,
       "functions": [
@@ -10484,6 +10987,117 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "5e7a52743df6358d29108c2475cb0913fd58b44b1caee47a0bc9298855a2294c"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 53,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "list",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "createGeometryRegistry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createInitialGeometryRegistry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "get",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "create",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "exactRegistryInput",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-geometry-domain",
+      "owner": "annotation-geometry-domain",
+      "ownsContract": false,
+      "path": "src/annotation-geometry-domain/geometry-registry.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "compose isolated trusted Geometry definitions without concrete-type branching.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError for malformed, duplicate, unknown, or invalid definition work.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createGeometryRegistry",
+          "semanticMatches": [
+            "annotation",
+            "geometry",
+            "registry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "registry"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "compose only the accepted Point, Segment, and Rectangle definitions.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError only if the binding initial definitions become invalid.",
+            "concurrencyCancellation": "synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createInitialGeometryRegistry",
+          "semanticMatches": [
+            "annotation",
+            "geometry",
+            "initial",
+            "registry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "initial",
+            "optional",
+            "registry"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "b6049c9160124dccc7b0ef57dff0026f9db8d2cf4cd155a468c607272ea1e758"
     },
     {
       "adaptsBoundary": false,
@@ -11518,6 +12132,47 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "966fc656cd1c4bd1f461461947f8037f6a2d2532d0ef04d23597d1477b03e3f1"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 72,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "isPlainRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 56,
+          "name": "portableValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "normalizePortableGeometryPayload",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-geometry-domain",
+      "owner": "annotation-geometry-domain",
+      "ownsContract": false,
+      "path": "src/annotation-geometry-domain/portable-value.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "04e47feef8aef9bdfcaaa14e891ef02958dbe60f97570d2edd7cd6126ebc409e"
     },
     {
       "adaptsBoundary": false,
@@ -28119,11 +28774,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 25111,
-    "files": 322,
-    "functions": 2657,
-    "publicExports": 314
+    "effectiveLines": 25468,
+    "files": 329,
+    "functions": 2696,
+    "publicExports": 326
   },
-  "deliveryStep": "R12.8",
-  "generatedFromCommit": "working-tree-r12.8"
+  "deliveryStep": "R13.2",
+  "generatedFromCommit": "working-tree-r13.2"
 }

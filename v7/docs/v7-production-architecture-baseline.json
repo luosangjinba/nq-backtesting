@@ -121,7 +121,7 @@
       }
     ]
   },
-  "deliveryStep": "R12.8",
+  "deliveryStep": "R13.2",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -4199,6 +4199,21 @@
         "observedDisposeSites": [],
         "owner": "session-store",
         "publicEntry": "src/activation-generation/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/annotation-geometry-domain/module.json",
+        "id": "optional.annotation-geometry-domain",
+        "importSites": [],
+        "independentHarness": "tests/annotation-geometry-domain-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [],
+        "owner": "annotation-geometry-domain",
+        "publicEntry": "src/annotation-geometry-domain/public.js"
       },
       {
         "actualDependencies": [],

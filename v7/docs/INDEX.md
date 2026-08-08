@@ -96,7 +96,7 @@ versioned Setup/Outcome definitions → Study Case → immutable Study Cohort �
 auditable Analysis Run hierarchy remains the research substrate, while governed
 Agent plans, tools, coaching, longitudinal review, and action provenance are
 candidate system-wide requirements.
-The proposed post-milestone foundation is
+The accepted post-milestone foundation is
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
 market-coordinate geometry, generic drawings, typed semantic artifacts,
 declarative projections, and adapter-local render primitives; it treats
@@ -107,8 +107,11 @@ packages from the first semantic slice, while deferring dynamic third-party
 loading and Marketplace scope. It defines Geometry-first free drawing,
 user-recognized evidence-constrained semantic construction, provenance-distinct
 future detector suggestions, and one host-rendered schema-driven Property
-Inspector. It authorizes no implementation until its human decision gate is
-accepted.
+Inspector. Its human gate closed on 2026-08-08. The separately bounded
+`V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md` now activates only immutable
+market-coordinate anchors, Point/Segment/Rectangle Geometry, and an extensible
+removable Registry; it activates no Annotation state, Chart/UI, persistence, or
+semantic package.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
@@ -225,10 +228,11 @@ Read in this order before V7 implementation work:
 99. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,
     non-binding AI-Agent-participatory Research, Training, and Trading Review
     context only
-100. `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` as the proposed
-    post-milestone architecture decision; read before any drawing or semantic
-    annotation implementation
-101. `../TODO.md`
+100. `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` as accepted
+    ADR-V7-001; read before any drawing or semantic annotation implementation
+101. `V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md` as the binding pure
+    market-coordinate Point/Segment/Rectangle and extensible Registry contract
+102. `../TODO.md`
 
 The numbered order above is for implementation work. Ordinary users should use
 the user/operator entry points instead of reading the architecture history.

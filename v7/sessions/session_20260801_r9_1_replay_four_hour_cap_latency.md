@@ -52,9 +52,9 @@ Lightweight Chart, Replay Workspace, and Pane Workspace gates pass. The latter
 now exercises a `12h` active Pane with Sync timeframe and observes Replay `4h`
 without a cursor or enable-time Workspace transaction.
 
-Production architecture remains clean at 51 modules, 127 dependency edges,
-115 construction sites, and 19 writer sites. Current source evidence is 322
-files, 25,111 effective lines, 2,657 functions, and 314 public exports, with no
+Production architecture remains clean at 52 modules, 127 dependency edges,
+115 construction sites, and 19 writer sites. Current source evidence is 329
+files, 25,468 effective lines, 2,696 functions, and 326 public exports, with no
 source-quality finding.
 
 ## Human Gate

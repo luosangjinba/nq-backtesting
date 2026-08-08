@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r12.4-swap-accounting-tolerance",
+  "status": "r13.2-minimal-annotation-geometry-contract",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -27,6 +27,8 @@
     "docs/v7-production-regression-matrix.json",
     "docs/V7_PRODUCT_AND_SCOPE.md",
     "docs/V7_ARCHITECTURE.md",
+    "docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md",
+    "docs/V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md",
     "docs/V7_V6_MIGRATION_DENYLIST.md",
     "docs/V7_V6_DISPOSITION_MATRIX.md",
     "docs/V7_V6_INTERACTION_CARRY_FORWARD.md",
@@ -110,7 +112,8 @@
     "workspace-checkpoint-domain",
     "data-acquisition-admin",
     "browser-async-contract",
-    "database-bootstrap-admin"
+    "database-bootstrap-admin",
+    "annotation-geometry-domain"
   ],
   "requiredIdentityFields": [
     "sessionId",
@@ -133,6 +136,7 @@
     "src/workspace-transaction-contract/module.json",
     "src/prepared-commit-contract/module.json",
     "src/module-host/module.json",
+    "src/annotation-geometry-domain/module.json",
     "src/capability-contract/module.json",
     "src/bar-data-contract/module.json",
     "src/raw-coverage-lease-contract/module.json",
@@ -200,6 +204,7 @@
     "requireLifecycleCleanupProof": true
   },
   "extensionContracts": {
+    "geometry": "GeometryTypeDefinition",
     "timeframe": "TimeframeDefinition",
     "marketData": "MarketDataProvider",
     "instrument": "InstrumentDefinition",
@@ -316,6 +321,7 @@
     "global-workstation-settings-transactional-all-pane",
     "versioned-session-layout-sync-policy",
     "restored-workspace-cache-race-and-foundation-performance-closed",
-    "guarded-data-acquisition-admin-outside-chart-runtime"
+    "guarded-data-acquisition-admin-outside-chart-runtime",
+    "annotation-geometry-market-coordinate-extensible"
   ]
 }

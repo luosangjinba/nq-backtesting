@@ -58,10 +58,14 @@ async function boot({ descriptors, publicApis }) {
 }
 
 function optionalRemovalMatrix(descriptors) {
-  return sorted(descriptors.flatMap((descriptor) => descriptor.optionalPorts.map((moduleId) => ({
+  const portCases = descriptors.flatMap((descriptor) => descriptor.optionalPorts.map((moduleId) => ({
     consumerModuleId: descriptor.id,
     omittedModuleId: moduleId,
-  }))));
+  })));
+  const standaloneCases = descriptors
+    .filter(({ kind }) => kind === 'optional')
+    .map(({ id }) => ({ consumerModuleId: null, omittedModuleId: id }));
+  return sorted([...portCases, ...standaloneCases]);
 }
 
 /**
@@ -96,7 +100,9 @@ export async function verifyProductionModuleAssembly({ manifest, v7Root }) {
     if (run.started.moduleIds.includes(removal.omittedModuleId)) {
       throw new Error(`${removal.omittedModuleId} remained in its optional-removal assembly.`);
     }
-    const consumerPorts = run.observedPorts.get(removal.consumerModuleId);
+    const consumerPorts = removal.consumerModuleId === null
+      ? null
+      : run.observedPorts.get(removal.consumerModuleId);
     if (consumerPorts?.optional.includes(removal.omittedModuleId)) {
       throw new Error(`${removal.consumerModuleId} received omitted optional port ${removal.omittedModuleId}.`);
     }

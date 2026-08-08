@@ -19,7 +19,7 @@
 
 Canonical registry: `docs/V7_NON_DECISION_MEMO_REGISTRY.md`.
 
-## R13.1 Drawing And Semantic Annotation Foundation — Spec Drafted, Human Review Pending
+## R13.1 Drawing And Semantic Annotation Foundation — Accepted 2026-08-08
 
 - [x] reserve `asset` for tradable instruments and choose Drawing/Annotation
   terminology for the new foundation;
@@ -66,16 +66,39 @@ Canonical registry: `docs/V7_NON_DECISION_MEMO_REGISTRY.md`.
 - [x] decompose the implementation order into bounded R13.2–R13.13 candidate
   steps, proving BSL/SSL package lifecycle before FVG evidence derivation and
   deferring EQL/EQH until equality/tolerance relations are versioned;
-- [ ] receive explicit human approval of ADR-V7-001 terminology, ownership,
+- [x] receive explicit human approval of ADR-V7-001 terminology, ownership,
   curve/Indicator separation, semantic package boundary, creation paths,
   Evidence Resolver, parameter provenance split, interaction/projection ports,
   Property Inspector, cross-timeframe/no-future policy, and audited delivery
   order;
-- [ ] after approval, activate only R13.2 for the pure Geometry contract; do not
+- [x] after approval, activate only R13.2 for the pure Geometry contract; do not
   begin UI, persistence, FVG, OB, or automatic detection in R13.1.
 
-Binding proposal:
+Binding decision:
 `docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`.
+
+## R13.2 Minimal Annotation Geometry Contract — Implemented 2026-08-08
+
+- [x] define exact immutable `MarketAnchor` values in market time/price space,
+  with no pixel, logical-index, Chart, Pane, Replay, or persistence state;
+- [x] implement only Point, Segment, and normalized Rectangle Geometry for the
+  initial trusted registry;
+- [x] keep Geometry envelopes branded, portable, deeply immutable, and bounded
+  against vendor coordinates, Bars, Indicator/formula output, cycles, and
+  executable/class values;
+- [x] prove a fourth harness-only Geometry type can register without changing
+  Registry code or adding a concrete-type branch;
+- [x] register `optional.annotation-geometry-domain` as a pure static removable
+  production module with no ports, lifecycle, I/O, UI, or global registry;
+- [x] activate H100 with an independent harness, 32 negative controls, exact
+  production inventory, source-quality coverage, and optional-removal proof;
+- [x] retain Drawing Entity, Annotation Runtime, Chart projection, interaction,
+  persistence, semantics, FVG/OB/EQL, and detector behavior outside R13.2;
+- [ ] do not start R13.3 until its Headless Annotation Runtime contract is
+  separately written and authorized.
+
+Binding contract:
+`docs/V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md`.
 
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
@@ -866,9 +889,9 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 322 files, 25,111 effective
-lines, 2,657 functions, and 314 public exports; the architecture baseline
-remains 51 modules, 127 edges, 115 construction sites, 19 writers, and zero
+The current production source baseline contains 329 files, 25,468 effective
+lines, 2,696 functions, and 326 public exports; the architecture baseline
+remains 52 modules, 127 edges, 115 construction sites, 19 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -879,8 +902,8 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 322 files, 25,111 effective lines, 2,657 functions, 314 public
-exports, 51 modules, 127 edges, 115 construction sites, 19 writers, and zero
+currently at 329 files, 25,468 effective lines, 2,696 functions, 326 public
+exports, 52 modules, 127 edges, 115 construction sites, 19 writers, and zero
 findings.
 
 ## Established Foundation Governance

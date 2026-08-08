@@ -2,7 +2,7 @@
 
 Date: 2026-08-07
 
-Status: specification drafted; human decision pending
+Status: accepted 2026-08-08; R13.2 separately authorized
 
 ## Outcome
 
@@ -28,10 +28,12 @@ scope, Replay-cutoff provenance, deterministic `stateAt(cutoff)`, semantic type
 registration, atomic promotion from generic drawing, reversible persistence/
 render decisions, undo/redo, optional-module removal, and staged delivery.
 
-## Continuation
+## Acceptance And Continuation
 
-The user must accept ADR-V7-001 before R13.2 is allocated. R13.1 changes no
-production code and authorizes no automatic detector or business workflow.
+The user explicitly accepted ADR-V7-001 on 2026-08-08 after the documented
+implementation-path audit. The decision authorized only the separately bounded
+R13.2 pure Geometry contract. R13.1 itself changes no production code and does
+not authorize Chart/UI, persistence, automatic detector, or business workflow.
 
-Binding proposal:
+Binding decision:
 `../docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`.

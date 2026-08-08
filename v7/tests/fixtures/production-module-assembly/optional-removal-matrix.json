@@ -16,6 +16,10 @@
     {
       "consumerModuleId": "adapter.session-browser-ui",
       "omittedModuleId": "adapter.replay-workspace-ui"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.annotation-geometry-domain"
     }
   ]
 }

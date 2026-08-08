@@ -784,6 +784,40 @@ Gate: redeploy an existing-database acceptance host and prove `Database active`,
 writes, and no raw expected HTTP 403/404 or internal Replay code. Binding
 contract: `V7_ACCEPTANCE_CAPABILITY_STATUS_R12_8.md`.
 
+## R13 — Drawing And Semantic Annotation Foundation
+
+### R13.1 — Architecture Decision
+
+- reserve `asset` for tradable instruments and separate Drawing Geometry,
+  Drawing Entity, Semantic Artifact, Artifact Projection, and adapter-local
+  Render Primitive;
+- retain one removable Annotation document writer and the existing sole Chart
+  visual writer;
+- bind market-coordinate persistence, Replay/no-future provenance, plugin-first
+  semantic packages, evidence resolution, parameter provenance, interaction
+  arbitration, and dedicated preview/projection ports;
+- keep manually anchored curves distinct from calculated Indicator series.
+
+Human gate: accepted 2026-08-08. Binding decision:
+`V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`.
+
+### R13.2 — Minimal Annotation Geometry Contract
+
+- activate exact immutable `MarketAnchor` values without Chart/vendor state;
+- implement only Point, Segment, and normalized Rectangle Geometry;
+- compose versioned trusted definitions through an immutable Registry that has
+  no concrete Geometry-type branch or mutable global registration;
+- reject structural lookalikes, cross-instrument/degenerate shapes, nonportable
+  payloads, vendor coordinates, Bars, and Indicator/formula outputs;
+- register the pure static module as optional and prove production boot with it
+  omitted;
+- bind the contract and 32 negative controls as H100.
+
+Gate: independent Geometry, ModuleHost, production assembly, architecture, and
+source-quality Harnesses pass. This headless step has no visual human gate and
+does not authorize R13.3. Binding contract:
+`V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md`.
+
 ## Deferred Product Boundary — Second-Level Replay
 
 Second-level/tick-sourced Replay has no delivery number and is not the next

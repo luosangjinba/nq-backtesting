@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R12.8",
+  "deliveryStep": "R13.2",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -48,7 +48,8 @@
       "core.pane-workspace-domain",
       "core.projection-domain",
       "core.session-hours-domain",
-      "core.workspace-checkpoint-domain"
+      "core.workspace-checkpoint-domain",
+      "optional.annotation-geometry-domain"
     ],
     "runtime": [
       "core.bar-data-runtime",

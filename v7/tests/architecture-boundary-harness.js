@@ -130,6 +130,7 @@ assert.equal(manifest.moduleContract.requireIndependentHarness, true);
 assert.equal(manifest.moduleContract.requireOptionalRemovalBootMatrix, true);
 assert.equal(manifest.moduleContract.requireLifecycleCleanupProof, true);
 assert.deepEqual(manifest.extensionContracts, {
+  geometry: 'GeometryTypeDefinition',
   timeframe: 'TimeframeDefinition',
   marketData: 'MarketDataProvider',
   instrument: 'InstrumentDefinition',
@@ -255,6 +256,7 @@ for (const rule of [
   'session-browser-delete-is-confirmed-and-durable',
   'global-workstation-settings-transactional-all-pane',
   'versioned-session-layout-sync-policy',
+  'annotation-geometry-market-coordinate-extensible',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

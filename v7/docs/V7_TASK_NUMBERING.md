@@ -1,6 +1,6 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule (R13.1 specification review, 2026-08-07)
+Status: binding delivery rule (R13.2 implementation, 2026-08-08)
 
 ## Delivery IDs
 
@@ -20,9 +20,10 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current repository-changing delivery step is `R13.1`, the proposed Drawing
-and Semantic Annotation foundation recorded as ADR-V7-001. It is a spec-only
-step with human review pending and authorizes no production implementation.
+The current repository-changing delivery step is `R13.2`, the Minimal
+Annotation Geometry Contract. The user accepted R13.1/ADR-V7-001 on 2026-08-08;
+R13.2 activates only the pure removable Market Anchor, Point, Segment,
+Rectangle, and extensible Geometry Registry boundary.
 The V7.0.0 foundation milestone is accepted; R12.1–R12.8 retain their committed
 implementation and non-blocking host follow-up. R11.1 remains the automatically
 closed cross-runtime architecture-integrity recovery; R12 does not reopen it.
@@ -42,12 +43,14 @@ for R12.7. Broad `R<n>` headings remain milestones only.
 H099 records exact health-only importer composition, honest read-only Market
 Data fallback, unavailable Maintenance-control removal, and internal Replay
 error-code translation for R12.8.
-ADR-V7-001 records the R13.1 terminology, owner, persistence, projection,
+ADR-V7-001 records the accepted R13.1 terminology, owner, persistence, projection,
 no-future, manual-curve versus calculated-series boundary, plugin-first
 first-party semantic package boundary, dual user creation paths,
 recognition/construction provenance, host-rendered Property Inspector, and
-implementation-order proposal; no H id is allocated until the spec is accepted
-and an executable invariant is activated.
+implementation order. H100 records R13.2's exact market-coordinate, immutable,
+portable, extensible, and removable Geometry boundary. R13.3 and every Chart,
+interaction, persistence, Annotation-document, and semantic behavior remain
+unauthorized until separately specified.
 
 ## Other Stable IDs
 

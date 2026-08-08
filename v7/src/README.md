@@ -84,4 +84,11 @@ the exact production manifest and descriptors. Route entries own no feature
 construction; the Session and Data Acquisition application adapters acquire
 and clean their real browser resources through host lifecycle methods.
 
+R13.2 activates `optional.annotation-geometry-domain` as a pure static,
+removable contract. It owns exact immutable market-coordinate anchors,
+Point/Segment/Rectangle Geometry normalization, and a composition-local
+extensible Geometry Registry. It owns no Drawing Entity, Annotation document,
+Chart/DOM rendering, interaction, persistence, Replay policy, semantic type,
+Indicator series, or detector.
+
 Do not import runtime code from V4, V5, or V6.

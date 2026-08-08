@@ -2,7 +2,7 @@
 
 Decision id: `ADR-V7-001`
 
-Status: proposed binding pre-implementation specification; human review pending
+Status: accepted binding architecture decision
 
 Date: 2026-08-07
 
@@ -90,8 +90,9 @@ R13.1 defines the foundation and delivery gates only. It does not implement:
 - a second Chart writer, Replay runtime, Bar Data requester, or client cache;
 - import/export compatibility with another chart product.
 
-The first implementation step may begin only after this decision receives
-explicit human acceptance and a new bounded delivery id.
+The user accepted this decision on 2026-08-08. Production implementation begins
+only through the separately bounded R13.2 Minimal Geometry Contract; acceptance
+does not authorize later R13 steps early.
 
 ## Geometry Contract
 
@@ -108,9 +109,11 @@ MarketAnchor {
 }
 ```
 
-Every anchor must use the exact registered instrument identity and a finite
-price. Time is an exact epoch instant. A projection adapter may translate an
-anchor into chart coordinates only for the lifetime of one render pass.
+Every anchor must use the exact registered instrument identity supplied by its
+composition context and a finite price. The pure Geometry domain validates the
+canonical identity string but does not gain Instrument Registry lookup
+authority. Time is an exact epoch instant. A projection adapter may translate
+an anchor into chart coordinates only for the lifetime of one render pass.
 
 ### Initial Geometry Registry
 
@@ -959,8 +962,9 @@ Human review must explicitly confirm:
     evidence-constrained derivation, and EQL/EQH follows only after versioned
     equality/tolerance relations are defined.
 
-Until that confirmation, R13.1 remains a proposed specification and authorizes
-no production implementation.
+The user explicitly confirmed this gate on 2026-08-08 and authorized only the
+separately specified R13.2 delivery. Later R13 steps retain their own bounded
+specification and acceptance requirements.
 
 ## Revision History
 
@@ -1001,3 +1005,10 @@ reuse of the complete Workspace Chart Snapshot Application, defined mounted and
 headless transaction behavior, and decomposed the first delivery sequence into
 bounded R13.2–R13.13 candidate steps. BSL/SSL, FVG, and EQL/EQH now prove
 different extension concerns rather than one bundled first semantic slice.
+
+### 2026-08-08 — Human Acceptance
+
+The user explicitly accepted ADR-V7-001 after the implementation-path audit and
+authorized the separately bounded R13.2 Minimal Geometry Contract. This closes
+the R13.1 decision gate but does not authorize Chart, interaction, persistence,
+Property Inspector, semantic package, FVG/OB/EQL, or detector implementation.

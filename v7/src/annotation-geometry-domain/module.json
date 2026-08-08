@@ -1,0 +1,12 @@
+{
+  "id": "optional.annotation-geometry-domain",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "annotation-geometry-domain",
+  "publicEntry": "src/annotation-geometry-domain/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/annotation-geometry-domain-harness.js",
+  "removable": true
+}
