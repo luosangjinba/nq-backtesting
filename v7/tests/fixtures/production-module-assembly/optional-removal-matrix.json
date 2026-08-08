@@ -18,8 +18,16 @@
       "omittedModuleId": "adapter.replay-workspace-ui"
     },
     {
+      "consumerModuleId": "optional.annotation-runtime",
+      "omittedModuleId": "optional.annotation-geometry-domain"
+    },
+    {
       "consumerModuleId": null,
       "omittedModuleId": "optional.annotation-geometry-domain"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.annotation-runtime"
     }
   ]
 }

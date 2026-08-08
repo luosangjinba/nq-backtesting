@@ -121,7 +121,7 @@
       }
     ]
   },
-  "deliveryStep": "R13.2",
+  "deliveryStep": "R13.3",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -3963,6 +3963,52 @@
         "observedDisposeSites": [],
         "owner": "replay-navigation-runtime",
         "publicEntry": "src/replay-navigation-preference-store/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.session-identity"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [
+          "optional.annotation-geometry-domain"
+        ],
+        "declaredRequiredPorts": [
+          "core.session-identity"
+        ],
+        "descriptorPath": "src/annotation-runtime/module.json",
+        "id": "optional.annotation-runtime",
+        "importSites": [
+          {
+            "importedNames": [
+              "requireSessionId",
+              "sessionIdsEqual"
+            ],
+            "sourceFile": "src/annotation-runtime/runtime-state.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeSessionId"
+            ],
+            "sourceFile": "src/annotation-runtime/annotation-document.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/annotation-runtime-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [
+          "src/annotation-runtime/annotation-runtime.js",
+          "src/annotation-runtime/runtime-state.js"
+        ],
+        "owner": "annotation-runtime",
+        "publicEntry": "src/annotation-runtime/public.js"
       },
       {
         "actualDependencies": [

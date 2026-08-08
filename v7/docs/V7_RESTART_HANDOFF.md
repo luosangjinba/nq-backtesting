@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-08 at R13.2
+Last updated: 2026-08-08 at R13.3
 
 ## Current Overall Acceptance State
 
@@ -14,16 +14,18 @@ host bootstrap permutations, and multi-mode deployment matrix remain useful
 non-blocking operational evidence rather than open milestone gates. Binding
 closure: `V7_FOUNDATION_MILESTONE_V7_0_0.md`.
 
-Post-milestone development now follows accepted ADR-V7-001. R13.2 is the
-current completed headless step: `optional.annotation-geometry-domain` owns
-only immutable market-coordinate anchors, Point/Segment/Rectangle Geometry,
-and a composition-local extensible Registry. H100, 32 negative controls,
-production inventory, and optional-removal boot evidence protect the boundary.
-There is no browser-visible change. R13.3 remains unauthorized until its
-Headless Annotation Runtime contract is separately written and approved.
+Post-milestone development now follows accepted ADR-V7-001. R13.2 provides
+`optional.annotation-geometry-domain`; R13.3 now provides
+`optional.annotation-runtime` as the removable sole Session document writer
+with exact generic-Drawing revisions and reversible fake-Repository work.
+H100/H101 protect Geometry extensibility, zero semantic packages, Session
+isolation, failure rollback, and optional removal. Neither step changes browser
+pixels. R13.4 remains unauthorized until its accepted Annotation Chart
+Projection Port contract is separately written and approved.
 Binding records:
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` and
-`V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md`.
+`V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md` and
+`V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md`.
 
 R11 is the closed architecture-recovery record underlying the accepted
 milestone; normal-delivery scope is restored. Its immutable pre-remediation checkpoint is

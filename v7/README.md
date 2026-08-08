@@ -15,10 +15,11 @@ deferred, not silently assumed. Remaining host-matrix checks are operational
 follow-up evidence and do not block this milestone.
 
 Post-milestone architecture development has accepted ADR-V7-001 and completed
-the headless R13.2 Geometry contract. This adds only a removable pure domain for
-market-coordinate Point, Segment, and Rectangle values plus an extensible
-Registry; it does not yet add drawing controls, persisted annotations, semantic
-FVG/OB/liquidity types, or any new user-visible workflow.
+the headless R13.2 Geometry and R13.3 Annotation Runtime contracts. They add
+only removable pure market-coordinate Geometry plus a Session-scoped generic-
+Drawing document writer with exact revisions and fake-Repository rollback;
+they do not yet add drawing controls, durable annotations, semantic
+FVG/OB/liquidity plugins, or any new user-visible workflow.
 
 For operation in Chinese, start with the
 [V7 中文用户指南](docs/V7_USER_GUIDE.zh-CN.md).

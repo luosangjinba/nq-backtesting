@@ -111,7 +111,10 @@ Inspector. Its human gate closed on 2026-08-08. The separately bounded
 `V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md` now activates only immutable
 market-coordinate anchors, Point/Segment/Rectangle Geometry, and an extensible
 removable Registry; it activates no Annotation state, Chart/UI, persistence, or
-semantic package.
+semantic package. `V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md` adds the separately
+bounded removable Session document writer, exact generic-Drawing revisions, and
+reversible fake-Repository transactions. It contains no business semantic type
+and makes no visible application change.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
@@ -232,7 +235,9 @@ Read in this order before V7 implementation work:
     ADR-V7-001; read before any drawing or semantic annotation implementation
 101. `V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md` as the binding pure
     market-coordinate Point/Segment/Rectangle and extensible Registry contract
-102. `../TODO.md`
+102. `V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md` as the binding removable sole
+    Annotation Document writer and exact generic-Drawing revision contract
+103. `../TODO.md`
 
 The numbered order above is for implementation work. Ordinary users should use
 the user/operator entry points instead of reading the architecture history.

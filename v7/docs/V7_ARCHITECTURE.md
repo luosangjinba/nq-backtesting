@@ -804,6 +804,15 @@ Point/Segment/Rectangle Geometry, and a composition-local extensible Registry.
 It adds no Annotation document writer, Chart projection, interaction, UI,
 persistence, Replay policy, or semantic type.
 
+R13.3 separately activates `optional.annotation-runtime` as the sole headless
+writer of one Session-scoped Annotation Document. It owns only generic Drawing
+creation, Geometry replacement, archive/restore, exact document/entity
+revisions, and reversible fake-Repository transactions. Geometry is consumed
+through an optional public port. The Runtime contains no semantic business id
+or package branch and can be removed without changing existing applications.
+Durable persistence/history, Chart projection, interaction, and semantic
+plugins remain later owner boundaries.
+
 The kernel must remain small: Session identity, Replay truth, Bar Data access,
 projection transactions, Chart application, Viewport intent, module lifecycle,
 and public contract/version infrastructure. Speculative feature engines are not

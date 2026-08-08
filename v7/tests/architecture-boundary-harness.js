@@ -257,6 +257,7 @@ for (const rule of [
   'global-workstation-settings-transactional-all-pane',
   'versioned-session-layout-sync-policy',
   'annotation-geometry-market-coordinate-extensible',
+  'headless-annotation-document-sole-writer',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

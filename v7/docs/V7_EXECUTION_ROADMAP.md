@@ -815,8 +815,30 @@ Human gate: accepted 2026-08-08. Binding decision:
 
 Gate: independent Geometry, ModuleHost, production assembly, architecture, and
 source-quality Harnesses pass. This headless step has no visual human gate and
-does not authorize R13.3. Binding contract:
+did not by itself authorize R13.3. Binding contract:
 `V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md`.
+
+### R13.3 — Headless Annotation Runtime
+
+- activate one removable Session-scoped sole Annotation Document writer;
+- create caller-allocated opaque Drawing ids and mandatory creation/cutoff
+  provenance without a global allocator or implicit current Session;
+- implement generic Drawing create, exact Geometry replacement, archive,
+  restore, and immutable document/entity queries;
+- require exact document/entity revisions and reject concurrent mutation;
+- transact through one injected reversible fake Repository, preserving the
+  exact accepted document on failure and poisoning only this optional Runtime
+  when rollback is unprovable;
+- boot with zero semantic packages and, when Geometry is omitted, retain honest
+  query-only health while rejecting create/replace;
+- bind Session isolation, lifecycle, failure permutations, business-type
+  absence, and 39 negative controls as H101.
+
+Gate: independent Runtime, ModuleHost, optional-removal, production assembly,
+architecture, writer, source-quality, and standalone Harnesses pass. This
+headless step changes no browser pixels and has no manual visual gate. It does
+not authorize R13.4. Binding contract:
+`V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md`.
 
 ## Deferred Product Boundary — Second-Level Replay
 

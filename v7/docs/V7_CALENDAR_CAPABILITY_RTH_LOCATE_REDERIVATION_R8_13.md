@@ -85,7 +85,7 @@ then passed, and the user explicitly accepted the hard-reloaded R8.15 Calendar
 and dense ETH/RTH bidirectional Locate workflow on 2026-07-31. All three rules,
 R7.3n, and R7.3o are now accepted.
 
-The current production source baseline contains 329 files, 25,468 effective
-lines, 2,696 functions, and 326 public exports. The architecture baseline
-remains clean at 52 modules, 127 dependency edges, 115 construction sites,
+The current production source baseline contains 339 files, 25,968 effective
+lines, 2,770 functions, and 332 public exports. The architecture baseline
+remains clean at 53 modules, 128 dependency edges, 115 construction sites,
 19 writer sites, and zero blocking findings.

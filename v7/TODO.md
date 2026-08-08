@@ -94,11 +94,38 @@ Binding decision:
   production inventory, source-quality coverage, and optional-removal proof;
 - [x] retain Drawing Entity, Annotation Runtime, Chart projection, interaction,
   persistence, semantics, FVG/OB/EQL, and detector behavior outside R13.2;
-- [ ] do not start R13.3 until its Headless Annotation Runtime contract is
+- [x] do not start R13.3 until its Headless Annotation Runtime contract is
   separately written and authorized.
 
 Binding contract:
 `docs/V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md`.
+
+## R13.3 Headless Annotation Runtime — Implemented 2026-08-08
+
+- [x] activate one removable Session-scoped Annotation Runtime as the sole
+  writer of an immutable versioned Annotation Document;
+- [x] implement caller-allocated branded Drawing ids and mandatory generic-
+  Drawing provenance with separate creation time and Replay cutoff;
+- [x] implement generic create, exact Geometry replacement, archive, restore,
+  complete-document, one-Drawing, Drawing-list, and health contracts;
+- [x] require exact document and entity revisions and reject concurrent
+  mutations instead of implicitly queueing against newer state;
+- [x] use one injected reversible fake Repository preparation per mutation,
+  retaining exact prior state on prepare/apply/finalize failure and poisoning
+  only this optional capability when rollback cannot be proven;
+- [x] support zero semantic packages and honest query-only startup without the
+  independently removable Geometry capability;
+- [x] keep all FVG/BSL/EQL/OB/Breaker ids, validators, detectors, projections,
+  stores, and UI outside the generic Runtime;
+- [x] activate H101 with an independent Harness, 39 negative controls, Session
+  isolation, disposal, production inventory, and seven optional-removal cases;
+- [x] make no browser, Chart, DOM, Canvas, Replay, Bar Data, or visible styling
+  change, so R13.3 requires no manual visual acceptance;
+- [ ] do not start R13.4 until its dedicated accepted Annotation Chart
+  Projection Port contract is separately written and authorized.
+
+Binding contract:
+`docs/V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md`.
 
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
@@ -889,9 +916,9 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 329 files, 25,468 effective
-lines, 2,696 functions, and 326 public exports; the architecture baseline
-remains 52 modules, 127 edges, 115 construction sites, 19 writers, and zero
+The current production source baseline contains 339 files, 25,968 effective
+lines, 2,770 functions, and 332 public exports; the architecture baseline
+remains 53 modules, 128 edges, 115 construction sites, 19 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -902,8 +929,8 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 329 files, 25,468 effective lines, 2,696 functions, 326 public
-exports, 52 modules, 127 edges, 115 construction sites, 19 writers, and zero
+currently at 339 files, 25,968 effective lines, 2,770 functions, 332 public
+exports, 53 modules, 128 edges, 115 construction sites, 19 writers, and zero
 findings.
 
 ## Established Foundation Governance

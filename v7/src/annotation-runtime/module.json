@@ -1,0 +1,12 @@
+{
+  "id": "optional.annotation-runtime",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "annotation-runtime",
+  "publicEntry": "src/annotation-runtime/public.js",
+  "requiredPorts": ["core.session-identity"],
+  "optionalPorts": ["optional.annotation-geometry-domain"],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/annotation-runtime-harness.js",
+  "removable": true
+}

@@ -1,6 +1,6 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule (R13.2 implementation, 2026-08-08)
+Status: binding delivery rule (R13.3 implementation, 2026-08-08)
 
 ## Delivery IDs
 
@@ -20,10 +20,11 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current repository-changing delivery step is `R13.2`, the Minimal
-Annotation Geometry Contract. The user accepted R13.1/ADR-V7-001 on 2026-08-08;
-R13.2 activates only the pure removable Market Anchor, Point, Segment,
-Rectangle, and extensible Geometry Registry boundary.
+The current repository-changing delivery step is `R13.3`, the Headless
+Annotation Runtime. R13.2 remains the committed pure removable Market Anchor,
+Point, Segment, Rectangle, and extensible Geometry Registry boundary. R13.3
+adds only the removable Session document writer, generic Drawing revisions,
+and reversible fake-Repository transactions.
 The V7.0.0 foundation milestone is accepted; R12.1–R12.8 retain their committed
 implementation and non-blocking host follow-up. R11.1 remains the automatically
 closed cross-runtime architecture-integrity recovery; R12 does not reopen it.
@@ -48,9 +49,12 @@ no-future, manual-curve versus calculated-series boundary, plugin-first
 first-party semantic package boundary, dual user creation paths,
 recognition/construction provenance, host-rendered Property Inspector, and
 implementation order. H100 records R13.2's exact market-coordinate, immutable,
-portable, extensible, and removable Geometry boundary. R13.3 and every Chart,
-interaction, persistence, Annotation-document, and semantic behavior remain
-unauthorized until separately specified.
+portable, extensible, and removable Geometry boundary; R13.2 did not itself
+authorize an Annotation document writer.
+H101 records R13.3's sole Annotation Document writer, exact revisions,
+Session isolation, reversible failure handling, zero semantic packages, and
+optional removal. R13.4 and every visible projection/interaction behavior
+remain unauthorized until separately specified.
 
 ## Other Stable IDs
 

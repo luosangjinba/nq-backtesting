@@ -91,4 +91,11 @@ extensible Geometry Registry. It owns no Drawing Entity, Annotation document,
 Chart/DOM rendering, interaction, persistence, Replay policy, semantic type,
 Indicator series, or detector.
 
+R13.3 activates `optional.annotation-runtime` as one removable Session-scoped
+sole writer for immutable generic-Drawing document state. It uses exact
+document/entity revisions and an injected reversible fake Repository port,
+supports zero semantic packages, and treats Geometry as an optional public
+capability. It owns no Chart/DOM projection, durable persistence/history,
+Replay/Bar access, presentation UI, or semantic business rule.
+
 Do not import runtime code from V4, V5, or V6.

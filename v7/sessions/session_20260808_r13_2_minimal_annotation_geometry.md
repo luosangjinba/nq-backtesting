@@ -40,9 +40,10 @@ JSON read passed without a code change.
 
 ## Continuation
 
-R13.2 changes no browser behavior and has no manual visual gate. R13.3 remains
-unauthorized until a separate Headless Annotation Runtime contract defines its
-writer, revision, transaction, provenance, and removal boundaries.
+R13.2 changed no browser behavior and had no manual visual gate. At its closure,
+R13.3 remained unauthorized until a separate Headless Annotation Runtime
+contract defined its writer, revision, transaction, provenance, and removal
+boundaries; that separate authorization occurred later.
 
 Binding contract:
 `../docs/V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md`.

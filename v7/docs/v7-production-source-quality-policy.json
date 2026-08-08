@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R13.2",
+  "deliveryStep": "R13.3",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -64,7 +64,8 @@
       "core.workspace-replacement-runtime",
       "core.workspace-state-runtime",
       "core.workspace-transaction-runtime",
-      "core.workstation-settings"
+      "core.workstation-settings",
+      "optional.annotation-runtime"
     ],
     "adapter": [
       "adapter.lightweight-chart",
