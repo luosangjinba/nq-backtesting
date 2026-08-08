@@ -6,6 +6,8 @@ Status: proposed binding pre-implementation specification; human review pending
 
 Date: 2026-08-07
 
+Last revised: 2026-08-07 20:26 PDT
+
 ## Decision Summary
 
 Before Backtesting, Journal, campaign, scoring, or other business workflows are
@@ -33,6 +35,11 @@ The accepted terms are:
 “Analysis asset” may appear in informal product discussion as an umbrella, but
 it is not a public type, module id, command field, persistence key, or wire
 schema term.
+
+Visual similarity does not merge ownership. A manually anchored curve may be a
+`DrawingGeometry`; a moving average or other data-calculated line is an
+Indicator result and never becomes Drawing/Annotation state merely because it
+is rendered as a curve.
 
 ## Core Semantic Decision
 
@@ -70,6 +77,8 @@ R13.1 defines the foundation and delivery gates only. It does not implement:
 - one authoritative SMC/ICT formation rule or tolerance;
 - simulated orders, fills, trade management, Journal, or campaign scoring;
 - indicator execution or a formula language;
+- dynamic third-party package loading, sandboxing, signing, installation,
+  Marketplace, entitlement, or arbitrary plugin code execution;
 - collaborative editing, sharing, permissions, or general multi-user accounts;
 - a second Chart writer, Replay runtime, Bar Data requester, or client cache;
 - import/export compatibility with another chart product.
@@ -111,8 +120,10 @@ Segment, ray, infinite line, and horizontal level are separate definitions.
 Boolean combinations such as `extendLeft`/`extendRight` must not turn one loose
 line record into several incompatible geometries.
 
-Polyline, path, ellipse, Fibonacci tools, text, image, and measurement tools are
-future registered geometries. Their absence must not require changing the
+`geometry.polyline` and `geometry.bezier-path` are distinct future registered
+geometries. Ellipse, Fibonacci tools, text, image, measurement, and freehand
+paths are also future types. There is no generic `geometry.curve` whose meaning
+changes according to ad-hoc flags. Their absence must not require changing the
 initial geometry owners.
 
 ### Geometry And Presentation
@@ -131,6 +142,36 @@ DrawingPresentation {
 Color, opacity, line width, label, and theme do not prove semantic meaning.
 Semantic type definitions may supply default style policies, while user
 overrides remain presentation state.
+
+### Curve And Calculated-Series Boundary
+
+A persisted curve geometry is manually/import-defined market-coordinate shape
+state. A future polyline stores ordered `MarketAnchor` values. A future Bezier
+path stores market-coordinate anchors, control points, and an explicit curve
+model. A freehand tool must normalize sampled pointer motion into a bounded,
+versioned market-coordinate path before commit; pixels and Canvas paths remain
+transient adapter state.
+
+MA, EMA, VWAP, MACD lines, and similar outputs are data-calculated series. They
+belong to an adjacent Indicator evaluation contract, not to
+`DrawingGeometry`, `DrawingEntity`, `SemanticArtifact`, or the Annotation
+Document. Their authoritative inputs include indicator/formula identity and
+version, canonical parameters, exact immutable Bar/Pane snapshot identity, and
+accepted Replay cutoff. Output points are derived results or caches rather than
+manually authored geometry truth.
+
+The later Indicator specification may choose a term such as
+`CalculatedSeriesResult`; R13.1 does not bind that public name. It does bind
+these invariants:
+
+- changing Bars, parameters, indicator version, Session Hours, instrument,
+  timeframe, or Replay cutoff invalidates the calculated result;
+- calculated series reach Chart only through a declarative Chart contribution
+  port and the sole Chart writer;
+- an Annotation or semantic package cannot persist a calculated series as a
+  drawing to bypass Indicator ownership, no-future filtering, or invalidation;
+- a Semantic Artifact may project to polyline/curve geometry, but its trading
+  meaning remains independent from that projection.
 
 ## Annotation Document
 
@@ -250,6 +291,57 @@ generic Annotation Runtime.
 Type packages are pure definitions/policies. They do not own a second document,
 request bars, mutate Chart, schedule Replay, or write persistence directly.
 
+### First-Party Semantic Packages And Plugin Boundary
+
+R13 uses **plugin-first boundaries, loader-later delivery**. From the first
+semantic vertical slice, every first-party BSL/EQL/FVG/OB/Breaker definition
+must enter through the same host-owned extension port rather than a core
+`switch (typeId)` branch. A candidate manifest is:
+
+```text
+SemanticTypePackageManifest {
+  packageId
+  packageVersion
+  hostContractRange
+  semanticTypeDefinitions[]
+  geometryDependencies[]
+  projectionPolicyIds[]
+  toolDescriptors[]
+  requiredCapabilities[]
+}
+```
+
+The exact wire schema is deferred, but identity/version compatibility,
+declarative dependencies, lifecycle, and host validation are mandatory. The
+host owns package discovery within the trusted build, registration, activation,
+suspension, disposal, and failure isolation. Package-provided validators and
+projectors are pure/bounded policies invoked by the host; they receive no
+native Chart, Replay, Bar Data, DOM, Canvas, persistence, Journal, or private
+owner handle.
+
+The first implementation proves compile-time first-party package composition
+and runtime enable/disable. It does not dynamically import community JavaScript
+or establish a public SDK. A package loader, external installation, signature,
+sandbox, permission UI, registry, and Marketplace remain separate decisions
+preserved in `MEMO-V7-001`.
+
+Package absence or disablement must not corrupt stored evidence:
+
+- the core preserves artifact id, type id/version, attributes, relations, and
+  provenance as an unresolved read-only artifact;
+- package-owned tools and projections disappear atomically;
+- workers, listeners, requests, caches, and adapter contributions are disposed;
+- Replay, Chart, Session, generic drawings, and other packages continue;
+- re-enabling a compatible package restores validated projections without
+  rewriting the historical Artifact revision;
+- incompatible upgrades fail closed and preserve the last readable bytes for
+  explicit migration, downgrade, or quarantine handling.
+
+The Obsidian-like product goal is easy enable/disable and independent extension
+of the host. It is not permission equivalence: future third-party trading
+plugins require stricter capability, no-future, data-access, resource, and
+failure boundaries than trusted first-party packages.
+
 ## Projection Contract
 
 Artifact projection is deterministic over:
@@ -270,11 +362,14 @@ Primitives. Pane Primitives remain appropriate for Pane-wide masks, watermarks,
 or decorations that do not need price/time scale labels. This is an adapter
 decision, not a persisted domain distinction.
 
-V7 uses Lightweight Charts 5.2.0. Its official plugin contract describes
-Primitives as the extension mechanism for drawing tools and annotations, and
-its official examples include Rectangle Drawing Tool and Trend Line:
+V7 uses Lightweight Charts 5.2.0. Its official plugin contract separates Custom
+Series for data-driven series from Primitives for drawing tools, annotations,
+and other layered visuals. The official Custom Series lifecycle includes
+`destroy`; Series Primitives include `attached`/`detached`. V7 must still own
+their creation and teardown through its sole adapter:
 
-- <https://tradingview.github.io/lightweight-charts/docs/5.1/plugins/intro>
+- <https://tradingview.github.io/lightweight-charts/docs/plugins/intro>
+- <https://tradingview.github.io/lightweight-charts/docs/plugins/custom_series>
 - <https://tradingview.github.io/lightweight-charts/docs/plugins/series-primitives>
 - <https://tradingview.github.io/lightweight-charts/docs/plugins/pane-primitives>
 - <https://tradingview.github.io/lightweight-charts/plugin-examples/>
@@ -290,7 +385,9 @@ semantic, transaction, or ownership contracts.
 Annotation UI
   -> public Annotation commands
     -> Annotation Runtime (sole Annotation Document writer)
-      -> pure Geometry and Semantic Type registries
+      -> pure Geometry Registry
+      -> host-owned Semantic Package/Type Registry
+        -> active first-party definitions and bounded policies
       -> prepared Annotation persistence port
       -> immutable Annotation snapshot notification
         -> Annotation Projection assembly
@@ -306,6 +403,8 @@ Rules:
 - persistence adapter owns stored bytes and schema migration, not product
   meaning;
 - semantic type packages validate and project but own no mutable document;
+- first-party semantic packages use the same registration/lifecycle port and
+  no SMC type id is hard-coded into a core owner;
 - Chart Runtime/Adapter remains the only owner allowed to attach, detach, or
   update Lightweight Charts primitives;
 - Annotation modules consume accepted immutable Pane/Replay snapshots and
@@ -400,17 +499,21 @@ publisher's correctness.
 After R13.1 human acceptance, allocate new steps rather than implementing the
 whole foundation in one change:
 
-1. pure market-anchor, geometry registry, and negative-contract fixtures;
+1. pure market-anchor and extensible geometry registry, with fixtures proving
+   polyline/Bezier can be added later and calculated indicator series are
+   rejected as Drawing Geometry;
 2. removable Annotation Runtime, document revisions, fake persistence, and
-   independent harness;
+   independent harness, including boot with zero semantic packages;
 3. Chart projection port plus an official-example-based Segment vertical slice;
 4. Rectangle vertical slice, hit testing, transient edit preview, and rollback;
 5. Session-local persistence, hard reload, undo/redo, import/export, and schema
    migration;
 6. multi-Pane/timeframe projection and Replay/no-future acceptance;
-7. semantic registry and manual BSL/EQL promotion with focused type specs;
-8. manual FVG artifact with rectangle/midpoint/label projections;
-9. focused OB and Breaker specs with typed derivation relations;
+7. host-owned semantic package/type registry and one compile-time first-party
+   BSL/EQL package with disable, re-enable, disposal, and unresolved-artifact
+   fixtures;
+8. first-party manual FVG package with rectangle/midpoint/label projections;
+9. focused first-party OB and Breaker packages with typed derivation relations;
 10. automatic detection only after manual semantics and evidence drill-down are
     accepted.
 
@@ -440,8 +543,18 @@ R13 implementation cannot close without executable evidence for:
 - geometry normalization and invalid-anchor negative controls;
 - no pixels, logical coordinates, Canvas objects, or vendor handles in stored
   schemas;
+- persisted polyline/Bezier curves use bounded market-coordinate shape state,
+  while MA/EMA/VWAP/other calculated series are rejected from Annotation state;
 - one accepted writer for the Annotation Document and one Chart visual writer;
 - optional-module removal boot with unchanged Replay/Chart core;
+- core boot and generic drawing behavior with zero semantic packages;
+- every first-party semantic type registered through one extension port, with
+  zero core branches for BSL/EQL/FVG/OB/Breaker ids;
+- disabling one semantic package atomically removes its tools/projections and
+  disposes lifecycle resources while preserving unresolved artifacts; compatible
+  re-enable restores projections without rewriting evidence;
+- package failure, incompatible version, or missing definition leaves other
+  packages, generic drawings, Session, Replay, and Chart usable;
 - exact create/edit/delete/undo/redo rollback under persistence and render
   failures;
 - hard reload and schema migration;
@@ -451,6 +564,7 @@ R13 implementation cannot close without executable evidence for:
 - FVG semantics surviving rectangle style/projection replacement;
 - Breaker-to-OB relation retaining source identity;
 - zero direct Bar Data requests and zero direct Replay mutation;
+- zero direct Chart/DOM/Canvas/persistence handles exposed to semantic packages;
 - bounded pointer preview and no leaked listeners/primitives after disposal;
 - real-browser visual, keyboard, focus, selection, zoom, drag, and resize review.
 
@@ -466,7 +580,29 @@ Human review must explicitly confirm:
 4. one removable Annotation Runtime owns both generic and semantic document
    state;
 5. implementation begins with generic Segment/Rectangle behavior before any
-   automatic trading-semantic detector.
+   automatic trading-semantic detector;
+6. manually anchored polyline/Bezier paths may be Drawing Geometry, while MA
+   and other calculated series remain outside Annotation ownership;
+7. first-party semantic types use removable packages from the first semantic
+   slice, while dynamic third-party loading/SDK/Marketplace remain later
+   decisions.
 
 Until that confirmation, R13.1 remains a proposed specification and authorizes
 no production implementation.
+
+## Revision History
+
+### 2026-08-07 — Initial Proposal
+
+Defined the Drawing Geometry, Drawing Entity, Semantic Artifact,
+Artifact Projection, Annotation ownership, persistence, no-future, and initial
+delivery boundaries.
+
+### 2026-08-07 20:26 PDT — Curve And Plugin-Boundary Refinement
+
+Clarified that manually anchored curves are registered Geometry while MA and
+other data-calculated curves remain Indicator results. Required every
+first-party semantic type to use a removable host-owned package interface from
+the first semantic slice, with compile-time composition and runtime
+enable/disable before any later dynamic third-party loader. Added artifact
+survival, disposal, failure-isolation, zero-package boot, and re-enable gates.

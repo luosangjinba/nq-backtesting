@@ -31,10 +31,15 @@ Canonical registry: `docs/V7_NON_DECISION_MEMO_REGISTRY.md`.
   Chart visual writer;
 - [x] bind market-coordinate persistence, Replay/no-future provenance,
   revision-checked transactions, undo/redo, and plugin type registration;
+- [x] distinguish manually anchored polyline/Bezier geometry from calculated
+  MA/EMA/VWAP/Indicator series, which remain outside Annotation ownership;
+- [x] require plugin-first boundaries for every first-party semantic type,
+  compile-time package composition first, runtime disable/re-enable and
+  unresolved-artifact survival, with dynamic third-party loading deferred;
 - [x] record official Lightweight Charts Primitive, Rectangle, and Trend Line
   references without adopting their examples as V7 domain state;
 - [ ] receive explicit human approval of ADR-V7-001 terminology, ownership,
-  semantic composition, and delivery order;
+  curve/Indicator separation, semantic package boundary, and delivery order;
 - [ ] after approval, allocate R13.2 for the pure Geometry contract; do not
   begin UI, persistence, FVG, OB, or automatic detection in R13.1.
 

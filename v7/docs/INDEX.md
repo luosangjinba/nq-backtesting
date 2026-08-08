@@ -101,7 +101,11 @@ The proposed post-milestone foundation is
 market-coordinate geometry, generic drawings, typed semantic artifacts,
 declarative projections, and adapter-local render primitives; it treats
 FVG/OB/Breaker/BSL/EQL as semantic artifacts rather than geometry subtypes. It
-authorizes no implementation until its human decision gate is accepted.
+also separates manually anchored curve Geometry from MA/other calculated
+Indicator series and requires first-party semantic types to use removable
+packages from the first semantic slice, while deferring dynamic third-party
+loading and Marketplace scope. It authorizes no implementation until its human
+decision gate is accepted.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
