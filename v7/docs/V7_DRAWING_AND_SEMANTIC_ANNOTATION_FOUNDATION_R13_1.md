@@ -6,7 +6,7 @@ Status: proposed binding pre-implementation specification; human review pending
 
 Date: 2026-08-07
 
-Last revised: 2026-08-07 21:51 PDT
+Last revised: 2026-08-08 PDT
 
 ## Decision Summary
 
@@ -114,24 +114,43 @@ anchor into chart coordinates only for the lifetime of one render pass.
 
 ### Initial Geometry Registry
 
-The first registry should contain these distinct types:
+The first executable registry is deliberately minimal:
 
 - `geometry.point` — one market anchor;
 - `geometry.segment` — two finite anchors;
-- `geometry.ray` — one origin plus a second anchor defining direction;
-- `geometry.infinite-line` — two anchors defining an unbounded line;
-- `geometry.horizontal-level` — one price plus bounded or open time policy;
 - `geometry.rectangle` — a normalized time interval and price interval.
 
-Segment, ray, infinite line, and horizontal level are separate definitions.
-Boolean combinations such as `extendLeft`/`extendRight` must not turn one loose
-line record into several incompatible geometries.
+The public registry contract must permit later independent registration of
+`geometry.ray`, `geometry.infinite-line`, and `geometry.horizontal-level`, but
+R13.2 does not implement unused definitions merely to predict later tools.
+When added, segment, ray, infinite line, and horizontal level remain separate
+definitions. Boolean combinations such as `extendLeft`/`extendRight` must not
+turn one loose line record into several incompatible geometries.
 
 `geometry.polyline` and `geometry.bezier-path` are distinct future registered
 geometries. Ellipse, Fibonacci tools, text, image, measurement, and freehand
 paths are also future types. There is no generic `geometry.curve` whose meaning
 changes according to ad-hoc flags. Their absence must not require changing the
 initial geometry owners.
+
+### Cross-Timeframe Anchor Projection
+
+`MarketAnchor.epochMs` remains the canonical exact market instant. A Chart
+adapter must never silently replace it with the nearest visible logical item.
+Each projection policy declares how an anchor is displayed when the target
+timeframe does not contain that exact timestamp:
+
+- exact-instant projection may render only when the adapter can map the exact
+  instant deterministically;
+- Bar-evidence projection may use the containing accepted display bucket only
+  through a registered policy which retains the source Bar reference and target
+  timeframe identity;
+- a projection which cannot satisfy its declared policy is absent or reports a
+  stable projection error; it does not mutate canonical Geometry.
+
+R13.8 must select and fixture the policies used by cross-timeframe Segment,
+Rectangle, and Semantic Artifact projections before multi-timeframe behavior is
+accepted.
 
 ### Geometry And Presentation
 
@@ -214,8 +233,10 @@ DrawingEntity {
 ```
 
 The entity owns no native chart object. `provenance` identifies manual/imported
-origin and creation time but carries no claim that a free-form drawing is a
-valid SMC/ICT structure.
+origin, creation time, and the mandatory `observedAtReplayCutoffEpochMs` at
+which the drawing first became accepted evidence-visible state. It carries no
+claim that a free-form drawing is a valid SMC/ICT structure. Wall-clock creation
+time cannot substitute for the Replay cutoff.
 
 ### Semantic Artifact
 
@@ -286,6 +307,31 @@ Free drawing is not weaker state; it is state without a registered trading
 claim. Style, labels, and visual resemblance cannot silently assign semantic
 meaning.
 
+### Drawing Interaction Arbitration
+
+Free drawing must not add an independent set of pointer listeners beside the
+existing native Chart drag, wheel, Crosshair, truncation-selection, and history-
+boundary interactions. One disposable `AnnotationInteractionController` owns
+transient tool state and coordinates through a public Chart-owned interaction
+port without receiving vendor Chart, Series, Canvas, or DOM internals.
+
+The controller must define and fixture:
+
+- ordinary navigation versus active drawing/edit modes;
+- active Pane identity and coordinate-to-market-anchor translation;
+- pointer capture, drag threshold, hover/hit-test intent, and one final
+  pointer-up commit;
+- bounded transient preview replacement rather than a transaction per pointer
+  move;
+- restoration of native pan/zoom/Crosshair behavior after commit, Escape,
+  pointer cancel, focus loss, Pane removal, module disablement, or disposal;
+- keyboard focus and selection behavior without making UI state canonical
+  Annotation state.
+
+Only the Chart adapter may suppress or restore vendor-native interaction. The
+Annotation UI requests an interaction mode through the port; it does not call
+Lightweight Charts directly.
+
 ### Evidence-Constrained Semantic Construction — Meaning First
 
 The user chooses a semantic construction command, such as “FVG from candle”,
@@ -312,6 +358,34 @@ Artifact stores stable evidence and derivation provenance; its rectangle, line,
 curve, midpoint, and labels remain projections rather than a second semantic
 truth.
 
+### Evidence Resolution Boundary
+
+“The host resolves evidence” is implemented through one explicit pure boundary,
+not through UI, package, or Annotation Runtime access to Bar Data:
+
+```text
+AnnotationEvidenceResolver
+  input:
+    accepted immutable Pane snapshot
+    accepted Replay cutoff
+    exact user selection
+    bounded EvidenceRequirement
+  output:
+    immutable EvidenceBundle
+```
+
+Canonical Bar references retain dataset revision, instrument, source/display
+timeframe identity, Bar start epoch, and the exact accepted cutoff. Existing
+Artifact references retain artifact id and exact revision. The resolver may
+select and validate only evidence already present in the supplied accepted
+snapshot. It owns no cache, provider, request queue, Replay cursor, or mutable
+selection.
+
+If required neighbor evidence is not present, resolution fails with a stable
+reason. Composition may separately use the existing Bar Data/Workspace command
+path to produce a new accepted Pane snapshot and retry the user command; the
+resolver and semantic package never pull missing Bars themselves.
+
 ### Detector Suggestions Remain A Separate Later Path
 
 A future detector may scan allowed evidence and propose a candidate. That path
@@ -321,20 +395,37 @@ as unaided human recognition. R13.1 still authorizes no detector implementation.
 
 ### Derived Parameters And Human Overrides
 
-Each semantic attribute or presentation parameter declares its origin and
-override policy:
+Parameter definition policy and one Artifact's effective parameter value are
+separate contracts:
 
 ```text
-ParameterPolicy {
+ParameterDefinition {
+  parameterId
   valueKind
-  source: derived | manual | default
+  derivationPolicyId?
+  allowedSources[]
   overridePolicy: locked | presentation-only | allowed-with-validation
+}
+
+ParameterValue {
+  baselineValue
+  effectiveValue
+  effectiveSource: derived | manual | default | override
+  overrideProvenance?
 }
 ```
 
-When an automatically derived value is overridden, the Artifact retains the
-derived baseline, the human override, definition/package version, editor, and
-revision. A later recomputation cannot erase or silently replace the override.
+`ParameterDefinition` belongs to a versioned type/definition or presentation
+schema. `ParameterValue` belongs to one Artifact revision. When an automatically
+derived value is overridden, the Artifact retains the derived baseline, the
+human override, definition/package version, editor, and revision. A later
+recomputation cannot erase or silently replace the override.
+
+Formation tolerances and other rules which determine whether an Artifact is a
+valid member of a type belong to a versioned Definition/Profile. An Artifact
+stores the exact profile reference and any permitted effective override; editing
+one Artifact never silently changes the shared definition used by other
+Artifacts.
 
 Presentation-only edits such as color or label visibility do not alter semantic
 truth. An override to an FVG bound, relation, or other semantic parameter must
@@ -441,7 +532,7 @@ The candidate surface groups are:
 
 | Group | Responsibility |
 | --- | --- |
-| Semantic | type-specific attributes, roles, lifecycle state, tolerances, and override status |
+| Semantic | type-specific attributes, roles, lifecycle state, referenced Definition/Profile, effective overrides, and status |
 | Evidence | source Bars/Artifacts, typed relations, confidence, and definition version |
 | Style | colors, width, fill, labels, and projection presentation |
 | Visibility | Pane/timeframe/Session Hours and scale visibility policies |
@@ -469,6 +560,15 @@ The Inspector may reuse a generic schema-form renderer with future Indicator
 Settings, but ownership remains separate: Indicator inputs submit Indicator
 commands; Drawing/Semantic properties submit Annotation commands. There is no
 universal settings store.
+
+The existing Workstation Settings dialog is a lifecycle reference for disposable
+draft/preview/cancel/save behavior, not the implementation of this schema host.
+Its current form is feature-specific. R13 first ships the minimum typed
+Geometry/Style controls required by Segment and Rectangle, then extracts the
+bounded schema renderer when the first semantic package supplies an independent
+real schema. Bar, Artifact, and relation pickers are added only with a package
+whose accepted workflow requires them; they are not built speculatively as an
+empty platform.
 
 If a semantic package is unavailable, the Inspector displays preserved raw
 attributes, type/package versions, provenance, and history in read-only form.
@@ -513,25 +613,69 @@ their creation and teardown through its sole adapter:
 Those examples are implementation references, not V7 state, persistence,
 semantic, transaction, or ownership contracts.
 
+### Accepted Projection And Transient Preview Ports
+
+Annotation must not reuse the existing whole-Workspace Chart Snapshot
+Application for an entity edit. Chart exposes dedicated bounded ports while
+retaining sole vendor-write ownership:
+
+```text
+ChartAnnotationPreviewPort
+  replace(previewIdentity, projections)
+  clear(previewIdentity)
+  dispose()
+
+ChartAnnotationProjectionPort
+  prepare(annotationRevision, projections)
+  apply(prepared) -> exact receipt
+  rollback(prepared, receipt?)
+  finalize(prepared, receipt)
+```
+
+Preview replacement is transient, latest-wins, bounded, and cannot update
+accepted Chart/Annotation revisions. The accepted projection port attaches,
+updates, and detaches only Annotation primitives; it never stages or rewrites
+candlestick data, Viewport intent, Replay state, or the complete Workspace
+snapshot.
+
+When an affected Pane is mounted, an interactive Annotation command requires an
+exact dedicated projection receipt before success is reported and rolls back
+the prepared Annotation operation on projection failure. An absent/offscreen
+Chart is not a persistence failure: headless restore, import, migration, and
+Session loading may accept valid Annotation state without a mounted surface,
+and the next mounted Chart projects the exact accepted Annotation revision.
+This rule prevents the optional durable domain from depending on vendor-view
+availability while preserving exact visible confirmation for interactive edits.
+
 ## Owner Boundaries
 
 ```text
 Annotation UI
-  -> public Annotation commands
-    -> Annotation Runtime (sole Annotation Document writer)
-      -> pure Geometry Registry
-      -> host-owned Semantic Package/Type Registry
-        -> active first-party definitions and bounded policies
-      -> prepared Annotation persistence port
-      -> immutable Annotation snapshot notification
-        -> Annotation Projection assembly
-          -> public Chart annotation-projection port
-            -> Chart Runtime / Lightweight Chart Adapter (sole visual writer)
+  -> Annotation Interaction Controller (transient tool/selection intent)
+    -> public Chart annotation-interaction/preview ports
+    -> public Annotation commands
+      -> Annotation Runtime (sole Annotation Document writer)
+        -> pure Geometry Registry
+        -> host-owned Semantic Package/Type Registry
+          -> active first-party definitions and bounded policies
+        -> prepared Annotation persistence port
+        -> immutable Annotation snapshot notification
+          -> Annotation Projection assembly
+            -> public Chart annotation-projection port
+              -> Chart Runtime / Lightweight Chart Adapter (sole visual writer)
+
+accepted immutable Pane/Replay snapshot + exact user selection
+  -> pure Annotation Evidence Resolver
+    -> bounded immutable EvidenceBundle
+      -> host-invoked semantic construction policy
 ```
 
 Rules:
 
 - UI owns transient tool choice, focus, hover, and drag preview intent only;
+- Annotation Interaction Controller arbitrates drawing/edit gestures with native
+  Chart interaction and releases every capture/mode/listener on cancellation or
+  disposal;
 - Annotation Runtime owns accepted entity revisions, undo/redo history, and
   canonical Annotation Document state;
 - persistence adapter owns stored bytes and schema migration, not product
@@ -543,6 +687,8 @@ Rules:
   update Lightweight Charts primitives;
 - Annotation modules consume accepted immutable Pane/Replay snapshots and
   cannot request or cache bars;
+- Evidence Resolver is pure, reads only one supplied accepted snapshot, and
+  cannot trigger Bar Data or Replay work;
 - Workspace Transaction and Replay own no Annotation entity state;
 - composition wires the optional capability and must boot unchanged without it.
 
@@ -583,15 +729,20 @@ revision-checked Annotation transaction:
 
 1. validate the command and construct an immutable candidate;
 2. prepare persistence without publishing it;
-3. apply the complete declarative Chart projection and obtain an exact receipt;
-4. decide once;
-5. finalize persistence and accepted Annotation state, or restore the prior
-   bytes, state, and visual projection exactly.
+3. when an affected Chart surface is mounted, prepare and apply only the
+   dedicated Annotation projection contribution and obtain an exact receipt;
+4. decide the Annotation operation once;
+5. finalize persistence, accepted Annotation state, and any mounted projection,
+   or restore the prior bytes, state, and affected visual contribution exactly;
+6. when no affected Chart surface is mounted, commit valid durable state without
+   inventing a visual participant; a later mount projects the accepted revision.
 
-This may reuse V7's prepared-commit/reversible-application mechanisms, but it
-does not join or become an alternate Workspace Transaction owner. A command
-that cannot prove rollback poisons/reconstructs only the optional Annotation
-capability and must not corrupt Replay, bars, Session, or Chart series.
+This may reuse V7's generic prepared-commit/reversible-application mechanisms,
+but it must not reuse the whole-Workspace Chart Snapshot Application, join the
+Workspace Transaction, or become an alternate Workspace Transaction owner. A
+command that cannot prove rollback poisons/reconstructs only the optional
+Annotation capability and must not corrupt Replay, bars, Session, candlestick
+series, or Viewport state.
 
 Pointer-move previews are transient and bounded. Pointer-up or keyboard commit
 creates at most one accepted transaction. Preview state is never persisted,
@@ -631,33 +782,66 @@ Notifications:
 Notifications never form a business workflow and never become required for the
 publisher's correctness.
 
+Host integration ports:
+
+- resolve bounded evidence from one exact accepted Pane/Replay snapshot without
+  requesting Bars;
+- arbitrate Annotation tool mode against Chart-native interaction;
+- replace/clear one bounded transient projection preview;
+- prepare/apply/rollback/finalize one accepted Annotation projection revision;
+- report whether an affected Chart surface is currently mounted without
+  exposing a vendor handle.
+
 ## First Delivery Sequence
 
-After R13.1 human acceptance, allocate new steps rather than implementing the
-whole foundation in one change:
+After R13.1 human acceptance, activate one bounded delivery id at a time. The
+ids below are the audited candidate order, not authorization to implement later
+steps early:
 
-1. pure market-anchor and extensible geometry registry, with fixtures proving
-   polyline/Bezier can be added later and calculated indicator series are
-   rejected as Drawing Geometry;
-2. removable Annotation Runtime, document revisions, fake persistence, and
-   independent harness, including boot with zero semantic packages;
-3. Chart projection port plus an official-example-based Segment vertical slice;
-4. Rectangle vertical slice, hit testing, transient edit preview, and a generic
-   Geometry/Style/Visibility Property Inspector with rollback;
-5. Session-local persistence, hard reload, undo/redo, import/export, and schema
-   migration;
-6. multi-Pane/timeframe projection and Replay/no-future acceptance;
-7. host-owned semantic package/type registry plus semantic/evidence/history
-   Inspector groups and host-owned Bar/Artifact/relation pickers;
-8. one compile-time first-party BSL/EQL package proving promotion and
-   user-recognized evidence-constrained creation, disable/re-enable, disposal,
-   and unresolved-artifact behavior;
-9. first-party manual FVG package proving deterministic three-candle derivation,
-   preview, parameter-source badges, validated override, and
-   rectangle/midpoint/label projections;
-10. focused first-party OB and Breaker packages with typed derivation relations;
-11. automatic detection only after manual/evidence-constrained semantics and
-    evidence drill-down are accepted.
+1. **R13.2 — Minimal Geometry Contract:** pure Market Anchor plus Point,
+   Segment, and Rectangle registry definitions; prove later registration without
+   implementing Ray/Line/Polyline/Bezier; reject calculated Indicator series as
+   Drawing Geometry;
+2. **R13.3 — Headless Annotation Runtime:** removable sole document writer,
+   exact revisions, fake repository, public commands/queries, independent
+   harness, zero-package boot, and no Chart/UI dependency;
+3. **R13.4 — Accepted Chart Projection Port:** dedicated Annotation projection
+   prepare/apply/rollback/finalize contract plus a static Segment fixture and
+   primitive lifecycle proof; no pointer UI or Workspace snapshot mutation;
+4. **R13.5 — Segment Interaction:** disposable Interaction Controller,
+   Chart-native gesture arbitration, coordinate conversion, one bounded Segment
+   preview, cancel/dispose, and one pointer-up transaction;
+5. **R13.6 — Rectangle And Minimal Inspector:** Rectangle projection, hit
+   testing/selection, transient edit preview, and only the typed Geometry/Style
+   controls required by the two implemented shapes;
+6. **R13.7 — Durable Annotation History:** Session-local repository, hard reload,
+   exact-revision undo/redo, import/export, opaque-field preservation, and schema
+   migration without requiring a mounted Chart;
+7. **R13.8 — Pane/Time/Replay Projection:** explicit cross-timeframe anchor
+   policy, multi-Pane projection, generic Drawing cutoff provenance, and complete
+   Replay/no-future acceptance;
+8. **R13.9 — Semantic Package Registry And Liquidity Level Slice:** trusted
+   compile-time package registration, runtime disable/re-enable/disposal,
+   unresolved-artifact survival, minimal Semantic/History Inspector schema, and
+   BSL/SSL manual creation or Drawing promotion only;
+9. **R13.10 — Evidence Resolver And FVG Slice:** pure accepted-snapshot evidence
+   resolution, the exact Bar picker required by the workflow, deterministic
+   three-candle FVG construction, Evidence Inspector, baseline/effective-source
+   badges, validated override, and rectangle/midpoint/label projections;
+10. **R13.11 — Equality Relation Slice:** EQL/EQH multi-anchor relations,
+    versioned tolerance Definition/Profile, relation picker, validation, and
+    conformance fixtures rather than bundling equality semantics into R13.9;
+11. **R13.12 — Structure Packages:** focused first-party OB and Breaker packages
+    with typed evidence and derivation relations;
+12. **R13.13 — Detector Suggestions:** automatic detection only after free
+    drawing, promotion, evidence-constrained semantics, evidence drill-down, and
+    no-future behavior are accepted.
+
+No delivery step may combine a new owner boundary, a new interaction state
+machine, a generic UI framework, persistence migration, and the first business
+type in one commit. Each step receives its own focused specification, descriptor
+and manifest inventory, independent harness, architecture gate, and—when
+browser-visible—human acceptance.
 
 Business workflows must consume the accepted foundation rather than ship their
 own drawing stores or Chart renderers.
@@ -701,27 +885,39 @@ R13 implementation cannot close without executable evidence for:
 - evidence-constrained construction requests no Bars directly, rejects evidence
   beyond the Replay cutoff, and deterministically derives the same baseline from
   identical evidence/definition/package inputs;
+- Evidence Resolver accepts only one supplied accepted Pane/Replay snapshot,
+  returns exact versioned Bar/Artifact references, and fails rather than pulling
+  missing neighbor evidence;
 - human recognition plus derived construction remains distinguishable from
   detector recognition in persisted provenance and later research queries;
 - Inspector drafts/previews never become accepted evidence, and cancel,
-  validation failure, stale revision, persistence failure, or render failure
-  restores exact prior state;
-- every parameter displays and preserves derived/manual/default/override source,
-  with invalid semantic overrides rejected or explicitly converted rather than
-  silently retaining the original type;
+  validation failure, stale revision, persistence failure, or mounted-surface
+  render failure restores exact prior state;
+- every parameter separates versioned definition/override policy from one
+  Artifact's baseline/effective value, displays the effective source, and
+  preserves derived/manual/default/override provenance, with invalid semantic
+  overrides rejected or explicitly converted rather than silently retaining the
+  original type;
 - package-unavailable Inspector mode preserves and displays unknown attributes
   and provenance read-only;
-- exact create/edit/delete/undo/redo rollback under persistence and render
-  failures;
+- exact create/edit/delete/undo/redo rollback under persistence failures and,
+  when an affected Chart is mounted, dedicated Annotation render failures;
+- headless restore/import/migration and later exact-revision projection without
+  requiring a mounted Chart or rewriting the Workspace/candlestick snapshot;
 - hard reload and schema migration;
-- multi-Pane/timeframe reprojection from one canonical entity;
-- no entity visibility or lifecycle evidence before the Replay cutoff;
+- multi-Pane/timeframe reprojection from one canonical entity through an
+  explicit exact-instant or containing-display-bucket anchor policy, with no
+  silent nearest-item fallback;
+- no generic Drawing, Semantic Artifact, or lifecycle evidence visible before
+  its mandatory accepted Replay cutoff;
 - unregistered semantic ids and incomplete provenance rejected;
 - FVG semantics surviving rectangle style/projection replacement;
 - Breaker-to-OB relation retaining source identity;
 - zero direct Bar Data requests and zero direct Replay mutation;
 - zero direct Chart/DOM/Canvas/persistence handles exposed to semantic packages;
-- bounded pointer preview and no leaked listeners/primitives after disposal;
+- one interaction arbitrator between drawing tools and native Chart gestures,
+  bounded latest-wins pointer preview, and no leaked captures, modes, listeners,
+  or primitives after cancel/disposal;
 - real-browser visual, keyboard, focus, selection, zoom, drag, and resize review.
 
 ## Human Decision Gate
@@ -735,8 +931,9 @@ Human review must explicitly confirm:
 3. FVG/OB/Breaker/BSL/EQL are semantic artifacts rather than geometry subtypes;
 4. one removable Annotation Runtime owns both generic and semantic document
    state;
-5. implementation begins with generic Segment/Rectangle behavior before any
-   automatic trading-semantic detector;
+5. implementation begins with the minimal Point/Segment/Rectangle contract and
+   bounded generic Segment/Rectangle behavior before unused geometry types or
+   any automatic trading-semantic detector;
 6. manually anchored polyline/Bezier paths may be Drawing Geometry, while MA
    and other calculated series remain outside Annotation ownership;
 7. first-party semantic types use removable packages from the first semantic
@@ -747,7 +944,20 @@ Human review must explicitly confirm:
    later third source;
 9. one host-rendered Property Inspector owns schema-driven drafts, validation,
    preview, parameter-source visibility, and command submission without owning
-   accepted Annotation state.
+   accepted Annotation state;
+10. one pure Evidence Resolver consumes only supplied accepted Pane/Replay
+    snapshots, while packages, UI, and Annotation Runtime remain unable to
+    request or cache Bars;
+11. definition policy is separate from per-Artifact baseline/effective value and
+    override provenance;
+12. transient preview and accepted Annotation projection use dedicated Chart-
+    owned ports and never reuse the complete Workspace Chart Snapshot
+    Application;
+13. one disposable interaction controller arbitrates drawing tools with native
+    Chart gestures without exposing vendor handles;
+14. BSL/SSL proves the minimal semantic package boundary, FVG separately proves
+    evidence-constrained derivation, and EQL/EQH follows only after versioned
+    equality/tolerance relations are defined.
 
 Until that confirmation, R13.1 remains a proposed specification and authorizes
 no production implementation.
@@ -778,3 +988,16 @@ creation mode with recognition/construction sources, defined deterministic
 evidence derivation and validated human overrides, and bound one host-rendered
 Property Inspector for semantic, evidence, style, visibility, and history
 schemas without creating a new state owner.
+
+### 2026-08-08 — Implementation-Path Audit
+
+Narrowed the first executable Geometry registry, made Replay cutoff provenance
+mandatory for generic Drawings, and added explicit cross-timeframe anchor
+projection policy. Added the pure accepted-snapshot Evidence Resolver, separated
+parameter definitions from per-Artifact baseline/effective values, and required
+one drawing/native-Chart interaction arbitrator. Split transient previews from
+accepted Annotation projection through dedicated Chart-owned ports, prohibited
+reuse of the complete Workspace Chart Snapshot Application, defined mounted and
+headless transaction behavior, and decomposed the first delivery sequence into
+bounded R13.2–R13.13 candidate steps. BSL/SSL, FVG, and EQL/EQH now prove
+different extension concerns rather than one bundled first semantic slice.

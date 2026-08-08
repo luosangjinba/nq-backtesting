@@ -44,10 +44,34 @@ Canonical registry: `docs/V7_NON_DECISION_MEMO_REGISTRY.md`.
   validation, and exact-revision transaction behavior;
 - [x] record official Lightweight Charts Primitive, Rectangle, and Trend Line
   references without adopting their examples as V7 domain state;
+- [x] re-audit the proposed implementation path against the active Chart
+  Snapshot Application, native viewport interaction, Workstation Settings
+  draft lifecycle, immutable Pane snapshots, and ModuleHost boundaries;
+- [x] narrow the first executable Geometry registry to Point, Segment, and
+  Rectangle while retaining tested later registration instead of implementing
+  speculative Ray/Line/Curve definitions;
+- [x] make generic Drawing Replay-cutoff provenance and explicit cross-timeframe
+  anchor projection policy binding rather than relying on wall-clock creation
+  time or silent nearest-Bar mapping;
+- [x] define one pure Evidence Resolver over a supplied accepted Pane/Replay
+  snapshot, with exact versioned references, bounded neighbor evidence, and zero
+  Bar Data request/cache authority;
+- [x] separate versioned parameter definitions and override policy from each
+  Artifact revision's baseline/effective value and override provenance;
+- [x] require a disposable Annotation Interaction Controller to arbitrate free-
+  drawing tools with native Chart drag/wheel/Crosshair behavior;
+- [x] split transient preview from accepted Annotation projection through
+  dedicated Chart-owned ports, prohibit reuse of the complete Workspace Chart
+  Snapshot Application, and define mounted versus headless transaction behavior;
+- [x] decompose the implementation order into bounded R13.2–R13.13 candidate
+  steps, proving BSL/SSL package lifecycle before FVG evidence derivation and
+  deferring EQL/EQH until equality/tolerance relations are versioned;
 - [ ] receive explicit human approval of ADR-V7-001 terminology, ownership,
   curve/Indicator separation, semantic package boundary, creation paths,
-  Property Inspector, and delivery order;
-- [ ] after approval, allocate R13.2 for the pure Geometry contract; do not
+  Evidence Resolver, parameter provenance split, interaction/projection ports,
+  Property Inspector, cross-timeframe/no-future policy, and audited delivery
+  order;
+- [ ] after approval, activate only R13.2 for the pure Geometry contract; do not
   begin UI, persistence, FVG, OB, or automatic detection in R13.1.
 
 Binding proposal:
