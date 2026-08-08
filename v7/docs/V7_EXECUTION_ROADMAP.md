@@ -837,8 +837,30 @@ did not by itself authorize R13.3. Binding contract:
 Gate: independent Runtime, ModuleHost, optional-removal, production assembly,
 architecture, writer, source-quality, and standalone Harnesses pass. This
 headless step changes no browser pixels and has no manual visual gate. It does
-not authorize R13.4. Binding contract:
+not authorize R13.4 without a separate user instruction. Binding contract:
 `V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md`.
+
+### R13.4 — Accepted Annotation Chart Projection
+
+- activate a removable Chart-owned projection adapter with no Runtime/Geometry
+  production dependency;
+- define immutable vendor-neutral projections with opaque identity and exact
+  projection revision collision protection;
+- implement inert prepare, reversible apply, exact receipt rollback, finalize,
+  forward reconciliation after headless restore, poison, and disposal;
+- restrict the injected primitive surface to create/attach/update/detach/
+  destroy and inventory it under the existing Chart visual owner;
+- prove one adapter-local static Segment Series Primitive through real
+  Lightweight Charts 5.2 pixels while leaving candlestick data unchanged;
+- bind transaction, failure, disposal, ModuleHost, optional-removal, source,
+  writer, and 30 negative controls as H102.
+
+Gate: independent projection, real Chrome Primitive, ModuleHost,
+optional-removal, production assembly, architecture, writer, source-quality,
+standalone, and regression Harnesses pass. The fixture is test-only and changes
+no production workstation pixels, so there is no manual product-visual gate.
+R13.5 remains unauthorized. Binding contract:
+`V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md`.
 
 ## Deferred Product Boundary — Second-Level Replay
 

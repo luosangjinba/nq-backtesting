@@ -136,7 +136,7 @@ function concernOperation(node) {
       return ['visual-surface-mutation', `${property}()`];
     }
     if (['setData', 'setVisibleRange', 'setLogicalRange', 'fitContent', 'addSeries',
-      'removeSeries', 'createPriceLine'].includes(property)) {
+      'removeSeries', 'createPriceLine', 'attachPrimitive', 'detachPrimitive'].includes(property)) {
       return ['visual-surface-mutation', `${property}()`];
     }
     if (property === 'update' && /(?:series|chart)/i.test(root)) {

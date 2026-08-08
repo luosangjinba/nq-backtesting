@@ -813,6 +813,15 @@ or package branch and can be removed without changing existing applications.
 Durable persistence/history, Chart projection, interaction, and semantic
 plugins remain later owner boundaries.
 
+R13.4 separately activates `optional.annotation-chart-projection` under the
+existing `chart-runtime-adapter` owner. It consumes immutable declarative
+projections rather than Annotation Runtime internals, transacts only Annotation
+primitive attach/update/detach through an injected bounded adapter, and proves
+exact rollback/finalize/disposal with a static Segment Series Primitive. It
+does not call candlestick `setData`/`update`, mutate Viewport/Replay/Workspace,
+or wire a browser control. The module is removable and contains no semantic
+business id; R13.5 interaction and transient preview remain separate.
+
 The kernel must remain small: Session identity, Replay truth, Bar Data access,
 projection transactions, Chart application, Viewport intent, module lifecycle,
 and public contract/version infrastructure. Speculative feature engines are not

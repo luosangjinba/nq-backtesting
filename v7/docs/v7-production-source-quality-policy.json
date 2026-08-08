@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R13.3",
+  "deliveryStep": "R13.4",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -70,7 +70,8 @@
     "adapter": [
       "adapter.lightweight-chart",
       "adapter.server-state-sync",
-      "adapter.market-data-provider"
+      "adapter.market-data-provider",
+      "optional.annotation-chart-projection"
     ],
     "persistence": [
       "adapter.session-persistence",
@@ -127,6 +128,10 @@
     },
     {
       "path": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260808_r13_4_accepted_annotation_chart_projection.md",
       "expectedOccurrences": 1
     }
   ],

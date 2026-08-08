@@ -103,7 +103,7 @@ assert.deepEqual(manifest.writerInventories, {
   calendarSurfaceDom: ['adapter.calendar-surface'],
   sessionBrowserDom: ['adapter.session-browser-ui'],
   replayWorkspaceDom: ['adapter.replay-workspace-ui'],
-  chartSeries: ['adapter.lightweight-chart'],
+  chartSeries: ['adapter.lightweight-chart', 'optional.annotation-chart-projection'],
   viewportIntent: ['core.viewport-runtime'],
   paneWorkspace: ['core.workspace-state-runtime'],
   workspaceSnapshot: ['core.workspace-transaction-runtime'],
@@ -258,6 +258,7 @@ for (const rule of [
   'versioned-session-layout-sync-policy',
   'annotation-geometry-market-coordinate-extensible',
   'headless-annotation-document-sole-writer',
+  'accepted-annotation-projection-reversible-and-chart-owned',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

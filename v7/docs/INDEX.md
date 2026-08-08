@@ -115,6 +115,9 @@ semantic package. `V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md` adds the separately
 bounded removable Session document writer, exact generic-Drawing revisions, and
 reversible fake-Repository transactions. It contains no business semantic type
 and makes no visible application change.
+`V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md` adds one removable,
+Chart-owned, reversible Primitive projection port plus a test-only static
+Segment fixture. It does not wire production drawing UI or semantic packages.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
@@ -237,7 +240,9 @@ Read in this order before V7 implementation work:
     market-coordinate Point/Segment/Rectangle and extensible Registry contract
 102. `V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md` as the binding removable sole
     Annotation Document writer and exact generic-Drawing revision contract
-103. `../TODO.md`
+103. `V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md` as the binding
+    Chart-owned prepare/apply/rollback/finalize Primitive projection contract
+104. `../TODO.md`
 
 The numbered order above is for implementation work. Ordinary users should use
 the user/operator entry points instead of reading the architecture history.

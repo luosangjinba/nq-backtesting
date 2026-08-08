@@ -1,0 +1,12 @@
+{
+  "id": "optional.annotation-chart-projection",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "chart-runtime-adapter",
+  "publicEntry": "src/annotation-chart-projection/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/annotation-chart-projection-harness.js",
+  "removable": true
+}

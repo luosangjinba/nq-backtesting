@@ -15,11 +15,12 @@ deferred, not silently assumed. Remaining host-matrix checks are operational
 follow-up evidence and do not block this milestone.
 
 Post-milestone architecture development has accepted ADR-V7-001 and completed
-the headless R13.2 Geometry and R13.3 Annotation Runtime contracts. They add
-only removable pure market-coordinate Geometry plus a Session-scoped generic-
-Drawing document writer with exact revisions and fake-Repository rollback;
-they do not yet add drawing controls, durable annotations, semantic
-FVG/OB/liquidity plugins, or any new user-visible workflow.
+R13.2 Geometry, R13.3 Annotation Runtime, and R13.4 accepted Chart projection.
+They add removable market-coordinate Geometry, a Session-scoped generic-
+Drawing document writer, and a reversible Chart-owned Primitive port with one
+test-only static Segment fixture. They do not yet add drawing controls, durable
+annotations, semantic FVG/OB/liquidity plugins, or any new user-visible
+workflow.
 
 For operation in Chinese, start with the
 [V7 中文用户指南](docs/V7_USER_GUIDE.zh-CN.md).

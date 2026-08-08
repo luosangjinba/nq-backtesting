@@ -121,11 +121,37 @@ Binding contract:
   isolation, disposal, production inventory, and seven optional-removal cases;
 - [x] make no browser, Chart, DOM, Canvas, Replay, Bar Data, or visible styling
   change, so R13.3 requires no manual visual acceptance;
-- [ ] do not start R13.4 until its dedicated accepted Annotation Chart
+- [x] do not start R13.4 until its dedicated accepted Annotation Chart
   Projection Port contract is separately written and authorized.
 
 Binding contract:
 `docs/V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md`.
+
+## R13.4 Accepted Annotation Chart Projection — Implemented 2026-08-08
+
+- [x] activate removable `optional.annotation-chart-projection` under the
+  existing `chart-runtime-adapter` sole visual-writer owner;
+- [x] define branded immutable vendor-neutral projections with opaque entity
+  and projection ids plus independent exact projection revisions;
+- [x] implement inert prepare, reversible apply, exact-receipt rollback, exact
+  finalize, initial forward reconciliation, stale rejection, and disposal;
+- [x] restrict injected primitive authority to create/attach/update/detach/
+  destroy without candle series data, Viewport, Replay, or Workspace writes;
+- [x] implement one adapter-local non-interactive Segment RenderPrimitive with
+  no autoscale, labels, hit regions, preview, or pointer ownership;
+- [x] prove real Lightweight Charts 5.2 attach/update/detach/destroy, visible
+  Canvas pixels, handle reuse, and byte-equivalent candlestick data in Chrome;
+- [x] activate H102 with 30 negative controls, failure rollback/poison evidence,
+  production writer inventory, and eight optional-removal cases;
+- [x] keep Annotation Runtime, Geometry, semantic packages, interaction, UI,
+  persistence, and production workstation composition decoupled;
+- [x] require no manual product-visual gate because only a test fixture paints;
+  no production HTML, CSS, route, control, or chart composition changes;
+- [ ] do not start R13.5 until its Segment Interaction/Preview contract and
+  visual human-acceptance window are separately authorized.
+
+Binding contract:
+`docs/V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md`.
 
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
@@ -916,9 +942,9 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 339 files, 25,968 effective
-lines, 2,770 functions, and 332 public exports; the architecture baseline
-remains 53 modules, 128 edges, 115 construction sites, 19 writers, and zero
+The current production source baseline contains 349 files, 26,746 effective
+lines, 2,845 functions, and 340 public exports; the architecture baseline
+remains 54 modules, 128 edges, 115 construction sites, 21 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -929,8 +955,8 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 339 files, 25,968 effective lines, 2,770 functions, 332 public
-exports, 53 modules, 128 edges, 115 construction sites, 19 writers, and zero
+currently at 349 files, 26,746 effective lines, 2,845 functions, 340 public
+exports, 54 modules, 128 edges, 115 construction sites, 21 writers, and zero
 findings.
 
 ## Established Foundation Governance

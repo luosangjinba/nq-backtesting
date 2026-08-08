@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r13.3-headless-annotation-runtime",
+  "status": "r13.4-accepted-annotation-chart-projection",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -30,6 +30,7 @@
     "docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md",
     "docs/V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md",
     "docs/V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md",
+    "docs/V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md",
     "docs/V7_V6_MIGRATION_DENYLIST.md",
     "docs/V7_V6_DISPOSITION_MATRIX.md",
     "docs/V7_V6_INTERACTION_CARRY_FORWARD.md",
@@ -140,6 +141,7 @@
     "src/module-host/module.json",
     "src/annotation-geometry-domain/module.json",
     "src/annotation-runtime/module.json",
+    "src/annotation-chart-projection/module.json",
     "src/capability-contract/module.json",
     "src/bar-data-contract/module.json",
     "src/raw-coverage-lease-contract/module.json",
@@ -255,7 +257,7 @@
     "calendarSurfaceDom": ["adapter.calendar-surface"],
     "sessionBrowserDom": ["adapter.session-browser-ui"],
     "replayWorkspaceDom": ["adapter.replay-workspace-ui"],
-    "chartSeries": ["adapter.lightweight-chart"],
+    "chartSeries": ["adapter.lightweight-chart", "optional.annotation-chart-projection"],
     "viewportIntent": ["core.viewport-runtime"],
     "paneWorkspace": ["core.workspace-state-runtime"],
     "workspaceSnapshot": ["core.workspace-transaction-runtime"],
@@ -326,6 +328,7 @@
     "restored-workspace-cache-race-and-foundation-performance-closed",
     "guarded-data-acquisition-admin-outside-chart-runtime",
     "annotation-geometry-market-coordinate-extensible",
-    "headless-annotation-document-sole-writer"
+    "headless-annotation-document-sole-writer",
+    "accepted-annotation-projection-reversible-and-chart-owned"
   ]
 }

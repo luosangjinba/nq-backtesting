@@ -10,7 +10,7 @@
     {
       "surface": "chartSeries",
       "detectorId": "native-chart-series",
-      "allowedModuleIds": ["adapter.lightweight-chart"]
+      "allowedModuleIds": ["adapter.lightweight-chart", "optional.annotation-chart-projection"]
     },
     {
       "surface": "layoutSyncPolicy",

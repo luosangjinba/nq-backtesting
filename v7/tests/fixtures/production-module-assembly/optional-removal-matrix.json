@@ -23,6 +23,10 @@
     },
     {
       "consumerModuleId": null,
+      "omittedModuleId": "optional.annotation-chart-projection"
+    },
+    {
+      "consumerModuleId": null,
       "omittedModuleId": "optional.annotation-geometry-domain"
     },
     {

@@ -18,7 +18,8 @@
         "surface": "chartSeries",
         "detectorId": "native-chart-series",
         "allowedModuleIds": [
-          "adapter.lightweight-chart"
+          "adapter.lightweight-chart",
+          "optional.annotation-chart-projection"
         ]
       },
       {
@@ -121,7 +122,7 @@
       }
     ]
   },
-  "deliveryStep": "R13.3",
+  "deliveryStep": "R13.4",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -965,7 +966,8 @@
       },
       {
         "moduleIds": [
-          "adapter.lightweight-chart"
+          "adapter.lightweight-chart",
+          "optional.annotation-chart-projection"
         ],
         "surface": "chartSeries"
       },
@@ -4167,6 +4169,25 @@
         ],
         "declaredOptionalPorts": [],
         "declaredRequiredPorts": [],
+        "descriptorPath": "src/annotation-chart-projection/module.json",
+        "id": "optional.annotation-chart-projection",
+        "importSites": [],
+        "independentHarness": "tests/annotation-chart-projection-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [
+          "src/annotation-chart-projection/chart-annotation-projection.js"
+        ],
+        "owner": "chart-runtime-adapter",
+        "publicEntry": "src/annotation-chart-projection/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
         "descriptorPath": "src/server-state-sync/module.json",
         "id": "adapter.server-state-sync",
         "importSites": [],
@@ -4477,6 +4498,18 @@
         "sourceFile": "src/bar-data-runtime/raw-coverage-store.js",
         "sourceModuleId": "core.bar-data-runtime",
         "surface": "rawMarketDataRetention"
+      },
+      {
+        "detectorId": "native-chart-series",
+        "sourceFile": "src/annotation-chart-projection/lightweight-series-primitive-adapter.js",
+        "sourceModuleId": "optional.annotation-chart-projection",
+        "surface": "chartSeries"
+      },
+      {
+        "detectorId": "native-chart-series",
+        "sourceFile": "src/lightweight-chart-adapter/chart-surface.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "surface": "chartSeries"
       },
       {
         "detectorId": "native-chart-series",

@@ -1,6 +1,6 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule (R13.3 implementation, 2026-08-08)
+Status: binding delivery rule (R13.4 implementation, 2026-08-08)
 
 ## Delivery IDs
 
@@ -20,11 +20,11 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current repository-changing delivery step is `R13.3`, the Headless
-Annotation Runtime. R13.2 remains the committed pure removable Market Anchor,
-Point, Segment, Rectangle, and extensible Geometry Registry boundary. R13.3
-adds only the removable Session document writer, generic Drawing revisions,
-and reversible fake-Repository transactions.
+The current repository-changing delivery step is `R13.4`, the Accepted
+Annotation Chart Projection. R13.2 remains the pure removable Geometry
+boundary and R13.3 remains the removable Session document writer. R13.4 adds
+only a removable Chart-owned accepted-projection transaction plus one
+adapter-local static Segment Primitive fixture; it does not wire drawing UI.
 The V7.0.0 foundation milestone is accepted; R12.1–R12.8 retain their committed
 implementation and non-blocking host follow-up. R11.1 remains the automatically
 closed cross-runtime architecture-integrity recovery; R12 does not reopen it.
@@ -53,8 +53,10 @@ portable, extensible, and removable Geometry boundary; R13.2 did not itself
 authorize an Annotation document writer.
 H101 records R13.3's sole Annotation Document writer, exact revisions,
 Session isolation, reversible failure handling, zero semantic packages, and
-optional removal. R13.4 and every visible projection/interaction behavior
-remain unauthorized until separately specified.
+optional removal. H102 records R13.4's exact accepted projection receipt,
+reversible primitive lifecycle, Chart-only visual ownership, and candle/
+Workspace non-mutation. R13.5 interaction and every production-visible drawing
+behavior remain unauthorized until separately specified.
 
 ## Other Stable IDs
 

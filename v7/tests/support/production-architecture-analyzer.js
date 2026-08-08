@@ -6,7 +6,7 @@ const WRITER_DETECTORS = Object.freeze({
   'calendar-surface-dom-commit': /\breplaceChildren\s*\(\s*this\.nodes\.body\s*,/,
   'layout-sync-policy-commit': /\bsaveLayoutSync\s*\([^)]*\)\s*\{[\s\S]*?configuredWorkspace\s*\(\s*current\s*,\s*\{\s*layoutSync:/,
   'market-data-retention-ledger': /\bacceptedByConsumer\.set\s*\(/,
-  'native-chart-series': /\b(?:series|futureTimeAxisSeries)\.(?:setData|update)\s*\(/,
+  'native-chart-series': /\b(?:series|futureTimeAxisSeries|acceptedSeries)\.(?:attachPrimitive|detachPrimitive|setData|update)\s*\(/,
   'pane-workspace-accepted-state': /\bsnapshot\s*=\s*candidateSnapshot\b/,
   'raw-provider-request': /\bprovider\.(?:requestRawBars|requestProjectedHistory)\s*\(/,
   'replay-navigation-preferences-commit': /\bport\.write\s*\(\s*storageKey\s*,\s*JSON\.stringify\(wire\)\s*\)/,
