@@ -104,8 +104,11 @@ FVG/OB/Breaker/BSL/EQL as semantic artifacts rather than geometry subtypes. It
 also separates manually anchored curve Geometry from MA/other calculated
 Indicator series and requires first-party semantic types to use removable
 packages from the first semantic slice, while deferring dynamic third-party
-loading and Marketplace scope. It authorizes no implementation until its human
-decision gate is accepted.
+loading and Marketplace scope. It defines Geometry-first free drawing,
+user-recognized evidence-constrained semantic construction, provenance-distinct
+future detector suggestions, and one host-rendered schema-driven Property
+Inspector. It authorizes no implementation until its human decision gate is
+accepted.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

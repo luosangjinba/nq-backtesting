@@ -6,7 +6,7 @@ Status: proposed binding pre-implementation specification; human review pending
 
 Date: 2026-08-07
 
-Last revised: 2026-08-07 20:26 PDT
+Last revised: 2026-08-07 21:51 PDT
 
 ## Decision Summary
 
@@ -40,6 +40,13 @@ Visual similarity does not merge ownership. A manually anchored curve may be a
 `DrawingGeometry`; a moving average or other data-calculated line is an
 Indicator result and never becomes Drawing/Annotation state merely because it
 is rendered as a curve.
+
+The foundation supports two user-initiated construction paths: free drawing
+from market-coordinate anchors, and evidence-constrained semantic construction
+which validates selected visible Bars and derives geometry/parameters through a
+registered type package. Both use one host-rendered Property Inspector and one
+Annotation transaction owner; neither gives a plugin direct Chart or store
+access.
 
 ## Core Semantic Decision
 
@@ -231,9 +238,18 @@ Required provenance includes:
 - exact instrument and source timeframe/capability identity;
 - `observedAtReplayCutoffEpochMs`;
 - source bar references or explicit manual anchors;
-- creation mode such as `manual`, `detector`, or `import`;
-- detector/definition version when not purely manual;
+- `recognitionSource` such as `human`, `detector`, or `import`;
+- `constructionSource` such as `manual`, `derived`, or `import`;
+- construction/definition/detector identity and version when applicable;
+- per-attribute source and override provenance for derived/default/manual values;
 - creator/state namespace when available, without storing credentials.
+
+Recognition and construction are independent. A user who identifies an FVG
+and invokes “create from selected candle” is `recognitionSource: human` plus
+`constructionSource: derived`; it is not detector recognition. A detector-found
+candidate is `detector` plus `derived`. Free drawing is normally `human` plus
+`manual`. This distinction is required for later research, recognition-skill
+training, and review truth.
 
 Attributes are validated by the registered semantic type. Relations are typed
 and versioned, for example `derivedFrom`, `mitigates`, `sweeps`, or `confirms`.
@@ -257,6 +273,76 @@ Geometry alone is insufficient evidence. A rectangle cannot be promoted to FVG
 without the required source-bar or explicit manual evidence defined by the FVG
 type package.
 
+## Creation Paths And Evidence-Constrained Derivation
+
+### Free Drawing — Geometry First
+
+The user chooses a Segment, Rectangle, Polyline, Bezier, or future drawing tool
+and supplies market-coordinate anchors through host-owned pointer/keyboard
+commands. Commit creates a generic `DrawingEntity`. It may remain free-form or
+later be promoted through the exact-revision semantic command above.
+
+Free drawing is not weaker state; it is state without a registered trading
+claim. Style, labels, and visual resemblance cannot silently assign semantic
+meaning.
+
+### Evidence-Constrained Semantic Construction — Meaning First
+
+The user chooses a semantic construction command, such as “FVG from candle”,
+then selects one or more Replay-visible Bars or existing Artifacts. The host:
+
+1. resolves exact immutable evidence references at the accepted Replay cutoff;
+2. supplies only the bounded evidence shape declared by the active type package;
+3. invokes the package's pure construction/validation policy;
+4. produces a deterministic preview containing derived attributes, provenance,
+   relations, and declarative projections;
+5. opens the host Property Inspector for review and permitted overrides;
+6. commits one Semantic Artifact transaction only after explicit confirmation;
+7. rolls back the preview and every prepared effect on cancel or failure.
+
+The package never requests Bars. The host may satisfy a declared neighbor
+requirement, such as the three exact candles needed by one FVG definition, only
+through the accepted Bar Data/Replay snapshot owners. If the confirming candle
+is not visible at the cutoff, construction fails without previewing future
+evidence.
+
+Given identical evidence references, cutoff, type/definition/package versions,
+and canonical inputs, derivation must produce the same baseline parameters. The
+Artifact stores stable evidence and derivation provenance; its rectangle, line,
+curve, midpoint, and labels remain projections rather than a second semantic
+truth.
+
+### Detector Suggestions Remain A Separate Later Path
+
+A future detector may scan allowed evidence and propose a candidate. That path
+is neither free drawing nor user-recognized evidence-constrained creation.
+Accepting it must preserve detector recognition provenance and cannot be counted
+as unaided human recognition. R13.1 still authorizes no detector implementation.
+
+### Derived Parameters And Human Overrides
+
+Each semantic attribute or presentation parameter declares its origin and
+override policy:
+
+```text
+ParameterPolicy {
+  valueKind
+  source: derived | manual | default
+  overridePolicy: locked | presentation-only | allowed-with-validation
+}
+```
+
+When an automatically derived value is overridden, the Artifact retains the
+derived baseline, the human override, definition/package version, editor, and
+revision. A later recomputation cannot erase or silently replace the override.
+
+Presentation-only edits such as color or label visibility do not alter semantic
+truth. An override to an FVG bound, relation, or other semantic parameter must
+revalidate the complete Artifact. If it no longer satisfies the selected type,
+the host rejects the transaction or offers an explicit conversion to a generic
+drawing or separately defined manual-assertion type; it never leaves an invalid
+object labeled as a strict FVG.
+
 ## Semantic Type Registry
 
 Semantic meaning is extension-driven. A `SemanticTypeDefinition` declares:
@@ -269,6 +355,8 @@ SemanticTypeDefinition {
   attributeSchema
   provenanceRequirements
   relationPolicy
+  constructionPolicyIds[]
+  propertySurfaceSchemaId
   projectionPolicyId
   lifecyclePolicyId
 }
@@ -341,6 +429,52 @@ The Obsidian-like product goal is easy enable/disable and independent extension
 of the host. It is not permission equivalence: future third-party trading
 plugins require stricter capability, no-future, data-access, resource, and
 failure boundaries than trusted first-party packages.
+
+## Host-Rendered Property Inspector
+
+V7 provides one schema-driven Property Inspector for selected Drawings and
+Semantic Artifacts. It is an Annotation UI surface, not a state owner. Type
+packages declare property schemas and host-mediated pickers; they do not render
+arbitrary DOM, hold drafts after disposal, or write accepted state.
+
+The candidate surface groups are:
+
+| Group | Responsibility |
+| --- | --- |
+| Semantic | type-specific attributes, roles, lifecycle state, tolerances, and override status |
+| Evidence | source Bars/Artifacts, typed relations, confidence, and definition version |
+| Style | colors, width, fill, labels, and projection presentation |
+| Visibility | Pane/timeframe/Session Hours and scale visibility policies |
+| History | provenance, baseline/override sources, revisions, and package version; read-only |
+
+The host control schema must support bounded text/number/enumeration controls,
+conditional groups, validation messages, read-only derived values, and
+host-owned Bar/Artifact/relation pickers. Every visible parameter is marked as
+`AUTO`, `MANUAL`, `OVERRIDDEN`, or `LOCKED` from accepted provenance rather than
+UI guesswork.
+
+Inspector flow is:
+
+```text
+exact selected entity revision
+  -> host reads active package/property schema
+  -> transient local draft and preview
+  -> host/schema validation
+  -> exact-revision Annotation command
+  -> prepared persistence + projection transaction
+  -> accepted new revision or complete rollback
+```
+
+The Inspector may reuse a generic schema-form renderer with future Indicator
+Settings, but ownership remains separate: Indicator inputs submit Indicator
+commands; Drawing/Semantic properties submit Annotation commands. There is no
+universal settings store.
+
+If a semantic package is unavailable, the Inspector displays preserved raw
+attributes, type/package versions, provenance, and history in read-only form.
+It must not discard unknown fields or offer edits without the validating
+definition. Desktop may use a docked panel or dialog and compact layouts may use
+a modal/sheet; these presentations share one draft/command contract.
 
 ## Projection Contract
 
@@ -470,11 +604,12 @@ The detailed API is deferred to the implementation step, but it must cover:
 Commands:
 
 - create generic drawing;
+- prepare/cancel/commit evidence-constrained semantic construction;
 - replace geometry by exact revision;
 - replace presentation by exact revision;
 - archive/restore entity;
 - promote drawing to semantic artifact;
-- update artifact attributes/relations through its registered schema;
+- update artifact attributes/relations/overrides through its registered schema;
 - undo/redo one Annotation transaction.
 
 Queries:
@@ -482,6 +617,8 @@ Queries:
 - read complete immutable document by Session id;
 - read one entity by opaque id;
 - list available geometry and semantic type definitions;
+- read the exact Property Inspector schema and accepted parameter provenance for
+  one entity revision;
 - derive visible projections for an exact Pane/Replay context;
 - export a versioned document without vendor objects.
 
@@ -505,17 +642,22 @@ whole foundation in one change:
 2. removable Annotation Runtime, document revisions, fake persistence, and
    independent harness, including boot with zero semantic packages;
 3. Chart projection port plus an official-example-based Segment vertical slice;
-4. Rectangle vertical slice, hit testing, transient edit preview, and rollback;
+4. Rectangle vertical slice, hit testing, transient edit preview, and a generic
+   Geometry/Style/Visibility Property Inspector with rollback;
 5. Session-local persistence, hard reload, undo/redo, import/export, and schema
    migration;
 6. multi-Pane/timeframe projection and Replay/no-future acceptance;
-7. host-owned semantic package/type registry and one compile-time first-party
-   BSL/EQL package with disable, re-enable, disposal, and unresolved-artifact
-   fixtures;
-8. first-party manual FVG package with rectangle/midpoint/label projections;
-9. focused first-party OB and Breaker packages with typed derivation relations;
-10. automatic detection only after manual semantics and evidence drill-down are
-    accepted.
+7. host-owned semantic package/type registry plus semantic/evidence/history
+   Inspector groups and host-owned Bar/Artifact/relation pickers;
+8. one compile-time first-party BSL/EQL package proving promotion and
+   user-recognized evidence-constrained creation, disable/re-enable, disposal,
+   and unresolved-artifact behavior;
+9. first-party manual FVG package proving deterministic three-candle derivation,
+   preview, parameter-source badges, validated override, and
+   rectangle/midpoint/label projections;
+10. focused first-party OB and Breaker packages with typed derivation relations;
+11. automatic detection only after manual/evidence-constrained semantics and
+    evidence drill-down are accepted.
 
 Business workflows must consume the accepted foundation rather than ship their
 own drawing stores or Chart renderers.
@@ -555,6 +697,20 @@ R13 implementation cannot close without executable evidence for:
   re-enable restores projections without rewriting evidence;
 - package failure, incompatible version, or missing definition leaves other
   packages, generic drawings, Session, Replay, and Chart usable;
+- free drawing creates Geometry-first state with no implicit semantic claim;
+- evidence-constrained construction requests no Bars directly, rejects evidence
+  beyond the Replay cutoff, and deterministically derives the same baseline from
+  identical evidence/definition/package inputs;
+- human recognition plus derived construction remains distinguishable from
+  detector recognition in persisted provenance and later research queries;
+- Inspector drafts/previews never become accepted evidence, and cancel,
+  validation failure, stale revision, persistence failure, or render failure
+  restores exact prior state;
+- every parameter displays and preserves derived/manual/default/override source,
+  with invalid semantic overrides rejected or explicitly converted rather than
+  silently retaining the original type;
+- package-unavailable Inspector mode preserves and displays unknown attributes
+  and provenance read-only;
 - exact create/edit/delete/undo/redo rollback under persistence and render
   failures;
 - hard reload and schema migration;
@@ -585,7 +741,13 @@ Human review must explicitly confirm:
    and other calculated series remain outside Annotation ownership;
 7. first-party semantic types use removable packages from the first semantic
    slice, while dynamic third-party loading/SDK/Marketplace remain later
-   decisions.
+   decisions;
+8. free drawing and user-recognized evidence-constrained semantic construction
+   are separate supported creation paths, with detector suggestion remaining a
+   later third source;
+9. one host-rendered Property Inspector owns schema-driven drafts, validation,
+   preview, parameter-source visibility, and command submission without owning
+   accepted Annotation state.
 
 Until that confirmation, R13.1 remains a proposed specification and authorizes
 no production implementation.
@@ -606,3 +768,13 @@ first-party semantic type to use a removable host-owned package interface from
 the first semantic slice, with compile-time composition and runtime
 enable/disable before any later dynamic third-party loader. Added artifact
 survival, disposal, failure-isolation, zero-package boot, and re-enable gates.
+
+### 2026-08-07 21:51 PDT — Construction And Property-Inspector Refinement
+
+Added Geometry-first free drawing and user-recognized evidence-constrained
+semantic construction as separate creation paths, while retaining detector
+suggestion as a later provenance-distinct path. Replaced one-dimensional
+creation mode with recognition/construction sources, defined deterministic
+evidence derivation and validated human overrides, and bound one host-rendered
+Property Inspector for semantic, evidence, style, visibility, and history
+schemas without creating a new state owner.

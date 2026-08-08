@@ -36,10 +36,17 @@ Canonical registry: `docs/V7_NON_DECISION_MEMO_REGISTRY.md`.
 - [x] require plugin-first boundaries for every first-party semantic type,
   compile-time package composition first, runtime disable/re-enable and
   unresolved-artifact survival, with dynamic third-party loading deferred;
+- [x] define Geometry-first free drawing and user-recognized,
+  evidence-constrained semantic construction as separate creation paths, with
+  detector suggestion retained as a later provenance-distinct path;
+- [x] define one host-rendered Property Inspector for schema-driven semantic,
+  evidence, style, visibility, history, parameter-source, override, preview,
+  validation, and exact-revision transaction behavior;
 - [x] record official Lightweight Charts Primitive, Rectangle, and Trend Line
   references without adopting their examples as V7 domain state;
 - [ ] receive explicit human approval of ADR-V7-001 terminology, ownership,
-  curve/Indicator separation, semantic package boundary, and delivery order;
+  curve/Indicator separation, semantic package boundary, creation paths,
+  Property Inspector, and delivery order;
 - [ ] after approval, allocate R13.2 for the pure Geometry contract; do not
   begin UI, persistence, FVG, OB, or automatic detection in R13.1.
 

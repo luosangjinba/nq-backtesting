@@ -44,9 +44,10 @@ Data fallback, unavailable Maintenance-control removal, and internal Replay
 error-code translation for R12.8.
 ADR-V7-001 records the R13.1 terminology, owner, persistence, projection,
 no-future, manual-curve versus calculated-series boundary, plugin-first
-first-party semantic package boundary, and implementation-order proposal; no H
-id is allocated until the spec is accepted and an executable invariant is
-activated.
+first-party semantic package boundary, dual user creation paths,
+recognition/construction provenance, host-rendered Property Inspector, and
+implementation-order proposal; no H id is allocated until the spec is accepted
+and an executable invariant is activated.
 
 ## Other Stable IDs
 
