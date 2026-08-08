@@ -1,7 +1,14 @@
 # V7 General Futures Plugin Platform — Pre-Decision Memo
 
-Date: 2026-08-01
+Memo id: `MEMO-V7-001`
+
+First formed: 2026-08-01
+
+Last substantive revision: 2026-08-01
+
 Status: discussion captured; product decision and implementation deferred
+
+Registry: `V7_NON_DECISION_MEMO_REGISTRY.md`
 
 ## Purpose And Current Binding Scope
 
@@ -857,3 +864,12 @@ After all current human-review obligations are explicitly closed:
 8. only then assign delivery steps, SDK scope, harnesses, and implementation;
 9. prove the SDK, local installation, first-party packages, and a signed free
    registry before any paid Marketplace launch decision.
+
+## Position History
+
+### 2026-08-01 — Initial Formation
+
+Captured the general futures/plugin-platform direction, capability taxonomy,
+semantic annotation, Setup workflow, AI Harness, distribution, marketplace,
+commercialization, risks, evidence gates, and unresolved alternatives. No
+product decision or implementation was authorized.

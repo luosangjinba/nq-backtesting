@@ -1,5 +1,26 @@
 # V7 TODO
 
+## Non-Decision Memo Governance — Established 2026-08-07
+
+- [x] keep the canonical unresolved-product/architecture memo registry on
+  `main`, independent of any feature-branch lifecycle;
+- [x] assign stable `MEMO-V7-###` ids, first-formed dates, last substantive
+  revision timestamps, current status, and stable source paths;
+- [x] register the earlier general-futures/plugin-platform and seconds/tick
+  memos without silently rewriting their original positions;
+- [x] preserve the AI-Agent-participatory Research → Training → Trading Review
+  end goal, with Chart Research Project → Setup/Outcome definition → Study Case
+  → immutable Study Cohort → Analysis Run/Research Finding as its research
+  substrate, in `MEMO-V7-003`;
+- [x] record explicit tensions among the plugin-platform, seconds/tick,
+  Agent-participatory learning-system, and branch-local Drawing/Semantic
+  Annotation directions;
+- [ ] allocate no delivery step and implement no memo content merely because it
+  is registered; promotion requires a separate accepted ADR/specification that
+  cites accepted, combined, rejected, or superseded memo positions.
+
+Canonical registry: `docs/V7_NON_DECISION_MEMO_REGISTRY.md`.
+
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
 - [x] accept the current standalone ES/NQ minute-replay product as a complete,
