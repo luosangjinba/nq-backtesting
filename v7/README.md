@@ -19,7 +19,11 @@ R13.2 Geometry, R13.3 Annotation Runtime, R13.4 accepted Chart projection, and
 R13.5 Segment interaction/Preview with its corrected visual gate.
 They add removable market-coordinate Geometry, a Session-scoped generic-
 Drawing document writer, and a reversible Chart-owned Primitive port with one
-test-only static/interactive Segment fixtures. They do not yet add production drawing controls, durable
+test-only static/interactive Segment fixtures. ADR-V7-002 has also completed a
+pinned community-reuse preflight: official Lightweight Charts rendering
+patterns may be adapted, but no reviewed drawing/toolkit runtime was added as
+a production dependency, and indicator formulas remain a separate future
+decision. These steps do not yet add production drawing controls, durable
 annotations, semantic FVG/OB/liquidity plugins, or any new user-visible
 workflow.
 

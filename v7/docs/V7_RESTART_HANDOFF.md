@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-08 at accepted R13.5
+Last updated: 2026-08-08 at accepted R13.5 plus ADR-V7-002 reuse preflight
 
 ## Current Overall Acceptance State
 
@@ -26,12 +26,20 @@ R13.5 adds only a real-Chrome interactive Segment fixture and no production UI.
 Its automated evidence and corrected local visual gate pass; the user confirmed
 responsive Segment creation without competing Canvas movement. H103 is
 accepted, while R13.6 remains unauthorized.
+ADR-V7-002 then audited the current public Lightweight Charts drawing,
+indicator, toolkit, and alternative-engine ecosystem at pinned revisions.
+Official Primitive/rendering patterns are approved for adaptation, but no
+reviewed community runtime may become a parallel V7 owner or production
+dependency. Indicator calculations remain a later adapter decision. The audit
+adds no pixels or runtime code and does not authorize R13.6.
 Binding records:
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` and
 `V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md` and
 `V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md` and
 `V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md` and
-`V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md`.
+`V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md` and
+`V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md`, with frozen candidate evidence in
+`v7-community-reuse-audit.json`.
 
 R11 is the closed architecture-recovery record underlying the accepted
 milestone; normal-delivery scope is restored. Its immutable pre-remediation checkpoint is

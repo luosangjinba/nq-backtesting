@@ -1012,3 +1012,14 @@ The user explicitly accepted ADR-V7-001 after the implementation-path audit and
 authorized the separately bounded R13.2 Minimal Geometry Contract. This closes
 the R13.1 decision gate but does not authorize Chart, interaction, persistence,
 Property Inspector, semantic package, FVG/OB/EQL, or detector implementation.
+
+### 2026-08-08 — Community-Reuse Preflight Addendum
+
+Accepted ADR-V7-002 applies the ecosystem-review requirement before R13.6.
+Official Lightweight Charts Series Primitive implementation patterns may be
+adapted behind the accepted V7 ports. Reviewed community drawing/toolkit
+runtimes cannot replace or duplicate Chart, interaction, Annotation document,
+Replay, persistence, or semantic-package owners and were not added as
+dependencies. Indicator calculation remains a separate future adapter
+decision. See `V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md`; this addendum does not
+authorize R13.6.

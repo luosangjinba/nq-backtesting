@@ -1,6 +1,7 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule (R13.5 accepted, 2026-08-08)
+Status: binding delivery rule (R13.5 accepted plus ADR-V7-002 preflight,
+2026-08-08)
 
 ## Delivery IDs
 
@@ -27,6 +28,10 @@ Chart-owned accepted-projection transaction. R13.5 adds one removable generic
 Segment gesture controller plus Chart-owned normalized interaction and
 transient Preview ports in a test-only visual fixture; it does not wire
 production drawing UI.
+ADR-V7-002 is an accepted pre-implementation decision rather than an R13.6
+delivery step. It freezes the required community-reuse evidence, approves only
+official Lightweight Charts Primitive/rendering patterns, adds no production
+dependency, and leaves R13.6 unauthorized and unimplemented.
 The V7.0.0 foundation milestone is accepted; R12.1–R12.8 retain their committed
 implementation and non-blocking host follow-up. R11.1 remains the automatically
 closed cross-runtime architecture-integrity recovery; R12 does not reopen it.
@@ -62,6 +67,8 @@ gesture, bounded transient Preview, one-shot generic-Drawing command, zero-
 commit cancellation, native interaction restoration, and disposal boundary.
 H103's required human visual gate is accepted; R13.6 and every production-
 visible drawing behavior remain unauthorized.
+ADR-V7-002 records the pinned community candidate, compatibility, license, and
+owner-boundary gate that must be applied before any later R13.6 specification.
 
 ## Other Stable IDs
 

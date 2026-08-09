@@ -834,6 +834,16 @@ write accepted Drawing state, cancellation clears Preview with zero command,
 and pointer-up may issue exactly one command. This boundary is proven only in
 a test fixture in R13.5 and does not compose production drawing UI.
 
+ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
+official Lightweight Charts Series Primitive lifecycle, renderer/view,
+coordinate conversion, update, and teardown patterns, but reviewed community
+drawing/toolkit runtimes cannot receive raw owner authority or become a second
+Chart, interaction, Annotation document, Replay, or persistence owner. No
+candidate becomes a production dependency through the gate. Indicator
+calculation remains a separately decided adapter concern. Binding evidence is
+`V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md` and
+`v7-community-reuse-audit.json`; R13.6 remains unimplemented.
+
 The kernel must remain small: Session identity, Replay truth, Bar Data access,
 projection transactions, Chart application, Viewport intent, module lifecycle,
 and public contract/version infrastructure. Speculative feature engines are not

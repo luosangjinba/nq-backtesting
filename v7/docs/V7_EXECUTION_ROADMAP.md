@@ -886,6 +886,21 @@ drawing toolbar. R13.6 remains unauthorized. Binding contract:
 Human gate: accepted 2026-08-08 after explicit active-PointerEvent isolation
 prevented the vendor Canvas from moving during Segment drawing.
 
+### R13.6 Community-Reuse Prerequisite — Accepted ADR-V7-002
+
+Before R13.6 is specified or implemented, use the pinned audit in
+`V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md` and
+`v7-community-reuse-audit.json`. R13.6 may adapt official Lightweight Charts
+Series Primitive lifecycle, renderer/view, coordinate conversion, update, and
+teardown patterns. It must retain V7-owned Geometry, Annotation document,
+interaction, Chart projection, Replay, persistence, and semantic-package
+owners and may add no reviewed community drawing/toolkit runtime dependency.
+
+The indicator calculation catalog remains only a future adapter candidate
+behind a separate decision. This prerequisite changes no runtime or UI and
+does not authorize Rectangle, selection/editing, Inspector, production
+composition, or persistence work. R13.6 remains unauthorized.
+
 ## Deferred Product Boundary — Second-Level Replay
 
 Second-level/tick-sourced Replay has no delivery number and is not the next

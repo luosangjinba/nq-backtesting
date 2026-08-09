@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "auditedAt": "2026-08-08",
+  "target": {
+    "package": "lightweight-charts",
+    "version": "5.2.0"
+  },
+  "requiredGates": [
+    "fixed-upstream-revision",
+    "license-clarity",
+    "lightweight-charts-5.2-compatibility",
+    "chart-owner-isolation",
+    "interaction-owner-isolation",
+    "annotation-state-isolation",
+    "replay-no-future-preservation",
+    "deterministic-teardown"
+  ],
+  "candidates": [
+    {
+      "id": "official-lightweight-charts-plugins",
+      "repository": "https://github.com/tradingview/lightweight-charts",
+      "commit": "ef7335a8007236eac38bd50cacddc305c7fcb293",
+      "package": null,
+      "license": {
+        "declared": "Apache-2.0",
+        "status": "verified"
+      },
+      "compatibility": {
+        "probe": "authoritative-upstream-patterns",
+        "target": "current plugin examples include rectangle, trend-line, vertical-line, bands, and volume-profile"
+      },
+      "boundary": {
+        "directOwnership": [
+          "example-local-toolbar-state",
+          "example-local-chart-subscriptions",
+          "series-primitive-rendering"
+        ]
+      },
+      "decision": "pattern-source",
+      "allowedReuse": [
+        "Series Primitive lifecycle",
+        "renderer/view split",
+        "coordinate conversion patterns",
+        "requestUpdate and teardown patterns"
+      ]
+    },
+    {
+      "id": "lightweight-charts-drawing",
+      "repository": "https://github.com/deepentropy/lightweight-charts-drawing",
+      "commit": "5f2afc335028d6a188ce0a50361056518c84cf72",
+      "package": {
+        "name": "lightweight-charts-drawing",
+        "publishedVersion": "0.1.1",
+        "peer": "lightweight-charts ^5.0.0"
+      },
+      "license": {
+        "declared": "MIT in package metadata and README",
+        "status": "inconsistent",
+        "reason": "the audited repository has no standard LICENSE file and GitHub does not identify a repository license"
+      },
+      "compatibility": {
+        "probe": "isolated-install-and-esm-import-pass",
+        "target": "lightweight-charts 5.2.0",
+        "testEvidence": "no repository unit or browser test directory found at the pinned revision"
+      },
+      "boundary": {
+        "directOwnership": [
+          "drawing-state",
+          "selection-state",
+          "dom-interaction",
+          "chart-subscriptions",
+          "serialization",
+          "primitive-lifecycle"
+        ]
+      },
+      "decision": "blocked",
+      "allowedReuse": []
+    },
+    {
+      "id": "lightweight-charts-indicators",
+      "repository": "https://github.com/deepentropy/lightweight-charts-indicators",
+      "commit": "31756c8615aff4cefe9cf97350e78bd427f663cd",
+      "package": {
+        "name": "lightweight-charts-indicators",
+        "publishedVersion": "0.5.0",
+        "peer": "oakscriptjs >=0.2.8 <0.6.0"
+      },
+      "license": {
+        "declared": "MIT",
+        "status": "verified"
+      },
+      "compatibility": {
+        "probe": "isolated-install-esm-import-and-formula-pass",
+        "target": "lightweight-charts 5.2.0",
+        "knownSmaValues": [null, null, 2, 3, 4],
+        "testEvidence": "repository CI plus unit and regression suites exist at the pinned revision"
+      },
+      "boundary": {
+        "directOwnership": [
+          "pure-indicator-calculation",
+          "indicator-metadata",
+          "optional-drawing-result-data"
+        ]
+      },
+      "decision": "calculation-adapter-candidate",
+      "allowedReuse": [
+        "separately audited standard-indicator calculations behind a V7 port"
+      ]
+    },
+    {
+      "id": "line-tools-core",
+      "repository": "https://github.com/difurious/lightweight-charts-line-tools-core",
+      "commit": "db2695c628f7ff2b163f2f465003d52e959bb8cd",
+      "package": null,
+      "license": {
+        "declared": "MPL-2.0",
+        "status": "verified"
+      },
+      "compatibility": {
+        "probe": "source-package-peer-review",
+        "target": "lightweight-charts ^5.2.0",
+        "npmPublished": false,
+        "testEvidence": "package test script intentionally fails and no automated test suite is present"
+      },
+      "boundary": {
+        "directOwnership": [
+          "drawing-state",
+          "interaction-manager",
+          "chart-and-series-handles",
+          "import-export",
+          "crosshair-control",
+          "primitive-lifecycle"
+        ]
+      },
+      "decision": "reference-only",
+      "allowedReuse": [
+        "algorithm comparison after file-level MPL review"
+      ]
+    },
+    {
+      "id": "candlekit",
+      "repository": "https://github.com/rohanbeingsocial/candlekit-charts",
+      "commit": "d37ff6767c96a66ee5489387fa0628f51f03b23d",
+      "package": {
+        "name": "@getcandlekit/charts",
+        "publishedVersion": "0.1.0",
+        "repositoryVersion": "0.1.1",
+        "peer": "lightweight-charts ^5.0.0"
+      },
+      "license": {
+        "declared": "MIT",
+        "status": "verified"
+      },
+      "compatibility": {
+        "probe": "isolated-install-and-esm-import-pass-with-version-lag",
+        "target": "lightweight-charts 5.2.0",
+        "combinedPeerProbe": "conflict",
+        "conflict": "published 0.1.0 accepts lightweight-charts-indicators ^0.4.0 while the current indicator release is 0.5.0",
+        "testEvidence": "repository CI and unit suites exist; the README labels the project early-stage"
+      },
+      "boundary": {
+        "directOwnership": [
+          "chart-construction",
+          "series-data",
+          "plugin-chart-handles",
+          "drawing-interaction",
+          "drawing-persistence",
+          "indicator-series",
+          "replay"
+        ]
+      },
+      "decision": "reference-only",
+      "allowedReuse": [
+        "interface and test-coverage comparison"
+      ]
+    },
+    {
+      "id": "klinechart",
+      "repository": "https://github.com/klinecharts/KLineChart",
+      "commit": "612c2cb535d8f5aaef4dd78a0fd51b5fc30abc8b",
+      "package": null,
+      "license": {
+        "declared": "Apache-2.0",
+        "status": "verified"
+      },
+      "compatibility": {
+        "probe": "not-applicable-alternative-chart-engine",
+        "target": "KLineChart 10.0.2"
+      },
+      "boundary": {
+        "directOwnership": [
+          "alternate-chart-engine",
+          "alternate-overlay-system",
+          "alternate-indicator-system"
+        ]
+      },
+      "decision": "benchmark-only",
+      "allowedReuse": [
+        "product-behavior and extension-surface comparison"
+      ]
+    }
+  ],
+  "r13_6Decision": {
+    "implementationOwner": "v7-annotation-boundaries",
+    "productionDependenciesAdded": [],
+    "communityRuntimePolicy": "do-not-adopt",
+    "indicatorScope": "deferred-separate-adapter-decision",
+    "adoptedMechanisms": [
+      "official Series Primitive lifecycle",
+      "official renderer and pane-view patterns",
+      "V7-owned geometry and hit-test helpers behind Chart-owned ports"
+    ],
+    "rejectedOwnership": [
+      "foreign chart controller",
+      "foreign drawing document",
+      "parallel pointer arbitrator",
+      "foreign replay runtime",
+      "foreign persistence store",
+      "semantic ids embedded in render tools"
+    ]
+  }
+}

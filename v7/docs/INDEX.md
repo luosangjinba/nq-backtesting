@@ -122,6 +122,11 @@ Segment fixture. It does not wire production drawing UI or semantic packages.
 non-semantic Segment gesture controller plus Chart-owned normalized gesture and
 latest-wins transient Preview ports. Its real-chart surface remains a test
 fixture and requires a human visual gate before the R13.5 commit.
+`V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md` records accepted ADR-V7-002: official
+Lightweight Charts Primitive patterns may be adapted, but reviewed community
+drawing/toolkit runtimes may not become parallel V7 owners. It adds no
+production dependency or pixels, keeps Indicator calculation under a later
+decision, and does not authorize R13.6.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
@@ -248,7 +253,10 @@ Read in this order before V7 implementation work:
     Chart-owned prepare/apply/rollback/finalize Primitive projection contract
 104. `V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md` as the binding one-shot Segment
     gesture, transient Preview, cancellation, and Chart arbitration contract
-105. `../TODO.md`
+105. `V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md` as accepted ADR-V7-002 and
+    `v7-community-reuse-audit.json` as its pinned machine-readable candidate
+    evidence; read before specifying or implementing R13.6
+106. `../TODO.md`
 
 The numbered order above is for implementation work. Ordinary users should use
 the user/operator entry points instead of reading the architecture history.

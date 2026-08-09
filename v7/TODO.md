@@ -180,6 +180,28 @@ Binding contract:
 Binding contract:
 `docs/V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md`.
 
+## ADR-V7-002 Community Reuse Gate For R13.6 — Accepted 2026-08-08
+
+- [x] audit official Lightweight Charts 5.2 Primitive examples plus five
+  current drawing, indicator, toolkit, and alternative-engine candidates at
+  exact upstream revisions;
+- [x] verify license disposition, isolated compatibility, repository evidence,
+  and conflicts with Chart, interaction, Annotation, Replay, persistence, and
+  semantic-package ownership;
+- [x] adopt official Primitive/rendering patterns while retaining every R13.6
+  runtime owner behind the V7 ports established by R13.2–R13.5;
+- [x] add no community production dependency and defer the viable indicator-
+  calculation catalog to a separate Indicator adapter decision;
+- [x] freeze the review as machine-readable evidence plus a negative-control
+  Harness so installability cannot silently promote a foreign owner runtime;
+- [x] keep R13.6 Rectangle, selection/edit Preview, Inspector UI, production
+  composition, and persistence separately unauthorized and unimplemented.
+
+Binding contract:
+`docs/V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md`.
+Machine-readable evidence:
+`docs/v7-community-reuse-audit.json`.
+
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
 - [x] accept the current standalone ES/NQ minute-replay product as a complete,
