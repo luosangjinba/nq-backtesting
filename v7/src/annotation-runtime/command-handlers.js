@@ -6,21 +6,49 @@ import { readDrawingProvenance } from './drawing-provenance.js';
 const CREATE_FIELDS = Object.freeze([
   'drawingId', 'expectedDocumentRevision', 'geometry', 'provenance', 'sessionId',
 ]);
+const CREATE_PRESENTED_FIELDS = Object.freeze([...CREATE_FIELDS, 'presentation']);
 const REPLACE_FIELDS = Object.freeze([
   'drawingId', 'expectedDocumentRevision', 'expectedDrawingRevision', 'geometry', 'sessionId',
 ]);
 const STATUS_FIELDS = Object.freeze([
   'drawingId', 'expectedDocumentRevision', 'expectedDrawingRevision', 'sessionId',
 ]);
+const REVISE_FIELDS = Object.freeze([
+  'drawingId', 'expectedDocumentRevision', 'expectedDrawingRevision', 'geometry',
+  'presentation', 'sessionId',
+]);
 
 /** Build and transact one generic Drawing creation command. */
 export function createDrawing(state, input) {
   return state.runMutation(() => {
-    state.validateBaseCommand(input, CREATE_FIELDS, 'Create Drawing command');
+    const fields = Object.hasOwn(input ?? {}, 'presentation')
+      ? CREATE_PRESENTED_FIELDS : CREATE_FIELDS;
+    state.validateBaseCommand(input, fields, 'Create Drawing command');
     return addDrawing(state.documentValue(), {
       drawingId: readDrawingId(input.drawingId),
       geometry: state.readGeometry(input.geometry),
+      presentation: Object.hasOwn(input, 'presentation')
+        ? state.readPresentation(input.presentation) : null,
       provenance: readDrawingProvenance(input.provenance),
+      sessionId: state.sessionId(),
+    });
+  });
+}
+
+/** Atomically replace one active Drawing's Geometry and Presentation. */
+export function reviseDrawing(state, input) {
+  return state.runMutation(() => {
+    state.validateBaseCommand(input, REVISE_FIELDS, 'Revise Drawing command');
+    const drawing = state.requireExistingDrawing(input.drawingId, input.expectedDrawingRevision);
+    if (drawing.status !== 'active') {
+      failAnnotation('DRAWING_ARCHIVED', 'Archived Drawing cannot be revised.');
+    }
+    return replaceDrawing(state.documentValue(), {
+      drawingId: drawing.drawingId,
+      replacement: {
+        geometry: state.readGeometry(input.geometry),
+        presentation: state.readPresentation(input.presentation),
+      },
       sessionId: state.sessionId(),
     });
   });

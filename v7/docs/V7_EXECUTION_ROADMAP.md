@@ -897,9 +897,35 @@ interaction, Chart projection, Replay, persistence, and semantic-package
 owners and may add no reviewed community drawing/toolkit runtime dependency.
 
 The indicator calculation catalog remains only a future adapter candidate
-behind a separate decision. This prerequisite changes no runtime or UI and
-does not authorize Rectangle, selection/editing, Inspector, production
-composition, or persistence work. R13.6 remains unauthorized.
+behind a separate decision. This prerequisite itself changed no runtime or UI;
+the separately authorized R13.6 slice below retains every V7 owner.
+
+### R13.6 — Rectangle, Selection, And Minimal Inspector
+
+- reuse the R13.5 two-anchor owner for normalized Rectangle creation without a
+  second tool runtime;
+- add a Chart-owned Rectangle Primitive, bounded accepted hit testing, and
+  click selection that does not consume native Chart drag or wheel behavior;
+- add one branded minimal Drawing Presentation plus an exact-revision Runtime
+  command that changes Geometry and Presentation atomically;
+- keep selection and Inspector drafts transient, update only an Inspector
+  Preview on typed field changes, and write accepted state only on Save;
+- expose only Segment/Rectangle Geometry and generic stroke/fill controls; add
+  no semantic type, detector, persistence adapter, or production toolbar;
+- prove 23 negative controls and the real Chromium draw/select/edit/save/native
+  navigation path as H104.
+
+Gate: all automated architecture, source, optional-removal, standalone, and
+regression evidence must pass. The real-chart fixture then remains open for
+human visual confirmation before H104 becomes accepted and the R13.6 commit is
+formed. R13.7 remains unauthorized. Binding contract:
+`V7_RECTANGLE_SELECTION_MINIMAL_INSPECTOR_R13_6.md`.
+
+Human gate: accepted 2026-08-09 after two corrective rounds established
+TradingView-style two-click placement, geometry-specific Inspector fields,
+selected endpoint handles, and atomic right-click cancellation without the
+native browser menu. The user separately authorized planning and executing the
+next bounded step; no R13.7 scope is implied by the R13.6 contract itself.
 
 ## Deferred Product Boundary — Second-Level Replay
 

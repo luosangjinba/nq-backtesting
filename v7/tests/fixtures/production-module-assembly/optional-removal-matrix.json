@@ -26,6 +26,10 @@
       "omittedModuleId": "optional.annotation-geometry-domain"
     },
     {
+      "consumerModuleId": "optional.annotation-interaction",
+      "omittedModuleId": "optional.annotation-runtime"
+    },
+    {
       "consumerModuleId": "optional.annotation-runtime",
       "omittedModuleId": "optional.annotation-geometry-domain"
     },

@@ -6,6 +6,7 @@ import {
 } from './annotation-document.js';
 import { failAnnotation } from './annotation-error.js';
 import { readDrawingId } from './drawing-id.js';
+import { readDrawingPresentation } from './drawing-presentation.js';
 import { normalizeGeometryContract, readAcceptedGeometry } from './geometry-port.js';
 import { prepareAnnotationRepository, requireAnnotationRepository } from './repository-port.js';
 
@@ -137,6 +138,8 @@ class AnnotationRuntimeState {
   }
 
   readGeometry(candidate) { return readAcceptedGeometry(this.#geometry, candidate); }
+
+  readPresentation(candidate) { return readDrawingPresentation(candidate); }
 
   requireExistingDrawing(drawingId, expectedRevision) {
     const token = readDrawingId(drawingId);

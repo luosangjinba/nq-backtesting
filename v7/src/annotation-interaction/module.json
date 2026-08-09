@@ -1,12 +1,13 @@
 {
   "id": "optional.annotation-interaction",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "kind": "optional",
   "owner": "annotation-interaction-controller",
   "publicEntry": "src/annotation-interaction/public.js",
   "requiredPorts": [
     "optional.annotation-chart-projection",
-    "optional.annotation-geometry-domain"
+    "optional.annotation-geometry-domain",
+    "optional.annotation-runtime"
   ],
   "optionalPorts": [],
   "lifecycle": ["dispose"],

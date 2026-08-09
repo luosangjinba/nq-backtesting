@@ -23,7 +23,7 @@ function freezeDrawing(value) {
   return Object.freeze({
     drawingId: value.drawingId,
     geometry: value.geometry,
-    presentation: null,
+    presentation: value.presentation,
     provenance: value.provenance,
     revision: value.revision,
     scope: Object.freeze({ kind: 'session', sessionId: value.sessionId }),
@@ -66,7 +66,9 @@ export function drawingFromDocument(document, drawingId) {
 }
 
 /** Create one generic Drawing and advance the document exactly once. */
-export function addDrawing(document, { drawingId, geometry, provenance, sessionId }) {
+export function addDrawing(document, {
+  drawingId, geometry, presentation = null, provenance, sessionId,
+}) {
   const current = readAnnotationDocument(document);
   if (current.drawings.some((drawing) => drawing.drawingId === drawingId)) {
     failAnnotation('DRAWING_ID_DUPLICATE', `Drawing ${drawingId} already exists.`);
@@ -74,6 +76,7 @@ export function addDrawing(document, { drawingId, geometry, provenance, sessionI
   const drawing = freezeDrawing({
     drawingId,
     geometry,
+    presentation,
     provenance,
     revision: 1,
     sessionId: current.sessionId,

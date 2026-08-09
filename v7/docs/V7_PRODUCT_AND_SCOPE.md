@@ -12,6 +12,29 @@ V7 is not a feature restart and not a rewrite of everything. It replaces the
 unreliable replay/chart execution core while retaining reviewed product
 decisions, V4 market-data/API capabilities, and reusable pure domain behavior.
 
+## First-Class Semantic Dataset Product Output
+
+The accepted product position in `ADR-V7-003` extends the validation outcome:
+V7 is an evidence-grade semantic dataset production workstation for
+discretionary trading research. A user-owned, AI-ready semantic annotation
+dataset is a first-class output alongside the validation and deliberate-
+practice workflow; it does not replace Replay as the primary controlled
+observation environment.
+
+The authoritative output is structured evidence over exact market anchors,
+typed and versioned semantic entities/relations, mandatory no-future Replay
+cutoffs, separate Observation/Interpretation/Decision/Outcome records, human
+review provenance, and raw-chart drilldown. Screenshots, prose, flat tags, and
+model responses may be useful derived material but cannot replace that source
+evidence.
+
+V7 remains local-first and user-owned. This product decision does not turn V7
+into a market-data vendor, screenshot grader, automatic signal product,
+general-purpose annotation platform, hosted SaaS, shared corpus, or proprietary
+AI model. Dataset Builder, AI, Research/Training/Trading Review, hosting,
+multi-user collaboration, and commercial distribution each require a separate
+accepted contract and implementation authorization.
+
 ## Current Resolution And Simulation Boundary
 
 The current product is minute-sourced historical Replay with registered higher

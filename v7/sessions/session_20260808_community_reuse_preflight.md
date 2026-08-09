@@ -68,12 +68,12 @@ Closure evidence:
   zero production dependency additions;
 - R13.2 Geometry, R13.3 Annotation Runtime, R13.4 Chart projection, and R13.5
   interaction Harnesses: passed with 32, 39, 30, and 28 negative controls;
-- architecture boundary and 103-rule architecture hardening: passed;
+- architecture boundary and 104-rule architecture hardening: passed;
 - deployed runtime, 55-module production architecture, 55-entry production
   module assembly, and 16-surface writer closure: passed;
-- production source quality: 356 production files, 346 public exports, and 22
+- production source quality: 363 production files, 352 public exports, and 22
   negative controls passed;
-- standalone runtime: 434 files across three roots and seven negative controls
+- standalone runtime: 441 files across three roots and seven negative controls
   passed;
 - production regression matrix: all eight scenarios resolved as passed or
   exact registered known-failure reproductions; eleven axes and eight negative

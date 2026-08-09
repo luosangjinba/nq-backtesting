@@ -39,10 +39,20 @@ function readSegment(candidate) {
   return Object.freeze({ endAnchor, projection, startAnchor });
 }
 
-function renderOptions(value) {
-  const options = { color: '#d946ef', lineWidth: 3, ...value };
+function renderOptions(value, presentation) {
+  const options = {
+    color: presentation?.strokeColor ?? '#d946ef',
+    handleColor: '#f8fafc',
+    handleRadius: 4,
+    lineWidth: presentation?.strokeWidth ?? 3,
+    showHandles: false,
+    ...value,
+  };
   if (typeof options.color !== 'string' || options.color.length === 0
-    || !Number.isFinite(options.lineWidth) || options.lineWidth <= 0) {
+    || !/^#[0-9a-fA-F]{6}$/.test(options.handleColor)
+    || !Number.isFinite(options.handleRadius) || options.handleRadius < 1
+    || !Number.isFinite(options.lineWidth) || options.lineWidth <= 0
+    || typeof options.showHandles !== 'boolean') {
     failProjection('ANNOTATION_SEGMENT_OPTIONS_INVALID', 'Segment render options are invalid.');
   }
   return Object.freeze(options);
@@ -61,7 +71,7 @@ function requireAttached(parameters) {
 /** Create one adapter-local, non-interactive Segment Series Primitive handle. */
 export function createSegmentRenderPrimitive(projection, options = {}) {
   let segment = readSegment(projection);
-  const style = renderOptions(options);
+  let style = renderOptions(options, segment.projection.presentation);
   let attached = null;
   let destroyed = false;
   let points = Object.freeze({ x1: null, x2: null, y1: null, y2: null });
@@ -98,6 +108,23 @@ export function createSegmentRenderPrimitive(projection, options = {}) {
           Math.round(points.y2 * scope.verticalPixelRatio),
         );
         context.stroke();
+        if (style.showHandles) {
+          context.fillStyle = style.handleColor;
+          for (const [x, y] of [[points.x1, points.y1], [points.x2, points.y2]]) {
+            context.beginPath();
+            context.arc(
+              Math.round(x * scope.horizontalPixelRatio),
+              Math.round(y * scope.verticalPixelRatio),
+              style.handleRadius * Math.max(
+                scope.horizontalPixelRatio,
+                scope.verticalPixelRatio,
+              ),
+              0,
+              Math.PI * 2,
+            );
+            context.fill();
+          }
+        }
         context.restore();
       });
     },
@@ -133,6 +160,25 @@ export function createSegmentRenderPrimitive(projection, options = {}) {
       segment = null;
     },
     primitive,
+    hitTest({ tolerancePx = 6, x, y } = {}) {
+      if (destroyed || ![x, y, tolerancePx].every(Number.isFinite) || tolerancePx < 0
+        || ![points.x1, points.x2, points.y1, points.y2].every(Number.isFinite)) return null;
+      const vx = points.x2 - points.x1;
+      const vy = points.y2 - points.y1;
+      const lengthSquared = (vx * vx) + (vy * vy);
+      if (lengthSquared === 0) return null;
+      const ratio = Math.max(0, Math.min(1,
+        (((x - points.x1) * vx) + ((y - points.y1) * vy)) / lengthSquared));
+      const dx = x - (points.x1 + (ratio * vx));
+      const dy = y - (points.y1 + (ratio * vy));
+      const distancePx = Math.sqrt((dx * dx) + (dy * dy));
+      if (distancePx > tolerancePx + (style.lineWidth / 2)) return null;
+      return Object.freeze({
+        distancePx,
+        entityId: segment.projection.entityId,
+        projectionId: segment.projection.projectionId,
+      });
+    },
     snapshot: () => Object.freeze({
       attached: attached !== null,
       destroyed,
@@ -144,6 +190,7 @@ export function createSegmentRenderPrimitive(projection, options = {}) {
         failProjection('ANNOTATION_SEGMENT_PHASE_INVALID', 'Destroyed Segment cannot update.');
       }
       segment = readSegment(candidate);
+      style = renderOptions(options, segment.projection.presentation);
       updateView();
       attached?.requestUpdate();
     },

@@ -1,7 +1,11 @@
 import { failProjection } from './projection-error.js';
 
 const INPUT_FIELDS = Object.freeze(['entityId', 'geometry', 'projectionId', 'revision']);
+const STYLED_INPUT_FIELDS = Object.freeze([...INPUT_FIELDS, 'presentation']);
 const GEOMETRY_FIELDS = Object.freeze(['payload', 'schemaVersion', 'typeId', 'typeVersion']);
+const PRESENTATION_FIELDS = Object.freeze([
+  'fillColor', 'fillOpacity', 'schemaVersion', 'strokeColor', 'strokeWidth',
+]);
 const OPAQUE_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 const GEOMETRY_ID = /^geometry\.[a-z0-9]+(?:[.-][a-z0-9]+)*$/;
 const VERSION = /^\d+\.\d+\.\d+$/;
@@ -78,13 +82,35 @@ function normalizeGeometry(value) {
   });
 }
 
+function normalizePresentation(value) {
+  exactRecord(
+    value,
+    PRESENTATION_FIELDS,
+    'ANNOTATION_PROJECTION_PRESENTATION_INVALID',
+    'Presentation',
+  );
+  if (value.schemaVersion !== 1
+    || !/^#[0-9a-f]{6}$/.test(value.strokeColor)
+    || !/^#[0-9a-f]{6}$/.test(value.fillColor)
+    || !Number.isFinite(value.strokeWidth) || value.strokeWidth < 1 || value.strokeWidth > 12
+    || !Number.isFinite(value.fillOpacity) || value.fillOpacity < 0 || value.fillOpacity > 1) {
+    failProjection(
+      'ANNOTATION_PROJECTION_PRESENTATION_INVALID',
+      'Presentation is outside the minimal Drawing style contract.',
+    );
+  }
+  return Object.freeze({ ...value });
+}
+
 /** Create one branded, deeply immutable, vendor-neutral accepted Annotation projection. */
 export function createAnnotationProjection(value) {
-  exactRecord(value, INPUT_FIELDS, 'ANNOTATION_PROJECTION_INPUT_INVALID', 'Annotation projection');
+  const fields = Object.hasOwn(value ?? {}, 'presentation')
+    ? STYLED_INPUT_FIELDS : INPUT_FIELDS;
+  exactRecord(value, fields, 'ANNOTATION_PROJECTION_INPUT_INVALID', 'Annotation projection');
   if (!Number.isSafeInteger(value.revision) || value.revision < 1) {
     failProjection('ANNOTATION_PROJECTION_REVISION_INVALID', 'Projection revision must be positive.');
   }
-  return new AnnotationProjectionValue(Object.freeze({
+  const snapshot = {
     entityId: opaqueId(value.entityId, 'ANNOTATION_PROJECTION_ENTITY_ID_INVALID', 'Entity id'),
     geometry: normalizeGeometry(value.geometry),
     projectionId: opaqueId(
@@ -94,7 +120,11 @@ export function createAnnotationProjection(value) {
     ),
     revision: value.revision,
     schemaVersion: 1,
-  }));
+  };
+  if (Object.hasOwn(value, 'presentation')) {
+    snapshot.presentation = normalizePresentation(value.presentation);
+  }
+  return new AnnotationProjectionValue(Object.freeze(snapshot));
 }
 
 /** Read one branded Annotation projection without exposing mutable or vendor state. */

@@ -33,6 +33,7 @@ export function createLightweightSeriesPrimitiveAdapter({ createPrimitive, serie
   const acceptedSeries = requireSeries(series);
   const factory = requireFactory(createPrimitive);
   const states = new WeakMap();
+  const activeHandles = new Set();
 
   function state(handle) {
     requireHandle(handle);
@@ -60,6 +61,7 @@ export function createLightweightSeriesPrimitiveAdapter({ createPrimitive, serie
       }
       acceptedSeries.attachPrimitive(handle.primitive);
       value.attached = true;
+      activeHandles.add(handle);
     },
     update(handle, projection) {
       const value = state(handle);
@@ -76,6 +78,7 @@ export function createLightweightSeriesPrimitiveAdapter({ createPrimitive, serie
       if (!value.attached) return;
       acceptedSeries.detachPrimitive(handle.primitive);
       value.attached = false;
+      activeHandles.delete(handle);
     },
     destroy(handle) {
       const value = state(handle);
@@ -84,6 +87,14 @@ export function createLightweightSeriesPrimitiveAdapter({ createPrimitive, serie
       }
       handle.destroy();
       value.destroyed = true;
+    },
+    hitTest(point) {
+      const hits = [...activeHandles]
+        .map((handle) => handle.hitTest?.(point) ?? null)
+        .filter(Boolean)
+        .sort((left, right) => left.distancePx - right.distancePx
+          || left.projectionId.localeCompare(right.projectionId));
+      return hits[0] ?? null;
     },
   });
 }

@@ -6,9 +6,16 @@ First formed: 2026-08-07
 
 Last substantive revision: 2026-08-07 12:12 PDT
 
-Status: discussion captured; product decision and implementation not authorized
+Status: partially promoted by `ADR-V7-003`; complete system shape, workflow
+ownership, Agent autonomy, business model, and implementation remain unresolved
 
 Registry: `V7_NON_DECISION_MEMO_REGISTRY.md`
+
+Promotion note: on 2026-08-09, `ADR-V7-003` accepted exact semantic evidence,
+no-future provenance, versioned cases/cohorts, deterministic metrics, and
+evidence-linked AI output as product-direction constraints. This memo's final
+pre-decision position remains frozen below. It still authorizes no Research,
+Training, Trading Review, Agent, provider, or implementation module.
 
 Stable-path note: the filename retains the memo's original research-focused
 name so historical links remain valid after the broader goal correction.

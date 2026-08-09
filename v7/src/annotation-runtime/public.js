@@ -12,3 +12,8 @@ export { AnnotationRuntimeError } from './annotation-error.js';
 export { createAnnotationRuntime } from './annotation-runtime.js';
 export { createDrawingId, readDrawingId } from './drawing-id.js';
 export { createDrawingProvenance, readDrawingProvenance } from './drawing-provenance.js';
+export {
+  createDefaultDrawingPresentation,
+  createDrawingPresentation,
+  readDrawingPresentation,
+} from './drawing-presentation.js';

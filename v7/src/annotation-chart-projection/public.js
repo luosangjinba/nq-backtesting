@@ -26,3 +26,4 @@ export {
   readPreparedAnnotationProjection,
 } from './prepared-projection.js';
 export { createSegmentRenderPrimitive } from './segment-render-primitive.js';
+export { createRectangleRenderPrimitive } from './rectangle-render-primitive.js';

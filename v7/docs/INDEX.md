@@ -84,8 +84,9 @@ unresolved ideas. It assigns stable memo ids, preserves position history, and
 records tensions that a later decision must resolve. The registered
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md`,
 `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md`, and
-`V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` record possible
-next product directions but authorize no implementation.
+`V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md`, together with
+`V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md`, record
+possible next product and business directions but authorize no implementation.
 The seconds/tick memo additionally records the current decision that minute-
 sourced V7 remains valid without simulated-live training, defines the three-
 of-four investigation signals, and keeps every future seconds path behind the
@@ -96,6 +97,16 @@ versioned Setup/Outcome definitions → Study Case → immutable Study Cohort �
 auditable Analysis Run hierarchy remains the research substrate, while governed
 Agent plans, tools, coaching, longitudinal review, and action provenance are
 candidate system-wide requirements.
+The accepted product-output decision is
+`V7_EVIDENCE_GRADE_SEMANTIC_DATASET_PRODUCT_DECISION.md`. ADR-V7-003 makes
+user-owned, AI-ready, evidence-grade semantic annotation data a first-class V7
+output while preserving Replay as the controlled observation environment. It
+binds exact market anchors, typed relations, no-future provenance, epistemic
+separation, versioned meaning, human acceptance, reproducible derivation, raw-
+context drilldown, portability, and replaceable AI providers. It allocates no
+Dataset Builder, AI, Research/Training/Review, SaaS, shared-data, or Marketplace
+implementation step. MEMO-V7-004 preserves the competitive, data-rights,
+commercialization, branding, and market-entry discussion that remains open.
 The accepted post-milestone foundation is
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
 market-coordinate geometry, generic drawings, typed semantic artifacts,
@@ -126,7 +137,12 @@ fixture and requires a human visual gate before the R13.5 commit.
 Lightweight Charts Primitive patterns may be adapted, but reviewed community
 drawing/toolkit runtimes may not become parallel V7 owners. It adds no
 production dependency or pixels, keeps Indicator calculation under a later
-decision, and does not authorize R13.6.
+decision. `V7_RECTANGLE_SELECTION_MINIMAL_INSPECTOR_R13_6.md` implements the
+separately bounded Rectangle, accepted hit selection, atomic Geometry/style
+revision, and minimal Segment/Rectangle Inspector over those V7-owned ports.
+Its surface remains a test fixture. The corrected local visual gate closed on
+2026-08-09; H104 is accepted and the user separately authorized the next
+bounded step.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
@@ -243,20 +259,26 @@ Read in this order before V7 implementation work:
 99. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,
     non-binding AI-Agent-participatory Research, Training, and Trading Review
     context only
-100. `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` as accepted
+100. `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md` as
+    the partially promoted market, competitor, data-rights, commercialization,
+    branding, and open-model discussion; its remaining questions are non-binding
+101. `V7_EVIDENCE_GRADE_SEMANTIC_DATASET_PRODUCT_DECISION.md` as accepted
+    ADR-V7-003; read before any dataset, AI, Research, Training, Trading Review,
+    hosted, or shared-data specification
+102. `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` as accepted
     ADR-V7-001; read before any drawing or semantic annotation implementation
-101. `V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md` as the binding pure
+103. `V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md` as the binding pure
     market-coordinate Point/Segment/Rectangle and extensible Registry contract
-102. `V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md` as the binding removable sole
+104. `V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md` as the binding removable sole
     Annotation Document writer and exact generic-Drawing revision contract
-103. `V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md` as the binding
+105. `V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md` as the binding
     Chart-owned prepare/apply/rollback/finalize Primitive projection contract
-104. `V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md` as the binding one-shot Segment
+106. `V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md` as the binding one-shot Segment
     gesture, transient Preview, cancellation, and Chart arbitration contract
-105. `V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md` as accepted ADR-V7-002 and
+107. `V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md` as accepted ADR-V7-002 and
     `v7-community-reuse-audit.json` as its pinned machine-readable candidate
     evidence; read before specifying or implementing R13.6
-106. `../TODO.md`
+108. `../TODO.md`
 
 The numbered order above is for implementation work. Ordinary users should use
 the user/operator entry points instead of reading the architecture history.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R13.5",
+  "deliveryStep": "R13.6",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -137,6 +137,10 @@
     },
     {
       "path": "sessions/session_20260808_r13_5_segment_interaction_preview.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260809_r13_6_rectangle_selection_minimal_inspector.md",
       "expectedOccurrences": 1
     }
   ],

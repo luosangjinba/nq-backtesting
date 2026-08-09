@@ -9,10 +9,10 @@ function methods(candidate, names, code, label) {
   return candidate;
 }
 
-/** Validate the pure Geometry operations used by the Segment controller. */
-export function requireGeometryContract(candidate) {
+/** Validate the pure Geometry operations used by one two-anchor controller. */
+export function requireGeometryContract(candidate, createGeometryMethod = 'createSegmentGeometry') {
   return methods(candidate, [
-    'createMarketAnchor', 'createSegmentGeometry', 'readDrawingGeometry',
+    'createMarketAnchor', createGeometryMethod, 'readDrawingGeometry',
   ], 'ANNOTATION_INTERACTION_GEOMETRY_PORT_INVALID', 'Geometry contract');
 }
 

@@ -332,6 +332,59 @@ assert.deepEqual(interactionOptions, initialInteractionOptions);
 assert.equal(concreteInteraction.snapshot().nativeSuppressed, false);
 
 concreteInteraction.acquire(interactionHandlers());
+const clickPlacementStart = interactionEvents.length;
+interactionHost.dispatch('pointerdown', trackedPointerEvent('click-start', {
+  button: 0, clientX: 150, clientY: 130, isPrimary: true, pointerId: 8,
+}));
+interactionTarget.dispatch('pointerup', trackedPointerEvent('click-start-release', {
+  button: 0, clientX: 150, clientY: 130, isPrimary: true, pointerId: 8,
+}));
+assert.equal(concreteInteraction.snapshot().gesturePhase, 'placing');
+assert.equal(concreteInteraction.snapshot().nativeSuppressed, true);
+interactionTarget.dispatch('pointermove', trackedPointerEvent('click-preview', {
+  buttons: 0, clientX: 190, clientY: 90, isPrimary: true, pointerId: 8,
+}));
+interactionHost.dispatch('pointerdown', trackedPointerEvent('click-end', {
+  button: 0, clientX: 190, clientY: 90, isPrimary: true, pointerId: 8,
+}));
+interactionTarget.dispatch('pointerup', trackedPointerEvent('click-end-release', {
+  button: 0, clientX: 190, clientY: 90, isPrimary: true, pointerId: 8,
+}));
+assert.deepEqual(
+  interactionEvents.slice(clickPlacementStart).map(([kind]) => kind),
+  ['start', 'move', 'end'],
+  'click-move-click placement must emit one normalized two-anchor gesture',
+);
+assert.deepEqual(interactionOptions, initialInteractionOptions);
+assert.equal(concreteInteraction.snapshot().nativeSuppressed, false);
+
+concreteInteraction.acquire(interactionHandlers());
+interactionHost.dispatch('pointerdown', trackedPointerEvent('secondary-click-start', {
+  button: 0, clientX: 150, clientY: 130, isPrimary: true, pointerId: 9,
+}));
+interactionTarget.dispatch('pointerup', trackedPointerEvent('secondary-click-start-release', {
+  button: 0, clientX: 150, clientY: 130, isPrimary: true, pointerId: 9,
+}));
+const secondaryPointerDown = trackedPointerEvent('secondary-button', {
+  button: 2, buttons: 2, clientX: 190, clientY: 90, isPrimary: false, pointerId: 10,
+});
+interactionHost.dispatch('pointerdown', secondaryPointerDown);
+assert.deepEqual(interactionEvents.at(-1), ['cancel', 'secondary-button']);
+assert.equal(concreteInteraction.snapshot().active, false);
+assert.equal(consumedPointerEvents.at(-1).defaultPrevented, true);
+assert.equal(consumedPointerEvents.at(-1).propagationStopped, true);
+let contextMenuPrevented = false;
+let contextMenuStopped = false;
+interactionHost.dispatch('contextmenu', {
+  preventDefault() { contextMenuPrevented = true; },
+  stopImmediatePropagation() { contextMenuStopped = true; },
+});
+assert.equal(contextMenuPrevented, true);
+assert.equal(contextMenuStopped, true);
+assert.deepEqual(interactionEvents.at(-1), ['cancel', 'secondary-button']);
+assert.deepEqual(interactionOptions, initialInteractionOptions);
+
+concreteInteraction.acquire(interactionHandlers());
 interactionTarget.dispatch('blur');
 assert.deepEqual(interactionEvents.at(-1), ['cancel', 'focus-loss']);
 assert.deepEqual(interactionOptions, initialInteractionOptions);
@@ -447,7 +500,9 @@ for (const fixture of negativeCases) {
 }
 
 const descriptorFiles = [
+  'src/session-identity/module.json',
   'src/annotation-geometry-domain/module.json',
+  'src/annotation-runtime/module.json',
   'src/annotation-chart-projection/module.json',
   'src/annotation-interaction/module.json',
 ];
@@ -458,6 +513,7 @@ const interactionDescriptor = descriptors.at(-1);
 assert.equal(interactionDescriptor.id, 'optional.annotation-interaction');
 assert.deepEqual(interactionDescriptor.requiredPorts, [
   'optional.annotation-chart-projection', 'optional.annotation-geometry-domain',
+  'optional.annotation-runtime',
 ]);
 const publicApis = new Map(await Promise.all(descriptors.map(async (descriptor) => [
   descriptor.id,

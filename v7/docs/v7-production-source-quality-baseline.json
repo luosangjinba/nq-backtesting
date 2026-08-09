@@ -547,7 +547,7 @@
         {
           "documentation": {
             "owner": "annotation-interaction-controller.",
-            "purpose": "expose one removable generic Segment gesture state machine over injected bounded ports.",
+            "purpose": "expose removable two-anchor Drawing gestures and transient Inspector state over bounded ports.",
             "inputs": "normalized market-anchor gestures, pure Geometry, transient Preview, and one Drawing command.",
             "outputs": "one disposable controller plus immutable interaction snapshots.",
             "sideEffects": "calls only injected Preview and generic-Drawing command ports; never DOM or Chart APIs.",
@@ -2128,6 +2128,122 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 4,
+          "name": "createGeometryInput",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "createRectangleInteractionController",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-interaction",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": false,
+      "path": "src/annotation-interaction/rectangle-interaction-controller.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-interaction-controller.",
+            "purpose": "expose removable two-anchor Drawing gestures and transient Inspector state over bounded ports.",
+            "inputs": "normalized market-anchor gestures, pure Geometry, transient Preview, and one Drawing command.",
+            "outputs": "one disposable controller plus immutable interaction snapshots.",
+            "sideEffects": "calls only injected Preview and generic-Drawing command ports; never DOM or Chart APIs.",
+            "lifecycle": "one-shot gestures are armed explicitly and every active gesture is cancelled on dispose.",
+            "errors": "AnnotationInteractionError rejects malformed ports, commands, or overlapping interaction.",
+            "concurrencyCancellation": "pointer moves coalesce in the Preview owner; pointer-up issues at most one command."
+          },
+          "moduleId": "optional.annotation-interaction",
+          "name": "createRectangleInteractionController",
+          "semanticMatches": [
+            "annotation",
+            "controller",
+            "interaction"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "controller",
+            "interaction",
+            "optional",
+            "rectangle"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "51f644f8857aa29af032960b97bb54030e49b1b81139fa4aec86ffbfed785f28"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 12,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 4,
+          "name": "createGeometryInput",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "createSegmentInteractionController",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-interaction",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": false,
+      "path": "src/annotation-interaction/segment-interaction-controller.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-interaction-controller.",
+            "purpose": "expose removable two-anchor Drawing gestures and transient Inspector state over bounded ports.",
+            "inputs": "normalized market-anchor gestures, pure Geometry, transient Preview, and one Drawing command.",
+            "outputs": "one disposable controller plus immutable interaction snapshots.",
+            "sideEffects": "calls only injected Preview and generic-Drawing command ports; never DOM or Chart APIs.",
+            "lifecycle": "one-shot gestures are armed explicitly and every active gesture is cancelled on dispose.",
+            "errors": "AnnotationInteractionError rejects malformed ports, commands, or overlapping interaction.",
+            "concurrencyCancellation": "pointer moves coalesce in the Preview owner; pointer-up issues at most one command."
+          },
+          "moduleId": "optional.annotation-interaction",
+          "name": "createSegmentInteractionController",
+          "semanticMatches": [
+            "annotation",
+            "controller",
+            "interaction"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "controller",
+            "interaction",
+            "optional",
+            "segment"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "61c1b7f99812aa6a65980bcb078f6d19688db6409ecb667d6564562919bb338a"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 12,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 5,
           "name": "requireMethod",
           "reviewedDecompositionException": false
@@ -3258,6 +3374,72 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "c6e0b83f117e346dcd44708f320291022bbe6b128885eca9d43f426bd49d0db0"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 129,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 10,
+          "name": "presentationForControls",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "requireDrawingRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "requirePresentationContract",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "controlsForDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 30,
+          "name": "geometryForControls",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireExactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireOpaqueId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireDrawingPort",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireSupportedField",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-interaction",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": false,
+      "path": "src/annotation-interaction/drawing-inspector-draft.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "91a2124f74b73fb7852a869b85b2b4563e3ef8750347dae30e12dae14e41491a"
     },
     {
       "adaptsBoundary": false,
@@ -5451,17 +5633,17 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 165,
+      "effectiveLines": 167,
       "forwardingOnly": false,
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "<anonymous-18>",
+          "name": "<anonymous-19>",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 1,
-          "name": "<anonymous-23>",
+          "name": "<anonymous-24>",
           "reviewedDecompositionException": false
         },
         {
@@ -5472,6 +5654,11 @@
         {
           "effectiveLines": 1,
           "name": "readGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readPresentation",
           "reviewedDecompositionException": false
         },
         {
@@ -5511,7 +5698,7 @@
         },
         {
           "effectiveLines": 3,
-          "name": "<anonymous-19>",
+          "name": "<anonymous-20>",
           "reviewedDecompositionException": false
         },
         {
@@ -5586,7 +5773,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "68cd6b69b993118bc3d2e7cc04071d5575778cca4838e1fc922b054d01aa9a8b"
+      "sourceHash": "b44b252a5c48a99ee82198b8609b0c279dea8e010e0f185cc29f80bb04d6eeb9"
     },
     {
       "adaptsBoundary": false,
@@ -6917,26 +7104,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 2,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-interaction",
-      "owner": "annotation-interaction-controller",
-      "ownsContract": true,
-      "path": "src/annotation-interaction/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "5e19cf0800df0f269038ba1cde88e2f93a4e4e7289661ffcd1c8f03cfec6d797"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 20,
       "forwardingOnly": false,
       "functions": [
@@ -7110,100 +7277,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "3c60b1332a1da64658b2e1032bbab858b550dffb399e35a68e3b631d09938378"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 21,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "archiveDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "createDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "getDocument",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "getDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "health",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "listDrawings",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "replaceDrawingGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "restoreDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "createAnnotationRuntime",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
-      "ownsContract": false,
-      "path": "src/annotation-runtime/annotation-runtime.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "Annotation Runtime.",
-            "purpose": "own one Session's accepted generic-Drawing document through exact reversible mutations.",
-            "inputs": "branded Session, optional Geometry public contract, and injected fake Repository port.",
-            "outputs": "frozen asynchronous commands, synchronous immutable queries, health, and disposal.",
-            "sideEffects": "writes only through repository.prepare() lifecycle; no Chart, storage, or event access.",
-            "lifecycle": "dispose blocks new work and waits for one already-started transaction to settle.",
-            "errors": "AnnotationRuntimeError plus branded Session identity failures.",
-            "concurrencyCancellation": "exactly one mutation may be active; a concurrent command is rejected."
-          },
-          "moduleId": "optional.annotation-runtime",
-          "name": "createAnnotationRuntime",
-          "semanticMatches": [
-            "annotation",
-            "optional"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "optional"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "23b31239a78280cbd63cf4b04a763db46769b7f0d3dba9a4b4b9eb0bd5578e4d"
     },
     {
       "adaptsBoundary": false,
@@ -7869,6 +7942,57 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "flush",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "createDrawingPreviewSession",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "clear",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "replace",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-interaction",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": false,
+      "path": "src/annotation-interaction/drawing-preview-session.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "4537c208699ab984f563b02e0ac39c02824745660bc60d6227d4e047f26ba89e"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 22,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 15,
           "name": "createWorkspaceReplacementInput",
           "reviewedDecompositionException": false
@@ -7915,6 +8039,271 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "16a8ee306d4f44dddd23aa02600b8cabc7d0ed14b994eccc0d29b4e3f68e5172"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 23,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "archiveDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "createDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "getDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "getDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "health",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "listDrawings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "replaceDrawingGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "restoreDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "reviseDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "createAnnotationRuntime",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/annotation-runtime.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "Annotation Runtime.",
+            "purpose": "own one Session's accepted generic-Drawing document through exact reversible mutations.",
+            "inputs": "branded Session, optional Geometry public contract, and injected fake Repository port.",
+            "outputs": "frozen asynchronous commands, synchronous immutable queries, health, and disposal.",
+            "sideEffects": "writes only through repository.prepare() lifecycle; no Chart, storage, or event access.",
+            "lifecycle": "dispose blocks new work and waits for one already-started transaction to settle.",
+            "errors": "AnnotationRuntimeError plus branded Session identity failures.",
+            "concurrencyCancellation": "exactly one mutation may be active; a concurrent command is rejected."
+          },
+          "moduleId": "optional.annotation-runtime",
+          "name": "createAnnotationRuntime",
+          "semanticMatches": [
+            "annotation",
+            "optional"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "optional"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "d6204500fef1c01036b21a3d4399d2d28222d625ade76770cab8bfa33c348425"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 233,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "replacePreview",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "reset",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "operation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "<anonymous-23>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "clearPreview",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "geometryFromControls",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "presentationFromControls",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "publish",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 32,
+          "name": "<anonymous-21>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "cancel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "requireOperable",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "save",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "select",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "updateDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 57,
+          "name": "createDrawingInspectorController",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "fail",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "report",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-interaction",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": false,
+      "path": "src/annotation-interaction/drawing-inspector-controller.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-interaction-controller.",
+            "purpose": "expose removable two-anchor Drawing gestures and transient Inspector state over bounded ports.",
+            "inputs": "normalized market-anchor gestures, pure Geometry, transient Preview, and one Drawing command.",
+            "outputs": "one disposable controller plus immutable interaction snapshots.",
+            "sideEffects": "calls only injected Preview and generic-Drawing command ports; never DOM or Chart APIs.",
+            "lifecycle": "one-shot gestures are armed explicitly and every active gesture is cancelled on dispose.",
+            "errors": "AnnotationInteractionError rejects malformed ports, commands, or overlapping interaction.",
+            "concurrencyCancellation": "pointer moves coalesce in the Preview owner; pointer-up issues at most one command."
+          },
+          "moduleId": "optional.annotation-interaction",
+          "name": "createDrawingInspectorController",
+          "semanticMatches": [
+            "annotation",
+            "controller",
+            "drawing",
+            "inspector",
+            "interaction"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "controller",
+            "drawing",
+            "inspector",
+            "interaction",
+            "optional"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "786208e3724df8bf210e44bab2e2ac954ff5b9c6e36c4ee55c7ed526d211f099"
     },
     {
       "adaptsBoundary": false,
@@ -8610,7 +8999,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "b24aef757b4c2367f66f2264b27d1e922b5afda16f93ae2825395c030b587264"
+      "sourceHash": "72695aa28cddfd49fc2067f1ad92f81216d40c56a21b8032944de36d2430cb2d"
     },
     {
       "adaptsBoundary": false,
@@ -8884,200 +9273,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 293,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-20>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onCancel",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "rawAnchorEvent",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "<anonymous-19>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "resetInteraction",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "onStart",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "onMove",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 20,
-          "name": "onEnd",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 25,
-          "name": "<anonymous-24>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "publish",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "segmentBetween",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 31,
-          "name": "arm",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "setStatus",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "settle",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-15>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "clearPreview",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 55,
-          "name": "createSegmentInteractionController",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "brandAnchor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "exactRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "recordError",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "cancel",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "interactionId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "beginCancel",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "projectionFor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "schedulePreview",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-interaction",
-      "owner": "annotation-interaction-controller",
-      "ownsContract": false,
-      "path": "src/annotation-interaction/segment-interaction-controller.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "annotation-interaction-controller.",
-            "purpose": "expose one removable generic Segment gesture state machine over injected bounded ports.",
-            "inputs": "normalized market-anchor gestures, pure Geometry, transient Preview, and one Drawing command.",
-            "outputs": "one disposable controller plus immutable interaction snapshots.",
-            "sideEffects": "calls only injected Preview and generic-Drawing command ports; never DOM or Chart APIs.",
-            "lifecycle": "one-shot gestures are armed explicitly and every active gesture is cancelled on dispose.",
-            "errors": "AnnotationInteractionError rejects malformed ports, commands, or overlapping interaction.",
-            "concurrencyCancellation": "pointer moves coalesce in the Preview owner; pointer-up issues at most one command."
-          },
-          "moduleId": "optional.annotation-interaction",
-          "name": "createSegmentInteractionController",
-          "semanticMatches": [
-            "annotation",
-            "controller",
-            "interaction",
-            "segment"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "controller",
-            "interaction",
-            "optional",
-            "segment"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "f75f714772cfb15c92074ac6175babab96f166f1649f358391c239fff0e3232b"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 3,
       "forwardingOnly": true,
       "functions": [],
@@ -9213,6 +9408,172 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "c456c1cfc076519fe143436b64392e40cb6d6c2482a32415756d81b761580707"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 302,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onCancel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "rawAnchorEvent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "onStart",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "onMove",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "onEnd",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "<anonymous-24>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "clearPreview",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "geometryBetween",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "publish",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "arm",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "setStatus",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "settle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "brandAnchor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "recordError",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 63,
+          "name": "createTwoAnchorInteractionController",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "cancel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "interactionId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "projectionFor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "schedulePreview",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "beginCancel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "resetInteraction",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-interaction",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": false,
+      "path": "src/annotation-interaction/two-anchor-interaction-controller.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "0b9255a0a6b9f1b11c072a73c444c95861c51ae2d55fb4117e89497771c6e552"
     },
     {
       "adaptsBoundary": false,
@@ -10793,17 +11154,17 @@
       "forwardingOnly": true,
       "functions": [],
       "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
+      "moduleId": "optional.annotation-interaction",
+      "owner": "annotation-interaction-controller",
       "ownsContract": true,
-      "path": "src/annotation-runtime/public.js",
+      "path": "src/annotation-interaction/public.js",
       "publicExports": [],
       "responsibilities": [
         "internal-state-or-pure-computation"
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "46abb800288b2029c57baaeb7899d645916fa710cd47b19758748751e4dc41f9"
+      "sourceHash": "0d56a37fdedc3581105c62cadd20c671ffe29aefb7df5d6358a09d6d0a4b75c4"
     },
     {
       "adaptsBoundary": false,
@@ -12105,6 +12466,133 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 56,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "createDrawingPresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "color",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readDrawingPresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "createDefaultDrawingPresentation",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/drawing-presentation.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-runtime.",
+            "purpose": "expose the complete R13.3 headless generic-Drawing document contract.",
+            "inputs": "branded Session/Drawing/provenance values, optional Geometry port, and fake Repository port.",
+            "outputs": "one disposable Runtime with exact-revision commands and immutable queries.",
+            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or durable adapter.",
+            "lifecycle": "each Runtime is isolated and disposed explicitly.",
+            "errors": "AnnotationRuntimeError and branded identity errors.",
+            "concurrencyCancellation": "one asynchronous mutation at a time; no implicit queue or cancellation."
+          },
+          "moduleId": "optional.annotation-runtime",
+          "name": "createDefaultDrawingPresentation",
+          "semanticMatches": [
+            "annotation",
+            "drawing",
+            "optional"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "drawing",
+            "optional",
+            "presentation"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-runtime.",
+            "purpose": "expose the complete R13.3 headless generic-Drawing document contract.",
+            "inputs": "branded Session/Drawing/provenance values, optional Geometry port, and fake Repository port.",
+            "outputs": "one disposable Runtime with exact-revision commands and immutable queries.",
+            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or durable adapter.",
+            "lifecycle": "each Runtime is isolated and disposed explicitly.",
+            "errors": "AnnotationRuntimeError and branded identity errors.",
+            "concurrencyCancellation": "one asynchronous mutation at a time; no implicit queue or cancellation."
+          },
+          "moduleId": "optional.annotation-runtime",
+          "name": "createDrawingPresentation",
+          "semanticMatches": [
+            "annotation",
+            "drawing",
+            "optional"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "drawing",
+            "optional",
+            "presentation"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-runtime.",
+            "purpose": "expose the complete R13.3 headless generic-Drawing document contract.",
+            "inputs": "branded Session/Drawing/provenance values, optional Geometry port, and fake Repository port.",
+            "outputs": "one disposable Runtime with exact-revision commands and immutable queries.",
+            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or durable adapter.",
+            "lifecycle": "each Runtime is isolated and disposed explicitly.",
+            "errors": "AnnotationRuntimeError and branded identity errors.",
+            "concurrencyCancellation": "one asynchronous mutation at a time; no implicit queue or cancellation."
+          },
+          "moduleId": "optional.annotation-runtime",
+          "name": "readDrawingPresentation",
+          "semanticMatches": [
+            "annotation",
+            "drawing",
+            "optional"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "drawing",
+            "optional",
+            "presentation"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "e3304fc67cc88688d21c394943fd521d0b0d745108d50a2c93a89115c676e2c8"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 57,
       "forwardingOnly": false,
       "functions": [
@@ -12529,67 +13017,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "8f7fe54cebaad8c03d1c3d91fe148c9ecf840e23e9c72b8a1299dadba5cac00e"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 66,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 10,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "createDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "replaceDrawingGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "transitionDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "archiveDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "restoreDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
-      "ownsContract": false,
-      "path": "src/annotation-runtime/command-handlers.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "4bbeae3ff713da0a19d83e93c6f0549d9184067a1133f52040d6785ac4f4cc89"
     },
     {
       "adaptsBoundary": false,
@@ -14467,97 +14894,6 @@
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-14>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "read",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "freezeDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "documentValue",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "replaceDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "addDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "createInitialAnnotationDocument",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "drawingFromDocument",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "nextRevision",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "readAnnotationDocument",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
-      "ownsContract": false,
-      "path": "src/annotation-runtime/annotation-document.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "896b27744378655db5aaa454aa810746fbc3d3ee22e4f69530507d442f7114bd"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 89,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
           "name": "<anonymous-7>",
           "reviewedDecompositionException": false
         },
@@ -14697,6 +15033,26 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "aa001491a47cb100589a9a39f536b89c6dd2754e1055620818885bf88d602dce"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 9,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": true,
+      "path": "src/annotation-runtime/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "9211e4b22207f9e40e56f3694c87182fa3e1a65afcc6d90d585e3ac3c23ca7bc"
     },
     {
       "adaptsBoundary": false,
@@ -14920,6 +15276,168 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "52fcebdb4832b348adcd7baabff408573637f1b0d22699a2584ae0e6f64fb4fd"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 92,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "freezeDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "documentValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "replaceDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "addDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createInitialAnnotationDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "drawingFromDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "nextRevision",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readAnnotationDocument",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/annotation-document.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "a641cb4b6934c9e1c2073bb84f13855c1548167b57ab5be1139f49d992d1c362"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 92,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 10,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "createDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "replaceDrawingGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "reviseDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "transitionDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "archiveDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "restoreDrawing",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/command-handlers.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "3f3e719dd139714f688c3955c66eb7d2c3bef469fef954607f50b6c2a90f35e1"
     },
     {
       "adaptsBoundary": false,
@@ -18539,6 +19057,138 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 126,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "normalizeGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "normalizePresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "createAnnotationProjection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "portable",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "annotationProjectionSignature",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "opaqueId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readAnnotationProjection",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.annotation-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-chart-projection/annotation-projection.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
+            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
+            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
+            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
+            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
+            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
+          },
+          "moduleId": "optional.annotation-chart-projection",
+          "name": "createAnnotationProjection",
+          "semanticMatches": [
+            "annotation",
+            "chart",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "chart",
+            "optional",
+            "projection"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
+            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
+            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
+            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
+            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
+            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
+          },
+          "moduleId": "optional.annotation-chart-projection",
+          "name": "readAnnotationProjection",
+          "semanticMatches": [
+            "annotation",
+            "chart",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "chart",
+            "optional",
+            "projection"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "f57f25822783103ff032bbb7ca1283b1555f8d85c5569d3b70d34dab54557587"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 136,
       "forwardingOnly": false,
       "functions": [
@@ -18877,143 +19527,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "e776d486f0adf7f8975c969e8be56d05fc391d9b325b3271fd10c81995277ce6"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 140,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "paneViews",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "renderer",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "zOrder",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "updateView",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "readSegment",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 21,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 33,
-          "name": "createSegmentRenderPrimitive",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "detached",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "draw",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "exactRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "destroy",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "attached",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "readAnchor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "renderOptions",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "update",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "requireAttached",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "optional.annotation-chart-projection",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/annotation-chart-projection/segment-render-primitive.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
-            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
-            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
-            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
-            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
-            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
-            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
-          },
-          "moduleId": "optional.annotation-chart-projection",
-          "name": "createSegmentRenderPrimitive",
-          "semanticMatches": [
-            "annotation",
-            "chart",
-            "primitive",
-            "projection",
-            "render"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "chart",
-            "optional",
-            "primitive",
-            "projection",
-            "render",
-            "segment"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "0bd2ae02e5221091e4a34bb381feaa678ca749a909e59824b412e963039435ff"
     },
     {
       "adaptsBoundary": true,
@@ -20425,6 +20938,143 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 160,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "paneViews",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "renderer",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "zOrder",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "hitTest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "readRectangle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "styleFor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "alphaHex",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 31,
+          "name": "createRectangleRenderPrimitive",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "detached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "draw",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "destroy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "attached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireAttached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "update",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "updateView",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.annotation-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-chart-projection/rectangle-render-primitive.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
+            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
+            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
+            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
+            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
+            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
+          },
+          "moduleId": "optional.annotation-chart-projection",
+          "name": "createRectangleRenderPrimitive",
+          "semanticMatches": [
+            "annotation",
+            "chart",
+            "primitive",
+            "projection",
+            "render"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "chart",
+            "optional",
+            "primitive",
+            "projection",
+            "rectangle",
+            "render"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "f4d6ac1c831a7b1f059ae6ee5068345f6c00671ff6e03e7d2429e01019ca6560"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 167,
       "forwardingOnly": false,
       "functions": [
@@ -20818,26 +21468,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 18,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "adapter",
-      "moduleId": "optional.annotation-chart-projection",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": true,
-      "path": "src/annotation-chart-projection/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "dd488fac4992019926aec589ff3992f5f290cf59d990f147afb290e1190beac0"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 183,
       "forwardingOnly": false,
       "functions": [
@@ -21079,6 +21709,148 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 187,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "paneViews",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "renderer",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "zOrder",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "updateView",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "readSegment",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "renderOptions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "hitTest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "createSegmentRenderPrimitive",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 38,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "detached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "draw",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "destroy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "attached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "readAnchor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireAttached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "update",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.annotation-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-chart-projection/segment-render-primitive.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
+            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
+            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
+            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
+            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
+            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
+          },
+          "moduleId": "optional.annotation-chart-projection",
+          "name": "createSegmentRenderPrimitive",
+          "semanticMatches": [
+            "annotation",
+            "chart",
+            "primitive",
+            "projection",
+            "render"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "chart",
+            "optional",
+            "primitive",
+            "projection",
+            "render",
+            "segment"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "39bfebc5eecebd4a05a4868eb9bf38cf980545f3fab013df4cb5fef588964c2e"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 189,
       "forwardingOnly": false,
       "functions": [
@@ -21211,6 +21983,26 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "98c329c7b8f5b925ecaade78be6323ce56cec142273ada89528176fa02c51c63"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 19,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "adapter",
+      "moduleId": "optional.annotation-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": true,
+      "path": "src/annotation-chart-projection/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "36bf75563e0e1cd46c97f37548e6e4217b7998380e004a8b0104680e9cd737cb"
     },
     {
       "adaptsBoundary": true,
@@ -23029,120 +23821,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 240,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 11,
-          "name": "createChartAnnotationProjectionPort",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "record",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "requireOperable",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "reverse",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 21,
-          "name": "rollback",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 24,
-          "name": "finalize",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 29,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 32,
-          "name": "apply",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 35,
-          "name": "prepare",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "settle",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "requireAnnotationRevision",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "optional.annotation-chart-projection",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/annotation-chart-projection/chart-annotation-projection.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
-            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
-            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
-            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
-            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
-            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
-            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
-          },
-          "moduleId": "optional.annotation-chart-projection",
-          "name": "createChartAnnotationProjectionPort",
-          "semanticMatches": [
-            "annotation",
-            "chart",
-            "port",
-            "projection"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "chart",
-            "optional",
-            "port",
-            "projection"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "e321015dce21c4829b1ebd29321cc1c4b1160d320f826e1a61dfd3517c3bcc06"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 241,
       "forwardingOnly": false,
       "functions": [
@@ -23477,132 +24155,77 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 254,
+      "effectiveLines": 251,
       "forwardingOnly": false,
       "functions": [
         {
-          "effectiveLines": 1,
-          "name": "onBlur",
+          "effectiveLines": 10,
+          "name": "hitTest",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 10,
-          "name": "finish",
+          "effectiveLines": 11,
+          "name": "record",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 10,
-          "name": "releaseCapture",
+          "effectiveLines": 11,
+          "name": "requireOperable",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 12,
-          "name": "dispose",
+          "name": "createChartAnnotationProjectionPort",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 12,
-          "name": "requireHandlers",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "onPointerMove",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "onPointerUp",
+          "name": "snapshot",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 15,
-          "name": "onPointerDown",
+          "name": "reverse",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 20,
-          "name": "acquire",
+          "effectiveLines": 21,
+          "name": "rollback",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 22,
-          "name": "requireEnvironment",
+          "effectiveLines": 24,
+          "name": "finalize",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 3,
-          "name": "cancel",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "onLostPointerCapture",
+          "effectiveLines": 29,
+          "name": "dispose",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 3,
-          "name": "release",
+          "name": "constructor",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 30,
-          "name": "anchorAt",
+          "effectiveLines": 32,
+          "name": "apply",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 34,
-          "name": "createLightweightAnnotationInteractionPort",
+          "effectiveLines": 35,
+          "name": "prepare",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 4,
-          "name": "consumePointerEvent",
+          "name": "settle",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 4,
-          "name": "safeAnchorAt",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "onKeydown",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "requireMethod",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "onPointerCancel",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requirePaneId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireThreshold",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "restoreNative",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "nativeOptions",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "snapshot",
+          "effectiveLines": 9,
+          "name": "requireAnnotationRevision",
           "reviewedDecompositionException": false
         }
       ],
@@ -23610,7 +24233,7 @@
       "moduleId": "optional.annotation-chart-projection",
       "owner": "chart-runtime-adapter",
       "ownsContract": false,
-      "path": "src/annotation-chart-projection/lightweight-annotation-interaction-port.js",
+      "path": "src/annotation-chart-projection/chart-annotation-projection.js",
       "publicExports": [
         {
           "documentation": {
@@ -23624,19 +24247,16 @@
             "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
           },
           "moduleId": "optional.annotation-chart-projection",
-          "name": "createLightweightAnnotationInteractionPort",
+          "name": "createChartAnnotationProjectionPort",
           "semanticMatches": [
             "annotation",
             "chart",
-            "interaction",
             "port",
             "projection"
           ],
           "semanticTerms": [
             "annotation",
             "chart",
-            "interaction",
-            "lightweight",
             "optional",
             "port",
             "projection"
@@ -23648,7 +24268,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "8a757c886cfbee25e4bd728f0394a0288727faeda78832e292ad03615ef73f8e"
+      "sourceHash": "57f7b2ec56ebeeef5401f78bc6da17b8896035470bbe5db6cd4ab763741aafa7"
     },
     {
       "adaptsBoundary": true,
@@ -25196,6 +25816,213 @@
       ],
       "sizeException": null,
       "sourceHash": "82aaf52798caba7714eb19b3ca23e7b7158727ab6060437349d2cb661789d04e"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 387,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onBlur",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "finish",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "onPointerCancel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "releaseCapture",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "requireHandlers",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "subscribeSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "normalizeSelectionHit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "acquire",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "requireEnvironment",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "anchorAt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "onPointerMove",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "cancel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "release",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "onPointerUp",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "consumePointerEvent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "safeAnchorAt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 43,
+          "name": "onPointerDown",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 45,
+          "name": "createLightweightAnnotationInteractionPort",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "onKeydown",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "onLostPointerCapture",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "requireMethod",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "unsubscribe",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requirePaneId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireThreshold",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "restoreNative",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "nativeOptions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "onContextMenu",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "plotPoint",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.annotation-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-chart-projection/lightweight-annotation-interaction-port.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
+            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
+            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
+            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
+            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
+            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
+          },
+          "moduleId": "optional.annotation-chart-projection",
+          "name": "createLightweightAnnotationInteractionPort",
+          "semanticMatches": [
+            "annotation",
+            "chart",
+            "interaction",
+            "port",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "chart",
+            "interaction",
+            "lightweight",
+            "optional",
+            "port",
+            "projection"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "89360ca27d24af870055ad75d53e8eccdeaa7abb9c2729fbf1667f244bf2930f"
     },
     {
       "adaptsBoundary": true,
@@ -29616,116 +30443,6 @@
       "forwardingOnly": false,
       "functions": [
         {
-          "effectiveLines": 10,
-          "name": "requireHandle",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "createLightweightSeriesPrimitiveAdapter",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireFactory",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "update",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "attach",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "destroy",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "requireSeries",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "state",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "create",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "detach",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "optional.annotation-chart-projection",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/annotation-chart-projection/lightweight-series-primitive-adapter.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
-            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
-            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
-            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
-            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
-            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
-            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
-          },
-          "moduleId": "optional.annotation-chart-projection",
-          "name": "createLightweightSeriesPrimitiveAdapter",
-          "semanticMatches": [
-            "annotation",
-            "chart",
-            "primitive",
-            "projection",
-            "series"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "chart",
-            "lightweight",
-            "optional",
-            "primitive",
-            "projection",
-            "series"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "visual-surface-mutation"
-      ],
-      "sideEffectConcerns": [
-        {
-          "concern": "visual-surface-mutation",
-          "evidence": [
-            "attachPrimitive()",
-            "detachPrimitive()"
-          ]
-        }
-      ],
-      "sizeException": null,
-      "sourceHash": "17a54fe0ab34c552dddfde55fa8273b4e1722f792d785be3d3eac3ae0ae568b7"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 82,
-      "forwardingOnly": false,
-      "functions": [
-        {
           "effectiveLines": 3,
           "name": "onDocumentClick",
           "reviewedDecompositionException": false
@@ -30589,62 +31306,72 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 97,
+      "effectiveLines": 93,
       "forwardingOnly": false,
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "<anonymous-5>",
+          "name": "<anonymous-12>",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 1,
-          "name": "read",
+          "effectiveLines": 10,
+          "name": "detach",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 14,
-          "name": "normalizeGeometry",
+          "effectiveLines": 10,
+          "name": "requireHandle",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 17,
-          "name": "createAnnotationProjection",
+          "effectiveLines": 2,
+          "name": "<anonymous-13>",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 29,
-          "name": "portable",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "annotationProjectionSignature",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "constructor",
+          "effectiveLines": 20,
+          "name": "createLightweightSeriesPrimitiveAdapter",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 6,
-          "name": "exactRecord",
+          "name": "requireFactory",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 6,
-          "name": "opaqueId",
+          "effectiveLines": 7,
+          "name": "update",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 6,
-          "name": "readAnnotationProjection",
+          "effectiveLines": 8,
+          "name": "destroy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "hitTest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireSeries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "state",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "attach",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "create",
           "reviewedDecompositionException": false
         }
       ],
@@ -30652,7 +31379,7 @@
       "moduleId": "optional.annotation-chart-projection",
       "owner": "chart-runtime-adapter",
       "ownsContract": false,
-      "path": "src/annotation-chart-projection/annotation-projection.js",
+      "path": "src/annotation-chart-projection/lightweight-series-primitive-adapter.js",
       "publicExports": [
         {
           "documentation": {
@@ -30666,51 +31393,39 @@
             "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
           },
           "moduleId": "optional.annotation-chart-projection",
-          "name": "createAnnotationProjection",
+          "name": "createLightweightSeriesPrimitiveAdapter",
           "semanticMatches": [
             "annotation",
             "chart",
-            "projection"
+            "primitive",
+            "projection",
+            "series"
           ],
           "semanticTerms": [
             "annotation",
             "chart",
+            "lightweight",
             "optional",
-            "projection"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
-            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
-            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
-            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
-            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
-            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
-            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
-          },
-          "moduleId": "optional.annotation-chart-projection",
-          "name": "readAnnotationProjection",
-          "semanticMatches": [
-            "annotation",
-            "chart",
-            "projection"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "chart",
-            "optional",
-            "projection"
+            "primitive",
+            "projection",
+            "series"
           ]
         }
       ],
       "responsibilities": [
-        "internal-state-or-pure-computation"
+        "visual-surface-mutation"
       ],
-      "sideEffectConcerns": [],
+      "sideEffectConcerns": [
+        {
+          "concern": "visual-surface-mutation",
+          "evidence": [
+            "attachPrimitive()",
+            "detachPrimitive()"
+          ]
+        }
+      ],
       "sizeException": null,
-      "sourceHash": "ca5d10258f88f25c24624b3e542a02de2065b8428a808c5f348e8bfdff17906a"
+      "sourceHash": "09e9269b55df4dcf34f72b62202fd09d0efba100d58c13ddbb550070c60fcda6"
     },
     {
       "adaptsBoundary": true,
@@ -31038,11 +31753,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 27546,
-    "files": 356,
-    "functions": 2927,
-    "publicExports": 346
+    "effectiveLines": 28451,
+    "files": 363,
+    "functions": 3008,
+    "publicExports": 352
   },
-  "deliveryStep": "R13.5",
-  "generatedFromCommit": "working-tree-r13.5"
+  "deliveryStep": "R13.6",
+  "generatedFromCommit": "working-tree-r13.6"
 }

@@ -2,6 +2,7 @@ import { failProjection } from './projection-error.js';
 
 const HANDLER_NAMES = Object.freeze(['onCancel', 'onEnd', 'onMove', 'onStart']);
 const PANE_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
+const SELECTION_FIELDS = Object.freeze(['distancePx', 'entityId', 'projectionId']);
 
 function requireMethod(owner, method, code, label) {
   if (typeof owner?.[method] !== 'function') {
@@ -10,7 +11,9 @@ function requireMethod(owner, method, code, label) {
 }
 
 function requireEnvironment(value) {
-  const { chart, eventTarget, host, resolveInstrumentId, resolveMarketEpochMs, series } = value;
+  const {
+    chart, eventTarget, host, resolveInstrumentId, resolveMarketEpochMs, resolveSelectionAt, series,
+  } = value;
   for (const method of ['addEventListener', 'getBoundingClientRect', 'removeEventListener']) {
     requireMethod(host, method, 'ANNOTATION_INTERACTION_HOST_INVALID', 'Interaction host');
   }
@@ -24,7 +27,8 @@ function requireEnvironment(value) {
     requireMethod(series, method, 'ANNOTATION_INTERACTION_SERIES_INVALID', 'Series port');
   }
   requireMethod(chart.timeScale(), 'coordinateToTime', 'ANNOTATION_INTERACTION_CHART_INVALID', 'Time scale');
-  if (typeof resolveInstrumentId !== 'function' || typeof resolveMarketEpochMs !== 'function') {
+  if (typeof resolveInstrumentId !== 'function' || typeof resolveMarketEpochMs !== 'function'
+    || typeof resolveSelectionAt !== 'function') {
     failProjection(
       'ANNOTATION_INTERACTION_RESOLVER_INVALID',
       'Interaction port requires instrument and exact market-time resolvers.',
@@ -44,6 +48,22 @@ function requireThreshold(value) {
     failProjection('ANNOTATION_INTERACTION_THRESHOLD_INVALID', 'Drag threshold must be 1–32 pixels.');
   }
   return value;
+}
+
+function normalizeSelectionHit(value) {
+  if (value === null) return null;
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+    || Object.keys(value).sort().join(',') !== [...SELECTION_FIELDS].sort().join(',')
+    || !Number.isFinite(value.distancePx) || value.distancePx < 0
+    || typeof value.entityId !== 'string' || !PANE_ID.test(value.entityId)
+    || typeof value.projectionId !== 'string' || !PANE_ID.test(value.projectionId)) {
+    failProjection('ANNOTATION_SELECTION_HIT_INVALID', 'Selection resolver returned an invalid bounded hit.');
+  }
+  return Object.freeze({
+    distancePx: value.distancePx,
+    entityId: value.entityId,
+    projectionId: value.projectionId,
+  });
 }
 
 function requireHandlers(value) {
@@ -68,8 +88,9 @@ function nativeOptions(chart) {
 }
 
 /**
- * Create one Chart-owned normalized Segment gesture port. Vendor and DOM
- * handles remain closed over by this adapter and never reach its callbacks.
+ * Create one Chart-owned normalized two-anchor gesture port. It maps both
+ * click-move-click and press-drag-release onto the same callbacks while vendor
+ * and DOM handles remain closed over by this adapter.
  */
 export function createLightweightAnnotationInteractionPort({
   chart,
@@ -79,23 +100,37 @@ export function createLightweightAnnotationInteractionPort({
   paneId = 'pane-main',
   resolveInstrumentId,
   resolveMarketEpochMs,
+  resolveSelectionAt = () => null,
+  selectionTolerancePx = 6,
   series,
 } = {}) {
-  requireEnvironment({ chart, eventTarget, host, resolveInstrumentId, resolveMarketEpochMs, series });
+  requireEnvironment({
+    chart, eventTarget, host, resolveInstrumentId, resolveMarketEpochMs, resolveSelectionAt, series,
+  });
   const acceptedPaneId = requirePaneId(paneId);
   const thresholdSquared = requireThreshold(dragThresholdPx) ** 2;
+  const selectionTolerance = requireThreshold(selectionTolerancePx);
   let active = null;
   let disposed = false;
   let gesture = null;
   let leaseRevision = 0;
+  let selectionCandidate = null;
+  let suppressContextMenuUntil = 0;
+  const selectionSubscribers = new Set();
   let sequence = 0;
 
-  function anchorAt(event) {
+  function plotPoint(event) {
     const rect = host.getBoundingClientRect();
     const point = Object.freeze({ x: event.clientX - rect.left, y: event.clientY - rect.top });
     const pane = chart.paneSize(0);
     if (!Number.isFinite(point.x) || !Number.isFinite(point.y)
       || point.x < 0 || point.y < 0 || point.x > pane.width || point.y > pane.height) return null;
+    return point;
+  }
+
+  function anchorAt(event) {
+    const point = plotPoint(event);
+    if (point === null) return null;
     const time = chart.timeScale().coordinateToTime(point.x);
     const price = series.coordinateToPrice(point.y);
     if (typeof time !== 'number' || !Number.isFinite(price)) return null;
@@ -165,12 +200,43 @@ export function createLightweightAnnotationInteractionPort({
   }
 
   function onPointerDown(event) {
-    if (active === null || gesture !== null || event.button !== 0 || event.isPrimary === false) return;
+    if (active === null) {
+      if (event.button === 0) suppressContextMenuUntil = 0;
+      const point = plotPoint(event);
+      if (point !== null && event.button === 0 && event.isPrimary !== false) {
+        selectionCandidate = Object.freeze({
+          clientX: event.clientX,
+          clientY: event.clientY,
+          point,
+          pointerId: event.pointerId,
+        });
+      }
+      return;
+    }
+    if (event.button === 2) {
+      // A real browser may cancel or blur the active lease before it dispatches
+      // the later contextmenu event. Retain this one-shot suppression window so
+      // that cancel and native-menu suppression remain one interaction.
+      suppressContextMenuUntil = Date.now() + 1_000;
+      consumePointerEvent(event);
+      cancel('secondary-button');
+      return;
+    }
+    if (event.button !== 0 || event.isPrimary === false) return;
+    if (gesture?.phase === 'placing') {
+      const normalized = safeAnchorAt(event);
+      if (normalized === null) return;
+      consumePointerEvent(event);
+      finish('end', normalized);
+      return;
+    }
+    if (gesture !== null) return;
     const normalized = safeAnchorAt(event);
     if (normalized === null) return;
     consumePointerEvent(event);
     gesture = {
       dragged: false,
+      phase: 'pressed-start',
       pointerId: event.pointerId,
       startClientX: event.clientX,
       startClientY: event.clientY,
@@ -181,7 +247,23 @@ export function createLightweightAnnotationInteractionPort({
   }
 
   function onPointerMove(event) {
-    if (active === null || gesture === null || event.pointerId !== gesture.pointerId) return;
+    if (active === null) {
+      if (selectionCandidate !== null && event.pointerId === selectionCandidate.pointerId) {
+        const x = event.clientX - selectionCandidate.clientX;
+        const y = event.clientY - selectionCandidate.clientY;
+        if (((x * x) + (y * y)) >= thresholdSquared) selectionCandidate = null;
+      }
+      return;
+    }
+    if (gesture?.phase === 'placing') {
+      if (event.isPrimary === false) return;
+      consumePointerEvent(event);
+      const normalized = safeAnchorAt(event);
+      if (normalized === null) return;
+      try { active.handlers.onMove(normalized); } catch { cancel('handler-failed'); }
+      return;
+    }
+    if (gesture === null || event.pointerId !== gesture.pointerId) return;
     consumePointerEvent(event);
     if (!gesture.dragged) {
       const x = event.clientX - gesture.startClientX;
@@ -195,10 +277,31 @@ export function createLightweightAnnotationInteractionPort({
   }
 
   function onPointerUp(event) {
-    if (active === null || gesture === null || event.pointerId !== gesture.pointerId) return;
+    if (active === null) {
+      const candidate = selectionCandidate;
+      selectionCandidate = null;
+      if (candidate === null || event.pointerId !== candidate.pointerId) return;
+      let hit = null;
+      try {
+        hit = normalizeSelectionHit(resolveSelectionAt(Object.freeze({
+          paneId: acceptedPaneId,
+          tolerancePx: selectionTolerance,
+          x: candidate.point.x,
+          y: candidate.point.y,
+        })));
+      } catch { hit = null; }
+      const eventValue = Object.freeze({ hit, paneId: acceptedPaneId });
+      for (const subscriber of selectionSubscribers) {
+        try { subscriber(eventValue); } catch { /* Selection observers never own Chart state. */ }
+      }
+      return;
+    }
+    if (gesture === null || gesture.phase !== 'pressed-start'
+      || event.pointerId !== gesture.pointerId) return;
     consumePointerEvent(event);
     if (!gesture.dragged) {
-      cancel('below-threshold');
+      gesture = { phase: 'placing', pointerId: null };
+      releaseCapture(active);
       return;
     }
     const normalized = safeAnchorAt(event);
@@ -210,10 +313,22 @@ export function createLightweightAnnotationInteractionPort({
   }
 
   function onPointerCancel(event) {
-    if (gesture !== null && event.pointerId === gesture.pointerId) {
+    if (active === null && selectionCandidate?.pointerId === event.pointerId) {
+      selectionCandidate = null;
+      return;
+    }
+    if (gesture?.phase === 'pressed-start' && event.pointerId === gesture.pointerId) {
       consumePointerEvent(event);
       cancel('pointer-cancel');
     }
+  }
+
+  function onContextMenu(event) {
+    const followsConsumedSecondaryButton = Date.now() <= suppressContextMenuUntil;
+    if (active === null && !followsConsumedSecondaryButton) return;
+    suppressContextMenuUntil = 0;
+    consumePointerEvent(event);
+    cancel('secondary-button');
   }
 
   function onKeydown(event) {
@@ -224,10 +339,13 @@ export function createLightweightAnnotationInteractionPort({
 
   function onBlur() { cancel('focus-loss'); }
   function onLostPointerCapture(event) {
-    if (gesture !== null && event.pointerId === gesture.pointerId) cancel('lost-pointer-capture');
+    if (gesture?.phase === 'pressed-start' && event.pointerId === gesture.pointerId) {
+      cancel('lost-pointer-capture');
+    }
   }
 
   host.addEventListener('pointerdown', onPointerDown, true);
+  host.addEventListener('contextmenu', onContextMenu, true);
   host.addEventListener('lostpointercapture', onLostPointerCapture, true);
   eventTarget.addEventListener('pointermove', onPointerMove, true);
   eventTarget.addEventListener('pointerup', onPointerUp, true);
@@ -249,6 +367,7 @@ export function createLightweightAnnotationInteractionPort({
         pointerId: null,
       };
       chart.applyOptions({ handleScale: false, handleScroll: false });
+      selectionCandidate = null;
       active = record;
       const lease = Object.freeze({
         release(reason = 'released') {
@@ -261,7 +380,11 @@ export function createLightweightAnnotationInteractionPort({
       if (disposed) return;
       cancel('disposed');
       disposed = true;
+      selectionCandidate = null;
+      suppressContextMenuUntil = 0;
+      selectionSubscribers.clear();
       host.removeEventListener('pointerdown', onPointerDown, true);
+      host.removeEventListener('contextmenu', onContextMenu, true);
       host.removeEventListener('lostpointercapture', onLostPointerCapture, true);
       eventTarget.removeEventListener('pointermove', onPointerMove, true);
       eventTarget.removeEventListener('pointerup', onPointerUp, true);
@@ -269,13 +392,30 @@ export function createLightweightAnnotationInteractionPort({
       eventTarget.removeEventListener('keydown', onKeydown, true);
       eventTarget.removeEventListener('blur', onBlur, true);
     },
+    subscribeSelection(listener) {
+      if (disposed) failProjection('ANNOTATION_INTERACTION_PORT_DISPOSED', 'Interaction port is disposed.');
+      if (typeof listener !== 'function') {
+        failProjection('ANNOTATION_SELECTION_LISTENER_INVALID', 'Selection listener must be a function.');
+      }
+      selectionSubscribers.add(listener);
+      let subscribed = true;
+      return Object.freeze({
+        unsubscribe() {
+          if (!subscribed) return;
+          subscribed = false;
+          selectionSubscribers.delete(listener);
+        },
+      });
+    },
     snapshot: () => Object.freeze({
       active: active !== null,
       disposed,
       gestureActive: gesture !== null,
+      gesturePhase: gesture?.phase ?? null,
       leaseRevision,
       nativeSuppressed: active !== null && !active.nativeRestored,
       paneId: acceptedPaneId,
+      selectionSubscriberCount: selectionSubscribers.size,
     }),
   });
 }

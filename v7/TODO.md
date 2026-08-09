@@ -19,6 +19,37 @@
 
 Canonical registry: `docs/V7_NON_DECISION_MEMO_REGISTRY.md`.
 
+## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09
+
+- [x] preserve validation as the user outcome and Replay as the controlled
+  observation environment;
+- [x] make user-owned, AI-ready semantic annotation data a first-class V7
+  product output;
+- [x] bind exact market anchors, typed entities/relations, no-future cutoffs,
+  Observation/Interpretation/Decision/Outcome separation, versioned meaning,
+  human acceptance, and raw-evidence drilldown;
+- [x] separate authoritative Annotation records from a later reproducible
+  Dataset Builder and versioned model-ready package;
+- [x] require portable export, source/data-rights provenance, replaceable AI
+  providers, and evidence-linked AI findings;
+- [x] reject screenshot grading, flat journal tags, automatic signals, a
+  proprietary model, generic labeling, or aggregated market data as V7's
+  defining product position;
+- [x] partially promote MEMO-V7-003's case/cohort/evidence constraints while
+  leaving the complete Agent-participatory Research/Training/Trading Review
+  system unresolved;
+- [x] preserve competitor, commercial, open-source/SaaS, branding, market-data
+  cost, shared-dataset, and open-model discussion in MEMO-V7-004;
+- [x] allocate no delivery id and authorize no Dataset Builder, AI, hosted,
+  multi-user, public-corpus, Marketplace, or R13 implementation through this
+  documentation decision.
+
+Binding decision:
+`docs/V7_EVIDENCE_GRADE_SEMANTIC_DATASET_PRODUCT_DECISION.md`.
+
+Open discussion:
+`docs/V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md`.
+
 ## R13.1 Drawing And Semantic Annotation Foundation — Accepted 2026-08-08
 
 - [x] reserve `asset` for tradable instruments and choose Drawing/Annotation
@@ -201,6 +232,36 @@ Binding contract:
 `docs/V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md`.
 Machine-readable evidence:
 `docs/v7-community-reuse-audit.json`.
+
+## R13.6 Rectangle, Selection, And Minimal Inspector — Accepted 2026-08-09
+
+- [x] reuse one generic two-anchor controller for Segment and Rectangle rather
+  than creating parallel interaction owners;
+- [x] add a Chart-owned Rectangle Primitive with accepted hit testing and
+  optional transient selection handles;
+- [x] preserve native Chart drag/wheel behavior by treating only a bounded
+  no-drag click as an accepted-Drawing selection candidate;
+- [x] add a branded exact minimal Drawing Presentation and atomically revise
+  Geometry plus Presentation through the sole Annotation Runtime writer;
+- [x] add one disposable Inspector draft controller with typed Segment and
+  Rectangle fields, exact draft revisions, Preview-only edits, Cancel, and
+  exact accepted Save;
+- [x] keep the visual integration test-only and add no semantic package,
+  detector, persistence adapter, production toolbar, or workstation route;
+- [x] activate H104 with 23 negative controls and real Chromium evidence for
+  Rectangle draw, select, edit, save, unchanged candles, and native navigation;
+- [x] record the first human rejection and correct TradingView-style
+  click-move-click placement while retaining drag-release, add right-click as
+  an Escape-equivalent cancel path, hide Segment Fill controls, and render two
+  selected-Segment endpoint handles;
+- [x] record the second human rejection and make secondary-button cancellation
+  consume both the initiating pointer event and its later browser context-menu
+  event, with a real Chromium right-click regression;
+- [x] complete the corrected local human visual gate and mark H104 accepted;
+- [x] obtain separate user authorization to proceed beyond R13.6.
+
+Binding contract:
+`docs/V7_RECTANGLE_SELECTION_MINIMAL_INSPECTOR_R13_6.md`.
 
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
@@ -991,8 +1052,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 356 files, 27,546 effective
-lines, 2,927 functions, and 346 public exports; the architecture baseline
+The current production source baseline contains 363 files, 28,451 effective
+lines, 3,008 functions, and 352 public exports; the architecture baseline
 remains 55 modules, 128 edges, 115 construction sites, 21 writers, and zero
 findings.
 
@@ -1004,7 +1065,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 356 files, 27,546 effective lines, 2,927 functions, 346 public
+currently at 363 files, 28,451 effective lines, 3,008 functions, 352 public
 exports, 55 modules, 128 edges, 115 construction sites, 21 writers, and zero
 findings.
 

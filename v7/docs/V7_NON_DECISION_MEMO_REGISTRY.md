@@ -4,7 +4,7 @@ Status: binding documentation-governance index
 
 Created: 2026-08-07
 
-Last updated: 2026-08-07
+Last updated: 2026-08-09
 
 ## Purpose
 
@@ -46,13 +46,13 @@ converted into a decision.
 | --- | --- | --- | --- | --- | --- |
 | `MEMO-V7-001` | General futures/plugin platform, semantic tools, Setup workflow, AI, distribution, marketplace | 2026-08-01 | 2026-08-01 | open; product decision and implementation deferred | `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` |
 | `MEMO-V7-002` | Second-level Replay and tick-sourced data | 2026-08-01 | 2026-08-06 | current deferral position recorded; future activation undecided | `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` |
-| `MEMO-V7-003` | AI-Agent-participatory Research, Training, and Trading Review system, using semantic Study Cases/Cohorts | 2026-08-07 | 2026-08-07 12:12 PDT | open; system boundary, autonomy, business model, and ownership undecided | `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` |
+| `MEMO-V7-003` | AI-Agent-participatory Research, Training, and Trading Review system, using semantic Study Cases/Cohorts | 2026-08-07 | 2026-08-07 12:12 PDT | partially promoted by ADR-V7-003; system boundary, autonomy, workflow ownership, and business model remain undecided | `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` |
+| `MEMO-V7-004` | Semantic-dataset competitive landscape, commercialization, open-source/SaaS path, market-data economics, and open-model use | 2026-08-09 | 2026-08-09 PDT | core evidence-dataset product position promoted by ADR-V7-003; hosting, shared data, branding, pricing, and market entry remain open | `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md` |
 
 ## Adjacent Decision Candidates
 
-| Decision id | Topic | First formed | Status | Relationship to memos | File |
-| --- | --- | --- | --- | --- | --- |
-| `ADR-V7-001` / `R13.1` | Drawing and Semantic Annotation foundation | 2026-08-07 | accepted 2026-08-08; R13.2 Geometry, R13.3 headless Runtime, R13.4 accepted Chart projection, and R13.5 Segment interaction/Preview implemented separately | narrows annotation terminology and state ownership discussed broadly by MEMO-V7-001; supplies the candidate evidence substrate for MEMO-V7-003 | `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` |
+No adjacent decision candidate is currently registered. Accepted decisions
+which promote or constrain memo content are recorded in Decision History.
 
 When a decision candidate is accepted, move its row to the decision history
 below. When rejected, retain the row with the rejection date and reason; do not
@@ -93,10 +93,29 @@ delete it.
 ### ADR-V7-001 Versus MEMO-V7-001 Terminology
 
 - MEMO-V7-001 uses the older broad `SemanticAnnotation`/role vocabulary.
-- ADR-V7-001 proposes `DrawingGeometry`, `DrawingEntity`, `SemanticArtifact`,
+- ADR-V7-001 accepts `DrawingGeometry`, `DrawingEntity`, `SemanticArtifact`,
   and `ArtifactProjection`, reserving asset for tradable instruments.
-- If ADR-V7-001 is accepted, later decisions should translate the older memo
-  into the accepted terms rather than preserve two annotation state models.
+- Later decisions must translate the older memo into the accepted terms rather
+  than preserve two annotation state models.
+
+### MEMO-V7-004 Versus Broad Commercialization
+
+- ADR-V7-003 accepts private, user-owned evidence-grade semantic data as a
+  first-class product output; it does not accept a SaaS, public corpus,
+  marketplace, bundled market-data service, or proprietary model as the
+  business model.
+- MEMO-V7-004 records market-data licensing and operating cost as a major
+  obstacle to an early bundled-data SaaS. This favors a local-first or
+  bring-your-own-data candidate path, but no commercial path is selected.
+- MEMO-V7-001's broad plugin marketplace and MEMO-V7-004's possible dataset or
+  semantic-package marketplace are independently decidable. Neither can use
+  the accepted package boundary as implicit Marketplace authorization.
+- MEMO-V7-003's Agent learning loops may consume versioned dataset packages,
+  but ADR-V7-003 makes the model/provider replaceable and prevents the Agent
+  from silently becoming the source of accepted semantic truth.
+- A future hosted or shared-data decision must reconcile user ownership,
+  consent, deletion, source-data licensing, contributor rights, privacy,
+  identity, and the local product's removable exit path.
 
 ## Required Memo Header
 
@@ -156,6 +175,12 @@ A memo becomes a decision only through a separate ADR/specification which:
 
 ## Decision History
 
-No registered non-decision memo has yet been fully promoted into an accepted
-decision. ADR-V7-001 remains a proposed decision adjacent to MEMO-V7-001 and
-MEMO-V7-003.
+| Decision id | Accepted | Promoted or constrained memo content | Remaining open content | File |
+| --- | --- | --- | --- | --- |
+| `ADR-V7-001` / `R13.1` | 2026-08-08 | accepts Drawing/Semantic Annotation terminology, ownership, package, provenance, interaction, and projection foundations discussed broadly by MEMO-V7-001 and required by MEMO-V7-003 | general plugin SDK/marketplace and complete Research/Training/Review product remain open | `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` |
+| `ADR-V7-002` | 2026-08-08 | accepts official Primitive-pattern adaptation while rejecting reviewed community packages as parallel V7 owners | Indicator reuse and later community/plugin distribution remain separately undecided | `V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md` |
+| `ADR-V7-003` | 2026-08-09 | partially promotes MEMO-V7-003's evidence/case/cohort constraints and MEMO-V7-004's evidence-grade semantic dataset product position, user ownership, human-governed AI, and local-first initial boundary | complete learning-system ownership, commercial model, hosted service, public/shared datasets, branding, pricing, and implementation remain open | `V7_EVIDENCE_GRADE_SEMANTIC_DATASET_PRODUCT_DECISION.md` |
+
+No registered memo has been fully promoted and closed. MEMO-V7-003 and
+MEMO-V7-004 are partially promoted; their explicitly unresolved questions
+remain discoverable here and authorize no implementation.

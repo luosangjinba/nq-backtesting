@@ -197,6 +197,17 @@ class ChartAnnotationProjectionPort {
     return this.snapshot();
   }
 
+  hitTest(point) {
+    this.#requireOperable();
+    if (this.#active !== null) {
+      failProjection('ANNOTATION_PROJECTION_HIT_TEST_BUSY', 'Hit testing requires settled projection state.');
+    }
+    if (typeof this.#adapter.hitTest !== 'function') {
+      failProjection('ANNOTATION_PROJECTION_HIT_TEST_UNAVAILABLE', 'Primitive adapter has no hit-test capability.');
+    }
+    return this.#adapter.hitTest(point);
+  }
+
   snapshot() {
     return Object.freeze({
       acceptedAnnotationRevision: this.#acceptedAnnotationRevision,
@@ -248,6 +259,7 @@ export function createChartAnnotationProjectionPort({ primitiveAdapter } = {}) {
     apply: owner.apply.bind(owner),
     dispose: owner.dispose.bind(owner),
     finalize: owner.finalize.bind(owner),
+    hitTest: owner.hitTest.bind(owner),
     prepare: owner.prepare.bind(owner),
     rollback: owner.rollback.bind(owner),
     snapshot: owner.snapshot.bind(owner),

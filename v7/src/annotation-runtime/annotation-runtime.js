@@ -2,6 +2,7 @@ import {
   archiveDrawing,
   createDrawing,
   replaceDrawingGeometry,
+  reviseDrawing,
   restoreDrawing,
 } from './command-handlers.js';
 import { createAnnotationRuntimeState } from './runtime-state.js';
@@ -27,6 +28,7 @@ export function createAnnotationRuntime({ geometryContract = null, repository, s
     health: () => state.health(),
     listDrawings: () => state.drawingSnapshots(),
     replaceDrawingGeometry: (input) => replaceDrawingGeometry(state, input),
+    reviseDrawing: (input) => reviseDrawing(state, input),
     restoreDrawing: (input) => restoreDrawing(state, input),
   });
 }
