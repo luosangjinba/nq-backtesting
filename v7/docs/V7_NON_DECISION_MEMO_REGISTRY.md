@@ -52,7 +52,7 @@ converted into a decision.
 
 | Decision id | Topic | First formed | Status | Relationship to memos | File |
 | --- | --- | --- | --- | --- | --- |
-| `ADR-V7-001` / `R13.1` | Drawing and Semantic Annotation foundation | 2026-08-07 | accepted 2026-08-08; R13.2 Geometry, R13.3 headless Runtime, and R13.4 accepted Chart projection implemented separately | narrows annotation terminology and state ownership discussed broadly by MEMO-V7-001; supplies the candidate evidence substrate for MEMO-V7-003 | `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` |
+| `ADR-V7-001` / `R13.1` | Drawing and Semantic Annotation foundation | 2026-08-07 | accepted 2026-08-08; R13.2 Geometry, R13.3 headless Runtime, R13.4 accepted Chart projection, and R13.5 Segment interaction/Preview implemented separately | narrows annotation terminology and state ownership discussed broadly by MEMO-V7-001; supplies the candidate evidence substrate for MEMO-V7-003 | `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` |
 
 When a decision candidate is accepted, move its row to the decision history
 below. When rejected, retain the row with the rejection date and reason; do not

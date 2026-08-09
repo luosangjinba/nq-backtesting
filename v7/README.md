@@ -15,10 +15,11 @@ deferred, not silently assumed. Remaining host-matrix checks are operational
 follow-up evidence and do not block this milestone.
 
 Post-milestone architecture development has accepted ADR-V7-001 and completed
-R13.2 Geometry, R13.3 Annotation Runtime, and R13.4 accepted Chart projection.
+R13.2 Geometry, R13.3 Annotation Runtime, R13.4 accepted Chart projection, and
+R13.5 Segment interaction/Preview with its corrected visual gate.
 They add removable market-coordinate Geometry, a Session-scoped generic-
 Drawing document writer, and a reversible Chart-owned Primitive port with one
-test-only static Segment fixture. They do not yet add drawing controls, durable
+test-only static/interactive Segment fixtures. They do not yet add production drawing controls, durable
 annotations, semantic FVG/OB/liquidity plugins, or any new user-visible
 workflow.
 

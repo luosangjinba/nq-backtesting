@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r13.4-accepted-annotation-chart-projection",
+  "status": "r13.5-segment-interaction-preview-accepted",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -31,6 +31,7 @@
     "docs/V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md",
     "docs/V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md",
     "docs/V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md",
+    "docs/V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md",
     "docs/V7_V6_MIGRATION_DENYLIST.md",
     "docs/V7_V6_DISPOSITION_MATRIX.md",
     "docs/V7_V6_INTERACTION_CARRY_FORWARD.md",
@@ -116,7 +117,8 @@
     "browser-async-contract",
     "database-bootstrap-admin",
     "annotation-geometry-domain",
-    "annotation-runtime"
+    "annotation-runtime",
+    "annotation-interaction-controller"
   ],
   "requiredIdentityFields": [
     "sessionId",
@@ -142,6 +144,7 @@
     "src/annotation-geometry-domain/module.json",
     "src/annotation-runtime/module.json",
     "src/annotation-chart-projection/module.json",
+    "src/annotation-interaction/module.json",
     "src/capability-contract/module.json",
     "src/bar-data-contract/module.json",
     "src/raw-coverage-lease-contract/module.json",
@@ -329,6 +332,7 @@
     "guarded-data-acquisition-admin-outside-chart-runtime",
     "annotation-geometry-market-coordinate-extensible",
     "headless-annotation-document-sole-writer",
-    "accepted-annotation-projection-reversible-and-chart-owned"
+    "accepted-annotation-projection-reversible-and-chart-owned",
+    "segment-interaction-preview-one-shot-and-chart-arbitrated"
   ]
 }

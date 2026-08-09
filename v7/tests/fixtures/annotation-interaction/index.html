@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>R13.5 Segment Interaction Acceptance</title>
+    <style>
+      :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+      * { box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; margin: 0; background: #05070a; color: #dce3ec; }
+      body { display: grid; grid-template-rows: auto 1fr; }
+      .toolbar { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 12px; border-bottom: 1px solid #202630; background: #0a0e13; }
+      button { min-height: 34px; padding: 0 14px; border: 1px solid #344153; border-radius: 6px; background: #141b24; color: #dce3ec; font-weight: 700; cursor: pointer; }
+      button:hover { border-color: #4ea7ff; }
+      button[aria-pressed="true"] { border-color: #22d3ee; background: #0b3440; color: #8eeaff; }
+      #status { margin-left: auto; color: #9eabb9; font-size: 13px; }
+      #legend { color: #758496; font-size: 12px; }
+      #chart { min-height: 0; position: relative; }
+      #chart[data-controller-status="armed"], #chart[data-controller-status="drawing"] { cursor: crosshair; }
+      #chart[data-controller-status="armed"] canvas, #chart[data-controller-status="drawing"] canvas { cursor: crosshair !important; }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <button id="arm" type="button" aria-pressed="false">Arm Segment</button>
+      <button id="cancel" type="button">Cancel / Escape</button>
+      <span id="legend">Arm → press and hold on chart → drag → release · Cyan preview → Lime accepted</span>
+      <strong id="status">Loading…</strong>
+    </div>
+    <div id="chart" data-scenario="loading"></div>
+    <script type="module" src="./scenario.js"></script>
+  </body>
+</html>

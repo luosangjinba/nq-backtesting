@@ -147,11 +147,38 @@ Binding contract:
   persistence, and production workstation composition decoupled;
 - [x] require no manual product-visual gate because only a test fixture paints;
   no production HTML, CSS, route, control, or chart composition changes;
-- [ ] do not start R13.5 until its Segment Interaction/Preview contract and
+- [x] do not start R13.5 until its Segment Interaction/Preview contract and
   visual human-acceptance window are separately authorized.
 
 Binding contract:
 `docs/V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md`.
+
+## R13.5 Segment Interaction And Preview — Accepted 2026-08-08
+
+- [x] activate removable `optional.annotation-interaction` as the owner of one
+  non-semantic, one-shot Segment gesture over injected bounded ports;
+- [x] keep DOM, Lightweight Charts, Series, pointer capture, and native Chart
+  interaction options inside the existing Chart-owned optional projection
+  adapter;
+- [x] implement one exclusive normalized gesture lease with market-coordinate
+  anchors, drag threshold, primary-pointer filtering, exact cancellation, and
+  native pan/zoom restoration without changing Crosshair configuration;
+- [x] implement one latest-wins transient Preview owner with a bounded queue,
+  same-handle updates, exact identity, rollback, poison, clear, and disposal;
+- [x] issue no accepted command on move or cancellation and at most one generic-
+  Drawing command on pointer-up, without allocating Drawing ids or importing a
+  semantic package;
+- [x] prove 28 negative controls, ModuleHost dependency/removal, production
+  architecture/source/writer boundaries, and real Lightweight Charts preview,
+  commit, Escape, native-scroll, unchanged-candle, and disposal behavior as
+  H103;
+- [x] keep the visible Segment surface test-only: no production toolbar, route,
+  Property Inspector, persistence composition, semantic type, or R13.6 code;
+- [x] complete the required local human visual gate before marking H103
+  accepted or forming the R13.5 commit.
+
+Binding contract:
+`docs/V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md`.
 
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
@@ -942,9 +969,9 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 349 files, 26,746 effective
-lines, 2,845 functions, and 340 public exports; the architecture baseline
-remains 54 modules, 128 edges, 115 construction sites, 21 writers, and zero
+The current production source baseline contains 356 files, 27,546 effective
+lines, 2,927 functions, and 346 public exports; the architecture baseline
+remains 55 modules, 128 edges, 115 construction sites, 21 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -955,8 +982,8 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 349 files, 26,746 effective lines, 2,845 functions, 340 public
-exports, 54 modules, 128 edges, 115 construction sites, 21 writers, and zero
+currently at 356 files, 27,546 effective lines, 2,927 functions, 346 public
+exports, 55 modules, 128 edges, 115 construction sites, 21 writers, and zero
 findings.
 
 ## Established Foundation Governance

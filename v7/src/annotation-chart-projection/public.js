@@ -1,6 +1,6 @@
 /**
  * Owner: chart-runtime-adapter.
- * Purpose: expose the removable accepted Annotation projection transaction and bounded Primitive bridges.
+ * Purpose: expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.
  * Inputs: immutable vendor-neutral projections plus one explicitly injected primitive or Series port.
  * Outputs: branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.
  * Side effects: only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.
@@ -14,7 +14,13 @@ export {
   readAnnotationProjection,
 } from './annotation-projection.js';
 export { createChartAnnotationProjectionPort } from './chart-annotation-projection.js';
+export { createChartAnnotationPreviewPort } from './chart-annotation-preview.js';
+export {
+  createAnnotationPreviewIdentity,
+  readAnnotationPreviewIdentity,
+} from './preview-identity.js';
 export { createLightweightSeriesPrimitiveAdapter } from './lightweight-series-primitive-adapter.js';
+export { createLightweightAnnotationInteractionPort } from './lightweight-annotation-interaction-port.js';
 export {
   readAnnotationProjectionReceipt,
   readPreparedAnnotationProjection,

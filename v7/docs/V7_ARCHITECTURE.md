@@ -822,6 +822,18 @@ does not call candlestick `setData`/`update`, mutate Viewport/Replay/Workspace,
 or wire a browser control. The module is removable and contains no semantic
 business id; R13.5 interaction and transient preview remain separate.
 
+R13.5 activates `optional.annotation-interaction` as a removable one-shot
+generic Segment gesture controller. It receives only normalized market-anchor
+events and injected Geometry, transient Preview, and generic-Drawing command
+ports; it never receives DOM, Chart, Series, Replay, Bar Data, Workspace,
+repository, or semantic-package handles. The existing Chart-owned optional
+projection module now also owns the exclusive PointerEvent lease, exact
+display-to-market coordinate conversion, native pan/zoom suppression and
+restoration, and a latest-wins transient Preview port. Pointer moves never
+write accepted Drawing state, cancellation clears Preview with zero command,
+and pointer-up may issue exactly one command. This boundary is proven only in
+a test fixture in R13.5 and does not compose production drawing UI.
+
 The kernel must remain small: Session identity, Replay truth, Bar Data access,
 projection transactions, Chart application, Viewport intent, module lifecycle,
 and public contract/version infrastructure. Speculative feature engines are not

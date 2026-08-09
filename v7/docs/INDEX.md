@@ -118,6 +118,10 @@ and makes no visible application change.
 `V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md` adds one removable,
 Chart-owned, reversible Primitive projection port plus a test-only static
 Segment fixture. It does not wire production drawing UI or semantic packages.
+`V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md` adds the separately removable
+non-semantic Segment gesture controller plus Chart-owned normalized gesture and
+latest-wins transient Preview ports. Its real-chart surface remains a test
+fixture and requires a human visual gate before the R13.5 commit.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
@@ -242,7 +246,9 @@ Read in this order before V7 implementation work:
     Annotation Document writer and exact generic-Drawing revision contract
 103. `V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md` as the binding
     Chart-owned prepare/apply/rollback/finalize Primitive projection contract
-104. `../TODO.md`
+104. `V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md` as the binding one-shot Segment
+    gesture, transient Preview, cancellation, and Chart arbitration contract
+105. `../TODO.md`
 
 The numbered order above is for implementation work. Ordinary users should use
 the user/operator entry points instead of reading the architecture history.

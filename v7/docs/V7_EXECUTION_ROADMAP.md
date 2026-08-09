@@ -862,6 +862,30 @@ no production workstation pixels, so there is no manual product-visual gate.
 R13.5 remains unauthorized. Binding contract:
 `V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md`.
 
+### R13.5 — Segment Interaction And Preview
+
+- activate a removable non-semantic Segment Interaction Controller over
+  injected Geometry, normalized gesture, transient Preview, and generic-
+  Drawing command ports;
+- retain DOM, vendor Chart/Series, pointer capture, coordinate conversion, and
+  native gesture arbitration exclusively inside the Chart-owned adapter;
+- coalesce pointer-rate Preview replacement to one active and one latest
+  queued request without creating accepted Drawing transactions on move;
+- commit at most one generic Drawing on pointer-up and commit none on Escape,
+  pointer cancel, focus loss, explicit cancel, failure, or disposal;
+- prove real Lightweight Charts Preview/accepted pixels, unchanged candles,
+  restored native scrolling, disposal, ModuleHost dependency/removal, writer,
+  source-quality, and 28 negative controls as H103.
+
+Gate: all automated evidence must pass, then the local real-chart fixture must
+remain open for human confirmation before H103 becomes accepted and the R13.5
+commit is formed. The slice is test-only and does not compose a production
+drawing toolbar. R13.6 remains unauthorized. Binding contract:
+`V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md`.
+
+Human gate: accepted 2026-08-08 after explicit active-PointerEvent isolation
+prevented the vendor Canvas from moving during Segment drawing.
+
 ## Deferred Product Boundary — Second-Level Replay
 
 Second-level/tick-sourced Replay has no delivery number and is not the next

@@ -1,6 +1,6 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule (R13.4 implementation, 2026-08-08)
+Status: binding delivery rule (R13.5 accepted, 2026-08-08)
 
 ## Delivery IDs
 
@@ -20,11 +20,13 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current repository-changing delivery step is `R13.4`, the Accepted
-Annotation Chart Projection. R13.2 remains the pure removable Geometry
-boundary and R13.3 remains the removable Session document writer. R13.4 adds
-only a removable Chart-owned accepted-projection transaction plus one
-adapter-local static Segment Primitive fixture; it does not wire drawing UI.
+The current repository-changing delivery step is `R13.5`, Segment Interaction
+And Preview. R13.2 remains the pure removable Geometry boundary, R13.3 remains
+the removable Session document writer, and R13.4 remains the removable
+Chart-owned accepted-projection transaction. R13.5 adds one removable generic
+Segment gesture controller plus Chart-owned normalized interaction and
+transient Preview ports in a test-only visual fixture; it does not wire
+production drawing UI.
 The V7.0.0 foundation milestone is accepted; R12.1–R12.8 retain their committed
 implementation and non-blocking host follow-up. R11.1 remains the automatically
 closed cross-runtime architecture-integrity recovery; R12 does not reopen it.
@@ -55,8 +57,11 @@ H101 records R13.3's sole Annotation Document writer, exact revisions,
 Session isolation, reversible failure handling, zero semantic packages, and
 optional removal. H102 records R13.4's exact accepted projection receipt,
 reversible primitive lifecycle, Chart-only visual ownership, and candle/
-Workspace non-mutation. R13.5 interaction and every production-visible drawing
-behavior remain unauthorized until separately specified.
+Workspace non-mutation. H103 records R13.5's exclusive Chart-arbitrated
+gesture, bounded transient Preview, one-shot generic-Drawing command, zero-
+commit cancellation, native interaction restoration, and disposal boundary.
+H103's required human visual gate is accepted; R13.6 and every production-
+visible drawing behavior remain unauthorized.
 
 ## Other Stable IDs
 

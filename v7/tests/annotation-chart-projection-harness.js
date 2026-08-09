@@ -295,8 +295,13 @@ await host.start();
 assert.equal(host.getPublicApi(descriptor.id), publicApi);
 await host.stop();
 
+const r13_5Files = new Set([
+  'chart-annotation-preview.js',
+  'lightweight-annotation-interaction-port.js',
+  'preview-identity.js',
+]);
 const source = fs.readdirSync(path.join(V7_ROOT, 'src/annotation-chart-projection'))
-  .filter((file) => file.endsWith('.js'))
+  .filter((file) => file.endsWith('.js') && !r13_5Files.has(file))
   .map((file) => fs.readFileSync(path.join(V7_ROOT, 'src/annotation-chart-projection', file), 'utf8'))
   .join('\n');
 for (const forbidden of [

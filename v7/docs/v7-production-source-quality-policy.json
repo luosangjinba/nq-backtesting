@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R13.4",
+  "deliveryStep": "R13.5",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -65,7 +65,8 @@
       "core.workspace-state-runtime",
       "core.workspace-transaction-runtime",
       "core.workstation-settings",
-      "optional.annotation-runtime"
+      "optional.annotation-runtime",
+      "optional.annotation-interaction"
     ],
     "adapter": [
       "adapter.lightweight-chart",
@@ -132,6 +133,10 @@
     },
     {
       "path": "sessions/session_20260808_r13_4_accepted_annotation_chart_projection.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260808_r13_5_segment_interaction_preview.md",
       "expectedOccurrences": 1
     }
   ],
