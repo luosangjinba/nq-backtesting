@@ -927,6 +927,32 @@ selected endpoint handles, and atomic right-click cancellation without the
 native browser menu. The user separately authorized planning and executing the
 next bounded step; no R13.7 scope is implied by the R13.6 contract itself.
 
+### R13.7 — Durable Annotation History
+
+- add one removable Session-keyed persistence adapter while Annotation Runtime
+  remains the sole accepted document/history writer;
+- restore exact durable state after hard reload through registered Geometry
+  restoration rather than concrete-type branches;
+- transact bounded exact-revision undo/redo with document, history, opaque
+  sidecar, and bytes as one failure-atomic state;
+- add versioned import/export, deterministic v1-to-v2 migration, and unknown
+  envelope-field preservation;
+- keep the slice headless and add no production toolbar, cross-timeframe
+  projection, semantic type, detector, or server replication;
+- prove the independent H105 persistence/history Harness and every standing
+  architecture, writer, source, optional-removal, standalone, and regression
+  gate.
+
+R13.7 has no visible product delta and therefore no manual visual gate. R13.8
+remains unauthorized. Binding contract:
+`V7_DURABLE_ANNOTATION_HISTORY_R13_7.md`.
+
+Closure: accepted 2026-08-09. H105 and all standing automated gates pass;
+Session-local bytes, hard-reload restore, bounded exact-revision undo/redo,
+versioned import/export, v1-to-v2 migration, opaque envelope preservation, and
+interleaved-write rejection are executable. No production UI was added and
+R13.8 remains unauthorized.
+
 ## Deferred Product Boundary — Second-Level Replay
 
 Second-level/tick-sourced Replay has no delivery number and is not the next

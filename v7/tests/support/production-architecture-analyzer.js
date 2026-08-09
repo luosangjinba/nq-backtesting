@@ -3,6 +3,8 @@ import path from 'node:path';
 import { validateProductionArchitectureSnapshot } from './production-architecture-validator.js';
 
 const WRITER_DETECTORS = Object.freeze({
+  'annotation-document-accepted-state': /\bthis\.#document\s*=\s*candidate\.document\b/,
+  'annotation-document-bytes-commit': /\bstorage\.write\s*\(\s*annotationKey\s*,\s*candidateRaw\s*\)/,
   'calendar-surface-dom-commit': /\breplaceChildren\s*\(\s*this\.nodes\.body\s*,/,
   'layout-sync-policy-commit': /\bsaveLayoutSync\s*\([^)]*\)\s*\{[\s\S]*?configuredWorkspace\s*\(\s*current\s*,\s*\{\s*layoutSync:/,
   'market-data-retention-ledger': /\bacceptedByConsumer\.set\s*\(/,

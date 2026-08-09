@@ -3,6 +3,16 @@
   "status": "r11-sole-writer-closure",
   "writerPolicies": [
     {
+      "surface": "annotationDocument",
+      "detectorId": "annotation-document-accepted-state",
+      "allowedModuleIds": ["optional.annotation-runtime"]
+    },
+    {
+      "surface": "annotationDocumentStorage",
+      "detectorId": "annotation-document-bytes-commit",
+      "allowedModuleIds": ["adapter.annotation-persistence"]
+    },
+    {
       "surface": "calendarSurfaceDom",
       "detectorId": "calendar-surface-dom-commit",
       "allowedModuleIds": ["adapter.calendar-surface"]

@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-08 at accepted R13.5 plus ADR-V7-002 reuse preflight
+Last updated: 2026-08-09 at accepted R13.7 durable Annotation history
 
 ## Current Overall Acceptance State
 
@@ -18,27 +18,30 @@ Post-milestone development now follows accepted ADR-V7-001. R13.2 provides
 `optional.annotation-geometry-domain`; R13.3 provides
 `optional.annotation-runtime` as the removable sole Session document writer;
 R13.4 provides `optional.annotation-chart-projection` under the existing Chart
-visual owner. R13.5 now adds removable `optional.annotation-interaction` plus
-Chart-owned normalized gesture and transient Preview ports. H100–H103 protect Geometry extensibility, zero semantic
-packages, Session isolation, reversible persistence/projection failure,
-primitive lifecycle, candlestick/Workspace non-mutation, and optional removal.
-R13.5 adds only a real-Chrome interactive Segment fixture and no production UI.
-Its automated evidence and corrected local visual gate pass; the user confirmed
-responsive Segment creation without competing Canvas movement. H103 is
-accepted, while R13.6 remains unauthorized.
-ADR-V7-002 then audited the current public Lightweight Charts drawing,
+visual owner. R13.5 adds removable `optional.annotation-interaction` plus
+Chart-owned normalized gesture and transient Preview ports. R13.6 adds the
+fixture-only Rectangle, selection, Inspector, endpoint-handle, and atomic
+right-click-cancel slice; its corrected human gate is accepted. R13.7 adds
+removable `adapter.annotation-persistence`, registered Geometry restore,
+Session-keyed hard-reload state, bounded exact-revision undo/redo, v1-to-v2
+migration, and opaque-envelope-preserving import/export. H100–H105 are accepted.
+There is still no production drawing toolbar or semantic business package, and
+R13.8 remains unauthorized.
+ADR-V7-002 audited the current public Lightweight Charts drawing,
 indicator, toolkit, and alternative-engine ecosystem at pinned revisions.
 Official Primitive/rendering patterns are approved for adaptation, but no
 reviewed community runtime may become a parallel V7 owner or production
 dependency. Indicator calculations remain a later adapter decision. The audit
-adds no pixels or runtime code and does not authorize R13.6.
+adds no pixels or runtime code.
 Binding records:
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` and
 `V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md` and
 `V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md` and
 `V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md` and
 `V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md` and
-`V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md`, with frozen candidate evidence in
+`V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md` and
+`V7_RECTANGLE_SELECTION_MINIMAL_INSPECTOR_R13_6.md` and
+`V7_DURABLE_ANNOTATION_HISTORY_R13_7.md`, with frozen candidate evidence in
 `v7-community-reuse-audit.json`.
 
 R11 is the closed architecture-recovery record underlying the accepted

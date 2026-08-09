@@ -31,6 +31,10 @@
     },
     {
       "consumerModuleId": "optional.annotation-runtime",
+      "omittedModuleId": "adapter.annotation-persistence"
+    },
+    {
+      "consumerModuleId": "optional.annotation-runtime",
       "omittedModuleId": "optional.annotation-geometry-domain"
     },
     {

@@ -109,10 +109,10 @@
         {
           "documentation": {
             "owner": "annotation-runtime.",
-            "purpose": "expose the complete R13.3 headless generic-Drawing document contract.",
-            "inputs": "branded Session/Drawing/provenance values, optional Geometry port, and fake Repository port.",
-            "outputs": "one disposable Runtime with exact-revision commands and immutable queries.",
-            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or durable adapter.",
+            "purpose": "expose the headless generic-Drawing document and durable-history contract.",
+            "inputs": "branded Session/Drawing/provenance values plus injected Geometry and Repository ports.",
+            "outputs": "isolated Runtime commands, immutable queries, reload restore, undo/redo, and import/export.",
+            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or storage selection.",
             "lifecycle": "each Runtime is isolated and disposed explicitly.",
             "errors": "AnnotationRuntimeError and branded identity errors.",
             "concurrencyCancellation": "one asynchronous mutation at a time; no implicit queue or cancellation."
@@ -120,8 +120,7 @@
           "moduleId": "optional.annotation-runtime",
           "name": "AnnotationRuntimeError",
           "semanticMatches": [
-            "annotation",
-            "optional"
+            "annotation"
           ],
           "semanticTerms": [
             "annotation",
@@ -1515,6 +1514,92 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 103,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 10,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "importAnnotationDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "redoAnnotation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "undoAnnotation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "createDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "replaceDrawingGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "reviseDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "transitionDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "archiveDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "restoreDrawing",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/command-handlers.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "f8c9993d5ba11ec2de37f782b06607bc2b5bd98366e098468c267f5583f4411b"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 105,
       "forwardingOnly": false,
       "functions": [
@@ -2274,18 +2359,18 @@
       "effectiveLines": 12,
       "forwardingOnly": true,
       "functions": [],
-      "kind": "domain",
-      "moduleId": "optional.annotation-geometry-domain",
-      "owner": "annotation-geometry-domain",
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
       "ownsContract": true,
-      "path": "src/annotation-geometry-domain/public.js",
+      "path": "src/annotation-runtime/public.js",
       "publicExports": [],
       "responsibilities": [
         "internal-state-or-pure-computation"
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "3edf1558d3c9edb6743feff6701a204ddffdaf223f007a736ec7f57b89e855e8"
+      "sourceHash": "b4f2baab7d29c02fa40d25b96a46787656932dd371d8cd9bd55f24ee6582bd96"
     },
     {
       "adaptsBoundary": false,
@@ -4224,264 +4309,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 144,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "read",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "normalize",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "defineGeometryType",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "create",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 23,
-          "name": "normalize",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "createGeometryFromDefinition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "createPointGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "createRectangleGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "createSegmentGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "initialGeometryTypeDefinitions",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "normalize",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "requireGeometryTypeDefinition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "sameInstrument",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "readGeometryTypeDefinition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireGeometryTypeId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "exactRecord",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "domain",
-      "moduleId": "optional.annotation-geometry-domain",
-      "owner": "annotation-geometry-domain",
-      "ownsContract": false,
-      "path": "src/annotation-geometry-domain/geometry-type-definition.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "Annotation Geometry Domain.",
-            "purpose": "define one trusted-build, market-coordinate Geometry normalization policy.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "AnnotationGeometryError for malformed ids, versions, fields, or normalizers.",
-            "concurrencyCancellation": "normalization is synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "defineGeometryType",
-          "semanticMatches": [
-            "annotation",
-            "geometry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "optional",
-            "type"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "Annotation Geometry Domain.",
-            "purpose": "expose safe definition identity/version metadata without the normalizer.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "AnnotationGeometryError for structural lookalikes.",
-            "concurrencyCancellation": "synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "readGeometryTypeDefinition",
-          "semanticMatches": [
-            "annotation",
-            "geometry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "optional",
-            "type"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "annotation-geometry-domain.",
-            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
-            "concurrencyCancellation": "all operations are synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "createPointGeometry",
-          "semanticMatches": [
-            "annotation",
-            "geometry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "optional",
-            "point"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "annotation-geometry-domain.",
-            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
-            "concurrencyCancellation": "all operations are synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "createRectangleGeometry",
-          "semanticMatches": [
-            "annotation",
-            "geometry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "optional",
-            "rectangle"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "annotation-geometry-domain.",
-            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
-            "concurrencyCancellation": "all operations are synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "createSegmentGeometry",
-          "semanticMatches": [
-            "annotation",
-            "geometry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "optional",
-            "segment"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "annotation-geometry-domain.",
-            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
-            "concurrencyCancellation": "all operations are synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "GEOMETRY_TYPE_IDS",
-          "semanticMatches": [
-            "annotation",
-            "geometry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "ids",
-            "optional",
-            "type"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "38900886524c6fb06e975854964b8a500a3d0870c29bfb9ea32df0804e0dfbfd"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 145,
       "forwardingOnly": false,
       "functions": [
@@ -5092,6 +4919,26 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 16,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "domain",
+      "moduleId": "optional.annotation-geometry-domain",
+      "owner": "annotation-geometry-domain",
+      "ownsContract": true,
+      "path": "src/annotation-geometry-domain/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "2ba440d9097bfa9a17af4c06e7695b95121a7d3d4d5ff37eef77ffda92f26a5d"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 160,
       "forwardingOnly": false,
       "functions": [
@@ -5353,6 +5200,127 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "d2360440f790ffb8895f4574075395cd42d80bc1584289bac12ac7db1ce3dc40"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 162,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "freezeDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "documentValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "replaceDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "restoreAnnotationDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "addDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 26,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createInitialAnnotationDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "drawingFromDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "nextRevision",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readAnnotationDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireStoredRevision",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "rebaseAnnotationDocument",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/annotation-document.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "b29db1f04dd7666501c18ab4aa4e66132302ea5046bd9900e327758f93d65cbf"
     },
     {
       "adaptsBoundary": false,
@@ -5628,152 +5596,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "07a07b713a9f28f4c815facfe82b54dc317dc2906fe2b90308fa91ccf3d10ee7"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 167,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-19>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-24>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "documentValue",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readPresentation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "sessionId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "requireExistingDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "requireExpectedDocumentRevision",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "runMutation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "rollback",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "settle",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-20>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "createAnnotationRuntimeState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "documentSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "drawingSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "drawingSnapshots",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "requireReadable",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "validateBaseCommand",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "exactRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireCommandSession",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireRevision",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "health",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "requireWritable",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
-      "ownsContract": false,
-      "path": "src/annotation-runtime/runtime-state.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "b44b252a5c48a99ee82198b8609b0c279dea8e010e0f185cc29f80bb04d6eeb9"
     },
     {
       "adaptsBoundary": false,
@@ -7251,6 +7073,299 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 208,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "create",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "defineGeometryType",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "restore",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "restore",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "rectanglePayload",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createGeometryFromDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createPointGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createRectangleGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createSegmentGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "initialGeometryTypeDefinitions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "restoreGeometryFromDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "normalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "normalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "normalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "requireGeometryTypeDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "restore",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "sameInstrument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readGeometryTypeDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireGeometryTypeId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "restore",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "segmentPayload",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-geometry-domain",
+      "owner": "annotation-geometry-domain",
+      "ownsContract": false,
+      "path": "src/annotation-geometry-domain/geometry-type-definition.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "define one trusted-build, market-coordinate Geometry normalization policy.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError for malformed ids, versions, fields, or normalizers.",
+            "concurrencyCancellation": "normalization is synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "defineGeometryType",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "type"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "expose safe definition identity/version metadata without the normalizer.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError for structural lookalikes.",
+            "concurrencyCancellation": "synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "readGeometryTypeDefinition",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "type"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createPointGeometry",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "point"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createRectangleGeometry",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "rectangle"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createSegmentGeometry",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "segment"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "GEOMETRY_TYPE_IDS",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "ids",
+            "optional",
+            "type"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "8ec70c652cac8d7e59c0130e8bb4c7e6809711ea8edd59d65b787ae4c2051c76"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 21,
       "forwardingOnly": false,
       "functions": [
@@ -8044,105 +8159,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 23,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "archiveDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "createDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "getDocument",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "getDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "health",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "listDrawings",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "replaceDrawingGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "restoreDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "reviseDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "createAnnotationRuntime",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
-      "ownsContract": false,
-      "path": "src/annotation-runtime/annotation-runtime.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "Annotation Runtime.",
-            "purpose": "own one Session's accepted generic-Drawing document through exact reversible mutations.",
-            "inputs": "branded Session, optional Geometry public contract, and injected fake Repository port.",
-            "outputs": "frozen asynchronous commands, synchronous immutable queries, health, and disposal.",
-            "sideEffects": "writes only through repository.prepare() lifecycle; no Chart, storage, or event access.",
-            "lifecycle": "dispose blocks new work and waits for one already-started transaction to settle.",
-            "errors": "AnnotationRuntimeError plus branded Session identity failures.",
-            "concurrencyCancellation": "exactly one mutation may be active; a concurrent command is rejected."
-          },
-          "moduleId": "optional.annotation-runtime",
-          "name": "createAnnotationRuntime",
-          "semanticMatches": [
-            "annotation",
-            "optional"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "optional"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "d6204500fef1c01036b21a3d4399d2d28222d625ade76770cab8bfa33c348425"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 233,
       "forwardingOnly": false,
       "functions": [
@@ -8652,9 +8668,9 @@
           "documentation": {
             "owner": "Annotation Runtime.",
             "purpose": "create one caller-allocated opaque Drawing identity without a global allocator.",
-            "inputs": "branded Session/Drawing/provenance values, optional Geometry port, and fake Repository port.",
-            "outputs": "one disposable Runtime with exact-revision commands and immutable queries.",
-            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or durable adapter.",
+            "inputs": "branded Session/Drawing/provenance values plus injected Geometry and Repository ports.",
+            "outputs": "isolated Runtime commands, immutable queries, reload restore, undo/redo, and import/export.",
+            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or storage selection.",
             "lifecycle": "each Runtime is isolated and disposed explicitly.",
             "errors": "AnnotationRuntimeError for invalid tokens.",
             "concurrencyCancellation": "synchronous and deterministic."
@@ -8663,8 +8679,7 @@
           "name": "createDrawingId",
           "semanticMatches": [
             "annotation",
-            "drawing",
-            "optional"
+            "drawing"
           ],
           "semanticTerms": [
             "annotation",
@@ -8675,10 +8690,10 @@
         {
           "documentation": {
             "owner": "annotation-runtime.",
-            "purpose": "expose the complete R13.3 headless generic-Drawing document contract.",
-            "inputs": "branded Session/Drawing/provenance values, optional Geometry port, and fake Repository port.",
-            "outputs": "one disposable Runtime with exact-revision commands and immutable queries.",
-            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or durable adapter.",
+            "purpose": "expose the headless generic-Drawing document and durable-history contract.",
+            "inputs": "branded Session/Drawing/provenance values plus injected Geometry and Repository ports.",
+            "outputs": "isolated Runtime commands, immutable queries, reload restore, undo/redo, and import/export.",
+            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or storage selection.",
             "lifecycle": "each Runtime is isolated and disposed explicitly.",
             "errors": "AnnotationRuntimeError and branded identity errors.",
             "concurrencyCancellation": "one asynchronous mutation at a time; no implicit queue or cancellation."
@@ -8687,8 +8702,7 @@
           "name": "readDrawingId",
           "semanticMatches": [
             "annotation",
-            "drawing",
-            "optional"
+            "drawing"
           ],
           "semanticTerms": [
             "annotation",
@@ -9242,6 +9256,232 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 285,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-34>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-40>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "documentValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readPresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "restoreGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "sessionId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "<anonymous-33>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requireExistingDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requireExpectedDocumentRevision",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "health",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "<anonymous-28>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "entries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createAnnotationRuntimeState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 31,
+          "name": "settle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-36>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "documentSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "drawingSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "drawingSnapshots",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "historySnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "importDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "runHistory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "runMutation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "repositoryHistory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "requireReadable",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "restoreDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "validateBaseCommand",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireCommandSession",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireRevision",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "currentState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "nextDocumentRevision",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "startOperation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "exportDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireWritable",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/runtime-state.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "6b9dc3552abdb3ab2241285e4fa311f525969c12f2c5d894194523ed9896b137"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 29,
       "forwardingOnly": false,
       "functions": [
@@ -9574,42 +9814,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "0b9255a0a6b9f1b11c072a73c444c95861c51ae2d55fb4117e89497771c6e552"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 31,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 20,
-          "name": "prepareAnnotationRepository",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "requireAnnotationRepository",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
-      "ownsContract": false,
-      "path": "src/annotation-runtime/repository-port.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "21a644854a55433461595f0d1cada21067361dd772b2c25264ae2ce3f49b6068"
     },
     {
       "adaptsBoundary": false,
@@ -11515,9 +11719,9 @@
           "documentation": {
             "owner": "Annotation Runtime.",
             "purpose": "preserve generic-Drawing origin, wall-clock creation, and exact Replay cutoff separately.",
-            "inputs": "branded Session/Drawing/provenance values, optional Geometry port, and fake Repository port.",
-            "outputs": "one disposable Runtime with exact-revision commands and immutable queries.",
-            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or durable adapter.",
+            "inputs": "branded Session/Drawing/provenance values plus injected Geometry and Repository ports.",
+            "outputs": "isolated Runtime commands, immutable queries, reload restore, undo/redo, and import/export.",
+            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or storage selection.",
             "lifecycle": "each Runtime is isolated and disposed explicitly.",
             "errors": "AnnotationRuntimeError for fields, origin, or epoch values.",
             "concurrencyCancellation": "synchronous and deterministic."
@@ -11527,7 +11731,6 @@
           "semanticMatches": [
             "annotation",
             "drawing",
-            "optional",
             "provenance"
           ],
           "semanticTerms": [
@@ -11540,10 +11743,10 @@
         {
           "documentation": {
             "owner": "annotation-runtime.",
-            "purpose": "expose the complete R13.3 headless generic-Drawing document contract.",
-            "inputs": "branded Session/Drawing/provenance values, optional Geometry port, and fake Repository port.",
-            "outputs": "one disposable Runtime with exact-revision commands and immutable queries.",
-            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or durable adapter.",
+            "purpose": "expose the headless generic-Drawing document and durable-history contract.",
+            "inputs": "branded Session/Drawing/provenance values plus injected Geometry and Repository ports.",
+            "outputs": "isolated Runtime commands, immutable queries, reload restore, undo/redo, and import/export.",
+            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or storage selection.",
             "lifecycle": "each Runtime is isolated and disposed explicitly.",
             "errors": "AnnotationRuntimeError and branded identity errors.",
             "concurrencyCancellation": "one asynchronous mutation at a time; no implicit queue or cancellation."
@@ -11553,7 +11756,6 @@
           "semanticMatches": [
             "annotation",
             "drawing",
-            "optional",
             "provenance"
           ],
           "semanticTerms": [
@@ -11636,47 +11838,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "9b17e423982c740921fbfc5c4ce94a006a24331ee5baed58c69fba91600adc02"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 45,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "normalizeGeometryContract",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 26,
-          "name": "readAcceptedGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "deepFrozen",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
-      "ownsContract": false,
-      "path": "src/annotation-runtime/geometry-port.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "6c45b341ead57f9c47e4106baed563985fac5ffc8abd7b04c90a95807965169c"
     },
     {
       "adaptsBoundary": false,
@@ -11901,6 +12062,157 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "c77243646008419d118f131bf704087ef00d649288ca23d80ea1353a300b0a3e"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 47,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "archiveDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "createDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "exportDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "getDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "getDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "health",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "history",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "importDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "listDrawings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "redo",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "replaceDrawingGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "restoreDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "reviseDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "undo",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "createAnnotationRuntime",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "createRestoredAnnotationRuntime",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/annotation-runtime.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "Annotation Runtime.",
+            "purpose": "own one Session's accepted generic-Drawing document through exact reversible mutations.",
+            "inputs": "branded Session, optional Geometry public contract, and injected fake Repository port.",
+            "outputs": "frozen asynchronous commands, synchronous immutable queries, health, and disposal.",
+            "sideEffects": "writes only through repository.prepare() lifecycle; no Chart, storage, or event access.",
+            "lifecycle": "dispose blocks new work and waits for one already-started transaction to settle.",
+            "errors": "AnnotationRuntimeError plus branded Session identity failures.",
+            "concurrencyCancellation": "exactly one mutation may be active; a concurrent command is rejected."
+          },
+          "moduleId": "optional.annotation-runtime",
+          "name": "createAnnotationRuntime",
+          "semanticMatches": [
+            "annotation",
+            "optional"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "optional"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-runtime.",
+            "purpose": "expose the headless generic-Drawing document and durable-history contract.",
+            "inputs": "branded Session/Drawing/provenance values plus injected Geometry and Repository ports.",
+            "outputs": "isolated Runtime commands, immutable queries, reload restore, undo/redo, and import/export.",
+            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or storage selection.",
+            "lifecycle": "each Runtime is isolated and disposed explicitly.",
+            "errors": "AnnotationRuntimeError and branded identity errors.",
+            "concurrencyCancellation": "one asynchronous mutation at a time; no implicit queue or cancellation."
+          },
+          "moduleId": "optional.annotation-runtime",
+          "name": "createRestoredAnnotationRuntime",
+          "semanticMatches": [
+            "annotation"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "optional",
+            "restored"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "6d6534d5dedbce4723c163df4990c2e3478b1bee3fa6c3e9c96c48c178849ff6"
     },
     {
       "adaptsBoundary": false,
@@ -12248,117 +12560,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 53,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "list",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 25,
-          "name": "createGeometryRegistry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "createInitialGeometryRegistry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "get",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "create",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "exactRegistryInput",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "domain",
-      "moduleId": "optional.annotation-geometry-domain",
-      "owner": "annotation-geometry-domain",
-      "ownsContract": false,
-      "path": "src/annotation-geometry-domain/geometry-registry.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "Annotation Geometry Domain.",
-            "purpose": "compose isolated trusted Geometry definitions without concrete-type branching.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "AnnotationGeometryError for malformed, duplicate, unknown, or invalid definition work.",
-            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "createGeometryRegistry",
-          "semanticMatches": [
-            "annotation",
-            "geometry",
-            "registry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "optional",
-            "registry"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "Annotation Geometry Domain.",
-            "purpose": "compose only the accepted Point, Segment, and Rectangle definitions.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "AnnotationGeometryError only if the binding initial definitions become invalid.",
-            "concurrencyCancellation": "synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "createInitialGeometryRegistry",
-          "semanticMatches": [
-            "annotation",
-            "geometry",
-            "initial",
-            "registry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "initial",
-            "optional",
-            "registry"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "b6049c9160124dccc7b0ef57dff0026f9db8d2cf4cd155a468c607272ea1e758"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 54,
       "forwardingOnly": false,
       "functions": [
@@ -12509,10 +12710,10 @@
         {
           "documentation": {
             "owner": "annotation-runtime.",
-            "purpose": "expose the complete R13.3 headless generic-Drawing document contract.",
-            "inputs": "branded Session/Drawing/provenance values, optional Geometry port, and fake Repository port.",
-            "outputs": "one disposable Runtime with exact-revision commands and immutable queries.",
-            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or durable adapter.",
+            "purpose": "expose the headless generic-Drawing document and durable-history contract.",
+            "inputs": "branded Session/Drawing/provenance values plus injected Geometry and Repository ports.",
+            "outputs": "isolated Runtime commands, immutable queries, reload restore, undo/redo, and import/export.",
+            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or storage selection.",
             "lifecycle": "each Runtime is isolated and disposed explicitly.",
             "errors": "AnnotationRuntimeError and branded identity errors.",
             "concurrencyCancellation": "one asynchronous mutation at a time; no implicit queue or cancellation."
@@ -12521,8 +12722,7 @@
           "name": "createDefaultDrawingPresentation",
           "semanticMatches": [
             "annotation",
-            "drawing",
-            "optional"
+            "drawing"
           ],
           "semanticTerms": [
             "annotation",
@@ -12534,10 +12734,10 @@
         {
           "documentation": {
             "owner": "annotation-runtime.",
-            "purpose": "expose the complete R13.3 headless generic-Drawing document contract.",
-            "inputs": "branded Session/Drawing/provenance values, optional Geometry port, and fake Repository port.",
-            "outputs": "one disposable Runtime with exact-revision commands and immutable queries.",
-            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or durable adapter.",
+            "purpose": "expose the headless generic-Drawing document and durable-history contract.",
+            "inputs": "branded Session/Drawing/provenance values plus injected Geometry and Repository ports.",
+            "outputs": "isolated Runtime commands, immutable queries, reload restore, undo/redo, and import/export.",
+            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or storage selection.",
             "lifecycle": "each Runtime is isolated and disposed explicitly.",
             "errors": "AnnotationRuntimeError and branded identity errors.",
             "concurrencyCancellation": "one asynchronous mutation at a time; no implicit queue or cancellation."
@@ -12546,8 +12746,7 @@
           "name": "createDrawingPresentation",
           "semanticMatches": [
             "annotation",
-            "drawing",
-            "optional"
+            "drawing"
           ],
           "semanticTerms": [
             "annotation",
@@ -12559,10 +12758,10 @@
         {
           "documentation": {
             "owner": "annotation-runtime.",
-            "purpose": "expose the complete R13.3 headless generic-Drawing document contract.",
-            "inputs": "branded Session/Drawing/provenance values, optional Geometry port, and fake Repository port.",
-            "outputs": "one disposable Runtime with exact-revision commands and immutable queries.",
-            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or durable adapter.",
+            "purpose": "expose the headless generic-Drawing document and durable-history contract.",
+            "inputs": "branded Session/Drawing/provenance values plus injected Geometry and Repository ports.",
+            "outputs": "isolated Runtime commands, immutable queries, reload restore, undo/redo, and import/export.",
+            "sideEffects": "only injected Repository preparations; no UI, Chart, Replay, Bars, or storage selection.",
             "lifecycle": "each Runtime is isolated and disposed explicitly.",
             "errors": "AnnotationRuntimeError and branded identity errors.",
             "concurrencyCancellation": "one asynchronous mutation at a time; no implicit queue or cancellation."
@@ -12571,8 +12770,7 @@
           "name": "readDrawingPresentation",
           "semanticMatches": [
             "annotation",
-            "drawing",
-            "optional"
+            "drawing"
           ],
           "semanticTerms": [
             "annotation",
@@ -13120,6 +13318,52 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "b6722c068de12059f60c5e4121be56aa59e8ecf692b3f608b8e2991a6efc7bb0"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 67,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "normalizeGeometryContract",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "restoreAcceptedGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 26,
+          "name": "readAcceptedGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "deepFrozen",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/geometry-port.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "b240f531a57e7147817c3185bbf4bc205e6a61f44a160c6a6ae0cbbc6ae7197f"
     },
     {
       "adaptsBoundary": false,
@@ -13882,6 +14126,62 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "exportAnnotationDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "parseAnnotationImport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "prepareAnnotationRepository",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "loadAnnotationRepository",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "durableMethod",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireAnnotationRepository",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/repository-port.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "6e57b22cad3baa54f40745dd99fb114cf48066e178160ac165b579dfafb5e70c"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 74,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 11,
           "name": "beginBucket",
           "reviewedDecompositionException": false
@@ -14525,6 +14825,158 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 82,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "list",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "restore",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "createGeometryRegistry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createInitialGeometryRegistry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "restoreDrawingGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "get",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "create",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireStoredEnvelope",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "exactRegistryInput",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-geometry-domain",
+      "owner": "annotation-geometry-domain",
+      "ownsContract": false,
+      "path": "src/annotation-geometry-domain/geometry-registry.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "compose isolated trusted Geometry definitions without concrete-type branching.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError for malformed, duplicate, unknown, or invalid definition work.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createGeometryRegistry",
+          "semanticMatches": [
+            "annotation",
+            "geometry",
+            "registry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "registry"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "compose only the accepted Point, Segment, and Rectangle definitions.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError only if the binding initial definitions become invalid.",
+            "concurrencyCancellation": "synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createInitialGeometryRegistry",
+          "semanticMatches": [
+            "annotation",
+            "geometry",
+            "initial",
+            "registry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "initial",
+            "optional",
+            "registry"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "restoreDrawingGeometry",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "drawing",
+            "geometry",
+            "optional",
+            "restore"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "0c3c578a72b5e9cc4c627d96cfa6550aaec7c72e679e309f1ff9f32bc515cb0a"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 83,
       "forwardingOnly": false,
       "functions": [
@@ -14702,6 +15154,72 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "5495b6367ba9d776148dda58c6f007afb59c3da7b030b30340e1a6b4a1805b6d"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 86,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 11,
+          "name": "advanceAnnotationHistory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "traverseAnnotationHistory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "restoreAnnotationHistoryState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createEmptyAnnotationHistory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "freezeEntry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "freezeHistory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "bounded",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "restoreEntry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "annotationHistorySnapshot",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/annotation-history.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "4902cce5c47b71a04d7fd33d7c9ca9c01aa635ee3fb9cac65d94d2786e23095b"
     },
     {
       "adaptsBoundary": false,
@@ -15038,26 +15556,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 9,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
-      "ownsContract": true,
-      "path": "src/annotation-runtime/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "9211e4b22207f9e40e56f3694c87182fa3e1a65afcc6d90d585e3ac3c23ca7bc"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 91,
       "forwardingOnly": false,
       "functions": [
@@ -15276,168 +15774,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "52fcebdb4832b348adcd7baabff408573637f1b0d22699a2584ae0e6f64fb4fd"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 92,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-14>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "read",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "freezeDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "documentValue",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "replaceDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "addDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "createInitialAnnotationDocument",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "drawingFromDocument",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "nextRevision",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "readAnnotationDocument",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
-      "ownsContract": false,
-      "path": "src/annotation-runtime/annotation-document.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "a641cb4b6934c9e1c2073bb84f13855c1548167b57ab5be1139f49d992d1c362"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 92,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 10,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "createDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "replaceDrawingGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "reviseDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "transitionDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "archiveDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "restoreDrawing",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
-      "ownsContract": false,
-      "path": "src/annotation-runtime/command-handlers.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "3f3e719dd139714f688c3955c66eb7d2c3bef469fef954607f50b6c2a90f35e1"
     },
     {
       "adaptsBoundary": false,
@@ -17614,6 +17950,60 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "f9df545d102381701574b6acd95e62387e9440d58a29e97cacfd7ccc278485aa"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 10,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 3,
+          "name": "failAnnotationPersistence",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "persistence",
+      "moduleId": "adapter.annotation-persistence",
+      "owner": "annotation-persistence-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-persistence/annotation-persistence-error.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-persistence adapter.",
+            "purpose": "expose Session-keyed durable Annotation bytes without owning document meaning.",
+            "inputs": "explicit storage port, branded Session identities, canonical Runtime snapshots.",
+            "outputs": "reversible Repository preparations, restore state, and versioned import/export.",
+            "sideEffects": "only the injected storage adapter is read/written; no browser global is chosen.",
+            "lifecycle": "repository instances are isolated and hold only opaque sidecar tokens in memory.",
+            "errors": "AnnotationPersistenceError with stable codes.",
+            "concurrencyCancellation": "compare-and-swap prepare rejects stale bytes; writes settle once."
+          },
+          "moduleId": "adapter.annotation-persistence",
+          "name": "AnnotationPersistenceError",
+          "semanticMatches": [
+            "annotation",
+            "persistence"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "persistence"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "d465863d25f800147128efaa5cf91a86fc1d55f97504a89edc8f8e92cbb7b80a"
     },
     {
       "adaptsBoundary": true,
@@ -19826,6 +20216,134 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "fdc17ef1606f3fd0fa3be7806abe12f1d73424ddc788340e82d4d57f2dab9c1f"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 145,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "apply",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requireStorage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "createDurableAnnotationRepository",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "keyFor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "parseImport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "exportDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "load",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "readEntry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "documentSession",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 52,
+          "name": "prepare",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireRevision",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "finalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireNamespace",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "persistence",
+      "moduleId": "adapter.annotation-persistence",
+      "owner": "annotation-persistence-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-persistence/durable-annotation-repository.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-persistence adapter.",
+            "purpose": "expose Session-keyed durable Annotation bytes without owning document meaning.",
+            "inputs": "explicit storage port, branded Session identities, canonical Runtime snapshots.",
+            "outputs": "reversible Repository preparations, restore state, and versioned import/export.",
+            "sideEffects": "only the injected storage adapter is read/written; no browser global is chosen.",
+            "lifecycle": "repository instances are isolated and hold only opaque sidecar tokens in memory.",
+            "errors": "AnnotationPersistenceError with stable codes.",
+            "concurrencyCancellation": "compare-and-swap prepare rejects stale bytes; writes settle once."
+          },
+          "moduleId": "adapter.annotation-persistence",
+          "name": "createDurableAnnotationRepository",
+          "semanticMatches": [
+            "annotation",
+            "durable",
+            "persistence",
+            "repository"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "durable",
+            "persistence",
+            "repository"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "5d3ffb88bec3308b2245f12e89d0d23c3cf3c21c5f312d7247ef6e0e5428b39a"
     },
     {
       "adaptsBoundary": true,
@@ -24494,6 +25012,77 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 28,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "remove",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "write",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "createAnnotationStorageAdapter",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "invoke",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "persistence",
+      "moduleId": "adapter.annotation-persistence",
+      "owner": "annotation-persistence-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-persistence/storage-adapter.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-persistence adapter.",
+            "purpose": "expose Session-keyed durable Annotation bytes without owning document meaning.",
+            "inputs": "explicit storage port, branded Session identities, canonical Runtime snapshots.",
+            "outputs": "reversible Repository preparations, restore state, and versioned import/export.",
+            "sideEffects": "only the injected storage adapter is read/written; no browser global is chosen.",
+            "lifecycle": "repository instances are isolated and hold only opaque sidecar tokens in memory.",
+            "errors": "AnnotationPersistenceError with stable codes.",
+            "concurrencyCancellation": "compare-and-swap prepare rejects stale bytes; writes settle once."
+          },
+          "moduleId": "adapter.annotation-persistence",
+          "name": "createAnnotationStorageAdapter",
+          "semanticMatches": [
+            "annotation",
+            "persistence",
+            "storage"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "persistence",
+            "storage"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "00bf5287edc77db07f03fa8b697542d007f5bcf73eb2a39fb65758e6f12a9f90"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 29,
       "forwardingOnly": false,
       "functions": [
@@ -24969,6 +25558,167 @@
       ],
       "sizeException": null,
       "sourceHash": "582d35f6e5a098342f3139812a51cfed0c8b844ad677e3f280d9213e1e3b2eb8"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 300,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-21>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "entry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "merge",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "split",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "encodeAnnotationEntry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "portableClone",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "projectAnnotationOpaqueState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "mergeDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "splitHistory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "splitKnown",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "decodeAnnotationExport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "decodeAnnotationEntry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "migrateEntry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "splitAnnotationDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "emptyOpaqueTree",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "isRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "readOpaqueState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "deepFreeze",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 54,
+          "name": "splitDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "encodeAnnotationExport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "parseJson",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "mergeAnnotationDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireSession",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "persistence",
+      "moduleId": "adapter.annotation-persistence",
+      "owner": "annotation-persistence-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-persistence/annotation-wire.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "ed36ab2f02261a35cdd81b9356e7fdcc3b6fab19002cf414dee302b250c9615a"
     },
     {
       "adaptsBoundary": true,
@@ -28289,6 +29039,26 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 5,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "persistence",
+      "moduleId": "adapter.annotation-persistence",
+      "owner": "annotation-persistence-adapter",
+      "ownsContract": true,
+      "path": "src/annotation-persistence/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "10e4cc0790d90b2bd446c48fa9f4d2b46a6e520f09e96f5057725ca95c358cd0"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 50,
       "forwardingOnly": false,
       "functions": [
@@ -30287,6 +31057,57 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 79,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "createReversibleAnnotationWrite",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "apply",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "restorePrevious",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "finalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "persistence",
+      "moduleId": "adapter.annotation-persistence",
+      "owner": "annotation-persistence-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-persistence/reversible-annotation-write.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "14741fcd030910f25d3daee61b8d1d174a7a4c8fef1d3930cd44755653ba15be"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 8,
       "forwardingOnly": false,
       "functions": [
@@ -31753,11 +32574,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 28451,
-    "files": 363,
-    "functions": 3008,
-    "publicExports": 352
+    "effectiveLines": 29492,
+    "files": 370,
+    "functions": 3120,
+    "publicExports": 357
   },
-  "deliveryStep": "R13.6",
-  "generatedFromCommit": "working-tree-r13.6"
+  "deliveryStep": "R13.7",
+  "generatedFromCommit": "working-tree-r13.7"
 }

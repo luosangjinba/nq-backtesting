@@ -9,7 +9,11 @@
  * Concurrency/cancellation: all operations are synchronous and deterministic.
  */
 export { AnnotationGeometryError } from './geometry-error.js';
-export { createGeometryRegistry, createInitialGeometryRegistry } from './geometry-registry.js';
+export {
+  createGeometryRegistry,
+  createInitialGeometryRegistry,
+  restoreDrawingGeometry,
+} from './geometry-registry.js';
 export { createMarketAnchor, readMarketAnchor } from './market-anchor.js';
 export { readDrawingGeometry } from './drawing-geometry.js';
 export {

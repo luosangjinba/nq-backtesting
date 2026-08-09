@@ -19,7 +19,11 @@ export function normalizeGeometryContract(candidate) {
       'Geometry capability must expose readDrawingGeometry().',
     );
   }
-  return Object.freeze({ readDrawingGeometry: candidate.readDrawingGeometry });
+  return Object.freeze({
+    readDrawingGeometry: candidate.readDrawingGeometry,
+    restoreDrawingGeometry: typeof candidate.restoreDrawingGeometry === 'function'
+      ? candidate.restoreDrawingGeometry : null,
+  });
 }
 
 /** Read one branded Geometry only through the injected public contract. */
@@ -48,4 +52,24 @@ export function readAcceptedGeometry(contract, candidate) {
     );
   }
   return geometry;
+}
+
+/** Restore and validate one portable Geometry through the injected registered definition port. */
+export function restoreAcceptedGeometry(contract, candidate) {
+  if (contract === null || contract.restoreDrawingGeometry === null) {
+    failAnnotation(
+      'ANNOTATION_GEOMETRY_RESTORE_UNAVAILABLE',
+      'Annotation Geometry restore capability is not installed.',
+    );
+  }
+  let restored;
+  try {
+    restored = contract.restoreDrawingGeometry(candidate);
+  } catch (cause) {
+    failAnnotation('ANNOTATION_GEOMETRY_RESTORE_FAILED', 'Stored Drawing Geometry was rejected.', { cause });
+  }
+  return Object.freeze({
+    branded: restored,
+    snapshot: readAcceptedGeometry(contract, restored),
+  });
 }

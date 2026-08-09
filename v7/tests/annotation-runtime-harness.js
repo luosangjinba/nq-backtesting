@@ -71,6 +71,8 @@ assert.deepEqual(primary.getDocument(), {
 });
 assert.deepEqual(primary.health(), {
   activeTransaction: false,
+  canRedo: false,
+  canUndo: false,
   documentRevision: 0,
   geometryAvailable: true,
   semanticPackageCount: 0,
@@ -341,7 +343,10 @@ const descriptor = normalizeModuleDescriptor(JSON.parse(fs.readFileSync(
 )));
 assert.equal(descriptor.id, 'optional.annotation-runtime');
 assert.equal(descriptor.removable, true);
-assert.deepEqual(descriptor.optionalPorts, ['optional.annotation-geometry-domain']);
+assert.deepEqual(
+  descriptor.optionalPorts,
+  ['adapter.annotation-persistence', 'optional.annotation-geometry-domain'],
+);
 const annotationApi = await import('../src/annotation-runtime/public.js');
 const sessionDescriptor = normalizeModuleDescriptor(JSON.parse(fs.readFileSync(
   path.join(V7_ROOT, 'src/session-identity/module.json'), 'utf8',
@@ -358,6 +363,7 @@ const withGeometry = createModuleHost([
     descriptor,
     instantiate({ optionalPorts }) {
       assert.equal(optionalPorts['optional.annotation-geometry-domain'], geometryContract);
+      assert.equal(optionalPorts['adapter.annotation-persistence'], undefined);
       return { dispose() {}, publicApi: annotationApi };
     },
   },

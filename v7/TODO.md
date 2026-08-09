@@ -263,6 +263,26 @@ Machine-readable evidence:
 Binding contract:
 `docs/V7_RECTANGLE_SELECTION_MINIMAL_INSPECTOR_R13_6.md`.
 
+## R13.7 Durable Annotation History — Accepted 2026-08-09
+
+- [x] accept the separately bounded headless R13.7 scope after R13.6 human
+  acceptance;
+- [x] freeze Runtime, persistence-adapter, Geometry-restore, history, wire,
+  migration, import/export, opaque-field, and failure-atomicity ownership;
+- [x] add the removable `adapter.annotation-persistence` Session-keyed byte
+  owner without composing a production route or current-Session singleton;
+- [x] restore branded Annotation state and registered Geometry after hard reload;
+- [x] add exact-revision, reload-safe undo/redo and bounded history through the
+  Runtime sole-writer transaction;
+- [x] add versioned import/export, v1-to-v2 migration, and opaque envelope-field
+  preservation;
+- [x] activate and pass H105 plus architecture, sole-writer, source, optional-
+  removal, standalone, regression, JSON, and patch-format gates;
+- [x] form one separate R13.7 commit; do not begin R13.8.
+
+Binding contract:
+`docs/V7_DURABLE_ANNOTATION_HISTORY_R13_7.md`.
+
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
 - [x] accept the current standalone ES/NQ minute-replay product as a complete,
@@ -1052,9 +1072,9 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 363 files, 28,451 effective
-lines, 3,008 functions, and 352 public exports; the architecture baseline
-remains 55 modules, 128 edges, 115 construction sites, 21 writers, and zero
+The current production source baseline contains 370 files, 29,492 effective
+lines, 3,120 functions, and 357 public exports; the architecture baseline
+remains 56 modules, 129 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -1065,8 +1085,8 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 363 files, 28,451 effective lines, 3,008 functions, 352 public
-exports, 55 modules, 128 edges, 115 construction sites, 21 writers, and zero
+currently at 370 files, 29,492 effective lines, 3,120 functions, 357 public
+exports, 56 modules, 129 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 ## Established Foundation Governance

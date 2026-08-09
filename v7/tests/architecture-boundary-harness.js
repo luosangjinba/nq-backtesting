@@ -94,6 +94,8 @@ function visitModule(moduleId) {
 }
 for (const moduleId of activeModuleIds) visitModule(moduleId);
 assert.deepEqual(manifest.writerInventories, {
+  annotationDocument: ['optional.annotation-runtime'],
+  annotationDocumentStorage: ['adapter.annotation-persistence'],
   sessionRecord: ['core.session-store'],
   workspaceCheckpoint: ['core.session-store'],
   layoutSyncPolicy: ['core.session-store'],

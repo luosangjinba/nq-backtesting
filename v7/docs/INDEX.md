@@ -143,6 +143,11 @@ revision, and minimal Segment/Rectangle Inspector over those V7-owned ports.
 Its surface remains a test fixture. The corrected local visual gate closed on
 2026-08-09; H104 is accepted and the user separately authorized the next
 bounded step.
+`V7_DURABLE_ANNOTATION_HISTORY_R13_7.md` is the accepted binding headless
+contract for Session-keyed durable Annotation bytes, hard-reload restore,
+exact-revision undo/redo, import/export, schema migration, and opaque envelope-
+H105 closed on 2026-08-09 with no visible product change; R13.8 remains
+unauthorized.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

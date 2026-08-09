@@ -1,0 +1,20 @@
+[
+  { "name": "storage object required", "operation": "storage-port", "expectedCode": "ANNOTATION_STORAGE_INVALID" },
+  { "name": "repository storage adapter required", "operation": "repository-storage", "expectedCode": "ANNOTATION_STORAGE_ADAPTER_INVALID" },
+  { "name": "repository namespace bounded", "operation": "repository-namespace", "expectedCode": "ANNOTATION_REPOSITORY_NAMESPACE_INVALID" },
+  { "name": "corrupt durable JSON rejected", "operation": "load-json", "expectedCode": "ANNOTATION_PERSISTENCE_JSON_INVALID" },
+  { "name": "unknown durable schema rejected", "operation": "load-schema", "expectedCode": "ANNOTATION_PERSISTENCE_SCHEMA_UNSUPPORTED" },
+  { "name": "future durable version rejected", "operation": "load-version", "expectedCode": "ANNOTATION_PERSISTENCE_VERSION_UNSUPPORTED" },
+  { "name": "durable Session isolation", "operation": "load-session", "expectedCode": "ANNOTATION_PERSISTENCE_SESSION_MISMATCH" },
+  { "name": "durable history bound", "operation": "load-history", "expectedCode": "ANNOTATION_PERSISTENCE_HISTORY_INVALID" },
+  { "name": "prepare exact fields", "operation": "prepare-fields", "expectedCode": "ANNOTATION_PERSISTENCE_PREPARE_INVALID" },
+  { "name": "prepare exact successor revision", "operation": "prepare-revision", "expectedCode": "ANNOTATION_PERSISTENCE_REVISION_CONFLICT" },
+  { "name": "corrupt export JSON rejected", "operation": "import-json", "expectedCode": "ANNOTATION_EXPORT_JSON_INVALID" },
+  { "name": "future export version rejected", "operation": "import-version", "expectedCode": "ANNOTATION_EXPORT_VERSION_UNSUPPORTED" },
+  { "name": "import Session isolation", "operation": "import-session", "expectedCode": "ANNOTATION_PERSISTENCE_SESSION_MISMATCH" },
+  { "name": "empty undo rejected", "operation": "undo-empty", "expectedCode": "ANNOTATION_UNDO_UNAVAILABLE" },
+  { "name": "empty redo rejected", "operation": "redo-empty", "expectedCode": "ANNOTATION_REDO_UNAVAILABLE" },
+  { "name": "hard reload requires durable repository", "operation": "restore-port", "expectedCode": "ANNOTATION_DURABLE_REPOSITORY_REQUIRED" },
+  { "name": "export requires durable repository", "operation": "export-port", "expectedCode": "ANNOTATION_DURABLE_REPOSITORY_REQUIRED" },
+  { "name": "stored Geometry must restore", "operation": "restore-geometry", "expectedCode": "ANNOTATION_STORED_GEOMETRY_INVALID" }
+]

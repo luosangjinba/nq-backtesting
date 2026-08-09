@@ -5,7 +5,10 @@ import {
   readGeometryTypeDefinition,
   requireGeometryTypeDefinition,
   requireGeometryTypeId,
+  restoreGeometryFromDefinition,
 } from './geometry-type-definition.js';
+
+const ENVELOPE_FIELDS = Object.freeze(['payload', 'schemaVersion', 'typeId', 'typeVersion']);
 
 function exactRegistryInput(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)
@@ -15,6 +18,15 @@ function exactRegistryInput(value) {
   if (!Array.isArray(value.definitions)) {
     failGeometry('GEOMETRY_REGISTRY_DEFINITIONS_INVALID', 'Geometry Registry definitions must be an array.');
   }
+}
+
+function requireStoredEnvelope(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+    || Object.keys(value).sort().join(',') !== [...ENVELOPE_FIELDS].sort().join(',')
+    || value.schemaVersion !== 1 || typeof value.typeVersion !== 'string') {
+    failGeometry('GEOMETRY_STORED_ENVELOPE_INVALID', 'Stored Geometry envelope is invalid.');
+  }
+  return value;
 }
 
 /**
@@ -56,6 +68,22 @@ export function createGeometryRegistry(value = {}) {
       return definition ? readGeometryTypeDefinition(definition) : null;
     },
     list: () => metadata,
+    restore(candidate) {
+      const envelope = requireStoredEnvelope(candidate);
+      const id = requireGeometryTypeId(envelope.typeId);
+      const definition = byTypeId.get(id);
+      if (!definition) {
+        failGeometry('GEOMETRY_REGISTRY_TYPE_UNKNOWN', `Geometry type ${id} is not registered.`);
+      }
+      const definitionMetadata = readGeometryTypeDefinition(definition);
+      if (definitionMetadata.version !== envelope.typeVersion) {
+        failGeometry(
+          'GEOMETRY_STORED_VERSION_UNSUPPORTED',
+          `Geometry type ${id} does not support stored version ${envelope.typeVersion}.`,
+        );
+      }
+      return restoreGeometryFromDefinition(definition, envelope.payload);
+    },
   });
 }
 
@@ -69,4 +97,9 @@ export function createGeometryRegistry(value = {}) {
  */
 export function createInitialGeometryRegistry() {
   return createGeometryRegistry({ definitions: initialGeometryTypeDefinitions() });
+}
+
+/** Restore one initial Point/Segment/Rectangle Geometry from its portable envelope. */
+export function restoreDrawingGeometry(candidate) {
+  return createInitialGeometryRegistry().restore(candidate);
 }

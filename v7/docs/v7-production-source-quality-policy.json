@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R13.6",
+  "deliveryStep": "R13.7",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -75,6 +75,7 @@
       "optional.annotation-chart-projection"
     ],
     "persistence": [
+      "adapter.annotation-persistence",
       "adapter.session-persistence",
       "core.replay-navigation-preference-store"
     ],
@@ -141,6 +142,10 @@
     },
     {
       "path": "sessions/session_20260809_r13_6_rectangle_selection_minimal_inspector.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260809_r13_7_durable_annotation_history.md",
       "expectedOccurrences": 1
     }
   ],

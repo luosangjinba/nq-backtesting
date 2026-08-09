@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r13.6-rectangle-inspector-human-gate-pending",
+  "status": "r13.7-durable-annotation-history-accepted",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -34,6 +34,7 @@
     "docs/V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md",
     "docs/V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md",
     "docs/V7_RECTANGLE_SELECTION_MINIMAL_INSPECTOR_R13_6.md",
+    "docs/V7_DURABLE_ANNOTATION_HISTORY_R13_7.md",
     "docs/v7-community-reuse-audit.json",
     "docs/V7_V6_MIGRATION_DENYLIST.md",
     "docs/V7_V6_DISPOSITION_MATRIX.md",
@@ -120,6 +121,7 @@
     "browser-async-contract",
     "database-bootstrap-admin",
     "annotation-geometry-domain",
+    "annotation-persistence-adapter",
     "annotation-runtime",
     "annotation-interaction-controller"
   ],
@@ -145,6 +147,7 @@
     "src/prepared-commit-contract/module.json",
     "src/module-host/module.json",
     "src/annotation-geometry-domain/module.json",
+    "src/annotation-persistence/module.json",
     "src/annotation-runtime/module.json",
     "src/annotation-chart-projection/module.json",
     "src/annotation-interaction/module.json",
@@ -254,6 +257,8 @@
     ]
   },
   "writerInventories": {
+    "annotationDocument": ["optional.annotation-runtime"],
+    "annotationDocumentStorage": ["adapter.annotation-persistence"],
     "sessionRecord": ["core.session-store"],
     "workspaceCheckpoint": ["core.session-store"],
     "layoutSyncPolicy": ["core.session-store"],
@@ -336,6 +341,7 @@
     "annotation-geometry-market-coordinate-extensible",
     "headless-annotation-document-sole-writer",
     "accepted-annotation-projection-reversible-and-chart-owned",
-    "segment-interaction-preview-one-shot-and-chart-arbitrated"
+    "segment-interaction-preview-one-shot-and-chart-arbitrated",
+    "durable-annotation-history-session-local-and-reversible"
   ]
 }

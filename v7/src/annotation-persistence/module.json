@@ -1,0 +1,12 @@
+{
+  "id": "adapter.annotation-persistence",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "annotation-persistence-adapter",
+  "publicEntry": "src/annotation-persistence/public.js",
+  "requiredPorts": ["core.session-identity"],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/annotation-persistence-harness.js",
+  "removable": true
+}

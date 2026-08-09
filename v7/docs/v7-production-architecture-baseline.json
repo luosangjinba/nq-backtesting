@@ -8,6 +8,20 @@
     ],
     "writerPolicies": [
       {
+        "surface": "annotationDocument",
+        "detectorId": "annotation-document-accepted-state",
+        "allowedModuleIds": [
+          "optional.annotation-runtime"
+        ]
+      },
+      {
+        "surface": "annotationDocumentStorage",
+        "detectorId": "annotation-document-bytes-commit",
+        "allowedModuleIds": [
+          "adapter.annotation-persistence"
+        ]
+      },
+      {
         "surface": "calendarSurfaceDom",
         "detectorId": "calendar-surface-dom-commit",
         "allowedModuleIds": [
@@ -122,7 +136,7 @@
       }
     ]
   },
-  "deliveryStep": "R13.6",
+  "deliveryStep": "R13.7",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -960,6 +974,12 @@
     "declaredWriterSurfaces": [
       {
         "moduleIds": [
+          "adapter.annotation-persistence"
+        ],
+        "surface": "annotationDocumentStorage"
+      },
+      {
+        "moduleIds": [
           "adapter.calendar-surface"
         ],
         "surface": "calendarSurfaceDom"
@@ -1054,6 +1074,12 @@
           "core.workstation-settings"
         ],
         "surface": "workstationSettings"
+      },
+      {
+        "moduleIds": [
+          "optional.annotation-runtime"
+        ],
+        "surface": "annotationDocument"
       }
     ],
     "modules": [
@@ -3974,6 +4000,7 @@
           "dispose"
         ],
         "declaredOptionalPorts": [
+          "adapter.annotation-persistence",
           "optional.annotation-geometry-domain"
         ],
         "declaredRequiredPorts": [
@@ -4011,6 +4038,46 @@
         ],
         "owner": "annotation-runtime",
         "publicEntry": "src/annotation-runtime/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.session-identity"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.session-identity"
+        ],
+        "descriptorPath": "src/annotation-persistence/module.json",
+        "id": "adapter.annotation-persistence",
+        "importSites": [
+          {
+            "importedNames": [
+              "deserializeSessionId",
+              "serializeSessionId",
+              "sessionIdsEqual"
+            ],
+            "sourceFile": "src/annotation-persistence/annotation-wire.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeSessionId"
+            ],
+            "sourceFile": "src/annotation-persistence/durable-annotation-repository.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/annotation-persistence-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [],
+        "owner": "annotation-persistence-adapter",
+        "publicEntry": "src/annotation-persistence/public.js"
       },
       {
         "actualDependencies": [
@@ -4507,6 +4574,18 @@
       }
     ],
     "writerSites": [
+      {
+        "detectorId": "annotation-document-accepted-state",
+        "sourceFile": "src/annotation-runtime/runtime-state.js",
+        "sourceModuleId": "optional.annotation-runtime",
+        "surface": "annotationDocument"
+      },
+      {
+        "detectorId": "annotation-document-bytes-commit",
+        "sourceFile": "src/annotation-persistence/reversible-annotation-write.js",
+        "sourceModuleId": "adapter.annotation-persistence",
+        "surface": "annotationDocumentStorage"
+      },
       {
         "detectorId": "calendar-surface-dom-commit",
         "sourceFile": "src/calendar-surface/date-time-control.js",

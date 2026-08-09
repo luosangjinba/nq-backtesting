@@ -17,6 +17,8 @@ const REVISE_FIELDS = Object.freeze([
   'drawingId', 'expectedDocumentRevision', 'expectedDrawingRevision', 'geometry',
   'presentation', 'sessionId',
 ]);
+const HISTORY_FIELDS = Object.freeze(['expectedDocumentRevision', 'sessionId']);
+const IMPORT_FIELDS = Object.freeze(['expectedDocumentRevision', 'payload', 'sessionId']);
 
 /** Build and transact one generic Drawing creation command. */
 export function createDrawing(state, input) {
@@ -101,4 +103,19 @@ export function restoreDrawing(state, input) {
     rejectedCode: 'DRAWING_ALREADY_ACTIVE',
     rejectedMessage: 'Drawing is already active.',
   });
+}
+
+/** Restore one exact prior accepted Annotation state as a new revision. */
+export function undoAnnotation(state, input) {
+  return state.runHistory(input, HISTORY_FIELDS, 'undo');
+}
+
+/** Reapply one exact undone Annotation state as a new revision. */
+export function redoAnnotation(state, input) {
+  return state.runHistory(input, HISTORY_FIELDS, 'redo');
+}
+
+/** Import one versioned document through the durable Repository parser. */
+export function importAnnotationDocument(state, input) {
+  return state.importDocument(input, IMPORT_FIELDS);
 }

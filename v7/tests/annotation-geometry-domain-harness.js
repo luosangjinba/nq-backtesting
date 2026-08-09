@@ -15,6 +15,7 @@ import {
   readDrawingGeometry,
   readGeometryTypeDefinition,
   readMarketAnchor,
+  restoreDrawingGeometry,
 } from '../src/annotation-geometry-domain/public.js';
 import { createModuleHost, normalizeModuleDescriptor } from '../src/module-host/public.js';
 
@@ -78,6 +79,13 @@ assert.deepEqual(rectangleForward.payload, {
 });
 assert.equal(Object.isFrozen(rectangleForward), true);
 assert.equal(Object.isFrozen(rectangleForward.payload), true);
+for (const envelope of [readDrawingGeometry(point), readDrawingGeometry(segment), rectangleForward]) {
+  assert.deepEqual(
+    readDrawingGeometry(restoreDrawingGeometry(envelope)),
+    envelope,
+    `${envelope.typeId} must restore through its registered definition`,
+  );
+}
 
 const initial = createInitialGeometryRegistry();
 assert.equal(Object.isFrozen(initial), true);
@@ -102,6 +110,10 @@ const triangleDefinition = defineGeometryType({
     if (!Array.isArray(anchors) || anchors.length !== 3) throw new TypeError('three anchors required');
     return { anchors: anchors.map(readMarketAnchor) };
   },
+  restore({ anchors }) {
+    if (!Array.isArray(anchors) || anchors.length !== 3) throw new TypeError('three anchors required');
+    return { anchors: anchors.map((value) => readMarketAnchor(createMarketAnchor(value))) };
+  },
 });
 assert.deepEqual(readGeometryTypeDefinition(triangleDefinition), {
   typeId: 'geometry.test-triangle', version: '1.0.0',
@@ -115,6 +127,7 @@ assert.equal(Object.isFrozen(triangle.payload.anchors), true);
 assert.equal(Object.isFrozen(triangle.payload.anchors[0]), true);
 triangleInput.anchors.push(anchor(4_000, 95));
 assert.equal(triangle.payload.anchors.length, 3, 'accepted Geometry cannot retain mutable input arrays');
+assert.deepEqual(readDrawingGeometry(extended.restore(triangle)), triangle);
 
 const arbitraryDefinition = (typeId, normalize) => defineGeometryType({
   normalize, typeId, version: '1.0.0',
@@ -150,6 +163,9 @@ const operations = {
   'definition-id': () => defineGeometryType({ typeId: 'indicator.ma', version: '1.0.0', normalize: () => ({}) }),
   'definition-version': () => defineGeometryType({ typeId: 'geometry.test', version: 'latest', normalize: () => ({}) }),
   'definition-normalizer': () => defineGeometryType({ typeId: 'geometry.test', version: '1.0.0', normalize: null }),
+  'definition-restorer': () => defineGeometryType({
+    typeId: 'geometry.test', version: '1.0.0', normalize: () => ({}), restore: null,
+  }),
   'definition-lookalike': () => readGeometryTypeDefinition({ typeId: 'geometry.test', version: '1.0.0' }),
   'registry-extra': () => createGeometryRegistry({ definitions: [], mutable: true }),
   'registry-definitions': () => createGeometryRegistry({ definitions: null }),
@@ -159,6 +175,15 @@ const operations = {
   'registry-duplicate': () => createGeometryRegistry({ definitions: [triangleDefinition, triangleDefinition] }),
   'registry-unknown': () => initial.create('geometry.unregistered', {}),
   'registry-id': () => initial.get('point'),
+  'registry-restore-envelope': () => initial.restore({
+    payload: {}, schemaVersion: 1, typeId: 'geometry.point',
+  }),
+  'registry-restore-version': () => initial.restore({
+    payload: readDrawingGeometry(point).payload,
+    schemaVersion: 1,
+    typeId: 'geometry.point',
+    typeVersion: '2.0.0',
+  }),
   'payload-function': () => createGeometryRegistry({ definitions: [arbitraryDefinition(
     'geometry.test-function', () => ({ callback() {} }),
   )] }).create('geometry.test-function'),

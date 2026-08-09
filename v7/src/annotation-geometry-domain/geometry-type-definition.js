@@ -1,6 +1,6 @@
 import { createDrawingGeometryValue } from './drawing-geometry.js';
 import { AnnotationGeometryError, failGeometry } from './geometry-error.js';
-import { readMarketAnchor } from './market-anchor.js';
+import { createMarketAnchor, readMarketAnchor } from './market-anchor.js';
 
 const TYPE_ID_PATTERN = /^geometry\.[a-z0-9]+(?:[.-][a-z0-9]+)*$/;
 const VERSION_PATTERN = /^\d+\.\d+\.\d+$/;
@@ -14,10 +14,12 @@ export const GEOMETRY_TYPE_IDS = Object.freeze({
 class GeometryTypeDefinitionValue {
   #metadata;
   #normalize;
+  #restore;
 
-  constructor({ normalize, typeId, version }) {
+  constructor({ normalize, restore = normalize, typeId, version }) {
     this.#metadata = Object.freeze({ typeId, version });
     this.#normalize = normalize;
+    this.#restore = restore;
     Object.freeze(this);
   }
 
@@ -41,6 +43,25 @@ class GeometryTypeDefinitionValue {
   }
 
   read() { return this.#metadata; }
+
+  restore(payload) {
+    let normalized;
+    try {
+      normalized = this.#restore(payload);
+    } catch (cause) {
+      if (cause instanceof AnnotationGeometryError) throw cause;
+      failGeometry(
+        'GEOMETRY_DEFINITION_RESTORE_FAILED',
+        `Geometry definition ${this.#metadata.typeId} could not restore payload.`,
+        { cause },
+      );
+    }
+    return createDrawingGeometryValue({
+      payload: normalized,
+      typeId: this.#metadata.typeId,
+      typeVersion: this.#metadata.version,
+    });
+  }
 }
 
 function exactRecord(value, fields, label) {
@@ -58,6 +79,39 @@ function sameInstrument(first, second, code, label) {
   }
 }
 
+function segmentPayload(startCandidate, endCandidate) {
+  const startAnchor = readMarketAnchor(startCandidate);
+  const endAnchor = readMarketAnchor(endCandidate);
+  sameInstrument(startAnchor, endAnchor, 'SEGMENT_INSTRUMENT_MISMATCH', 'Segment');
+  if (startAnchor.epochMs === endAnchor.epochMs && startAnchor.price === endAnchor.price) {
+    failGeometry('SEGMENT_DEGENERATE', 'Segment anchors must not be identical.');
+  }
+  return { endAnchor, startAnchor };
+}
+
+function rectanglePayload(firstCandidate, secondCandidate) {
+  const first = readMarketAnchor(firstCandidate);
+  const second = readMarketAnchor(secondCandidate);
+  sameInstrument(first, second, 'RECTANGLE_INSTRUMENT_MISMATCH', 'Rectangle');
+  const startEpochMs = Math.min(first.epochMs, second.epochMs);
+  const endEpochMs = Math.max(first.epochMs, second.epochMs);
+  const lowPrice = Math.min(first.price, second.price);
+  const highPrice = Math.max(first.price, second.price);
+  if (startEpochMs === endEpochMs) {
+    failGeometry('RECTANGLE_TIME_RANGE_DEGENERATE', 'Rectangle requires a non-zero time range.');
+  }
+  if (lowPrice === highPrice) {
+    failGeometry('RECTANGLE_PRICE_RANGE_DEGENERATE', 'Rectangle requires a non-zero price range.');
+  }
+  return {
+    endEpochMs,
+    highPrice,
+    instrumentId: first.instrumentId,
+    lowPrice,
+    startEpochMs,
+  };
+}
+
 /**
  * Owner: Annotation Geometry Domain.
  * Purpose: define one trusted-build, market-coordinate Geometry normalization policy.
@@ -67,7 +121,9 @@ function sameInstrument(first, second, code, label) {
  * Concurrency/cancellation: normalization is synchronous and deterministic.
  */
 export function defineGeometryType(value = {}) {
-  exactRecord(value, ['normalize', 'typeId', 'version'], 'Geometry Type Definition');
+  const fields = Object.hasOwn(value, 'restore')
+    ? ['normalize', 'restore', 'typeId', 'version'] : ['normalize', 'typeId', 'version'];
+  exactRecord(value, fields, 'Geometry Type Definition');
   if (typeof value.typeId !== 'string' || !TYPE_ID_PATTERN.test(value.typeId)) {
     failGeometry('GEOMETRY_TYPE_ID_INVALID', 'Geometry type id must use geometry.<namespace>.');
   }
@@ -76,6 +132,9 @@ export function defineGeometryType(value = {}) {
   }
   if (typeof value.normalize !== 'function') {
     failGeometry('GEOMETRY_TYPE_NORMALIZER_INVALID', 'Geometry type requires one synchronous normalizer.');
+  }
+  if (Object.hasOwn(value, 'restore') && typeof value.restore !== 'function') {
+    failGeometry('GEOMETRY_TYPE_RESTORER_INVALID', 'Geometry type restore policy must be synchronous.');
   }
   return new GeometryTypeDefinitionValue(value);
 }
@@ -106,6 +165,11 @@ export function createGeometryFromDefinition(definition, input) {
   return requireGeometryTypeDefinition(definition).create(input);
 }
 
+/** Restore portable Geometry payload through one trusted registered definition. */
+export function restoreGeometryFromDefinition(definition, payload) {
+  return requireGeometryTypeDefinition(definition).restore(payload);
+}
+
 /** Validate a public Geometry type id before lookup or creation. */
 export function requireGeometryTypeId(typeId) {
   if (typeof typeId !== 'string' || !TYPE_ID_PATTERN.test(typeId)) {
@@ -121,6 +185,10 @@ const POINT_DEFINITION = defineGeometryType({
     exactRecord(value, ['anchor'], 'Point Geometry input');
     return { anchor: readMarketAnchor(value.anchor) };
   },
+  restore(value) {
+    exactRecord(value, ['anchor'], 'Stored Point Geometry payload');
+    return { anchor: readMarketAnchor(createMarketAnchor(value.anchor)) };
+  },
 });
 
 const SEGMENT_DEFINITION = defineGeometryType({
@@ -128,13 +196,14 @@ const SEGMENT_DEFINITION = defineGeometryType({
   version: '1.0.0',
   normalize(value) {
     exactRecord(value, ['endAnchor', 'startAnchor'], 'Segment Geometry input');
-    const startAnchor = readMarketAnchor(value.startAnchor);
-    const endAnchor = readMarketAnchor(value.endAnchor);
-    sameInstrument(startAnchor, endAnchor, 'SEGMENT_INSTRUMENT_MISMATCH', 'Segment');
-    if (startAnchor.epochMs === endAnchor.epochMs && startAnchor.price === endAnchor.price) {
-      failGeometry('SEGMENT_DEGENERATE', 'Segment anchors must not be identical.');
-    }
-    return { endAnchor, startAnchor };
+    return segmentPayload(value.startAnchor, value.endAnchor);
+  },
+  restore(value) {
+    exactRecord(value, ['endAnchor', 'startAnchor'], 'Stored Segment Geometry payload');
+    return segmentPayload(
+      createMarketAnchor(value.startAnchor),
+      createMarketAnchor(value.endAnchor),
+    );
   },
 });
 
@@ -143,26 +212,26 @@ const RECTANGLE_DEFINITION = defineGeometryType({
   version: '1.0.0',
   normalize(value) {
     exactRecord(value, ['firstAnchor', 'secondAnchor'], 'Rectangle Geometry input');
-    const first = readMarketAnchor(value.firstAnchor);
-    const second = readMarketAnchor(value.secondAnchor);
-    sameInstrument(first, second, 'RECTANGLE_INSTRUMENT_MISMATCH', 'Rectangle');
-    const startEpochMs = Math.min(first.epochMs, second.epochMs);
-    const endEpochMs = Math.max(first.epochMs, second.epochMs);
-    const lowPrice = Math.min(first.price, second.price);
-    const highPrice = Math.max(first.price, second.price);
-    if (startEpochMs === endEpochMs) {
-      failGeometry('RECTANGLE_TIME_RANGE_DEGENERATE', 'Rectangle requires a non-zero time range.');
-    }
-    if (lowPrice === highPrice) {
-      failGeometry('RECTANGLE_PRICE_RANGE_DEGENERATE', 'Rectangle requires a non-zero price range.');
-    }
-    return {
-      endEpochMs,
-      highPrice,
-      instrumentId: first.instrumentId,
-      lowPrice,
-      startEpochMs,
-    };
+    return rectanglePayload(value.firstAnchor, value.secondAnchor);
+  },
+  restore(value) {
+    exactRecord(
+      value,
+      ['endEpochMs', 'highPrice', 'instrumentId', 'lowPrice', 'startEpochMs'],
+      'Stored Rectangle Geometry payload',
+    );
+    return rectanglePayload(
+      createMarketAnchor({
+        epochMs: value.startEpochMs,
+        instrumentId: value.instrumentId,
+        price: value.lowPrice,
+      }),
+      createMarketAnchor({
+        epochMs: value.endEpochMs,
+        instrumentId: value.instrumentId,
+        price: value.highPrice,
+      }),
+    );
   },
 });
 
