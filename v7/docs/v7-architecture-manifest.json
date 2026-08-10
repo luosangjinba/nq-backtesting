@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r13.9a-stage-architecture-review-blockers-recorded",
+  "status": "r13.9b-semantic-contract-hardening-accepted",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -38,6 +38,7 @@
     "docs/V7_PANE_TIME_REPLAY_ANNOTATION_PROJECTION_R13_8.md",
     "docs/V7_SEMANTIC_PACKAGE_LIQUIDITY_LEVEL_R13_9.md",
     "docs/V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md",
+    "docs/V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md",
     "docs/v7-community-reuse-audit.json",
     "docs/V7_V6_MIGRATION_DENYLIST.md",
     "docs/V7_V6_DISPOSITION_MATRIX.md",
@@ -352,6 +353,7 @@
     "headless-annotation-document-sole-writer",
     "accepted-annotation-projection-reversible-and-chart-owned",
     "segment-interaction-preview-one-shot-and-chart-arbitrated",
-    "durable-annotation-history-session-local-and-reversible"
+    "durable-annotation-history-session-local-and-reversible",
+    "semantic-artifact-construction-identity-and-lifecycle-serialized"
   ]
 }

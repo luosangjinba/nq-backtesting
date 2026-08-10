@@ -4,7 +4,13 @@ import {
   hiddenArtifactInspection,
   visibleArtifactInspection,
 } from './semantic-artifact-inspector.js';
+import {
+  normalizeSemanticConstructionResult,
+  semanticDefinitionIdentity,
+  semanticDefinitionMatches,
+} from './semantic-construction-contract.js';
 import { failSemanticPackage } from './semantic-package-error.js';
+import { beginSemanticPackageCleanup } from './semantic-package-cleanup.js';
 import { readSemanticPackageManifest } from './semantic-package-manifest.js';
 import { exactRecord, portableValue } from './portable-value.js';
 
@@ -31,42 +37,6 @@ function activeInstance(value) {
   return Object.freeze({ dispose: value.dispose });
 }
 
-function normalizeConstructionResult(value) {
-  exactRecord(
-    value,
-    ['attributes', 'presentation', 'provenance', 'relations', 'sourceDrawing'],
-    'SEMANTIC_CONSTRUCTION_RESULT_INVALID',
-    'Semantic construction result',
-  );
-  let sourceDrawing = null;
-  if (value.sourceDrawing !== null) {
-    exactRecord(
-      value.sourceDrawing,
-      ['drawingId', 'revision'],
-      'SEMANTIC_CONSTRUCTION_SOURCE_INVALID',
-      'Semantic source Drawing',
-    );
-    if (typeof value.sourceDrawing.drawingId !== 'string'
-      || !ARTIFACT_ID.test(value.sourceDrawing.drawingId)
-      || !Number.isSafeInteger(value.sourceDrawing.revision)
-      || value.sourceDrawing.revision < 1) {
-      failSemanticPackage('SEMANTIC_CONSTRUCTION_SOURCE_INVALID', 'Source Drawing is invalid.');
-    }
-    sourceDrawing = Object.freeze({ ...value.sourceDrawing });
-  }
-  if (!Array.isArray(value.relations)) {
-    failSemanticPackage('SEMANTIC_CONSTRUCTION_RESULT_INVALID', 'Artifact relations must be an array.');
-  }
-  return Object.freeze({
-    attributes: portableValue(value.attributes, 'attributes'),
-    presentation: value.presentation === null
-      ? null : portableValue(value.presentation, 'presentation'),
-    provenance: portableValue(value.provenance, 'provenance'),
-    relations: portableValue(value.relations, 'relations'),
-    sourceDrawing,
-  });
-}
-
 class SemanticPackageRegistry {
   #activeOrder = [];
   #availableCapabilities;
@@ -90,6 +60,7 @@ class SemanticPackageRegistry {
       const compatible = manifest.hostContractVersion === hostContractVersion
         && manifest.requiredCapabilities.every((id) => this.#availableCapabilities.has(id));
       this.#records.set(manifest.packageId, {
+        cleanup: null,
         generation: 0,
         instance: null,
         manifest,
@@ -120,6 +91,20 @@ class SemanticPackageRegistry {
     this.#activeOrder = this.#activeOrder.filter((id) => id !== record.manifest.packageId);
   }
 
+  async #awaitCleanup(record) {
+    if (record.cleanup === null) return;
+    const cleanup = record.cleanup;
+    const cause = await cleanup.settle();
+    if (cause) {
+      failSemanticPackage(
+        'SEMANTIC_PACKAGE_CLEANUP_FAILED',
+        `Package ${record.manifest.packageId} failed-generation cleanup failed.`,
+        { cause },
+      );
+    }
+    if (record.cleanup === cleanup) record.cleanup = null;
+  }
+
   #start(execute) {
     try { this.#requireReady(); } catch (error) { return Promise.reject(error); }
     const operation = Promise.resolve().then(execute);
@@ -148,6 +133,7 @@ class SemanticPackageRegistry {
   enablePackage(packageId) {
     return this.#start(async () => {
       const record = this.#record(packageId);
+      await this.#awaitCleanup(record);
       if (record.state === 'incompatible') {
         failSemanticPackage('SEMANTIC_PACKAGE_INCOMPATIBLE', `Package ${packageId} is incompatible.`);
       }
@@ -204,7 +190,11 @@ class SemanticPackageRegistry {
     const entry = this.#definitions.get(typeKey(input.typeId, input.typeVersion));
     if (!entry) failSemanticPackage('SEMANTIC_TYPE_UNRESOLVED', 'Semantic type is not active.');
     let constructed;
-    try { constructed = normalizeConstructionResult(entry.definition.construct(input.construction)); }
+    try {
+      constructed = normalizeSemanticConstructionResult(
+        entry.definition.construct(input.construction),
+      );
+    }
     catch (cause) {
       if (expectedPolicyRejection(cause)) throw cause;
       return this.#failPolicySync(entry.record, cause);
@@ -212,6 +202,7 @@ class SemanticPackageRegistry {
     return new SemanticArtifactDraftValue(this.#identity, Object.freeze({
       artifactId: input.artifactId,
       attributes: constructed.attributes,
+      definition: semanticDefinitionIdentity(entry),
       packageGeneration: entry.record.generation,
       packageId: entry.record.manifest.packageId,
       presentation: constructed.presentation,
@@ -229,7 +220,7 @@ class SemanticPackageRegistry {
     record.instance = null;
     record.generation += 1;
     record.state = 'failed';
-    Promise.resolve().then(() => instance?.dispose()).catch(() => {});
+    record.cleanup = beginSemanticPackageCleanup(instance);
     failSemanticPackage(
       'SEMANTIC_PACKAGE_POLICY_FAILED',
       `Package ${record.manifest.packageId} failed in isolation.`,
@@ -253,7 +244,7 @@ class SemanticPackageRegistry {
   resolutionOf(artifact) {
     this.#requireReady();
     const entry = this.#definitions.get(typeKey(artifact?.typeId, artifact?.typeVersion));
-    return Object.freeze(entry ? {
+    return Object.freeze(entry && semanticDefinitionMatches(artifact, entry) ? {
       packageId: entry.record.manifest.packageId,
       packageState: entry.record.state,
       packageVersion: entry.record.manifest.packageVersion,
@@ -262,11 +253,14 @@ class SemanticPackageRegistry {
   }
 
   #unresolvedResolution(artifact) {
-    const record = [...this.#records.values()].find(({ manifest }) => (
-      manifest.semanticTypes.some(({ typeId, version }) => (
-        typeId === artifact?.typeId && version === artifact?.typeVersion
-      ))
-    ));
+    const recordedPackageId = artifact?.definition?.status === 'recorded'
+      ? artifact.definition.packageId : null;
+    const record = (recordedPackageId === null ? null : this.#records.get(recordedPackageId))
+      ?? [...this.#records.values()].find(({ manifest }) => (
+        manifest.semanticTypes.some(({ typeId, version }) => (
+          typeId === artifact?.typeId && version === artifact?.typeVersion
+        ))
+      ));
     return Object.freeze({
       packageId: record?.manifest.packageId ?? null,
       packageState: record?.state ?? 'missing',
@@ -279,7 +273,7 @@ class SemanticPackageRegistry {
     this.#requireReady();
     if (artifact?.status !== 'active') return Object.freeze([]);
     const entry = this.#definitions.get(typeKey(artifact?.typeId, artifact?.typeVersion));
-    if (!entry) return Object.freeze([]);
+    if (!entry || !semanticDefinitionMatches(artifact, entry)) return Object.freeze([]);
     try {
       const projected = entry.definition.project(artifact);
       if (!Array.isArray(projected)) throw new TypeError('Projection policy must return an array.');
@@ -293,7 +287,7 @@ class SemanticPackageRegistry {
   inspectArtifact(artifact) {
     this.#requireReady();
     const entry = this.#definitions.get(typeKey(artifact?.typeId, artifact?.typeVersion));
-    if (!entry) {
+    if (!entry || !semanticDefinitionMatches(artifact, entry)) {
       const resolution = this.resolutionOf(artifact);
       return createUnresolvedArtifactInspection(artifact, resolution);
     }
@@ -328,8 +322,11 @@ class SemanticPackageRegistry {
   listSemanticTypes() {
     this.#requireReady();
     return Object.freeze([...this.#definitions.values()].map(({ definition, record }) => Object.freeze({
+      definitionId: definition.definitionId,
+      definitionVersion: definition.definitionVersion,
       displayMetadata: definition.displayMetadata,
       packageId: record.manifest.packageId,
+      packageVersion: record.manifest.packageVersion,
       typeId: definition.typeId,
       version: definition.version,
     })).sort((left, right) => left.typeId.localeCompare(right.typeId)));
@@ -358,6 +355,10 @@ class SemanticPackageRegistry {
   async dispose() {
     if (this.#status === 'disposed') return this.snapshot();
     if (this.#operation !== null) await this.#operation.catch(() => {});
+    for (const record of this.#records.values()) {
+      if (record.cleanup !== null) await record.cleanup.settle();
+      record.cleanup = null;
+    }
     for (const packageId of [...this.#activeOrder].reverse()) {
       const record = this.#records.get(packageId);
       this.#withdraw(record);

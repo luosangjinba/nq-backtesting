@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-09 after the R13.9a stage architecture review
+Last updated: 2026-08-09 after accepted R13.9b Semantic Contract Hardening
 
 ## Current Overall Acceptance State
 
@@ -39,8 +39,13 @@ reconfirmed the full automated graph and owner boundaries but reproduced three
 preconditions for a second semantic package: the core Artifact provenance shape
 is fixed to the BSL/SSL slice, construction package/definition version is not
 stored, and a failed policy generation can dispose asynchronously after its
-replacement activates. R13.9 remains accepted; R13.10 is blocked pending a
-separately specified and authorized R13.9b Semantic Contract Hardening step.
+replacement activates. R13.9b is now accepted under
+`V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md`: Artifact schema 2 carries exact
+host-stamped package/definition construction identity plus portable package
+evidence; schema-1 identity migrates as unresolved `legacy-unrecorded`; and
+failed-generation disposal settles before re-enable. H108 proves a second rich-
+provenance package, durable round trips, upgrade mismatch, and lifecycle
+serialization. R13.10 remains unauthorized and requires a separate approval.
 ADR-V7-002 audited the current public Lightweight Charts drawing,
 indicator, toolkit, and alternative-engine ecosystem at pinned revisions.
 Official Primitive/rendering patterns are approved for adaptation, but no
@@ -58,7 +63,8 @@ Binding records:
 `V7_DURABLE_ANNOTATION_HISTORY_R13_7.md` and
 `V7_PANE_TIME_REPLAY_ANNOTATION_PROJECTION_R13_8.md` and
 `V7_SEMANTIC_PACKAGE_LIQUIDITY_LEVEL_R13_9.md` and
-`V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md`, with frozen candidate evidence in
+`V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md` and
+`V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md`, with frozen candidate evidence in
 `v7-community-reuse-audit.json`.
 
 R11 is the closed architecture-recovery record underlying the accepted

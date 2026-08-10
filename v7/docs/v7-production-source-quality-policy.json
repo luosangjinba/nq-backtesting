@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R13.9",
+  "deliveryStep": "R13.9b",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -161,6 +161,10 @@
     },
     {
       "path": "docs/V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260809_r13_9b_semantic_contract_hardening.md",
       "expectedOccurrences": 1
     }
   ],

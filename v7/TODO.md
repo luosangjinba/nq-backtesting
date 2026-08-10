@@ -337,8 +337,32 @@ Binding contract:
 Review:
 `docs/V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md`.
 
-R13.10 is blocked. The proposed R13.9b Semantic Contract Hardening step is not
-yet authorized and must first receive its own binding specification.
+## R13.9b Semantic Contract Hardening — Accepted 2026-08-09
+
+- [x] receive explicit authorization to repair the three R13.9a blockers and
+  freeze the package-neutral Artifact schema-2 contract;
+- [x] add host-stamped immutable package/definition construction identity and
+  one portable package-owned provenance record without business-id branches;
+- [x] migrate schema-1 Artifacts truthfully to `legacy-unrecorded` identity and
+  preserve unknown definition/provenance fields through the adapter sidecar;
+- [x] require exact package/type/definition version identity before resolution,
+  projection, or package Inspector policy may run;
+- [x] track failed-generation disposal and serialize re-enable after cleanup,
+  with cleanup failure failing activation closed;
+- [x] add and pass H108 with a second synthetic rich-provenance package,
+  reload/import/export, absent-package, version-mismatch, migration, and
+  lifecycle-overlap evidence;
+- [x] split Registry construction/identity, failed cleanup, and persistence
+  migration logic into focused internal modules before extending hotspots;
+- [x] pass the complete R13.2–R13.9 Annotation chain and every standing
+  architecture, writer, assembly, and source-quality gate;
+- [x] form one separate R13.9b commit; do not begin R13.10.
+
+Binding contract:
+`docs/V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md`.
+
+R13.10 remains unauthorized. Its former architecture blockers are repaired,
+but Evidence Resolver/FVG still requires a separately approved bounded step.
 
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
@@ -1129,8 +1153,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 393 files, 31,690 effective
-lines, 3,346 functions, and 378 public exports; the architecture baseline
+The current production source baseline contains 396 files, 31,854 effective
+lines, 3,356 functions, and 378 public exports; the architecture baseline
 remains 59 modules, 131 edges, 115 construction sites, 23 writers, and zero
 findings.
 
@@ -1142,7 +1166,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 393 files, 31,690 effective lines, 3,346 functions, 378 public
+currently at 396 files, 31,854 effective lines, 3,356 functions, 378 public
 exports, 59 modules, 131 edges, 115 construction sites, 23 writers, and zero
 findings.
 

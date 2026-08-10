@@ -1026,8 +1026,27 @@ new generation to activate before the failed generation's asynchronous
 disposal completes. R13.9/H107 remain accepted, but R13.10 is blocked.
 
 Binding review: `V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md`. The recommended
-R13.9b Semantic Contract Hardening remediation is a proposal only and requires
-separate specification and authorization.
+R13.9b Semantic Contract Hardening remediation was separately authorized and
+is closed below.
+
+### R13.9b — Semantic Contract Hardening
+
+Completed 2026-08-09 as the bounded repair for all three R13.9a blockers.
+Semantic Artifact schema 2 stores a host-stamped package/definition construction
+identity and a package-neutral universal provenance header with one deeply
+portable package-owned evidence record. Resolution now requires exact package,
+type, definition, and version identity. Schema-1 records migrate truthfully to
+`legacy-unrecorded` and remain unresolved instead of inheriting current meaning.
+
+Failed synchronous policy generations now have tracked disposal; re-enable is
+serialized after cleanup and fails closed if cleanup fails. H108 uses a second
+synthetic package to prove rich provenance, durable reload/import/export,
+absent-package survival, upgrade mismatch, migration, and non-overlapping
+generations. The complete R13.2–R13.9 chain and standing architecture gates
+pass. There is no visual product change or human gate.
+
+Binding contract: `V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md`. R13.10 remains
+unauthorized.
 
 ## Deferred Product Boundary — Second-Level Replay
 

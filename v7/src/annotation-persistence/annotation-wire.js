@@ -3,6 +3,7 @@ import {
   serializeSessionId,
   sessionIdsEqual,
 } from '../session-identity/public.js';
+import { migrateAnnotationDocument } from './annotation-document-migration.js';
 import { failAnnotationPersistence } from './annotation-persistence-error.js';
 
 const ENTRY_SCHEMA = 'v7.annotation-repository-entry';
@@ -15,8 +16,11 @@ const DRAWING_FIELDS = Object.freeze([
   'drawingId', 'geometry', 'presentation', 'provenance', 'revision', 'scope', 'status',
 ]);
 const ARTIFACT_FIELDS = Object.freeze([
-  'artifactId', 'attributes', 'presentation', 'provenance', 'relations', 'revision',
-  'scope', 'status', 'typeId', 'typeVersion',
+  'artifactId', 'attributes', 'definition', 'presentation', 'provenance', 'relations',
+  'revision', 'scope', 'status', 'typeId', 'typeVersion',
+]);
+const ARTIFACT_DEFINITION_FIELDS = Object.freeze([
+  'definitionId', 'definitionVersion', 'packageId', 'packageVersion', 'status',
 ]);
 const GEOMETRY_FIELDS = Object.freeze(['payload', 'schemaVersion', 'typeId', 'typeVersion']);
 const PRESENTATION_FIELDS = Object.freeze([
@@ -27,8 +31,8 @@ const PROVENANCE_FIELDS = Object.freeze([
 ]);
 const ARTIFACT_PROVENANCE_FIELDS = Object.freeze([
   'constructionSource', 'createdAtEpochMs', 'instrumentId', 'manualAnchors',
-  'observedAtReplayCutoffEpochMs', 'promotedFromDrawingId', 'recognitionSource',
-  'sourceBars', 'sourceTimeframeId',
+  'observedAtReplayCutoffEpochMs', 'packageProvenance', 'promotedFromDrawingId',
+  'recognitionSource', 'sourceBars', 'sourceTimeframeId',
 ]);
 const SCOPE_FIELDS = Object.freeze(['kind', 'sessionId']);
 
@@ -158,6 +162,12 @@ function splitArtifact(value, index) {
     'ANNOTATION_PERSISTENCE_ARTIFACT_INVALID',
     'Stored Semantic Artifact',
   );
+  const definition = splitKnown(
+    artifact.known.definition,
+    ARTIFACT_DEFINITION_FIELDS,
+    'ANNOTATION_PERSISTENCE_ARTIFACT_DEFINITION_INVALID',
+    'Stored Artifact definition',
+  );
   const provenance = splitKnown(
     artifact.known.provenance,
     ARTIFACT_PROVENANCE_FIELDS,
@@ -184,6 +194,7 @@ function splitArtifact(value, index) {
   return {
     artifact: {
       ...artifact.known,
+      definition: definition.known,
       presentation: presentation.known,
       provenance: provenance.known,
       scope: scope.known,
@@ -191,6 +202,7 @@ function splitArtifact(value, index) {
     id,
     opaque: {
       artifact: artifact.opaque,
+      definition: definition.opaque,
       presentation: presentation.opaque,
       provenance: provenance.opaque,
       scope: scope.opaque,
@@ -204,8 +216,9 @@ function emptyOpaqueTree() {
 
 /** Strip unknown envelope fields and retain them in one branded sidecar. */
 export function splitAnnotationDocument(value) {
+  const migrated = migrateAnnotationDocument(value);
   const document = splitKnown(
-    value,
+    migrated,
     DOCUMENT_FIELDS,
     'ANNOTATION_PERSISTENCE_DOCUMENT_INVALID',
     'Stored Annotation document',
@@ -260,6 +273,7 @@ function mergeArtifact(artifact, opaque) {
   return {
     ...(value.artifact ?? {}),
     ...artifact,
+    definition: { ...(value.definition ?? {}), ...artifact.definition },
     presentation: artifact.presentation === null ? null : {
       ...(value.presentation ?? {}), ...artifact.presentation,
     },

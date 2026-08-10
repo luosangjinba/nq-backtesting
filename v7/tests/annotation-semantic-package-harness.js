@@ -131,7 +131,10 @@ async function capture(action) {
   assert.fail('Expected operation to fail.');
 }
 
-function genericType(typeId, { project = () => [], version = '1.0.0' } = {}) {
+function genericType(typeId, {
+  definitionId = `${typeId}.definition`, definitionVersion = '1.0.0',
+  project = () => [], version = '1.0.0',
+} = {}) {
   return defineSemanticType({
     construct: () => ({
       attributes: {}, presentation: null,
@@ -139,10 +142,13 @@ function genericType(typeId, { project = () => [], version = '1.0.0' } = {}) {
         constructionSource: 'manual', createdAtEpochMs: BASE,
         instrumentId: 'instrument.nq', manualAnchors: [],
         observedAtReplayCutoffEpochMs: BASE, promotedFromDrawingId: null,
-        recognitionSource: 'human', sourceBars: [], sourceTimeframeId: 'timeframe.1m',
+        packageProvenance: {}, recognitionSource: 'human', sourceBars: [],
+        sourceTimeframeId: 'timeframe.1m',
       },
       relations: [], sourceDrawing: null,
     }),
+    definitionId,
+    definitionVersion,
     displayMetadata: { label: typeId },
     inspect: () => [],
     project,
@@ -157,7 +163,7 @@ function genericPackage(packageId, type, overrides = {}) {
     geometryDependencies: [],
     hostContractVersion: overrides.hostContractVersion ?? '1.0.0',
     packageId,
-    packageVersion: '1.0.0',
+    packageVersion: overrides.packageVersion ?? '1.0.0',
     requiredCapabilities: overrides.requiredCapabilities ?? [],
     semanticTypes: [type],
     toolDescriptors: [],
@@ -347,6 +353,10 @@ const isolated = registry([
 await isolated.enablePackage('test.good-package');
 await isolated.enablePackage('test.failing-package');
 const isolatedError = await capture(() => isolated.projectionInputsForArtifact({
+  definition: {
+    definitionId: 'test.failing.definition', definitionVersion: '1.0.0',
+    packageId: 'test.failing-package', packageVersion: '1.0.0', status: 'recorded',
+  },
   status: 'active', typeId: 'test.failing', typeVersion: '1.0.0',
 }));
 assert.equal(isolatedError.code, 'SEMANTIC_PACKAGE_POLICY_FAILED');
@@ -458,7 +468,13 @@ const operations = {
       genericType('test.crash', { project: () => { throw new Error('crash'); } }),
     )]);
     await owner.enablePackage('test.crash-package');
-    owner.projectionInputsForArtifact({ status: 'active', typeId: 'test.crash', typeVersion: '1.0.0' });
+    owner.projectionInputsForArtifact({
+      definition: {
+        definitionId: 'test.crash.definition', definitionVersion: '1.0.0',
+        packageId: 'test.crash-package', packageVersion: '1.0.0', status: 'recorded',
+      },
+      status: 'active', typeId: 'test.crash', typeVersion: '1.0.0',
+    });
   },
   'disposed-registry': async () => {
     const owner = registry([]); await owner.dispose(); owner.listTools();

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    { "name": "invalid-definition-identity", "expectedCode": "SEMANTIC_TYPE_DEFINITION_INVALID" },
+    { "name": "missing-package-provenance", "expectedCode": "SEMANTIC_ARTIFACT_PROVENANCE_INVALID" },
+    { "name": "failed-generation-cleanup", "expectedCode": "SEMANTIC_PACKAGE_CLEANUP_FAILED" }
+  ]
+}

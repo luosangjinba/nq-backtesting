@@ -107,6 +107,7 @@ function construction(value, side) {
       instrumentId: selectedContext.instrumentId,
       manualAnchors: anchors,
       observedAtReplayCutoffEpochMs: selectedContext.observedAtReplayCutoffEpochMs,
+      packageProvenance: Object.freeze({}),
       promotedFromDrawingId: sourceDrawing?.drawingId ?? null,
       recognitionSource: 'human',
       sourceBars: Object.freeze([]),
@@ -187,6 +188,8 @@ function typeDefinition(geometry, side) {
   const typeId = side === 'buy' ? TYPE_IDS.bsl : TYPE_IDS.ssl;
   return defineSemanticType({
     construct: (value) => construction(value, side),
+    definitionId: `${typeId}.manual-definition`,
+    definitionVersion: VERSION,
     displayMetadata: Object.freeze({ label: side === 'buy' ? 'Buy-side liquidity' : 'Sell-side liquidity' }),
     inspect: (artifact) => inspector(artifact, side),
     project: (artifact) => projection(geometry, artifact, side),

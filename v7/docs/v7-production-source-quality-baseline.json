@@ -2497,6 +2497,47 @@
           "reviewedDecompositionException": false
         },
         {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "beginSemanticPackageCleanup",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "settle",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-semantic-registry",
+      "owner": "annotation-semantic-registry",
+      "ownsContract": false,
+      "path": "src/annotation-semantic-registry/semantic-package-cleanup.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "2e10f1f9968c77e9b857485f4500a704077dad67ca56b766813e582db65699a7"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 12,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
           "effectiveLines": 10,
           "name": "requireChartProjectionPort",
           "reviewedDecompositionException": false
@@ -5960,87 +6001,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 165,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "freezeSemanticArtifact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 23,
-          "name": "normalizeSemanticArtifactCandidate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 24,
-          "name": "portable",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 26,
-          "name": "artifactProvenance",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "presentation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 32,
-          "name": "restoreSemanticArtifact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "epoch",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "exact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
-      "ownsContract": false,
-      "path": "src/annotation-runtime/semantic-artifact.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "e7f99207820fe495d299976995ab7d5a68ba0935619202c99f97a139319240c3"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 17,
       "forwardingOnly": false,
       "functions": [
@@ -7512,6 +7472,97 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 199,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "freezeSemanticArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "definitionIdentity",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "portable",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "artifactProvenance",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "normalizeCandidate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "normalizeSemanticArtifactCandidate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "presentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "restoreSemanticArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "epoch",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/semantic-artifact.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "f3c61be105443259603d116369531bcff7ec6c73146417224be983d9591657c6"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 20,
       "forwardingOnly": false,
       "functions": [
@@ -7679,183 +7730,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 208,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "activate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "construct",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "inspect",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "project",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "context",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "presentation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "typeDefinition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "anchor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "validateArtifact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "createLiquidityLevelSemanticPackage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "projection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 26,
-          "name": "inspector",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "field",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "reject",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 49,
-          "name": "construction",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "exact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "horizontalAnchors",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "requireGeometry",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "domain",
-      "moduleId": "optional.semantic-liquidity-level",
-      "owner": "semantic-liquidity-level",
-      "ownsContract": false,
-      "path": "src/semantic-liquidity-level/liquidity-level-package.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "semantic-liquidity-level.",
-            "purpose": "expose the first-party human/manual BSL and SSL trusted-build package.",
-            "inputs": "public Geometry contract plus explicit manual anchors or one immutable Segment Drawing.",
-            "outputs": "one branded package manifest with pure construction, projection, and Inspector policies.",
-            "sideEffects": "none; the package owns no Chart, Replay, Bar Data, DOM, persistence, or document state.",
-            "lifecycle": "activation is host-owned and each active instance is explicitly disposable.",
-            "errors": "AnnotationSemanticPackageError for invalid manual assertions or package configuration.",
-            "concurrencyCancellation": "all package policies are synchronous; host lifecycle is serialized."
-          },
-          "moduleId": "optional.semantic-liquidity-level",
-          "name": "createLiquidityLevelSemanticPackage",
-          "semanticMatches": [
-            "package",
-            "semantic"
-          ],
-          "semanticTerms": [
-            "level",
-            "liquidity",
-            "optional",
-            "package",
-            "semantic"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "semantic-liquidity-level.",
-            "purpose": "expose the first-party human/manual BSL and SSL trusted-build package.",
-            "inputs": "public Geometry contract plus explicit manual anchors or one immutable Segment Drawing.",
-            "outputs": "one branded package manifest with pure construction, projection, and Inspector policies.",
-            "sideEffects": "none; the package owns no Chart, Replay, Bar Data, DOM, persistence, or document state.",
-            "lifecycle": "activation is host-owned and each active instance is explicitly disposable.",
-            "errors": "AnnotationSemanticPackageError for invalid manual assertions or package configuration.",
-            "concurrencyCancellation": "all package policies are synchronous; host lifecycle is serialized."
-          },
-          "moduleId": "optional.semantic-liquidity-level",
-          "name": "LIQUIDITY_LEVEL_TYPE_IDS",
-          "semanticMatches": [
-            "semantic"
-          ],
-          "semanticTerms": [
-            "ids",
-            "level",
-            "liquidity",
-            "optional",
-            "semantic",
-            "type"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "a76af32207b8a7f87540f47f9294907d34822dc3c53b277a44236196c6097619"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 21,
       "forwardingOnly": false,
       "functions": [
@@ -8004,6 +7878,183 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "5de18d6986f81b9a352de71c0bbe40cf0beeee2b51c59ffd2b123d1d11fabd8b"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 211,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "activate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "construct",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "inspect",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "project",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "context",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "presentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "anchor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "typeDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "validateArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "createLiquidityLevelSemanticPackage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "projection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 26,
+          "name": "inspector",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "field",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "reject",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 50,
+          "name": "construction",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "horizontalAnchors",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireGeometry",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.semantic-liquidity-level",
+      "owner": "semantic-liquidity-level",
+      "ownsContract": false,
+      "path": "src/semantic-liquidity-level/liquidity-level-package.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "semantic-liquidity-level.",
+            "purpose": "expose the first-party human/manual BSL and SSL trusted-build package.",
+            "inputs": "public Geometry contract plus explicit manual anchors or one immutable Segment Drawing.",
+            "outputs": "one branded package manifest with pure construction, projection, and Inspector policies.",
+            "sideEffects": "none; the package owns no Chart, Replay, Bar Data, DOM, persistence, or document state.",
+            "lifecycle": "activation is host-owned and each active instance is explicitly disposable.",
+            "errors": "AnnotationSemanticPackageError for invalid manual assertions or package configuration.",
+            "concurrencyCancellation": "all package policies are synchronous; host lifecycle is serialized."
+          },
+          "moduleId": "optional.semantic-liquidity-level",
+          "name": "createLiquidityLevelSemanticPackage",
+          "semanticMatches": [
+            "package",
+            "semantic"
+          ],
+          "semanticTerms": [
+            "level",
+            "liquidity",
+            "optional",
+            "package",
+            "semantic"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "semantic-liquidity-level.",
+            "purpose": "expose the first-party human/manual BSL and SSL trusted-build package.",
+            "inputs": "public Geometry contract plus explicit manual anchors or one immutable Segment Drawing.",
+            "outputs": "one branded package manifest with pure construction, projection, and Inspector policies.",
+            "sideEffects": "none; the package owns no Chart, Replay, Bar Data, DOM, persistence, or document state.",
+            "lifecycle": "activation is host-owned and each active instance is explicitly disposable.",
+            "errors": "AnnotationSemanticPackageError for invalid manual assertions or package configuration.",
+            "concurrencyCancellation": "all package policies are synchronous; host lifecycle is serialized."
+          },
+          "moduleId": "optional.semantic-liquidity-level",
+          "name": "LIQUIDITY_LEVEL_TYPE_IDS",
+          "semanticMatches": [
+            "semantic"
+          ],
+          "semanticTerms": [
+            "ids",
+            "level",
+            "liquidity",
+            "optional",
+            "semantic",
+            "type"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "2d2105949d3187179d55d86e9116c87c92e854b896c86d666efb2e746723893c"
     },
     {
       "adaptsBoundary": false,
@@ -9425,7 +9476,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "d2ef590c2e6ec45ba0544fd93891593703cb3d0c83e22014fc0af3c802112f9f"
+      "sourceHash": "3e3777baec3bfa2494913e1168bbff2730b044b07502ef02b0505e1e6ca748f7"
     },
     {
       "adaptsBoundary": false,
@@ -11557,37 +11608,27 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 364,
+      "effectiveLines": 365,
       "forwardingOnly": false,
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "<anonymous-10>",
+          "name": "<anonymous-29>",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 1,
-          "name": "<anonymous-20>",
+          "name": "<anonymous-32>",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 1,
-          "name": "<anonymous-21>",
+          "name": "<anonymous-37>",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 1,
-          "name": "<anonymous-31>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-34>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-39>",
+          "name": "<anonymous-38>",
           "reviewedDecompositionException": false
         },
         {
@@ -11597,12 +11638,12 @@
         },
         {
           "effectiveLines": 1,
-          "name": "<anonymous-42>",
+          "name": "<anonymous-5>",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 1,
-          "name": "<anonymous-6>",
+          "name": "<anonymous-9>",
           "reviewedDecompositionException": false
         },
         {
@@ -11618,11 +11659,6 @@
         {
           "effectiveLines": 10,
           "name": "resolutionOf",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "unresolvedResolution",
           "reviewedDecompositionException": false
         },
         {
@@ -11642,17 +11678,22 @@
         },
         {
           "effectiveLines": 13,
+          "name": "awaitCleanup",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
           "name": "failPolicySync",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "unresolvedResolution",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 14,
           "name": "projectionInputsForArtifact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "dispose",
           "reviewedDecompositionException": false
         },
         {
@@ -11671,12 +11712,17 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 21,
+          "effectiveLines": 19,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
           "name": "constructor",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 26,
+          "effectiveLines": 27,
           "name": "<anonymous-15>",
           "reviewedDecompositionException": false
         },
@@ -11687,22 +11733,17 @@
         },
         {
           "effectiveLines": 3,
-          "name": "<anonymous-26>",
+          "name": "<anonymous-24>",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 32,
+          "effectiveLines": 37,
           "name": "constructArtifactDraft",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 35,
-          "name": "normalizeConstructionResult",
-          "reviewedDecompositionException": false
-        },
-        {
           "effectiveLines": 4,
-          "name": "<anonymous-25>",
+          "name": "<anonymous-23>",
           "reviewedDecompositionException": false
         },
         {
@@ -11722,12 +11763,12 @@
         },
         {
           "effectiveLines": 5,
-          "name": "<anonymous-36>",
+          "name": "<anonymous-34>",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 5,
-          "name": "<anonymous-37>",
+          "name": "<anonymous-35>",
           "reviewedDecompositionException": false
         },
         {
@@ -11752,11 +11793,6 @@
         },
         {
           "effectiveLines": 6,
-          "name": "<anonymous-33>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
           "name": "withdraw",
           "reviewedDecompositionException": false
         },
@@ -11773,6 +11809,11 @@
         {
           "effectiveLines": 8,
           "name": "requireReady",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "<anonymous-31>",
           "reviewedDecompositionException": false
         }
       ],
@@ -11814,7 +11855,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "2bd006a4ff0721f90c7b4916d6203a6fe29109297eeae3cd90e38f838ae9db72"
+      "sourceHash": "483c25670fec82cf60c2fe65317d2b2f43bd4b0e9bb743c813b9a135b92d869e"
     },
     {
       "adaptsBoundary": false,
@@ -12006,100 +12047,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "335e3a40904142abf80300b8cd4a758ce8297fb6f5e7981563932301e46e71de"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 37,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "read",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "defineSemanticType",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "readSemanticTypeDefinition",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-semantic-registry",
-      "owner": "annotation-semantic-registry",
-      "ownsContract": false,
-      "path": "src/annotation-semantic-registry/semantic-type-definition.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "annotation-semantic-registry.",
-            "purpose": "expose trusted-build Semantic package definition, lifecycle, construction, and resolution ports.",
-            "inputs": "branded package/type definitions, portable construction intent, and immutable Artifacts.",
-            "outputs": "branded Artifact drafts, active resolution, projection inputs, cutoff-safe Inspector groups, and lifecycle snapshots.",
-            "sideEffects": "only package-local activation/disposal; no Chart, Replay, Bar Data, DOM, persistence, or Annotation writes.",
-            "lifecycle": "each Registry is isolated and explicitly disposable; packages may be disabled and re-enabled.",
-            "errors": "AnnotationSemanticPackageError with stable compatibility, lifecycle, and policy codes.",
-            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; pure policies are synchronous."
-          },
-          "moduleId": "optional.annotation-semantic-registry",
-          "name": "defineSemanticType",
-          "semanticMatches": [
-            "annotation",
-            "semantic",
-            "type"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "optional",
-            "registry",
-            "semantic",
-            "type"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "annotation-semantic-registry.",
-            "purpose": "expose trusted-build Semantic package definition, lifecycle, construction, and resolution ports.",
-            "inputs": "branded package/type definitions, portable construction intent, and immutable Artifacts.",
-            "outputs": "branded Artifact drafts, active resolution, projection inputs, cutoff-safe Inspector groups, and lifecycle snapshots.",
-            "sideEffects": "only package-local activation/disposal; no Chart, Replay, Bar Data, DOM, persistence, or Annotation writes.",
-            "lifecycle": "each Registry is isolated and explicitly disposable; packages may be disabled and re-enabled.",
-            "errors": "AnnotationSemanticPackageError with stable compatibility, lifecycle, and policy codes.",
-            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; pure policies are synchronous."
-          },
-          "moduleId": "optional.annotation-semantic-registry",
-          "name": "readSemanticTypeDefinition",
-          "semanticMatches": [
-            "annotation",
-            "semantic",
-            "type"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "optional",
-            "registry",
-            "semantic",
-            "type"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "105335a750de62e0abc77d25a09226a47bad9992225f98893ba1b6cd3bb9a61b"
     },
     {
       "adaptsBoundary": false,
@@ -12903,42 +12850,6 @@
       "forwardingOnly": false,
       "functions": [
         {
-          "effectiveLines": 14,
-          "name": "normalizeSemanticContract",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "readSemanticDraft",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "activeSemanticPackageCount",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
-      "ownsContract": false,
-      "path": "src/annotation-runtime/semantic-port.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "ce32626f412f5e4c3b8931350ffcd0c1dc2a12a9b881e02e9bb1dd5a37447930"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 40,
-      "forwardingOnly": false,
-      "functions": [
-        {
           "effectiveLines": 26,
           "name": "requireProjectedPaneSnapshot",
           "reviewedDecompositionException": false
@@ -12961,6 +12872,136 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "6183ed53c9ffd2a888d528d2ec1b39bb66ba52fce509cc87a8ef1d4824a2a4b6"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 41,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 14,
+          "name": "normalizeSemanticContract",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "readSemanticDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "activeSemanticPackageCount",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/semantic-port.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "3811cc0ae2f23a74270440fa1ef8599191115a29af5ba924fadd4ab1a96384d7"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 42,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "defineSemanticType",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "readSemanticTypeDefinition",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-semantic-registry",
+      "owner": "annotation-semantic-registry",
+      "ownsContract": false,
+      "path": "src/annotation-semantic-registry/semantic-type-definition.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-semantic-registry.",
+            "purpose": "expose trusted-build Semantic package definition, lifecycle, construction, and resolution ports.",
+            "inputs": "branded package/type definitions, portable construction intent, and immutable Artifacts.",
+            "outputs": "branded Artifact drafts, active resolution, projection inputs, cutoff-safe Inspector groups, and lifecycle snapshots.",
+            "sideEffects": "only package-local activation/disposal; no Chart, Replay, Bar Data, DOM, persistence, or Annotation writes.",
+            "lifecycle": "each Registry is isolated and explicitly disposable; packages may be disabled and re-enabled.",
+            "errors": "AnnotationSemanticPackageError with stable compatibility, lifecycle, and policy codes.",
+            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; pure policies are synchronous."
+          },
+          "moduleId": "optional.annotation-semantic-registry",
+          "name": "defineSemanticType",
+          "semanticMatches": [
+            "annotation",
+            "semantic",
+            "type"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "optional",
+            "registry",
+            "semantic",
+            "type"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-semantic-registry.",
+            "purpose": "expose trusted-build Semantic package definition, lifecycle, construction, and resolution ports.",
+            "inputs": "branded package/type definitions, portable construction intent, and immutable Artifacts.",
+            "outputs": "branded Artifact drafts, active resolution, projection inputs, cutoff-safe Inspector groups, and lifecycle snapshots.",
+            "sideEffects": "only package-local activation/disposal; no Chart, Replay, Bar Data, DOM, persistence, or Annotation writes.",
+            "lifecycle": "each Registry is isolated and explicitly disposable; packages may be disabled and re-enabled.",
+            "errors": "AnnotationSemanticPackageError with stable compatibility, lifecycle, and policy codes.",
+            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; pure policies are synchronous."
+          },
+          "moduleId": "optional.annotation-semantic-registry",
+          "name": "readSemanticTypeDefinition",
+          "semanticMatches": [
+            "annotation",
+            "semantic",
+            "type"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "optional",
+            "registry",
+            "semantic",
+            "type"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "b9afc21c4acc6ebc1117277b9a2137525a831c4dba5fd57b47cd6b015d35ab43"
     },
     {
       "adaptsBoundary": false,
@@ -14079,27 +14120,22 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 54,
+      "effectiveLines": 55,
       "forwardingOnly": false,
       "functions": [
         {
-          "effectiveLines": 20,
-          "name": "hiddenArtifactInspection",
+          "effectiveLines": 35,
+          "name": "normalizeSemanticConstructionResult",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 24,
-          "name": "createUnresolvedArtifactInspection",
+          "effectiveLines": 8,
+          "name": "semanticDefinitionMatches",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 3,
-          "name": "field",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "visibleArtifactInspection",
+          "effectiveLines": 9,
+          "name": "semanticDefinitionIdentity",
           "reviewedDecompositionException": false
         }
       ],
@@ -14107,14 +14143,14 @@
       "moduleId": "optional.annotation-semantic-registry",
       "owner": "annotation-semantic-registry",
       "ownsContract": false,
-      "path": "src/annotation-semantic-registry/semantic-artifact-inspector.js",
+      "path": "src/annotation-semantic-registry/semantic-construction-contract.js",
       "publicExports": [],
       "responsibilities": [
         "internal-state-or-pure-computation"
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "be223ee436e176e2603e26bd5b5b40edec2487dfde44eb3d476c9272b8c330f8"
+      "sourceHash": "0f223766bf866f0b0be487f729221cd46d41db5c0a2ee25c9e76354cc2883847"
     },
     {
       "adaptsBoundary": false,
@@ -14650,6 +14686,47 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "f8b89767bea658ede15fa3e43787611d283728fb407953cbb050492576d39117"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 59,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 20,
+          "name": "hiddenArtifactInspection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "createUnresolvedArtifactInspection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "field",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "visibleArtifactInspection",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-semantic-registry",
+      "owner": "annotation-semantic-registry",
+      "ownsContract": false,
+      "path": "src/annotation-semantic-registry/semantic-artifact-inspector.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "f148c6af2a59551b09677bbd7f9810e3c4616e61093cbb411425c498c3b97095"
     },
     {
       "adaptsBoundary": false,
@@ -27960,6 +28037,42 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 16,
+          "name": "migrateArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "isRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "migrateAnnotationDocument",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "persistence",
+      "moduleId": "adapter.annotation-persistence",
+      "owner": "annotation-persistence-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-persistence/annotation-document-migration.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "74d5295a809c3d0d109000fb032c3f6492b0e2640b2c108d9ab310fd89b29006"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 34,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 24,
           "name": "applyPriceScaleWheel",
           "reviewedDecompositionException": false
@@ -28344,187 +28457,6 @@
       ],
       "sizeException": null,
       "sourceHash": "da6adb0d7bd1acb4165869bd81f87d8bcc36f019522f7268533f29b2cd5f9ad6"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 384,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-13>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-14>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-25>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "entry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "merge",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "read",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "split",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "encodeAnnotationEntry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "portableClone",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "mergeAnnotationDocument",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "mergeArtifact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "mergeDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "splitHistory",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "splitKnown",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "projectAnnotationOpaqueState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "decodeAnnotationExport",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 21,
-          "name": "decodeAnnotationEntry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 24,
-          "name": "migrateEntry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-19>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-20>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "emptyOpaqueTree",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "isRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 32,
-          "name": "splitAnnotationDocument",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "readOpaqueState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 46,
-          "name": "splitArtifact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "deepFreeze",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 54,
-          "name": "splitDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "exactRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "encodeAnnotationExport",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "parseJson",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "requireSession",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "persistence",
-      "moduleId": "adapter.annotation-persistence",
-      "owner": "annotation-persistence-adapter",
-      "ownsContract": false,
-      "path": "src/annotation-persistence/annotation-wire.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "173f2bf20e1af0686826f0cc67f2e5bb1d18e0c8b1b24f732a6cb63a09c8290b"
     },
     {
       "adaptsBoundary": true,
@@ -29370,6 +29302,187 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "8d77568ec173e2841541435e8da71d90244489b1fd497da5e622d0a092ce70e3"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 398,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-25>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "entry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "merge",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "split",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "encodeAnnotationEntry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "portableClone",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "mergeAnnotationDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "mergeArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "mergeDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "splitHistory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "splitKnown",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "projectAnnotationOpaqueState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "decodeAnnotationExport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "decodeAnnotationEntry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "migrateEntry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "emptyOpaqueTree",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "isRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "splitAnnotationDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "readOpaqueState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "deepFreeze",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 54,
+          "name": "splitArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 54,
+          "name": "splitDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "encodeAnnotationExport",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "parseJson",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireSession",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "persistence",
+      "moduleId": "adapter.annotation-persistence",
+      "owner": "annotation-persistence-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-persistence/annotation-wire.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "f959c3c57550c4b011a39b5454d311e13230bbe2e2ab4e6907fe1c7f8958fb60"
     },
     {
       "adaptsBoundary": true,
@@ -34771,11 +34884,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 31690,
-    "files": 393,
-    "functions": 3346,
+    "effectiveLines": 31854,
+    "files": 396,
+    "functions": 3356,
     "publicExports": 378
   },
-  "deliveryStep": "R13.9",
-  "generatedFromCommit": "working-tree-r13.9"
+  "deliveryStep": "R13.9b",
+  "generatedFromCommit": "working-tree-r13.9b"
 }

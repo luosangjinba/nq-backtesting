@@ -14,12 +14,17 @@ class SemanticTypeDefinitionValue {
 export function defineSemanticType(value = {}) {
   exactRecord(
     value,
-    ['construct', 'displayMetadata', 'inspect', 'project', 'typeId', 'version'],
+    [
+      'construct', 'definitionId', 'definitionVersion', 'displayMetadata', 'inspect',
+      'project', 'typeId', 'version',
+    ],
     'SEMANTIC_TYPE_DEFINITION_INVALID',
     'Semantic type definition',
   );
   if (typeof value.typeId !== 'string' || !TYPE_ID.test(value.typeId)
     || typeof value.version !== 'string' || !VERSION.test(value.version)
+    || typeof value.definitionId !== 'string' || !TYPE_ID.test(value.definitionId)
+    || typeof value.definitionVersion !== 'string' || !VERSION.test(value.definitionVersion)
     || typeof value.construct !== 'function' || typeof value.project !== 'function'
     || typeof value.inspect !== 'function') {
     failSemanticPackage(

@@ -67,7 +67,7 @@ async function createdRuntime(options = {}) {
 const repository = createFakeAnnotationRepository();
 const primary = runtime({ repository });
 assert.deepEqual(primary.getDocument(), {
-  artifacts: [], drawings: [], revision: 0, schemaVersion: 1, sessionId: 'session.annotation-A',
+  artifacts: [], drawings: [], revision: 0, schemaVersion: 2, sessionId: 'session.annotation-A',
 });
 assert.deepEqual(primary.health(), {
   activeTransaction: false,

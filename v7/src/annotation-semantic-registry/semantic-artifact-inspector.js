@@ -19,6 +19,11 @@ export function createUnresolvedArtifactInspection(artifact, resolution) {
       Object.freeze({
         fields: Object.freeze([
           field('typeVersion', 'Type version', artifact.typeVersion),
+          field('definitionStatus', 'Definition identity', artifact.definition?.status ?? 'missing'),
+          field('constructionPackage', 'Construction package', artifact.definition?.packageId ?? 'Unrecorded'),
+          field('constructionPackageVersion', 'Package version', artifact.definition?.packageVersion ?? 'Unrecorded'),
+          field('definitionId', 'Definition id', artifact.definition?.definitionId ?? 'Unrecorded'),
+          field('definitionVersion', 'Definition version', artifact.definition?.definitionVersion ?? 'Unrecorded'),
           field('artifactRevision', 'Artifact revision', artifact.revision),
         ]),
         id: 'history',

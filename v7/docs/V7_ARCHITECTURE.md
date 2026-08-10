@@ -879,6 +879,17 @@ durable Artifacts must retain immutable construction package/definition
 identity; and failed-generation asynchronous disposal must settle before
 re-enable. R13.9 remains accepted. R13.10 is not authorized.
 
+R13.9b repairs those blockers without adding a business type. Semantic Artifact
+schema 2 separates a host-owned universal no-future provenance header from one
+deeply portable `packageProvenance` record and stores immutable, host-stamped
+package/definition construction identity. Registry resolution is exact across
+package, type, definition, and version; legacy schema-1 Artifacts migrate as
+`legacy-unrecorded` and remain unresolved. Failed policy-generation disposal is
+tracked and serialized before re-enable. Construction/identity, cleanup, and
+document migration live in focused internal modules rather than expanding
+Registry or wire entry-file responsibilities. H108 proves the boundary with a
+second synthetic package. R13.10 remains unauthorized.
+
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,
 coordinate conversion, update, and teardown patterns, but reviewed community

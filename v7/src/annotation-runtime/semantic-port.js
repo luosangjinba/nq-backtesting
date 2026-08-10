@@ -27,6 +27,7 @@ export function readSemanticDraft(contract, candidate) {
   const artifact = normalizeSemanticArtifactCandidate({
     artifactId: draft.artifactId,
     attributes: draft.attributes,
+    definition: draft.definition,
     presentation: draft.presentation,
     provenance: draft.provenance,
     relations: draft.relations,

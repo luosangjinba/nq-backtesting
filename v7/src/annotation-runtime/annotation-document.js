@@ -69,7 +69,7 @@ function documentValue(sessionId, revision, drawings, artifacts = []) {
     artifacts: orderedArtifacts,
     drawings: ordered,
     revision,
-    schemaVersion: 1,
+    schemaVersion: 2,
     sessionId: token,
   }));
 }
@@ -83,7 +83,7 @@ export function createInitialAnnotationDocument(sessionId) {
 export function restoreAnnotationDocument(sessionId, candidate, { restoreGeometry } = {}) {
   exactRecord(candidate, DOCUMENT_FIELDS, 'ANNOTATION_STORED_DOCUMENT_INVALID', 'Stored document');
   const token = serializeSessionId(sessionId).value;
-  if (candidate.schemaVersion !== 1 || candidate.sessionId !== token
+  if (candidate.schemaVersion !== 2 || candidate.sessionId !== token
     || !Array.isArray(candidate.artifacts)
     || !Array.isArray(candidate.drawings) || typeof restoreGeometry !== 'function') {
     failAnnotation('ANNOTATION_STORED_DOCUMENT_INVALID', 'Stored document contract is unsupported.');

@@ -248,6 +248,7 @@ SemanticArtifact {
   artifactId
   typeId
   typeVersion
+  definition
   revision
   scope
   provenance
@@ -267,6 +268,15 @@ Required provenance includes:
 - construction/definition/detector identity and version when applicable;
 - per-attribute source and override provenance for derived/default/manual values;
 - creator/state namespace when available, without storing credentials.
+
+R13.9b refines this into Artifact schema 2. `definition` is a host-stamped
+package/definition id-and-version identity. The host validates a universal
+no-future provenance header, while package-specific profile, detector,
+attribute-source, override, and creator evidence is stored as one deeply
+portable `packageProvenance` record. Resolution requires the complete recorded
+identity to match; schema-1 Artifacts with unknowable construction identity are
+preserved as unresolved `legacy-unrecorded` evidence rather than assigned a
+modern package version.
 
 Recognition and construction are independent. A user who identifies an FVG
 and invokes “create from selected candle” is `recognitionSource: human` plus

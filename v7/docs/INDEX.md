@@ -166,6 +166,12 @@ and records three blockers before a second semantic package: extensible
 provenance, immutable construction identity, and serialized failed-generation
 cleanup. R13.9/H107 remain accepted; R13.10 is blocked pending a separately
 authorized remediation.
+`V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md` is the accepted repair: Artifact
+schema 2 stores exact host-stamped package/definition construction identity,
+exposes one package-owned portable provenance record, migrates unknown legacy
+identity without invention, and serializes failed-generation cleanup before
+re-enable. H108 proves the contract with an independent synthetic package.
+R13.10 remains unauthorized.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

@@ -2,12 +2,15 @@ import { failAnnotation } from './annotation-error.js';
 import { createDrawingPresentation, readDrawingPresentation } from './drawing-presentation.js';
 
 const ARTIFACT_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
-const TYPE_ID = /^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$/;
+const NAMESPACED_ID = /^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$/;
 const VERSION = /^\d+\.\d+\.\d+$/;
+const DEFINITION_FIELDS = Object.freeze([
+  'definitionId', 'definitionVersion', 'packageId', 'packageVersion', 'status',
+]);
 const PROVENANCE_FIELDS = Object.freeze([
   'constructionSource', 'createdAtEpochMs', 'instrumentId', 'manualAnchors',
-  'observedAtReplayCutoffEpochMs', 'promotedFromDrawingId', 'recognitionSource',
-  'sourceBars', 'sourceTimeframeId',
+  'observedAtReplayCutoffEpochMs', 'packageProvenance', 'promotedFromDrawingId',
+  'recognitionSource', 'sourceBars', 'sourceTimeframeId',
 ]);
 
 function exact(value, fields, code, label) {
@@ -49,6 +52,28 @@ function epoch(value, label) {
     failAnnotation('SEMANTIC_ARTIFACT_PROVENANCE_INVALID', `${label} is invalid.`);
   }
   return value;
+}
+
+function definitionIdentity(value, { stored = false } = {}) {
+  exact(value, DEFINITION_FIELDS, 'SEMANTIC_ARTIFACT_DEFINITION_INVALID', 'Artifact definition');
+  if (value.status === 'legacy-unrecorded' && stored) {
+    if (value.definitionId !== null || value.definitionVersion !== null
+      || value.packageId !== null || value.packageVersion !== null) {
+      failAnnotation(
+        'SEMANTIC_ARTIFACT_DEFINITION_INVALID',
+        'Legacy Artifact definition identity must remain unrecorded.',
+      );
+    }
+    return Object.freeze({ ...value });
+  }
+  if (value.status !== 'recorded'
+    || typeof value.definitionId !== 'string' || !NAMESPACED_ID.test(value.definitionId)
+    || typeof value.definitionVersion !== 'string' || !VERSION.test(value.definitionVersion)
+    || typeof value.packageId !== 'string' || !NAMESPACED_ID.test(value.packageId)
+    || typeof value.packageVersion !== 'string' || !VERSION.test(value.packageVersion)) {
+    failAnnotation('SEMANTIC_ARTIFACT_DEFINITION_INVALID', 'Artifact definition identity is invalid.');
+  }
+  return Object.freeze({ ...value });
 }
 
 function artifactProvenance(value) {
@@ -93,6 +118,7 @@ function artifactProvenance(value) {
     createdAtEpochMs: epoch(value.createdAtEpochMs, 'Artifact creation time'),
     manualAnchors: Object.freeze(manualAnchors),
     observedAtReplayCutoffEpochMs: observed,
+    packageProvenance: portable(value.packageProvenance, 'provenance.packageProvenance'),
     sourceBars: Object.freeze(sourceBars),
   });
 }
@@ -101,15 +127,18 @@ function presentation(value) {
   return value === null ? null : readDrawingPresentation(createDrawingPresentation(value));
 }
 
-export function normalizeSemanticArtifactCandidate(value) {
+function normalizeCandidate(value, { storedDefinition = false } = {}) {
   exact(
     value,
-    ['artifactId', 'attributes', 'presentation', 'provenance', 'relations', 'typeId', 'typeVersion'],
+    [
+      'artifactId', 'attributes', 'definition', 'presentation', 'provenance', 'relations',
+      'typeId', 'typeVersion',
+    ],
     'SEMANTIC_ARTIFACT_CANDIDATE_INVALID',
     'Semantic Artifact candidate',
   );
   if (typeof value.artifactId !== 'string' || !ARTIFACT_ID.test(value.artifactId)
-    || typeof value.typeId !== 'string' || !TYPE_ID.test(value.typeId)
+    || typeof value.typeId !== 'string' || !NAMESPACED_ID.test(value.typeId)
     || typeof value.typeVersion !== 'string' || !VERSION.test(value.typeVersion)
     || !Array.isArray(value.relations)) {
     failAnnotation('SEMANTIC_ARTIFACT_CANDIDATE_INVALID', 'Semantic Artifact candidate is invalid.');
@@ -117,6 +146,7 @@ export function normalizeSemanticArtifactCandidate(value) {
   return Object.freeze({
     artifactId: value.artifactId,
     attributes: portable(value.attributes, 'attributes'),
+    definition: definitionIdentity(value.definition, { stored: storedDefinition }),
     presentation: presentation(value.presentation),
     provenance: artifactProvenance(value.provenance),
     relations: portable(value.relations, 'relations'),
@@ -125,12 +155,16 @@ export function normalizeSemanticArtifactCandidate(value) {
   });
 }
 
+export function normalizeSemanticArtifactCandidate(value) {
+  return normalizeCandidate(value);
+}
+
 export function restoreSemanticArtifact(value, sessionId) {
   exact(
     value,
     [
       'artifactId', 'attributes', 'presentation', 'provenance', 'relations', 'revision',
-      'scope', 'status', 'typeId', 'typeVersion',
+      'scope', 'status', 'typeId', 'typeVersion', 'definition',
     ],
     'SEMANTIC_ARTIFACT_STORED_INVALID',
     'Stored Semantic Artifact',
@@ -144,6 +178,7 @@ export function restoreSemanticArtifact(value, sessionId) {
   const candidate = {
     artifactId: value.artifactId,
     attributes: value.attributes,
+    definition: value.definition,
     presentation: value.presentation,
     provenance: value.provenance,
     relations: value.relations,
@@ -151,7 +186,7 @@ export function restoreSemanticArtifact(value, sessionId) {
     typeVersion: value.typeVersion,
   };
   return freezeSemanticArtifact({
-    ...normalizeSemanticArtifactCandidate(candidate),
+    ...normalizeCandidate(candidate, { storedDefinition: true }),
     revision: value.revision,
     sessionId,
     status: value.status,
@@ -162,6 +197,7 @@ export function freezeSemanticArtifact(value) {
   return Object.freeze({
     artifactId: value.artifactId,
     attributes: value.attributes,
+    definition: value.definition,
     presentation: value.presentation,
     provenance: value.provenance,
     relations: value.relations,
