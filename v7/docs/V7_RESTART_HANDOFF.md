@@ -1,13 +1,15 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-10 after accepted R13.10c deterministic FVG closure
+Last updated: 2026-08-10 after accepted R13.10c and ADR-V7-004 plugin-model
+specification
 
 ## Restart Resume Checkpoint
 
 Resume on branch `feature/v7-drawing-semantic-annotation`. The current branch
-tip is the separately committed, accepted R13.10c checkpoint; `git log -1` is
-the authoritative commit identity. The repository is expected to be clean
-before separately authorized later work.
+contains the separately committed accepted R13.10c checkpoint followed by one
+documentation-only Core/Community plugin-model decision; `git log` is the
+authoritative commit identity. The repository is expected to be clean before
+separately authorized later work.
 
 After a machine or agent restart, run:
 
@@ -21,14 +23,21 @@ git status --short
 Then read, in order:
 
 1. `v7/docs/V7_RESTART_HANDOFF.md`
-2. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
-3. `v7/sessions/session_20260810_r13_10c_deterministic_fvg.md`
-4. `v7/TODO.md`
+2. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
+3. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
+4. `v7/sessions/session_20260810_core_community_plugin_model_spec.md`
+5. `v7/sessions/session_20260810_r13_10c_deterministic_fvg.md`
+6. `v7/TODO.md`
 
 R13.10b/H110 and R13.10c/H111 are accepted. The focused FVG fixture contains
 no temporary diagnostic surface, and its acceptance server is stopped.
-Evidence Inspector, overrides, detector, production toolbar, R13.10d, R13.10e,
-and later implementation remain unauthorized.
+ADR-V7-004 now classifies FVG, MA/SMA, BSL/SSL, and Fibonacci as built-in Core
+Plugin capabilities and binds public derived dependencies plus a future
+host-rendered Core/Community Plugin Center. R13.10d Evidence Inspector/
+validated overrides and R13.10e production manual FVG closure are planned but
+still require separate authorization. Detector, general Plugin Center, loader,
+Community registry, SDK, arbitrary code, Marketplace, and later implementation
+remain unauthorized.
 
 ## Current Overall Acceptance State
 

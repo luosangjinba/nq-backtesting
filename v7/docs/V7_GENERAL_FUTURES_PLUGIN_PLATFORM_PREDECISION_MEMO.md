@@ -6,7 +6,8 @@ First formed: 2026-08-01
 
 Last substantive revision: 2026-08-01
 
-Status: discussion captured; product decision and implementation deferred
+Status: partially promoted by `ADR-V7-004`; remaining product scope, runtime,
+AI, distribution, Marketplace, and implementation decisions deferred
 
 Registry: `V7_NON_DECISION_MEMO_REGISTRY.md`
 
@@ -22,6 +23,15 @@ It is not a binding product decision, does not change
 plugin runtime, SDK, package loader, marketplace, or feature implementation.
 Until a later decision explicitly changes it, the binding product remains an
 open-source, local-first SMC/ICT validation and Replay-practice workstation.
+
+On 2026-08-10, `ADR-V7-004` in
+`V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` promoted only the Kernel/Core/
+Community taxonomy, initial Core capability classification, derived dependency
+direction, Plugin Center product contract, trust posture, and phased platform
+sequence. This memo remains the non-binding record for general-futures scope,
+Setup/AI capability, detailed SDK/runtime choices, remote distribution,
+commercialization, and paid Marketplace questions. Where the accepted spec and
+this earlier candidate differ, the accepted spec governs.
 
 Work may begin only after the current system's human-review obligations are
 closed. At activation time, every applicable `humanReviewRequired` rule must
@@ -873,3 +883,14 @@ Captured the general futures/plugin-platform direction, capability taxonomy,
 semantic annotation, Setup workflow, AI Harness, distribution, marketplace,
 commercialization, risks, evidence gates, and unresolved alternatives. No
 product decision or implementation was authorized.
+
+### 2026-08-10 — Partial Promotion By ADR-V7-004
+
+The product owner accepted the Core/Community plugin model after R13.10c:
+Kernel remains non-plugin infrastructure; common first-party foundations such
+as FVG, MA/SMA, BSL/SSL, and Fibonacci become built-in Core Plugins; other
+plugins may derive through declared public capabilities; and an Obsidian-like,
+host-rendered Plugin Center is delivered in bounded trust phases. The accepted
+spec allocates no implementation step. General-futures scope, Setup/AI design,
+arbitrary code, remote registry operation, commercialization, and paid
+Marketplace remain unresolved in this memo.

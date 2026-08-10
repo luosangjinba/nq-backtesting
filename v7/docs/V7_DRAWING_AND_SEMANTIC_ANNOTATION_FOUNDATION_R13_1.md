@@ -6,7 +6,7 @@ Status: accepted binding architecture decision
 
 Date: 2026-08-07
 
-Last revised: 2026-08-08 PDT
+Last revised: 2026-08-10 PDT
 
 ## Decision Summary
 
@@ -513,8 +513,12 @@ owner handle.
 
 The first implementation proves compile-time first-party package composition
 and runtime enable/disable. It does not dynamically import community JavaScript
-or establish a public SDK. A package loader, external installation, signature,
-sandbox, permission UI, registry, and Marketplace remain separate decisions
+or establish a public SDK. Accepted `ADR-V7-004` now classifies common built-in
+foundations as product-facing Core Plugins, Community Plugins as a stricter
+installable tier, and Kernel owners as non-plugins. A package loader, external
+installation, signature, sandbox, permission UI, registry operation, and
+Marketplace remain separately delivered or unresolved; the binding direction
+is `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`, while remaining open context is
 preserved in `MEMO-V7-001`.
 
 Package absence or disablement must not corrupt stored evidence:
@@ -860,7 +864,7 @@ official Series-data exactness while distinguishing a click from native pan;
 H110 and its corrected human gate are accepted. R13.10c's deterministic FVG
 construction/projection and H111 human gate are also accepted. R13.10d and
 R13.10e retain Inspector override and final workflow closure as separately
-authorized steps.
+bounded steps which still require explicit authorization.
 
 No delivery step may combine a new owner boundary, a new interaction state
 machine, a generic UI framework, persistence migration, and the first business
@@ -870,6 +874,23 @@ browser-visible—human acceptance.
 
 Business workflows must consume the accepted foundation rather than ship their
 own drawing stores or Chart renderers.
+
+## Related Accepted Plugin Model
+
+`ADR-V7-004` in `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` classifies FVG,
+MA/SMA, BSL/SSL, and Fibonacci as built-in Core Plugin capabilities and permits
+other plugins to derive from their public versioned capabilities. This does not
+turn them into Kernel code: current semantic packages remain optional modules,
+MA/SMA remain Indicator results outside Annotation state, and future Fibonacci
+behavior must use host-owned Drawing/Indicator/Semantic contribution ports as
+appropriate.
+
+R13.10d remains the host-rendered Evidence Inspector/validated-override slice,
+and R13.10e remains the production manual FVG workflow closure. Neither may
+absorb a general Plugin Center or Community loader. R13.11/R13.12 remain Core
+semantic package candidates, while R13.13 is expected to prove a derived
+detector dependency. The later P0–P4 Plugin Platform sequence is specified but
+has no delivery id or implementation authorization.
 
 ## Related Unresolved Product Memo
 
@@ -1045,3 +1066,12 @@ Replay, persistence, or semantic-package owners and were not added as
 dependencies. Indicator calculation remains a separate future adapter
 decision. See `V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md`; this addendum does not
 authorize R13.6.
+
+### 2026-08-10 — Core/Community Plugin Model Linkage
+
+Accepted ADR-V7-004 partially promotes MEMO-V7-001 without changing the
+R13.1 owner graph. It distinguishes non-plugin Kernel owners from built-in Core
+Plugins and installable Community Plugins, classifies the initial common
+foundations, binds public derived dependencies and host-owned Plugin Center
+behavior, and leaves every loader/registry/runtime phase separately
+authorized. R13.10c remains closed; R13.10d/e keep their bounded sequence.

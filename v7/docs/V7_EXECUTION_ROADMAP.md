@@ -1126,6 +1126,81 @@ overrides, production toolbar, detector, R13.10d, and R13.10e remain
 unauthorized. Binding contract:
 `V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`.
 
+### R13.10d — Evidence Inspector And Validated Overrides — Planned, Not Authorized
+
+- add only the host-rendered Evidence/History/parameter controls needed to
+  inspect one accepted FVG Artifact;
+- display exact package/type/definition construction identity, source Bars,
+  Replay cutoff, immutable baseline values, effective values, and source badges;
+- validate an override through the active Core FVG Plugin policy, retain both
+  derived baseline and explicit override provenance, and fail stale or invalid
+  drafts without rewriting accepted truth;
+- keep drafts/previews UI-local and publish accepted change only through the
+  existing exact-revision Annotation command/transaction owners;
+- preserve read-only unresolved evidence when the package is disabled,
+  missing, or incompatible;
+- prove cancel, stale revision, invalid override, render/persistence rollback,
+  disable/re-enable, no-future, and host-rendered-schema boundaries through a
+  separately allocated Harness and human gate;
+- exclude Plugin Center, installation, detector, production toolbar, new owner,
+  and general settings framework scope.
+
+This is the next remaining R13.10 responsibility, but it receives no
+implementation authorization from R13.10c acceptance or ADR-V7-004. A focused
+binding contract and rule id are required first.
+
+### R13.10e — Production Manual FVG Workflow Closure — Planned, Not Authorized
+
+- compose the already accepted exact Bar Picker, Evidence Resolver, Core FVG
+  Plugin construction/projection, and R13.10d Inspector behavior into one
+  production user path through existing owners;
+- expose FVG as a discoverable built-in first-party plugin contribution, with
+  generic package metadata and enable/disable status rather than a semantic-id
+  branch in the product route;
+- add only the production tool entry, lifecycle/error state, and acceptance
+  coverage required to close manual evidence-constrained FVG creation;
+- preserve native Chart navigation, multi-Pane/no-future behavior, owner
+  isolation, durable unresolved records, and full rollback;
+- exclude a general Plugin Center, external package loading, Community
+  registry, SDK, detector, MA/SMA, Fibonacci, and Marketplace.
+
+R13.10e closes the manual FVG product workflow; it does not become the plugin
+platform. It must be separately specified and authorized after R13.10d.
+
+### Core/Derived Package Consequences For R13.11–R13.13
+
+Accepted ADR-V7-004 classifies FVG, MA/SMA, BSL/SSL, and Fibonacci as initial
+Core Plugin capabilities. R13.11 EQL/EQH and R13.12 OB/Breaker remain focused
+first-party Core semantic package candidates, each with versioned definitions
+and evidence rather than Kernel branches. R13.13 detector suggestions become
+the first explicit derived-plugin proof: they must declare compatible Core
+semantic capabilities, preserve `suggested` provenance, and receive no direct
+owner or upstream-plugin state access.
+
+Core classification neither authorizes these steps nor weakens their focused
+semantic/no-future/human gates.
+
+### Plugin Platform Program — Specified, Unscheduled
+
+After the manual semantic chain and multiple package boundaries are proven,
+activate at most one separately numbered phase at a time:
+
+1. P0 host-rendered Core Plugin Catalog/Center over trusted-build packages,
+   including status, dependencies, settings, diagnostics, and enable/disable;
+2. P1 transactional local install-from-file for declarative packages, with one
+   common manifest, integrity, migration, uninstall, data-survival, and SDK/
+   conformance path;
+3. P2 signed free Community registry with discovery, review metadata, explicit
+   updates, restricted mode, rollback, and incident response;
+4. P3 separately authorized isolated Worker/WASM calculation extensions with
+   explicit permissions and measured CPU/memory/output/failure budgets;
+5. P4 paid Marketplace only after a separate product/business decision.
+
+No phase is currently a delivery step. Plugin Center does not imply arbitrary
+code, local install does not imply network access, and a free registry does not
+imply payment. Binding classification and sequencing:
+`V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`.
+
 ## Deferred Product Boundary — Second-Level Replay
 
 Second-level/tick-sourced Replay has no delivery number and is not the next

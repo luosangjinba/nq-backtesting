@@ -944,6 +944,31 @@ are accepted. R13.10c is closed without changing the production toolbar.
 Evidence Inspector, editable overrides, detectors, production toolbar,
 R13.10d, and R13.10e remain unauthorized.
 
+ADR-V7-004 now binds the product-level plugin taxonomy without changing this
+owner graph. Kernel owners remain non-plugin descriptor `kind: "core"`
+modules. Built-in first-party **Core Plugins** remain optional/removable
+capability modules and will carry distribution/trust metadata rather than being
+promoted into the Kernel. **Community Plugins** later use the same public
+capability contracts under stricter install, permission, isolation, budget,
+and failure controls. The full contract is
+`V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`.
+
+FVG, MA/SMA, BSL/SSL, and Fibonacci are the accepted initial Core capability
+catalog. Core status freezes a maintained versioned baseline; it does not
+erase semantic variants. Higher-level plugins may declare `requires`,
+`provides`, and `extends` relationships against public capability ids, but may
+not import another plugin's internals or directly control its UI/state. The
+ModuleHost resolves and injects declared ports, suspends incompatible
+dependents, and disposes in reverse dependency order. Plugin-produced durable
+evidence remains host-owned and readable when a package is disabled or absent.
+
+The eventual host-rendered Plugin Center is delivered separately: P0 manages
+trusted-build Core packages only; later phases add local declarative install,
+a signed free Community registry, and isolated calculation workers. Arbitrary
+community privileges and a paid Marketplace are not implied or authorized.
+R13.10d/e remain focused on Inspector/override and manual FVG production
+closure, and may not absorb the general Plugin Center.
+
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,
 coordinate conversion, update, and teardown patterns, but reviewed community

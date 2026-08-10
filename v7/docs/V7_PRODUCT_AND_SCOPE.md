@@ -35,6 +35,22 @@ AI model. Dataset Builder, AI, Research/Training/Trading Review, hosting,
 multi-user collaboration, and commercial distribution each require a separate
 accepted contract and implementation authorization.
 
+## Accepted Core And Community Extension Model
+
+ADR-V7-004 in `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` accepts an
+Obsidian-like Core/Community product taxonomy without broadening the current
+SMC/ICT scope. FVG, MA/SMA, BSL/SSL, and Fibonacci are built-in first-party
+Core Plugin capabilities with stable versioned baselines. Other first-party or
+Community Plugins may derive from their public capabilities through declared
+dependencies; they may not control Kernel owners or one another directly.
+
+Kernel Session, Replay, Bar Data, Chart, Workspace transaction, persistence,
+and module-lifecycle owners remain non-plugin infrastructure. The future
+host-rendered Plugin Center, local installation, free Community registry,
+isolated calculation tier, and any paid Marketplace are separate phases with
+no current delivery authorization. Core classification does not make a
+semantic variant consensus truth or move optional feature code into Kernel.
+
 ## Current Resolution And Simulation Boundary
 
 The current product is minute-sourced historical Replay with registered higher

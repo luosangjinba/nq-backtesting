@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r13.10c-deterministic-fvg-accepted",
+  "status": "r13.10c-accepted-adr-v7-004-plugin-model-specified",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -27,6 +27,7 @@
     "docs/v7-production-regression-matrix.json",
     "docs/V7_PRODUCT_AND_SCOPE.md",
     "docs/V7_ARCHITECTURE.md",
+    "docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md",
     "docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md",
     "docs/V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md",
     "docs/V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md",

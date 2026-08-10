@@ -50,6 +50,31 @@ Binding decision:
 Open discussion:
 `docs/V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md`.
 
+## ADR-V7-004 Core And Community Plugin Model — Accepted 2026-08-10
+
+- [x] keep Kernel owners non-plugin and non-disableable while representing
+  product-facing Core Plugins as built-in first-party optional modules;
+- [x] classify FVG, MA/SMA, BSL/SSL, and Fibonacci as the initial Core Plugin
+  capabilities without treating every semantic variant as consensus truth;
+- [x] require versioned baseline definitions, host-owned durable evidence, and
+  unresolved survival across disable/absence/uninstall;
+- [x] require derived plugins to declare public `provides`/`requires`/`extends`
+  relationships and prohibit private imports or direct feature control;
+- [x] bind an Obsidian-like host-rendered Plugin Center with separate Core,
+  Community, Installed, Updates, and local-install concepts;
+- [x] copy the management clarity rather than unrestricted application
+  privileges: declarative-first, least privilege, restricted mode, explicit
+  budgets, and later isolated Worker/WASM tiers;
+- [x] partially promote MEMO-V7-001 while leaving general-futures scope,
+  Setup/AI, concrete runtime/SDK, remote registry operation, commercialization,
+  and paid Marketplace unresolved;
+- [x] allocate no delivery id and authorize no loader, installer, Community
+  registry, arbitrary code, MA/SMA, Fibonacci, detector, or Marketplace through
+  this documentation decision.
+
+Binding specification:
+`docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`.
+
 ## R13.1 Drawing And Semantic Annotation Foundation — Accepted 2026-08-08
 
 - [x] reserve `asset` for tradable instruments and choose Drawing/Annotation
@@ -456,6 +481,31 @@ Binding contract:
 
 Binding contract:
 `docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`.
+
+## R13.10d Evidence Inspector And Validated Overrides — Planned, Not Authorized
+
+- [ ] receive separate authorization and freeze one focused contract/rule;
+- [ ] expose exact package/type/definition identity, source Bars, cutoff,
+  baseline/effective values, and source badges through the host Inspector;
+- [ ] validate overrides through the Core FVG Plugin policy while preserving
+  immutable derived baseline and explicit override provenance;
+- [ ] prove cancel/stale/invalid/rollback, unresolved read-only mode,
+  disable/re-enable, no-future, and host-rendered-schema boundaries;
+- [ ] exclude Plugin Center, installer, detector, production toolbar, and new
+  owner scope.
+
+## R13.10e Production Manual FVG Workflow Closure — Planned, Not Authorized
+
+- [ ] after accepted R13.10d, receive separate authorization and compose the
+  accepted Picker → Evidence → Core FVG → Inspector → projection path;
+- [ ] expose generic built-in first-party package metadata/status without a
+  product-route branch for FVG;
+- [ ] add only the production tool entry and lifecycle/error/acceptance surface
+  required for the manual evidence-constrained FVG workflow;
+- [ ] preserve native Chart behavior, no-future, multi-Pane, rollback,
+  unresolved durability, and all sole-owner boundaries;
+- [ ] exclude a general Plugin Center, external installation, Community
+  registry, SDK, detector, MA/SMA, Fibonacci, and Marketplace.
 
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
@@ -1124,28 +1174,31 @@ Binding ES full-chain repair:
 `docs/v7-es-databento-full-chain-audit.json`, and
 `../v4/data_config/historical_roll_repairs/es-databento-full-chain.yml`.
 
-### Deferred Candidate — General Futures Plugin Platform
+### Accepted Direction / Deferred Delivery — Core And Community Plugin Platform
 
-- [x] preserve the proposed general-futures positioning, first-party pack
-  model, calculated Indicator/manual semantic annotation/suggestion/Setup
-  Workflow boundaries, governed AI Harness, `human`/`suggested`/`computed`
-  provenance, declarative Chart contribution, common-package local/Marketplace
-  installation, commercialization hypothesis, permissions, performance
-  controls, SDK requirements, and unresolved decisions in a non-binding
-  pre-decision memo;
-- [ ] retain the current binding SMC/ICT scope and activate no plugin runtime,
-  loader, SDK, AI provider, remote evidence transmission, registry,
-  Marketplace, payment, product-scope change, or delivery step until every
-  then-applicable human-review obligation is explicitly accepted or governed
-  as retired/superseded;
-- [ ] after that gate, decide the product scope, prototype MA, MACD native
-  sub-pane, one manual semantic annotation, and one annotation-referencing
-  Setup Workflow; separately prove a frozen-evidence AI boundary and common
-  local/test-registry package; bind security/transaction/performance/privacy/
-  distribution contracts; and reconcile sequencing with the seconds/tick
-  candidate before implementation or any paid-Marketplace decision.
+- [x] preserve the broader general-futures, Setup, AI, distribution, and
+  commercialization discussion in MEMO-V7-001;
+- [x] promote only the Kernel/Core/Community taxonomy, initial Core catalog,
+  public derived dependencies, Plugin Center contract, strict trust posture,
+  and phased delivery sequence through ADR-V7-004;
+- [ ] keep the binding SMC/ICT product scope and activate no P-phase, loader,
+  SDK, arbitrary code, remote registry, Marketplace, payment, or product-scope
+  change without a separately accepted implementation/product decision;
+- [ ] finish the bounded manual semantic chain and prove multiple package/
+  dependency boundaries before scaling the platform surface;
+- [ ] P0: specify and separately authorize a host-rendered Core Plugin Catalog/
+  Center over trusted-build packages only;
+- [ ] P1: only after P0, specify local declarative install-from-file,
+  transactional lifecycle, integrity, migration, uninstall/data survival, and
+  conformance tooling;
+- [ ] P2/P3: separately prove a signed free Community registry/restricted mode
+  and isolated Worker/WASM calculation tier with measured permissions/resource
+  budgets;
+- [ ] leave paid Marketplace, entitlement, commission, and operations to P4 and
+  a separate business decision after free ecosystem evidence exists.
 
-Deferred memo:
+Binding specification and remaining memo:
+`docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` and
 `docs/V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md`.
 
 ### Deferred Candidate — Second-Level Replay And Tick-Sourced Data

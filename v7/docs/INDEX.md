@@ -85,8 +85,10 @@ records tensions that a later decision must resolve. The registered
 `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md`,
 `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md`, and
 `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md`, together with
-`V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md`, record
-possible next product and business directions but authorize no implementation.
+`V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md`, preserve
+possible next product and business directions. Accepted ADRs may partially
+promote named portions, but the remaining memo content authorizes no
+implementation.
 The seconds/tick memo additionally records the current decision that minute-
 sourced V7 remains valid without simulated-live training, defines the three-
 of-four investigation signals, and keeps every future seconds path behind the
@@ -107,6 +109,16 @@ context drilldown, portability, and replaceable AI providers. It allocates no
 Dataset Builder, AI, Research/Training/Review, SaaS, shared-data, or Marketplace
 implementation step. MEMO-V7-004 preserves the competitive, data-rights,
 commercialization, branding, and market-entry discussion that remains open.
+The accepted plugin-model decision is
+`V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`. ADR-V7-004 keeps Kernel owners
+outside the plugin catalog, classifies FVG, MA/SMA, BSL/SSL, and Fibonacci as
+built-in Core Plugin capabilities, and permits derived plugins only through
+declared public dependencies. It binds an Obsidian-like host-rendered Plugin
+Center and a declarative/local/free-registry/isolated-worker sequence while
+copying none of Obsidian's broad application privileges. It allocates no
+delivery id, loader, registry, arbitrary-code tier, product-scope expansion, or
+Marketplace implementation. MEMO-V7-001 remains open for those unresolved
+questions.
 The accepted post-milestone foundation is
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
 market-coordinate geometry, generic drawings, typed semantic artifacts,
@@ -186,8 +198,12 @@ strict three-Bar FVG boundary. It adds a removable evidence-derived Semantic
 package over branded R13.10a evidence and emits only generic Rectangle,
 midpoint-Segment, and projection-label inputs through existing owners. H111's
 automated and focused local human visual gates passed on 2026-08-10. Evidence
-Inspector, overrides, detector, production toolbar, R13.10d, and R13.10e
-remain unauthorized.
+Inspector/validated overrides and production manual workflow closure are now
+explicitly planned as R13.10d/e boundaries requiring separate authorization.
+The accepted
+Core/Community plugin model classifies the existing FVG and BSL/SSL packages as
+built-in Core capabilities but does not retrofit R13.10c or authorize a Plugin
+Center, loader, detector, or later implementation.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
@@ -298,32 +314,35 @@ Read in this order before V7 implementation work:
 96. `V7_NON_DECISION_MEMO_REGISTRY.md` as the canonical dated index for every
     unresolved product/architecture memo and its cross-memo tensions
 97. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
+    partially promoted context whose remaining questions are non-binding
+98. `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` as accepted ADR-V7-004;
+    read before specifying Core/Community packages, dependency graphs, Plugin
+    Center, installation, SDK, registry, or Marketplace behavior
+99. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
-98. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
-    non-binding context only
-99. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,
+100. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,
     non-binding AI-Agent-participatory Research, Training, and Trading Review
     context only
-100. `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md` as
+101. `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md` as
     the partially promoted market, competitor, data-rights, commercialization,
     branding, and open-model discussion; its remaining questions are non-binding
-101. `V7_EVIDENCE_GRADE_SEMANTIC_DATASET_PRODUCT_DECISION.md` as accepted
+102. `V7_EVIDENCE_GRADE_SEMANTIC_DATASET_PRODUCT_DECISION.md` as accepted
     ADR-V7-003; read before any dataset, AI, Research, Training, Trading Review,
     hosted, or shared-data specification
-102. `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` as accepted
+103. `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` as accepted
     ADR-V7-001; read before any drawing or semantic annotation implementation
-103. `V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md` as the binding pure
+104. `V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md` as the binding pure
     market-coordinate Point/Segment/Rectangle and extensible Registry contract
-104. `V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md` as the binding removable sole
+105. `V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md` as the binding removable sole
     Annotation Document writer and exact generic-Drawing revision contract
-105. `V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md` as the binding
+106. `V7_ACCEPTED_ANNOTATION_CHART_PROJECTION_R13_4.md` as the binding
     Chart-owned prepare/apply/rollback/finalize Primitive projection contract
-106. `V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md` as the binding one-shot Segment
+107. `V7_SEGMENT_INTERACTION_PREVIEW_R13_5.md` as the binding one-shot Segment
     gesture, transient Preview, cancellation, and Chart arbitration contract
-107. `V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md` as accepted ADR-V7-002 and
+108. `V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md` as accepted ADR-V7-002 and
     `v7-community-reuse-audit.json` as its pinned machine-readable candidate
     evidence; read before specifying or implementing R13.6
-108. `../TODO.md`
+109. `../TODO.md`
 
 The numbered order above is for implementation work. Ordinary users should use
 the user/operator entry points instead of reading the architecture history.

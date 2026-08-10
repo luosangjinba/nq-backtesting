@@ -209,8 +209,10 @@ or optional hosted services when those features obey this decision.
 - `MEMO-V7-004` preserves the competitive-landscape discussion, alternative
   positions, branding risk, commercial paths, and unresolved market questions
   which informed this decision but were not themselves decided.
-- `MEMO-V7-001` remains open for a general plugin platform, marketplace, and
-  broader futures-product scope. This decision accepts only the existing
+- `MEMO-V7-001` remains open for broader futures-product scope, Setup/AI,
+  concrete plugin runtime/SDK, remote distribution, commercialization, and
+  Marketplace. Later ADR-V7-004 partially promotes its Core/Community taxonomy
+  and phased platform direction; this ADR itself accepts only the existing
   removable semantic-package principle, not that broader platform plan.
 
 ## Explicit Non-Authorization Boundary

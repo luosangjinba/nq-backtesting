@@ -4,7 +4,7 @@ Status: binding documentation-governance index
 
 Created: 2026-08-07
 
-Last updated: 2026-08-09
+Last updated: 2026-08-10
 
 ## Purpose
 
@@ -44,7 +44,7 @@ converted into a decision.
 
 | Memo id | Topic | First formed | Last substantive revision | Current status | File |
 | --- | --- | --- | --- | --- | --- |
-| `MEMO-V7-001` | General futures/plugin platform, semantic tools, Setup workflow, AI, distribution, marketplace | 2026-08-01 | 2026-08-01 | open; product decision and implementation deferred | `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` |
+| `MEMO-V7-001` | General futures/plugin platform, semantic tools, Setup workflow, AI, distribution, marketplace | 2026-08-01 | 2026-08-01 | partially promoted by ADR-V7-004; general-futures scope, Setup/AI, runtime, distribution, commercialization, and Marketplace remain open | `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` |
 | `MEMO-V7-002` | Second-level Replay and tick-sourced data | 2026-08-01 | 2026-08-06 | current deferral position recorded; future activation undecided | `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` |
 | `MEMO-V7-003` | AI-Agent-participatory Research, Training, and Trading Review system, using semantic Study Cases/Cohorts | 2026-08-07 | 2026-08-07 12:12 PDT | partially promoted by ADR-V7-003; system boundary, autonomy, workflow ownership, and business model remain undecided | `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` |
 | `MEMO-V7-004` | Semantic-dataset competitive landscape, commercialization, open-source/SaaS path, market-data economics, and open-model use | 2026-08-09 | 2026-08-09 PDT | core evidence-dataset product position promoted by ADR-V7-003; hosting, shared data, branding, pricing, and market entry remain open | `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md` |
@@ -97,6 +97,21 @@ delete it.
   and `ArtifactProjection`, reserving asset for tradable instruments.
 - Later decisions must translate the older memo into the accepted terms rather
   than preserve two annotation state models.
+
+### ADR-V7-004 Versus Remaining MEMO-V7-001 Scope
+
+- ADR-V7-004 accepts Kernel/Core/Community classification, initial Core
+  foundations, public derived dependencies, a host-rendered Plugin Center, and
+  a declarative/local/free-registry-first delivery sequence.
+- It does not accept the memo's broader general-futures repositioning, complete
+  Setup/AI system, arbitrary third-party code, remote service operation,
+  commercialization model, or paid Marketplace.
+- Core Plugin is a product/distribution tier represented by built-in first-
+  party metadata; it does not change a V7 module to descriptor `kind: "core"`
+  or promote feature code into the Kernel.
+- The accepted spec translates semantic annotations to ADR-V7-001's
+  `SemanticArtifact` and `ArtifactProjection` terms. Remaining memo work must
+  use that vocabulary and ADR-V7-003's evidence-grade dataset constraints.
 
 ### MEMO-V7-004 Versus Broad Commercialization
 
@@ -180,7 +195,8 @@ A memo becomes a decision only through a separate ADR/specification which:
 | `ADR-V7-001` / `R13.1` | 2026-08-08 | accepts Drawing/Semantic Annotation terminology, ownership, package, provenance, interaction, and projection foundations discussed broadly by MEMO-V7-001 and required by MEMO-V7-003 | general plugin SDK/marketplace and complete Research/Training/Review product remain open | `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` |
 | `ADR-V7-002` | 2026-08-08 | accepts official Primitive-pattern adaptation while rejecting reviewed community packages as parallel V7 owners | Indicator reuse and later community/plugin distribution remain separately undecided | `V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md` |
 | `ADR-V7-003` | 2026-08-09 | partially promotes MEMO-V7-003's evidence/case/cohort constraints and MEMO-V7-004's evidence-grade semantic dataset product position, user ownership, human-governed AI, and local-first initial boundary | complete learning-system ownership, commercial model, hosted service, public/shared datasets, branding, pricing, and implementation remain open | `V7_EVIDENCE_GRADE_SEMANTIC_DATASET_PRODUCT_DECISION.md` |
+| `ADR-V7-004` | 2026-08-10 | partially promotes MEMO-V7-001's Kernel/Core/Community taxonomy, FVG/MA/SMA/BSL/Fib Core classification, declared derived dependencies, Plugin Center experience, stricter trust tiers, and phased local/free-registry platform sequence | general-futures scope, Setup/AI system, concrete loader/SDK/sandbox, remote registry operations, commercialization, and paid Marketplace remain open | `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` |
 
-No registered memo has been fully promoted and closed. MEMO-V7-003 and
-MEMO-V7-004 are partially promoted; their explicitly unresolved questions
-remain discoverable here and authorize no implementation.
+No registered memo has been fully promoted and closed. MEMO-V7-001,
+MEMO-V7-003, and MEMO-V7-004 are partially promoted; their explicitly
+unresolved questions remain discoverable here and authorize no implementation.
