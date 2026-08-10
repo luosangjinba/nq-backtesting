@@ -41,12 +41,12 @@ disposer rejects activation.
 
 The complete R13.2–R13.9 Annotation chain passes: Geometry, Runtime, accepted
 Chart projection, interaction, Rectangle/Inspector, persistence, context
-projection, and H107. Production architecture remains 59 modules, 131
+projection, and H107. Production architecture remains 61 modules, 132
 dependency edges, 115 construction sites, 23 writer sites, and zero blocking
-findings. Module assembly remains 59 public entries, 24 lifecycle modules, and
-21 optional-removal cases. Writer closure remains 18 surfaces and 23 observed
-writer files. Architecture hardening now covers 108 rules. Current source quality
-is 403 files, 32,280 effective lines, 3,395 functions, and 384 public exports,
+findings. Module assembly remains 61 public entries, 25 lifecycle modules, and
+24 optional-removal cases. Writer closure remains 18 surfaces and 23 observed
+writer files. Architecture hardening now covers 110 rules. Current source quality
+is 411 files, 32,863 effective lines, 3,451 functions, and 388 public exports,
 with no accepted exception.
 
 ## Closure

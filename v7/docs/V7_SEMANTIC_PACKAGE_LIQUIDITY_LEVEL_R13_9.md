@@ -169,8 +169,8 @@ Automated implementation evidence on 2026-08-09 covers 22 declared negative
 controls and a real Chromium pass over generic Drawing promotion, BSL color,
 host-rendered Semantic/History fields, package disable/re-enable, unchanged
 Artifact/document revision, Replay before/after visibility, and byte-identical
-candlestick data. Production assembly contains 59 modules, 24 lifecycle
-modules, and 21 optional-removal cases. The local visual gate then confirmed
+candlestick data. Production assembly contains 61 modules, 25 lifecycle
+modules, and 24 optional-removal cases. The local visual gate then confirmed
 the corrected cutoff-safe Inspector, projection hide/restore, package
 disable/re-enable, and native Chart interaction.
 

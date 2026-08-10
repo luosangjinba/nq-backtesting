@@ -178,6 +178,35 @@ assert.ok(requestedUpdates > 0);
 rectangle.primitive.detached();
 rectangle.destroy();
 
+const slotDraws = [];
+const slotRectangle = createRectangleRenderPrimitive(projection(), {
+  centerOnStartAnchorSlot: true,
+});
+slotRectangle.primitive.attached({
+  chart: { timeScale: () => ({ timeToCoordinate: (time) => time * 10 }) },
+  requestUpdate() {},
+  series: { priceToCoordinate: (price) => 200 - price },
+});
+slotRectangle.primitive.paneViews()[0].renderer().draw({
+  useBitmapCoordinateSpace(callback) {
+    callback({
+      context: {
+        fillRect: (...args) => slotDraws.push(args),
+        restore() {}, save() {}, strokeRect() {},
+      },
+      horizontalPixelRatio: 1,
+      verticalPixelRatio: 1,
+    });
+  },
+});
+assert.deepEqual(slotDraws, [[5, 90, 10, 10]], 'Bar highlight must center one slot on the first anchor');
+slotRectangle.primitive.detached();
+slotRectangle.destroy();
+assert.throws(
+  () => createRectangleRenderPrimitive(projection(), { centerOnStartAnchorSlot: 'yes' }),
+  (error) => error.code === 'ANNOTATION_RECTANGLE_OPTIONS_INVALID',
+);
+
 function previewProjection({ drawingId = 'drawing.preview', geometry, presentation: style = presentation(),
   projectionId = 'projection.preview', revision }) {
   return createAnnotationProjection({

@@ -854,8 +854,12 @@ Implementation note, 2026-08-09: the former R13.10 candidate is deliberately
 split so it does not combine a new pure owner boundary, Chart interaction, the
 first evidence-derived business package, Inspector behavior, and overrides.
 R13.10a activates only the pure accepted-snapshot Evidence Resolver. R13.10b
-through R13.10e retain exact Bar picking, FVG construction/projection,
-Inspector override, and final closure as separately authorized steps.
+is separately implemented as the removable exact loaded-Bar Picker over the
+existing shared Chart interaction lease. Its corrected acceptance path retains
+official Series-data exactness while distinguishing a click from native pan;
+H110 and its corrected human gate are accepted. R13.10c through R13.10e retain
+FVG construction/projection, Inspector override, and final closure as
+separately authorized steps.
 
 No delivery step may combine a new owner boundary, a new interaction state
 machine, a generic UI framework, persistence migration, and the first business

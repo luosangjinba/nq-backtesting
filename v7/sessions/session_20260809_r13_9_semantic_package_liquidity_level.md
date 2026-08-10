@@ -46,10 +46,10 @@ surface shows only `Not visible before observation cutoff`; moving after the
 cutoff restores the unchanged resolved view. The real-Chromium H107 assertion
 now binds both projection and Inspector suppression.
 
-Production assembly contains 59 public modules, 24 lifecycle modules, and 21
-optional-removal cases. Architecture evidence contains 59 modules, 131
+Production assembly contains 61 public modules, 25 lifecycle modules, and 24
+optional-removal cases. Architecture evidence contains 61 modules, 132
 dependency edges, 115 construction sites, 18 declared writer surfaces, 23
-observed writer files, and zero findings. Current source evidence contains 403 files, 32,280 effective lines, 3,395 functions, and 384 public exports with no
+observed writer files, and zero findings. Current source evidence contains 411 files, 32,863 effective lines, 3,451 functions, and 388 public exports with no
 accepted exception.
 
 ## Human Acceptance Evidence

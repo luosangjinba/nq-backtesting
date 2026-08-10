@@ -18,6 +18,10 @@
       "omittedModuleId": "adapter.replay-workspace-ui"
     },
     {
+      "consumerModuleId": "optional.annotation-bar-picker",
+      "omittedModuleId": "optional.annotation-chart-projection"
+    },
+    {
       "consumerModuleId": "optional.annotation-context-projection",
       "omittedModuleId": "optional.annotation-chart-projection"
     },
@@ -56,6 +60,10 @@
     {
       "consumerModuleId": "optional.semantic-liquidity-level",
       "omittedModuleId": "optional.annotation-semantic-registry"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.annotation-bar-picker"
     },
     {
       "consumerModuleId": null,

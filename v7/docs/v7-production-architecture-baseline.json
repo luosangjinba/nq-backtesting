@@ -136,7 +136,7 @@
       }
     ]
   },
-  "deliveryStep": "R13.10a",
+  "deliveryStep": "R13.10b",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -4361,6 +4361,27 @@
           "dispose"
         ],
         "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "optional.annotation-chart-projection"
+        ],
+        "descriptorPath": "src/annotation-bar-picker/module.json",
+        "id": "optional.annotation-bar-picker",
+        "importSites": [],
+        "independentHarness": "tests/annotation-bar-picker-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [
+          "src/annotation-bar-picker/exact-bar-picker-controller.js"
+        ],
+        "owner": "annotation-interaction-controller",
+        "publicEntry": "src/annotation-bar-picker/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
         "declaredRequiredPorts": [],
         "descriptorPath": "src/annotation-chart-projection/module.json",
         "id": "optional.annotation-chart-projection",
@@ -4371,7 +4392,8 @@
         "observedDisposeSites": [
           "src/annotation-chart-projection/chart-annotation-preview.js",
           "src/annotation-chart-projection/chart-annotation-projection.js",
-          "src/annotation-chart-projection/lightweight-annotation-interaction-port.js"
+          "src/annotation-chart-projection/lightweight-annotation-interaction-port.js",
+          "src/annotation-chart-projection/lightweight-bar-picker-subscription.js"
         ],
         "owner": "chart-runtime-adapter",
         "publicEntry": "src/annotation-chart-projection/public.js"

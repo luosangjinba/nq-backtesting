@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R13.10a",
+  "deliveryStep": "R13.10b",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -68,6 +68,7 @@
       "core.workspace-transaction-runtime",
       "core.workstation-settings",
       "optional.annotation-context-projection",
+      "optional.annotation-bar-picker",
       "optional.annotation-semantic-registry",
       "optional.annotation-runtime",
       "optional.annotation-interaction"
@@ -170,6 +171,10 @@
     },
     {
       "path": "sessions/session_20260809_r13_10a_pure_annotation_evidence_resolver.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260809_r13_10b_exact_bar_picker.md",
       "expectedOccurrences": 1
     }
   ],

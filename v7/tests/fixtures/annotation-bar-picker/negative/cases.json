@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    { "name": "selection extra field", "operation": "selection-extra", "expectedCode": "ANNOTATION_BAR_SELECTION_INVALID" },
+    { "name": "selection structural lookalike", "operation": "selection-lookalike", "expectedCode": "ANNOTATION_BAR_SELECTION_UNBRANDED" },
+    { "name": "selection invalid epoch", "operation": "selection-epoch", "expectedCode": "ANNOTATION_BAR_SELECTION_INVALID" },
+    { "name": "selection invalid Pane", "operation": "selection-pane", "expectedCode": "ANNOTATION_BAR_SELECTION_INVALID" },
+    { "name": "arm extra field", "operation": "arm-extra", "expectedCode": "ANNOTATION_BAR_PICKER_ARM_INVALID" },
+    { "name": "arm invalid id", "operation": "arm-id", "expectedCode": "ANNOTATION_BAR_PICKER_ID_INVALID" },
+    { "name": "overlapping Picker", "operation": "arm-busy", "expectedCode": "ANNOTATION_BAR_PICKER_BUSY" },
+    { "name": "invalid interaction port", "operation": "port-invalid", "expectedCode": "ANNOTATION_BAR_PICKER_PORT_INVALID" },
+    { "name": "invalid callback", "operation": "callback-invalid", "expectedCode": "ANNOTATION_BAR_PICKER_CALLBACK_INVALID" },
+    { "name": "invalid candidate event", "operation": "candidate-invalid", "expectedCode": "ANNOTATION_BAR_PICKER_CANDIDATE_FAILED" },
+    { "name": "acquire failure", "operation": "acquire-failed", "expectedCode": "ANNOTATION_BAR_PICKER_ACQUIRE_FAILED" },
+    { "name": "arm after dispose", "operation": "disposed", "expectedCode": "ANNOTATION_BAR_PICKER_DISPOSED" }
+  ]
+}

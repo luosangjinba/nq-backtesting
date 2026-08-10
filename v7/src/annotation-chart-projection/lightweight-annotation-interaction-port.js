@@ -1,4 +1,6 @@
 import { failProjection } from './projection-error.js';
+import { beginLightweightBarPickerLease } from './lightweight-bar-picker-lease.js';
+import { createLightweightBarPickerPointerGesture } from './lightweight-bar-picker-pointer-gesture.js';
 
 const HANDLER_NAMES = Object.freeze(['onCancel', 'onEnd', 'onMove', 'onStart']);
 const PANE_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
@@ -111,6 +113,7 @@ export function createLightweightAnnotationInteractionPort({
   const thresholdSquared = requireThreshold(dragThresholdPx) ** 2;
   const selectionTolerance = requireThreshold(selectionTolerancePx);
   let active = null;
+  const barPointerGesture = createLightweightBarPickerPointerGesture();
   let disposed = false;
   let gesture = null;
   let leaseRevision = 0;
@@ -168,6 +171,11 @@ export function createLightweightAnnotationInteractionPort({
     }
   }
 
+  function disposeBarPickerSubscription(record) {
+    record.subscription?.dispose();
+    record.subscription = null;
+  }
+
   function releaseCapture(record) {
     if (record.pointerId === null) return;
     const pointerId = record.pointerId;
@@ -182,11 +190,14 @@ export function createLightweightAnnotationInteractionPort({
   function finish(kind, payload) {
     const record = active;
     if (record === null) return;
+    barPointerGesture.reset();
     gesture = null;
     releaseCapture(record);
     active = null;
+    disposeBarPickerSubscription(record);
     restoreNative(record);
     if (kind === 'cancel') record.handlers.onCancel(Object.freeze({ reason: payload }));
+    else if (kind === 'select') record.handlers.onSelect(payload);
     else record.handlers.onEnd(payload);
   }
 
@@ -197,6 +208,22 @@ export function createLightweightAnnotationInteractionPort({
   function consumePointerEvent(event) {
     event.preventDefault?.();
     event.stopImmediatePropagation?.();
+  }
+
+  function onBarPickerPointerDown(event) {
+    if (active?.kind !== 'bar-picker') return;
+    const point = plotPoint(event);
+    if (point === null) return;
+    if (event.button === 2) {
+      suppressContextMenuUntil = Date.now() + 1_000;
+      consumePointerEvent(event);
+      cancel('secondary-button');
+      return;
+    }
+    barPointerGesture.begin({
+      candidate: active.subscription?.captureSelection() ?? null,
+      event,
+    });
   }
 
   function onPointerDown(event) {
@@ -222,6 +249,7 @@ export function createLightweightAnnotationInteractionPort({
       cancel('secondary-button');
       return;
     }
+    if (active.kind === 'bar-picker') return;
     if (event.button !== 0 || event.isPrimary === false) return;
     if (gesture?.phase === 'placing') {
       const normalized = safeAnchorAt(event);
@@ -253,6 +281,10 @@ export function createLightweightAnnotationInteractionPort({
         const y = event.clientY - selectionCandidate.clientY;
         if (((x * x) + (y * y)) >= thresholdSquared) selectionCandidate = null;
       }
+      return;
+    }
+    if (active.kind === 'bar-picker') {
+      barPointerGesture.move(event);
       return;
     }
     if (gesture?.phase === 'placing') {
@@ -296,6 +328,12 @@ export function createLightweightAnnotationInteractionPort({
       }
       return;
     }
+    if (active.kind === 'bar-picker') {
+      const capture = barPointerGesture.end(event);
+      const selection = capture === null ? null : active.subscription?.acceptSelection(capture) ?? null;
+      if (selection !== null) finish('select', selection);
+      return;
+    }
     if (gesture === null || gesture.phase !== 'pressed-start'
       || event.pointerId !== gesture.pointerId) return;
     consumePointerEvent(event);
@@ -315,6 +353,10 @@ export function createLightweightAnnotationInteractionPort({
   function onPointerCancel(event) {
     if (active === null && selectionCandidate?.pointerId === event.pointerId) {
       selectionCandidate = null;
+      return;
+    }
+    if (active?.kind === 'bar-picker') {
+      barPointerGesture.cancel(event.pointerId);
       return;
     }
     if (gesture?.phase === 'pressed-start' && event.pointerId === gesture.pointerId) {
@@ -337,7 +379,9 @@ export function createLightweightAnnotationInteractionPort({
     cancel('escape');
   }
 
-  function onBlur() { cancel('focus-loss'); }
+  function onBlur() {
+    if (!barPointerGesture.deferFocusLoss(() => cancel('focus-loss'))) cancel('focus-loss');
+  }
   function onLostPointerCapture(event) {
     if (gesture?.phase === 'pressed-start' && event.pointerId === gesture.pointerId) {
       cancel('lost-pointer-capture');
@@ -347,6 +391,7 @@ export function createLightweightAnnotationInteractionPort({
   host.addEventListener('pointerdown', onPointerDown, true);
   host.addEventListener('contextmenu', onContextMenu, true);
   host.addEventListener('lostpointercapture', onLostPointerCapture, true);
+  eventTarget.addEventListener('pointerdown', onBarPickerPointerDown, true);
   eventTarget.addEventListener('pointermove', onPointerMove, true);
   eventTarget.addEventListener('pointerup', onPointerUp, true);
   eventTarget.addEventListener('pointercancel', onPointerCancel, true);
@@ -361,10 +406,12 @@ export function createLightweightAnnotationInteractionPort({
       }
       const record = {
         handlers: requireHandlers(handlers),
+        kind: 'two-anchor',
         leaseRevision: ++leaseRevision,
         nativeOptions: nativeOptions(chart),
         nativeRestored: false,
         pointerId: null,
+        subscription: null,
       };
       chart.applyOptions({ handleScale: false, handleScroll: false });
       selectionCandidate = null;
@@ -376,16 +423,33 @@ export function createLightweightAnnotationInteractionPort({
       });
       return lease;
     },
+    acquireBarPicker(handlers) {
+      if (disposed) failProjection('ANNOTATION_INTERACTION_PORT_DISPOSED', 'Interaction port is disposed.');
+      if (active !== null) {
+        failProjection('ANNOTATION_INTERACTION_LEASE_ACTIVE', 'One exclusive interaction lease is active.');
+      }
+      return beginLightweightBarPickerLease({
+        chart, handlers, leaseRevision: ++leaseRevision,
+        isActive: (record) => active === record,
+        nextSequence: () => ++sequence,
+        onActivate: (record) => { active = record; },
+        onCancel: cancel,
+        onSelect: (selection) => finish('select', selection),
+        paneId: acceptedPaneId, resolveMarketEpochMs, series,
+      });
+    },
     dispose() {
       if (disposed) return;
       cancel('disposed');
       disposed = true;
+      barPointerGesture.reset();
       selectionCandidate = null;
       suppressContextMenuUntil = 0;
       selectionSubscribers.clear();
       host.removeEventListener('pointerdown', onPointerDown, true);
       host.removeEventListener('contextmenu', onContextMenu, true);
       host.removeEventListener('lostpointercapture', onLostPointerCapture, true);
+      eventTarget.removeEventListener('pointerdown', onBarPickerPointerDown, true);
       eventTarget.removeEventListener('pointermove', onPointerMove, true);
       eventTarget.removeEventListener('pointerup', onPointerUp, true);
       eventTarget.removeEventListener('pointercancel', onPointerCancel, true);
@@ -412,6 +476,7 @@ export function createLightweightAnnotationInteractionPort({
       disposed,
       gestureActive: gesture !== null,
       gesturePhase: gesture?.phase ?? null,
+      leaseKind: active?.kind ?? null,
       leaseRevision,
       nativeSuppressed: active !== null && !active.nativeRestored,
       paneId: acceptedPaneId,

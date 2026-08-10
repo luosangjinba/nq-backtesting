@@ -1068,8 +1068,34 @@ and is recorded below.
 Closure 2026-08-09: H109 and all standing automated gates pass. This step has
 no visible change and requires no human gate. Exact Bar Picker, FVG,
 Evidence Inspector, parameter overrides, and projections remain outside this
-step. R13.10b remains unauthorized. Binding contract:
+step. R13.10b was later separately authorized. Binding contract:
 `V7_PURE_ANNOTATION_EVIDENCE_RESOLVER_R13_10A.md`.
+
+### R13.10b — Exact Loaded-Bar Picker
+
+- activate removable `optional.annotation-bar-picker` under the existing
+  interaction owner rather than introducing a new UI/Chart owner;
+- extend the one Chart-owned exclusive interaction lease with a Picker mode;
+- derive exact Pane/Bar-start selection only from the mounted Series' original
+  event data and retain display-to-market-time mapping;
+- emit no evidence request, Drawing/Artifact command, Replay/Workspace intent,
+  persistence write, or semantic branch;
+- preserve native Chart pan/zoom and make Escape/right-click/blur/disposal
+  cancel with zero selection;
+- keep official Chart click as the primary confirmation path, with only a
+  same-owner no-drag pointer fallback over an already exact official-Series
+  candidate; pan-sized movement must not select;
+- prove the exact timestamp, one-shot behavior, mutual exclusion, teardown,
+  unchanged candles/native options, and optional removal through H110;
+- stop at the test-only cyan-candidate/lime-accepted browser fixture for the
+  mandatory human visual gate.
+
+Accepted 2026-08-09: H110, the standing focused interaction tests, and the
+corrected human visual gate pass. The accepted correction tolerates transient
+window blur only during an active primary Picker press while keeping idle blur
+an immediate cancellation. FVG construction, Evidence Inspector, overrides,
+production toolbar, and R13.10c remain outside this step. Binding contract:
+`V7_EXACT_BAR_PICKER_R13_10B.md`.
 
 ## Deferred Product Boundary — Second-Level Replay
 

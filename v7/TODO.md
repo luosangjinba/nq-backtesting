@@ -387,10 +387,49 @@ R13.10a below, while FVG and visible picking remain unapproved.
 - [x] pass the standing R13 Annotation, architecture, writer, hardening, and
   source-quality gates and form one separate commit;
 - [x] add no browser-visible change; require no human visual gate;
-- [ ] do not begin R13.10b exact Bar Picker until separately authorized.
+- [x] do not begin R13.10b exact Bar Picker until separately authorized.
 
 Binding contract:
 `docs/V7_PURE_ANNOTATION_EVIDENCE_RESOLVER_R13_10A.md`.
+
+## R13.10b Exact Bar Picker — Accepted 2026-08-09
+
+- [x] review official Lightweight Charts click/crosshair/MouseEventParams and
+  pinned community-reuse evidence before implementing Chart interaction;
+- [x] activate removable `optional.annotation-bar-picker` under the existing
+  interaction owner, with an exact branded `paneId + barStartEpochMs` result;
+- [x] extend the existing Chart-owned interaction port with one mutually
+  exclusive Bar Picker lease rather than adding a second pointer owner;
+- [x] resolve only `seriesData.get(series).time`, never rounded pixels or a
+  nearest-Bar query, and retain the existing display-to-market-time mapping;
+- [x] preserve native Chart navigation, candlestick data, Replay, Workspace,
+  Annotation, persistence, and Bar Data ownership;
+- [x] support one-shot selection plus Escape/right-click/focus-loss/disposal
+  cancellation with zero accepted selection;
+- [x] add H110 with 12 negative controls, real Chromium, exact timestamp,
+  subscription cleanup, shared-lease exclusion, and optional-removal proof;
+- [x] expose a test-only cyan-candidate/lime-accepted fixture;
+- [x] correct the first human-pass defects: center the highlight on one exact
+  candle slot and accept a real primary click through a no-drag pointer
+  fallback whose value still comes only from official `seriesData`;
+- [x] correct the second human-pass defect by capturing the armed Picker's
+  pointer-down at the window capture layer before the vendor container can
+  consume it, without moving interaction ownership out of the Chart adapter;
+- [x] close the remaining real-input paths by retaining the last exact
+  same-slot Series candidate for an official click whose `seriesData` becomes
+  transiently empty, and allow 8px click slop without changing Drawing drag
+  semantics;
+- [x] reproduce the actual human failure as transient `focus-loss` between a
+  zero-motion pointer-down/up pair; defer only that in-flight Picker blur for
+  150ms while preserving immediate idle focus-loss cancellation;
+- [x] prove that a pan-sized pointer movement emits no selection and leaves the
+  one-shot Picker armed while native navigation remains enabled;
+- [x] close the short human visual gate and mark H110 accepted;
+- [x] form one separate R13.10b commit after human acceptance;
+- [x] leave R13.10c FVG construction unauthorized until separately approved.
+
+Binding contract:
+`docs/V7_EXACT_BAR_PICKER_R13_10B.md`.
 
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
@@ -1181,8 +1220,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 403 files, 32,280 effective lines, 3,395 functions, and 384 public exports; the architecture baseline
-contains 60 modules, 132 edges, 115 construction sites, 23 writers, and zero
+The current production source baseline contains 411 files, 32,863 effective lines, 3,451 functions, and 388 public exports; the architecture baseline
+contains 61 modules, 132 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -1193,7 +1232,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 403 files, 32,280 effective lines, 3,395 functions, and 384 public exports, 60 modules, 132 edges, 115 construction sites, 23 writers, and zero
+currently at 411 files, 32,863 effective lines, 3,451 functions, and 388 public exports, 61 modules, 132 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 ## Established Foundation Governance

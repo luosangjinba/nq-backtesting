@@ -64,6 +64,10 @@ function alphaHex(opacity) {
 export function createRectangleRenderPrimitive(projection, options = {}) {
   let rectangle = readRectangle(projection);
   let style = styleFor(options, rectangle.projection.presentation);
+  const centerOnStartAnchorSlot = options.centerOnStartAnchorSlot ?? false;
+  if (typeof centerOnStartAnchorSlot !== 'boolean') {
+    failProjection('ANNOTATION_RECTANGLE_OPTIONS_INVALID', 'Rectangle render options are invalid.');
+  }
   let attached = null;
   let destroyed = false;
   let box = Object.freeze({ bottom: null, left: null, right: null, top: null });
@@ -71,8 +75,13 @@ export function createRectangleRenderPrimitive(projection, options = {}) {
   function updateView() {
     if (attached === null) return;
     const timeScale = attached.chart.timeScale();
-    const left = timeScale.timeToCoordinate(rectangle.payload.startEpochMs / 1_000);
-    const right = timeScale.timeToCoordinate(rectangle.payload.endEpochMs / 1_000);
+    let left = timeScale.timeToCoordinate(rectangle.payload.startEpochMs / 1_000);
+    let right = timeScale.timeToCoordinate(rectangle.payload.endEpochMs / 1_000);
+    if (centerOnStartAnchorSlot && Number.isFinite(left) && Number.isFinite(right)) {
+      const halfSlot = Math.abs(right - left) / 2;
+      right = left + halfSlot;
+      left -= halfSlot;
+    }
     const top = attached.series.priceToCoordinate(rectangle.payload.highPrice);
     const bottom = attached.series.priceToCoordinate(rectangle.payload.lowPrice);
     box = Object.freeze({ bottom, left, right, top });

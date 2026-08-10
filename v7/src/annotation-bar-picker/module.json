@@ -1,0 +1,12 @@
+{
+  "id": "optional.annotation-bar-picker",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "annotation-interaction-controller",
+  "publicEntry": "src/annotation-bar-picker/public.js",
+  "requiredPorts": ["optional.annotation-chart-projection"],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/annotation-bar-picker-harness.js",
+  "removable": true
+}

@@ -175,8 +175,13 @@ re-enable. H108 proves the contract with an independent synthetic package.
 boundary: one removable pure resolver selects only bounded Bar/Artifact
 evidence already present in a supplied accepted Pane/Replay snapshot, preserves
 exact source/display/data/cutoff identity, and fails instead of acquiring
-missing or future evidence. H109 is automated; R13.10b exact Bar Picker and all
-FVG/Inspector work remain unauthorized.
+missing or future evidence. H109 is automated.
+`V7_EXACT_BAR_PICKER_R13_10B.md` is the accepted exact loaded-Bar selection
+boundary. It adds a removable controller over the existing shared Chart
+interaction lease, selects only original mounted-Series timestamps, and owns
+no Bar request or accepted-state mutation. H110 and the corrected
+cyan-candidate/lime-accepted real-browser human gate passed on 2026-08-09.
+FVG/Inspector work and R13.10c remain unauthorized.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

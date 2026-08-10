@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r13.10a-pure-annotation-evidence-resolver-accepted",
+  "status": "r13.10b-exact-bar-picker-accepted",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -40,6 +40,7 @@
     "docs/V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md",
     "docs/V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md",
     "docs/V7_PURE_ANNOTATION_EVIDENCE_RESOLVER_R13_10A.md",
+    "docs/V7_EXACT_BAR_PICKER_R13_10B.md",
     "docs/v7-community-reuse-audit.json",
     "docs/V7_V6_MIGRATION_DENYLIST.md",
     "docs/V7_V6_DISPOSITION_MATRIX.md",
@@ -160,6 +161,7 @@
     "src/annotation-runtime/module.json",
     "src/annotation-chart-projection/module.json",
     "src/annotation-interaction/module.json",
+    "src/annotation-bar-picker/module.json",
     "src/annotation-context-projection/module.json",
     "src/annotation-evidence-resolver/module.json",
     "src/annotation-semantic-registry/module.json",

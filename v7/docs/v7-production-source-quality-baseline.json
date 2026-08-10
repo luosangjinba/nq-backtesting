@@ -253,6 +253,63 @@
       "functions": [
         {
           "effectiveLines": 3,
+          "name": "failBarPicker",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-bar-picker",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": false,
+      "path": "src/annotation-bar-picker/bar-picker-error.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-interaction-controller.",
+            "purpose": "expose a removable one-shot exact Bar Picker over the shared Chart interaction lease.",
+            "inputs": "normalized Chart-owned Bar candidate/select events containing only Pane and exact Bar start.",
+            "outputs": "branded immutable exact Bar selections and disposable controller snapshots.",
+            "sideEffects": "calls only injected callbacks; never receives Chart, Series, Bar cache, Replay, or Annotation handles.",
+            "lifecycle": "arm one Picker explicitly; selection/cancel returns idle and dispose releases an active lease.",
+            "errors": "AnnotationBarPickerError rejects malformed ports, events, selections, or overlapping sessions.",
+            "concurrencyCancellation": "one shared Chart lease; Escape/right-click/blur cancel with zero selection."
+          },
+          "moduleId": "optional.annotation-bar-picker",
+          "name": "AnnotationBarPickerError",
+          "semanticMatches": [
+            "annotation",
+            "bar",
+            "picker"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "bar",
+            "optional",
+            "picker"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "aae1b2fc1b12d30378f2827e8b106995b63915c490421253bef014c81ec47502"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 10,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 3,
           "name": "failCalendarTimeframe",
           "reviewedDecompositionException": false
         },
@@ -4769,6 +4826,37 @@
       "criticalInvariants": [],
       "debtComments": [],
       "effectiveLines": 14,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 4,
+          "name": "requireBarPickerCallback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireBarPickerInteractionPort",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-bar-picker",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": false,
+      "path": "src/annotation-bar-picker/bar-picker-ports.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "a377d8f1b4dbe5454b9f4a03476a745ff901b919a5b73b84b67ad145eff83a7c"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 14,
       "forwardingOnly": true,
       "functions": [],
       "kind": "contract",
@@ -8087,6 +8175,152 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 202,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "selectionFrom",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "onCandidate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "arm",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "publish",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 31,
+          "name": "onSelect",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "setStatus",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 42,
+          "name": "createExactAnnotationBarPickerController",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "resetActive",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "cancel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "onCancel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "recordError",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "readPickerId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "readEvent",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-bar-picker",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": false,
+      "path": "src/annotation-bar-picker/exact-bar-picker-controller.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-interaction-controller.",
+            "purpose": "expose a removable one-shot exact Bar Picker over the shared Chart interaction lease.",
+            "inputs": "normalized Chart-owned Bar candidate/select events containing only Pane and exact Bar start.",
+            "outputs": "branded immutable exact Bar selections and disposable controller snapshots.",
+            "sideEffects": "calls only injected callbacks; never receives Chart, Series, Bar cache, Replay, or Annotation handles.",
+            "lifecycle": "arm one Picker explicitly; selection/cancel returns idle and dispose releases an active lease.",
+            "errors": "AnnotationBarPickerError rejects malformed ports, events, selections, or overlapping sessions.",
+            "concurrencyCancellation": "one shared Chart lease; Escape/right-click/blur cancel with zero selection."
+          },
+          "moduleId": "optional.annotation-bar-picker",
+          "name": "createExactAnnotationBarPickerController",
+          "semanticMatches": [
+            "annotation",
+            "bar",
+            "controller",
+            "exact",
+            "picker"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "bar",
+            "controller",
+            "exact",
+            "optional",
+            "picker"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "a4795a858e189e7d07bf89aae0c0ef97f9e04f9328204c46a8e49fb17c752b14"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 21,
       "forwardingOnly": false,
       "functions": [
@@ -11226,6 +11460,99 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "6645f54c3f3fc1fae8bd55aa40540cabcd2a5990498e4a28ab1e78bb799f6b8e"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 32,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 10,
+          "name": "createExactAnnotationBarSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "requireExact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "readExactAnnotationBarSelection",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-bar-picker",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": false,
+      "path": "src/annotation-bar-picker/exact-bar-selection.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-interaction-controller.",
+            "purpose": "expose a removable one-shot exact Bar Picker over the shared Chart interaction lease.",
+            "inputs": "normalized Chart-owned Bar candidate/select events containing only Pane and exact Bar start.",
+            "outputs": "branded immutable exact Bar selections and disposable controller snapshots.",
+            "sideEffects": "calls only injected callbacks; never receives Chart, Series, Bar cache, Replay, or Annotation handles.",
+            "lifecycle": "arm one Picker explicitly; selection/cancel returns idle and dispose releases an active lease.",
+            "errors": "AnnotationBarPickerError rejects malformed ports, events, selections, or overlapping sessions.",
+            "concurrencyCancellation": "one shared Chart lease; Escape/right-click/blur cancel with zero selection."
+          },
+          "moduleId": "optional.annotation-bar-picker",
+          "name": "createExactAnnotationBarSelection",
+          "semanticMatches": [
+            "annotation",
+            "bar",
+            "exact",
+            "picker"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "bar",
+            "exact",
+            "optional",
+            "picker",
+            "selection"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-interaction-controller.",
+            "purpose": "expose a removable one-shot exact Bar Picker over the shared Chart interaction lease.",
+            "inputs": "normalized Chart-owned Bar candidate/select events containing only Pane and exact Bar start.",
+            "outputs": "branded immutable exact Bar selections and disposable controller snapshots.",
+            "sideEffects": "calls only injected callbacks; never receives Chart, Series, Bar cache, Replay, or Annotation handles.",
+            "lifecycle": "arm one Picker explicitly; selection/cancel returns idle and dispose releases an active lease.",
+            "errors": "AnnotationBarPickerError rejects malformed ports, events, selections, or overlapping sessions.",
+            "concurrencyCancellation": "one shared Chart lease; Escape/right-click/blur cancel with zero selection."
+          },
+          "moduleId": "optional.annotation-bar-picker",
+          "name": "readExactAnnotationBarSelection",
+          "semanticMatches": [
+            "annotation",
+            "bar",
+            "exact",
+            "picker"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "bar",
+            "exact",
+            "optional",
+            "picker",
+            "selection"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "fcae254996901f9a2feeeb63c6a53971e9724b5a4f61a317e60b87255c90507f"
     },
     {
       "adaptsBoundary": false,
@@ -15202,6 +15529,26 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "3686ef47b24c52b31e5a5f56431d5f83357b19c192ed747cd207217835aef0ef"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 6,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-bar-picker",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": true,
+      "path": "src/annotation-bar-picker/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "c1029c5749fd960395c80dd02d106a722e8fed25ecb4cf9818a453196524f22b"
     },
     {
       "adaptsBoundary": false,
@@ -22805,6 +23152,82 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 143,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 10,
+          "name": "onClick",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "retainedClickSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "requireHandlers",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "normalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "onCandidate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 42,
+          "name": "createLightweightBarPickerSubscription",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "acceptSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireCallback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireMethod",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "captureSelection",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.annotation-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-chart-projection/lightweight-bar-picker-subscription.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "3da6d7b575b393eb92afbbfd612157bf1bf54f8372cff4d9ba9d48585667c690"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 144,
       "forwardingOnly": false,
       "functions": [
@@ -24205,143 +24628,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 160,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "paneViews",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "renderer",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "zOrder",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "hitTest",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "readRectangle",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 21,
-          "name": "styleFor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 25,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "alphaHex",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 31,
-          "name": "createRectangleRenderPrimitive",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "detached",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "draw",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "destroy",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "attached",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "requireAttached",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "update",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "updateView",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "optional.annotation-chart-projection",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/annotation-chart-projection/rectangle-render-primitive.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
-            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
-            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
-            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
-            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
-            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
-            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
-          },
-          "moduleId": "optional.annotation-chart-projection",
-          "name": "createRectangleRenderPrimitive",
-          "semanticMatches": [
-            "annotation",
-            "chart",
-            "primitive",
-            "projection",
-            "render"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "chart",
-            "optional",
-            "primitive",
-            "projection",
-            "rectangle",
-            "render"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "f4d6ac1c831a7b1f059ae6ee5068345f6c00671ff6e03e7d2429e01019ca6560"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 167,
       "forwardingOnly": false,
       "functions": [
@@ -24460,6 +24746,143 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "4408bdfaa66bc010feb029988c81ce22006c40871c5cad15c158bd9ec6524b42"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 169,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "paneViews",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "renderer",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "zOrder",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "updateView",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "hitTest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "readRectangle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "styleFor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "alphaHex",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "createRectangleRenderPrimitive",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "detached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "draw",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "destroy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "attached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireAttached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "update",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.annotation-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-chart-projection/rectangle-render-primitive.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
+            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
+            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
+            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
+            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
+            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
+          },
+          "moduleId": "optional.annotation-chart-projection",
+          "name": "createRectangleRenderPrimitive",
+          "semanticMatches": [
+            "annotation",
+            "chart",
+            "primitive",
+            "projection",
+            "render"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "chart",
+            "optional",
+            "primitive",
+            "projection",
+            "rectangle",
+            "render"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "8f47c8aaa61c6af47710dc9c125fbb3060c7e49c82e4f1e135cd0c63b5236f34"
     },
     {
       "adaptsBoundary": true,
@@ -29210,213 +29633,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 387,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onBlur",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "finish",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "onPointerCancel",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "releaseCapture",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "requireHandlers",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "subscribeSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "normalizeSelectionHit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 21,
-          "name": "acquire",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 25,
-          "name": "requireEnvironment",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 27,
-          "name": "anchorAt",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 29,
-          "name": "onPointerMove",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "cancel",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "release",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 35,
-          "name": "onPointerUp",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "consumePointerEvent",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "safeAnchorAt",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 43,
-          "name": "onPointerDown",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 45,
-          "name": "createLightweightAnnotationInteractionPort",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "onKeydown",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "onLostPointerCapture",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "requireMethod",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "unsubscribe",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requirePaneId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireThreshold",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "restoreNative",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "nativeOptions",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "onContextMenu",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "plotPoint",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "optional.annotation-chart-projection",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/annotation-chart-projection/lightweight-annotation-interaction-port.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
-            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
-            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
-            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
-            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
-            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
-            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
-          },
-          "moduleId": "optional.annotation-chart-projection",
-          "name": "createLightweightAnnotationInteractionPort",
-          "semanticMatches": [
-            "annotation",
-            "chart",
-            "interaction",
-            "port",
-            "projection"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "chart",
-            "interaction",
-            "lightweight",
-            "optional",
-            "port",
-            "projection"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "89360ca27d24af870055ad75d53e8eccdeaa7abb9c2729fbf1667f244bf2930f"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 389,
       "forwardingOnly": false,
       "functions": [
@@ -31481,6 +31697,253 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 450,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-27>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "isActive",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "nextSequence",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onActivate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onSelect",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "releaseCapture",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "requireHandlers",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "subscribeSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "finish",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "onPointerCancel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "acquireBarPicker",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "normalizeSelectionHit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "onBarPickerPointerDown",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "acquire",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "requireEnvironment",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "anchorAt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "cancel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "onBlur",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "release",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "onPointerMove",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "consumePointerEvent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "disposeBarPickerSubscription",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "safeAnchorAt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 41,
+          "name": "onPointerUp",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 44,
+          "name": "onPointerDown",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 49,
+          "name": "createLightweightAnnotationInteractionPort",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "onKeydown",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "onLostPointerCapture",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "requireMethod",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "unsubscribe",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requirePaneId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireThreshold",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "restoreNative",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "nativeOptions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "onContextMenu",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "plotPoint",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.annotation-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-chart-projection/lightweight-annotation-interaction-port.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
+            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
+            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
+            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
+            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
+            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
+          },
+          "moduleId": "optional.annotation-chart-projection",
+          "name": "createLightweightAnnotationInteractionPort",
+          "semanticMatches": [
+            "annotation",
+            "chart",
+            "interaction",
+            "port",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "chart",
+            "interaction",
+            "lightweight",
+            "optional",
+            "port",
+            "projection"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "6109dceddda0dac440cce1dd1a74c3256bea9ad085df8ad176458ae20ad010c7"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 47,
       "forwardingOnly": false,
       "functions": [
@@ -32005,6 +32468,37 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 50,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 3,
+          "name": "release",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 47,
+          "name": "beginLightweightBarPickerLease",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.annotation-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-chart-projection/lightweight-bar-picker-lease.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "56d114899f787a14b75598fadc3cb069e21eb04443805c40a9e67587cc5baeb1"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 52,
       "forwardingOnly": false,
       "functions": [
@@ -32124,6 +32618,72 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "c3a9c8ce52f2c0b51038a31236105b4cf1eb8bff64ce3bab300833e6908a4e71"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 54,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 11,
+          "name": "begin",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "createLightweightBarPickerPointerGesture",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "cancel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "reset",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "clearFocusLossTimer",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "deferFocusLoss",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "end",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "move",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.annotation-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-chart-projection/lightweight-bar-picker-pointer-gesture.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "b6ed384478c632207d26b4803a0b3ea950ea8a8f88ccef5727ee0c6cf9953149"
     },
     {
       "adaptsBoundary": true,
@@ -35394,11 +35954,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 32280,
-    "files": 403,
-    "functions": 3395,
-    "publicExports": 384
+    "effectiveLines": 32863,
+    "files": 411,
+    "functions": 3451,
+    "publicExports": 388
   },
-  "deliveryStep": "R13.10a",
-  "generatedFromCommit": "working-tree-r13.10a"
+  "deliveryStep": "R13.10b",
+  "generatedFromCommit": "working-tree-r13.10b"
 }

@@ -1,6 +1,33 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-09 after accepted R13.10a Pure Annotation Evidence Resolver
+Last updated: 2026-08-09 after accepted R13.10b Exact Bar Picker closure
+
+## Restart Resume Checkpoint
+
+Resume on branch `feature/v7-drawing-semantic-annotation`. The current branch
+tip is the separately committed, accepted R13.10b checkpoint; `git log -1` is
+the authoritative commit identity. The repository is expected to be clean.
+
+After a machine or agent restart, run:
+
+```bash
+cd /home/leo/myworkspace/trading/backtesting-v7
+git branch --show-current
+git log -1 --oneline
+git status --short
+```
+
+Then read, in order:
+
+1. `v7/docs/V7_RESTART_HANDOFF.md`
+2. `v7/docs/V7_EXACT_BAR_PICKER_R13_10B.md`
+3. `v7/sessions/session_20260809_r13_10b_exact_bar_picker.md`
+4. `v7/TODO.md`
+
+R13.10b and H110 are accepted. The final acceptance fixture contains no
+temporary diagnostic strip. R13.10c, FVG construction, Evidence Inspector,
+overrides, and later work remain unauthorized until the user explicitly
+approves the next step. Do not infer that approval from this handoff.
 
 ## Current Overall Acceptance State
 
@@ -52,7 +79,14 @@ resolver accepts only a composition-supplied Session/Workspace/Pane/Replay
 snapshot, exact selected Bar/Artifact revisions, and a bounded neighbor
 requirement. H109 proves exact immutable provenance, deterministic output,
 missing-neighbor failure, no future/unclosed evidence, zero Bar acquisition,
-and optional removal. It adds no visible surface. R13.10b exact Bar Picker and
+and optional removal. It adds no visible surface. R13.10b is accepted
+under `V7_EXACT_BAR_PICKER_R13_10B.md`: removable
+`optional.annotation-bar-picker` shares the existing exclusive Chart
+interaction lease, resolves only exact mounted-Series Bar starts, preserves
+native navigation, and emits no accepted-state mutation. H110 and focused
+real-Chromium evidence pass. The user accepted its fixture-only
+cyan-candidate/lime-accepted human visual gate on 2026-08-09 after the final
+regression covered transient window blur during a complete click. R13.10c and
 all FVG/Inspector behavior remain unauthorized.
 ADR-V7-002 audited the current public Lightweight Charts drawing,
 indicator, toolkit, and alternative-engine ecosystem at pinned revisions.
@@ -73,7 +107,8 @@ Binding records:
 `V7_SEMANTIC_PACKAGE_LIQUIDITY_LEVEL_R13_9.md` and
 `V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md` and
 `V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md` and
-`V7_PURE_ANNOTATION_EVIDENCE_RESOLVER_R13_10A.md`, with frozen candidate evidence in
+`V7_PURE_ANNOTATION_EVIDENCE_RESOLVER_R13_10A.md` and
+`V7_EXACT_BAR_PICKER_R13_10B.md`, with frozen candidate evidence in
 `v7-community-reuse-audit.json`.
 
 R11 is the closed architecture-recovery record underlying the accepted

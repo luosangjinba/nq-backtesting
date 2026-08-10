@@ -901,7 +901,29 @@ revision, and exact Replay cutoff. A partial tail Bar or post-cutoff Artifact
 fails no-future resolution; missing neighbors fail instead of being requested.
 The module has no Bar Data, Replay, Workspace, Annotation Runtime, semantic
 package, Chart, persistence, UI, storage, network, or lifecycle authority.
-R13.10b exact Bar Picker and all FVG/Inspector behavior remain unauthorized.
+R13.10b now separately activates removable `optional.annotation-bar-picker`
+under the existing interaction owner and adds a Bar mode to the same exclusive
+Chart-owned interaction lease used by Drawing gestures. The controller receives
+only normalized Pane/exact-Bar-start events; the Chart adapter derives those
+events from the mounted Series' original `seriesData` item rather than rounded
+pixels. The Picker requests no Bars, changes no Replay/Workspace/Annotation
+state, and leaves native Chart navigation enabled. Official Chart click is the
+primary acceptance path; a same-owner no-drag pointer fallback may accept only
+a candidate already resolved from official Series data and never a
+coordinate-derived Bar. Its Bar-only pointer-down observation runs at window
+capture so a vendor container cannot hide the event; plot filtering and the
+existing shared lease keep that observation bounded. Pan-sized movement emits
+no selection. Official clicks with transiently empty Series data may reuse only
+the last exact candidate at the same time-axis slot; an independent 8px Picker
+click slop absorbs physical/remote jitter without changing Drawing's 3px drag
+threshold. Remote environments may emit transient window blur inside a
+complete Picker click; only an already active primary Picker press receives a
+150ms focus-loss completion window, while ordinary/idle focus loss remains an
+immediate cancellation. Its
+fixture-only candidate and accepted highlights use the existing transient
+projection owner and center one full slot on the exact target Bar. H110 and the
+corrected human visual gate are accepted. FVG/Inspector behavior and R13.10c
+remain unauthorized.
 
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,

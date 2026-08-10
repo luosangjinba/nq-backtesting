@@ -37,11 +37,11 @@ static no-request evidence. Production ModuleHost assembly proves the real
 public entry and optional removal. Every standing R13 Annotation, architecture,
 writer, hardening, and source-quality gate passes.
 
-Production architecture contains 60 modules, 132 dependency edges, 115
+Production architecture contains 61 modules, 132 dependency edges, 115
 construction sites, 23 writer sites, and zero findings. Module assembly contains
-60 public entries, 24 lifecycle modules, and 22 optional-removal cases. Writer
+61 public entries, 25 lifecycle modules, and 24 optional-removal cases. Writer
 closure remains 18 surfaces and 23 observed writer files. Architecture
-hardening covers 109 rules. Current source quality is 403 files, 32,280 effective lines, 3,395 functions, and 384 public exports, with no accepted
+hardening covers 110 rules. Current source quality is 411 files, 32,863 effective lines, 3,451 functions, and 388 public exports, with no accepted
 exception.
 
 ## Closure
