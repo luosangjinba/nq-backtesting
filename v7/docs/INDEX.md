@@ -159,6 +159,13 @@ lifecycle, unresolved Artifact survival, generic Runtime/persistence support,
 and human/manual BSL/SSL creation or horizontal-Segment promotion. H107's
 automated and corrected local human visual gates passed on 2026-08-09. H107 is
 accepted and R13.10 remains unauthorized.
+
+`V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md` is the documentation-only architecture
+checkpoint after accepted R13.9. It confirms the existing modular owner graph
+and records three blockers before a second semantic package: extensible
+provenance, immutable construction identity, and serialized failed-generation
+cleanup. R13.9/H107 remain accepted; R13.10 is blocked pending a separately
+authorized remediation.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

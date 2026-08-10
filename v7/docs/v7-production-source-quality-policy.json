@@ -158,6 +158,10 @@
     {
       "path": "sessions/session_20260809_r13_9_semantic_package_liquidity_level.md",
       "expectedOccurrences": 1
+    },
+    {
+      "path": "docs/V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md",
+      "expectedOccurrences": 1
     }
   ],
   "sizeExceptions": [],

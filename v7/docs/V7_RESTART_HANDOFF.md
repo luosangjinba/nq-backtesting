@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-09 after accepted R13.9 closure
+Last updated: 2026-08-09 after the R13.9a stage architecture review
 
 ## Current Overall Acceptance State
 
@@ -34,7 +34,13 @@ headless and real-Chromium evidence passes. Its corrected local human visual
 gate is accepted: the first pass found an Inspector-only no-future leak, and
 the accepted correction exposes only the generic hidden state before
 observation with no semantic resolution/type/price fields. H107 is accepted;
-R13.10 remains unauthorized.
+R13.10 remains unauthorized. The documentation-only R13.9a review then
+reconfirmed the full automated graph and owner boundaries but reproduced three
+preconditions for a second semantic package: the core Artifact provenance shape
+is fixed to the BSL/SSL slice, construction package/definition version is not
+stored, and a failed policy generation can dispose asynchronously after its
+replacement activates. R13.9 remains accepted; R13.10 is blocked pending a
+separately specified and authorized R13.9b Semantic Contract Hardening step.
 ADR-V7-002 audited the current public Lightweight Charts drawing,
 indicator, toolkit, and alternative-engine ecosystem at pinned revisions.
 Official Primitive/rendering patterns are approved for adaptation, but no
@@ -51,7 +57,8 @@ Binding records:
 `V7_RECTANGLE_SELECTION_MINIMAL_INSPECTOR_R13_6.md` and
 `V7_DURABLE_ANNOTATION_HISTORY_R13_7.md` and
 `V7_PANE_TIME_REPLAY_ANNOTATION_PROJECTION_R13_8.md` and
-`V7_SEMANTIC_PACKAGE_LIQUIDITY_LEVEL_R13_9.md`, with frozen candidate evidence in
+`V7_SEMANTIC_PACKAGE_LIQUIDITY_LEVEL_R13_9.md` and
+`V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md`, with frozen candidate evidence in
 `v7-community-reuse-audit.json`.
 
 R11 is the closed architecture-recovery record underlying the accepted

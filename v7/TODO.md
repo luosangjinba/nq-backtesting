@@ -320,6 +320,26 @@ Binding contract:
 Binding contract:
 `docs/V7_SEMANTIC_PACKAGE_LIQUIDITY_LEVEL_R13_9.md`.
 
+## R13.9a Stage Architecture Review — Completed 2026-08-09
+
+- [x] rerun production architecture, hardening, module assembly, writer
+  closure, source-quality, and H107 gates against accepted R13.9;
+- [x] manually trace Annotation/Semantic imports, injected ports, writer
+  surfaces, optional removal, forbidden capabilities, and business-id
+  isolation;
+- [x] reproduce the fixed-provenance rejection, lost construction-package
+  identity, and asynchronous failed-generation cleanup overlap;
+- [x] classify current boundaries as PASS, BLOCKING, or DEBT and record exact
+  remediation acceptance requirements;
+- [x] preserve accepted R13.9/H107 behavior and make no production-code change;
+- [x] form one documentation-only audit commit; do not begin R13.10.
+
+Review:
+`docs/V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md`.
+
+R13.10 is blocked. The proposed R13.9b Semantic Contract Hardening step is not
+yet authorized and must first receive its own binding specification.
+
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
 - [x] accept the current standalone ES/NQ minute-replay product as a complete,

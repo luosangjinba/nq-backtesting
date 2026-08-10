@@ -863,6 +863,22 @@ reversibly before accepting the decision; only the Chart-owned projection port
 may mutate primitives. It receives no Chart, Series, Canvas, Bar requester,
 Replay writer, Workspace state, persistence, or semantic-business authority.
 
+R13.9 activates the first trusted-build semantic vertical slice through
+`optional.annotation-semantic-registry` and removable
+`optional.semantic-liquidity-level`. BSL/SSL meaning remains package-local;
+Annotation Runtime receives only branded generic Artifact drafts, and the
+package emits only portable projection inputs and host-rendered Inspector
+schemas. H107 accepts the bounded BSL/SSL lifecycle, unresolved restore,
+no-future, and optional-removal behavior.
+
+The documentation-only R13.9a stage review in
+`V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md` reconfirms those owner boundaries but
+blocks a second semantic package until three contract defects are repaired:
+core provenance must stop encoding the first package's exact evidence shape;
+durable Artifacts must retain immutable construction package/definition
+identity; and failed-generation asynchronous disposal must settle before
+re-enable. R13.9 remains accepted. R13.10 is not authorized.
+
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,
 coordinate conversion, update, and teardown patterns, but reviewed community

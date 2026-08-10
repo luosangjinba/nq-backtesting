@@ -1011,6 +1011,24 @@ package fields before observation and restores the same view afterward. H107
 asserts this behavior, and the user accepted the corrected behavior on
 2026-08-09. R13.10 remains unauthorized.
 
+### R13.9a — Stage Architecture Review Checkpoint
+
+Completed 2026-08-09 as a documentation-only review of the accepted R13.2–R13.9
+chain and the full production graph. All standing architecture, writer,
+assembly, source-quality, and H107 gates pass. Business ids remain package-
+local, owner/write boundaries remain exact, optional removal is real, and no
+semantic package owns UI, Chart, Replay, Bar Data, storage, or network access.
+
+Manual runtime probes found three blockers for a second semantic package: core
+provenance is frozen to the first BSL/SSL field set; construction package/
+definition identity is not stored; and synchronous policy failure permits a
+new generation to activate before the failed generation's asynchronous
+disposal completes. R13.9/H107 remain accepted, but R13.10 is blocked.
+
+Binding review: `V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md`. The recommended
+R13.9b Semantic Contract Hardening remediation is a proposal only and requires
+separate specification and authorization.
+
 ## Deferred Product Boundary — Second-Level Replay
 
 Second-level/tick-sourced Replay has no delivery number and is not the next
