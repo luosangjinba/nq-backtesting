@@ -3,6 +3,7 @@ import {
   createGeometryFromDefinition,
   initialGeometryTypeDefinitions,
   readGeometryTypeDefinition,
+  projectGeometryAnchorsFromDefinition,
   requireGeometryTypeDefinition,
   requireGeometryTypeId,
   restoreGeometryFromDefinition,
@@ -68,6 +69,22 @@ export function createGeometryRegistry(value = {}) {
       return definition ? readGeometryTypeDefinition(definition) : null;
     },
     list: () => metadata,
+    projectAnchors(candidate, projectAnchor) {
+      const envelope = requireStoredEnvelope(candidate);
+      const id = requireGeometryTypeId(envelope.typeId);
+      const definition = byTypeId.get(id);
+      if (!definition) {
+        failGeometry('GEOMETRY_REGISTRY_TYPE_UNKNOWN', `Geometry type ${id} is not registered.`);
+      }
+      const definitionMetadata = readGeometryTypeDefinition(definition);
+      if (definitionMetadata.version !== envelope.typeVersion) {
+        failGeometry(
+          'GEOMETRY_STORED_VERSION_UNSUPPORTED',
+          `Geometry type ${id} does not support stored version ${envelope.typeVersion}.`,
+        );
+      }
+      return projectGeometryAnchorsFromDefinition(definition, envelope.payload, projectAnchor);
+    },
     restore(candidate) {
       const envelope = requireStoredEnvelope(candidate);
       const id = requireGeometryTypeId(envelope.typeId);
@@ -102,4 +119,10 @@ export function createInitialGeometryRegistry() {
 /** Restore one initial Point/Segment/Rectangle Geometry from its portable envelope. */
 export function restoreDrawingGeometry(candidate) {
   return createInitialGeometryRegistry().restore(candidate);
+}
+
+/** Project built-in Geometry anchors without exposing concrete type branches. */
+export function projectDrawingGeometryAnchors(candidate, projectAnchor) {
+  const projected = createInitialGeometryRegistry().projectAnchors(candidate, projectAnchor);
+  return projected === null ? null : projected;
 }

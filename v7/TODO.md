@@ -283,6 +283,21 @@ Binding contract:
 Binding contract:
 `docs/V7_DURABLE_ANNOTATION_HISTORY_R13_7.md`.
 
+## R13.8 Pane/Time/Replay Annotation Projection — Accepted 2026-08-09
+
+- [x] accept the separately bounded R13.8 scope after R13.7 closure;
+- [x] freeze source-agnostic subject, exact frame, anchor-policy Registry,
+  Geometry traversal, no-future, and multi-Pane settlement ownership;
+- [x] add registered exact-instant and accepted-containing-bucket policies;
+- [x] add read-only Replay reprojection at one unchanged Annotation revision;
+- [x] add deterministic multi-Pane apply/rollback/finalize and optional removal;
+- [x] activate H106 with focused negative controls and real Chromium evidence;
+- [x] complete the local two-Pane human visual gate and mark H106 accepted;
+- [x] form one separate R13.8 commit; do not begin R13.9.
+
+Binding contract:
+`docs/V7_PANE_TIME_REPLAY_ANNOTATION_PROJECTION_R13_8.md`.
+
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
 - [x] accept the current standalone ES/NQ minute-replay product as a complete,
@@ -1072,9 +1087,9 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 370 files, 29,492 effective
-lines, 3,120 functions, and 357 public exports; the architecture baseline
-remains 56 modules, 129 edges, 115 construction sites, 23 writers, and zero
+The current production source baseline contains 381 files, 30,372 effective
+lines, 3,210 functions, and 370 public exports; the architecture baseline
+remains 57 modules, 130 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -1085,8 +1100,8 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 370 files, 29,492 effective lines, 3,120 functions, 357 public
-exports, 56 modules, 129 edges, 115 construction sites, 23 writers, and zero
+currently at 381 files, 30,372 effective lines, 3,210 functions, 370 public
+exports, 57 modules, 130 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 ## Established Foundation Governance

@@ -136,7 +136,7 @@
       }
     ]
   },
-  "deliveryStep": "R13.7",
+  "deliveryStep": "R13.8",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -4038,6 +4038,42 @@
         ],
         "owner": "annotation-runtime",
         "publicEntry": "src/annotation-runtime/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.session-identity"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [
+          "optional.annotation-chart-projection",
+          "optional.annotation-geometry-domain"
+        ],
+        "declaredRequiredPorts": [
+          "core.session-identity"
+        ],
+        "descriptorPath": "src/annotation-context-projection/module.json",
+        "id": "optional.annotation-context-projection",
+        "importSites": [
+          {
+            "importedNames": [
+              "requireSessionId"
+            ],
+            "sourceFile": "src/annotation-context-projection/projection-frame.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/annotation-context-projection-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [
+          "src/annotation-context-projection/multi-pane-projection-runtime.js"
+        ],
+        "owner": "annotation-context-projection",
+        "publicEntry": "src/annotation-context-projection/public.js"
       },
       {
         "actualDependencies": [

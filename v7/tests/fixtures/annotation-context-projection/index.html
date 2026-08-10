@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>R13.8 Pane / Time / Replay Annotation Projection</title>
+    <style>
+      :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+      * { box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #05070a; color: #dce7f3; }
+      body { display: grid; grid-template-rows: auto 1fr; }
+      header { display: flex; align-items: center; gap: 12px; min-height: 68px; padding: 12px 18px; border-bottom: 1px solid #1d2b38; background: #081018; }
+      h1 { margin: 0; font-size: 16px; }
+      p { margin: 3px 0 0; color: #8fa3b7; font-size: 12px; }
+      .copy { margin-right: auto; }
+      button { border: 1px solid #29455c; border-radius: 6px; padding: 9px 13px; color: #dce7f3; background: #102131; font-weight: 700; cursor: pointer; }
+      button[data-active="true"] { border-color: #38bdf8; background: #123a53; }
+      #status { min-width: 230px; color: #a9bdd0; font: 12px ui-monospace, SFMono-Regular, monospace; text-align: right; }
+      main { min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #1d2b38; }
+      section { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto 1fr; background: #05070a; }
+      h2 { display: flex; justify-content: space-between; margin: 0; padding: 10px 14px; border-bottom: 1px solid #15222d; font-size: 13px; }
+      h2 span { color: #7f95a9; font: 12px ui-monospace, SFMono-Regular, monospace; }
+      .chart { min-height: 0; }
+      .legend { display: flex; gap: 12px; }
+      .cyan { color: #22d3ee; }
+      .amber { color: #f59e0b; }
+    </style>
+  </head>
+  <body data-scenario="loading">
+    <header>
+      <div class="copy">
+        <h1>R13.8 Context Projection</h1>
+        <p>Same canonical Drawings · exact Pane/timeframe mapping · Replay no-future</p>
+        <p class="legend"><span class="cyan">Cyan: exact Segment (1m only)</span><span class="amber">Amber: containing-bucket Rectangle (1m + 5m)</span></p>
+      </div>
+      <button id="before" type="button">Before observed</button>
+      <button id="after" type="button">After observed</button>
+      <output id="status">Starting…</output>
+    </header>
+    <main>
+      <section><h2>NQ · 1m <span id="count-1m">0 projections</span></h2><div id="chart-1m" class="chart"></div></section>
+      <section><h2>NQ · 5m <span id="count-5m">0 projections</span></h2><div id="chart-5m" class="chart"></div></section>
+    </main>
+    <script type="module" src="./scenario.js?v=h106-20260809b"></script>
+  </body>
+</html>

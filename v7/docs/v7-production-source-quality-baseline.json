@@ -362,6 +362,63 @@
       "functions": [
         {
           "effectiveLines": 3,
+          "name": "failContextProjection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-context-projection",
+      "owner": "annotation-context-projection",
+      "ownsContract": false,
+      "path": "src/annotation-context-projection/context-projection-error.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "AnnotationContextProjectionError",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "context",
+            "optional",
+            "projection"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "f7210eed7a82fa58aa61229fc296d34fcac0e3202520fe0995f781b740291051"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 10,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 3,
           "name": "failCoveragePlanning",
           "reviewedDecompositionException": false
         },
@@ -1423,6 +1480,309 @@
       "functions": [
         {
           "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requireContextProjectionGeometryContract",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "deriveAnnotationPaneProjectionSets",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "projectSubject",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "paneProjectionId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireContextProjectionFactory",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-context-projection",
+      "owner": "annotation-context-projection",
+      "ownsContract": false,
+      "path": "src/annotation-context-projection/projection-assembly.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "deriveAnnotationPaneProjectionSets",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "derive",
+            "pane",
+            "projection",
+            "sets"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "context",
+            "derive",
+            "optional",
+            "pane",
+            "projection",
+            "sets"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "7f318278a0175cc3fbca62994300d20dd1ff5261a15d953337120eef3530440b"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 103,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "list",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "projectAnchors",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "restore",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "createGeometryRegistry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createInitialGeometryRegistry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "restoreDrawingGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "get",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "projectDrawingGeometryAnchors",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "create",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireStoredEnvelope",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "exactRegistryInput",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-geometry-domain",
+      "owner": "annotation-geometry-domain",
+      "ownsContract": false,
+      "path": "src/annotation-geometry-domain/geometry-registry.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "compose isolated trusted Geometry definitions without concrete-type branching.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError for malformed, duplicate, unknown, or invalid definition work.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createGeometryRegistry",
+          "semanticMatches": [
+            "annotation",
+            "geometry",
+            "registry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "registry"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "compose only the accepted Point, Segment, and Rectangle definitions.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError only if the binding initial definitions become invalid.",
+            "concurrencyCancellation": "synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createInitialGeometryRegistry",
+          "semanticMatches": [
+            "annotation",
+            "geometry",
+            "initial",
+            "registry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "initial",
+            "optional",
+            "registry"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "projectDrawingGeometryAnchors",
+          "semanticMatches": [
+            "anchors",
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "anchors",
+            "annotation",
+            "domain",
+            "drawing",
+            "geometry",
+            "optional",
+            "project"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "restoreDrawingGeometry",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "drawing",
+            "geometry",
+            "optional",
+            "restore"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "801349de0afd95feff3cada82b86b57f87f373b66d7a6052678677ef906d3411"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 103,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
           "name": "<anonymous-8>",
           "reviewedDecompositionException": false
         },
@@ -2150,6 +2510,37 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "e2ada6da305533baf29e09df92e36db73d05a1c6d3c0cb85f7f2666abd1ec212"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 12,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requireChartProjectionPort",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-context-projection",
+      "owner": "annotation-context-projection",
+      "ownsContract": false,
+      "path": "src/annotation-context-projection/chart-projection-port.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "5940ed6b892c3138f5cf425488f479b04676f9866053d1758252e5600226d696"
     },
     {
       "adaptsBoundary": false,
@@ -3380,6 +3771,111 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "aa0c5a60284716b0881f96a7f4410b5151849a778479732573ebe5148494e4b2"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 127,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "reconcile",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "requireReady",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 31,
+          "name": "reconcile",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "accept",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "createMultiPaneAnnotationProjectionRuntime",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-context-projection",
+      "owner": "annotation-context-projection",
+      "ownsContract": false,
+      "path": "src/annotation-context-projection/multi-pane-projection-runtime.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "createMultiPaneAnnotationProjectionRuntime",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "pane",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "context",
+            "multi",
+            "optional",
+            "pane",
+            "projection"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "0fb45d9962c8a9c6e172f0f17491f1d4e4a9df4aba90a4477a9d678e3b4ca668"
     },
     {
       "adaptsBoundary": false,
@@ -4919,26 +5415,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 16,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "domain",
-      "moduleId": "optional.annotation-geometry-domain",
-      "owner": "annotation-geometry-domain",
-      "ownsContract": true,
-      "path": "src/annotation-geometry-domain/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "2ba440d9097bfa9a17af4c06e7695b95121a7d3d4d5ff37eef77ffda92f26a5d"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 160,
       "forwardingOnly": false,
       "functions": [
@@ -5680,6 +6156,26 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "54792b68f1fd32a6720a94e1501f878f47b3d3cac2dd5dd8bd84992e724b7c00"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 17,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "domain",
+      "moduleId": "optional.annotation-geometry-domain",
+      "owner": "annotation-geometry-domain",
+      "ownsContract": true,
+      "path": "src/annotation-geometry-domain/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "f5f10f075f8c3033b67dfc4102c1ca2968f17a4bd024692d47b304e998092a32"
     },
     {
       "adaptsBoundary": false,
@@ -6957,6 +7453,26 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 20,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-context-projection",
+      "owner": "annotation-context-projection",
+      "ownsContract": true,
+      "path": "src/annotation-context-projection/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "9901ede7c9588a2a60f1d55a64a03a7be0df3ea29d5f303676009495c84a86e6"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 201,
       "forwardingOnly": false,
       "functions": [
@@ -7068,299 +7584,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "8504eefcc0b437282cbfce875eff1b9cb3beacb9bf39967e6cc7d92ee5c1b3e0"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 208,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "read",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "create",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "defineGeometryType",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "restore",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "restore",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "rectanglePayload",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "createGeometryFromDefinition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "createPointGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "createRectangleGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "createSegmentGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "initialGeometryTypeDefinitions",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "restoreGeometryFromDefinition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "normalize",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "normalize",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "normalize",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "requireGeometryTypeDefinition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "restore",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "sameInstrument",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "readGeometryTypeDefinition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireGeometryTypeId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "restore",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "exactRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "segmentPayload",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "domain",
-      "moduleId": "optional.annotation-geometry-domain",
-      "owner": "annotation-geometry-domain",
-      "ownsContract": false,
-      "path": "src/annotation-geometry-domain/geometry-type-definition.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "Annotation Geometry Domain.",
-            "purpose": "define one trusted-build, market-coordinate Geometry normalization policy.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "AnnotationGeometryError for malformed ids, versions, fields, or normalizers.",
-            "concurrencyCancellation": "normalization is synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "defineGeometryType",
-          "semanticMatches": [
-            "annotation",
-            "geometry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "optional",
-            "type"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "Annotation Geometry Domain.",
-            "purpose": "expose safe definition identity/version metadata without the normalizer.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "AnnotationGeometryError for structural lookalikes.",
-            "concurrencyCancellation": "synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "readGeometryTypeDefinition",
-          "semanticMatches": [
-            "annotation",
-            "geometry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "optional",
-            "type"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "annotation-geometry-domain.",
-            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
-            "concurrencyCancellation": "all operations are synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "createPointGeometry",
-          "semanticMatches": [
-            "annotation",
-            "geometry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "optional",
-            "point"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "annotation-geometry-domain.",
-            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
-            "concurrencyCancellation": "all operations are synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "createRectangleGeometry",
-          "semanticMatches": [
-            "annotation",
-            "geometry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "optional",
-            "rectangle"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "annotation-geometry-domain.",
-            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
-            "concurrencyCancellation": "all operations are synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "createSegmentGeometry",
-          "semanticMatches": [
-            "annotation",
-            "geometry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "optional",
-            "segment"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "annotation-geometry-domain.",
-            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
-            "concurrencyCancellation": "all operations are synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "GEOMETRY_TYPE_IDS",
-          "semanticMatches": [
-            "annotation",
-            "geometry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "ids",
-            "optional",
-            "type"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "8ec70c652cac8d7e59c0130e8bb4c7e6809711ea8edd59d65b787ae4c2051c76"
     },
     {
       "adaptsBoundary": false,
@@ -9148,6 +9371,329 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "8f5ed98d064bf4cc38502747304a5b3dd902e24b1e4c647092a592580eab0ec3"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 276,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "projectAnchors",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "create",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "restore",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "restore",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "rectanglePayload",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "defineGeometryType",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 26,
+          "name": "projectAnchors",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createGeometryFromDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createPointGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createRectangleGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createSegmentGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "initialGeometryTypeDefinitions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "restoreGeometryFromDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "normalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "normalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "normalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "projectAnchors",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "requireGeometryTypeDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "restore",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "sameInstrument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "projectAnchors",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "projectGeometryAnchorsFromDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readGeometryTypeDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireGeometryTypeId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "restore",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "segmentPayload",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-geometry-domain",
+      "owner": "annotation-geometry-domain",
+      "ownsContract": false,
+      "path": "src/annotation-geometry-domain/geometry-type-definition.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "define one trusted-build, market-coordinate Geometry normalization policy.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError for malformed ids, versions, fields, or normalizers.",
+            "concurrencyCancellation": "normalization is synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "defineGeometryType",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "type"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "Annotation Geometry Domain.",
+            "purpose": "expose safe definition identity/version metadata without the normalizer.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "AnnotationGeometryError for structural lookalikes.",
+            "concurrencyCancellation": "synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "readGeometryTypeDefinition",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "type"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createPointGeometry",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "point"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createRectangleGeometry",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "rectangle"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "createSegmentGeometry",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "optional",
+            "segment"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-geometry-domain.",
+            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
+            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
+            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
+            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
+            "concurrencyCancellation": "all operations are synchronous and deterministic."
+          },
+          "moduleId": "optional.annotation-geometry-domain",
+          "name": "GEOMETRY_TYPE_IDS",
+          "semanticMatches": [
+            "annotation",
+            "geometry"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "domain",
+            "geometry",
+            "ids",
+            "optional",
+            "type"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "e8cb502d29dcfdb023388be0f20440a8f8d82d6fa3a8cba05c88be1ac8267db0"
     },
     {
       "adaptsBoundary": false,
@@ -11378,6 +11924,77 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "list",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "project",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "createAnchorProjectionPolicyRegistry",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-context-projection",
+      "owner": "annotation-context-projection",
+      "ownsContract": false,
+      "path": "src/annotation-context-projection/anchor-policy-registry.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "createAnchorProjectionPolicyRegistry",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "policy",
+            "projection"
+          ],
+          "semanticTerms": [
+            "anchor",
+            "annotation",
+            "context",
+            "optional",
+            "policy",
+            "projection",
+            "registry"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "d63356abbbdc9def394ee173d27649b3d3014f6f444c614f730f9202a58a8a9e"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 40,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 26,
           "name": "requireProjectedPaneSnapshot",
           "reviewedDecompositionException": false
@@ -13025,6 +13642,125 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 58,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "project",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "project",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "containing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "createInitialAnchorProjectionPolicyRegistry",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-context-projection",
+      "owner": "annotation-context-projection",
+      "ownsContract": false,
+      "path": "src/annotation-context-projection/built-in-anchor-policies.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "ANCHOR_PROJECTION_POLICIES",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "projection"
+          ],
+          "semanticTerms": [
+            "anchor",
+            "annotation",
+            "context",
+            "optional",
+            "policies",
+            "projection"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "createInitialAnchorProjectionPolicyRegistry",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "policy",
+            "projection"
+          ],
+          "semanticTerms": [
+            "anchor",
+            "annotation",
+            "context",
+            "initial",
+            "optional",
+            "policy",
+            "projection",
+            "registry"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "aeed7e9b27ce5aa22d5e460f8f216359bca58cdfc7510ee9af10928db1a82ecf"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 59,
       "forwardingOnly": false,
       "functions": [
@@ -14660,6 +15396,130 @@
       "functions": [
         {
           "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "bucket",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "createAnnotationProjectionFrame",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "pane",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "epoch",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readAnnotationProjectionFrame",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-context-projection",
+      "owner": "annotation-context-projection",
+      "ownsContract": false,
+      "path": "src/annotation-context-projection/projection-frame.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "createAnnotationProjectionFrame",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "context",
+            "frame",
+            "optional",
+            "projection"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "readAnnotationProjectionFrame",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "context",
+            "frame",
+            "optional",
+            "projection"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "f1f03d9c013a7f5db5bba769493017873fe22fe0f3fdd4eb854eb8510d731cec"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 80,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
           "name": "snapshot",
           "reviewedDecompositionException": false
         },
@@ -14820,158 +15680,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "4db4e16f99f9272a357c21067109745cc650082b764124afce952d7c43d77029"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 82,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "list",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "restore",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 27,
-          "name": "createGeometryRegistry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "createInitialGeometryRegistry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "restoreDrawingGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "get",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "create",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "requireStoredEnvelope",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "exactRegistryInput",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "domain",
-      "moduleId": "optional.annotation-geometry-domain",
-      "owner": "annotation-geometry-domain",
-      "ownsContract": false,
-      "path": "src/annotation-geometry-domain/geometry-registry.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "Annotation Geometry Domain.",
-            "purpose": "compose isolated trusted Geometry definitions without concrete-type branching.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "AnnotationGeometryError for malformed, duplicate, unknown, or invalid definition work.",
-            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "createGeometryRegistry",
-          "semanticMatches": [
-            "annotation",
-            "geometry",
-            "registry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "optional",
-            "registry"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "Annotation Geometry Domain.",
-            "purpose": "compose only the accepted Point, Segment, and Rectangle definitions.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "AnnotationGeometryError only if the binding initial definitions become invalid.",
-            "concurrencyCancellation": "synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "createInitialGeometryRegistry",
-          "semanticMatches": [
-            "annotation",
-            "geometry",
-            "initial",
-            "registry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "geometry",
-            "initial",
-            "optional",
-            "registry"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "annotation-geometry-domain.",
-            "purpose": "expose the complete R13.2 market-coordinate Geometry contract.",
-            "inputs": "exact anchors, trusted Geometry definitions, and immutable registry composition values.",
-            "outputs": "branded immutable anchors/Geometry plus frozen public metadata and registry surfaces.",
-            "sideEffects": "none; this optional module performs no I/O, rendering, persistence, or registration mutation.",
-            "lifecycle": "static pure API with no start, stop, or disposal phase.",
-            "errors": "malformed values throw AnnotationGeometryError with stable module codes.",
-            "concurrencyCancellation": "all operations are synchronous and deterministic."
-          },
-          "moduleId": "optional.annotation-geometry-domain",
-          "name": "restoreDrawingGeometry",
-          "semanticMatches": [
-            "annotation",
-            "geometry"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "domain",
-            "drawing",
-            "geometry",
-            "optional",
-            "restore"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "0c3c578a72b5e9cc4c627d96cfa6550aaec7c72e679e309f1ff9f32bc515cb0a"
     },
     {
       "adaptsBoundary": false,
@@ -15491,6 +16199,120 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "487c39088a42c2f422db466486c40babdb31db142f7d84b738d8b9fb7342e705"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 89,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "sourceBar",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "createAnnotationProjectionSubject",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "portable",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readAnnotationProjectionSubject",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-context-projection",
+      "owner": "annotation-context-projection",
+      "ownsContract": false,
+      "path": "src/annotation-context-projection/projection-subject.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "createAnnotationProjectionSubject",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "context",
+            "optional",
+            "projection",
+            "subject"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "readAnnotationProjectionSubject",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "context",
+            "optional",
+            "projection",
+            "subject"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "2f5a97e15a9062fa6207f38a41e94ade21217472e869d6446c97f3eafdfe43fe"
     },
     {
       "adaptsBoundary": false,
@@ -16480,6 +17302,215 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "73095fddc6790ce1e0d5c28983c347a3b265e276f691d671b752ed75e8e14a02"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 98,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "project",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "defineAnchorProjectionPolicy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "freezePortable",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 28,
+          "name": "invokeAnchorProjectionPolicy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "requireAnchorProjectionPolicy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readAnchorProjectionPolicy",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-context-projection",
+      "owner": "annotation-context-projection",
+      "ownsContract": false,
+      "path": "src/annotation-context-projection/anchor-policy-definition.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "defineAnchorProjectionPolicy",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "policy",
+            "projection"
+          ],
+          "semanticTerms": [
+            "anchor",
+            "annotation",
+            "context",
+            "optional",
+            "policy",
+            "projection"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "readAnchorProjectionPolicy",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "policy",
+            "projection"
+          ],
+          "semanticTerms": [
+            "anchor",
+            "annotation",
+            "context",
+            "optional",
+            "policy",
+            "projection"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "e3189317705ba6d5d561eb4fa57776a19297109dede035e3944a0e35734713f2"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 99,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "mountProjectionSurfaces",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "prepareRecords",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "finalizeRecords",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "applyRecords",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "settlePaneProjectionSets",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "mountedSurface",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "rollbackRecords",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-context-projection",
+      "owner": "annotation-context-projection",
+      "ownsContract": false,
+      "path": "src/annotation-context-projection/multi-pane-settlement.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "97dfcf353a52387b800f7c4825a547d12f155c2e59a37a8f140ea14405a4210a"
     },
     {
       "adaptsBoundary": false,
@@ -24673,125 +25704,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 251,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 10,
-          "name": "hitTest",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "record",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "requireOperable",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "createChartAnnotationProjectionPort",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "reverse",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 21,
-          "name": "rollback",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 24,
-          "name": "finalize",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 29,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 32,
-          "name": "apply",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 35,
-          "name": "prepare",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "settle",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "requireAnnotationRevision",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "optional.annotation-chart-projection",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/annotation-chart-projection/chart-annotation-projection.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
-            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
-            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
-            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
-            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
-            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
-            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
-          },
-          "moduleId": "optional.annotation-chart-projection",
-          "name": "createChartAnnotationProjectionPort",
-          "semanticMatches": [
-            "annotation",
-            "chart",
-            "port",
-            "projection"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "chart",
-            "optional",
-            "port",
-            "projection"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "57f7b2ec56ebeeef5401f78bc6da17b8896035470bbe5db6cd4ab763741aafa7"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 277,
       "forwardingOnly": false,
       "functions": [
@@ -25830,6 +26742,140 @@
       ],
       "sizeException": null,
       "sourceHash": "b0033c40ecf759a10f119460b6726b5bceaa79e40ef32f0ae88d77ecc663b103"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 305,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 10,
+          "name": "hitTest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "record",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "requireOperable",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "createChartAnnotationProjectionPort",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "prepareReconciliation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "reverse",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "finalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 30,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 34,
+          "name": "apply",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "settle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 51,
+          "name": "prepare",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "prepare",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireAnnotationRevision",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireReconciliationRevision",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.annotation-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-chart-projection/chart-annotation-projection.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
+            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
+            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
+            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
+            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
+            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
+          },
+          "moduleId": "optional.annotation-chart-projection",
+          "name": "createChartAnnotationProjectionPort",
+          "semanticMatches": [
+            "annotation",
+            "chart",
+            "port",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "chart",
+            "optional",
+            "port",
+            "projection"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "7d0202133be06a188e8df10eb301c5848999ec49d92af163e385817a20d4280c"
     },
     {
       "adaptsBoundary": true,
@@ -32574,11 +33620,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 29492,
-    "files": 370,
-    "functions": 3120,
-    "publicExports": 357
+    "effectiveLines": 30372,
+    "files": 381,
+    "functions": 3210,
+    "publicExports": 370
   },
-  "deliveryStep": "R13.7",
-  "generatedFromCommit": "working-tree-r13.7"
+  "deliveryStep": "R13.8",
+  "generatedFromCommit": "working-tree-r13.8"
 }

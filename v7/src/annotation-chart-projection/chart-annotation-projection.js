@@ -24,8 +24,19 @@ function requireAnnotationRevision(value) {
   return value;
 }
 
+function requireReconciliationRevision(value) {
+  if (!Number.isSafeInteger(value) || value < 1) {
+    failProjection(
+      'ANNOTATION_PROJECTION_RECONCILIATION_REVISION_INVALID',
+      'Projection reconciliation revision must be a positive safe integer.',
+    );
+  }
+  return value;
+}
+
 class ChartAnnotationProjectionPort {
   #acceptedAnnotationRevision = null;
+  #acceptedReconciliationRevision = null;
   #acceptedRecords = new Map();
   #active = null;
   #adapter;
@@ -81,30 +92,46 @@ class ChartAnnotationProjectionPort {
     }
   }
 
-  prepare(annotationRevision, projections) {
+  #prepare(annotationRevision, reconciliationRevision, projections, legacy) {
     this.#requireOperable();
     const target = requireAnnotationRevision(annotationRevision);
+    const targetReconciliation = requireReconciliationRevision(reconciliationRevision);
     if (this.#active !== null) {
       failProjection(
         'ANNOTATION_PROJECTION_PREPARATION_ACTIVE',
         'One projection preparation is already active.',
       );
     }
-    if (this.#acceptedAnnotationRevision !== null && target <= this.#acceptedAnnotationRevision) {
+    if (this.#acceptedAnnotationRevision !== null
+      && (legacy ? target <= this.#acceptedAnnotationRevision : target < this.#acceptedAnnotationRevision)) {
       failProjection(
         'ANNOTATION_PROJECTION_ANNOTATION_REVISION_STALE',
-        'Annotation revision must advance beyond the accepted projection revision.',
+        'Annotation revision is stale for the accepted projection state.',
+      );
+    }
+    if (this.#acceptedReconciliationRevision !== null
+      && targetReconciliation <= this.#acceptedReconciliationRevision) {
+      failProjection(
+        'ANNOTATION_PROJECTION_RECONCILIATION_REVISION_STALE',
+        'Projection reconciliation revision must advance.',
       );
     }
     const plan = planAnnotationProjection(this.#acceptedRecords, projections);
-    const prepared = createPreparedAnnotationProjection(Object.freeze({
+    const metadata = {
       annotationRevision: target,
       baseAnnotationRevision: this.#acceptedAnnotationRevision,
       projectionCount: plan.candidates.length,
       schemaVersion: 1,
-    }));
+    };
+    if (!legacy) {
+      metadata.baseReconciliationRevision = this.#acceptedReconciliationRevision;
+      metadata.reconciliationRevision = targetReconciliation;
+      metadata.schemaVersion = 2;
+    }
+    const prepared = createPreparedAnnotationProjection(Object.freeze(metadata));
     const record = {
       annotationRevision: target,
+      reconciliationRevision: targetReconciliation,
       mutations: [],
       nextRecords: null,
       plan,
@@ -115,6 +142,31 @@ class ChartAnnotationProjectionPort {
     this.#preparations.set(prepared, record);
     this.#active = record;
     return prepared;
+  }
+
+  prepare(annotationRevision, projections) {
+    return this.#prepare(
+      annotationRevision,
+      (this.#acceptedReconciliationRevision ?? 0) + 1,
+      projections,
+      true,
+    );
+  }
+
+  prepareReconciliation(input) {
+    if (!input || typeof input !== 'object' || Array.isArray(input)
+      || Object.keys(input).sort().join(',') !== 'annotationRevision,projections,reconciliationRevision') {
+      failProjection(
+        'ANNOTATION_PROJECTION_RECONCILIATION_INPUT_INVALID',
+        'Projection reconciliation input fields must be exact.',
+      );
+    }
+    return this.#prepare(
+      input.annotationRevision,
+      input.reconciliationRevision,
+      input.projections,
+      false,
+    );
   }
 
   async apply(prepared) {
@@ -136,7 +188,9 @@ class ChartAnnotationProjectionPort {
       record.receipt = createAnnotationProjectionReceipt(prepared, Object.freeze({
         annotationRevision: record.annotationRevision,
         projectionCount: record.nextRecords.size,
-        schemaVersion: 1,
+        ...(readPreparedAnnotationProjection(prepared).schemaVersion === 2
+          ? { reconciliationRevision: record.reconciliationRevision } : {}),
+        schemaVersion: readPreparedAnnotationProjection(prepared).schemaVersion,
       }));
       this.#status = 'ready';
       return record.receipt;
@@ -181,6 +235,7 @@ class ChartAnnotationProjectionPort {
     requireMatchingAnnotationProjectionReceipt(receipt, prepared);
     this.#acceptedRecords = record.nextRecords;
     this.#acceptedAnnotationRevision = record.annotationRevision;
+    this.#acceptedReconciliationRevision = record.reconciliationRevision;
     this.#settle(record, 'finalized');
     this.#status = 'finalizing';
     try {
@@ -239,6 +294,7 @@ class ChartAnnotationProjectionPort {
     } catch (error) { failures.push(error); }
     this.#acceptedRecords = new Map();
     this.#acceptedAnnotationRevision = null;
+    this.#acceptedReconciliationRevision = null;
     this.#adapter = null;
     this.#status = 'disposed';
     if (failures.length > 0) {
@@ -261,6 +317,7 @@ export function createChartAnnotationProjectionPort({ primitiveAdapter } = {}) {
     finalize: owner.finalize.bind(owner),
     hitTest: owner.hitTest.bind(owner),
     prepare: owner.prepare.bind(owner),
+    prepareReconciliation: owner.prepareReconciliation.bind(owner),
     rollback: owner.rollback.bind(owner),
     snapshot: owner.snapshot.bind(owner),
   });

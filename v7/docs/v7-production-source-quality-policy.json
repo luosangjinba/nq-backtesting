@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R13.7",
+  "deliveryStep": "R13.8",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -65,6 +65,7 @@
       "core.workspace-state-runtime",
       "core.workspace-transaction-runtime",
       "core.workstation-settings",
+      "optional.annotation-context-projection",
       "optional.annotation-runtime",
       "optional.annotation-interaction"
     ],
@@ -146,6 +147,10 @@
     },
     {
       "path": "sessions/session_20260809_r13_7_durable_annotation_history.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260809_r13_8_pane_time_replay_annotation_projection.md",
       "expectedOccurrences": 1
     }
   ],

@@ -1,0 +1,17 @@
+[
+  { "name": "frame fields", "operation": "frame-fields", "expectedCode": "PROJECTION_FRAME_INVALID" },
+  { "name": "overlapping buckets", "operation": "bucket-overlap", "expectedCode": "PROJECTION_FRAME_BUCKET_OVERLAP" },
+  { "name": "subject fields", "operation": "subject-fields", "expectedCode": "PROJECTION_SUBJECT_INVALID" },
+  { "name": "non-portable subject", "operation": "subject-portable", "expectedCode": "PROJECTION_SUBJECT_PORTABLE_INVALID" },
+  { "name": "invalid source bar", "operation": "source-bar", "expectedCode": "PROJECTION_SUBJECT_SOURCE_BAR_INVALID" },
+  { "name": "duplicate policy", "operation": "policy-duplicate", "expectedCode": "ANCHOR_POLICY_DUPLICATE" },
+  { "name": "unknown policy", "operation": "policy-unknown", "expectedCode": "ANCHOR_POLICY_UNKNOWN" },
+  { "name": "unsupported policy version", "operation": "policy-version", "expectedCode": "ANCHOR_POLICY_VERSION_UNSUPPORTED" },
+  { "name": "invalid policy result", "operation": "policy-result", "expectedCode": "ANCHOR_POLICY_RESULT_INVALID" },
+  { "name": "invalid geometry port", "operation": "geometry-port", "expectedCode": "CONTEXT_PROJECTION_GEOMETRY_PORT_INVALID" },
+  { "name": "invalid projection factory", "operation": "projection-factory", "expectedCode": "CONTEXT_PROJECTION_FACTORY_INVALID" },
+  { "name": "duplicate projection subjects", "operation": "subject-duplicate", "expectedCode": "CONTEXT_PROJECTION_SUBJECT_DUPLICATE" },
+  { "name": "invalid reconcile fields", "operation": "reconcile-fields", "expectedCode": "CONTEXT_PROJECTION_RECONCILE_INPUT_INVALID" },
+  { "name": "duplicate mounted Pane", "operation": "surface-duplicate", "expectedCode": "CONTEXT_PROJECTION_SURFACES_INVALID" },
+  { "name": "stale reconciliation", "operation": "reconciliation-stale", "expectedCode": "CONTEXT_PROJECTION_REVISION_STALE" }
+]

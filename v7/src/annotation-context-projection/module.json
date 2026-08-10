@@ -1,0 +1,12 @@
+{
+  "id": "optional.annotation-context-projection",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "annotation-context-projection",
+  "publicEntry": "src/annotation-context-projection/public.js",
+  "requiredPorts": ["core.session-identity"],
+  "optionalPorts": ["optional.annotation-chart-projection", "optional.annotation-geometry-domain"],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/annotation-context-projection-harness.js",
+  "removable": true
+}

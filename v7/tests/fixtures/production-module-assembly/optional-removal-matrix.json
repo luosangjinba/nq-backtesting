@@ -18,6 +18,14 @@
       "omittedModuleId": "adapter.replay-workspace-ui"
     },
     {
+      "consumerModuleId": "optional.annotation-context-projection",
+      "omittedModuleId": "optional.annotation-chart-projection"
+    },
+    {
+      "consumerModuleId": "optional.annotation-context-projection",
+      "omittedModuleId": "optional.annotation-geometry-domain"
+    },
+    {
       "consumerModuleId": "optional.annotation-interaction",
       "omittedModuleId": "optional.annotation-chart-projection"
     },
@@ -40,6 +48,10 @@
     {
       "consumerModuleId": null,
       "omittedModuleId": "optional.annotation-chart-projection"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.annotation-context-projection"
     },
     {
       "consumerModuleId": null,

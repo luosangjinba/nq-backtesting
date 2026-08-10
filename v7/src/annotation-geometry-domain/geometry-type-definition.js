@@ -14,11 +14,13 @@ export const GEOMETRY_TYPE_IDS = Object.freeze({
 class GeometryTypeDefinitionValue {
   #metadata;
   #normalize;
+  #projectAnchors;
   #restore;
 
-  constructor({ normalize, restore = normalize, typeId, version }) {
+  constructor({ normalize, projectAnchors = null, restore = normalize, typeId, version }) {
     this.#metadata = Object.freeze({ typeId, version });
     this.#normalize = normalize;
+    this.#projectAnchors = projectAnchors;
     this.#restore = restore;
     Object.freeze(this);
   }
@@ -43,6 +45,35 @@ class GeometryTypeDefinitionValue {
   }
 
   read() { return this.#metadata; }
+
+  projectAnchors(payload, projectAnchor) {
+    if (this.#projectAnchors === null) {
+      failGeometry(
+        'GEOMETRY_ANCHOR_PROJECTION_UNSUPPORTED',
+        `Geometry definition ${this.#metadata.typeId} has no anchor projection policy.`,
+      );
+    }
+    let projected;
+    try {
+      projected = this.#projectAnchors(payload, (anchor) => {
+        const candidate = projectAnchor(readMarketAnchor(createMarketAnchor(anchor)));
+        return candidate === null ? null : readMarketAnchor(createMarketAnchor(candidate));
+      });
+    } catch (cause) {
+      if (cause instanceof AnnotationGeometryError) throw cause;
+      failGeometry(
+        'GEOMETRY_DEFINITION_PROJECTION_FAILED',
+        `Geometry definition ${this.#metadata.typeId} could not project anchors.`,
+        { cause },
+      );
+    }
+    if (projected === null) return null;
+    return createDrawingGeometryValue({
+      payload: projected,
+      typeId: this.#metadata.typeId,
+      typeVersion: this.#metadata.version,
+    });
+  }
 
   restore(payload) {
     let normalized;
@@ -121,8 +152,9 @@ function rectanglePayload(firstCandidate, secondCandidate) {
  * Concurrency/cancellation: normalization is synchronous and deterministic.
  */
 export function defineGeometryType(value = {}) {
-  const fields = Object.hasOwn(value, 'restore')
-    ? ['normalize', 'restore', 'typeId', 'version'] : ['normalize', 'typeId', 'version'];
+  const fields = ['normalize', 'typeId', 'version'];
+  if (Object.hasOwn(value, 'projectAnchors')) fields.push('projectAnchors');
+  if (Object.hasOwn(value, 'restore')) fields.push('restore');
   exactRecord(value, fields, 'Geometry Type Definition');
   if (typeof value.typeId !== 'string' || !TYPE_ID_PATTERN.test(value.typeId)) {
     failGeometry('GEOMETRY_TYPE_ID_INVALID', 'Geometry type id must use geometry.<namespace>.');
@@ -135,6 +167,12 @@ export function defineGeometryType(value = {}) {
   }
   if (Object.hasOwn(value, 'restore') && typeof value.restore !== 'function') {
     failGeometry('GEOMETRY_TYPE_RESTORER_INVALID', 'Geometry type restore policy must be synchronous.');
+  }
+  if (Object.hasOwn(value, 'projectAnchors') && typeof value.projectAnchors !== 'function') {
+    failGeometry(
+      'GEOMETRY_TYPE_PROJECTOR_INVALID',
+      'Geometry type anchor projection policy must be synchronous.',
+    );
   }
   return new GeometryTypeDefinitionValue(value);
 }
@@ -170,6 +208,14 @@ export function restoreGeometryFromDefinition(definition, payload) {
   return requireGeometryTypeDefinition(definition).restore(payload);
 }
 
+/** Project every anchor through one trusted registered definition. */
+export function projectGeometryAnchorsFromDefinition(definition, payload, projectAnchor) {
+  if (typeof projectAnchor !== 'function') {
+    failGeometry('GEOMETRY_ANCHOR_PROJECTOR_INVALID', 'Geometry anchor projector must be synchronous.');
+  }
+  return requireGeometryTypeDefinition(definition).projectAnchors(payload, projectAnchor);
+}
+
 /** Validate a public Geometry type id before lookup or creation. */
 export function requireGeometryTypeId(typeId) {
   if (typeof typeId !== 'string' || !TYPE_ID_PATTERN.test(typeId)) {
@@ -185,6 +231,10 @@ const POINT_DEFINITION = defineGeometryType({
     exactRecord(value, ['anchor'], 'Point Geometry input');
     return { anchor: readMarketAnchor(value.anchor) };
   },
+  projectAnchors(value, projectAnchor) {
+    const projected = projectAnchor(value.anchor);
+    return projected === null ? null : { anchor: projected };
+  },
   restore(value) {
     exactRecord(value, ['anchor'], 'Stored Point Geometry payload');
     return { anchor: readMarketAnchor(createMarketAnchor(value.anchor)) };
@@ -197,6 +247,12 @@ const SEGMENT_DEFINITION = defineGeometryType({
   normalize(value) {
     exactRecord(value, ['endAnchor', 'startAnchor'], 'Segment Geometry input');
     return segmentPayload(value.startAnchor, value.endAnchor);
+  },
+  projectAnchors(value, projectAnchor) {
+    const startAnchor = projectAnchor(value.startAnchor);
+    const endAnchor = projectAnchor(value.endAnchor);
+    if (startAnchor === null || endAnchor === null) return null;
+    return segmentPayload(createMarketAnchor(startAnchor), createMarketAnchor(endAnchor));
   },
   restore(value) {
     exactRecord(value, ['endAnchor', 'startAnchor'], 'Stored Segment Geometry payload');
@@ -213,6 +269,21 @@ const RECTANGLE_DEFINITION = defineGeometryType({
   normalize(value) {
     exactRecord(value, ['firstAnchor', 'secondAnchor'], 'Rectangle Geometry input');
     return rectanglePayload(value.firstAnchor, value.secondAnchor);
+  },
+  projectAnchors(value, projectAnchor) {
+    const firstAnchor = projectAnchor({
+      epochMs: value.startEpochMs,
+      instrumentId: value.instrumentId,
+      price: value.lowPrice,
+    });
+    const secondAnchor = projectAnchor({
+      epochMs: value.endEpochMs,
+      instrumentId: value.instrumentId,
+      price: value.highPrice,
+    });
+    if (firstAnchor === null || secondAnchor === null
+      || firstAnchor.epochMs === secondAnchor.epochMs) return null;
+    return rectanglePayload(createMarketAnchor(firstAnchor), createMarketAnchor(secondAnchor));
   },
   restore(value) {
     exactRecord(

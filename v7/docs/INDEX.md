@@ -146,8 +146,13 @@ bounded step.
 `V7_DURABLE_ANNOTATION_HISTORY_R13_7.md` is the accepted binding headless
 contract for Session-keyed durable Annotation bytes, hard-reload restore,
 exact-revision undo/redo, import/export, schema migration, and opaque envelope-
-H105 closed on 2026-08-09 with no visible product change; R13.8 remains
-unauthorized.
+H105 closed on 2026-08-09 with no visible product change. R13.8 and H106 were
+accepted on 2026-08-09 after the local NQ 1m/5m visual gate confirmed exact and
+containing-bucket projection plus Replay no-future hide/restore.
+`V7_PANE_TIME_REPLAY_ANNOTATION_PROJECTION_R13_8.md` freezes the source-agnostic
+Pane/time/Replay projection owner, exact-instant and accepted-containing-bucket
+policies, read-only no-future Replay behavior, multi-Pane settlement, and H106
+human visual gate. It does not authorize R13.9 semantic packages.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

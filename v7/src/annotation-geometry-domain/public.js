@@ -12,6 +12,7 @@ export { AnnotationGeometryError } from './geometry-error.js';
 export {
   createGeometryRegistry,
   createInitialGeometryRegistry,
+  projectDrawingGeometryAnchors,
   restoreDrawingGeometry,
 } from './geometry-registry.js';
 export { createMarketAnchor, readMarketAnchor } from './market-anchor.js';

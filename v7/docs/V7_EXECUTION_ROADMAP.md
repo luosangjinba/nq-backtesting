@@ -953,6 +953,30 @@ versioned import/export, v1-to-v2 migration, opaque envelope preservation, and
 interleaved-write rejection are executable. No production UI was added and
 R13.8 remains unauthorized.
 
+### R13.8 — Pane/Time/Replay Annotation Projection
+
+- add one removable source-agnostic projection owner above the existing
+  per-Chart Annotation projection ports;
+- register exact-instant and accepted-containing-bucket anchor policies without
+  concrete Geometry or semantic-type branches in the coordinator;
+- derive bounded per-Pane sets from exact immutable Pane/Replay frames and
+  generic subjects while preserving canonical Geometry;
+- reproject one unchanged Annotation revision as Replay moves backward/forward
+  through a separate monotonic reconciliation revision;
+- settle every mounted Pane as one reversible visual operation and tolerate
+  unmounted Panes;
+- prove H106 with focused negative controls, a real NQ 1m/5m browser fixture,
+  standing automated gates, and a local human visual gate.
+
+R13.8 is authorized by the user's 2026-08-09 instruction to execute the next
+step. It does not authorize semantic packages or R13.9. Binding contract:
+`V7_PANE_TIME_REPLAY_ANNOTATION_PROJECTION_R13_8.md`.
+
+Closure: accepted 2026-08-09. H106 and every standing automated gate pass. The
+local cache-versioned NQ 1m/5m fixture confirmed `2/1` after-observation
+projection, atomic `0/0` before-observation hiding, exact restoration, and
+unchanged candles. R13.9 remains unauthorized.
+
 ## Deferred Product Boundary — Second-Level Replay
 
 Second-level/tick-sourced Replay has no delivery number and is not the next

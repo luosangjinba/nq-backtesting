@@ -851,6 +851,18 @@ restoration dispatches only through registered definitions. No current-Session
 singleton, browser storage choice, Chart/Replay dependency, server replication,
 or semantic package enters this boundary.
 
+R13.8 adds removable `optional.annotation-context-projection` between immutable
+Annotation state and injected per-Chart projection ports. It derives bounded
+per-Pane sets from one exact Session/Annotation/Replay frame, dispatches anchor
+mapping through composition-local versioned policies, and traverses Geometry
+only through registered Geometry definitions. Replay cutoff changes use a
+separate monotonic reconciliation revision, so one unchanged Annotation
+revision can hide and restore projected shapes without rewriting canonical
+Geometry or history. The coordinator prepares and applies every mounted Pane
+reversibly before accepting the decision; only the Chart-owned projection port
+may mutate primitives. It receives no Chart, Series, Canvas, Bar requester,
+Replay writer, Workspace state, persistence, or semantic-business authority.
+
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,
 coordinate conversion, update, and teardown patterns, but reviewed community
