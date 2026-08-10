@@ -158,20 +158,25 @@ contract for the first trusted-build semantic plugin slice: host-owned package
 lifecycle, unresolved Artifact survival, generic Runtime/persistence support,
 and human/manual BSL/SSL creation or horizontal-Segment promotion. H107's
 automated and corrected local human visual gates passed on 2026-08-09. H107 is
-accepted and R13.10 remains unauthorized.
+accepted; at that closure, R13.10 remained unauthorized.
 
 `V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md` is the documentation-only architecture
 checkpoint after accepted R13.9. It confirms the existing modular owner graph
 and records three blockers before a second semantic package: extensible
 provenance, immutable construction identity, and serialized failed-generation
 cleanup. R13.9/H107 remain accepted; R13.10 is blocked pending a separately
-authorized remediation.
+authorized remediation at that checkpoint.
 `V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md` is the accepted repair: Artifact
 schema 2 stores exact host-stamped package/definition construction identity,
 exposes one package-owned portable provenance record, migrates unknown legacy
 identity without invention, and serializes failed-generation cleanup before
 re-enable. H108 proves the contract with an independent synthetic package.
-R13.10 remains unauthorized.
+`V7_PURE_ANNOTATION_EVIDENCE_RESOLVER_R13_10A.md` is the accepted headless next
+boundary: one removable pure resolver selects only bounded Bar/Artifact
+evidence already present in a supplied accepted Pane/Replay snapshot, preserves
+exact source/display/data/cutoff identity, and fails instead of acquiring
+missing or future evidence. H109 is automated; R13.10b exact Bar Picker and all
+FVG/Inspector work remain unauthorized.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

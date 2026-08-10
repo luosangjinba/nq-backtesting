@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R13.9b",
+  "deliveryStep": "R13.10a",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -49,6 +49,7 @@
       "core.projection-domain",
       "core.session-hours-domain",
       "core.workspace-checkpoint-domain",
+      "optional.annotation-evidence-resolver",
       "optional.annotation-geometry-domain",
       "optional.semantic-liquidity-level"
     ],
@@ -165,6 +166,10 @@
     },
     {
       "path": "sessions/session_20260809_r13_9b_semantic_contract_hardening.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260809_r13_10a_pure_annotation_evidence_resolver.md",
       "expectedOccurrences": 1
     }
   ],

@@ -67,6 +67,10 @@
     },
     {
       "consumerModuleId": null,
+      "omittedModuleId": "optional.annotation-evidence-resolver"
+    },
+    {
+      "consumerModuleId": null,
       "omittedModuleId": "optional.annotation-geometry-domain"
     },
     {

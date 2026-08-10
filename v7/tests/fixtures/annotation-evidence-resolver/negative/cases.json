@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    { "name": "structural snapshot lookalike", "operation": "snapshot-lookalike", "expectedCode": "EVIDENCE_SNAPSHOT_REQUIRED" },
+    { "name": "unknown snapshot field", "operation": "snapshot-extra", "expectedCode": "EVIDENCE_SNAPSHOT_INVALID" },
+    { "name": "unbranded snapshot session", "operation": "snapshot-session", "expectedCode": "EVIDENCE_SNAPSHOT_SESSION_INVALID" },
+    { "name": "unordered snapshot bars", "operation": "snapshot-bars-order", "expectedCode": "EVIDENCE_SNAPSHOT_BARS_NOT_ORDERED" },
+    { "name": "invalid snapshot bar envelope", "operation": "snapshot-bar-envelope", "expectedCode": "EVIDENCE_SNAPSHOT_BAR_INVALID" },
+    { "name": "duplicate snapshot artifact", "operation": "snapshot-artifact-duplicate", "expectedCode": "EVIDENCE_SNAPSHOT_ARTIFACT_DUPLICATE" },
+    { "name": "structural selection lookalike", "operation": "selection-lookalike", "expectedCode": "EVIDENCE_SELECTION_REQUIRED" },
+    { "name": "duplicate selected artifact", "operation": "selection-artifact-duplicate", "expectedCode": "EVIDENCE_SELECTION_ARTIFACT_DUPLICATE" },
+    { "name": "structural requirement lookalike", "operation": "requirement-lookalike", "expectedCode": "EVIDENCE_REQUIREMENT_REQUIRED" },
+    { "name": "unbounded requirement", "operation": "requirement-unbounded", "expectedCode": "EVIDENCE_REQUIREMENT_INVALID" },
+    { "name": "unknown resolution field", "operation": "resolution-extra", "expectedCode": "EVIDENCE_RESOLUTION_INVALID" },
+    { "name": "selected bar absent", "operation": "selected-bar-missing", "expectedCode": "EVIDENCE_SELECTED_BAR_MISSING" },
+    { "name": "preceding neighbor absent", "operation": "preceding-neighbor-missing", "expectedCode": "EVIDENCE_NEIGHBOR_MISSING" },
+    { "name": "following neighbor absent", "operation": "following-neighbor-missing", "expectedCode": "EVIDENCE_NEIGHBOR_MISSING" },
+    { "name": "confirming bar not closed", "operation": "future-confirming-bar", "expectedCode": "EVIDENCE_BAR_NOT_CLOSED" },
+    { "name": "artifact absent", "operation": "artifact-missing", "expectedCode": "EVIDENCE_ARTIFACT_MISSING" },
+    { "name": "artifact revision mismatch", "operation": "artifact-revision", "expectedCode": "EVIDENCE_ARTIFACT_REVISION_MISMATCH" },
+    { "name": "artifact is future-visible", "operation": "artifact-future", "expectedCode": "EVIDENCE_ARTIFACT_FUTURE" },
+    { "name": "artifact selection exceeds requirement", "operation": "artifact-limit", "expectedCode": "EVIDENCE_ARTIFACT_LIMIT_EXCEEDED" },
+    { "name": "structural bundle lookalike", "operation": "bundle-lookalike", "expectedCode": "EVIDENCE_BUNDLE_REQUIRED" }
+  ]
+}

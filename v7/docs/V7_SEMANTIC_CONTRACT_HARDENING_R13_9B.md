@@ -1,6 +1,6 @@
 # V7 R13.9b Semantic Contract Hardening
 
-Status: implementation authorized; binding contract
+Status: accepted; H108 automated closure
 
 Date: 2026-08-09
 

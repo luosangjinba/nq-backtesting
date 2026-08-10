@@ -361,8 +361,36 @@ Review:
 Binding contract:
 `docs/V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md`.
 
-R13.10 remains unauthorized. Its former architecture blockers are repaired,
-but Evidence Resolver/FVG still requires a separately approved bounded step.
+At the R13.9b checkpoint, R13.10 remained unauthorized. Its former architecture
+blockers were repaired; the pure Resolver was later separately approved as
+R13.10a below, while FVG and visible picking remain unapproved.
+
+## R13.10a Pure Annotation Evidence Resolver — Accepted 2026-08-09
+
+- [x] split the former combined R13.10 so one pure owner boundary does not land
+  with Chart picking, the first evidence-derived business package, Inspector
+  behavior, and overrides;
+- [x] activate removable, stateless
+  `optional.annotation-evidence-resolver` with only branded Session identity as
+  a required port;
+- [x] bind an exact accepted Workspace revision, Pane, instrument,
+  source/display timeframe, dataset revision, Replay cutoff, normalized Bars,
+  and versioned Artifact headers in one immutable snapshot;
+- [x] resolve one exact selected Bar, bounded preceding/following Bars, and
+  exact Artifact revisions into one deterministic frozen Evidence Bundle;
+- [x] reject missing neighbors, unclosed Bars, future/stale/missing Artifacts,
+  structural lookalikes, unknown fields, duplicates, and unbounded requests
+  with stable codes and no acquisition fallback;
+- [x] activate H109 with 20 negative controls, mutable-input isolation, exact
+  provenance, deterministic output, static no-request evidence, production
+  public-entry assembly, and optional-removal proof;
+- [x] pass the standing R13 Annotation, architecture, writer, hardening, and
+  source-quality gates and form one separate commit;
+- [x] add no browser-visible change; require no human visual gate;
+- [ ] do not begin R13.10b exact Bar Picker until separately authorized.
+
+Binding contract:
+`docs/V7_PURE_ANNOTATION_EVIDENCE_RESOLVER_R13_10A.md`.
 
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
@@ -1139,7 +1167,7 @@ negative mutations. Recovery remains inactive and no production source or
 browser behavior changes.
 
 R8.12 production source evidence binds 301 files, 22,279 effective lines, 2,370
-functions, 302 public exports, six protected invariants, zero tracked-debt
+functions, and 302 public exports, six protected invariants, zero tracked-debt
 comments, and zero source exceptions or findings. The architecture baseline
 remains clean at 48 modules, 125 actual dependency edges, 115 construction
 sites, two hosted production roots, 15 declared writer surfaces, and seven
@@ -1153,9 +1181,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 396 files, 31,854 effective
-lines, 3,356 functions, and 378 public exports; the architecture baseline
-remains 59 modules, 131 edges, 115 construction sites, 23 writers, and zero
+The current production source baseline contains 403 files, 32,280 effective lines, 3,395 functions, and 384 public exports; the architecture baseline
+contains 60 modules, 132 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -1166,8 +1193,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 396 files, 31,854 effective lines, 3,356 functions, 378 public
-exports, 59 modules, 131 edges, 115 construction sites, 23 writers, and zero
+currently at 403 files, 32,280 effective lines, 3,395 functions, and 384 public exports, 60 modules, 132 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 ## Established Foundation Governance

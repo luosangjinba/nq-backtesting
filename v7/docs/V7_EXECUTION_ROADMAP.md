@@ -1045,8 +1045,31 @@ absent-package survival, upgrade mismatch, migration, and non-overlapping
 generations. The complete R13.2–R13.9 chain and standing architecture gates
 pass. There is no visual product change or human gate.
 
-Binding contract: `V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md`. R13.10 remains
-unauthorized.
+Binding contract: `V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md`. At that
+checkpoint R13.10 remained unauthorized; R13.10a was later separately approved
+and is recorded below.
+
+### R13.10a — Pure Annotation Evidence Resolver
+
+- activate one removable stateless `optional.annotation-evidence-resolver`
+  over a supplied owner-accepted Session/Workspace/Pane/Replay snapshot;
+- bind exact dataset, instrument, source/display timeframe, Bar interval,
+  accepted Workspace revision, Replay cutoff, and Artifact revision identity;
+- resolve one exact selected Bar plus a bounded contiguous neighbor window and
+  optional exact Artifact references without a business-type branch;
+- fail with stable codes for missing neighbors, stale Artifacts, unclosed Bars,
+  post-cutoff evidence, lookalikes, and unbounded input;
+- expose no Bar Data, Replay, Workspace, Annotation Runtime, semantic package,
+  Chart, persistence, UI, storage, or network authority;
+- prove deterministic deeply immutable output, caller-input isolation, zero
+  acquisition surface, independent H109 negative controls, and optional
+  removal through the production ModuleHost.
+
+Closure 2026-08-09: H109 and all standing automated gates pass. This step has
+no visible change and requires no human gate. Exact Bar Picker, FVG,
+Evidence Inspector, parameter overrides, and projections remain outside this
+step. R13.10b remains unauthorized. Binding contract:
+`V7_PURE_ANNOTATION_EVIDENCE_RESOLVER_R13_10A.md`.
 
 ## Deferred Product Boundary — Second-Level Replay
 

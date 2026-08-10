@@ -474,6 +474,63 @@
       "functions": [
         {
           "effectiveLines": 3,
+          "name": "failEvidence",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-evidence-resolver",
+      "owner": "annotation-evidence-resolver",
+      "ownsContract": false,
+      "path": "src/annotation-evidence-resolver/evidence-error.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-evidence-resolver.",
+            "purpose": "expose the pure R13.10a accepted-snapshot evidence contract and resolver.",
+            "inputs": "exact immutable Session/Workspace/Pane/Replay snapshot, user selection, and bounded requirement values.",
+            "outputs": "branded frozen evidence values with exact Bar provenance and Artifact revisions.",
+            "sideEffects": "none; this optional module owns no cache, request queue, Replay cursor, UI, storage, or network port.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed, missing, stale, unbounded, or future evidence throws AnnotationEvidenceError with a stable code.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "optional.annotation-evidence-resolver",
+          "name": "AnnotationEvidenceError",
+          "semanticMatches": [
+            "annotation",
+            "evidence",
+            "resolver"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "evidence",
+            "optional",
+            "resolver"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "113e7157aa019be1ca3ee859d47995aa7486c990f59aeb6cb1cd02c6d40657e9"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 10,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 3,
           "name": "failFixedTimeframe",
           "reviewedDecompositionException": false
         },
@@ -2070,6 +2127,132 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "067a5fa1b5229e4af402671e7c06b4d6a07fe6fc95bcf33f25db55a4f51a3937"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 109,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "artifactReference",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "createAnnotationEvidenceSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 32,
+          "name": "createAnnotationEvidenceRequirement",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readAnnotationEvidenceRequirement",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readAnnotationEvidenceSelection",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-evidence-resolver",
+      "owner": "annotation-evidence-resolver",
+      "ownsContract": false,
+      "path": "src/annotation-evidence-resolver/evidence-request.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-evidence-resolver.",
+            "purpose": "expose the pure R13.10a accepted-snapshot evidence contract and resolver.",
+            "inputs": "exact immutable Session/Workspace/Pane/Replay snapshot, user selection, and bounded requirement values.",
+            "outputs": "branded frozen evidence values with exact Bar provenance and Artifact revisions.",
+            "sideEffects": "none; this optional module owns no cache, request queue, Replay cursor, UI, storage, or network port.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed, missing, stale, unbounded, or future evidence throws AnnotationEvidenceError with a stable code.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "optional.annotation-evidence-resolver",
+          "name": "createAnnotationEvidenceRequirement",
+          "semanticMatches": [
+            "annotation",
+            "evidence",
+            "requirement",
+            "resolver"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "evidence",
+            "optional",
+            "requirement",
+            "resolver"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-evidence-resolver.",
+            "purpose": "expose the pure R13.10a accepted-snapshot evidence contract and resolver.",
+            "inputs": "exact immutable Session/Workspace/Pane/Replay snapshot, user selection, and bounded requirement values.",
+            "outputs": "branded frozen evidence values with exact Bar provenance and Artifact revisions.",
+            "sideEffects": "none; this optional module owns no cache, request queue, Replay cursor, UI, storage, or network port.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed, missing, stale, unbounded, or future evidence throws AnnotationEvidenceError with a stable code.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "optional.annotation-evidence-resolver",
+          "name": "createAnnotationEvidenceSelection",
+          "semanticMatches": [
+            "annotation",
+            "evidence",
+            "resolver",
+            "selection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "evidence",
+            "optional",
+            "resolver",
+            "selection"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "ed6734a349fe0646f6c2bb884dc783ec38a8cd06bc4a137d39176972db2caca2"
     },
     {
       "adaptsBoundary": false,
@@ -5268,6 +5451,74 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 15,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createAnnotationEvidenceBundle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readAnnotationEvidenceBundle",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-evidence-resolver",
+      "owner": "annotation-evidence-resolver",
+      "ownsContract": false,
+      "path": "src/annotation-evidence-resolver/evidence-bundle.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-evidence-resolver.",
+            "purpose": "expose the pure R13.10a accepted-snapshot evidence contract and resolver.",
+            "inputs": "exact immutable Session/Workspace/Pane/Replay snapshot, user selection, and bounded requirement values.",
+            "outputs": "branded frozen evidence values with exact Bar provenance and Artifact revisions.",
+            "sideEffects": "none; this optional module owns no cache, request queue, Replay cursor, UI, storage, or network port.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed, missing, stale, unbounded, or future evidence throws AnnotationEvidenceError with a stable code.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "optional.annotation-evidence-resolver",
+          "name": "readAnnotationEvidenceBundle",
+          "semanticMatches": [
+            "annotation",
+            "evidence",
+            "resolver"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "bundle",
+            "evidence",
+            "optional",
+            "resolver"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "1870d30a67f2148c013d4e4b17b1b300456a97dd4e7937616e57c9f516952629"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 16,
       "forwardingOnly": false,
       "functions": [
@@ -5721,6 +5972,112 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "d2360440f790ffb8895f4574075395cd42d80bc1584289bac12ac7db1ce3dc40"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 163,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "snapshotArtifacts",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "snapshotSessionId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "snapshotBars",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "snapshotArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 31,
+          "name": "snapshotBar",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 41,
+          "name": "createAcceptedAnnotationEvidenceSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "finitePrice",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readAcceptedAnnotationEvidenceSnapshot",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-evidence-resolver",
+      "owner": "annotation-evidence-resolver",
+      "ownsContract": false,
+      "path": "src/annotation-evidence-resolver/evidence-snapshot.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-evidence-resolver.",
+            "purpose": "expose the pure R13.10a accepted-snapshot evidence contract and resolver.",
+            "inputs": "exact immutable Session/Workspace/Pane/Replay snapshot, user selection, and bounded requirement values.",
+            "outputs": "branded frozen evidence values with exact Bar provenance and Artifact revisions.",
+            "sideEffects": "none; this optional module owns no cache, request queue, Replay cursor, UI, storage, or network port.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed, missing, stale, unbounded, or future evidence throws AnnotationEvidenceError with a stable code.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "optional.annotation-evidence-resolver",
+          "name": "createAcceptedAnnotationEvidenceSnapshot",
+          "semanticMatches": [
+            "accepted",
+            "annotation",
+            "evidence",
+            "resolver",
+            "snapshot"
+          ],
+          "semanticTerms": [
+            "accepted",
+            "annotation",
+            "evidence",
+            "optional",
+            "resolver",
+            "snapshot"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "ea4584ba685bf2038150a8a54d354d8f6e01821b0220c06f3a7dc6b19fe1c97a"
     },
     {
       "adaptsBoundary": false,
@@ -11445,6 +11802,52 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 33,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 6,
+          "name": "capabilityId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "count",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "epoch",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "opaqueId",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-evidence-resolver",
+      "owner": "annotation-evidence-resolver",
+      "ownsContract": false,
+      "path": "src/annotation-evidence-resolver/evidence-validation.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "6f9408c0efdd317584879763f508feb8d616d6fbdcdc99c6a12aaff7e487eb8a"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 34,
       "forwardingOnly": false,
       "functions": [
@@ -16582,6 +16985,26 @@
       "effectiveLines": 8,
       "forwardingOnly": true,
       "functions": [],
+      "kind": "domain",
+      "moduleId": "optional.annotation-evidence-resolver",
+      "owner": "annotation-evidence-resolver",
+      "ownsContract": true,
+      "path": "src/annotation-evidence-resolver/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "99e299da2b193d14e4f67c976a7f698c9bfcd614d01b0234716d87072c51ca50"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 8,
+      "forwardingOnly": true,
+      "functions": [],
       "kind": "runtime",
       "moduleId": "core.chart-snapshot-application",
       "owner": "chart-runtime-adapter",
@@ -18908,6 +19331,93 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "15ea26eee56eb86996f5e5488ba3b0832c5a446dd35dd304ee3081ae37cffd6c"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [
+        {
+          "id": "no-future",
+          "why": "a selected or neighboring Bar must be fully closed, and an Artifact must already be observed, at the accepted Replay cutoff. Missing evidence fails here; this pure owner has no Bar Data port."
+        }
+      ],
+      "debtComments": [],
+      "effectiveLines": 88,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "resolvedBar",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "resolveAnnotationEvidence",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "resolvedArtifacts",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.annotation-evidence-resolver",
+      "owner": "annotation-evidence-resolver",
+      "ownsContract": false,
+      "path": "src/annotation-evidence-resolver/evidence-resolver.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-evidence-resolver.",
+            "purpose": "expose the pure R13.10a accepted-snapshot evidence contract and resolver.",
+            "inputs": "exact immutable Session/Workspace/Pane/Replay snapshot, user selection, and bounded requirement values.",
+            "outputs": "branded frozen evidence values with exact Bar provenance and Artifact revisions.",
+            "sideEffects": "none; this optional module owns no cache, request queue, Replay cursor, UI, storage, or network port.",
+            "lifecycle": "static pure API with no start, stop, or disposal phase.",
+            "errors": "malformed, missing, stale, unbounded, or future evidence throws AnnotationEvidenceError with a stable code.",
+            "concurrencyCancellation": "synchronous and deterministic; cancellation is not applicable."
+          },
+          "moduleId": "optional.annotation-evidence-resolver",
+          "name": "resolveAnnotationEvidence",
+          "semanticMatches": [
+            "annotation",
+            "evidence",
+            "resolver"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "evidence",
+            "optional",
+            "resolver"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "1cac993b8a5bbee7b89d48f28ffbe7ade8a3d57b4d054c1387333c478da3d9c0"
     },
     {
       "adaptsBoundary": false,
@@ -34884,11 +35394,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 31854,
-    "files": 396,
-    "functions": 3356,
-    "publicExports": 378
+    "effectiveLines": 32280,
+    "files": 403,
+    "functions": 3395,
+    "publicExports": 384
   },
-  "deliveryStep": "R13.9b",
-  "generatedFromCommit": "working-tree-r13.9b"
+  "deliveryStep": "R13.10a",
+  "generatedFromCommit": "working-tree-r13.10a"
 }

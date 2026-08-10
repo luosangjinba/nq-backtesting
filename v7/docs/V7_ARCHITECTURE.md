@@ -877,7 +877,8 @@ blocks a second semantic package until three contract defects are repaired:
 core provenance must stop encoding the first package's exact evidence shape;
 durable Artifacts must retain immutable construction package/definition
 identity; and failed-generation asynchronous disposal must settle before
-re-enable. R13.9 remains accepted. R13.10 is not authorized.
+re-enable. R13.9 remained accepted, and R13.10 was not authorized at that
+checkpoint.
 
 R13.9b repairs those blockers without adding a business type. Semantic Artifact
 schema 2 separates a host-owned universal no-future provenance header from one
@@ -888,7 +889,19 @@ package, type, definition, and version; legacy schema-1 Artifacts migrate as
 tracked and serialized before re-enable. Construction/identity, cleanup, and
 document migration live in focused internal modules rather than expanding
 Registry or wire entry-file responsibilities. H108 proves the boundary with a
-second synthetic package. R13.10 remains unauthorized.
+second synthetic package.
+
+R13.10a separately activates the removable, stateless
+`optional.annotation-evidence-resolver`. It consumes only one composition-
+supplied owner-accepted Session/Workspace/Pane/Replay snapshot, one exact
+selected Bar plus optional exact Artifact revisions, and one bounded generic
+neighbor requirement. Its frozen Evidence Bundle retains dataset, instrument,
+source/display timeframe, Bar interval, accepted Workspace revision, Artifact
+revision, and exact Replay cutoff. A partial tail Bar or post-cutoff Artifact
+fails no-future resolution; missing neighbors fail instead of being requested.
+The module has no Bar Data, Replay, Workspace, Annotation Runtime, semantic
+package, Chart, persistence, UI, storage, network, or lifecycle authority.
+R13.10b exact Bar Picker and all FVG/Inspector behavior remain unauthorized.
 
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,

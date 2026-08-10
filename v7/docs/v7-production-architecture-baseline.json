@@ -136,7 +136,7 @@
       }
     ]
   },
-  "deliveryStep": "R13.9b",
+  "deliveryStep": "R13.10a",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -4075,6 +4075,35 @@
         ],
         "owner": "annotation-context-projection",
         "publicEntry": "src/annotation-context-projection/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.session-identity"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.session-identity"
+        ],
+        "descriptorPath": "src/annotation-evidence-resolver/module.json",
+        "id": "optional.annotation-evidence-resolver",
+        "importSites": [
+          {
+            "importedNames": [
+              "requireSessionId"
+            ],
+            "sourceFile": "src/annotation-evidence-resolver/evidence-snapshot.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/annotation-evidence-resolver-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [],
+        "owner": "annotation-evidence-resolver",
+        "publicEntry": "src/annotation-evidence-resolver/public.js"
       },
       {
         "actualDependencies": [

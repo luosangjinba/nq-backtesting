@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-09 after accepted R13.9b Semantic Contract Hardening
+Last updated: 2026-08-09 after accepted R13.10a Pure Annotation Evidence Resolver
 
 ## Current Overall Acceptance State
 
@@ -25,7 +25,8 @@ right-click-cancel slice; its corrected human gate is accepted. R13.7 adds
 removable `adapter.annotation-persistence`, registered Geometry restore,
 Session-keyed hard-reload state, bounded exact-revision undo/redo, v1-to-v2
 migration, and opaque-envelope-preserving import/export. H100–H105 are accepted.
-There is still no production drawing toolbar or semantic business package.
+There is still no production drawing toolbar; the accepted semantic business
+slice remains isolated behind the removable package boundary and fixture.
 R13.8 source-agnostic Pane/time/Replay projection and H106 are accepted after
 the local NQ 1m/5m visual gate. Exact Segment, containing-bucket Rectangle,
 Replay no-future hide/restore, and unchanged candles were confirmed. R13.9 is
@@ -34,7 +35,7 @@ headless and real-Chromium evidence passes. Its corrected local human visual
 gate is accepted: the first pass found an Inspector-only no-future leak, and
 the accepted correction exposes only the generic hidden state before
 observation with no semantic resolution/type/price fields. H107 is accepted;
-R13.10 remains unauthorized. The documentation-only R13.9a review then
+at that closure R13.10 remained unauthorized. The documentation-only R13.9a review then
 reconfirmed the full automated graph and owner boundaries but reproduced three
 preconditions for a second semantic package: the core Artifact provenance shape
 is fixed to the BSL/SSL slice, construction package/definition version is not
@@ -45,7 +46,14 @@ host-stamped package/definition construction identity plus portable package
 evidence; schema-1 identity migrates as unresolved `legacy-unrecorded`; and
 failed-generation disposal settles before re-enable. H108 proves a second rich-
 provenance package, durable round trips, upgrade mismatch, and lifecycle
-serialization. R13.10 remains unauthorized and requires a separate approval.
+serialization. R13.10a is now accepted under
+`V7_PURE_ANNOTATION_EVIDENCE_RESOLVER_R13_10A.md`: one removable stateless
+resolver accepts only a composition-supplied Session/Workspace/Pane/Replay
+snapshot, exact selected Bar/Artifact revisions, and a bounded neighbor
+requirement. H109 proves exact immutable provenance, deterministic output,
+missing-neighbor failure, no future/unclosed evidence, zero Bar acquisition,
+and optional removal. It adds no visible surface. R13.10b exact Bar Picker and
+all FVG/Inspector behavior remain unauthorized.
 ADR-V7-002 audited the current public Lightweight Charts drawing,
 indicator, toolkit, and alternative-engine ecosystem at pinned revisions.
 Official Primitive/rendering patterns are approved for adaptation, but no
@@ -64,7 +72,8 @@ Binding records:
 `V7_PANE_TIME_REPLAY_ANNOTATION_PROJECTION_R13_8.md` and
 `V7_SEMANTIC_PACKAGE_LIQUIDITY_LEVEL_R13_9.md` and
 `V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md` and
-`V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md`, with frozen candidate evidence in
+`V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md` and
+`V7_PURE_ANNOTATION_EVIDENCE_RESOLVER_R13_10A.md`, with frozen candidate evidence in
 `v7-community-reuse-audit.json`.
 
 R11 is the closed architecture-recovery record underlying the accepted
