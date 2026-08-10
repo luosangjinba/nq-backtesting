@@ -977,6 +977,40 @@ local cache-versioned NQ 1m/5m fixture confirmed `2/1` after-observation
 projection, atomic `0/0` before-observation hiding, exact restoration, and
 unchanged candles. R13.9 remains unauthorized.
 
+### R13.9 — Semantic Package Registry And Liquidity Level Slice
+
+- activate one removable trusted-build package Registry with exact compatibility,
+  enable/disable/re-enable/disposal, collision rejection, and failure isolation;
+- extend the sole Annotation Runtime generically over the already-reserved
+  `artifacts[]` document field without a new persistence schema or concrete
+  business branch;
+- preserve unresolved Artifacts through durable history, reload, import/export,
+  and opaque-field round trips while refusing type-specific writes without an
+  active compatible package;
+- register BSL/SSL through one first-party package for human/manual construction
+  and exact horizontal-Segment promotion only;
+- emit generic no-future projection subjects and one minimal host-rendered
+  Semantic/History Inspector schema without package DOM or Chart authority;
+- prove H107 through independent, persistence, lifecycle, optional-removal,
+  architecture, source/writer, real-browser, and local human gates.
+
+R13.9 was explicitly authorized on 2026-08-09 after R13.8 acceptance. It does
+not authorize Evidence Resolver, FVG, automatic detection, a production
+toolbar, dynamic third-party loading, or R13.10. Binding contract:
+`V7_SEMANTIC_PACKAGE_LIQUIDITY_LEVEL_R13_9.md`.
+
+Closure 2026-08-09: the trusted-build Registry, generic
+Artifact Runtime/persistence path, BSL/SSL package, host Inspector, H107's 22
+negative controls, and real Chromium no-future/disable/re-enable evidence pass.
+The corrected local human visual gate is accepted and H107 is closed.
+
+The first local review exposed one Inspector-only no-future leak: the semantic
+projection was absent before observation but its selected resolved fields
+remained visible. The corrected cutoff-safe Inspector returns no resolution or
+package fields before observation and restores the same view afterward. H107
+asserts this behavior, and the user accepted the corrected behavior on
+2026-08-09. R13.10 remains unauthorized.
+
 ## Deferred Product Boundary — Second-Level Replay
 
 Second-level/tick-sourced Replay has no delivery number and is not the next

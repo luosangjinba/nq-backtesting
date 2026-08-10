@@ -1,11 +1,15 @@
 import {
   archiveDrawing,
+  archiveSemanticArtifact,
+  createSemanticArtifact,
   createDrawing,
   importAnnotationDocument,
   redoAnnotation,
+  promoteDrawing,
   replaceDrawingGeometry,
   reviseDrawing,
   restoreDrawing,
+  restoreSemanticArtifact,
   undoAnnotation,
 } from './command-handlers.js';
 import { loadAnnotationRepository } from './repository-port.js';
@@ -25,26 +29,33 @@ export function createAnnotationRuntime({
   geometryContract = null,
   initialState = null,
   repository,
+  semanticContract = null,
   sessionId,
 } = {}) {
   const state = createAnnotationRuntimeState({
-    geometryContract, initialState, repository, sessionId,
+    geometryContract, initialState, repository, semanticContract, sessionId,
   });
   return Object.freeze({
     archiveDrawing: (input) => archiveDrawing(state, input),
+    archiveSemanticArtifact: (input) => archiveSemanticArtifact(state, input),
     createDrawing: (input) => createDrawing(state, input),
+    createSemanticArtifact: (input) => createSemanticArtifact(state, input),
     dispose: () => state.dispose(),
     exportDocument: () => state.exportDocument(),
     getDocument: () => state.documentSnapshot(),
     getDrawing: (drawingId) => state.drawingSnapshot(drawingId),
+    getSemanticArtifact: (artifactId) => state.artifactSnapshot(artifactId),
     health: () => state.health(),
     history: () => state.historySnapshot(),
     importDocument: (input) => importAnnotationDocument(state, input),
     listDrawings: () => state.drawingSnapshots(),
+    listSemanticArtifacts: () => state.artifactSnapshots(),
+    promoteDrawing: (input) => promoteDrawing(state, input),
     redo: (input) => redoAnnotation(state, input),
     replaceDrawingGeometry: (input) => replaceDrawingGeometry(state, input),
     reviseDrawing: (input) => reviseDrawing(state, input),
     restoreDrawing: (input) => restoreDrawing(state, input),
+    restoreSemanticArtifact: (input) => restoreSemanticArtifact(state, input),
     undo: (input) => undoAnnotation(state, input),
   });
 }
@@ -53,8 +64,11 @@ export function createAnnotationRuntime({
 export async function createRestoredAnnotationRuntime({
   geometryContract = null,
   repository,
+  semanticContract = null,
   sessionId,
 } = {}) {
   const initialState = await loadAnnotationRepository(repository, Object.freeze({ sessionId }));
-  return createAnnotationRuntime({ geometryContract, initialState, repository, sessionId });
+  return createAnnotationRuntime({
+    geometryContract, initialState, repository, semanticContract, sessionId,
+  });
 }

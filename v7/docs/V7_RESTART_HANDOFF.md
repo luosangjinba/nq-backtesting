@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-09 at accepted R13.8 Pane/time/Replay projection
+Last updated: 2026-08-09 after accepted R13.9 closure
 
 ## Current Overall Acceptance State
 
@@ -28,8 +28,13 @@ migration, and opaque-envelope-preserving import/export. H100–H105 are accepte
 There is still no production drawing toolbar or semantic business package.
 R13.8 source-agnostic Pane/time/Replay projection and H106 are accepted after
 the local NQ 1m/5m visual gate. Exact Segment, containing-bucket Rectangle,
-Replay no-future hide/restore, and unchanged candles were confirmed. R13.9
-remains unauthorized.
+Replay no-future hide/restore, and unchanged candles were confirmed. R13.9 is
+implemented under `V7_SEMANTIC_PACKAGE_LIQUIDITY_LEVEL_R13_9.md`. H107's
+headless and real-Chromium evidence passes. Its corrected local human visual
+gate is accepted: the first pass found an Inspector-only no-future leak, and
+the accepted correction exposes only the generic hidden state before
+observation with no semantic resolution/type/price fields. H107 is accepted;
+R13.10 remains unauthorized.
 ADR-V7-002 audited the current public Lightweight Charts drawing,
 indicator, toolkit, and alternative-engine ecosystem at pinned revisions.
 Official Primitive/rendering patterns are approved for adaptation, but no
@@ -45,7 +50,8 @@ Binding records:
 `V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md` and
 `V7_RECTANGLE_SELECTION_MINIMAL_INSPECTOR_R13_6.md` and
 `V7_DURABLE_ANNOTATION_HISTORY_R13_7.md` and
-`V7_PANE_TIME_REPLAY_ANNOTATION_PROJECTION_R13_8.md`, with frozen candidate evidence in
+`V7_PANE_TIME_REPLAY_ANNOTATION_PROJECTION_R13_8.md` and
+`V7_SEMANTIC_PACKAGE_LIQUIDITY_LEVEL_R13_9.md`, with frozen candidate evidence in
 `v7-community-reuse-audit.json`.
 
 R11 is the closed architecture-recovery record underlying the accepted

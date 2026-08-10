@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    { "name": "semantic-type-lookalike", "expectedCode": "SEMANTIC_TYPE_DEFINITION_REQUIRED" },
+    { "name": "package-manifest-lookalike", "expectedCode": "SEMANTIC_PACKAGE_MANIFEST_REQUIRED" },
+    { "name": "duplicate-package-id", "expectedCode": "SEMANTIC_PACKAGE_ID_DUPLICATE" },
+    { "name": "unknown-package", "expectedCode": "SEMANTIC_PACKAGE_NOT_FOUND" },
+    { "name": "incompatible-package", "expectedCode": "SEMANTIC_PACKAGE_INCOMPATIBLE" },
+    { "name": "double-enable", "expectedCode": "SEMANTIC_PACKAGE_ALREADY_ACTIVE" },
+    { "name": "type-collision", "expectedCode": "SEMANTIC_TYPE_COLLISION" },
+    { "name": "unknown-type-construction", "expectedCode": "SEMANTIC_TYPE_UNRESOLVED" },
+    { "name": "invalid-artifact-id", "expectedCode": "SEMANTIC_ARTIFACT_ID_INVALID" },
+    { "name": "non-horizontal-liquidity", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "foreign-draft", "expectedCode": "SEMANTIC_ARTIFACT_DRAFT_FOREIGN" },
+    { "name": "stale-draft", "expectedCode": "SEMANTIC_ARTIFACT_DRAFT_STALE" },
+    { "name": "forged-runtime-draft", "expectedCode": "ANNOTATION_SEMANTIC_DRAFT_INVALID" },
+    { "name": "future-anchor", "expectedCode": "SEMANTIC_ARTIFACT_ANCHOR_INVALID" },
+    { "name": "duplicate-artifact", "expectedCode": "SEMANTIC_ARTIFACT_ID_DUPLICATE" },
+    { "name": "drawing-draft-needs-promotion", "expectedCode": "SEMANTIC_ARTIFACT_PROMOTION_REQUIRED" },
+    { "name": "invalid-promotion-disposition", "expectedCode": "SEMANTIC_PROMOTION_DISPOSITION_INVALID" },
+    { "name": "stale-promotion-source", "expectedCode": "SEMANTIC_PROMOTION_SOURCE_STALE" },
+    { "name": "missing-artifact", "expectedCode": "SEMANTIC_ARTIFACT_NOT_FOUND" },
+    { "name": "stale-artifact", "expectedCode": "SEMANTIC_ARTIFACT_REVISION_STALE" },
+    { "name": "package-policy-failure", "expectedCode": "SEMANTIC_PACKAGE_POLICY_FAILED" },
+    { "name": "disposed-registry", "expectedCode": "SEMANTIC_REGISTRY_DISPOSED" }
+  ]
+}

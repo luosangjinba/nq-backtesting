@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>R13.9 Semantic Liquidity Package</title>
+    <style>
+      :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+      * { box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #05070a; color: #dce7f3; }
+      body { display: grid; grid-template-rows: auto 1fr; }
+      header { display: flex; align-items: center; gap: 10px; min-height: 76px; padding: 12px 18px; border-bottom: 1px solid #1d2b38; background: #081018; }
+      h1 { margin: 0; font-size: 16px; }
+      p { margin: 4px 0 0; color: #8fa3b7; font-size: 12px; }
+      .copy { margin-right: auto; }
+      button { border: 1px solid #29455c; border-radius: 6px; padding: 9px 12px; color: #dce7f3; background: #102131; font-weight: 700; cursor: pointer; }
+      button:hover:not(:disabled), button[data-active="true"] { border-color: #38bdf8; background: #123a53; }
+      button:disabled { cursor: not-allowed; opacity: .42; }
+      #status { min-width: 210px; color: #a9bdd0; font: 12px ui-monospace, SFMono-Regular, monospace; text-align: right; }
+      main { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 330px; }
+      .chart-shell { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto 1fr; }
+      .chart-head { display: flex; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #15222d; font-size: 13px; }
+      #projection-count { color: #7f95a9; font: 12px ui-monospace, SFMono-Regular, monospace; }
+      #chart { min-height: 0; }
+      aside { min-height: 0; overflow: auto; padding: 18px; border-left: 1px solid #1d2b38; background: #081018; }
+      aside h2 { margin: 0 0 5px; font-size: 16px; }
+      #resolution { margin-bottom: 16px; color: #8fa3b7; font-size: 12px; }
+      #resolution[data-state="resolved"] { color: #34d399; }
+      #resolution[data-state="unresolved"] { color: #f59e0b; }
+      #resolution[data-state="hidden"] { color: #94a3b8; }
+      .group { margin: 0 0 14px; padding: 13px; border: 1px solid #1d2b38; border-radius: 8px; background: #071018; }
+      .group h3 { margin: 0 0 10px; color: #7dd3fc; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+      dl { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; margin: 0; font-size: 12px; }
+      dt { color: #8fa3b7; }
+      dd { max-width: 160px; margin: 0; overflow: hidden; color: #dce7f3; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+      .legend { display: flex; gap: 14px; }
+      .cyan { color: #22d3ee; } .amber { color: #f59e0b; } .violet { color: #a78bfa; }
+    </style>
+  </head>
+  <body data-scenario="loading">
+    <header>
+      <div class="copy">
+        <h1>R13.9 Semantic Package · Liquidity Level</h1>
+        <p>Generic Drawing → package-validated BSL/SSL · disable-safe unresolved state</p>
+        <p class="legend"><span class="cyan">Cyan: generic Segment</span><span class="amber">Amber: BSL</span><span class="violet">Violet: SSL</span></p>
+      </div>
+      <button id="promote-bsl" type="button">Promote to BSL</button>
+      <button id="promote-ssl" type="button">Promote to SSL</button>
+      <button id="before" type="button">Before observed</button>
+      <button id="after" type="button">After observed</button>
+      <button id="disable" type="button">Disable package</button>
+      <button id="enable" type="button" disabled>Enable package</button>
+      <output id="status">Starting…</output>
+    </header>
+    <main>
+      <section class="chart-shell">
+        <div class="chart-head"><strong>NQ · 1m</strong><span id="projection-count">0 projections</span></div>
+        <div id="chart"></div>
+      </section>
+      <aside>
+        <h2>Semantic Inspector</h2>
+        <div id="resolution" data-state="none">Select a promoted Artifact</div>
+        <div id="inspector"></div>
+      </aside>
+    </main>
+    <script>
+      globalThis.addEventListener('error', (event) => {
+        document.body.dataset.error = `${event.error?.name ?? 'Error'}:${event.error?.message ?? event.message}`;
+        document.body.dataset.scenario = 'failed';
+      });
+      globalThis.addEventListener('unhandledrejection', (event) => {
+        document.body.dataset.error = `${event.reason?.name ?? 'Error'}:${event.reason?.message ?? event.reason}`;
+        document.body.dataset.scenario = 'failed';
+      });
+    </script>
+    <script type="module" src="./scenario.js?v=h107-20260809c"></script>
+  </body>
+</html>

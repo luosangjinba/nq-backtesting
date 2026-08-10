@@ -14,12 +14,21 @@ const DOCUMENT_FIELDS = Object.freeze(['artifacts', 'drawings', 'revision', 'sch
 const DRAWING_FIELDS = Object.freeze([
   'drawingId', 'geometry', 'presentation', 'provenance', 'revision', 'scope', 'status',
 ]);
+const ARTIFACT_FIELDS = Object.freeze([
+  'artifactId', 'attributes', 'presentation', 'provenance', 'relations', 'revision',
+  'scope', 'status', 'typeId', 'typeVersion',
+]);
 const GEOMETRY_FIELDS = Object.freeze(['payload', 'schemaVersion', 'typeId', 'typeVersion']);
 const PRESENTATION_FIELDS = Object.freeze([
   'fillColor', 'fillOpacity', 'schemaVersion', 'strokeColor', 'strokeWidth',
 ]);
 const PROVENANCE_FIELDS = Object.freeze([
   'createdAtEpochMs', 'observedAtReplayCutoffEpochMs', 'origin',
+]);
+const ARTIFACT_PROVENANCE_FIELDS = Object.freeze([
+  'constructionSource', 'createdAtEpochMs', 'instrumentId', 'manualAnchors',
+  'observedAtReplayCutoffEpochMs', 'promotedFromDrawingId', 'recognitionSource',
+  'sourceBars', 'sourceTimeframeId',
 ]);
 const SCOPE_FIELDS = Object.freeze(['kind', 'sessionId']);
 
@@ -142,8 +151,55 @@ function splitDrawing(value, index) {
   };
 }
 
+function splitArtifact(value, index) {
+  const artifact = splitKnown(
+    value,
+    ARTIFACT_FIELDS,
+    'ANNOTATION_PERSISTENCE_ARTIFACT_INVALID',
+    'Stored Semantic Artifact',
+  );
+  const provenance = splitKnown(
+    artifact.known.provenance,
+    ARTIFACT_PROVENANCE_FIELDS,
+    'ANNOTATION_PERSISTENCE_ARTIFACT_PROVENANCE_INVALID',
+    'Stored Artifact provenance',
+  );
+  const scope = splitKnown(
+    artifact.known.scope,
+    SCOPE_FIELDS,
+    'ANNOTATION_PERSISTENCE_ARTIFACT_SCOPE_INVALID',
+    'Stored Artifact scope',
+  );
+  let presentation = { known: null, opaque: {} };
+  if (artifact.known.presentation !== null) {
+    presentation = splitKnown(
+      artifact.known.presentation,
+      PRESENTATION_FIELDS,
+      'ANNOTATION_PERSISTENCE_ARTIFACT_PRESENTATION_INVALID',
+      'Stored Artifact Presentation',
+    );
+  }
+  const id = typeof artifact.known.artifactId === 'string'
+    ? artifact.known.artifactId : `@invalid-${index}`;
+  return {
+    artifact: {
+      ...artifact.known,
+      presentation: presentation.known,
+      provenance: provenance.known,
+      scope: scope.known,
+    },
+    id,
+    opaque: {
+      artifact: artifact.opaque,
+      presentation: presentation.opaque,
+      provenance: provenance.opaque,
+      scope: scope.opaque,
+    },
+  };
+}
+
 function emptyOpaqueTree() {
-  return { document: {}, drawings: {} };
+  return { artifacts: {}, document: {}, drawings: {} };
 }
 
 /** Strip unknown envelope fields and retain them in one branded sidecar. */
@@ -157,15 +213,23 @@ export function splitAnnotationDocument(value) {
   if (!Array.isArray(document.known.drawings)) {
     failAnnotationPersistence('ANNOTATION_PERSISTENCE_DOCUMENT_INVALID', 'Stored drawings must be an array.');
   }
+  if (!Array.isArray(document.known.artifacts)) {
+    failAnnotationPersistence('ANNOTATION_PERSISTENCE_DOCUMENT_INVALID', 'Stored artifacts must be an array.');
+  }
   const drawings = document.known.drawings.map(splitDrawing);
+  const artifacts = document.known.artifacts.map(splitArtifact);
   const opaqueDrawings = {};
   for (const drawing of drawings) opaqueDrawings[drawing.id] = drawing.opaque;
+  const opaqueArtifacts = {};
+  for (const artifact of artifacts) opaqueArtifacts[artifact.id] = artifact.opaque;
   return Object.freeze({
     document: deepFreeze({
       ...document.known,
+      artifacts: artifacts.map((artifact) => artifact.artifact),
       drawings: drawings.map((drawing) => drawing.drawing),
     }),
     opaqueState: new AnnotationOpaqueStateValue({
+      artifacts: opaqueArtifacts,
       document: document.opaque,
       drawings: opaqueDrawings,
     }),
@@ -191,12 +255,28 @@ function mergeDrawing(drawing, opaque) {
   };
 }
 
+function mergeArtifact(artifact, opaque) {
+  const value = opaque ?? {};
+  return {
+    ...(value.artifact ?? {}),
+    ...artifact,
+    presentation: artifact.presentation === null ? null : {
+      ...(value.presentation ?? {}), ...artifact.presentation,
+    },
+    provenance: { ...(value.provenance ?? {}), ...artifact.provenance },
+    scope: { ...(value.scope ?? {}), ...artifact.scope },
+  };
+}
+
 /** Merge one canonical document with only its adapter-owned opaque sidecar. */
 export function mergeAnnotationDocument(document, opaqueState) {
   const opaque = readOpaqueState(opaqueState);
   return {
     ...opaque.document,
     ...document,
+    artifacts: document.artifacts.map((artifact) => (
+      mergeArtifact(artifact, opaque.artifacts?.[artifact.artifactId])
+    )),
     drawings: document.drawings.map((drawing) => (
       mergeDrawing(drawing, opaque.drawings[drawing.drawingId])
     )),
@@ -206,13 +286,19 @@ export function mergeAnnotationDocument(document, opaqueState) {
 /** Filter a sidecar to one candidate document and return a fresh branded token. */
 export function projectAnnotationOpaqueState(candidate, document) {
   const opaque = readOpaqueState(candidate);
+  const artifacts = {};
+  for (const artifact of document.artifacts) {
+    if (Object.hasOwn(opaque.artifacts ?? {}, artifact.artifactId)) {
+      artifacts[artifact.artifactId] = opaque.artifacts[artifact.artifactId];
+    }
+  }
   const drawings = {};
   for (const drawing of document.drawings) {
     if (Object.hasOwn(opaque.drawings, drawing.drawingId)) {
       drawings[drawing.drawingId] = opaque.drawings[drawing.drawingId];
     }
   }
-  return new AnnotationOpaqueStateValue({ document: opaque.document, drawings });
+  return new AnnotationOpaqueStateValue({ artifacts, document: opaque.document, drawings });
 }
 
 function requireSession(serialized, sessionId, code) {

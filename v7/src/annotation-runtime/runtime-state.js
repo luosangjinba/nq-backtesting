@@ -8,6 +8,7 @@ import {
 } from './annotation-history.js';
 import {
   createInitialAnnotationDocument,
+  artifactFromDocument,
   drawingFromDocument,
   readAnnotationDocument,
   rebaseAnnotationDocument,
@@ -27,6 +28,11 @@ import {
   prepareAnnotationRepository,
   requireAnnotationRepository,
 } from './repository-port.js';
+import {
+  activeSemanticPackageCount,
+  normalizeSemanticContract,
+  readSemanticDraft,
+} from './semantic-port.js';
 
 function exactRecord(value, fields, label) {
   if (!value || typeof value !== 'object' || Array.isArray(value)
@@ -66,12 +72,14 @@ class AnnotationRuntimeState {
   #opaqueState = null;
   #port;
   #scope;
+  #semantic;
   #status = 'ready';
 
-  constructor({ geometryContract, initialState = null, repository, sessionId }) {
+  constructor({ geometryContract, initialState = null, repository, semanticContract, sessionId }) {
     this.#scope = requireSessionId(sessionId);
     this.#geometry = normalizeGeometryContract(geometryContract);
     this.#port = requireAnnotationRepository(repository);
+    this.#semantic = normalizeSemanticContract(semanticContract);
     if (initialState === null) {
       this.#document = createInitialAnnotationDocument(this.#scope);
       this.#history = createEmptyAnnotationHistory();
@@ -210,6 +218,19 @@ class AnnotationRuntimeState {
     return readAnnotationDocument(this.#document).drawings;
   }
 
+  artifactSnapshot(artifactId) {
+    this.#requireReadable();
+    if (typeof artifactId !== 'string' || artifactId.length === 0) {
+      failAnnotation('SEMANTIC_ARTIFACT_ID_INVALID', 'Artifact id is invalid.');
+    }
+    return artifactFromDocument(this.#document, artifactId);
+  }
+
+  artifactSnapshots() {
+    this.#requireReadable();
+    return readAnnotationDocument(this.#document).artifacts;
+  }
+
   async exportDocument() {
     this.#requireReadable();
     return exportAnnotationDocument(this.#port, Object.freeze({
@@ -227,7 +248,7 @@ class AnnotationRuntimeState {
       canUndo: history?.canUndo ?? false,
       documentRevision: this.#document === null ? null : readAnnotationDocument(this.#document).revision,
       geometryAvailable: this.#geometry !== null,
-      semanticPackageCount: 0,
+      semanticPackageCount: activeSemanticPackageCount(this.#semantic),
       status: this.#status,
     });
   }
@@ -259,6 +280,8 @@ class AnnotationRuntimeState {
 
   readPresentation(candidate) { return readDrawingPresentation(candidate); }
 
+  readSemanticDraft(candidate) { return readSemanticDraft(this.#semantic, candidate); }
+
   requireExistingDrawing(drawingId, expectedRevision) {
     const token = readDrawingId(drawingId);
     const drawing = drawingFromDocument(this.#document, token);
@@ -268,6 +291,26 @@ class AnnotationRuntimeState {
       failAnnotation('DRAWING_REVISION_STALE', `Drawing ${token} revision is stale.`);
     }
     return drawing;
+  }
+
+  requireExistingArtifact(artifactId, expectedRevision) {
+    if (typeof artifactId !== 'string' || artifactId.length === 0) {
+      failAnnotation('SEMANTIC_ARTIFACT_ID_INVALID', 'Artifact id is invalid.');
+    }
+    const artifact = artifactFromDocument(this.#document, artifactId);
+    if (artifact === null) {
+      failAnnotation('SEMANTIC_ARTIFACT_NOT_FOUND', `Artifact ${artifactId} does not exist.`);
+    }
+    const expected = requireRevision(
+      expectedRevision,
+      'SEMANTIC_ARTIFACT_REVISION_INVALID',
+      'Expected Artifact',
+      1,
+    );
+    if (artifact.revision !== expected) {
+      failAnnotation('SEMANTIC_ARTIFACT_REVISION_STALE', `Artifact ${artifactId} revision is stale.`);
+    }
+    return artifact;
   }
 
   runHistory(input, fields, direction) {
@@ -308,6 +351,7 @@ class AnnotationRuntimeState {
     this.#history = null;
     this.#opaqueState = null;
     this.#port = null;
+    this.#semantic = null;
     this.#status = 'disposed';
   }
 }

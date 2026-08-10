@@ -298,6 +298,28 @@ Binding contract:
 Binding contract:
 `docs/V7_PANE_TIME_REPLAY_ANNOTATION_PROJECTION_R13_8.md`.
 
+## R13.9 Semantic Package Registry And Liquidity Level — Accepted 2026-08-09
+
+- [x] receive explicit authorization after accepted R13.8 and freeze the
+  plugin-first BSL/SSL boundary;
+- [x] add one removable trusted-build Semantic Package Registry with compatible
+  activation, disable/re-enable, disposal, collision rejection, and package-
+  local failure isolation;
+- [x] extend the sole Annotation Runtime and existing persistence wire with
+  generic Semantic Artifact transactions, history, unresolved restore, and
+  opaque-field preservation without a schema migration or business-id branch;
+- [x] register first-party `liquidity.bsl@1.0.0` and `liquidity.ssl@1.0.0` for
+  human/manual creation and exact horizontal-Segment promotion only;
+- [x] derive source-agnostic level projection subjects plus minimal host-rendered
+  Semantic/History Inspector schemas;
+- [x] activate H107 with focused negative controls, optional removal, durable
+  round trips, lifecycle isolation, Replay no-future, and real Chromium evidence;
+- [x] complete the corrected local human visual gate and mark H107 accepted;
+- [x] form one separate R13.9 commit; do not begin R13.10.
+
+Binding contract:
+`docs/V7_SEMANTIC_PACKAGE_LIQUIDITY_LEVEL_R13_9.md`.
+
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
 - [x] accept the current standalone ES/NQ minute-replay product as a complete,
@@ -1087,9 +1109,9 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 381 files, 30,372 effective
-lines, 3,210 functions, and 370 public exports; the architecture baseline
-remains 57 modules, 130 edges, 115 construction sites, 23 writers, and zero
+The current production source baseline contains 393 files, 31,690 effective
+lines, 3,346 functions, and 378 public exports; the architecture baseline
+remains 59 modules, 131 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -1100,8 +1122,8 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 381 files, 30,372 effective lines, 3,210 functions, 370 public
-exports, 57 modules, 130 edges, 115 construction sites, 23 writers, and zero
+currently at 393 files, 31,690 effective lines, 3,346 functions, 378 public
+exports, 59 modules, 131 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 ## Established Foundation Governance

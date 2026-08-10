@@ -345,7 +345,11 @@ assert.equal(descriptor.id, 'optional.annotation-runtime');
 assert.equal(descriptor.removable, true);
 assert.deepEqual(
   descriptor.optionalPorts,
-  ['adapter.annotation-persistence', 'optional.annotation-geometry-domain'],
+  [
+    'adapter.annotation-persistence',
+    'optional.annotation-geometry-domain',
+    'optional.annotation-semantic-registry',
+  ],
 );
 const annotationApi = await import('../src/annotation-runtime/public.js');
 const sessionDescriptor = normalizeModuleDescriptor(JSON.parse(fs.readFileSync(

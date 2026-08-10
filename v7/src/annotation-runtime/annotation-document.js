@@ -3,6 +3,10 @@ import { failAnnotation } from './annotation-error.js';
 import { createDrawingId, readDrawingId } from './drawing-id.js';
 import { createDrawingPresentation, readDrawingPresentation } from './drawing-presentation.js';
 import { createDrawingProvenance, readDrawingProvenance } from './drawing-provenance.js';
+import {
+  freezeSemanticArtifact,
+  restoreSemanticArtifact,
+} from './semantic-artifact.js';
 
 const DOCUMENT_FIELDS = Object.freeze(['artifacts', 'drawings', 'revision', 'schemaVersion', 'sessionId']);
 const DRAWING_FIELDS = Object.freeze([
@@ -53,13 +57,16 @@ function freezeDrawing(value) {
   });
 }
 
-function documentValue(sessionId, revision, drawings) {
+function documentValue(sessionId, revision, drawings, artifacts = []) {
   const token = serializeSessionId(sessionId).value;
   const ordered = Object.freeze([...drawings].sort((left, right) => (
     left.drawingId.localeCompare(right.drawingId)
   )));
+  const orderedArtifacts = Object.freeze([...artifacts].sort((left, right) => (
+    left.artifactId.localeCompare(right.artifactId)
+  )));
   return new AnnotationDocumentValue(Object.freeze({
-    artifacts: Object.freeze([]),
+    artifacts: orderedArtifacts,
     drawings: ordered,
     revision,
     schemaVersion: 1,
@@ -69,7 +76,7 @@ function documentValue(sessionId, revision, drawings) {
 
 /** Create one empty Session-scoped Annotation Document. */
 export function createInitialAnnotationDocument(sessionId) {
-  return documentValue(sessionId, 0, []);
+  return documentValue(sessionId, 0, [], []);
 }
 
 /** Restore one canonical portable document after adapter migration/opaque stripping. */
@@ -77,7 +84,7 @@ export function restoreAnnotationDocument(sessionId, candidate, { restoreGeometr
   exactRecord(candidate, DOCUMENT_FIELDS, 'ANNOTATION_STORED_DOCUMENT_INVALID', 'Stored document');
   const token = serializeSessionId(sessionId).value;
   if (candidate.schemaVersion !== 1 || candidate.sessionId !== token
-    || !Array.isArray(candidate.artifacts) || candidate.artifacts.length !== 0
+    || !Array.isArray(candidate.artifacts)
     || !Array.isArray(candidate.drawings) || typeof restoreGeometry !== 'function') {
     failAnnotation('ANNOTATION_STORED_DOCUMENT_INVALID', 'Stored document contract is unsupported.');
   }
@@ -110,10 +117,15 @@ export function restoreAnnotationDocument(sessionId, candidate, { restoreGeometr
   if (new Set(drawings.map(({ drawingId }) => drawingId)).size !== drawings.length) {
     failAnnotation('ANNOTATION_STORED_DRAWING_DUPLICATE', 'Stored Drawing ids must be unique.');
   }
+  const artifacts = candidate.artifacts.map((artifact) => restoreSemanticArtifact(artifact, token));
+  if (new Set(artifacts.map(({ artifactId }) => artifactId)).size !== artifacts.length) {
+    failAnnotation('SEMANTIC_ARTIFACT_ID_DUPLICATE', 'Stored Artifact ids must be unique.');
+  }
   return documentValue(
     sessionId,
     requireStoredRevision(candidate.revision, 0, 'Stored document'),
     drawings,
+    artifacts,
   );
 }
 
@@ -124,6 +136,7 @@ export function rebaseAnnotationDocument(document, sessionId, revision) {
     sessionId,
     requireStoredRevision(revision, 0, 'Rebased document'),
     current.drawings,
+    current.artifacts,
   );
 }
 
@@ -139,6 +152,13 @@ export function readAnnotationDocument(candidate) {
 export function drawingFromDocument(document, drawingId) {
   return readAnnotationDocument(document).drawings.find((drawing) => (
     drawing.drawingId === drawingId
+  )) ?? null;
+}
+
+/** Return one Semantic Artifact by opaque token from a branded document. */
+export function artifactFromDocument(document, artifactId) {
+  return readAnnotationDocument(document).artifacts.find((artifact) => (
+    artifact.artifactId === artifactId
   )) ?? null;
 }
 
@@ -163,6 +183,7 @@ export function addDrawing(document, {
     sessionId,
     nextRevision(current.revision, 'ANNOTATION_DOCUMENT_REVISION_EXHAUSTED', 'Document'),
     [...current.drawings, drawing],
+    current.artifacts,
   );
 }
 
@@ -181,5 +202,81 @@ export function replaceDrawing(document, { drawingId, replacement, sessionId }) 
     sessionId,
     nextRevision(current.revision, 'ANNOTATION_DOCUMENT_REVISION_EXHAUSTED', 'Document'),
     current.drawings.map((candidate) => (candidate.drawingId === drawingId ? drawing : candidate)),
+    current.artifacts,
+  );
+}
+
+/** Create one generic validated Semantic Artifact and advance the document once. */
+export function addSemanticArtifact(document, { artifact, sessionId }) {
+  const current = readAnnotationDocument(document);
+  if (current.artifacts.some(({ artifactId }) => artifactId === artifact.artifactId)) {
+    failAnnotation('SEMANTIC_ARTIFACT_ID_DUPLICATE', `Artifact ${artifact.artifactId} already exists.`);
+  }
+  const created = freezeSemanticArtifact({
+    ...artifact,
+    revision: 1,
+    sessionId: current.sessionId,
+    status: 'active',
+  });
+  return documentValue(
+    sessionId,
+    nextRevision(current.revision, 'ANNOTATION_DOCUMENT_REVISION_EXHAUSTED', 'Document'),
+    current.drawings,
+    [...current.artifacts, created],
+  );
+}
+
+/** Replace one exact Semantic Artifact state and advance both revisions once. */
+export function replaceSemanticArtifact(document, { artifactId, replacement, sessionId }) {
+  const current = readAnnotationDocument(document);
+  const existing = artifactFromDocument(document, artifactId);
+  if (existing === null) {
+    failAnnotation('SEMANTIC_ARTIFACT_NOT_FOUND', `Artifact ${artifactId} does not exist.`);
+  }
+  const artifact = freezeSemanticArtifact({
+    ...existing,
+    ...replacement,
+    revision: nextRevision(existing.revision, 'SEMANTIC_ARTIFACT_REVISION_EXHAUSTED', 'Artifact'),
+    sessionId: existing.scope.sessionId,
+  });
+  return documentValue(
+    sessionId,
+    nextRevision(current.revision, 'ANNOTATION_DOCUMENT_REVISION_EXHAUSTED', 'Document'),
+    current.drawings,
+    current.artifacts.map((candidate) => (
+      candidate.artifactId === artifactId ? artifact : candidate
+    )),
+  );
+}
+
+/** Atomically create one Artifact and optionally archive its exact source Drawing. */
+export function promoteDrawingToSemanticArtifact(document, {
+  artifact, drawingId, drawingDisposition, sessionId,
+}) {
+  const current = readAnnotationDocument(document);
+  if (current.artifacts.some(({ artifactId }) => artifactId === artifact.artifactId)) {
+    failAnnotation('SEMANTIC_ARTIFACT_ID_DUPLICATE', `Artifact ${artifact.artifactId} already exists.`);
+  }
+  const source = drawingFromDocument(document, drawingId);
+  if (source === null) failAnnotation('DRAWING_NOT_FOUND', `Drawing ${drawingId} does not exist.`);
+  const created = freezeSemanticArtifact({
+    ...artifact,
+    revision: 1,
+    sessionId: current.sessionId,
+    status: 'active',
+  });
+  const drawings = drawingDisposition === 'retain' ? current.drawings : current.drawings.map((drawing) => (
+    drawing.drawingId === drawingId ? freezeDrawing({
+      ...drawing,
+      revision: nextRevision(drawing.revision, 'DRAWING_REVISION_EXHAUSTED', 'Drawing'),
+      sessionId: drawing.scope.sessionId,
+      status: 'archived',
+    }) : drawing
+  ));
+  return documentValue(
+    sessionId,
+    nextRevision(current.revision, 'ANNOTATION_DOCUMENT_REVISION_EXHAUSTED', 'Document'),
+    drawings,
+    [...current.artifacts, created],
   );
 }

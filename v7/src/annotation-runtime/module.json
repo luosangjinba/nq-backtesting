@@ -5,7 +5,11 @@
   "owner": "annotation-runtime",
   "publicEntry": "src/annotation-runtime/public.js",
   "requiredPorts": ["core.session-identity"],
-  "optionalPorts": ["adapter.annotation-persistence", "optional.annotation-geometry-domain"],
+  "optionalPorts": [
+    "adapter.annotation-persistence",
+    "optional.annotation-geometry-domain",
+    "optional.annotation-semantic-registry"
+  ],
   "lifecycle": ["dispose"],
   "independentHarness": "tests/annotation-runtime-harness.js",
   "removable": true

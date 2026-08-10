@@ -1,0 +1,12 @@
+{
+  "id": "optional.annotation-semantic-registry",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "annotation-semantic-registry",
+  "publicEntry": "src/annotation-semantic-registry/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/annotation-semantic-package-harness.js",
+  "removable": true
+}

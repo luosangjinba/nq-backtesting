@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r13.8-pane-time-replay-annotation-projection-accepted",
+  "status": "r13.9-semantic-package-liquidity-level-accepted",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -36,6 +36,7 @@
     "docs/V7_RECTANGLE_SELECTION_MINIMAL_INSPECTOR_R13_6.md",
     "docs/V7_DURABLE_ANNOTATION_HISTORY_R13_7.md",
     "docs/V7_PANE_TIME_REPLAY_ANNOTATION_PROJECTION_R13_8.md",
+    "docs/V7_SEMANTIC_PACKAGE_LIQUIDITY_LEVEL_R13_9.md",
     "docs/v7-community-reuse-audit.json",
     "docs/V7_V6_MIGRATION_DENYLIST.md",
     "docs/V7_V6_DISPOSITION_MATRIX.md",
@@ -125,7 +126,9 @@
     "annotation-persistence-adapter",
     "annotation-runtime",
     "annotation-interaction-controller",
-    "annotation-context-projection"
+    "annotation-context-projection",
+    "annotation-semantic-registry",
+    "semantic-liquidity-level"
   ],
   "requiredIdentityFields": [
     "sessionId",
@@ -154,6 +157,8 @@
     "src/annotation-chart-projection/module.json",
     "src/annotation-interaction/module.json",
     "src/annotation-context-projection/module.json",
+    "src/annotation-semantic-registry/module.json",
+    "src/semantic-liquidity-level/module.json",
     "src/capability-contract/module.json",
     "src/bar-data-contract/module.json",
     "src/raw-coverage-lease-contract/module.json",

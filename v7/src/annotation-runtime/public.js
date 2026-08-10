@@ -1,7 +1,7 @@
 /**
  * Owner: annotation-runtime.
- * Purpose: expose the headless generic-Drawing document and durable-history contract.
- * Inputs: branded Session/Drawing/provenance values plus injected Geometry and Repository ports.
+ * Purpose: expose the headless Drawing/Artifact document and durable-history contract.
+ * Inputs: branded Session/Drawing/provenance values plus injected Geometry, Repository, and optional Semantic ports.
  * Outputs: isolated Runtime commands, immutable queries, reload restore, undo/redo, and import/export.
  * Side effects: only injected Repository preparations; no UI, Chart, Replay, Bars, or storage selection.
  * Lifecycle: each Runtime is isolated and disposed explicitly.

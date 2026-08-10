@@ -153,6 +153,12 @@ containing-bucket projection plus Replay no-future hide/restore.
 Pane/time/Replay projection owner, exact-instant and accepted-containing-bucket
 policies, read-only no-future Replay behavior, multi-Pane settlement, and H106
 human visual gate. It does not authorize R13.9 semantic packages.
+`V7_SEMANTIC_PACKAGE_LIQUIDITY_LEVEL_R13_9.md` is the authorized binding
+contract for the first trusted-build semantic plugin slice: host-owned package
+lifecycle, unresolved Artifact survival, generic Runtime/persistence support,
+and human/manual BSL/SSL creation or horizontal-Segment promotion. H107's
+automated and corrected local human visual gates passed on 2026-08-09. H107 is
+accepted and R13.10 remains unauthorized.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

@@ -39,11 +39,11 @@ real Chromium fixture proves `before = [0,0]`, `after = [2,1]`, and return
 `[0,0]` for NQ 1m/5m while candlestick data and canonical Geometry remain
 byte-identical.
 
-Production assembly contains 57 public modules, 22 lifecycle modules, and 16
-optional-removal cases. Architecture evidence contains 57 modules, 130
+Production assembly contains 59 public modules, 24 lifecycle modules, and 21
+optional-removal cases. Architecture evidence contains 59 modules, 131
 dependency edges, 115 construction sites, 18 declared writer surfaces, 23
 observed writer files, and zero blocking findings. Current source evidence
-contains 381 files, 30,372 effective lines, 3,210 functions, and 370 public
+contains 393 files, 31,690 effective lines, 3,346 functions, and 378 public
 exports with no accepted exception.
 
 The focused R13.2–R13.7 regressions, source quality, writer closure, standalone

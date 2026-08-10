@@ -136,7 +136,7 @@
       }
     ]
   },
-  "deliveryStep": "R13.8",
+  "deliveryStep": "R13.9",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -4001,7 +4001,8 @@
         ],
         "declaredOptionalPorts": [
           "adapter.annotation-persistence",
-          "optional.annotation-geometry-domain"
+          "optional.annotation-geometry-domain",
+          "optional.annotation-semantic-registry"
         ],
         "declaredRequiredPorts": [
           "core.session-identity"
@@ -4210,6 +4211,42 @@
         "publicEntry": "src/replay-contract/public.js"
       },
       {
+        "actualDependencies": [
+          "optional.annotation-semantic-registry"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "optional.annotation-geometry-domain",
+          "optional.annotation-semantic-registry"
+        ],
+        "descriptorPath": "src/semantic-liquidity-level/module.json",
+        "id": "optional.semantic-liquidity-level",
+        "importSites": [
+          {
+            "importedNames": [
+              "AnnotationSemanticPackageError",
+              "defineSemanticPackage",
+              "defineSemanticType"
+            ],
+            "sourceFile": "src/semantic-liquidity-level/liquidity-level-package.js",
+            "targetFile": "src/annotation-semantic-registry/public.js",
+            "targetModuleId": "optional.annotation-semantic-registry",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/annotation-semantic-package-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [
+          "src/semantic-liquidity-level/liquidity-level-package.js"
+        ],
+        "owner": "semantic-liquidity-level",
+        "publicEntry": "src/semantic-liquidity-level/public.js"
+      },
+      {
         "actualDependencies": [],
         "declaredLifecycle": [
           "dispose",
@@ -4309,6 +4346,25 @@
         ],
         "owner": "chart-runtime-adapter",
         "publicEntry": "src/annotation-chart-projection/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/annotation-semantic-registry/module.json",
+        "id": "optional.annotation-semantic-registry",
+        "importSites": [],
+        "independentHarness": "tests/annotation-semantic-package-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [
+          "src/annotation-semantic-registry/semantic-package-registry.js"
+        ],
+        "owner": "annotation-semantic-registry",
+        "publicEntry": "src/annotation-semantic-registry/public.js"
       },
       {
         "actualDependencies": [],

@@ -46,6 +46,18 @@
       "omittedModuleId": "optional.annotation-geometry-domain"
     },
     {
+      "consumerModuleId": "optional.annotation-runtime",
+      "omittedModuleId": "optional.annotation-semantic-registry"
+    },
+    {
+      "consumerModuleId": "optional.semantic-liquidity-level",
+      "omittedModuleId": "optional.annotation-geometry-domain"
+    },
+    {
+      "consumerModuleId": "optional.semantic-liquidity-level",
+      "omittedModuleId": "optional.annotation-semantic-registry"
+    },
+    {
       "consumerModuleId": null,
       "omittedModuleId": "optional.annotation-chart-projection"
     },
@@ -64,6 +76,14 @@
     {
       "consumerModuleId": null,
       "omittedModuleId": "optional.annotation-runtime"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.annotation-semantic-registry"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.semantic-liquidity-level"
     }
   ]
 }
