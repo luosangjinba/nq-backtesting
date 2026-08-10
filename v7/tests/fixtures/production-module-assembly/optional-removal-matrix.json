@@ -54,6 +54,18 @@
       "omittedModuleId": "optional.annotation-semantic-registry"
     },
     {
+      "consumerModuleId": "optional.semantic-fair-value-gap",
+      "omittedModuleId": "optional.annotation-evidence-resolver"
+    },
+    {
+      "consumerModuleId": "optional.semantic-fair-value-gap",
+      "omittedModuleId": "optional.annotation-geometry-domain"
+    },
+    {
+      "consumerModuleId": "optional.semantic-fair-value-gap",
+      "omittedModuleId": "optional.annotation-semantic-registry"
+    },
+    {
       "consumerModuleId": "optional.semantic-liquidity-level",
       "omittedModuleId": "optional.annotation-geometry-domain"
     },
@@ -92,6 +104,10 @@
     {
       "consumerModuleId": null,
       "omittedModuleId": "optional.annotation-semantic-registry"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.semantic-fair-value-gap"
     },
     {
       "consumerModuleId": null,

@@ -1590,6 +1590,92 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 100,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "requireSessionMatch",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "readFvgConstructionEvidence",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "sameReferenceIdentity",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 31,
+          "name": "validateBundle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "fvgSourceBarReferences",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "readBundle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "reject",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.semantic-fair-value-gap",
+      "owner": "semantic-fair-value-gap",
+      "ownsContract": false,
+      "path": "src/semantic-fair-value-gap/fvg-evidence.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "f5d828e140d5dd4fc77c8371db4bc23ffb0820557fa0d46d3854fde0917d1bae"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 103,
       "forwardingOnly": false,
       "functions": [
@@ -14854,6 +14940,52 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "reject",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 39,
+          "name": "deriveStrictFvgFormation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "requirePrice",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "parameter",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.semantic-fair-value-gap",
+      "owner": "semantic-fair-value-gap",
+      "ownsContract": false,
+      "path": "src/semantic-fair-value-gap/fvg-formation.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "df8d56e6b88bfae90fbb2bb4800d52fdd8ac9ec40dfc20023ea2b6bba395c54e"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 55,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 35,
           "name": "normalizeSemanticConstructionResult",
           "reviewedDecompositionException": false
@@ -17845,6 +17977,120 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 85,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 11,
+          "name": "parameter",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "invalid",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 56,
+          "name": "readFairValueGapArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exact",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.semantic-fair-value-gap",
+      "owner": "semantic-fair-value-gap",
+      "ownsContract": false,
+      "path": "src/semantic-fair-value-gap/fvg-artifact.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "semantic-fair-value-gap.",
+            "purpose": "expose the strict evidence-derived three-Bar FVG trusted-build package.",
+            "inputs": "public Geometry/Evidence contracts plus one branded Evidence Bundle and Session identity.",
+            "outputs": "one branded package manifest with deterministic construction and projection policies.",
+            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
+            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
+            "errors": "AnnotationSemanticPackageError rejects malformed, non-FVG, gapped, or cross-Session evidence.",
+            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
+          },
+          "moduleId": "optional.semantic-fair-value-gap",
+          "name": "FAIR_VALUE_GAP_PROFILE",
+          "semanticMatches": [
+            "semantic"
+          ],
+          "semanticTerms": [
+            "fair",
+            "gap",
+            "optional",
+            "profile",
+            "semantic"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "semantic-fair-value-gap.",
+            "purpose": "expose the strict evidence-derived three-Bar FVG trusted-build package.",
+            "inputs": "public Geometry/Evidence contracts plus one branded Evidence Bundle and Session identity.",
+            "outputs": "one branded package manifest with deterministic construction and projection policies.",
+            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
+            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
+            "errors": "AnnotationSemanticPackageError rejects malformed, non-FVG, gapped, or cross-Session evidence.",
+            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
+          },
+          "moduleId": "optional.semantic-fair-value-gap",
+          "name": "FAIR_VALUE_GAP_TYPE_ID",
+          "semanticMatches": [
+            "semantic"
+          ],
+          "semanticTerms": [
+            "fair",
+            "gap",
+            "optional",
+            "semantic",
+            "type"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "semantic-fair-value-gap.",
+            "purpose": "expose the strict evidence-derived three-Bar FVG trusted-build package.",
+            "inputs": "public Geometry/Evidence contracts plus one branded Evidence Bundle and Session identity.",
+            "outputs": "one branded package manifest with deterministic construction and projection policies.",
+            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
+            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
+            "errors": "AnnotationSemanticPackageError rejects malformed, non-FVG, gapped, or cross-Session evidence.",
+            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
+          },
+          "moduleId": "optional.semantic-fair-value-gap",
+          "name": "FAIR_VALUE_GAP_VERSION",
+          "semanticMatches": [
+            "semantic"
+          ],
+          "semanticTerms": [
+            "fair",
+            "gap",
+            "optional",
+            "semantic",
+            "version"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "cc6ac3b66da0f392c3ca90f41772d1f8ed431db0dffaa6a1c7a8aa72d57a1f50"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 86,
       "forwardingOnly": false,
       "functions": [
@@ -18088,6 +18334,52 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "971a7113a5919035b377ffc48e409729555a817f2bf9d617280a6076f35f0174"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 87,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "anchor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "projectionInput",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "requireFvgGeometryContract",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "presentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 36,
+          "name": "projectFairValueGapArtifact",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.semantic-fair-value-gap",
+      "owner": "semantic-fair-value-gap",
+      "ownsContract": false,
+      "path": "src/semantic-fair-value-gap/fvg-projection.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "707e59d681b242c1c6f1d89fe14dfa05c795cc4a4db63263a0814651e5eec7d3"
     },
     {
       "adaptsBoundary": false,
@@ -18351,6 +18643,26 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "aa001491a47cb100589a9a39f536b89c6dd2754e1055620818885bf88d602dce"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 9,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "domain",
+      "moduleId": "optional.semantic-fair-value-gap",
+      "owner": "semantic-fair-value-gap",
+      "ownsContract": true,
+      "path": "src/semantic-fair-value-gap/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "d5a6a4b6552d3a9b532a712577668c65f65318d88e1b8108708233b066e28dfd"
     },
     {
       "adaptsBoundary": false,
@@ -19280,6 +19592,128 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "73095fddc6790ce1e0d5c28983c347a3b265e276f691d671b752ed75e8e14a02"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 98,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "activate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "construct",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "inspect",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "project",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "defaultPresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "typeDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "createFairValueGapSemanticPackage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 30,
+          "name": "construction",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireEvidenceContract",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.semantic-fair-value-gap",
+      "owner": "semantic-fair-value-gap",
+      "ownsContract": false,
+      "path": "src/semantic-fair-value-gap/fair-value-gap-package.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "semantic-fair-value-gap.",
+            "purpose": "expose the strict evidence-derived three-Bar FVG trusted-build package.",
+            "inputs": "public Geometry/Evidence contracts plus one branded Evidence Bundle and Session identity.",
+            "outputs": "one branded package manifest with deterministic construction and projection policies.",
+            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
+            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
+            "errors": "AnnotationSemanticPackageError rejects malformed, non-FVG, gapped, or cross-Session evidence.",
+            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
+          },
+          "moduleId": "optional.semantic-fair-value-gap",
+          "name": "createFairValueGapSemanticPackage",
+          "semanticMatches": [
+            "package",
+            "semantic"
+          ],
+          "semanticTerms": [
+            "fair",
+            "gap",
+            "optional",
+            "package",
+            "semantic"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "semantic-fair-value-gap.",
+            "purpose": "expose the strict evidence-derived three-Bar FVG trusted-build package.",
+            "inputs": "public Geometry/Evidence contracts plus one branded Evidence Bundle and Session identity.",
+            "outputs": "one branded package manifest with deterministic construction and projection policies.",
+            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
+            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
+            "errors": "AnnotationSemanticPackageError rejects malformed, non-FVG, gapped, or cross-Session evidence.",
+            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
+          },
+          "moduleId": "optional.semantic-fair-value-gap",
+          "name": "FAIR_VALUE_GAP_PACKAGE_ID",
+          "semanticMatches": [
+            "package",
+            "semantic"
+          ],
+          "semanticTerms": [
+            "fair",
+            "gap",
+            "optional",
+            "package",
+            "semantic"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "e0ca3eb8cc96de93e4eb5abba26643c43ddc2126d284348204143ee7156d9ac1"
     },
     {
       "adaptsBoundary": false,
@@ -22543,138 +22977,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 126,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "read",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "normalizeGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "normalizePresentation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 23,
-          "name": "createAnnotationProjection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 29,
-          "name": "portable",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "annotationProjectionSignature",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "exactRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "opaqueId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "readAnnotationProjection",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "optional.annotation-chart-projection",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/annotation-chart-projection/annotation-projection.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
-            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
-            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
-            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
-            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
-            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
-            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
-          },
-          "moduleId": "optional.annotation-chart-projection",
-          "name": "createAnnotationProjection",
-          "semanticMatches": [
-            "annotation",
-            "chart",
-            "projection"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "chart",
-            "optional",
-            "projection"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
-            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
-            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
-            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
-            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
-            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
-            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
-          },
-          "moduleId": "optional.annotation-chart-projection",
-          "name": "readAnnotationProjection",
-          "semanticMatches": [
-            "annotation",
-            "chart",
-            "projection"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "chart",
-            "optional",
-            "projection"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "f57f25822783103ff032bbb7ca1283b1555f8d85c5569d3b70d34dab54557587"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 136,
       "forwardingOnly": false,
       "functions": [
@@ -23603,6 +23905,138 @@
       ],
       "sizeException": null,
       "sourceHash": "7414c0ce272143d9879c5b9f4d6f97dc2d171e7ae3fd9513f0293690edfe9952"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 147,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "normalizeGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "createAnnotationProjection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "portable",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "annotationProjectionSignature",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 38,
+          "name": "normalizePresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "opaqueId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readAnnotationProjection",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.annotation-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-chart-projection/annotation-projection.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
+            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
+            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
+            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
+            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
+            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
+          },
+          "moduleId": "optional.annotation-chart-projection",
+          "name": "createAnnotationProjection",
+          "semanticMatches": [
+            "annotation",
+            "chart",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "chart",
+            "optional",
+            "projection"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
+            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
+            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
+            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
+            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
+            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
+          },
+          "moduleId": "optional.annotation-chart-projection",
+          "name": "readAnnotationProjection",
+          "semanticMatches": [
+            "annotation",
+            "chart",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "chart",
+            "optional",
+            "projection"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "89d34231e6c0670adbf51288b70492bda10ba87592cff537fe9391bff0bc98de"
     },
     {
       "adaptsBoundary": true,
@@ -24751,143 +25185,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 169,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "paneViews",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "renderer",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "zOrder",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "updateView",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "hitTest",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "readRectangle",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 21,
-          "name": "styleFor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 25,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "alphaHex",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 35,
-          "name": "createRectangleRenderPrimitive",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "detached",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "draw",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "destroy",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "attached",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "requireAttached",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "update",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "optional.annotation-chart-projection",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/annotation-chart-projection/rectangle-render-primitive.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
-            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
-            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
-            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
-            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
-            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
-            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
-          },
-          "moduleId": "optional.annotation-chart-projection",
-          "name": "createRectangleRenderPrimitive",
-          "semanticMatches": [
-            "annotation",
-            "chart",
-            "primitive",
-            "projection",
-            "render"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "chart",
-            "optional",
-            "primitive",
-            "projection",
-            "rectangle",
-            "render"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "8f47c8aaa61c6af47710dc9c125fbb3060c7e49c82e4f1e135cd0c63b5236f34"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 172,
       "forwardingOnly": false,
       "functions": [
@@ -25693,6 +25990,143 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "36bf75563e0e1cd46c97f37548e6e4217b7998380e004a8b0104680e9cd737cb"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 191,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "paneViews",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "renderer",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "zOrder",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "updateView",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "hitTest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "readRectangle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "alphaHex",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 30,
+          "name": "styleFor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "createRectangleRenderPrimitive",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 38,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "detached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "draw",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "destroy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "attached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireAttached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "update",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.annotation-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/annotation-chart-projection/rectangle-render-primitive.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose accepted/transient Annotation projection transactions and bounded Chart interaction bridges.",
+            "inputs": "immutable vendor-neutral projections plus one explicitly injected primitive or Series port.",
+            "outputs": "branded projections/preparations/receipts, a disposable projection owner, or RenderPrimitive handle.",
+            "sideEffects": "only the injected primitive adapter may attach, update, detach, or destroy Annotation primitives.",
+            "lifecycle": "each projection port and RenderPrimitive is isolated and disposed explicitly by its Chart owner.",
+            "errors": "AnnotationChartProjectionError rejects malformed, stale, foreign, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one asynchronous settlement at a time; vendor mutations are rollback-protected."
+          },
+          "moduleId": "optional.annotation-chart-projection",
+          "name": "createRectangleRenderPrimitive",
+          "semanticMatches": [
+            "annotation",
+            "chart",
+            "primitive",
+            "projection",
+            "render"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "chart",
+            "optional",
+            "primitive",
+            "projection",
+            "rectangle",
+            "render"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "61fbbbba0f591a9756fa7c83b442df25bfaa456683a3967ba2c8c0774e55493c"
     },
     {
       "adaptsBoundary": true,
@@ -35954,11 +36388,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 32863,
-    "files": 411,
-    "functions": 3451,
-    "publicExports": 388
+    "effectiveLines": 33340,
+    "files": 417,
+    "functions": 3488,
+    "publicExports": 393
   },
-  "deliveryStep": "R13.10b",
-  "generatedFromCommit": "working-tree-r13.10b"
+  "deliveryStep": "R13.10c",
+  "generatedFromCommit": "working-tree-r13.10c"
 }

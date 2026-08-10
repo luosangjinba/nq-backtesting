@@ -1,12 +1,13 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-09 after accepted R13.10b Exact Bar Picker closure
+Last updated: 2026-08-10 after accepted R13.10c deterministic FVG closure
 
 ## Restart Resume Checkpoint
 
 Resume on branch `feature/v7-drawing-semantic-annotation`. The current branch
-tip is the separately committed, accepted R13.10b checkpoint; `git log -1` is
-the authoritative commit identity. The repository is expected to be clean.
+tip is the separately committed, accepted R13.10c checkpoint; `git log -1` is
+the authoritative commit identity. The repository is expected to be clean
+before separately authorized later work.
 
 After a machine or agent restart, run:
 
@@ -20,14 +21,14 @@ git status --short
 Then read, in order:
 
 1. `v7/docs/V7_RESTART_HANDOFF.md`
-2. `v7/docs/V7_EXACT_BAR_PICKER_R13_10B.md`
-3. `v7/sessions/session_20260809_r13_10b_exact_bar_picker.md`
+2. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
+3. `v7/sessions/session_20260810_r13_10c_deterministic_fvg.md`
 4. `v7/TODO.md`
 
-R13.10b and H110 are accepted. The final acceptance fixture contains no
-temporary diagnostic strip. R13.10c, FVG construction, Evidence Inspector,
-overrides, and later work remain unauthorized until the user explicitly
-approves the next step. Do not infer that approval from this handoff.
+R13.10b/H110 and R13.10c/H111 are accepted. The focused FVG fixture contains
+no temporary diagnostic surface, and its acceptance server is stopped.
+Evidence Inspector, overrides, detector, production toolbar, R13.10d, R13.10e,
+and later implementation remain unauthorized.
 
 ## Current Overall Acceptance State
 
@@ -86,8 +87,17 @@ interaction lease, resolves only exact mounted-Series Bar starts, preserves
 native navigation, and emits no accepted-state mutation. H110 and focused
 real-Chromium evidence pass. The user accepted its fixture-only
 cyan-candidate/lime-accepted human visual gate on 2026-08-09 after the final
-regression covered transient window blur during a complete click. R13.10c and
-all FVG/Inspector behavior remain unauthorized.
+regression covered transient window blur during a complete click. R13.10c is
+now authorized under
+`V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`. Removable
+`optional.semantic-fair-value-gap` consumes only branded exact three-Bar
+evidence, derives strict bullish/bearish wick gaps and immutable parameter
+provenance, and emits generic Rectangle/midpoint/label projections through the
+existing no-future and Chart owners. H111's headless and real-Chromium paths
+pass, including durable unresolved restore, package disable/re-enable,
+multi-Pane projection, unchanged candles, and native wheel/drag. The user
+accepted the focused local visual gate on 2026-08-10. All Inspector/override/
+detector/production-toolbar behavior remains unauthorized.
 ADR-V7-002 audited the current public Lightweight Charts drawing,
 indicator, toolkit, and alternative-engine ecosystem at pinned revisions.
 Official Primitive/rendering patterns are approved for adaptation, but no
@@ -108,7 +118,8 @@ Binding records:
 `V7_STAGE_ARCHITECTURE_REVIEW_R13_9A.md` and
 `V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md` and
 `V7_PURE_ANNOTATION_EVIDENCE_RESOLVER_R13_10A.md` and
-`V7_EXACT_BAR_PICKER_R13_10B.md`, with frozen candidate evidence in
+`V7_EXACT_BAR_PICKER_R13_10B.md` and
+`V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`, with frozen candidate evidence in
 `v7-community-reuse-audit.json`.
 
 R11 is the closed architecture-recovery record underlying the accepted

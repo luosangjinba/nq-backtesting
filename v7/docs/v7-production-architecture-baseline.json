@@ -136,7 +136,7 @@
       }
     ]
   },
-  "deliveryStep": "R13.10b",
+  "deliveryStep": "R13.10c",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -3991,6 +3991,91 @@
         "observedDisposeSites": [],
         "owner": "replay-navigation-runtime",
         "publicEntry": "src/replay-navigation-preference-store/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.session-identity",
+          "optional.annotation-semantic-registry"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.session-identity",
+          "optional.annotation-evidence-resolver",
+          "optional.annotation-geometry-domain",
+          "optional.annotation-semantic-registry"
+        ],
+        "descriptorPath": "src/semantic-fair-value-gap/module.json",
+        "id": "optional.semantic-fair-value-gap",
+        "importSites": [
+          {
+            "importedNames": [
+              "AnnotationSemanticPackageError",
+              "defineSemanticPackage",
+              "defineSemanticType"
+            ],
+            "sourceFile": "src/semantic-fair-value-gap/fair-value-gap-package.js",
+            "targetFile": "src/annotation-semantic-registry/public.js",
+            "targetModuleId": "optional.annotation-semantic-registry",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "AnnotationSemanticPackageError"
+            ],
+            "sourceFile": "src/semantic-fair-value-gap/fvg-artifact.js",
+            "targetFile": "src/annotation-semantic-registry/public.js",
+            "targetModuleId": "optional.annotation-semantic-registry",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "AnnotationSemanticPackageError"
+            ],
+            "sourceFile": "src/semantic-fair-value-gap/fvg-evidence.js",
+            "targetFile": "src/annotation-semantic-registry/public.js",
+            "targetModuleId": "optional.annotation-semantic-registry",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "AnnotationSemanticPackageError"
+            ],
+            "sourceFile": "src/semantic-fair-value-gap/fvg-formation.js",
+            "targetFile": "src/annotation-semantic-registry/public.js",
+            "targetModuleId": "optional.annotation-semantic-registry",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "AnnotationSemanticPackageError"
+            ],
+            "sourceFile": "src/semantic-fair-value-gap/fvg-projection.js",
+            "targetFile": "src/annotation-semantic-registry/public.js",
+            "targetModuleId": "optional.annotation-semantic-registry",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeSessionId",
+              "sessionIdsEqual"
+            ],
+            "sourceFile": "src/semantic-fair-value-gap/fvg-evidence.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/fair-value-gap-semantic-package-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [
+          "src/semantic-fair-value-gap/fair-value-gap-package.js"
+        ],
+        "owner": "semantic-fair-value-gap",
+        "publicEntry": "src/semantic-fair-value-gap/public.js"
       },
       {
         "actualDependencies": [

@@ -1,0 +1,17 @@
+{
+  "id": "optional.semantic-fair-value-gap",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "semantic-fair-value-gap",
+  "publicEntry": "src/semantic-fair-value-gap/public.js",
+  "requiredPorts": [
+    "core.session-identity",
+    "optional.annotation-evidence-resolver",
+    "optional.annotation-geometry-domain",
+    "optional.annotation-semantic-registry"
+  ],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/fair-value-gap-semantic-package-harness.js",
+  "removable": true
+}

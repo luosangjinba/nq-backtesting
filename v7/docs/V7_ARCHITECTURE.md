@@ -922,8 +922,27 @@ complete Picker click; only an already active primary Picker press receives a
 immediate cancellation. Its
 fixture-only candidate and accepted highlights use the existing transient
 projection owner and center one full slot on the exact target Bar. H110 and the
-corrected human visual gate are accepted. FVG/Inspector behavior and R13.10c
-remain unauthorized.
+corrected human visual gate are accepted. Evidence Inspector and overrides
+remain outside that step.
+
+R13.10c activates removable `optional.semantic-fair-value-gap` as a second
+trusted-build business package and the first evidence-derived construction.
+It accepts only a branded R13.10a Evidence Bundle with exact adjacent
+`[-1, 0, 1]` Bars, common source identity and Replay cutoff, no Artifact
+references, and the matching branded Session. Its package-local versioned
+definition recognizes only strict bullish `preceding.high < confirming.low`
+or bearish `preceding.low > confirming.high` wick gaps; touching and overlap
+fail closed. Generic Runtime stores the host-stamped Artifact without an FVG
+branch. The package emits only Rectangle and midpoint-Segment subjects under
+the existing containing-bucket/no-future projector, while the Chart-owned
+Rectangle primitive renders a bounded projection-only label. Disable or
+absence removes projections but preserves unresolved semantic bytes. The
+package receives no Chart, Series, Canvas, DOM, Bar requester, Replay or
+Workspace writer, Annotation writer, persistence, storage, or network handle.
+H111's automated headless/Chromium evidence and focused local human visual gate
+are accepted. R13.10c is closed without changing the production toolbar.
+Evidence Inspector, editable overrides, detectors, production toolbar,
+R13.10d, and R13.10e remain unauthorized.
 
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,

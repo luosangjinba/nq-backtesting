@@ -38,7 +38,7 @@ Runtime Harnesses pass 35 and 39 negative controls. Production assembly contains
 56 public modules and 13 optional-removal cases. Architecture evidence contains
 56 modules, 129 dependency edges, 115 construction sites, 18 declared writer
 surfaces, 23 observed writer files, and zero blocking findings. Current source
-evidence contains 411 files, 32,863 effective lines, 3,451 functions, and 388 public exports with no accepted exception.
+evidence contains 417 files, 33,340 effective lines, 3,488 functions, and 393 public exports with no accepted exception.
 
 The standing Module Host, production assembly, architecture, sole-writer,
 source-quality, standalone runtime, regression matrix, JSON, and patch-format

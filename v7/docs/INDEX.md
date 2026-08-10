@@ -181,7 +181,13 @@ boundary. It adds a removable controller over the existing shared Chart
 interaction lease, selects only original mounted-Series timestamps, and owns
 no Bar request or accepted-state mutation. H110 and the corrected
 cyan-candidate/lime-accepted real-browser human gate passed on 2026-08-09.
-FVG/Inspector work and R13.10c remain unauthorized.
+`V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md` is the accepted
+strict three-Bar FVG boundary. It adds a removable evidence-derived Semantic
+package over branded R13.10a evidence and emits only generic Rectangle,
+midpoint-Segment, and projection-label inputs through existing owners. H111's
+automated and focused local human visual gates passed on 2026-08-10. Evidence
+Inspector, overrides, detector, production toolbar, R13.10d, and R13.10e
+remain unauthorized.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R13.10b",
+  "deliveryStep": "R13.10c",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -51,6 +51,7 @@
       "core.workspace-checkpoint-domain",
       "optional.annotation-evidence-resolver",
       "optional.annotation-geometry-domain",
+      "optional.semantic-fair-value-gap",
       "optional.semantic-liquidity-level"
     ],
     "runtime": [
@@ -175,6 +176,10 @@
     },
     {
       "path": "sessions/session_20260809_r13_10b_exact_bar_picker.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260810_r13_10c_deterministic_fvg.md",
       "expectedOccurrences": 1
     }
   ],

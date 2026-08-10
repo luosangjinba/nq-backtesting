@@ -1097,6 +1097,35 @@ an immediate cancellation. FVG construction, Evidence Inspector, overrides,
 production toolbar, and R13.10c remain outside this step. Binding contract:
 `V7_EXACT_BAR_PICKER_R13_10B.md`.
 
+### R13.10c — Deterministic FVG Construction And Projection
+
+- activate removable `optional.semantic-fair-value-gap` through the existing
+  trusted-build Semantic Registry, with no core FVG branch;
+- consume only a branded R13.10a Evidence Bundle containing exact adjacent
+  `[-1, 0, 1]` Bars, one Session/source/cutoff identity, and no Artifact
+  references;
+- freeze `imbalance.fvg.strict-three-bar-wick-gap@1.0.0`: bullish requires
+  `preceding.high < confirming.low`, bearish requires
+  `preceding.low > confirming.high`, and touching/overlap fail closed;
+- store immutable derived bounds/midpoint provenance and exact source Bars in
+  one host-stamped generic Semantic Artifact;
+- emit generic Rectangle and midpoint-Segment subjects plus a bounded
+  projection-only label through the existing no-future Context Projection and
+  Chart primitive owners;
+- prove deterministic construction, durable unresolved survival, compatible
+  disable/re-enable, multi-Pane/no-future projection, unchanged candles,
+  native wheel/drag, owner isolation, and optional removal through H111;
+- stop at the focused local browser fixture until the mandatory human visual
+  gate is explicitly accepted.
+
+Accepted 2026-08-10. H111, the complete standing automated gates, and the
+focused local human visual gate pass. The user confirmed both gap directions,
+alignment through native navigation, Replay hide/restore, package
+disable/re-enable, and unchanged candles. Evidence Inspector, validated
+overrides, production toolbar, detector, R13.10d, and R13.10e remain
+unauthorized. Binding contract:
+`V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`.
+
 ## Deferred Product Boundary — Second-Level Replay
 
 Second-level/tick-sourced Replay has no delivery number and is not the next

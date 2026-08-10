@@ -33,6 +33,7 @@ function styleFor(options, presentation) {
     showHandles: options.showHandles ?? false,
     strokeColor: options.strokeColor ?? presentation?.strokeColor ?? '#38bdf8',
     strokeWidth: options.strokeWidth ?? presentation?.strokeWidth ?? 2,
+    label: presentation?.label ?? null,
   });
   if (!/^#[0-9a-fA-F]{6}$/.test(style.fillColor)
     || !/^#[0-9a-fA-F]{6}$/.test(style.strokeColor)
@@ -40,7 +41,15 @@ function styleFor(options, presentation) {
     || !Number.isFinite(style.fillOpacity) || style.fillOpacity < 0 || style.fillOpacity > 1
     || !Number.isFinite(style.strokeWidth) || style.strokeWidth <= 0
     || !Number.isFinite(style.handleRadius) || style.handleRadius < 1
-    || typeof style.showHandles !== 'boolean') {
+    || typeof style.showHandles !== 'boolean'
+    || (style.label !== null && (
+      typeof style.label !== 'object' || Array.isArray(style.label)
+      || !/^#[0-9a-fA-F]{6}$/.test(style.label.color)
+      || !Number.isFinite(style.label.fontSize) || style.label.fontSize < 8
+      || style.label.fontSize > 24 || typeof style.label.text !== 'string'
+      || style.label.text.length < 1 || style.label.text.length > 64
+      || typeof style.label.visible !== 'boolean'
+    ))) {
     failProjection('ANNOTATION_RECTANGLE_OPTIONS_INVALID', 'Rectangle render options are invalid.');
   }
   return style;
@@ -104,6 +113,19 @@ export function createRectangleRenderPrimitive(projection, options = {}) {
         context.lineWidth = style.strokeWidth * Math.max(ratioX, ratioY);
         context.strokeStyle = style.strokeColor;
         context.strokeRect(left, top, Math.max(1, right - left), Math.max(1, bottom - top));
+        if (style.label?.visible) {
+          const insetX = 5 * ratioX;
+          const insetY = 4 * ratioY;
+          context.fillStyle = style.label.color;
+          context.font = `${Math.round(style.label.fontSize * ratioY)}px ui-sans-serif, system-ui, sans-serif`;
+          context.textBaseline = 'top';
+          context.fillText(
+            style.label.text,
+            left + insetX,
+            top + insetY,
+            Math.max(1, right - left - (2 * insetX)),
+          );
+        }
         if (style.showHandles) {
           context.fillStyle = style.handleColor;
           for (const [x, y] of [[left, top], [right, top], [right, bottom], [left, bottom]]) {

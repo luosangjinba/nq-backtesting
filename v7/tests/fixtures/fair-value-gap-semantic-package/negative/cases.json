@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    { "name": "bundle-lookalike", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "raw-session", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "cross-session", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "unsupported-mode", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "invalid-created-at", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "two-bar-evidence", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "wrong-relative-offsets", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "artifact-reference", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "gapped-bars", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "future-unclosed-evidence", "expectedCode": "EVIDENCE_BAR_NOT_CLOSED" },
+    { "name": "malformed-bar-evidence", "expectedCode": "EVIDENCE_SNAPSHOT_BAR_INVALID" },
+    { "name": "overlapping-wicks", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "touching-wicks", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "missing-evidence-contract", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "missing-geometry-contract", "expectedCode": "SEMANTIC_CONSTRUCTION_REJECTED" },
+    { "name": "incompatible-capabilities", "expectedCode": "SEMANTIC_PACKAGE_INCOMPATIBLE" },
+    { "name": "inconsistent-stored-attributes", "expectedCode": "SEMANTIC_ARTIFACT_INVALID" },
+    { "name": "projection-label-extra-field", "expectedCode": "ANNOTATION_PROJECTION_LABEL_INVALID" }
+  ]
+}

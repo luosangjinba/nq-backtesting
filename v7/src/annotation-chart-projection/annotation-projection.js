@@ -6,6 +6,8 @@ const GEOMETRY_FIELDS = Object.freeze(['payload', 'schemaVersion', 'typeId', 'ty
 const PRESENTATION_FIELDS = Object.freeze([
   'fillColor', 'fillOpacity', 'schemaVersion', 'strokeColor', 'strokeWidth',
 ]);
+const LABELED_PRESENTATION_FIELDS = Object.freeze([...PRESENTATION_FIELDS, 'label']);
+const LABEL_FIELDS = Object.freeze(['color', 'fontSize', 'text', 'visible']);
 const OPAQUE_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 const GEOMETRY_ID = /^geometry\.[a-z0-9]+(?:[.-][a-z0-9]+)*$/;
 const VERSION = /^\d+\.\d+\.\d+$/;
@@ -83,9 +85,11 @@ function normalizeGeometry(value) {
 }
 
 function normalizePresentation(value) {
+  const fields = Object.hasOwn(value ?? {}, 'label')
+    ? LABELED_PRESENTATION_FIELDS : PRESENTATION_FIELDS;
   exactRecord(
     value,
-    PRESENTATION_FIELDS,
+    fields,
     'ANNOTATION_PROJECTION_PRESENTATION_INVALID',
     'Presentation',
   );
@@ -99,7 +103,24 @@ function normalizePresentation(value) {
       'Presentation is outside the minimal Drawing style contract.',
     );
   }
-  return Object.freeze({ ...value });
+  if (!Object.hasOwn(value, 'label')) return Object.freeze({ ...value });
+  exactRecord(
+    value.label,
+    LABEL_FIELDS,
+    'ANNOTATION_PROJECTION_LABEL_INVALID',
+    'Projection label',
+  );
+  if (!/^#[0-9a-f]{6}$/.test(value.label.color)
+    || !Number.isFinite(value.label.fontSize) || value.label.fontSize < 8
+    || value.label.fontSize > 24 || typeof value.label.text !== 'string'
+    || value.label.text.length < 1 || value.label.text.length > 64
+    || typeof value.label.visible !== 'boolean') {
+    failProjection(
+      'ANNOTATION_PROJECTION_LABEL_INVALID',
+      'Projection label is outside the bounded presentation contract.',
+    );
+  }
+  return Object.freeze({ ...value, label: Object.freeze({ ...value.label }) });
 }
 
 /** Create one branded, deeply immutable, vendor-neutral accepted Annotation projection. */

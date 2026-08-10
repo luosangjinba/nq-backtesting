@@ -431,6 +431,32 @@ Binding contract:
 Binding contract:
 `docs/V7_EXACT_BAR_PICKER_R13_10B.md`.
 
+## R13.10c Deterministic FVG Construction And Projection — Accepted 2026-08-10
+
+- [x] receive explicit authorization after accepted R13.10b and freeze one
+  separately bounded strict three-Bar FVG construction/projection contract;
+- [x] recheck official Lightweight Charts Primitive capabilities and the
+  awesome-tradingview ecosystem without adding a community runtime;
+- [x] activate removable `optional.semantic-fair-value-gap` through the
+  existing trusted-build Semantic Registry;
+- [x] consume only a branded R13.10a Evidence Bundle with exact `[-1, 0, 1]`
+  Bars, one Session, one dataset/instrument/timeframe/cutoff identity, and no
+  Artifact references;
+- [x] derive strict bullish/bearish wick-gap attributes, immutable baseline /
+  effective parameter provenance, and exact source-Bar/package evidence;
+- [x] emit source-agnostic Rectangle and midpoint subjects plus one bounded
+  projection-only label through the existing context/Chart owners;
+- [x] activate H111 with construction, no-future, package lifecycle, durable
+  survival, multi-Pane, real-Chromium, architecture, writer, source-quality,
+  and optional-removal evidence;
+- [x] complete the focused local visual gate and mark H111 accepted;
+- [x] form one separate R13.10c commit before beginning later work;
+- [x] leave Evidence Inspector, validated overrides, production toolbar,
+  detectors, R13.10d, and R13.10e unauthorized.
+
+Binding contract:
+`docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`.
+
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
 - [x] accept the current standalone ES/NQ minute-replay product as a complete,
@@ -1220,7 +1246,7 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 411 files, 32,863 effective lines, 3,451 functions, and 388 public exports; the architecture baseline
+The current production source baseline contains 417 files, 33,340 effective lines, 3,488 functions, and 393 public exports; the architecture baseline
 contains 61 modules, 132 edges, 115 construction sites, 23 writers, and zero
 findings.
 
@@ -1232,7 +1258,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 411 files, 32,863 effective lines, 3,451 functions, and 388 public exports, 61 modules, 132 edges, 115 construction sites, 23 writers, and zero
+currently at 417 files, 33,340 effective lines, 3,488 functions, and 393 public exports, 62 modules, 134 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 ## Established Foundation Governance

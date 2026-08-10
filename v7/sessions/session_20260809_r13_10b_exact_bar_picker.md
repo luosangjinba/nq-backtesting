@@ -37,7 +37,7 @@ Focused R13.4–R13.6 interaction/projection browser regressions pass. Current
 architecture contains 61 modules, 132 dependency edges, 115 construction sites,
 23 writer sites, and zero findings. Module assembly contains 61 public entries,
 25 lifecycle modules, and 24 optional-removal cases. Current source quality is
-411 files, 32,863 effective lines, 3,451 functions, and 388 public exports, with
+417 files, 33,340 effective lines, 3,488 functions, and 393 public exports, with
 no accepted exception. The standing R13 closure gates pass.
 
 The first human pass rejected two details. The highlight used target-center to
@@ -95,7 +95,7 @@ production architecture, writer closure, module assembly, ModuleHost,
 deployed-runtime architecture, source quality, architecture hardening, and
 `git diff --check`. The final inventories remain 61 modules, 132 dependency
 edges, 115 construction sites, 23 writer sites, 61 public entries, 25 lifecycle
-modules, 24 optional-removal cases, 411 production files, and 388 public
+modules, 28 optional-removal cases, 417 production files, and 393 public
 exports, with zero blocking architecture findings or accepted source-quality
 exceptions.
 
