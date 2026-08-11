@@ -46,12 +46,13 @@ dependencies; they may not control Kernel owners or one another directly.
 
 Kernel Session, Replay, Bar Data, Chart, Workspace transaction, persistence,
 and module-lifecycle owners remain non-plugin infrastructure. The P0b
-host-rendered trusted-build Core Plugin Center is now separately specified with
-restart-bound single-ModuleHost generations, but implementation is not yet
-authorized. Local installation, the free Community registry, isolated
-calculation tier, and any paid Marketplace remain separate later phases with
-no current delivery authorization. Core classification does not make a
-semantic variant consensus truth or move optional feature code into Kernel.
+host-rendered trusted-build Core Plugin Center is implemented and accepted with
+restart-bound single-ModuleHost generations. P1a now has a proposed bounded
+Developer Kit specification, but no SDK/tool implementation is authorized.
+Local installation, the free Community registry, isolated calculation tier,
+and any paid Marketplace remain separate later phases with no current delivery
+authorization. Core classification does not make a semantic variant consensus
+truth or move optional feature code into Kernel.
 
 The accepted plugin authoring model is one strict TypeScript SDK producing
 pinned ESM artifacts. Trusted Core output may enter the first-party build;
@@ -61,7 +62,8 @@ Visibility settings. V7 does not expose Python, Pine Script, arbitrary plugin
 DOM, or WASM as parallel initial plugin models. A thin built-in-package
 contract and FVG reference vertical slice precede the visual Core Center and
 external distribution phases. Binding P0b scope:
-`V7_CORE_PLUGIN_CENTER_P0B.md`.
+`V7_CORE_PLUGIN_CENTER_P0B.md`. Proposed P1a scope:
+`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`.
 
 Future plugin authoring is Agent-native by contract: the product supplies
 machine-readable SDK/schema/capability metadata, deterministic headless
@@ -73,7 +75,10 @@ human review. A later Pine indicator migration assistant may parse supported
 source and generate a normal strict-TypeScript plugin plus compatibility report,
 tests, and provenance. It does not execute Pine, promise universal semantic
 equivalence, or bring strategy/broker simulation into current product scope.
-These are accepted future platform outcomes with no implementation delivery id.
+P1a now specifies the canonical SDK/CLI/Harness, isolated synthetic-host,
+developer evidence bundle, diagnostic, and receipt contract under future H116.
+It remains pending review and has no implementation delivery authorization;
+MCP and Pine remain later phases.
 
 ## Current Resolution And Simulation Boundary
 

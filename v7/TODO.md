@@ -620,6 +620,38 @@ Binding contract:
 Binding contract:
 `docs/V7_CORE_PLUGIN_CENTER_P0B.md`.
 
+## P1a Agent-Native Plugin Developer Kit — Specified 2026-08-11; Pending Review
+
+- [x] receive authorization to specify, but not implement, the next bounded
+  Plugin Platform phase;
+- [x] freeze one canonical headless operation engine shared by the library,
+  CLI, CI, AI agents, and the later bounded MCP adapter;
+- [x] define versioned strict-TypeScript SDK/schema/catalog discovery plus
+  deterministic scaffold, validate, build, test, preview, pack, and inspect;
+- [x] separate the P1a developer evidence bundle from any P1b install archive,
+  candidate transaction, trust decision, or ModuleHost activation;
+- [x] restrict the initial contract profile to trusted built-in Core V1 and
+  report Community, sub-Pane, Worker, and other unavailable tiers honestly;
+- [x] define an immutable synthetic host and isolated developer test process
+  with no production owner, real data, credential, filesystem, shell, network,
+  or application-lifecycle authority;
+- [x] require stable diagnostics, compatibility reports, content-addressed
+  provenance, reproducible receipts, and byte-deterministic `.v7dk.tar`
+  evidence bundles;
+- [x] bind real FVG, host-schema, dependency, and negative workspaces without
+  adding placeholder product plugins or changing production FVG;
+- [x] declare H116 with deterministic CLI/library equivalence, strict build,
+  isolation, no-future, tamper/path controls, architecture, and regression
+  evidence;
+- [ ] receive explicit review acceptance and separate implementation
+  authorization before adding SDK/tool source, compiler dependencies, H116
+  fixtures, or developer bundles;
+- [ ] keep P1b install-from-file/Developer Mode/MCP, P2 registry, P3a Worker,
+  P3b Pine migration, new Core business plugins, and Marketplace outside P1a.
+
+Binding proposed contract:
+`docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`.
+
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
 - [x] accept the current standalone ES/NQ minute-replay product as a complete,
@@ -1312,10 +1344,13 @@ Binding ES full-chain repair:
   specified surface and lifecycle without a second PluginHost or hot-plug;
 - [x] P0b acceptance: complete H115's focused human visual/interaction review
   and close the step without implicitly authorizing P1a;
-- [ ] P1a: only after P0b, specify the Agent-native strict-TypeScript SDK,
-  machine-readable contract bundle, deterministic CLI/library and conformance
-  Harness, immutable headless host fixtures/simulation, reference packages,
-  diagnostics, receipts, and static build/pack path;
+- [x] P1a specification: after P0b, specify the Agent-native strict-TypeScript
+  SDK, machine-readable contract bundle, deterministic CLI/library and
+  conformance Harness, immutable headless host fixtures/simulation, reference
+  packages, diagnostics, receipts, and static build/pack path;
+- [ ] P1a implementation: only after explicit review acceptance, implement
+  the bounded Developer Kit and H116 without install/activation or production
+  external-code execution;
 - [ ] P1b: specify local declarative install-from-file plus Developer Mode
   load-unpacked/reload/validate-pack, transactional lifecycle, integrity/source
   disclosure, migration, uninstall/data survival, restricted-mode startup, and
@@ -1332,7 +1367,8 @@ Binding ES full-chain repair:
 
 Binding specifications and remaining memo:
 `docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`,
-`docs/V7_CORE_PLUGIN_CENTER_P0B.md`, and
+`docs/V7_CORE_PLUGIN_CENTER_P0B.md`,
+`docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`, and
 `docs/V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md`.
 
 ### Deferred Candidate — Second-Level Replay And Tick-Sourced Data

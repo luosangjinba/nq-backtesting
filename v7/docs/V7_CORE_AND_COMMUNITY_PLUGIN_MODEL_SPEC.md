@@ -3,7 +3,7 @@
 Decision id: `ADR-V7-004`
 
 Status: accepted binding product and architecture specification; P0b accepted;
-P1–P4 implementation not allocated
+P1a specified pending review; P1–P4 implementation not allocated
 
 Decision date: 2026-08-10
 
@@ -15,6 +15,9 @@ indicator migration
 
 Amended: 2026-08-11 — P0b trusted-build Core Center generation/profile
 contract specified, implemented, and accepted
+
+Amended: 2026-08-11 — P1a Agent-native Developer Kit contract specified;
+implementation remains pending review and separate authorization
 
 Decider: V7 product owner
 
@@ -85,7 +88,10 @@ separately specified, implemented, and accepted. The Agent-native amendment
 froze future Developer Kit/MCP/Pine contracts and order without authorizing
 P0b. P0b was later separately specified in
 `V7_CORE_PLUGIN_CENTER_P0B.md`, explicitly authorized, and implemented. H115's
-focused human gate remains open; every P1–P4 phase remains unauthorized.
+automated and corrected focused human gates are accepted. P1a specification
+design was later separately authorized and is proposed in
+`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`; H116 remains declared and no
+P1a implementation or P1b–P4 phase is authorized.
 
 Every implementation remains separately specified, authorized, tested, and
 committed. The current trusted-build Semantic Package Registry is a compatible
@@ -273,6 +279,12 @@ added, but it cannot replace the stable JSON result. The CLI/library and
 Harness are authoritative; the MCP server is a thin local adapter over those
 operations, not a second validator, package format, build system, or lifecycle
 owner.
+
+P1a realizes the authoring/evidence subset of this final workflow. Before P1b
+defines an install archive and candidate transaction, `pack` emits only a
+non-installable developer evidence bundle and every receipt denies activation.
+The Developer Kit must report install-candidate creation unavailable rather
+than treating P1a evidence as user consent or installed-package trust.
 
 The MCP surface must provide machine-readable SDK/schema/capability discovery
 and the bounded authoring operations above. It must be local-first, restricted
@@ -632,7 +644,7 @@ Core Center, dynamic loader, Community registry, or public SDK.
 These R13 steps require independent authorization. This decision neither
 renumbers them nor starts them.
 
-### Plugin Platform Program — P0b Accepted
+### Plugin Platform Program — P1a Specified, Pending Review
 
 V7 does not finish a speculative Marketplace before writing plugins, and it no
 longer scales plugin families before a common platform boundary exists. The
@@ -655,11 +667,14 @@ by progressively broader distribution:
    Core profile selects one immutable ModuleHost generation; failed candidates
    fully roll back before last-known-good or Kernel-safe fallback. Binding
    contract: `V7_CORE_PLUGIN_CENTER_P0B.md`.
-4. **P1a Agent-Native Plugin Developer Kit** — versioned TypeScript SDK and
-   machine-readable contract bundle, deterministic CLI/library and conformance
-   Harness, reference packages, structured diagnostics/receipts, and static
-   build/package checks. It supports every contribution tier authorized at that
-   point but does not itself authorize external code execution.
+4. **P1a Agent-Native Plugin Developer Kit — specified, pending review** — one
+   versioned strict-TypeScript SDK and machine-readable contract bundle, one
+   deterministic CLI/library operation engine and conformance Harness,
+   immutable synthetic-host fixtures, reference workspaces, structured
+   diagnostics/receipts, and a non-installable developer evidence bundle. It
+   supports only contribution profiles authorized at that point and does not
+   authorize production external-code execution. Binding proposed contract:
+   `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`.
 5. **P1b Local Packages And Authoring MCP** — common manifest/archive,
    transactional install-from-file, Developer Mode load-unpacked/reload/
    validate-pack, integrity/source disclosure, migrations, uninstall/data
@@ -683,8 +698,11 @@ by progressively broader distribution:
 
 P0a and R13.10e were separately authorized and accepted. P0b was separately
 specified, implemented, corrected after focused visual feedback, and accepted
-under H115.
-No P1–P4 phase receives a delivery id until separately specified and accepted.
+under H115. P1a specification design was separately authorized; its proposed
+contract declares H116 but adds no implementation, install path, MCP, or
+production execution.
+No P1–P4 implementation is authorized until its contract is accepted and the
+product owner gives a separate implementation instruction.
 R13.10e retains its existing identity as the first reference consumer after
 P0a. Local installation and a free registry must work before any paid
 Marketplace decision; payment is not an architectural prerequisite for
@@ -760,13 +778,22 @@ disable/re-enable. H115 passes its automated evidence. Focused human review
 then found and closed the Settings footer containment defect, and the corrected
 P0b surface was accepted on 2026-08-11.
 
+After P0b acceptance, the product owner authorized P1a Developer Kit
+**specification design**. `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` now
+proposes one canonical Agent-native strict-TypeScript operation engine,
+immutable synthetic-host testing, a non-installable developer evidence bundle,
+structured diagnostics/provenance, and H116. It remains pending review and
+does not authorize implementation, P1b MCP/install, or external production
+execution.
+
 This closes the classification/product-direction decision. Delivery remains
 bounded by the authorization boundary above.
 
 Amendment evidence:
-`../sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
-`../sessions/session_20260811_p0b_core_plugin_center_specification.md`, and
-`../sessions/session_20260811_p0b_core_plugin_center_implementation.md`.
+`../sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`,
+`../sessions/session_20260811_p0b_core_plugin_center_specification.md`,
+`../sessions/session_20260811_p0b_core_plugin_center_implementation.md`, and
+`../sessions/session_20260811_p1a_agent_native_developer_kit_specification.md`.
 
 ## Reference Product Evidence
 

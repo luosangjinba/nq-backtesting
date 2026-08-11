@@ -124,8 +124,10 @@ did not itself allocate a delivery id, loader, registry, Worker tier,
 product-scope expansion, or Marketplace implementation. MEMO-V7-001 remains
 open for those unresolved operations and product questions. The separately
 authorized P0a implementation contract is
-`V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`; the later P0b specification is
-`V7_CORE_PLUGIN_CENTER_P0B.md` and remains unimplemented pending review.
+`V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`; P0b is implemented and
+accepted under `V7_CORE_PLUGIN_CENTER_P0B.md`. The proposed P1a authoring
+contract is `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`; it declares H116
+but remains pending review with no implementation authorization.
 The accepted post-milestone foundation is
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
 market-coordinate geometry, generic drawings, typed semantic artifacts,
@@ -240,7 +242,10 @@ with a local MCP adapter over the same operations. A later Pine indicator
 migration assistant emits ordinary strict-TypeScript packages, compatibility
 reports, tests, and provenance after the target SDK/runtime exists; Pine is not
 a runtime language and semantic equivalence still requires evidence and human
-review. No implementation phase is authorized by that amendment.
+review. `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` now specifies the bounded
+SDK/CLI/Harness contract, non-installable developer evidence bundle, isolated
+synthetic test host, diagnostics, receipts, and future H116 gate. It adds no
+implementation, MCP, installation, Worker, or product-visible behavior.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
@@ -361,6 +366,10 @@ Read in this order before V7 implementation work:
      conformance record
 98b. `V7_CORE_PLUGIN_CENTER_P0B.md` as the implemented restart-bound trusted
      Core catalog/profile/generation contract accepted under H115
+98c. `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` as the proposed bounded
+     strict-TypeScript SDK, deterministic CLI/library/Harness, isolated
+     synthetic-host, developer evidence bundle, receipt, and H116 contract;
+     implementation remains pending review and separate authorization
 99. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
 100. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,

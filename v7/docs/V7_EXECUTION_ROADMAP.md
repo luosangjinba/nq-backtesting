@@ -1216,7 +1216,7 @@ owner or upstream-plugin state access.
 Core classification neither authorizes these steps nor weakens their focused
 semantic/no-future/human gates.
 
-### Plugin Platform Program — P0b Accepted
+### Plugin Platform Program — P1a Specified, Pending Review
 
 Build the thin host contract before scaling plugin families, then validate each
 broader platform layer with real packages. Activate at most one separately
@@ -1231,10 +1231,12 @@ numbered phase at a time:
    trusted-build packages, including status, dependencies, package/default
    settings, diagnostics, and restart-bound enable/disable through one
    immutable ModuleHost generation;
-4. P1a Agent-native Plugin Developer Kit: one versioned strict-TypeScript SDK,
-   machine-readable schemas/capabilities/examples, deterministic CLI/library
-   and conformance Harness, immutable headless host fixtures/simulation,
-   reference packages, structured diagnostics and reproducible receipts;
+4. **Specified; pending review:** P1a Agent-native Plugin Developer Kit: one
+   versioned strict-TypeScript SDK, machine-readable
+   schemas/capabilities/examples, deterministic CLI/library operation engine
+   and conformance Harness, immutable synthetic-host fixtures/simulation,
+   reference workspaces, structured diagnostics/receipts, and a
+   non-installable developer evidence bundle under future H116;
 5. P1b transactional install-from-file plus Developer Mode load-unpacked,
    reload, validate/pack for declarative packages, with one common manifest,
    integrity/source disclosure, migration, uninstall, data survival,
@@ -1253,8 +1255,9 @@ numbered phase at a time:
 9. P4 paid Marketplace only after a separate product/business decision.
 
 P0a, R13.10e, and P0b are closed. H115 passes its automated gates and the
-corrected focused human visual/interaction review. No
-P1–P4 phase is a delivery step. Plugin Center does not imply arbitrary code,
+corrected focused human visual/interaction review. P1a specification design is
+complete pending review; no P1–P4 implementation is authorized. Plugin Center
+does not imply arbitrary code,
 local install does not imply network access, and a free registry does not imply
 payment. Strict TypeScript is the executable authoring language; JSON and JSON
 Schema carry manifests and declarative/host-rendered settings, and V7 loads
@@ -1262,7 +1265,8 @@ only pinned compiled ESM artifacts. Trusted Core output may enter the
 application build; externally installed executable output is confined to an
 authorized Worker tier. Binding classification, sequencing, and P0b contract:
 `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` and
-`V7_CORE_PLUGIN_CENTER_P0B.md`.
+`V7_CORE_PLUGIN_CENTER_P0B.md`. Proposed P1a contract:
+`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`.
 
 “Agent-native” means there is no undocumented GUI-only authoring step: an AI
 agent can discover contracts, scaffold, validate, build, test, inspect, and
