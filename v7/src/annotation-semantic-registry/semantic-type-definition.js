@@ -12,12 +12,18 @@ class SemanticTypeDefinitionValue {
 
 /** Define one pure Semantic type policy without granting owner handles. */
 export function defineSemanticType(value = {}) {
-  exactRecord(
-    value,
-    [
+  const fields = Object.hasOwn(value, 'revise')
+    ? [
+      'construct', 'definitionId', 'definitionVersion', 'displayMetadata', 'inspect',
+      'project', 'revise', 'typeId', 'version',
+    ]
+    : [
       'construct', 'definitionId', 'definitionVersion', 'displayMetadata', 'inspect',
       'project', 'typeId', 'version',
-    ],
+    ];
+  exactRecord(
+    value,
+    fields,
     'SEMANTIC_TYPE_DEFINITION_INVALID',
     'Semantic type definition',
   );
@@ -26,14 +32,19 @@ export function defineSemanticType(value = {}) {
     || typeof value.definitionId !== 'string' || !TYPE_ID.test(value.definitionId)
     || typeof value.definitionVersion !== 'string' || !VERSION.test(value.definitionVersion)
     || typeof value.construct !== 'function' || typeof value.project !== 'function'
-    || typeof value.inspect !== 'function') {
+    || typeof value.inspect !== 'function'
+    || (Object.hasOwn(value, 'revise') && typeof value.revise !== 'function')) {
     failSemanticPackage(
       'SEMANTIC_TYPE_DEFINITION_INVALID',
       'Semantic type definition identity or policies are invalid.',
     );
   }
   const displayMetadata = portableValue(value.displayMetadata, 'displayMetadata');
-  return new SemanticTypeDefinitionValue(Object.freeze({ ...value, displayMetadata }));
+  return new SemanticTypeDefinitionValue(Object.freeze({
+    ...value,
+    displayMetadata,
+    revise: value.revise ?? null,
+  }));
 }
 
 export function readSemanticTypeDefinition(candidate) {

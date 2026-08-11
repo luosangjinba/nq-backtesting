@@ -1,11 +1,11 @@
 /**
  * Owner: semantic-fair-value-gap.
- * Purpose: expose the strict evidence-derived three-Bar FVG trusted-build package.
- * Inputs: public Geometry/Evidence contracts plus one branded Evidence Bundle and Session identity.
- * Outputs: one branded package manifest with deterministic construction and projection policies.
+ * Purpose: expose strict three-Bar FVG construction, projection, inspection, and inner-zone revision policies.
+ * Inputs: public Geometry/Evidence contracts, branded evidence, exact Artifacts, and cutoff-bound revisions.
+ * Outputs: one package manifest with deterministic Artifact, host-schema, effective-zone, and projection policies.
  * Side effects: none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.
  * Lifecycle: activation is host-owned and each active package generation is explicitly disposable.
- * Errors: AnnotationSemanticPackageError rejects malformed, non-FVG, gapped, or cross-Session evidence.
+ * Errors: AnnotationSemanticPackageError rejects malformed evidence, Artifacts, schemas, or invalid overrides.
  * Concurrency/cancellation: package policies are synchronous; Registry lifecycle remains serialized.
  */
 export {

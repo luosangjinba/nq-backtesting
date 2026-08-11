@@ -1,12 +1,18 @@
-import { SemanticArtifactDraftValue } from './semantic-artifact-draft.js';
+import {
+  createRegistryArtifactDraft,
+  readRegistryArtifactDraft,
+} from './semantic-artifact-draft.js';
 import {
   createUnresolvedArtifactInspection,
   hiddenArtifactInspection,
+  normalizeArtifactInspectionGroups,
   visibleArtifactInspection,
 } from './semantic-artifact-inspector.js';
 import {
-  normalizeSemanticConstructionResult,
-  semanticDefinitionIdentity,
+  createRegistryArtifactRevisionDraft,
+  readRegistryArtifactRevisionDraft,
+} from './semantic-artifact-revision.js';
+import {
   semanticDefinitionMatches,
 } from './semantic-construction-contract.js';
 import { failSemanticPackage } from './semantic-package-error.js';
@@ -15,13 +21,16 @@ import { readSemanticPackageManifest } from './semantic-package-manifest.js';
 import { exactRecord, portableValue } from './portable-value.js';
 
 const HOST_CONTRACT_VERSION = '1.0.0';
-const ARTIFACT_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/;
 
 function typeKey(typeId, typeVersion) { return `${typeId}@${typeVersion}`; }
 
 function expectedPolicyRejection(error) {
   return error?.name === 'AnnotationSemanticPackageError'
-    && ['SEMANTIC_ARTIFACT_INVALID', 'SEMANTIC_CONSTRUCTION_REJECTED'].includes(error.code);
+    && [
+      'SEMANTIC_ARTIFACT_INVALID',
+      'SEMANTIC_CONSTRUCTION_REJECTED',
+      'SEMANTIC_REVISION_REJECTED',
+    ].includes(error.code);
 }
 
 function activeInstance(value) {
@@ -178,40 +187,12 @@ class SemanticPackageRegistry {
 
   constructArtifactDraft(input = {}) {
     this.#requireReady();
-    exactRecord(
+    return createRegistryArtifactDraft({
+      identity: this.#identity,
       input,
-      ['artifactId', 'construction', 'typeId', 'typeVersion'],
-      'SEMANTIC_CONSTRUCTION_INPUT_INVALID',
-      'Semantic construction input',
-    );
-    if (typeof input.artifactId !== 'string' || !ARTIFACT_ID.test(input.artifactId)) {
-      failSemanticPackage('SEMANTIC_ARTIFACT_ID_INVALID', 'Artifact id is invalid.');
-    }
-    const entry = this.#definitions.get(typeKey(input.typeId, input.typeVersion));
-    if (!entry) failSemanticPackage('SEMANTIC_TYPE_UNRESOLVED', 'Semantic type is not active.');
-    let constructed;
-    try {
-      constructed = normalizeSemanticConstructionResult(
-        entry.definition.construct(input.construction),
-      );
-    }
-    catch (cause) {
-      if (expectedPolicyRejection(cause)) throw cause;
-      return this.#failPolicySync(entry.record, cause);
-    }
-    return new SemanticArtifactDraftValue(this.#identity, Object.freeze({
-      artifactId: input.artifactId,
-      attributes: constructed.attributes,
-      definition: semanticDefinitionIdentity(entry),
-      packageGeneration: entry.record.generation,
-      packageId: entry.record.manifest.packageId,
-      presentation: constructed.presentation,
-      provenance: constructed.provenance,
-      relations: constructed.relations,
-      sourceDrawing: constructed.sourceDrawing,
-      typeId: input.typeId,
-      typeVersion: input.typeVersion,
-    }));
+      onPolicyFailure: (record, cause) => this.#failPolicySync(record, cause),
+      resolveEntry: (typeId, typeVersion) => this.#definitions.get(typeKey(typeId, typeVersion)),
+    });
   }
 
   #failPolicySync(record, cause) {
@@ -230,15 +211,38 @@ class SemanticPackageRegistry {
 
   readArtifactDraft(candidate) {
     this.#requireReady();
-    if (!(candidate instanceof SemanticArtifactDraftValue)) {
-      failSemanticPackage('SEMANTIC_ARTIFACT_DRAFT_REQUIRED', 'A branded Artifact draft is required.');
-    }
-    const value = candidate.read(this.#identity);
-    const record = this.#records.get(value.packageId);
-    if (!record || record.state !== 'active' || record.generation !== value.packageGeneration) {
-      failSemanticPackage('SEMANTIC_ARTIFACT_DRAFT_STALE', 'Artifact draft package generation is stale.');
-    }
-    return value;
+    return readRegistryArtifactDraft({
+      candidate,
+      identity: this.#identity,
+      records: this.#records,
+    });
+  }
+
+  #revisionDraftRecord(candidate) {
+    return readRegistryArtifactRevisionDraft({
+      candidate,
+      identity: this.#identity,
+      records: this.#records,
+    });
+  }
+
+  createArtifactRevisionDraft(input = {}) {
+    this.#requireReady();
+    return createRegistryArtifactRevisionDraft({
+      identity: this.#identity,
+      input,
+      onPolicyFailure: (record, cause) => this.#failPolicySync(record, cause),
+      resolveEntry: (artifact) => this.#definitions.get(typeKey(
+        artifact.typeId,
+        artifact.typeVersion,
+      )),
+    });
+  }
+
+  readArtifactRevisionDraft(candidate) {
+    this.#requireReady();
+    const value = this.#revisionDraftRecord(candidate);
+    return Object.freeze({ artifact: value.artifact, sourceArtifact: value.sourceArtifact });
   }
 
   resolutionOf(artifact) {
@@ -269,15 +273,45 @@ class SemanticPackageRegistry {
     });
   }
 
-  projectionInputsForArtifact(artifact) {
+  #projectionInputs(entry, artifact, context) {
+    try {
+      const projected = entry.definition.project(
+        artifact,
+        context === null ? null : portableValue(context, 'projectionContext'),
+      );
+      if (!Array.isArray(projected)) throw new TypeError('Projection policy must return an array.');
+      return portableValue(projected, 'projectionInputs');
+    } catch (cause) {
+      if (expectedPolicyRejection(cause)) throw cause;
+      return this.#failPolicySync(entry.record, cause);
+    }
+  }
+
+  projectionInputsForArtifact(artifact, context = null) {
     this.#requireReady();
     if (artifact?.status !== 'active') return Object.freeze([]);
     const entry = this.#definitions.get(typeKey(artifact?.typeId, artifact?.typeVersion));
     if (!entry || !semanticDefinitionMatches(artifact, entry)) return Object.freeze([]);
+    return this.#projectionInputs(entry, artifact, context);
+  }
+
+  projectionInputsForArtifactRevisionDraft(candidate, context = null) {
+    this.#requireReady();
+    const value = this.#revisionDraftRecord(candidate);
+    const artifact = value.previewArtifact;
+    const entry = this.#definitions.get(typeKey(artifact.typeId, artifact.typeVersion));
+    if (!entry || !semanticDefinitionMatches(artifact, entry)) {
+      failSemanticPackage('SEMANTIC_TYPE_UNRESOLVED', 'Semantic revision type is not active.');
+    }
+    return this.#projectionInputs(entry, artifact, context);
+  }
+
+  #inspectResolvedArtifact(artifact, entry, context) {
     try {
-      const projected = entry.definition.project(artifact);
-      if (!Array.isArray(projected)) throw new TypeError('Projection policy must return an array.');
-      return portableValue(projected, 'projectionInputs');
+      return Object.freeze({
+        groups: normalizeArtifactInspectionGroups(entry.definition.inspect(artifact, context)),
+        resolution: this.resolutionOf(artifact),
+      });
     } catch (cause) {
       if (expectedPolicyRejection(cause)) throw cause;
       return this.#failPolicySync(entry.record, cause);
@@ -291,21 +325,22 @@ class SemanticPackageRegistry {
       const resolution = this.resolutionOf(artifact);
       return createUnresolvedArtifactInspection(artifact, resolution);
     }
-    try {
-      return Object.freeze({
-        groups: portableValue(entry.definition.inspect(artifact), 'inspectorGroups'),
-        resolution: this.resolutionOf(artifact),
-      });
-    } catch (cause) {
-      if (expectedPolicyRejection(cause)) throw cause;
-      return this.#failPolicySync(entry.record, cause);
-    }
+    return this.#inspectResolvedArtifact(artifact, entry, null);
   }
 
   inspectArtifactAtReplayCutoff(artifact, replayCutoffEpochMs) {
     this.#requireReady();
     const hidden = hiddenArtifactInspection(artifact, replayCutoffEpochMs);
-    return hidden ?? visibleArtifactInspection(this.inspectArtifact(artifact));
+    if (hidden !== null) return hidden;
+    const entry = this.#definitions.get(typeKey(artifact?.typeId, artifact?.typeVersion));
+    const inspection = !entry || !semanticDefinitionMatches(artifact, entry)
+      ? createUnresolvedArtifactInspection(artifact, this.resolutionOf(artifact))
+      : this.#inspectResolvedArtifact(
+        artifact,
+        entry,
+        Object.freeze({ replayCutoffEpochMs }),
+      );
+    return visibleArtifactInspection(inspection);
   }
 
   packageSnapshot(packageId) {
@@ -377,6 +412,7 @@ class SemanticPackageRegistry {
 export function createSemanticPackageRegistry(input = {}) {
   const registry = new SemanticPackageRegistry(input);
   return Object.freeze({
+    createArtifactRevisionDraft: registry.createArtifactRevisionDraft.bind(registry),
     constructArtifactDraft: registry.constructArtifactDraft.bind(registry),
     disablePackage: registry.disablePackage.bind(registry),
     dispose: registry.dispose.bind(registry),
@@ -387,7 +423,10 @@ export function createSemanticPackageRegistry(input = {}) {
     listTools: registry.listTools.bind(registry),
     packageSnapshot: registry.packageSnapshot.bind(registry),
     projectionInputsForArtifact: registry.projectionInputsForArtifact.bind(registry),
+    projectionInputsForArtifactRevisionDraft:
+      registry.projectionInputsForArtifactRevisionDraft.bind(registry),
     readArtifactDraft: registry.readArtifactDraft.bind(registry),
+    readArtifactRevisionDraft: registry.readArtifactRevisionDraft.bind(registry),
     resolutionOf: registry.resolutionOf.bind(registry),
     snapshot: registry.snapshot.bind(registry),
   });

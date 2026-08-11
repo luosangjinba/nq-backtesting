@@ -1126,7 +1126,7 @@ overrides, production toolbar, detector, R13.10d, and R13.10e remain
 unauthorized. Binding contract:
 `V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`.
 
-### R13.10d — Evidence Inspector And Validated Overrides — Planned, Not Authorized
+### R13.10d — Evidence Inspector And Validated Overrides — Accepted 2026-08-10
 
 - add only the host-rendered Evidence/History/parameter controls needed to
   inspect one accepted FVG Artifact;
@@ -1145,9 +1145,17 @@ unauthorized. Binding contract:
 - exclude Plugin Center, installation, detector, production toolbar, new owner,
   and general settings framework scope.
 
-This is the next remaining R13.10 responsibility, but it receives no
-implementation authorization from R13.10c acceptance or ADR-V7-004. A focused
-binding contract and rule id are required first.
+Implemented under `V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`.
+H112 passes 16 negative controls plus headless, durable, rollback, and focused
+real-Chromium automation. The complete 112-Harness sweep has zero unexpected
+failures; its only non-zero exits are the three pre-existing H091 visual gates,
+which remain explicitly preserved. The first human pass rejected simultaneous
+accepted/Preview FVG layers; the corrected fixture retains accepted bytes while
+showing one Preview layer and restores/settles one accepted layer on Cancel or
+Apply. The user accepted the corrected host-rendered Inspector, observation-
+cutoff states, effective-zone Preview/save/reset, Core Plugin disable/re-enable,
+and native Chart behavior. H112 and R13.10d are accepted. R13.10e remains a
+separate planned step requiring explicit authorization.
 
 ### R13.10e — Production Manual FVG Workflow Closure — Planned, Not Authorized
 

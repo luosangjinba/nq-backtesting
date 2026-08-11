@@ -32,6 +32,7 @@ import {
   activeSemanticPackageCount,
   normalizeSemanticContract,
   readSemanticDraft,
+  readSemanticRevisionDraft,
 } from './semantic-port.js';
 
 function exactRecord(value, fields, label) {
@@ -281,6 +282,10 @@ class AnnotationRuntimeState {
   readPresentation(candidate) { return readDrawingPresentation(candidate); }
 
   readSemanticDraft(candidate) { return readSemanticDraft(this.#semantic, candidate); }
+
+  readSemanticRevisionDraft(candidate) {
+    return readSemanticRevisionDraft(this.#semantic, candidate);
+  }
 
   requireExistingDrawing(drawingId, expectedRevision) {
     const token = readDrawingId(drawingId);

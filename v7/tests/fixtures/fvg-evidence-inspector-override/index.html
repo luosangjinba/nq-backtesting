@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>R13.10d FVG Evidence Inspector</title>
+    <style>
+      :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+      * { box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #05080c; color: #d9e5ef; }
+      body { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+      header { display: flex; align-items: center; gap: 8px; min-height: 76px; padding: 11px 16px; border-bottom: 1px solid #1b2a37; background: #081018; }
+      .title { min-width: 340px; margin-right: auto; }
+      h1, h2, h3, p { margin: 0; }
+      h1 { font-size: 16px; letter-spacing: .01em; }
+      .title p { margin-top: 5px; color: #8298aa; font-size: 12px; }
+      button { border: 1px solid #29465c; border-radius: 7px; padding: 8px 10px; color: #d7e5ef; background: #102231; font-weight: 700; cursor: pointer; }
+      button:hover:not(:disabled), button[data-active="true"] { border-color: #38bdf8; background: #123c54; }
+      button:disabled { cursor: not-allowed; opacity: .38; }
+      #status { min-width: 180px; color: #9fb3c5; font: 11px ui-monospace, SFMono-Regular, monospace; text-align: right; }
+      main { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 390px; }
+      .chart-shell { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto 1fr; border-right: 1px solid #1b2a37; }
+      .chart-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid #15232e; color: #a9bdcc; font-size: 12px; }
+      #projection-count { color: #6f8799; font: 11px ui-monospace, SFMono-Regular, monospace; }
+      #chart { min-height: 0; }
+      aside { min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; background: #0a1118; }
+      .inspector-head { padding: 15px 16px 12px; border-bottom: 1px solid #1b2a37; }
+      .eyebrow { color: #38bdf8; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+      h2 { margin-top: 5px; font-size: 15px; }
+      #inspector-state { margin-top: 5px; color: #7f95a7; font-size: 11px; }
+      #inspector-state[data-error]:not([data-error=""]) { color: #fb7185; }
+      #groups { min-height: 0; overflow: auto; padding: 12px; }
+      .empty { padding: 28px 12px; color: #73899b; font-size: 12px; text-align: center; }
+      .group { margin-bottom: 10px; overflow: hidden; border: 1px solid #1d3040; border-radius: 9px; background: #0c1720; }
+      .group h3 { padding: 9px 11px; border-bottom: 1px solid #1a2a37; color: #b9cbd8; font-size: 11px; letter-spacing: .07em; text-transform: uppercase; }
+      .field { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px 10px; padding: 9px 11px; border-bottom: 1px solid #14232e; }
+      .field:last-child { border-bottom: 0; }
+      .label { color: #8299aa; font-size: 11px; }
+      .value { max-width: 220px; overflow: hidden; color: #d8e4ec; font: 11px ui-monospace, SFMono-Regular, monospace; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+      .meta { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 7px; color: #657b8c; font-size: 10px; }
+      .badge { border: 1px solid #2d4759; border-radius: 999px; padding: 2px 6px; color: #8fa8b9; font-size: 9px; font-weight: 800; letter-spacing: .04em; }
+      .badge.OVERRIDDEN { border-color: #b7791f; color: #fbbf24; }
+      .badge.AUTO { border-color: #1e6f5c; color: #34d399; }
+      input { width: 124px; border: 1px solid #31536a; border-radius: 6px; padding: 6px 7px; color: #e2edf4; background: #071018; font: 12px ui-monospace, SFMono-Regular, monospace; text-align: right; }
+      input:focus { outline: 1px solid #38bdf8; border-color: #38bdf8; }
+      .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 12px; border-top: 1px solid #1b2a37; background: #081018; }
+      #apply { border-color: #0f766e; background: #0d3f3b; }
+      #reset { border-color: #745517; }
+      @media (max-width: 1050px) { main { grid-template-columns: minmax(0, 1fr) 340px; } .title { min-width: 250px; } }
+    </style>
+  </head>
+  <body data-scenario="loading">
+    <header>
+      <div class="title">
+        <h1>R13.10d · FVG Evidence Inspector</h1>
+        <p>Host-rendered schema · immutable baseline · validated effective override</p>
+      </div>
+      <button id="before" type="button">Before observation</button>
+      <button id="at" type="button">At observation</button>
+      <button id="after" type="button">After observation</button>
+      <button id="disable" type="button">Disable Core Plugin</button>
+      <button id="enable" type="button" disabled>Enable Core Plugin</button>
+      <output id="status">Starting…</output>
+    </header>
+    <main>
+      <section class="chart-shell">
+        <div class="chart-head">
+          <strong>NQ · 1m · strict bullish FVG</strong>
+          <span id="projection-count">accepted 0 · preview 0</span>
+        </div>
+        <div id="chart"></div>
+      </section>
+      <aside>
+        <div class="inspector-head">
+          <div class="eyebrow">Core Plugin · Fair Value Gap</div>
+          <h2>Evidence Inspector</h2>
+          <p id="inspector-state">No Artifact selected</p>
+        </div>
+        <div id="groups"><p class="empty">Loading semantic schema…</p></div>
+        <div class="actions">
+          <button id="reset" type="button">Reset</button>
+          <button id="cancel" type="button">Cancel</button>
+          <button id="apply" type="button">Apply</button>
+        </div>
+      </aside>
+    </main>
+    <script>
+      globalThis.addEventListener('error', (event) => {
+        document.body.dataset.error = `${event.error?.name ?? 'Error'}:${event.error?.message ?? event.message}`;
+        document.body.dataset.scenario = 'failed';
+      });
+      globalThis.addEventListener('unhandledrejection', (event) => {
+        document.body.dataset.error = `${event.reason?.name ?? 'Error'}:${event.reason?.message ?? event.reason}`;
+        document.body.dataset.scenario = 'failed';
+      });
+    </script>
+    <script type="module" src="./scenario.js?v=h112-20260810a"></script>
+  </body>
+</html>

@@ -718,13 +718,13 @@
         {
           "documentation": {
             "owner": "annotation-interaction-controller.",
-            "purpose": "expose removable two-anchor Drawing gestures and transient Inspector state over bounded ports.",
-            "inputs": "normalized market-anchor gestures, pure Geometry, transient Preview, and one Drawing command.",
-            "outputs": "one disposable controller plus immutable interaction snapshots.",
-            "sideEffects": "calls only injected Preview and generic-Drawing command ports; never DOM or Chart APIs.",
-            "lifecycle": "one-shot gestures are armed explicitly and every active gesture is cancelled on dispose.",
-            "errors": "AnnotationInteractionError rejects malformed ports, commands, or overlapping interaction.",
-            "concurrencyCancellation": "pointer moves coalesce in the Preview owner; pointer-up issues at most one command."
+            "purpose": "expose removable Drawing gestures plus generic Drawing/Semantic Inspector draft lifecycles.",
+            "inputs": "normalized gestures, validated host schemas, pure contracts, transient Preview, and exact commands.",
+            "outputs": "disposable controllers with immutable interaction, selection, field, and dirty-state snapshots.",
+            "sideEffects": "calls only injected Preview and command ports; never receives DOM, Chart, Replay, Bar, or storage APIs.",
+            "lifecycle": "gestures arm explicitly; cancel/dispose clears every local draft, selection, and Preview identity.",
+            "errors": "AnnotationInteractionError rejects malformed ports, stale drafts, unsupported fields, and overlapping work.",
+            "concurrencyCancellation": "each controller serializes settlement; Preview owner coalescing remains separately authoritative."
           },
           "moduleId": "optional.annotation-interaction",
           "name": "AnnotationInteractionError",
@@ -2401,6 +2401,133 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 109,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "activate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "construct",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "inspect",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "project",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "defaultPresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "typeDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "createFairValueGapSemanticPackage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 30,
+          "name": "construction",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "revise",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireEvidenceContract",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.semantic-fair-value-gap",
+      "owner": "semantic-fair-value-gap",
+      "ownsContract": false,
+      "path": "src/semantic-fair-value-gap/fair-value-gap-package.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "semantic-fair-value-gap.",
+            "purpose": "expose strict three-Bar FVG construction, projection, inspection, and inner-zone revision policies.",
+            "inputs": "public Geometry/Evidence contracts, branded evidence, exact Artifacts, and cutoff-bound revisions.",
+            "outputs": "one package manifest with deterministic Artifact, host-schema, effective-zone, and projection policies.",
+            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
+            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
+            "errors": "AnnotationSemanticPackageError rejects malformed evidence, Artifacts, schemas, or invalid overrides.",
+            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
+          },
+          "moduleId": "optional.semantic-fair-value-gap",
+          "name": "createFairValueGapSemanticPackage",
+          "semanticMatches": [
+            "package",
+            "semantic"
+          ],
+          "semanticTerms": [
+            "fair",
+            "gap",
+            "optional",
+            "package",
+            "semantic"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "semantic-fair-value-gap.",
+            "purpose": "expose strict three-Bar FVG construction, projection, inspection, and inner-zone revision policies.",
+            "inputs": "public Geometry/Evidence contracts, branded evidence, exact Artifacts, and cutoff-bound revisions.",
+            "outputs": "one package manifest with deterministic Artifact, host-schema, effective-zone, and projection policies.",
+            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
+            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
+            "errors": "AnnotationSemanticPackageError rejects malformed evidence, Artifacts, schemas, or invalid overrides.",
+            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
+          },
+          "moduleId": "optional.semantic-fair-value-gap",
+          "name": "FAIR_VALUE_GAP_PACKAGE_ID",
+          "semanticMatches": [
+            "package",
+            "semantic"
+          ],
+          "semanticTerms": [
+            "fair",
+            "gap",
+            "optional",
+            "package",
+            "semantic"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "e9c1f25a808754f8c4260aee28d2834494cb93455398055600d8099b30192a48"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 11,
       "forwardingOnly": false,
       "functions": [
@@ -2424,13 +2551,13 @@
         {
           "documentation": {
             "owner": "annotation-semantic-registry.",
-            "purpose": "expose trusted-build Semantic package definition, lifecycle, construction, and resolution ports.",
-            "inputs": "branded package/type definitions, portable construction intent, and immutable Artifacts.",
-            "outputs": "branded Artifact drafts, active resolution, projection inputs, cutoff-safe Inspector groups, and lifecycle snapshots.",
+            "purpose": "expose trusted-build Semantic package lifecycle, construction, inspection, revision, and resolution ports.",
+            "inputs": "branded definitions, portable construction/revision intent, exact Artifacts, and Replay-safe contexts.",
+            "outputs": "generation-bound construction/revision drafts, projections, validated Inspector groups, and lifecycle snapshots.",
             "sideEffects": "only package-local activation/disposal; no Chart, Replay, Bar Data, DOM, persistence, or Annotation writes.",
             "lifecycle": "each Registry is isolated and explicitly disposable; packages may be disabled and re-enabled.",
-            "errors": "AnnotationSemanticPackageError with stable compatibility, lifecycle, and policy codes.",
-            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; pure policies are synchronous."
+            "errors": "AnnotationSemanticPackageError fails incompatible, stale, foreign, malformed, or failed policies closed.",
+            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; package policies stay synchronous."
           },
           "moduleId": "optional.annotation-semantic-registry",
           "name": "AnnotationSemanticPackageError",
@@ -2814,6 +2941,57 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 119,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 19,
+          "name": "parameterField",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "field",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "group",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "invalid",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 80,
+          "name": "inspectFairValueGapArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "exactContext",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.semantic-fair-value-gap",
+      "owner": "semantic-fair-value-gap",
+      "ownsContract": false,
+      "path": "src/semantic-fair-value-gap/fvg-inspector.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "00236c61006324113f7ce6af0ac49d9d716c77a94a6a6699c01887645310371e"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 12,
       "forwardingOnly": false,
       "functions": [
@@ -2963,19 +3141,18 @@
         {
           "documentation": {
             "owner": "annotation-interaction-controller.",
-            "purpose": "expose removable two-anchor Drawing gestures and transient Inspector state over bounded ports.",
-            "inputs": "normalized market-anchor gestures, pure Geometry, transient Preview, and one Drawing command.",
-            "outputs": "one disposable controller plus immutable interaction snapshots.",
-            "sideEffects": "calls only injected Preview and generic-Drawing command ports; never DOM or Chart APIs.",
-            "lifecycle": "one-shot gestures are armed explicitly and every active gesture is cancelled on dispose.",
-            "errors": "AnnotationInteractionError rejects malformed ports, commands, or overlapping interaction.",
-            "concurrencyCancellation": "pointer moves coalesce in the Preview owner; pointer-up issues at most one command."
+            "purpose": "expose removable Drawing gestures plus generic Drawing/Semantic Inspector draft lifecycles.",
+            "inputs": "normalized gestures, validated host schemas, pure contracts, transient Preview, and exact commands.",
+            "outputs": "disposable controllers with immutable interaction, selection, field, and dirty-state snapshots.",
+            "sideEffects": "calls only injected Preview and command ports; never receives DOM, Chart, Replay, Bar, or storage APIs.",
+            "lifecycle": "gestures arm explicitly; cancel/dispose clears every local draft, selection, and Preview identity.",
+            "errors": "AnnotationInteractionError rejects malformed ports, stale drafts, unsupported fields, and overlapping work.",
+            "concurrencyCancellation": "each controller serializes settlement; Preview owner coalescing remains separately authoritative."
           },
           "moduleId": "optional.annotation-interaction",
           "name": "createRectangleInteractionController",
           "semanticMatches": [
             "annotation",
-            "controller",
             "interaction"
           ],
           "semanticTerms": [
@@ -3021,19 +3198,18 @@
         {
           "documentation": {
             "owner": "annotation-interaction-controller.",
-            "purpose": "expose removable two-anchor Drawing gestures and transient Inspector state over bounded ports.",
-            "inputs": "normalized market-anchor gestures, pure Geometry, transient Preview, and one Drawing command.",
-            "outputs": "one disposable controller plus immutable interaction snapshots.",
-            "sideEffects": "calls only injected Preview and generic-Drawing command ports; never DOM or Chart APIs.",
-            "lifecycle": "one-shot gestures are armed explicitly and every active gesture is cancelled on dispose.",
-            "errors": "AnnotationInteractionError rejects malformed ports, commands, or overlapping interaction.",
-            "concurrencyCancellation": "pointer moves coalesce in the Preview owner; pointer-up issues at most one command."
+            "purpose": "expose removable Drawing gestures plus generic Drawing/Semantic Inspector draft lifecycles.",
+            "inputs": "normalized gestures, validated host schemas, pure contracts, transient Preview, and exact commands.",
+            "outputs": "disposable controllers with immutable interaction, selection, field, and dirty-state snapshots.",
+            "sideEffects": "calls only injected Preview and command ports; never receives DOM, Chart, Replay, Bar, or storage APIs.",
+            "lifecycle": "gestures arm explicitly; cancel/dispose clears every local draft, selection, and Preview identity.",
+            "errors": "AnnotationInteractionError rejects malformed ports, stale drafts, unsupported fields, and overlapping work.",
+            "concurrencyCancellation": "each controller serializes settlement; Preview owner coalescing remains separately authoritative."
           },
           "moduleId": "optional.annotation-interaction",
           "name": "createSegmentInteractionController",
           "semanticMatches": [
             "annotation",
-            "controller",
             "interaction"
           ],
           "semanticTerms": [
@@ -5693,6 +5869,163 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 153,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "requireSemanticRegistryPort",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "requireSemanticArtifactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "requireSemanticSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "requireSemanticPatch",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "fieldValues",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 46,
+          "name": "requireSemanticInspection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "editableFieldValues",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "methods",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireSemanticArtifactPort",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-interaction",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": false,
+      "path": "src/annotation-interaction/semantic-inspector-contract.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "471012be88711c9cf9965b120d50f095f1f6e100d2158317816a2b2527639c4e"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 156,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "normalizeArtifactInspectionGroups",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "numberControl",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "hiddenArtifactInspection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "createUnresolvedArtifactInspection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "field",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 34,
+          "name": "normalizeField",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "boundedText",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "visibleArtifactInspection",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-semantic-registry",
+      "owner": "annotation-semantic-registry",
+      "ownsContract": false,
+      "path": "src/annotation-semantic-registry/semantic-artifact-inspector.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "1958c883f9d8479800a607e85eb30ab0e7c9c5884c14390d17beab52a40ba56b"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 16,
       "forwardingOnly": false,
       "functions": [
@@ -5776,37 +6109,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "d53d1467ddc12f54f88e30e05b23b7560e5ad0f2c0d368ad9912bdd2d7981798"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 16,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 5,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "read",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-semantic-registry",
-      "owner": "annotation-semantic-registry",
-      "ownsContract": false,
-      "path": "src/annotation-semantic-registry/semantic-artifact-draft.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "475f40195b4933332e43042c7240f89d99198386e714cfd40b680180b35b6417"
     },
     {
       "adaptsBoundary": false,
@@ -6146,6 +6448,82 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "d2360440f790ffb8895f4574075395cd42d80bc1584289bac12ac7db1ce3dc40"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 161,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "readRegistryArtifactRevisionDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "revisionSource",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "normalizeSemanticRevisionResult",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "normalizeSemanticRevisionRequest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createSemanticArtifactRevisionDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "expectedRevisionRejection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 57,
+          "name": "createRegistryArtifactRevisionDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "readSemanticArtifactRevisionDraft",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-semantic-registry",
+      "owner": "annotation-semantic-registry",
+      "ownsContract": false,
+      "path": "src/annotation-semantic-registry/semantic-artifact-revision.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "cfc8cd100eb76921ab11b3d376e943e7a5f2a3a8ef3b2a6d67b2117b1d928ea1"
     },
     {
       "adaptsBoundary": false,
@@ -7577,127 +7955,77 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 192,
+      "effectiveLines": 191,
       "forwardingOnly": false,
       "functions": [
         {
-          "effectiveLines": 10,
-          "name": "<anonymous-8>",
+          "effectiveLines": 13,
+          "name": "effectiveState",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 12,
+          "effectiveLines": 17,
+          "name": "readEvents",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
           "name": "<anonymous-6>",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 13,
-          "name": "<anonymous-16>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "<anonymous-14>",
+          "effectiveLines": 3,
+          "name": "parameterValue",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 3,
-          "name": "importAnnotationDocument",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "redoAnnotation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "undoAnnotation",
+          "name": "reject",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 4,
-          "name": "createDrawing",
+          "name": "price",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 4,
-          "name": "createSemanticArtifact",
+          "effectiveLines": 40,
+          "name": "readFvgOverrideState",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 4,
-          "name": "promoteDrawing",
+          "effectiveLines": 58,
+          "name": "reviseFvgOverride",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 4,
-          "name": "replaceDrawingGeometry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "reviseDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "transitionDrawing",
+          "effectiveLines": 6,
+          "name": "exact",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 8,
-          "name": "archiveDrawing",
+          "name": "parameter",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 8,
-          "name": "archiveSemanticArtifact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "restoreDrawing",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "restoreSemanticArtifact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "transitionArtifact",
+          "effectiveLines": 9,
+          "name": "bounds",
           "reviewedDecompositionException": false
         }
       ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
+      "kind": "domain",
+      "moduleId": "optional.semantic-fair-value-gap",
+      "owner": "semantic-fair-value-gap",
       "ownsContract": false,
-      "path": "src/annotation-runtime/command-handlers.js",
+      "path": "src/semantic-fair-value-gap/fvg-override.js",
       "publicExports": [],
       "responsibilities": [
         "internal-state-or-pure-computation"
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "d9bd10661f0ef28857539778a935c361fca85120af720a476bf8a879ea4ff4a7"
+      "sourceHash": "bad23a1b38231856f8b1e150c576ed9c050e438b96f5959a927becf6d686b539"
     },
     {
       "adaptsBoundary": false,
@@ -9505,19 +9833,18 @@
         {
           "documentation": {
             "owner": "annotation-interaction-controller.",
-            "purpose": "expose removable two-anchor Drawing gestures and transient Inspector state over bounded ports.",
-            "inputs": "normalized market-anchor gestures, pure Geometry, transient Preview, and one Drawing command.",
-            "outputs": "one disposable controller plus immutable interaction snapshots.",
-            "sideEffects": "calls only injected Preview and generic-Drawing command ports; never DOM or Chart APIs.",
-            "lifecycle": "one-shot gestures are armed explicitly and every active gesture is cancelled on dispose.",
-            "errors": "AnnotationInteractionError rejects malformed ports, commands, or overlapping interaction.",
-            "concurrencyCancellation": "pointer moves coalesce in the Preview owner; pointer-up issues at most one command."
+            "purpose": "expose removable Drawing gestures plus generic Drawing/Semantic Inspector draft lifecycles.",
+            "inputs": "normalized gestures, validated host schemas, pure contracts, transient Preview, and exact commands.",
+            "outputs": "disposable controllers with immutable interaction, selection, field, and dirty-state snapshots.",
+            "sideEffects": "calls only injected Preview and command ports; never receives DOM, Chart, Replay, Bar, or storage APIs.",
+            "lifecycle": "gestures arm explicitly; cancel/dispose clears every local draft, selection, and Preview identity.",
+            "errors": "AnnotationInteractionError rejects malformed ports, stale drafts, unsupported fields, and overlapping work.",
+            "concurrencyCancellation": "each controller serializes settlement; Preview owner coalescing remains separately authoritative."
           },
           "moduleId": "optional.annotation-interaction",
           "name": "createDrawingInspectorController",
           "semanticMatches": [
             "annotation",
-            "controller",
             "drawing",
             "inspector",
             "interaction"
@@ -9538,6 +9865,142 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "786208e3724df8bf210e44bab2e2ac954ff5b9c6e36c4ee55c7ed526d211f099"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 233,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 10,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "importAnnotationDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "redoAnnotation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "undoAnnotation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 36,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "createDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "createSemanticArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "promoteDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "replaceDrawingGeometry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "reviseDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "reviseSemanticArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "transitionDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "archiveDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "archiveSemanticArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "restoreDrawing",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "restoreSemanticArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "transitionArtifact",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/command-handlers.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "0eecc7185c77a8b6f879b98aa94d1e72695c11dcb3ef4c097eeb660041f21b61"
     },
     {
       "adaptsBoundary": false,
@@ -11880,17 +12343,218 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 325,
+      "effectiveLines": 324,
       "forwardingOnly": false,
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "<anonymous-38>",
+          "name": "<anonymous-2>",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 1,
-          "name": "<anonymous-44>",
+          "name": "<anonymous-21>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-22>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-23>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-28>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "<anonymous-30>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "clearState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "operation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "revisionDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "previewDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "clearPreview",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "publish",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 30,
+          "name": "<anonymous-27>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 37,
+          "name": "<anonymous-25>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "cancel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "resetDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "save",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "select",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "updateDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "fail",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 68,
+          "name": "createSemanticArtifactInspectorController",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "report",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "applyValues",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireOperable",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-interaction",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": false,
+      "path": "src/annotation-interaction/semantic-inspector-controller.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-interaction-controller.",
+            "purpose": "expose removable Drawing gestures plus generic Drawing/Semantic Inspector draft lifecycles.",
+            "inputs": "normalized gestures, validated host schemas, pure contracts, transient Preview, and exact commands.",
+            "outputs": "disposable controllers with immutable interaction, selection, field, and dirty-state snapshots.",
+            "sideEffects": "calls only injected Preview and command ports; never receives DOM, Chart, Replay, Bar, or storage APIs.",
+            "lifecycle": "gestures arm explicitly; cancel/dispose clears every local draft, selection, and Preview identity.",
+            "errors": "AnnotationInteractionError rejects malformed ports, stale drafts, unsupported fields, and overlapping work.",
+            "concurrencyCancellation": "each controller serializes settlement; Preview owner coalescing remains separately authoritative."
+          },
+          "moduleId": "optional.annotation-interaction",
+          "name": "createSemanticArtifactInspectorController",
+          "semanticMatches": [
+            "annotation",
+            "inspector",
+            "interaction",
+            "semantic"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "artifact",
+            "controller",
+            "inspector",
+            "interaction",
+            "optional",
+            "semantic"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "12ad1d27d28aedf77ab8e2f3f03e02cf6eb7c539bdc9fb9057b3b88e0df1f402"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 329,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-39>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-45>",
           "reviewedDecompositionException": false
         },
         {
@@ -11930,7 +12594,7 @@
         },
         {
           "effectiveLines": 10,
-          "name": "<anonymous-37>",
+          "name": "<anonymous-38>",
           "reviewedDecompositionException": false
         },
         {
@@ -11989,13 +12653,18 @@
           "reviewedDecompositionException": false
         },
         {
+          "effectiveLines": 3,
+          "name": "readSemanticRevisionDraft",
+          "reviewedDecompositionException": false
+        },
+        {
           "effectiveLines": 31,
           "name": "settle",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 4,
-          "name": "<anonymous-40>",
+          "name": "<anonymous-41>",
           "reviewedDecompositionException": false
         },
         {
@@ -12120,7 +12789,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "77d90edab11b973b72b60e4c794ecad3f98b63fd86186edfee1f4f0856e4a43c"
+      "sourceHash": "0bdb98726b678e51fd83f680ca34242812c2cf2cf8defa74d05d5a0182a6d349"
     },
     {
       "adaptsBoundary": false,
@@ -12419,259 +13088,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "b0f8fd5ea07db02e88af28de3449277bd1a87720f2f7c316bb053c03c989c09c"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 365,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-29>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-32>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-37>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-38>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-40>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "typeKey",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "packageSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "resolutionOf",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "activeInstance",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "readArtifactDraft",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "<anonymous-17>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "awaitCleanup",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "failPolicySync",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "unresolvedResolution",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "projectionInputsForArtifact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "failRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "inspectArtifact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "createSemanticPackageRegistry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 27,
-          "name": "<anonymous-15>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-24>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 37,
-          "name": "constructArtifactDraft",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-23>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "disablePackage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "enablePackage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "expectedPolicyRejection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-34>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-35>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "inspectArtifactAtReplayCutoff",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "listSemanticTypes",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "listTools",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "record",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "withdraw",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "start",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "requireReady",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "<anonymous-31>",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-semantic-registry",
-      "owner": "annotation-semantic-registry",
-      "ownsContract": false,
-      "path": "src/annotation-semantic-registry/semantic-package-registry.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "annotation-semantic-registry.",
-            "purpose": "expose trusted-build Semantic package definition, lifecycle, construction, and resolution ports.",
-            "inputs": "branded package/type definitions, portable construction intent, and immutable Artifacts.",
-            "outputs": "branded Artifact drafts, active resolution, projection inputs, cutoff-safe Inspector groups, and lifecycle snapshots.",
-            "sideEffects": "only package-local activation/disposal; no Chart, Replay, Bar Data, DOM, persistence, or Annotation writes.",
-            "lifecycle": "each Registry is isolated and explicitly disposable; packages may be disabled and re-enabled.",
-            "errors": "AnnotationSemanticPackageError with stable compatibility, lifecycle, and policy codes.",
-            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; pure policies are synchronous."
-          },
-          "moduleId": "optional.annotation-semantic-registry",
-          "name": "createSemanticPackageRegistry",
-          "semanticMatches": [
-            "annotation",
-            "package",
-            "semantic"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "optional",
-            "package",
-            "registry",
-            "semantic"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "483c25670fec82cf60c2fe65317d2b2f43bd4b0e9bb743c813b9a135b92d869e"
     },
     {
       "adaptsBoundary": false,
@@ -13411,6 +13827,309 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 398,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-39>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-42>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-47>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-48>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-50>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onPolicyFailure",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onPolicyFailure",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "resolveEntry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "typeKey",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "createArtifactRevisionDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "packageSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "projectionInputsForArtifactRevisionDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "resolutionOf",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "inspectResolvedArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "activeInstance",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "awaitCleanup",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "failPolicySync",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "projectionInputs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "unresolvedResolution",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "inspectArtifactAtReplayCutoff",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "failRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "createSemanticPackageRegistry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-31>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-30>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "disablePackage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "enablePackage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "resolveEntry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-44>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-45>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "listSemanticTypes",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "listTools",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "readArtifactRevisionDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "record",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "withdraw",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "projectionInputsForArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "revisionDraftRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "start",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "expectedPolicyRejection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "readArtifactDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireReady",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "<anonymous-41>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "constructArtifactDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "inspectArtifact",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-semantic-registry",
+      "owner": "annotation-semantic-registry",
+      "ownsContract": false,
+      "path": "src/annotation-semantic-registry/semantic-package-registry.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-semantic-registry.",
+            "purpose": "expose trusted-build Semantic package lifecycle, construction, inspection, revision, and resolution ports.",
+            "inputs": "branded definitions, portable construction/revision intent, exact Artifacts, and Replay-safe contexts.",
+            "outputs": "generation-bound construction/revision drafts, projections, validated Inspector groups, and lifecycle snapshots.",
+            "sideEffects": "only package-local activation/disposal; no Chart, Replay, Bar Data, DOM, persistence, or Annotation writes.",
+            "lifecycle": "each Registry is isolated and explicitly disposable; packages may be disabled and re-enabled.",
+            "errors": "AnnotationSemanticPackageError fails incompatible, stale, foreign, malformed, or failed policies closed.",
+            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; package policies stay synchronous."
+          },
+          "moduleId": "optional.annotation-semantic-registry",
+          "name": "createSemanticPackageRegistry",
+          "semanticMatches": [
+            "annotation",
+            "package",
+            "semantic"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "optional",
+            "package",
+            "registry",
+            "semantic"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "ed8c47029eefd3f44b76bdd7f6ab2db5cbef605b35faa7c4ea366886f71e2bc2"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 4,
       "forwardingOnly": true,
       "functions": [],
@@ -13555,26 +14274,6 @@
       "forwardingOnly": true,
       "functions": [],
       "kind": "runtime",
-      "moduleId": "optional.annotation-interaction",
-      "owner": "annotation-interaction-controller",
-      "ownsContract": true,
-      "path": "src/annotation-interaction/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "0d56a37fdedc3581105c62cadd20c671ffe29aefb7df5d6358a09d6d0a4b75c4"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 4,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "runtime",
       "moduleId": "optional.annotation-semantic-registry",
       "owner": "annotation-semantic-registry",
       "ownsContract": true,
@@ -13585,7 +14284,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "f9fa98e14489d781bbfaf0273b6127543171de4b2cc0d9a126cdedfcdd11457c"
+      "sourceHash": "4530a113de31621fe93796da9edb9861bd0aa2994625970c4dbdb612b112049f"
     },
     {
       "adaptsBoundary": false,
@@ -13688,136 +14387,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "6183ed53c9ffd2a888d528d2ec1b39bb66ba52fce509cc87a8ef1d4824a2a4b6"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 41,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 14,
-          "name": "normalizeSemanticContract",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 20,
-          "name": "readSemanticDraft",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "activeSemanticPackageCount",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-runtime",
-      "owner": "annotation-runtime",
-      "ownsContract": false,
-      "path": "src/annotation-runtime/semantic-port.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "3811cc0ae2f23a74270440fa1ef8599191115a29af5ba924fadd4ab1a96384d7"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 42,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "read",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 24,
-          "name": "defineSemanticType",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "readSemanticTypeDefinition",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-semantic-registry",
-      "owner": "annotation-semantic-registry",
-      "ownsContract": false,
-      "path": "src/annotation-semantic-registry/semantic-type-definition.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "annotation-semantic-registry.",
-            "purpose": "expose trusted-build Semantic package definition, lifecycle, construction, and resolution ports.",
-            "inputs": "branded package/type definitions, portable construction intent, and immutable Artifacts.",
-            "outputs": "branded Artifact drafts, active resolution, projection inputs, cutoff-safe Inspector groups, and lifecycle snapshots.",
-            "sideEffects": "only package-local activation/disposal; no Chart, Replay, Bar Data, DOM, persistence, or Annotation writes.",
-            "lifecycle": "each Registry is isolated and explicitly disposable; packages may be disabled and re-enabled.",
-            "errors": "AnnotationSemanticPackageError with stable compatibility, lifecycle, and policy codes.",
-            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; pure policies are synchronous."
-          },
-          "moduleId": "optional.annotation-semantic-registry",
-          "name": "defineSemanticType",
-          "semanticMatches": [
-            "annotation",
-            "semantic",
-            "type"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "optional",
-            "registry",
-            "semantic",
-            "type"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "annotation-semantic-registry.",
-            "purpose": "expose trusted-build Semantic package definition, lifecycle, construction, and resolution ports.",
-            "inputs": "branded package/type definitions, portable construction intent, and immutable Artifacts.",
-            "outputs": "branded Artifact drafts, active resolution, projection inputs, cutoff-safe Inspector groups, and lifecycle snapshots.",
-            "sideEffects": "only package-local activation/disposal; no Chart, Replay, Bar Data, DOM, persistence, or Annotation writes.",
-            "lifecycle": "each Registry is isolated and explicitly disposable; packages may be disabled and re-enabled.",
-            "errors": "AnnotationSemanticPackageError with stable compatibility, lifecycle, and policy codes.",
-            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; pure policies are synchronous."
-          },
-          "moduleId": "optional.annotation-semantic-registry",
-          "name": "readSemanticTypeDefinition",
-          "semanticMatches": [
-            "annotation",
-            "semantic",
-            "type"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "optional",
-            "registry",
-            "semantic",
-            "type"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "b9afc21c4acc6ebc1117277b9a2137525a831c4dba5fd57b47cd6b015d35ab43"
     },
     {
       "adaptsBoundary": false,
@@ -14597,6 +15166,26 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 5,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-interaction",
+      "owner": "annotation-interaction-controller",
+      "ownsContract": true,
+      "path": "src/annotation-interaction/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "15ebb444249d5ce67d8e0561f1947e1babaef323967ac13806c9040e9246af6b"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 50,
       "forwardingOnly": false,
       "functions": [
@@ -14824,6 +15413,98 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "5e7a52743df6358d29108c2475cb0913fd58b44b1caee47a0bc9298855a2294c"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 53,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "defineSemanticType",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "readSemanticTypeDefinition",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-semantic-registry",
+      "owner": "annotation-semantic-registry",
+      "ownsContract": false,
+      "path": "src/annotation-semantic-registry/semantic-type-definition.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-semantic-registry.",
+            "purpose": "expose trusted-build Semantic package lifecycle, construction, inspection, revision, and resolution ports.",
+            "inputs": "branded definitions, portable construction/revision intent, exact Artifacts, and Replay-safe contexts.",
+            "outputs": "generation-bound construction/revision drafts, projections, validated Inspector groups, and lifecycle snapshots.",
+            "sideEffects": "only package-local activation/disposal; no Chart, Replay, Bar Data, DOM, persistence, or Annotation writes.",
+            "lifecycle": "each Registry is isolated and explicitly disposable; packages may be disabled and re-enabled.",
+            "errors": "AnnotationSemanticPackageError fails incompatible, stale, foreign, malformed, or failed policies closed.",
+            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; package policies stay synchronous."
+          },
+          "moduleId": "optional.annotation-semantic-registry",
+          "name": "defineSemanticType",
+          "semanticMatches": [
+            "annotation",
+            "semantic"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "optional",
+            "registry",
+            "semantic",
+            "type"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-semantic-registry.",
+            "purpose": "expose trusted-build Semantic package lifecycle, construction, inspection, revision, and resolution ports.",
+            "inputs": "branded definitions, portable construction/revision intent, exact Artifacts, and Replay-safe contexts.",
+            "outputs": "generation-bound construction/revision drafts, projections, validated Inspector groups, and lifecycle snapshots.",
+            "sideEffects": "only package-local activation/disposal; no Chart, Replay, Bar Data, DOM, persistence, or Annotation writes.",
+            "lifecycle": "each Registry is isolated and explicitly disposable; packages may be disabled and re-enabled.",
+            "errors": "AnnotationSemanticPackageError fails incompatible, stale, foreign, malformed, or failed policies closed.",
+            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; package policies stay synchronous."
+          },
+          "moduleId": "optional.annotation-semantic-registry",
+          "name": "readSemanticTypeDefinition",
+          "semanticMatches": [
+            "annotation",
+            "semantic"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "optional",
+            "registry",
+            "semantic",
+            "type"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "d2229bacd92be284d62fbf80cabeb0ce475e14cfda08af89c5b5d5735275bcb9"
     },
     {
       "adaptsBoundary": false,
@@ -15557,47 +16238,6 @@
       "forwardingOnly": false,
       "functions": [
         {
-          "effectiveLines": 20,
-          "name": "hiddenArtifactInspection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 29,
-          "name": "createUnresolvedArtifactInspection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "field",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "visibleArtifactInspection",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-semantic-registry",
-      "owner": "annotation-semantic-registry",
-      "ownsContract": false,
-      "path": "src/annotation-semantic-registry/semantic-artifact-inspector.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "f148c6af2a59551b09677bbd7f9810e3c4616e61093cbb411425c498c3b97095"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 59,
-      "forwardingOnly": false,
-      "functions": [
-        {
           "effectiveLines": 31,
           "name": "resolveCalendarPeriod",
           "reviewedDecompositionException": false
@@ -15802,13 +16442,13 @@
         {
           "documentation": {
             "owner": "annotation-semantic-registry.",
-            "purpose": "expose trusted-build Semantic package definition, lifecycle, construction, and resolution ports.",
-            "inputs": "branded package/type definitions, portable construction intent, and immutable Artifacts.",
-            "outputs": "branded Artifact drafts, active resolution, projection inputs, cutoff-safe Inspector groups, and lifecycle snapshots.",
+            "purpose": "expose trusted-build Semantic package lifecycle, construction, inspection, revision, and resolution ports.",
+            "inputs": "branded definitions, portable construction/revision intent, exact Artifacts, and Replay-safe contexts.",
+            "outputs": "generation-bound construction/revision drafts, projections, validated Inspector groups, and lifecycle snapshots.",
             "sideEffects": "only package-local activation/disposal; no Chart, Replay, Bar Data, DOM, persistence, or Annotation writes.",
             "lifecycle": "each Registry is isolated and explicitly disposable; packages may be disabled and re-enabled.",
-            "errors": "AnnotationSemanticPackageError with stable compatibility, lifecycle, and policy codes.",
-            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; pure policies are synchronous."
+            "errors": "AnnotationSemanticPackageError fails incompatible, stale, foreign, malformed, or failed policies closed.",
+            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; package policies stay synchronous."
           },
           "moduleId": "optional.annotation-semantic-registry",
           "name": "defineSemanticPackage",
@@ -15828,13 +16468,13 @@
         {
           "documentation": {
             "owner": "annotation-semantic-registry.",
-            "purpose": "expose trusted-build Semantic package definition, lifecycle, construction, and resolution ports.",
-            "inputs": "branded package/type definitions, portable construction intent, and immutable Artifacts.",
-            "outputs": "branded Artifact drafts, active resolution, projection inputs, cutoff-safe Inspector groups, and lifecycle snapshots.",
+            "purpose": "expose trusted-build Semantic package lifecycle, construction, inspection, revision, and resolution ports.",
+            "inputs": "branded definitions, portable construction/revision intent, exact Artifacts, and Replay-safe contexts.",
+            "outputs": "generation-bound construction/revision drafts, projections, validated Inspector groups, and lifecycle snapshots.",
             "sideEffects": "only package-local activation/disposal; no Chart, Replay, Bar Data, DOM, persistence, or Annotation writes.",
             "lifecycle": "each Registry is isolated and explicitly disposable; packages may be disabled and re-enabled.",
-            "errors": "AnnotationSemanticPackageError with stable compatibility, lifecycle, and policy codes.",
-            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; pure policies are synchronous."
+            "errors": "AnnotationSemanticPackageError fails incompatible, stale, foreign, malformed, or failed policies closed.",
+            "concurrencyCancellation": "one asynchronous package lifecycle operation at a time; package policies stay synchronous."
           },
           "moduleId": "optional.annotation-semantic-registry",
           "name": "readSemanticPackageManifest",
@@ -15864,7 +16504,7 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 61,
+      "effectiveLines": 63,
       "forwardingOnly": false,
       "functions": [
         {
@@ -15969,6 +16609,11 @@
         },
         {
           "effectiveLines": 1,
+          "name": "reviseSemanticArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
           "name": "undo",
           "reviewedDecompositionException": false
         },
@@ -15978,7 +16623,7 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 34,
+          "effectiveLines": 35,
           "name": "createAnnotationRuntime",
           "reviewedDecompositionException": false
         }
@@ -15992,12 +16637,12 @@
         {
           "documentation": {
             "owner": "Annotation Runtime.",
-            "purpose": "own one Session's accepted generic-Drawing document through exact reversible mutations.",
-            "inputs": "branded Session, optional Geometry public contract, and injected fake Repository port.",
-            "outputs": "frozen asynchronous commands, synchronous immutable queries, health, and disposal.",
+            "purpose": "own one Session's accepted Drawing and Semantic Artifact document through exact reversible mutations.",
+            "inputs": "branded Session, optional Geometry/Semantic contracts, and one injected Repository port.",
+            "outputs": "frozen Drawing/Artifact commands, immutable queries, history, export, health, and disposal.",
             "sideEffects": "writes only through repository.prepare() lifecycle; no Chart, storage, or event access.",
             "lifecycle": "dispose blocks new work and waits for one already-started transaction to settle.",
-            "errors": "AnnotationRuntimeError plus branded Session identity failures.",
+            "errors": "AnnotationRuntimeError plus branded Session, Geometry, and Semantic draft failures.",
             "concurrencyCancellation": "exactly one mutation may be active; a concurrent command is rejected."
           },
           "moduleId": "optional.annotation-runtime",
@@ -16040,7 +16685,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "b395a7ea81ef45a7b50b2cd78700481842c70f4fa62e8b2d902635e99822cc7d"
+      "sourceHash": "e44b832547d9401cf3f9bab58a6dc07e4793458b99dc43277e0c51fbc1ecc1cc"
     },
     {
       "adaptsBoundary": false,
@@ -16590,6 +17235,47 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 71,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 11,
+          "name": "readRegistryArtifactDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 38,
+          "name": "createRegistryArtifactDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "read",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-semantic-registry",
+      "owner": "annotation-semantic-registry",
+      "ownsContract": false,
+      "path": "src/annotation-semantic-registry/semantic-artifact-draft.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "12f100854c0abe37af3057ec7530ec0f1a2ad7185065b024a554ca48216537bf"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 72,
       "forwardingOnly": false,
       "functions": [
@@ -16896,6 +17582,115 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 3,
+          "name": "invalid",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 54,
+          "name": "readFairValueGapArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exact",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "domain",
+      "moduleId": "optional.semantic-fair-value-gap",
+      "owner": "semantic-fair-value-gap",
+      "ownsContract": false,
+      "path": "src/semantic-fair-value-gap/fvg-artifact.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "semantic-fair-value-gap.",
+            "purpose": "expose strict three-Bar FVG construction, projection, inspection, and inner-zone revision policies.",
+            "inputs": "public Geometry/Evidence contracts, branded evidence, exact Artifacts, and cutoff-bound revisions.",
+            "outputs": "one package manifest with deterministic Artifact, host-schema, effective-zone, and projection policies.",
+            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
+            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
+            "errors": "AnnotationSemanticPackageError rejects malformed evidence, Artifacts, schemas, or invalid overrides.",
+            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
+          },
+          "moduleId": "optional.semantic-fair-value-gap",
+          "name": "FAIR_VALUE_GAP_PROFILE",
+          "semanticMatches": [
+            "semantic"
+          ],
+          "semanticTerms": [
+            "fair",
+            "gap",
+            "optional",
+            "profile",
+            "semantic"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "semantic-fair-value-gap.",
+            "purpose": "expose strict three-Bar FVG construction, projection, inspection, and inner-zone revision policies.",
+            "inputs": "public Geometry/Evidence contracts, branded evidence, exact Artifacts, and cutoff-bound revisions.",
+            "outputs": "one package manifest with deterministic Artifact, host-schema, effective-zone, and projection policies.",
+            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
+            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
+            "errors": "AnnotationSemanticPackageError rejects malformed evidence, Artifacts, schemas, or invalid overrides.",
+            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
+          },
+          "moduleId": "optional.semantic-fair-value-gap",
+          "name": "FAIR_VALUE_GAP_TYPE_ID",
+          "semanticMatches": [
+            "semantic"
+          ],
+          "semanticTerms": [
+            "fair",
+            "gap",
+            "optional",
+            "semantic",
+            "type"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "semantic-fair-value-gap.",
+            "purpose": "expose strict three-Bar FVG construction, projection, inspection, and inner-zone revision policies.",
+            "inputs": "public Geometry/Evidence contracts, branded evidence, exact Artifacts, and cutoff-bound revisions.",
+            "outputs": "one package manifest with deterministic Artifact, host-schema, effective-zone, and projection policies.",
+            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
+            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
+            "errors": "AnnotationSemanticPackageError rejects malformed evidence, Artifacts, schemas, or invalid overrides.",
+            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
+          },
+          "moduleId": "optional.semantic-fair-value-gap",
+          "name": "FAIR_VALUE_GAP_VERSION",
+          "semanticMatches": [
+            "semantic"
+          ],
+          "semanticTerms": [
+            "fair",
+            "gap",
+            "optional",
+            "semantic",
+            "version"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "56f54bac4118bdd6fdcc95a02d66d71f7af114587e0e784c8046a73833c65be1"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 73,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 59,
           "name": "requireProjectedPaneSetSnapshot",
           "reviewedDecompositionException": false
@@ -17068,6 +17863,47 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "db7ae91d7d80294e64696880a2336fb5ceda59cc56e98b3e9be9e111866f40b7"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 76,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 16,
+          "name": "normalizeSemanticContract",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "readSemanticDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "readSemanticRevisionDraft",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "activeSemanticPackageCount",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-runtime",
+      "owner": "annotation-runtime",
+      "ownsContract": false,
+      "path": "src/annotation-runtime/semantic-port.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "dcf77a81dcaa805f8d9d2ac0c1f6ed7a6903f643411d5fe8e16da532981c8d41"
     },
     {
       "adaptsBoundary": false,
@@ -17977,120 +18813,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 85,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 11,
-          "name": "parameter",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "invalid",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 56,
-          "name": "readFairValueGapArtifact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "exact",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "domain",
-      "moduleId": "optional.semantic-fair-value-gap",
-      "owner": "semantic-fair-value-gap",
-      "ownsContract": false,
-      "path": "src/semantic-fair-value-gap/fvg-artifact.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "semantic-fair-value-gap.",
-            "purpose": "expose the strict evidence-derived three-Bar FVG trusted-build package.",
-            "inputs": "public Geometry/Evidence contracts plus one branded Evidence Bundle and Session identity.",
-            "outputs": "one branded package manifest with deterministic construction and projection policies.",
-            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
-            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
-            "errors": "AnnotationSemanticPackageError rejects malformed, non-FVG, gapped, or cross-Session evidence.",
-            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
-          },
-          "moduleId": "optional.semantic-fair-value-gap",
-          "name": "FAIR_VALUE_GAP_PROFILE",
-          "semanticMatches": [
-            "semantic"
-          ],
-          "semanticTerms": [
-            "fair",
-            "gap",
-            "optional",
-            "profile",
-            "semantic"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "semantic-fair-value-gap.",
-            "purpose": "expose the strict evidence-derived three-Bar FVG trusted-build package.",
-            "inputs": "public Geometry/Evidence contracts plus one branded Evidence Bundle and Session identity.",
-            "outputs": "one branded package manifest with deterministic construction and projection policies.",
-            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
-            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
-            "errors": "AnnotationSemanticPackageError rejects malformed, non-FVG, gapped, or cross-Session evidence.",
-            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
-          },
-          "moduleId": "optional.semantic-fair-value-gap",
-          "name": "FAIR_VALUE_GAP_TYPE_ID",
-          "semanticMatches": [
-            "semantic"
-          ],
-          "semanticTerms": [
-            "fair",
-            "gap",
-            "optional",
-            "semantic",
-            "type"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "semantic-fair-value-gap.",
-            "purpose": "expose the strict evidence-derived three-Bar FVG trusted-build package.",
-            "inputs": "public Geometry/Evidence contracts plus one branded Evidence Bundle and Session identity.",
-            "outputs": "one branded package manifest with deterministic construction and projection policies.",
-            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
-            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
-            "errors": "AnnotationSemanticPackageError rejects malformed, non-FVG, gapped, or cross-Session evidence.",
-            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
-          },
-          "moduleId": "optional.semantic-fair-value-gap",
-          "name": "FAIR_VALUE_GAP_VERSION",
-          "semanticMatches": [
-            "semantic"
-          ],
-          "semanticTerms": [
-            "fair",
-            "gap",
-            "optional",
-            "semantic",
-            "version"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "cc6ac3b66da0f392c3ca90f41772d1f8ed431db0dffaa6a1c7a8aa72d57a1f50"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 86,
       "forwardingOnly": false,
       "functions": [
@@ -18379,7 +19101,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "707e59d681b242c1c6f1d89fe14dfa05c795cc4a4db63263a0814651e5eec7d3"
+      "sourceHash": "b27952d3eee09276a34b74eddd0926d7d035393ed5c44711c88c81b3460848ec"
     },
     {
       "adaptsBoundary": false,
@@ -18662,7 +19384,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "d5a6a4b6552d3a9b532a712577668c65f65318d88e1b8108708233b066e28dfd"
+      "sourceHash": "db323f6c33773e7f591f1d62d784467790cecb12aa6b7cc9fea4df42d07e72e7"
     },
     {
       "adaptsBoundary": false,
@@ -19592,128 +20314,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "73095fddc6790ce1e0d5c28983c347a3b265e276f691d671b752ed75e8e14a02"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 98,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "activate",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "construct",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "inspect",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "project",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "defaultPresentation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "typeDefinition",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 20,
-          "name": "createFairValueGapSemanticPackage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 30,
-          "name": "construction",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "requireEvidenceContract",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "domain",
-      "moduleId": "optional.semantic-fair-value-gap",
-      "owner": "semantic-fair-value-gap",
-      "ownsContract": false,
-      "path": "src/semantic-fair-value-gap/fair-value-gap-package.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "semantic-fair-value-gap.",
-            "purpose": "expose the strict evidence-derived three-Bar FVG trusted-build package.",
-            "inputs": "public Geometry/Evidence contracts plus one branded Evidence Bundle and Session identity.",
-            "outputs": "one branded package manifest with deterministic construction and projection policies.",
-            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
-            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
-            "errors": "AnnotationSemanticPackageError rejects malformed, non-FVG, gapped, or cross-Session evidence.",
-            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
-          },
-          "moduleId": "optional.semantic-fair-value-gap",
-          "name": "createFairValueGapSemanticPackage",
-          "semanticMatches": [
-            "package",
-            "semantic"
-          ],
-          "semanticTerms": [
-            "fair",
-            "gap",
-            "optional",
-            "package",
-            "semantic"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "semantic-fair-value-gap.",
-            "purpose": "expose the strict evidence-derived three-Bar FVG trusted-build package.",
-            "inputs": "public Geometry/Evidence contracts plus one branded Evidence Bundle and Session identity.",
-            "outputs": "one branded package manifest with deterministic construction and projection policies.",
-            "sideEffects": "none; no Bar request, Replay/Annotation write, Chart, DOM, storage, or network authority.",
-            "lifecycle": "activation is host-owned and each active package generation is explicitly disposable.",
-            "errors": "AnnotationSemanticPackageError rejects malformed, non-FVG, gapped, or cross-Session evidence.",
-            "concurrencyCancellation": "package policies are synchronous; Registry lifecycle remains serialized."
-          },
-          "moduleId": "optional.semantic-fair-value-gap",
-          "name": "FAIR_VALUE_GAP_PACKAGE_ID",
-          "semanticMatches": [
-            "package",
-            "semantic"
-          ],
-          "semanticTerms": [
-            "fair",
-            "gap",
-            "optional",
-            "package",
-            "semantic"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "e0ca3eb8cc96de93e4eb5abba26643c43ddc2126d284348204143ee7156d9ac1"
     },
     {
       "adaptsBoundary": false,
@@ -36388,11 +36988,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 33340,
-    "files": 417,
-    "functions": 3488,
-    "publicExports": 393
+    "effectiveLines": 34566,
+    "files": 422,
+    "functions": 3582,
+    "publicExports": 394
   },
-  "deliveryStep": "R13.10c",
-  "generatedFromCommit": "working-tree-r13.10c"
+  "deliveryStep": "R13.10d",
+  "generatedFromCommit": "working-tree-r13.10d"
 }

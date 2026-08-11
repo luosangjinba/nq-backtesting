@@ -136,7 +136,7 @@
       }
     ]
   },
-  "deliveryStep": "R13.10c",
+  "deliveryStep": "R13.10d",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -4052,6 +4052,24 @@
             "importedNames": [
               "AnnotationSemanticPackageError"
             ],
+            "sourceFile": "src/semantic-fair-value-gap/fvg-inspector.js",
+            "targetFile": "src/annotation-semantic-registry/public.js",
+            "targetModuleId": "optional.annotation-semantic-registry",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "AnnotationSemanticPackageError"
+            ],
+            "sourceFile": "src/semantic-fair-value-gap/fvg-override.js",
+            "targetFile": "src/annotation-semantic-registry/public.js",
+            "targetModuleId": "optional.annotation-semantic-registry",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "AnnotationSemanticPackageError"
+            ],
             "sourceFile": "src/semantic-fair-value-gap/fvg-projection.js",
             "targetFile": "src/annotation-semantic-registry/public.js",
             "targetModuleId": "optional.annotation-semantic-registry",
@@ -4421,7 +4439,9 @@
         "declaredLifecycle": [
           "dispose"
         ],
-        "declaredOptionalPorts": [],
+        "declaredOptionalPorts": [
+          "optional.annotation-semantic-registry"
+        ],
         "declaredRequiredPorts": [
           "optional.annotation-chart-projection",
           "optional.annotation-geometry-domain",
@@ -4435,6 +4455,7 @@
         "kind": "optional",
         "observedDisposeSites": [
           "src/annotation-interaction/drawing-inspector-controller.js",
+          "src/annotation-interaction/semantic-inspector-controller.js",
           "src/annotation-interaction/two-anchor-interaction-controller.js"
         ],
         "owner": "annotation-interaction-controller",

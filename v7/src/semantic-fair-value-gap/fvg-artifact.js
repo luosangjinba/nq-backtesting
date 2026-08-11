@@ -1,6 +1,7 @@
 import { AnnotationSemanticPackageError } from '../annotation-semantic-registry/public.js';
 import { deriveStrictFvgFormation } from './fvg-formation.js';
 import { fvgSourceBarReferences } from './fvg-evidence.js';
+import { readFvgOverrideState } from './fvg-override.js';
 
 export const FAIR_VALUE_GAP_TYPE_ID = 'imbalance.fvg';
 export const FAIR_VALUE_GAP_VERSION = '1.0.0';
@@ -16,18 +17,6 @@ function exact(value, fields, label) {
   if (!value || typeof value !== 'object' || Array.isArray(value)
     || Object.keys(value).sort().join(',') !== [...fields].sort().join(',')) {
     invalid(`${label} fields are invalid.`);
-  }
-}
-
-function parameter(value, expected, label) {
-  exact(
-    value,
-    ['baselineValue', 'effectiveSource', 'effectiveValue', 'overrideProvenance'],
-    label,
-  );
-  if (value.effectiveSource !== 'derived' || value.overrideProvenance !== null
-    || value.baselineValue !== expected || value.effectiveValue !== expected) {
-    invalid(`${label} does not retain its derived baseline.`);
   }
 }
 
@@ -71,9 +60,7 @@ export function readFairValueGapArtifact(artifact) {
       !== formation.attributes.formation.selectedBarStartEpochMs) {
     invalid('Stored FVG direction or formation identity is inconsistent.');
   }
-  parameter(artifact.attributes.lowerPrice, formation.lowerPrice, 'FVG lower price');
-  parameter(artifact.attributes.midpointPrice, formation.midpointPrice, 'FVG midpoint price');
-  parameter(artifact.attributes.upperPrice, formation.upperPrice, 'FVG upper price');
+  const effectiveState = readFvgOverrideState(artifact, formation);
   const sourceBars = fvgSourceBarReferences(packageEvidence.bars);
   if (JSON.stringify(artifact.provenance.sourceBars) !== JSON.stringify(sourceBars)
     || artifact.provenance.instrumentId !== sourceBars[0].instrumentId
@@ -86,5 +73,5 @@ export function readFairValueGapArtifact(artifact) {
     || artifact.provenance.manualAnchors?.length !== 0) {
     invalid('Stored FVG core provenance is inconsistent with package evidence.');
   }
-  return Object.freeze({ artifact, formation, packageEvidence, sourceBars });
+  return Object.freeze({ artifact, effectiveState, formation, packageEvidence, sourceBars });
 }

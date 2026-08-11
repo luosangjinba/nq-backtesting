@@ -57,7 +57,7 @@ function projectionInput({ artifact, geometry, geometryValue, id, presentationVa
 /** Derive generic Rectangle and midpoint subjects from one exact FVG Artifact. */
 export function projectFairValueGapArtifact(geometryContract, artifactCandidate) {
   const geometry = requireFvgGeometryContract(geometryContract);
-  const { artifact, formation, packageEvidence, sourceBars } = readFairValueGapArtifact(
+  const { artifact, effectiveState, formation, packageEvidence, sourceBars } = readFairValueGapArtifact(
     artifactCandidate,
   );
   const startEpochMs = packageEvidence.bars[0].reference.startEpochMs;
@@ -65,12 +65,12 @@ export function projectFairValueGapArtifact(geometryContract, artifactCandidate)
   const instrumentId = artifact.provenance.instrumentId;
   const anchor = (epochMs, price) => geometry.createMarketAnchor({ epochMs, instrumentId, price });
   const zone = geometry.createRectangleGeometry({
-    firstAnchor: anchor(startEpochMs, formation.lowerPrice),
-    secondAnchor: anchor(endEpochMs, formation.upperPrice),
+    firstAnchor: anchor(startEpochMs, effectiveState.lowerPrice),
+    secondAnchor: anchor(endEpochMs, effectiveState.upperPrice),
   });
   const midpoint = geometry.createSegmentGeometry({
-    endAnchor: anchor(endEpochMs, formation.midpointPrice),
-    startAnchor: anchor(startEpochMs, formation.midpointPrice),
+    endAnchor: anchor(endEpochMs, effectiveState.midpointPrice),
+    startAnchor: anchor(startEpochMs, effectiveState.midpointPrice),
   });
   return Object.freeze([
     projectionInput({

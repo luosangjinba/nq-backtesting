@@ -941,8 +941,31 @@ package receives no Chart, Series, Canvas, DOM, Bar requester, Replay or
 Workspace writer, Annotation writer, persistence, storage, or network handle.
 H111's automated headless/Chromium evidence and focused local human visual gate
 are accepted. R13.10c is closed without changing the production toolbar.
-Evidence Inspector, editable overrides, detectors, production toolbar,
-R13.10d, and R13.10e remain unauthorized.
+Evidence Inspector and editable overrides remained outside R13.10c; detectors,
+the production toolbar, and R13.10e remain unauthorized.
+
+R13.10d extends the existing owners without creating an FVG UI branch. The
+Semantic Registry validates bounded package-authored group/field/number-control
+schemas and brands revision drafts to one active package generation plus exact
+source Artifact revision. The package-neutral Annotation Interaction
+controller owns selected identity, local values, transient Preview, and
+cancel/reset/save lifecycle without DOM, Chart, Replay, Bar Data, Repository,
+or FVG knowledge. Annotation Runtime alone accepts the branded replacement
+through its existing reversible Repository/history transaction.
+
+The Core FVG Plugin keeps the strict three-Bar baseline immutable and may
+append only an effective inner-zone override at the Artifact's exact original
+observation Replay cutoff. Lower and upper bounds remain inside the baseline;
+midpoint is recomputed, all parameters share append-only provenance, and exact
+baseline bounds are an audited reset. Before observation the Inspector is
+empty, after observation it is read-only, and a disabled/missing package falls
+back to generic unresolved raw evidence. H112 passes automated schema,
+validation, stale/foreign generation, Preview/persistence rollback,
+undo/redo, durable round-trip, real Chromium, unchanged-candle, and native
+wheel/drag checks. The first human pass rejected overlapping accepted and
+Preview layers; the corrected fixture retains accepted bytes while showing one
+Preview, then restores or settles one accepted layer on Cancel/Apply. The user
+accepted that correction. H112 and R13.10d are accepted.
 
 ADR-V7-004 now binds the product-level plugin taxonomy without changing this
 owner graph. Kernel owners remain non-plugin descriptor `kind: "core"`
@@ -966,8 +989,9 @@ The eventual host-rendered Plugin Center is delivered separately: P0 manages
 trusted-build Core packages only; later phases add local declarative install,
 a signed free Community registry, and isolated calculation workers. Arbitrary
 community privileges and a paid Marketplace are not implied or authorized.
-R13.10d/e remain focused on Inspector/override and manual FVG production
-closure, and may not absorb the general Plugin Center.
+R13.10d remains bounded to the now-accepted Inspector/override slice. R13.10e
+remains the separately unauthorized manual FVG production closure; neither may
+absorb the general Plugin Center.
 
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,

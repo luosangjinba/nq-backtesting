@@ -8,8 +8,11 @@ import {
   FAIR_VALUE_GAP_PROFILE,
   FAIR_VALUE_GAP_TYPE_ID,
   FAIR_VALUE_GAP_VERSION,
+  readFairValueGapArtifact,
 } from './fvg-artifact.js';
 import { deriveStrictFvgFormation } from './fvg-formation.js';
+import { inspectFairValueGapArtifact } from './fvg-inspector.js';
+import { reviseFvgOverride } from './fvg-override.js';
 import {
   projectFairValueGapArtifact,
   requireFvgGeometryContract,
@@ -75,8 +78,16 @@ function typeDefinition(geometryContract, evidenceContract) {
     definitionId: FAIR_VALUE_GAP_PROFILE.profileId,
     definitionVersion: FAIR_VALUE_GAP_PROFILE.profileVersion,
     displayMetadata: Object.freeze({ label: 'Fair Value Gap' }),
-    inspect: () => Object.freeze([]),
+    inspect: (artifact, context) => inspectFairValueGapArtifact(artifact, context),
     project: (artifact) => projectFairValueGapArtifact(geometryContract, artifact),
+    revise: (artifact, revision) => {
+      const { formation } = readFairValueGapArtifact(artifact);
+      return Object.freeze({
+        attributes: reviseFvgOverride(artifact, formation, revision),
+        presentation: artifact.presentation,
+        relations: artifact.relations,
+      });
+    },
     typeId: FAIR_VALUE_GAP_TYPE_ID,
     version: FAIR_VALUE_GAP_VERSION,
   });

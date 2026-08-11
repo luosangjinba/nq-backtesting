@@ -43,9 +43,9 @@ The package source contains no Chart, DOM, Canvas, Bar request, Replay or
 Workspace writer, accepted Annotation writer, persistence, storage, or network
 surface. Final architecture evidence is 62 modules, 134 dependency edges, 115
 construction sites, 23 writer sites, and zero blocking findings. Module
-assembly is 62 public entries, 26 lifecycle modules, and 28 optional-removal
-cases. Current source quality is 417 files, 33,340 effective lines, 3,488
-functions, and 393 public exports, with no accepted exception. Architecture,
+assembly is 62 public entries, 26 lifecycle modules, and 29 optional-removal
+cases. Current source quality is 422 files, 34,566 effective lines, 3,582
+functions, and 394 public exports, with no accepted exception. Architecture,
 writer, source-quality, standalone, JSON, and patch-format gates pass.
 
 ## Human Gate — Accepted 2026-08-10

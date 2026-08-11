@@ -33,6 +33,9 @@ const PROMOTE_FIELDS = Object.freeze([
 const ARTIFACT_STATUS_FIELDS = Object.freeze([
   'artifactId', 'expectedArtifactRevision', 'expectedDocumentRevision', 'sessionId',
 ]);
+const REVISE_ARTIFACT_FIELDS = Object.freeze([
+  'draft', 'expectedArtifactRevision', 'expectedDocumentRevision', 'sessionId',
+]);
 
 /** Build and transact one generic Drawing creation command. */
 export function createDrawing(state, input) {
@@ -132,6 +135,46 @@ export function createSemanticArtifact(state, input) {
     }
     return addSemanticArtifact(state.documentValue(), {
       artifact: draft.artifact,
+      sessionId: state.sessionId(),
+    });
+  });
+}
+
+/** Replace package-governed Artifact surfaces through one exact branded revision draft. */
+export function reviseSemanticArtifact(state, input) {
+  return state.runMutation(() => {
+    state.validateBaseCommand(input, REVISE_ARTIFACT_FIELDS, 'Revise Semantic Artifact command');
+    const draft = state.readSemanticRevisionDraft(input.draft);
+    const artifact = state.requireExistingArtifact(
+      draft.sourceArtifact.artifactId,
+      input.expectedArtifactRevision,
+    );
+    if (artifact.status !== 'active') {
+      failAnnotation('SEMANTIC_ARTIFACT_ARCHIVED', 'Archived Artifact cannot be revised.');
+    }
+    if (draft.sourceArtifact.revision !== artifact.revision) {
+      failAnnotation(
+        'SEMANTIC_ARTIFACT_REVISION_SOURCE_STALE',
+        'Artifact revision draft source is stale.',
+      );
+    }
+    if (draft.artifact.artifactId !== artifact.artifactId
+      || draft.artifact.typeId !== artifact.typeId
+      || draft.artifact.typeVersion !== artifact.typeVersion
+      || JSON.stringify(draft.artifact.definition) !== JSON.stringify(artifact.definition)
+      || JSON.stringify(draft.artifact.provenance) !== JSON.stringify(artifact.provenance)) {
+      failAnnotation(
+        'SEMANTIC_ARTIFACT_REVISION_IDENTITY_INVALID',
+        'Artifact revision draft changed immutable identity or provenance.',
+      );
+    }
+    return replaceSemanticArtifact(state.documentValue(), {
+      artifactId: artifact.artifactId,
+      replacement: {
+        attributes: draft.artifact.attributes,
+        presentation: draft.artifact.presentation,
+        relations: draft.artifact.relations,
+      },
       sessionId: state.sessionId(),
     });
   });

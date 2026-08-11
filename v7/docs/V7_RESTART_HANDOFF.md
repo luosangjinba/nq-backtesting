@@ -1,15 +1,14 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-10 after accepted R13.10c and ADR-V7-004 plugin-model
-specification
+Last updated: 2026-08-10 after accepted R13.10d/H112
 
 ## Restart Resume Checkpoint
 
 Resume on branch `feature/v7-drawing-semantic-annotation`. The current branch
 contains the separately committed accepted R13.10c checkpoint followed by one
-documentation-only Core/Community plugin-model decision; `git log` is the
-authoritative commit identity. The repository is expected to be clean before
-separately authorized later work.
+documentation-only Core/Community plugin-model decision. R13.10d/H112 is now
+accepted and closes as its own commit. `git log` is the authoritative commit
+identity.
 
 After a machine or agent restart, run:
 
@@ -24,18 +23,20 @@ Then read, in order:
 
 1. `v7/docs/V7_RESTART_HANDOFF.md`
 2. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
-3. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
-4. `v7/sessions/session_20260810_core_community_plugin_model_spec.md`
-5. `v7/sessions/session_20260810_r13_10c_deterministic_fvg.md`
-6. `v7/TODO.md`
+3. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
+4. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
+5. `v7/sessions/session_20260810_r13_10d_fvg_evidence_inspector_override.md`
+6. `v7/sessions/session_20260810_core_community_plugin_model_spec.md`
+7. `v7/TODO.md`
 
 R13.10b/H110 and R13.10c/H111 are accepted. The focused FVG fixture contains
 no temporary diagnostic surface, and its acceptance server is stopped.
 ADR-V7-004 now classifies FVG, MA/SMA, BSL/SSL, and Fibonacci as built-in Core
 Plugin capabilities and binds public derived dependencies plus a future
-host-rendered Core/Community Plugin Center. R13.10d Evidence Inspector/
-validated overrides and R13.10e production manual FVG closure are planned but
-still require separate authorization. Detector, general Plugin Center, loader,
+host-rendered Core/Community Plugin Center. R13.10d Evidence Inspector and
+validated overrides are accepted under H112 after the corrected single-layer
+Preview human gate. R13.10e production manual FVG closure is still
+unauthorized. Detector, general Plugin Center, loader,
 Community registry, SDK, arbitrary code, Marketplace, and later implementation
 remain unauthorized.
 
@@ -105,8 +106,16 @@ provenance, and emits generic Rectangle/midpoint/label projections through the
 existing no-future and Chart owners. H111's headless and real-Chromium paths
 pass, including durable unresolved restore, package disable/re-enable,
 multi-Pane projection, unchanged candles, and native wheel/drag. The user
-accepted the focused local visual gate on 2026-08-10. All Inspector/override/
-detector/production-toolbar behavior remains unauthorized.
+accepted the focused local visual gate on 2026-08-10. R13.10d is now separately
+authorized and implemented: a bounded host schema renders Semantic/Evidence/
+History fields; only the original observation cutoff permits a Core FVG
+inner-zone edit; immutable baseline, append-only audit events, exact branded
+revision drafts, Runtime-only accepted writes, transient Preview rollback,
+durable rollback/round-trip, and unresolved read-only survival are automated in
+H112. Its real-Chromium automation and corrected human interaction/visual gate
+pass: accepted bytes remain intact while one dirty Preview is visible, and
+Cancel/Apply settle to one accepted layer. H112 and R13.10d are accepted.
+Detector and production-toolbar behavior remain unauthorized.
 ADR-V7-002 audited the current public Lightweight Charts drawing,
 indicator, toolkit, and alternative-engine ecosystem at pinned revisions.
 Official Primitive/rendering patterns are approved for adaptation, but no
@@ -1104,31 +1113,19 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
-After restart, do not resume either NQ or ES repair: both full-chain writes are
-complete. Continue the open overall checklist from `v7/tmp/验收1.md`; R9.4's
-aggregated-bucket hover review is one pending focused check inside that broader
-acceptance, not the entire gate. In parallel, run R10.1 first in private SSH-
-tunnel mode on a clean lightweight Linux host, then authenticated HTTPS. For
-R10.8, use two physical computers with the same reviewer login to confirm the
-same Session/Workspace checkpoint, exercise conflict and Offline retry, and
-prove state SQLite backup/restore plus an unchanged market-database fingerprint.
-For R10.9, use a separate clean target with `--bootstrap`, execute one realistic
-CSV conversion and one direct DuckDB upload on disposable hosts, then prove
-activation, V7 market-data/Session read behavior, restart persistence, and permanent importer
-lock without opening 8768 publicly.
-Record resource/latency/restart/rollback evidence as non-blocking operational
-follow-up. R8 recovery remains human accepted and inactive; R11 repository
-recovery is also inactive. H087 retains the real Linux host transaction/health
-pass, H088 retains visible static and Data Acquisition/Bootstrap review, and
-H091 retains the three known visual fixtures without blocking V7.0.0. The separate
-R7.3/R7.3c Data Acquisition admin human gate and the proposed multi-source
-acquisition/plugin project remain deferred; neither is implicitly authorized by
-the completed historical repairs or the read-only deployment path. Second-
-level/tick-sourced Replay is also explicitly deferred: minute-sourced V7 remains
-a valid product without simulated-live execution, and no provider purchase,
-prototype, delivery step, second cache owner, or implementation is authorized
-until a new product decision satisfies the activation/hard gates in
-`V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` are satisfied.
+R13.10d/H112 is closed. Do not begin R13.10e automatically. Its production
+Picker → Evidence → Core FVG → Inspector → projection composition requires a
+separate binding spec, new Harness allocation, and explicit user authorization.
+It must remain a generic package contribution through existing owners and may
+not absorb the general Plugin Center, detector, Community loader, SDK, MA/SMA,
+Fibonacci, or Marketplace scope. R13.11–R13.13 likewise remain planned rather
+than implicitly authorized.
+
+Older clean-host, physical cross-device, Data Acquisition admin, resource, and
+known H091 visual checks remain non-blocking operational follow-up for the
+already accepted V7.0.0 foundation. Second-level/tick-sourced Replay also stays
+behind its separate predecision hard gates; no provider purchase, prototype,
+second cache owner, or implementation is implied by R13.10d acceptance.
 
 ## Standing Workflow
 

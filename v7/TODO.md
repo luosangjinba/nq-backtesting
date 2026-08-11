@@ -482,17 +482,33 @@ Binding contract:
 Binding contract:
 `docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`.
 
-## R13.10d Evidence Inspector And Validated Overrides — Planned, Not Authorized
+## R13.10d Evidence Inspector And Validated Overrides — Accepted 2026-08-10
 
-- [ ] receive separate authorization and freeze one focused contract/rule;
-- [ ] expose exact package/type/definition identity, source Bars, cutoff,
+- [x] receive separate authorization and freeze one focused contract plus H112;
+- [x] expose exact package/type/definition identity, source Bars, cutoff,
   baseline/effective values, and source badges through the host Inspector;
-- [ ] validate overrides through the Core FVG Plugin policy while preserving
+- [x] validate observation-cutoff-bound inner-zone overrides through the Core
+  FVG Plugin policy while preserving
   immutable derived baseline and explicit override provenance;
-- [ ] prove cancel/stale/invalid/rollback, unresolved read-only mode,
+- [x] keep the package UI-free, make Annotation Runtime the sole accepted
+  writer, and place disposable local draft/Preview ownership in the generic
+  Annotation Interaction controller;
+- [x] prove cancel/reset/stale/invalid/foreign-generation/rollback, durable
+  reload/export/import, undo/redo, unresolved read-only mode,
   disable/re-enable, no-future, and host-rendered-schema boundaries;
-- [ ] exclude Plugin Center, installer, detector, production toolbar, and new
+- [x] pass H112's 16 negative controls and focused real-Chromium automation
+  with unchanged candles plus native wheel/drag;
+- [x] execute all 112 top-level Harnesses with zero unexpected failures while
+  preserving the three pre-existing H091 visual failures explicitly;
+- [x] correct the first human-pass duplicate accepted/Preview FVG layers so a
+  dirty edit shows one Preview while Cancel/Apply settle to one accepted layer;
+- [x] complete the focused local interaction/visual gate, mark H112 accepted,
+  and form one separate R13.10d commit;
+- [x] exclude Plugin Center, installer, detector, production toolbar, and new
   owner scope.
+
+Binding contract:
+`docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`.
 
 ## R13.10e Production Manual FVG Workflow Closure — Planned, Not Authorized
 
@@ -1299,7 +1315,7 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 417 files, 33,340 effective lines, 3,488 functions, and 393 public exports; the architecture baseline
+The current production source baseline contains 422 files, 34,566 effective lines, 3,582 functions, and 394 public exports; the architecture baseline
 contains 61 modules, 132 edges, 115 construction sites, 23 writers, and zero
 findings.
 
@@ -1311,7 +1327,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 417 files, 33,340 effective lines, 3,488 functions, and 393 public exports, 62 modules, 134 edges, 115 construction sites, 23 writers, and zero
+currently at 422 files, 34,566 effective lines, 3,582 functions, and 394 public exports, 62 modules, 134 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 ## Established Foundation Governance

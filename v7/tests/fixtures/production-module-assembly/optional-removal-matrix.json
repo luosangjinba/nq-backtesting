@@ -42,6 +42,10 @@
       "omittedModuleId": "optional.annotation-runtime"
     },
     {
+      "consumerModuleId": "optional.annotation-interaction",
+      "omittedModuleId": "optional.annotation-semantic-registry"
+    },
+    {
       "consumerModuleId": "optional.annotation-runtime",
       "omittedModuleId": "adapter.annotation-persistence"
     },

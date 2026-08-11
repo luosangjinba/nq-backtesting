@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    { "name": "crossed-bounds", "expectedCode": "SEMANTIC_REVISION_REJECTED" },
+    { "name": "expanding-lower-bound", "expectedCode": "SEMANTIC_REVISION_REJECTED" },
+    { "name": "expanding-upper-bound", "expectedCode": "SEMANTIC_REVISION_REJECTED" },
+    { "name": "non-finite-bound", "expectedCode": "SEMANTIC_PORTABLE_VALUE_INVALID" },
+    { "name": "no-op-override", "expectedCode": "SEMANTIC_REVISION_REJECTED" },
+    { "name": "after-observation-edit", "expectedCode": "SEMANTIC_REVISION_REJECTED" },
+    { "name": "retrograde-edit-time", "expectedCode": "SEMANTIC_REVISION_REJECTED" },
+    { "name": "unknown-revision-field", "expectedCode": "SEMANTIC_REVISION_REJECTED" },
+    { "name": "stale-artifact", "expectedCode": "SEMANTIC_ARTIFACT_REVISION_STALE" },
+    { "name": "foreign-revision-draft", "expectedCode": "SEMANTIC_ARTIFACT_REVISION_DRAFT_FOREIGN" },
+    { "name": "disabled-generation-draft", "expectedCode": "SEMANTIC_ARTIFACT_REVISION_DRAFT_STALE" },
+    { "name": "schema-missing-control", "expectedCode": "SEMANTIC_PACKAGE_POLICY_FAILED", "expectedCauseCode": "SEMANTIC_INSPECTOR_SCHEMA_INVALID" },
+    { "name": "schema-invalid-control-bound", "expectedCode": "SEMANTIC_PACKAGE_POLICY_FAILED", "expectedCauseCode": "SEMANTIC_INSPECTOR_SCHEMA_INVALID" },
+    { "name": "schema-duplicate-field", "expectedCode": "SEMANTIC_PACKAGE_POLICY_FAILED", "expectedCauseCode": "SEMANTIC_INSPECTOR_SCHEMA_INVALID" },
+    { "name": "controller-read-only-edit", "expectedCode": "ANNOTATION_SEMANTIC_INSPECTOR_SELECTION_REQUIRED" },
+    { "name": "controller-stale-draft", "expectedCode": "ANNOTATION_SEMANTIC_INSPECTOR_DRAFT_STALE" }
+  ]
+}

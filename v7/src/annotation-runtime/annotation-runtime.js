@@ -7,6 +7,7 @@ import {
   redoAnnotation,
   promoteDrawing,
   replaceDrawingGeometry,
+  reviseSemanticArtifact,
   reviseDrawing,
   restoreDrawing,
   restoreSemanticArtifact,
@@ -17,12 +18,12 @@ import { createAnnotationRuntimeState } from './runtime-state.js';
 
 /**
  * Owner: Annotation Runtime.
- * Purpose: own one Session's accepted generic-Drawing document through exact reversible mutations.
- * Inputs: branded Session, optional Geometry public contract, and injected fake Repository port.
- * Outputs: frozen asynchronous commands, synchronous immutable queries, health, and disposal.
+ * Purpose: own one Session's accepted Drawing and Semantic Artifact document through exact reversible mutations.
+ * Inputs: branded Session, optional Geometry/Semantic contracts, and one injected Repository port.
+ * Outputs: frozen Drawing/Artifact commands, immutable queries, history, export, health, and disposal.
  * Side effects: writes only through repository.prepare() lifecycle; no Chart, storage, or event access.
  * Lifecycle: dispose blocks new work and waits for one already-started transaction to settle.
- * Errors: AnnotationRuntimeError plus branded Session identity failures.
+ * Errors: AnnotationRuntimeError plus branded Session, Geometry, and Semantic draft failures.
  * Concurrency/cancellation: exactly one mutation may be active; a concurrent command is rejected.
  */
 export function createAnnotationRuntime({
@@ -54,6 +55,7 @@ export function createAnnotationRuntime({
     redo: (input) => redoAnnotation(state, input),
     replaceDrawingGeometry: (input) => replaceDrawingGeometry(state, input),
     reviseDrawing: (input) => reviseDrawing(state, input),
+    reviseSemanticArtifact: (input) => reviseSemanticArtifact(state, input),
     restoreDrawing: (input) => restoreDrawing(state, input),
     restoreSemanticArtifact: (input) => restoreSemanticArtifact(state, input),
     undo: (input) => undoAnnotation(state, input),

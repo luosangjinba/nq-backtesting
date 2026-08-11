@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R13.10c",
+  "deliveryStep": "R13.10d",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -180,6 +180,10 @@
     },
     {
       "path": "sessions/session_20260810_r13_10c_deterministic_fvg.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260810_r13_10d_fvg_evidence_inspector_override.md",
       "expectedOccurrences": 1
     }
   ],

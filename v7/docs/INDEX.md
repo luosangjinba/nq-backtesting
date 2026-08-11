@@ -198,8 +198,15 @@ strict three-Bar FVG boundary. It adds a removable evidence-derived Semantic
 package over branded R13.10a evidence and emits only generic Rectangle,
 midpoint-Segment, and projection-label inputs through existing owners. H111's
 automated and focused local human visual gates passed on 2026-08-10. Evidence
-Inspector/validated overrides and production manual workflow closure are now
-explicitly planned as R13.10d/e boundaries requiring separate authorization.
+Inspector/validated overrides remained outside that accepted step.
+`V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md` now binds the
+separately authorized host-rendered Inspector slice: the active Core FVG Plugin
+owns bounded groups and inner-zone validation, Annotation Interaction owns only
+the disposable local draft/Preview, and Annotation Runtime remains the sole
+accepted Artifact writer. H112's automated evidence and corrected focused human
+gate pass: a dirty edit now shows one Preview FVG while retaining accepted
+bytes, and Cancel/Apply settle to one accepted layer. R13.10d is accepted and
+closed. Production manual workflow closure remains R13.10e and unauthorized.
 The accepted
 Core/Community plugin model classifies the existing FVG and BSL/SSL packages as
 built-in Core capabilities but does not retrofit R13.10c or authorize a Plugin
