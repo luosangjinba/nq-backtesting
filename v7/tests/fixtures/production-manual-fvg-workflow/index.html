@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>R13.10e Production Manual FVG Workflow</title>
+    <link rel="stylesheet" href="../../../src/replay-workspace-ui/styles.css">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body data-scenario="loading">
+    <header class="fixture-toolbar">
+      <div class="fixture-title">
+        <span>R13.10e · Production path</span>
+        <h1>Manual Semantic Workflow</h1>
+        <p>Contribution → exact Bar → Evidence → durable Artifact → Inspector</p>
+      </div>
+      <div id="annotation-tools"></div>
+      <output id="fixture-status">Starting…</output>
+    </header>
+    <main class="fixture-main">
+      <section class="fixture-chart-shell">
+        <div class="fixture-chart-head">
+          <strong>NQ · 1m · strict bullish FVG at 14:05</strong>
+          <span id="projection-status">accepted 0 · preview 0</span>
+        </div>
+        <div class="chart-frame">
+          <div id="chart" class="lightweight-chart-host"></div>
+          <div id="annotation-inspector-slot"></div>
+        </div>
+      </section>
+    </main>
+    <script>
+      globalThis.addEventListener('error', (event) => {
+        document.body.dataset.error = `${event.error?.code ?? event.error?.name ?? 'Error'}:${event.error?.message ?? event.message}`;
+        document.body.dataset.scenario = 'failed';
+      });
+      globalThis.addEventListener('unhandledrejection', (event) => {
+        document.body.dataset.error = `${event.reason?.code ?? event.reason?.name ?? 'Error'}:${event.reason?.message ?? event.reason}`;
+        document.body.dataset.scenario = 'failed';
+      });
+    </script>
+    <script type="module" src="./scenario.js?v=h114-20260810a"></script>
+  </body>
+</html>

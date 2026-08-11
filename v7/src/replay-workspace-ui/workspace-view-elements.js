@@ -6,6 +6,7 @@ import { createPaneTimeLocationMenu } from './pane-time-location-menu.js';
 import { createReplayTransport } from './replay-transport.js';
 import { createTimeframeMenu } from './timeframe-menu.js';
 import { createWorkstationSettingsControl } from './workstation-settings-dialog.js';
+import { createAnnotationWorkflowControl } from './annotation-workflow-control.js';
 import { setControlDisabled, setControlsDisabled } from './control-availability.js';
 
 function element(tag, options = {}, children = []) {
@@ -119,8 +120,15 @@ function createWorkspaceControls(options, activeWorkstationSettings, getExactDef
     playbackSpeedOptions: options.playbackSpeedOptions,
     replayStepOptions: options.replayStepOptions,
   });
+  const annotationWorkflow = createAnnotationWorkflowControl({
+    onApply: options.onAnnotationApply,
+    onCancel: options.onAnnotationCancel,
+    onReset: options.onAnnotationReset,
+    onToggleTool: options.onAnnotationToggleTool,
+    onUpdateField: options.onAnnotationUpdateField,
+  });
   return Object.freeze({
-    exactGoto, goto, instrumentControl, paneGrid, paneLayoutControl,
+    annotationWorkflow, exactGoto, goto, instrumentControl, paneGrid, paneLayoutControl,
     paneTimeLocationMenu, replayTransport, sessionHoursControl, timeframeControl, workstationSettings,
   });
 }
@@ -146,6 +154,7 @@ function createWorkspaceRoot({ backButton, controls, name, restartButton, status
         element('div', { className: 'replay-title-line' }, [
           backButton, element('h1', { text: name }), controls.instrumentControl.root,
           controls.timeframeControl.root, controls.sessionHoursControl.root, controls.paneLayoutControl.root,
+          controls.annotationWorkflow.root,
         ]),
       ]),
       element('div', { className: 'replay-actions' }, [
@@ -158,6 +167,7 @@ function createWorkspaceRoot({ backButton, controls, name, restartButton, status
     ]),
     element('div', { className: 'chart-frame' }, [
       controls.paneGrid.root, statusElements.overlay, controls.paneTimeLocationMenu.root,
+      controls.annotationWorkflow.inspector,
     ]),
     element('footer', { className: 'replay-workspace-footer' }, [
       element('div', { className: 'replay-footer-context' }, [
@@ -203,6 +213,7 @@ export function createWorkspaceViewElements(options, { activeWorkstationSettings
       controls.workstationSettings.dispose();
       controls.paneGrid.dispose();
       controls.paneTimeLocationMenu.dispose();
+      controls.annotationWorkflow.dispose();
       root.remove();
     },
   });

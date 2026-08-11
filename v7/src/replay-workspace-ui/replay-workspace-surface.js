@@ -2,14 +2,15 @@ import { supportsFoundationWorkspace } from '../replay-workspace-composition/pub
 import { mountReplayWorkspace } from './replay-workspace-mount.js';
 
 /** Own the professional replay-workspace DOM subtree mounted by the route UI. */
-export function createReplayWorkspaceSurface() {
+export function createReplayWorkspaceSurface(configuration = {}) {
   let active = null;
 
   function unmount() {
     if (!active) return;
-    active.controller.dispose();
+    const cleanup = active.controller.dispose();
     active.view.dispose();
     active = null;
+    return cleanup;
   }
 
   return Object.freeze({
@@ -26,6 +27,7 @@ export function createReplayWorkspaceSurface() {
     }) {
       unmount();
       active = mountReplayWorkspace({
+        annotationWorkflow: configuration.annotationWorkflow ?? null,
         colorHistory,
         initialNavigationSettings,
         onBack,

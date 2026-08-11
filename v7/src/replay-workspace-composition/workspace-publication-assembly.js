@@ -5,6 +5,7 @@ import { createWorkspacePublicationPort } from './workspace-publication-port.js'
 export function createWorkspacePublicationAssembly({
   checkpointPersistence,
   data,
+  onAcceptedWorkspace = () => {},
   presentation,
   session,
 }) {
@@ -102,6 +103,7 @@ export function createWorkspacePublicationAssembly({
       if (failures.length > 0) {
         throw new AggregateError(failures, 'Workspace publication finalization was incomplete.');
       }
+      queueMicrotask(() => { void Promise.resolve(onAcceptedWorkspace(candidate)).catch(() => {}); });
     },
     onReject: (identity) => data.paneData.reject(identity),
     onRollback: restore,

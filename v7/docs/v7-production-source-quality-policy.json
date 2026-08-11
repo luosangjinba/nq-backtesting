@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "P0a",
+  "deliveryStep": "R13.10e",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -19,7 +19,8 @@
     "composition": [
       "adapter.data-acquisition-application",
       "adapter.session-application",
-      "core.replay-workspace-composition"
+      "core.replay-workspace-composition",
+      "optional.annotation-manual-workflow"
     ],
     "contract": [
       "core.activation-generation",
@@ -189,6 +190,10 @@
     },
     {
       "path": "sessions/session_20260810_p0a_built_in_plugin_contract_substrate.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md",
       "expectedOccurrences": 1
     }
   ],

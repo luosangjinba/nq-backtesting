@@ -1,6 +1,7 @@
 import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/public.js';
 import { readViewportIntent } from '../viewport-runtime/public.js';
 import { createAdapterSnapshot } from './adapter-snapshot.js';
+import { createAnnotationSurfaceBinding } from './annotation-surface-binding.js';
 import { failLightweightAdapter } from './adapter-error.js';
 import { maximumDisplayGapMs } from './chart-data.js';
 import { createChartStagePlanner } from './chart-stage-planner.js';
@@ -12,11 +13,7 @@ import { createNativeViewportInteraction } from './native-viewport-interaction.j
 import { requirePaintedCandles, requireTailUpdatePaint } from './paint-gate.js';
 import { createPaneTimeLocationChartPort } from './pane-time-location-adapter.js';
 import { createSegmentedCandleSeriesWriter } from './segmented-candle-series.js';
-import {
-  captureAdapterVisibleState,
-  restoreAdapterScaleState,
-  restoreAdapterVisibleState,
-} from './visible-state-rollback.js';
+import { captureAdapterVisibleState, restoreAdapterScaleState, restoreAdapterVisibleState } from './visible-state-rollback.js';
 import { createWorkstationPresentationController } from './workstation-presentation-controller.js';
 
 function requirePort(port) {
@@ -52,6 +49,7 @@ export function createLightweightChartAdapter({
   let adapterRevision = 0;
   let appliedBars = Object.freeze([]), appliedData = Object.freeze([]);
   let appliedFutureTimeAxisData = Object.freeze([]), appliedTimeframeDurationMs = null;
+  let appliedInstrumentId = null;
   let barCount = 0, maximumAppliedDisplayGapMs = 0, seriesDataRevision = 0;
   let disposed = false, visibleMutationToken = 0;
   const stagedApplications = new WeakMap();
@@ -69,6 +67,14 @@ export function createLightweightChartAdapter({
   const stagePlanner = createChartStagePlanner({
     readAccepted: () => Object.freeze({ bars: appliedBars, data: appliedData }),
     readPresentation: presentation.snapshot,
+  });
+  const annotationSurface = createAnnotationSurfaceBinding({
+    chart,
+    eventTarget: window,
+    host,
+    interactionIndex,
+    readInstrumentId: () => appliedInstrumentId,
+    series,
   });
 
   function applyViewport() {
@@ -173,6 +179,7 @@ export function createLightweightChartAdapter({
     appliedData = restored.appliedData;
     appliedFutureTimeAxisData = restored.appliedFutureTimeAxisData;
     appliedTimeframeDurationMs = record.previousTimeframeDurationMs;
+    appliedInstrumentId = record.previousInstrumentId;
     barCount = restored.barCount;
     maximumAppliedDisplayGapMs = restored.maximumDisplayGapMs;
     if (record.presentationMutated) {
@@ -226,6 +233,7 @@ export function createLightweightChartAdapter({
     appliedData = Object.freeze([]);
     appliedFutureTimeAxisData = Object.freeze([]);
     appliedTimeframeDurationMs = null;
+    appliedInstrumentId = null;
     barCount = 0;
     maximumAppliedDisplayGapMs = 0;
     interactionIndex.setBars(appliedBars);
@@ -266,6 +274,7 @@ export function createLightweightChartAdapter({
     appliedData = context.staged.data;
     appliedFutureTimeAxisData = context.staged.futureTimeAxisData;
     appliedTimeframeDurationMs = context.workspaceSnapshot.provenance.displayTimeframeDurationMs;
+    appliedInstrumentId = context.workspaceSnapshot.provenance.instrumentId;
     interactionIndex.setBars(appliedBars);
     host.dataset.barCount = String(barCount);
     host.dataset.futureTimeAxisPointCount = String(appliedFutureTimeAxisData.length);
@@ -312,6 +321,7 @@ export function createLightweightChartAdapter({
     record.previousInstrumentLabel = previousPresentation.instrumentLabel;
     record.previousSettings = previousPresentation.settings;
     record.previousTimeframeDurationMs = appliedTimeframeDurationMs;
+    record.previousInstrumentId = appliedInstrumentId;
     record.token = ++visibleMutationToken;
     record.state = 'applying';
     try {
@@ -341,106 +351,119 @@ export function createLightweightChartAdapter({
     }
   }
 
-  return Object.freeze({
-    applyEmpty: (context) => applyStaged(context, {
-      commit: (_context, timing) => commitEmpty(timing), expectCandles: false, kind: 'empty',
-    }),
-    applyVisible: (context) => applyStaged(context, {
-      commit: commitVisible, expectCandles: true, kind: 'ready',
-    }),
-    finalizeVisible(staged) {
-      const record = stagedApplications.get(staged);
-      if (!record || record.state !== 'applied') {
-        failLightweightAdapter(
-          'CHART_ADAPTER_STAGE_INVALID',
-          'Only an applied Chart stage can finalize.',
+  function createPublicPort() {
+    return Object.freeze({
+      annotationSurface(projectionApi, paneId) {
+        if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+        return annotationSurface.bind(projectionApi, paneId);
+      },
+      applyEmpty: (context) => applyStaged(context, {
+        commit: (_context, timing) => commitEmpty(timing), expectCandles: false, kind: 'empty',
+      }),
+      applyVisible: (context) => applyStaged(context, {
+        commit: commitVisible, expectCandles: true, kind: 'ready',
+      }),
+      finalizeVisible(staged) {
+        const record = stagedApplications.get(staged);
+        if (!record || record.state !== 'applied') {
+          failLightweightAdapter(
+            'CHART_ADAPTER_STAGE_INVALID',
+            'Only an applied Chart stage can finalize.',
+          );
+        }
+        candleSeriesWriter.finalize(record.writerMutation);
+        record.state = 'finalized';
+        record.previous = null;
+      },
+      async rollbackVisible(staged) { await rollback(staged); },
+      dispose() {
+        if (disposed) return;
+        disposed = true;
+        visibleMutationToken += 1;
+        const annotationCleanup = annotationSurface.dispose();
+        nativeViewportInteraction.dispose();
+        candleSeriesWriter.dispose();
+        crosshairInteraction.dispose();
+        truncationInteraction.dispose();
+        series.detachPrimitive(currentPriceName.primitive);
+        if (annotationCleanup === null) {
+          chart.remove();
+          return undefined;
+        }
+        return Promise.resolve(annotationCleanup).finally(() => chart.remove());
+      },
+      resetView(latestOffsetBars) {
+        viewport.reset(latestOffsetBars);
+        priceScale.setAutoScale(true);
+        const projection = applyViewport();
+        if (projection) onViewportIntent(readViewportIntent(viewport.snapshot()));
+      },
+      applyWorkstationSettings(settings, priceIncrement, instrumentLabel) {
+        if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+        const current = presentation.snapshot();
+        presentation.apply(
+          settings,
+          priceIncrement === undefined ? current.priceIncrement : priceIncrement,
+          instrumentLabel === undefined ? current.instrumentLabel : instrumentLabel,
+          appliedData,
         );
-      }
-      candleSeriesWriter.finalize(record.writerMutation);
-      record.state = 'finalized';
-      record.previous = null;
-    },
-    async rollbackVisible(staged) { await rollback(staged); },
-    dispose() {
-      if (disposed) return;
-      disposed = true;
-      visibleMutationToken += 1;
-      nativeViewportInteraction.dispose();
-      candleSeriesWriter.dispose();
-      crosshairInteraction.dispose();
-      truncationInteraction.dispose();
-      series.detachPrimitive(currentPriceName.primitive);
-      chart.remove();
-    },
-    resetView(latestOffsetBars) {
-      viewport.reset(latestOffsetBars);
-      priceScale.setAutoScale(true);
-      const projection = applyViewport();
-      if (projection) onViewportIntent(readViewportIntent(viewport.snapshot()));
-    },
-    applyWorkstationSettings(settings, priceIncrement, instrumentLabel) {
-      if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
-      const current = presentation.snapshot();
-      presentation.apply(
-        settings,
-        priceIncrement === undefined ? current.priceIncrement : priceIncrement,
-        instrumentLabel === undefined ? current.instrumentLabel : instrumentLabel,
+      },
+      clearCrosshairPosition() {
+        return crosshairInteraction.clear();
+      },
+      crosshairObservation: crosshairInteraction.observe,
+      projectCrosshair: crosshairInteraction.project,
+      locateMarketTime: paneTimeLocation.locateMarketTime,
+      resolveTimeLocationSelection: paneTimeLocation.resolveSelection,
+      setTruncationSelection(active) { truncationInteraction.setActive(active); },
+      snapshot: () => createAdapterSnapshot({
+        adapterRevision,
         appliedData,
-      );
-    },
-    clearCrosshairPosition() {
-      return crosshairInteraction.clear();
-    },
-    crosshairObservation: crosshairInteraction.observe,
-    projectCrosshair: crosshairInteraction.project,
-    locateMarketTime: paneTimeLocation.locateMarketTime,
-    resolveTimeLocationSelection: paneTimeLocation.resolveSelection,
-    setTruncationSelection(active) { truncationInteraction.setActive(active); },
-    snapshot: () => createAdapterSnapshot({
-      adapterRevision,
-      appliedData,
-      appliedFutureTimeAxisData,
-      barCount,
-      chart,
-      currentPriceName,
-      host,
-      libraryVersion: surface.libraryVersion,
-      priceScale,
-      series,
-      seriesDataRevision,
-      seriesWriterSnapshot: candleSeriesWriter.snapshot(),
-      viewport,
-    }),
-    async stage({
-      chartDataCache = null,
-      futureTimeAxisDataCache = null,
-      identity,
-      instrumentLabel,
-      priceIncrement,
-      signal,
-      seriesMutationPlanMemo = null,
-      workspaceSnapshot,
-    }) {
-      if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
-      return registerStage(stagePlanner.ready({
-        chartDataCache,
-        futureTimeAxisDataCache,
+        appliedFutureTimeAxisData,
+        barCount,
+        chart,
+        currentPriceName,
+        host,
+        libraryVersion: surface.libraryVersion,
+        priceScale,
+        series,
+        seriesDataRevision,
+        seriesWriterSnapshot: candleSeriesWriter.snapshot(),
+        viewport,
+      }),
+      async stage({
+        chartDataCache = null,
+        futureTimeAxisDataCache = null,
         identity,
         instrumentLabel,
         priceIncrement,
-        seriesMutationPlanMemo,
         signal,
+        seriesMutationPlanMemo = null,
         workspaceSnapshot,
-      }));
-    },
-    async stageEmpty({
-      identity,
-      instrumentLabel,
-      priceIncrement,
-      signal,
-    }) {
-      if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
-      return registerStage(stagePlanner.empty({ identity, instrumentLabel, priceIncrement, signal }));
-    },
-  });
+      }) {
+        if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+        return registerStage(stagePlanner.ready({
+          chartDataCache,
+          futureTimeAxisDataCache,
+          identity,
+          instrumentLabel,
+          priceIncrement,
+          seriesMutationPlanMemo,
+          signal,
+          workspaceSnapshot,
+        }));
+      },
+      async stageEmpty({
+        identity,
+        instrumentLabel,
+        priceIncrement,
+        signal,
+      }) {
+        if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+        return registerStage(stagePlanner.empty({ identity, instrumentLabel, priceIncrement, signal }));
+      },
+    });
+  }
+
+  return createPublicPort();
 }

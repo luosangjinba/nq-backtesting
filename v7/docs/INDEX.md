@@ -211,15 +211,19 @@ the disposable local draft/Preview, and Annotation Runtime remains the sole
 accepted Artifact writer. H112's automated evidence and corrected focused human
 gate pass: a dirty edit now shows one Preview FVG while retaining accepted
 bytes, and Cancel/Apply settle to one accepted layer. R13.10d is accepted and
-closed. Production manual workflow closure remains R13.10e and unauthorized.
+closed.
 The accepted
 Core/Community plugin model classifies the existing FVG and BSL/SSL packages as
 built-in Core capabilities. Its amendment makes a minimal P0a
 manifest/contribution/settings bridge the prerequisite/reference boundary for
 R13.10e. `V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md` now records the
 implemented pure contract, FVG conformance manifest, and H113 automated gate;
-it does not authorize R13.10e, a Plugin Center, loader, detector, or later
-implementation.
+it does not create a Plugin Center, loader, detector, or later distribution
+phase. `V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md` now binds the implemented
+first production vertical slice through P0a: generic tool contribution, exact
+Bar evidence, Core FVG construction, durable Runtime commit, multi-Pane
+projection, and host-rendered Inspector. H114 passes automated evidence and
+remains executable pending the focused production visual gate.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

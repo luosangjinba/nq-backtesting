@@ -136,7 +136,7 @@
       }
     ]
   },
-  "deliveryStep": "P0a",
+  "deliveryStep": "R13.10e",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -174,10 +174,24 @@
       },
       {
         "callCount": 1,
+        "factory": "createAnnotationStorageAdapter",
+        "sourceFile": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
+        "sourceModuleId": "optional.annotation-manual-workflow",
+        "targetModuleId": "adapter.annotation-persistence"
+      },
+      {
+        "callCount": 1,
         "factory": "createBarDataRuntime",
         "sourceFile": "src/replay-workspace-composition/workspace-data-assembly.js",
         "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.bar-data-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createBuiltInPluginPlan",
+        "sourceFile": "src/annotation-manual-workflow/semantic-tool-catalog.js",
+        "sourceModuleId": "optional.annotation-manual-workflow",
+        "targetModuleId": "core.plugin-contract"
       },
       {
         "callCount": 1,
@@ -223,10 +237,24 @@
       },
       {
         "callCount": 1,
+        "factory": "createDurableAnnotationRepository",
+        "sourceFile": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
+        "sourceModuleId": "optional.annotation-manual-workflow",
+        "targetModuleId": "adapter.annotation-persistence"
+      },
+      {
+        "callCount": 1,
         "factory": "createEmptyPaneProjection",
         "sourceFile": "src/replay-workspace-composition/pane-data-composition.js",
         "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.pane-set-materialization"
+      },
+      {
+        "callCount": 1,
+        "factory": "createFairValueGapSemanticPackage",
+        "sourceFile": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
+        "sourceModuleId": "optional.annotation-manual-workflow",
+        "targetModuleId": "optional.semantic-fair-value-gap"
       },
       {
         "callCount": 1,
@@ -678,6 +706,27 @@
       },
       {
         "callCount": 1,
+        "factory": "createRestoredAnnotationRuntime",
+        "sourceFile": "src/annotation-manual-workflow/manual-workflow-start.js",
+        "sourceModuleId": "optional.annotation-manual-workflow",
+        "targetModuleId": "optional.annotation-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createSemanticArtifactInspectorController",
+        "sourceFile": "src/annotation-manual-workflow/manual-inspector-assembly.js",
+        "sourceModuleId": "optional.annotation-manual-workflow",
+        "targetModuleId": "optional.annotation-interaction"
+      },
+      {
+        "callCount": 1,
+        "factory": "createSemanticPackageRegistry",
+        "sourceFile": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
+        "sourceModuleId": "optional.annotation-manual-workflow",
+        "targetModuleId": "optional.annotation-semantic-registry"
+      },
+      {
+        "callCount": 1,
         "factory": "createSessionHoursCalendar",
         "sourceFile": "src/replay-workspace-composition/foundation-capabilities.js",
         "sourceModuleId": "core.replay-workspace-composition",
@@ -1085,6 +1134,165 @@
     "modules": [
       {
         "actualDependencies": [
+          "adapter.annotation-persistence",
+          "core.plugin-contract",
+          "optional.annotation-bar-picker",
+          "optional.annotation-chart-projection",
+          "optional.annotation-context-projection",
+          "optional.annotation-evidence-resolver",
+          "optional.annotation-geometry-domain",
+          "optional.annotation-interaction",
+          "optional.annotation-runtime",
+          "optional.annotation-semantic-registry",
+          "optional.semantic-fair-value-gap"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "adapter.annotation-persistence",
+          "core.plugin-contract",
+          "optional.annotation-bar-picker",
+          "optional.annotation-chart-projection",
+          "optional.annotation-context-projection",
+          "optional.annotation-evidence-resolver",
+          "optional.annotation-geometry-domain",
+          "optional.annotation-interaction",
+          "optional.annotation-runtime",
+          "optional.annotation-semantic-registry",
+          "optional.semantic-fair-value-gap"
+        ],
+        "descriptorPath": "src/annotation-manual-workflow/module.json",
+        "id": "optional.annotation-manual-workflow",
+        "importSites": [
+          {
+            "importedNames": [
+              "barPickerContract"
+            ],
+            "sourceFile": "src/annotation-manual-workflow/manual-artifact-construction.js",
+            "targetFile": "src/annotation-bar-picker/public.js",
+            "targetModuleId": "optional.annotation-bar-picker",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "barPickerContract"
+            ],
+            "sourceFile": "src/annotation-manual-workflow/manual-tool-picker.js",
+            "targetFile": "src/annotation-bar-picker/public.js",
+            "targetModuleId": "optional.annotation-bar-picker",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "chartProjection"
+            ],
+            "sourceFile": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
+            "targetFile": "src/annotation-chart-projection/public.js",
+            "targetModuleId": "optional.annotation-chart-projection",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "contextProjection"
+            ],
+            "sourceFile": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
+            "targetFile": "src/annotation-context-projection/public.js",
+            "targetModuleId": "optional.annotation-context-projection",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createAnnotationStorageAdapter",
+              "createDurableAnnotationRepository"
+            ],
+            "sourceFile": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
+            "targetFile": "src/annotation-persistence/public.js",
+            "targetModuleId": "adapter.annotation-persistence",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createBuiltInPluginPlan",
+              "listBuiltInPluginStatuses",
+              "readBuiltInPluginPlan"
+            ],
+            "sourceFile": "src/annotation-manual-workflow/semantic-tool-catalog.js",
+            "targetFile": "src/plugin-contract/public.js",
+            "targetModuleId": "core.plugin-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createRestoredAnnotationRuntime"
+            ],
+            "sourceFile": "src/annotation-manual-workflow/manual-workflow-start.js",
+            "targetFile": "src/annotation-runtime/public.js",
+            "targetModuleId": "optional.annotation-runtime",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createSemanticArtifactInspectorController"
+            ],
+            "sourceFile": "src/annotation-manual-workflow/manual-inspector-assembly.js",
+            "targetFile": "src/annotation-interaction/public.js",
+            "targetModuleId": "optional.annotation-interaction",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createSemanticPackageRegistry"
+            ],
+            "sourceFile": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
+            "targetFile": "src/annotation-semantic-registry/public.js",
+            "targetModuleId": "optional.annotation-semantic-registry",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "evidenceContract"
+            ],
+            "sourceFile": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
+            "targetFile": "src/annotation-evidence-resolver/public.js",
+            "targetModuleId": "optional.annotation-evidence-resolver",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "FAIR_VALUE_GAP_PACKAGE_ID",
+              "FAIR_VALUE_GAP_PLUGIN_MANIFEST",
+              "createFairValueGapSemanticPackage"
+            ],
+            "sourceFile": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
+            "targetFile": "src/semantic-fair-value-gap/public.js",
+            "targetModuleId": "optional.semantic-fair-value-gap",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "geometryContract"
+            ],
+            "sourceFile": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
+            "targetFile": "src/annotation-geometry-domain/public.js",
+            "targetModuleId": "optional.annotation-geometry-domain",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/production-manual-fvg-workflow-browser-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [
+          "src/annotation-manual-workflow/manual-projection-coordinator.js",
+          "src/annotation-manual-workflow/multi-pane-preview-port.js",
+          "src/annotation-manual-workflow/production-manual-annotation-workflow.js"
+        ],
+        "owner": "annotation-workflow-composition",
+        "publicEntry": "src/annotation-manual-workflow/public.js"
+      },
+      {
+        "actualDependencies": [
           "adapter.calendar-surface",
           "core.layout-sync-domain",
           "core.pane-layout-domain",
@@ -1364,6 +1572,7 @@
         "independentHarnessMode": "public-entry-direct",
         "kind": "adapter",
         "observedDisposeSites": [
+          "src/replay-workspace-ui/annotation-workflow-control.js",
           "src/replay-workspace-ui/color-picker-control.js",
           "src/replay-workspace-ui/exact-goto-dialog.js",
           "src/replay-workspace-ui/goto-controls.js",
@@ -3827,6 +4036,8 @@
         "independentHarnessMode": "public-entry-fixture",
         "kind": "adapter",
         "observedDisposeSites": [
+          "src/lightweight-chart-adapter/annotation-chart-surface.js",
+          "src/lightweight-chart-adapter/annotation-surface-binding.js",
           "src/lightweight-chart-adapter/crosshair-interaction.js",
           "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
           "src/lightweight-chart-adapter/native-viewport-interaction.js",
@@ -4452,7 +4663,8 @@
         ],
         "declaredOptionalPorts": [
           "adapter.replay-workspace-ui",
-          "adapter.server-state-sync"
+          "adapter.server-state-sync",
+          "optional.annotation-manual-workflow"
         ],
         "declaredRequiredPorts": [
           "adapter.market-data-provider",

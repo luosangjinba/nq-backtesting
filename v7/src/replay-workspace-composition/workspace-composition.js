@@ -6,6 +6,7 @@ import { createWorkspaceDataAssembly } from './workspace-data-assembly.js';
 import { createWorkspacePublicationAssembly } from './workspace-publication-assembly.js';
 import { createWorkspaceRuntimeAssembly } from './workspace-runtime-assembly.js';
 import { createWorkspaceSessionState } from './workspace-session-state.js';
+import { createWorkspaceAnnotationWorkflow } from './workspace-annotation-workflow.js';
 
 function createCheckpointPersistence(options, session) {
   return createWorkspaceCheckpointPersistence({
@@ -34,12 +35,13 @@ function createChartAssembly(options, session, checkpointPersistence, handleTrun
   });
 }
 
-function createRuntimeGraph(options, session, chart, checkpointPersistence) {
+function createRuntimeGraph(options, session, chart, checkpointPersistence, annotationWorkflow) {
   let runtime = null;
   const data = createWorkspaceDataAssembly({ getRuntime: () => runtime, session });
   const publication = createWorkspacePublicationAssembly({
     checkpointPersistence,
     data,
+    onAcceptedWorkspace: (candidate) => annotationWorkflow?.acceptWorkspace(candidate),
     presentation: options.presentation,
     session,
   });
@@ -60,6 +62,7 @@ function createCompositionCommandPort(options, owners) {
   const { chart, checkpointPersistence, data, runtimeAssembly, session } = owners;
   return createReplayWorkspaceCommandPort({
     acceptedPaneWorkspace: session.acceptedPaneWorkspace,
+    annotationWorkflow: owners.annotationWorkflow,
     adapter: chart.adapter,
     autoplayScheduler: runtimeAssembly.autoplayScheduler,
     checkpointPersistence,
@@ -93,6 +96,7 @@ function createCompositionCommandPort(options, owners) {
  * This boundary constructs and disposes runtime owners; it never owns DOM nodes.
  */
 export function createReplayWorkspaceComposition({
+  annotationWorkflow: annotationWorkflowConfiguration = null,
   initialLayout,
   initialLayoutSync,
   initialCheckpoint = null,
@@ -117,8 +121,7 @@ export function createReplayWorkspaceComposition({
     workstationSettingsViewConsumer,
   });
   const session = createWorkspaceSessionState(options);
-  let runtimeAssembly;
-  let disposed = false;
+  let runtimeAssembly, disposed = false;
   const checkpointPersistence = createCheckpointPersistence(options, session);
 
   function setTruncationSelection(active, error = null) {
@@ -151,8 +154,14 @@ export function createReplayWorkspaceComposition({
     handleTruncationSelect,
     () => runtimeAssembly?.execution ?? null,
   );
+  const annotationWorkflow = createWorkspaceAnnotationWorkflow({
+    chartAdapter: chart.adapter,
+    configuration: annotationWorkflowConfiguration,
+    presentation,
+    record,
+  });
   session.setLayoutSyncReader(chart.layoutSyncController.snapshot);
-  const graph = createRuntimeGraph(options, session, chart, checkpointPersistence);
+  const graph = createRuntimeGraph(options, session, chart, checkpointPersistence, annotationWorkflow);
   ({ runtimeAssembly } = graph);
   const { data, runtime } = graph;
 
@@ -166,15 +175,20 @@ export function createReplayWorkspaceComposition({
     runtimeAssembly.execution.dispose();
     runtime.dispose();
     chart.chartApplication.dispose();
-    chart.adapter.dispose();
+    const annotationCleanup = annotationWorkflow?.dispose() ?? null;
+    const chartCleanup = annotationCleanup === null
+      ? chart.adapter.dispose()
+      : Promise.resolve(annotationCleanup).then(() => chart.adapter.dispose());
     data.barData.dispose();
     data.projectedHistoryData.dispose();
     session.replay.dispose();
     session.market.dispose();
     session.workspaceState.dispose();
+    return chartCleanup;
   }
 
   const snapshotComposition = () => Object.freeze({
+    annotation: annotationWorkflow?.snapshot() ?? null,
     chart: chart.adapter.snapshot(),
     crosshairSync: chart.layoutSyncController.read().crosshair,
     layoutSync: chart.layoutSyncController.snapshot(),
@@ -186,6 +200,7 @@ export function createReplayWorkspaceComposition({
   });
   return createCompositionCommandPort(options, {
     chart,
+    annotationWorkflow,
     checkpointPersistence,
     disposeComposition,
     isDisposed: () => disposed,

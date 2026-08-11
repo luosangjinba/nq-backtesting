@@ -14,6 +14,10 @@
       "omittedModuleId": "adapter.server-state-sync"
     },
     {
+      "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "optional.annotation-manual-workflow"
+    },
+    {
       "consumerModuleId": "adapter.session-browser-ui",
       "omittedModuleId": "adapter.replay-workspace-ui"
     },
@@ -44,6 +48,42 @@
     {
       "consumerModuleId": "optional.annotation-interaction",
       "omittedModuleId": "optional.annotation-semantic-registry"
+    },
+    {
+      "consumerModuleId": "optional.annotation-manual-workflow",
+      "omittedModuleId": "optional.annotation-bar-picker"
+    },
+    {
+      "consumerModuleId": "optional.annotation-manual-workflow",
+      "omittedModuleId": "optional.annotation-chart-projection"
+    },
+    {
+      "consumerModuleId": "optional.annotation-manual-workflow",
+      "omittedModuleId": "optional.annotation-context-projection"
+    },
+    {
+      "consumerModuleId": "optional.annotation-manual-workflow",
+      "omittedModuleId": "optional.annotation-evidence-resolver"
+    },
+    {
+      "consumerModuleId": "optional.annotation-manual-workflow",
+      "omittedModuleId": "optional.annotation-geometry-domain"
+    },
+    {
+      "consumerModuleId": "optional.annotation-manual-workflow",
+      "omittedModuleId": "optional.annotation-interaction"
+    },
+    {
+      "consumerModuleId": "optional.annotation-manual-workflow",
+      "omittedModuleId": "optional.annotation-runtime"
+    },
+    {
+      "consumerModuleId": "optional.annotation-manual-workflow",
+      "omittedModuleId": "optional.annotation-semantic-registry"
+    },
+    {
+      "consumerModuleId": "optional.annotation-manual-workflow",
+      "omittedModuleId": "optional.semantic-fair-value-gap"
     },
     {
       "consumerModuleId": "optional.annotation-runtime",
@@ -100,6 +140,10 @@
     {
       "consumerModuleId": null,
       "omittedModuleId": "optional.annotation-interaction"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.annotation-manual-workflow"
     },
     {
       "consumerModuleId": null,

@@ -1004,15 +1004,19 @@ Existing trusted-build JavaScript semantic packages are adapted incrementally
 rather than forcing a host-wide TypeScript migration.
 
 P0a now establishes that thin contract in non-removable
-`core.plugin-contract` and uses FVG as its conformance package; R13.10e can
-later close the production FVG vertical slice through it. P0b
+`core.plugin-contract` and uses FVG as its conformance package. R13.10e now
+closes the production FVG vertical slice through it with removable
+`optional.annotation-manual-workflow`: production UI consumes generic tool and
+Inspector view models, exact selection is adapted from the active accepted
+Pane, Annotation Runtime remains the only accepted Artifact writer, and the
+Chart adapter remains the only Primitive/gesture owner. P0b
 adds the trusted-build Core Center, P1 adds file/unpacked declarative packages,
 P2 adds the signed free registry, and P3 adds isolated TypeScript-to-ESM
 calculation Workers. Arbitrary community privileges and a paid Marketplace are
 not implied or authorized. R13.10d remains bounded to the accepted
-Inspector/override slice. P0a is implemented under H113; R13.10e remains
-separately unauthorized, and neither may absorb broader catalog/distribution
-phases.
+Inspector/override slice. P0a is implemented under H113; R13.10e is implemented
+under executable H114 and awaits its focused human visual gate. Neither may
+absorb broader catalog/distribution phases.
 
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,

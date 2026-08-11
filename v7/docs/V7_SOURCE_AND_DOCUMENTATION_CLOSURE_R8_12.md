@@ -98,7 +98,7 @@ The complete `tests/*-harness.js` repository sweep also passes; a final
 
 An independent audit after R8.15 found `BUG-V7-0006`; R8.16 added the missing
 reconciliation boundary between the exact snapshot and prose. After R10.8 the
-same gate records 430 files, 35,415 effective lines, 3,674 functions, and 405 public exports, and all declared current summaries carry that exact tuple.
+same gate records 449 files, 37,062 effective lines, 3,890 functions, and 407 public exports, and all declared current summaries carry that exact tuple.
 
 R8.16 declares the seven current summary-evidence files and eight required
 occurrences in `v7-production-source-quality-policy.json`. The production

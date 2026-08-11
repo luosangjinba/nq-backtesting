@@ -1,5 +1,6 @@
 const PRESENTATION_METHODS = Object.freeze([
   'openPaneTimeLocationMenu',
+  'setAnnotationWorkflow',
   'setCursor',
   'setEvidence',
   'setGotoFeedback',

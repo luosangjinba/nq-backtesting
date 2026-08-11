@@ -11,6 +11,13 @@ function method(port, name, label) {
   return port[name].bind(port);
 }
 
+function annotationSurfaces(adapters, acceptedPaneSet, projectionApi) {
+  return Object.freeze(acceptedPaneSet.panes
+    .filter(({ status }) => status === 'ready')
+    .map(({ paneId }) => adapters.get(paneId)?.annotationSurface(projectionApi, paneId))
+    .filter(Boolean));
+}
+
 /**
  * Own one real chart adapter per product Pane behind one complete Pane-set
  * chart-writer port. Child charts never receive transaction or Replay intent;
@@ -52,14 +59,9 @@ export function createLightweightPaneSetAdapter({
       'Pane-set adapter requires resolveInstrumentLabel().',
     );
   const adapters = new Map();
-  let adapterRevision = 0;
-  let disposed = false;
-  let crosshairSync = false;
-  let crosshairSource = null;
-  let truncationSelectionActive = false;
-  let visiblePaneIds = [];
+  let adapterRevision = 0, disposed = false, crosshairSync = false, crosshairSource = null;
+  let truncationSelectionActive = false, visiblePaneIds = [], settingsRevision = 0;
   let workstationSettings = createWorkstationSettings();
-  let settingsRevision = 0;
   const settingsStages = new WeakMap();
   const paneSetStages = new WeakMap();
   let acceptedPaneSet = Object.freeze({ activePaneId: null, panes: Object.freeze([]) });
@@ -257,6 +259,10 @@ export function createLightweightPaneSetAdapter({
   });
 
   return Object.freeze({
+    annotationSurfaces(projectionApi) {
+      if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Pane-set adapter is disposed.');
+      return annotationSurfaces(adapters, acceptedPaneSet, projectionApi);
+    },
     async applyVisible(context) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Pane-set adapter is disposed.');
       const record = paneSetStages.get(context.staged);
@@ -314,10 +320,16 @@ export function createLightweightPaneSetAdapter({
     dispose() {
       if (disposed) return;
       disposed = true;
-      for (const adapter of adapters.values()) adapter.dispose();
+      const cleanups = [...adapters.values()].map((adapter) => adapter.dispose()).filter(Boolean);
       adapters.clear();
       crosshairSource = null;
       visiblePaneIds = [];
+      return cleanups.length === 0 ? undefined : Promise.allSettled(cleanups).then((settled) => {
+        const failures = settled
+          .filter(({ status }) => status === 'rejected')
+          .map(({ reason }) => reason);
+        if (failures.length > 0) throw new AggregateError(failures, 'Pane Annotation cleanup failed.');
+      });
     },
     resetView(paneId, latestOffsetBars = undefined) {
       adapters.get(paneId)?.resetView(latestOffsetBars);

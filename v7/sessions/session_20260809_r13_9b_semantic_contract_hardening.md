@@ -46,7 +46,7 @@ dependency edges, 115 construction sites, 23 writer sites, and zero blocking
 findings. Module assembly remains 61 public entries, 25 lifecycle modules, and
 24 optional-removal cases. Writer closure remains 18 surfaces and 23 observed
 writer files. Architecture hardening now covers 110 rules. Current source quality
-is 430 files, 35,415 effective lines, 3,674 functions, and 405 public exports,
+is 449 files, 37,062 effective lines, 3,890 functions, and 407 public exports,
 with no accepted exception.
 
 ## Closure

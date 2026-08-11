@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    { "name": "outer-inner-package-mismatch", "expectedCode": "MANUAL_WORKFLOW_TOOL_BINDING_MISMATCH" },
+    { "name": "inactive-semantic-type", "expectedCode": "MANUAL_WORKFLOW_TOOL_TYPE_INACTIVE" },
+    { "name": "invalid-evidence-requirement", "expectedCode": "MANUAL_WORKFLOW_TOOL_BINDING_INVALID" },
+    { "name": "workspace-not-accepted", "expectedCode": "MANUAL_WORKFLOW_WORKSPACE_UNAVAILABLE" },
+    { "name": "missing-following-bar", "expectedCode": "EVIDENCE_NEIGHBOR_MISSING" },
+    { "name": "future-following-bar", "expectedCode": "EVIDENCE_BAR_NOT_CLOSED" }
+  ]
+}

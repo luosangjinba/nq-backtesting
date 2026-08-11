@@ -29,6 +29,11 @@ function restoredWorkspace(record) {
 
 function createCallbacks() {
   return {
+    annotationApply: null,
+    annotationCancel: null,
+    annotationReset: null,
+    annotationToggleTool: null,
+    annotationUpdateField: null,
     autoplay: null,
     cancelWorkstationSettingsPreview: null,
     exactGoto: null,
@@ -68,6 +73,11 @@ function createBoundView(options, state, capabilities, callbacks) {
     layoutOptions: PANE_LAYOUT_OPTIONS,
     name: record.metadata.name,
     onAutoplay: () => callbacks.autoplay?.(),
+    onAnnotationApply: () => callbacks.annotationApply?.(),
+    onAnnotationCancel: () => callbacks.annotationCancel?.(),
+    onAnnotationReset: () => callbacks.annotationReset?.(),
+    onAnnotationToggleTool: (toolId) => callbacks.annotationToggleTool?.(toolId),
+    onAnnotationUpdateField: (value) => callbacks.annotationUpdateField?.(value),
     onBack,
     onLayoutSync: (key, enabled) => callbacks.layoutSync?.(key, enabled),
     onExactGoto: (epochMs) => callbacks.exactGoto?.(epochMs),
@@ -103,6 +113,11 @@ function createBoundView(options, state, capabilities, callbacks) {
 }
 
 function bindCommands(callbacks, commands) {
+  callbacks.annotationApply = () => commands.applyAnnotationInspector?.();
+  callbacks.annotationCancel = () => commands.cancelAnnotationInspector?.();
+  callbacks.annotationReset = () => commands.resetAnnotationInspector?.();
+  callbacks.annotationToggleTool = (toolId) => commands.toggleAnnotationTool?.(toolId);
+  callbacks.annotationUpdateField = (value) => commands.updateAnnotationInspectorField?.(value);
   callbacks.autoplay = () => commands.autoplay();
   callbacks.cancelWorkstationSettingsPreview = () => commands.cancelWorkstationSettingsPreview();
   callbacks.layoutSync = (key, enabled) => commands.changeLayoutSync(key, enabled);
@@ -143,6 +158,7 @@ export function mountReplayWorkspace(options) {
   options.root.replaceChildren(view.root);
   const commands = createReplayWorkspaceComposition({
     ...state,
+    annotationWorkflow: options.annotationWorkflow,
     initialNavigationSettings: options.initialNavigationSettings,
     persistWorkspaceCheckpoint: options.onPersistWorkspaceCheckpoint,
     persistReplayNavigationSettings: options.onPersistReplayNavigationSettings,

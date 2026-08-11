@@ -22,26 +22,18 @@ export function createReplayWorkspaceView(options) {
     getExactDefaultEpochMs: () => exactDefaultEpochMs,
   });
   const {
-    exactGoto, goto, instrumentControl, overlay, overlayCopy, overlayTitle, paneGrid,
+    annotationWorkflow, exactGoto, goto, instrumentControl, overlay, overlayCopy, overlayTitle, paneGrid,
     paneLayoutControl, paneTimeLocationMenu, replayTransport, restartButton, root,
     sessionHoursControl, sessionRange, status, timeframeControl, visibleThrough, workstationSettings,
   } = elements;
   const timeframeLabels = new Map(options.timeframeMenuGroups.flatMap(({ items }) => (
     items.map(({ id, label }) => [id, label])
   )));
-  let activePaneId = 'pane-main';
-  let complete = false;
-  let hasAcceptedChart = false;
-  let interactionPending = false;
-  let gotoFeedback = null;
-  let gotoFeedbackTimeout = null;
-  let playback = 'paused';
-  let truncationError = null;
-  let truncationSelectionActive = false;
-  let viewState = 'loading';
-  let workspaceError = null;
-  let cursorEpochMs = null;
-  let sessionRangeEpochs = null;
+  let activePaneId = 'pane-main', complete = false, hasAcceptedChart = false;
+  let interactionPending = false, annotationInteractionPending = false;
+  let gotoFeedback = null, gotoFeedbackTimeout = null, playback = 'paused';
+  let truncationError = null, truncationSelectionActive = false, viewState = 'loading';
+  let workspaceError = null, cursorEpochMs = null, sessionRangeEpochs = null;
   let visibleThroughState = null;
 
   function onDocumentKeydown(event) {
@@ -72,7 +64,8 @@ export function createReplayWorkspaceView(options) {
   }
 
   function renderAvailability() {
-    const busy = interactionPending || viewState === 'loading' || viewState === 'stale';
+    const workspaceBusy = interactionPending || viewState === 'loading' || viewState === 'stale';
+    const busy = workspaceBusy || annotationInteractionPending;
     const interactionLocked = busy || truncationSelectionActive;
     const unavailable = viewState === 'unavailable';
     const stableRefresh = busy && hasAcceptedChart;
@@ -91,6 +84,7 @@ export function createReplayWorkspaceView(options) {
     exactGoto.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
     replayTransport.setAvailability({ busy, complete, hasAcceptedChart, unavailable });
     paneGrid.setPending(interactionLocked || unavailable);
+    annotationWorkflow.setWorkspaceDisabled(workspaceBusy || truncationSelectionActive || unavailable);
     root.setAttribute('aria-busy', String(busy));
   }
 
@@ -147,6 +141,13 @@ export function createReplayWorkspaceView(options) {
       cursorEpochMs = epochMs;
       root.dataset.cursorEpochMs = epochMs === null ? '' : String(epochMs);
       renderTimePresentation();
+    },
+    setAnnotationWorkflow(snapshot) {
+      annotationInteractionPending = snapshot?.busy === true;
+      root.dataset.annotationWorkflowStatus = snapshot?.status ?? 'unavailable';
+      root.dataset.annotationInspectorOpen = String(snapshot?.inspector?.open === true);
+      annotationWorkflow.setSnapshot(snapshot);
+      renderAvailability();
     },
     setEvidence({ replayRevision, workspaceRevision }) {
       root.dataset.replayRevision = String(replayRevision);

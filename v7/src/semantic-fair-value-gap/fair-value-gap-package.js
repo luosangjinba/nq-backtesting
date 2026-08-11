@@ -110,7 +110,20 @@ export function createFairValueGapSemanticPackage({ evidenceContract, geometryCo
     ]),
     semanticTypes: Object.freeze([typeDefinition(geometry, evidence)]),
     toolDescriptors: Object.freeze([
-      Object.freeze({ id: 'construct.imbalance.fvg', label: 'FVG from selected Bar' }),
+      Object.freeze({
+        evidenceRequirement: Object.freeze({
+          followingBars: 1,
+          maximumArtifactReferences: 0,
+          precedingBars: 1,
+          schemaVersion: 1,
+        }),
+        id: 'construct.imbalance.fvg',
+        label: 'FVG from selected Bar',
+        semanticContributionId: `semantic.${FAIR_VALUE_GAP_TYPE_ID}`,
+        typeId: FAIR_VALUE_GAP_TYPE_ID,
+        typeVersion: FAIR_VALUE_GAP_VERSION,
+        version: FAIR_VALUE_GAP_VERSION,
+      }),
     ]),
   });
 }

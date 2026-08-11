@@ -1,0 +1,39 @@
+:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #03070a; color: #dce9f2; }
+body { display: grid; grid-template-rows: 72px minmax(0, 1fr); }
+.fixture-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 8px 14px;
+  border-bottom: 1px solid #263946;
+  background: #071018;
+}
+.fixture-title { min-width: 360px; margin-right: auto; }
+.fixture-title > span { color: #57b6ff; font-size: 8px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.fixture-title h1 { margin: 2px 0 0; color: #eef8ff; font-size: 16px; }
+.fixture-title p { margin: 3px 0 0; color: #718897; font-size: 9px; }
+#annotation-tools { display: flex; align-items: center; }
+#fixture-status { min-width: 190px; color: #89a1b0; font: 9px ui-monospace, SFMono-Regular, monospace; text-align: right; }
+.fixture-main, .fixture-chart-shell, .chart-frame { min-width: 0; min-height: 0; }
+.fixture-chart-shell { height: 100%; display: grid; grid-template-rows: 35px minmax(0, 1fr); }
+.fixture-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 13px;
+  border-bottom: 1px solid #172630;
+  color: #9eb3c0;
+  background: #060c11;
+  font-size: 10px;
+}
+#projection-status { color: #668294; font: 9px ui-monospace, SFMono-Regular, monospace; }
+.chart-frame { border: 0; }
+#annotation-inspector-slot { position: absolute; inset: 0; pointer-events: none; }
+#annotation-inspector-slot > .annotation-inspector { pointer-events: auto; }
+.annotation-tool-strip { border-left: 0; }
+@media (max-width: 900px) {
+  .fixture-title { min-width: 260px; }
+  .fixture-title p { display: none; }
+}

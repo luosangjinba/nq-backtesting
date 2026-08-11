@@ -38,7 +38,7 @@ export const FAIR_VALUE_GAP_PLUGIN_MANIFEST = defineBuiltInPluginManifest({
       version: FAIR_VALUE_GAP_VERSION,
     },
     {
-      displayName: 'FVG from selected Bar',
+      displayName: 'FVG',
       id: FAIR_VALUE_GAP_TOOL_ID,
       kind: 'tool',
       parameters: null,

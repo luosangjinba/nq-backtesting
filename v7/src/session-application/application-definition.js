@@ -14,7 +14,7 @@ function requirePort(ports, id, method) {
 async function releaseApplication(browser, replayWorkspace, stateSync) {
   const errors = [];
   try { browser?.dispose(); } catch (error) { errors.push(error); }
-  try { replayWorkspace?.dispose(); } catch (error) { errors.push(error); }
+  try { await replayWorkspace?.dispose(); } catch (error) { errors.push(error); }
   try { await stateSync?.dispose(); } catch (error) { errors.push(error); }
   if (errors.length > 0) throw new AggregateError(errors, 'Session application cleanup failed.');
 }
@@ -50,6 +50,7 @@ function composeStores({ ports, storage }) {
     colorHistory,
     replayNavigationPreferences,
     sessionStore,
+    storage,
     workstationSettings,
   });
 }
@@ -89,12 +90,17 @@ export function createProductionModuleDefinition({
       requirePort(requiredPorts, 'core.workstation-settings', 'createWorkstationSettingsRuntime');
       requirePort(requiredPorts, 'core.workstation-settings', 'createColorHistoryStore');
       const replayApi = optionalPorts['adapter.replay-workspace-ui'] ?? null;
+      const annotationWorkflowApi = optionalPorts['optional.annotation-manual-workflow'] ?? null;
       const stateSyncApi = optionalPorts['adapter.server-state-sync'] ?? null;
       if (replayApi && typeof replayApi.createReplayWorkspaceSurface !== 'function') {
         throw new TypeError(`${MODULE_ID} received an invalid optional Replay Workspace port.`);
       }
       if (stateSyncApi && typeof stateSyncApi.createServerStateSync !== 'function') {
         throw new TypeError(`${MODULE_ID} received an invalid optional State Sync port.`);
+      }
+      if (annotationWorkflowApi
+        && typeof annotationWorkflowApi.createProductionManualAnnotationWorkflow !== 'function') {
+        throw new TypeError(`${MODULE_ID} received an invalid optional Annotation Workflow port.`);
       }
       let browser = null;
       let replayWorkspace = null;
@@ -149,7 +155,18 @@ export function createProductionModuleDefinition({
           } catch {
             unavailableMessage = 'Local Session storage could not be initialized. Check browser site-data permissions and reload.';
           }
-          replayWorkspace = replayApi?.createReplayWorkspaceSurface() ?? null;
+          const annotationEnvironmentReady = Array.isArray(environment.productionModuleDescriptors)
+            && typeof environment.readModuleHostSnapshot === 'function';
+          replayWorkspace = replayApi?.createReplayWorkspaceSurface({
+            annotationWorkflow: annotationWorkflowApi && composed && annotationEnvironmentReady ? Object.freeze({
+              api: annotationWorkflowApi,
+              idFactory: () => environment.crypto.randomUUID(),
+              moduleDescriptors: environment.productionModuleDescriptors,
+              nowEpochMs: () => Date.now(),
+              readModuleHostSnapshot: environment.readModuleHostSnapshot,
+              storage: composed.storage,
+            }) : null,
+          }) ?? null;
           browser = browserApi.createSessionBrowser({
             colorHistory: composed?.colorHistory ?? null,
             dateAvailability: dateApi.createMarketDateAvailability(),

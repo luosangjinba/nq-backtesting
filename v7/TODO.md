@@ -547,20 +547,31 @@ Binding contract:
 Binding contract:
 `docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`.
 
-## R13.10e Production Manual FVG Workflow Closure — Planned, Not Authorized
+## R13.10e Production Manual FVG Workflow Closure — Implemented, Human Acceptance Pending
 
-- [ ] after accepted R13.10d, receive separate authorization and compose the
+- [x] after accepted R13.10d, receive separate authorization and compose the
   accepted Picker → Evidence → Core FVG → Inspector → projection path;
-- [ ] expose generic built-in first-party package metadata/status without a
+- [x] expose generic built-in first-party package metadata/status without a
   product-route branch for FVG;
 - [x] first establish the bounded P0a manifest/contribution/settings bridge and
   make FVG its reference package without duplicating ModuleHost lifecycle;
-- [ ] add only the production tool entry and lifecycle/error/acceptance surface
+- [x] add only the production tool entry and lifecycle/error/acceptance surface
   required for the manual evidence-constrained FVG workflow;
-- [ ] preserve native Chart behavior, no-future, multi-Pane, rollback,
+- [x] preserve native Chart behavior, no-future, multi-Pane, rollback,
   unresolved durability, and all sole-owner boundaries;
-- [ ] exclude the visual Core Center, external installation, public SDK,
+- [x] pass H114 with six negative controls and real-Chromium tool arm, exact
+  candle selection, Inspector edit/cancel/apply, hard reload, native wheel, and
+  unchanged-candle evidence;
+- [x] execute all 114 top-level Harnesses with 110 direct passes, only the three
+  preserved H091 pixel gates plus the separately inventoried R13.10e toolbar
+  visual gate, and a passing nine-scenario production regression matrix;
+- [ ] complete the focused production interaction/visual gate and only then
+  mark H114 and R13.10e accepted;
+- [x] exclude the visual Core Center, external installation, public SDK,
   Community registry, detector, MA/SMA, Fibonacci, and Marketplace.
+
+Binding contract:
+`docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`.
 
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
@@ -1359,8 +1370,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 430 files, 35,415 effective lines, 3,674 functions, and 405 public exports; the architecture baseline
-contains 63 modules, 136 edges, 115 construction sites, 23 writers, and zero
+The current production source baseline contains 449 files, 37,062 effective lines, 3,890 functions, and 407 public exports; the architecture baseline
+contains 64 modules, 147 edges, 122 construction sites, 23 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -1371,7 +1382,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 430 files, 35,415 effective lines, 3,674 functions, and 405 public exports, 63 modules, 136 edges, 115 construction sites, 23 writers, and zero
+currently at 449 files, 37,062 effective lines, 3,890 functions, and 407 public exports, 64 modules, 147 edges, 122 construction sites, 23 writers, and zero
 findings.
 
 ## Established Foundation Governance

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "currentStep": "P0a",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15", "R8.16", "R9", "R9.1", "R9.2", "R9.3", "R9.4", "R10", "R10.1", "R10.2", "R10.3", "R10.4", "R10.5", "R10.6", "R10.7", "R10.8", "R10.9", "R10.10", "R11", "R11.1", "R12", "R12.1", "R12.2", "R12.3", "R12.4", "R12.5", "R12.6", "R12.7", "R12.8", "R13.1", "R13.2", "R13.3", "R13.4", "R13.5", "R13.6", "R13.7", "R13.8", "R13.9", "R13.9b", "R13.10a", "R13.10b", "R13.10c", "R13.10d", "P0a"],
+  "currentStep": "R13.10e",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15", "R8.16", "R9", "R9.1", "R9.2", "R9.3", "R9.4", "R10", "R10.1", "R10.2", "R10.3", "R10.4", "R10.5", "R10.6", "R10.7", "R10.8", "R10.9", "R10.10", "R11", "R11.1", "R12", "R12.1", "R12.2", "R12.3", "R12.4", "R12.5", "R12.6", "R12.7", "R12.8", "R13.1", "R13.2", "R13.3", "R13.4", "R13.5", "R13.6", "R13.7", "R13.8", "R13.9", "R13.9b", "R13.10a", "R13.10b", "R13.10c", "R13.10d", "P0a", "R13.10e"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
     "active": false,
@@ -2532,6 +2532,30 @@
       ],
       "humanReviewRequired": false,
       "acceptanceEvidence": "sessions/session_20260810_p0a_built_in_plugin_contract_substrate.md"
+    },
+    {
+      "id": "H114",
+      "name": "production-manual-fvg-contribution-evidence-artifact-inspector-workflow",
+      "owner": "annotation-workflow-composition/replay-workspace-ui/chart-runtime-adapter",
+      "v6FailurePrevented": "a product route branched on FVG, pointer selection escaped the accepted Workspace snapshot, invalid evidence wrote an Artifact, accepted and Preview layers overlapped, reload lost provenance, or a feature composition acquired Chart/Replay/Bar/storage ownership",
+      "activationStep": "R13.10e",
+      "state": "executable",
+      "harness": "tests/production-manual-fvg-workflow-browser-harness.js",
+      "positiveEvidence": [
+        "docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md",
+        "src/annotation-manual-workflow/public.js",
+        "src/annotation-manual-workflow/module.json",
+        "src/replay-workspace-ui/annotation-workflow-control.js",
+        "src/lightweight-chart-adapter/annotation-chart-surface.js",
+        "tests/production-manual-fvg-workflow-browser-harness.js",
+        "tests/fixtures/production-manual-fvg-workflow/index.html",
+        "sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/production-manual-fvg-workflow/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
     }
   ]
 }

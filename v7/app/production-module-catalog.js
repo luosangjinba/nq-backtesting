@@ -61,6 +61,10 @@ export async function loadProductionApplicationDefinitions({
     readJson(new URL(descriptorPath, descriptorBaseUrl))
   )));
   const selected = selectApplicationDescriptors(descriptors, rootModuleId, omittedModuleIds);
+  const rootEnvironment = Object.freeze({
+    ...environment,
+    productionModuleDescriptors: Object.freeze([...selected]),
+  });
   const definitions = await Promise.all(selected.map(async (descriptor) => {
     const publicApi = await import(new URL(descriptor.publicEntry, descriptorBaseUrl));
     if (descriptor.id === rootModuleId) {
@@ -69,7 +73,7 @@ export async function loadProductionApplicationDefinitions({
       }
       return publicApi.createProductionModuleDefinition({
         descriptor,
-        environment,
+        environment: rootEnvironment,
         lifecycleObserver,
       });
     }

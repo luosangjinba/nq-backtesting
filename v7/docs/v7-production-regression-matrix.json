@@ -14,6 +14,12 @@
       "bugId": "BUG-V7-VISUAL-PANE-MIXED",
       "outputPattern": "multi-mixed-1440x900\\.png visual pixels changed",
       "evidence": "sessions/session_20260805_r10_9_database_bootstrap_import.md"
+    },
+    {
+      "scenarioId": "layout-focus-instrument-browser",
+      "bugId": "GATE-R13-10E-VISUAL-TOOLBAR-PENDING",
+      "outputPattern": "R6\\.9 Pane visual fixture changed",
+      "evidence": "sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md"
     }
   ],
   "runtimeDependencies": {
@@ -234,6 +240,29 @@
         "phase": "post-visible-pre-finalize"
       },
       "assertions": ["all-participants-rollback", "last-accepted-complete-revision-visible-and-persisted"]
+    },
+    {
+      "id": "production-manual-fvg-browser",
+      "executionKind": "browser-production",
+      "harness": "tests/production-manual-fvg-workflow-browser-harness.js",
+      "covers": {
+        "paneCount": ["single", "two"],
+        "focusTarget": ["P1", "non-primary"],
+        "instrument": ["NQ"],
+        "timeframe": ["fixed-source"],
+        "sessionHours": ["ETH"],
+        "viewport": ["default", "manual"],
+        "cacheState": ["warm-hit"],
+        "workOrdering": ["in-order"],
+        "persistence": ["checkpoint-update", "reopen"],
+        "restart": ["hard-refresh"]
+      },
+      "assertions": [
+        "contribution-driven-tool-without-route-semantic-branch",
+        "exact-accepted-workspace-evidence-and-single-runtime-write",
+        "single-layer-multi-pane-preview-settlement",
+        "hard-refresh-provenance-restore-and-native-chart-input"
+      ]
     },
     {
       "id": "delayed-reordered-stale-owner",

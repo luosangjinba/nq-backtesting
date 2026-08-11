@@ -1,0 +1,24 @@
+{
+  "id": "optional.annotation-manual-workflow",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "annotation-workflow-composition",
+  "publicEntry": "src/annotation-manual-workflow/public.js",
+  "requiredPorts": [
+    "core.plugin-contract",
+    "optional.annotation-bar-picker",
+    "optional.annotation-chart-projection",
+    "optional.annotation-context-projection",
+    "optional.annotation-evidence-resolver",
+    "optional.annotation-geometry-domain",
+    "optional.annotation-interaction",
+    "adapter.annotation-persistence",
+    "optional.annotation-runtime",
+    "optional.annotation-semantic-registry",
+    "optional.semantic-fair-value-gap"
+  ],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/production-manual-fvg-workflow-browser-harness.js",
+  "removable": true
+}
