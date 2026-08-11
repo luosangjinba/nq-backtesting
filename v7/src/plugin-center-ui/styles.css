@@ -3,7 +3,7 @@
   height: min(720px, calc(100vh - 32px));
 }
 .workstation-settings-dialog[data-settings-destination="core-plugins"] .workstation-settings-dialog-content {
-  grid-template-rows: 64px minmax(0, 1fr) 0 0 0;
+  grid-template-rows: 64px minmax(0, 1fr);
 }
 .workstation-settings-dialog[data-settings-destination="core-plugins"] .workstation-settings-recovery,
 .workstation-settings-dialog[data-settings-destination="core-plugins"] .workstation-settings-validation {

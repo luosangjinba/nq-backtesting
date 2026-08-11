@@ -68,3 +68,15 @@ The source-quality contract has no size/function exception or finding.
   8766 was restored immediately afterward with its original command and
   `Restart=on-failure` behavior.
 - `git diff --check` passes. No visual baseline was re-recorded.
+
+## Focused Visual Feedback
+
+The first human review found that the shared Reset/Cancel/OK footer still
+painted over the Core Plugins detail text and was clipped by the dialog frame.
+The footer's `hidden` attribute had lost to its author-level `display: flex`
+rule while the Core Plugins grid collapsed that footer row to zero height.
+The corrected shell now gives Core Plugins only header/body rows and explicitly
+maps a hidden Settings footer to `display: none`. H115 additionally asserts the
+computed hidden state. H115, Workstation Settings, Replay Workspace UI
+independence, production application host, and source-quality Harnesses pass;
+the corrected pixels still require human review before acceptance.

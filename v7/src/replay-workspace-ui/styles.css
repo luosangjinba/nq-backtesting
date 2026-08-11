@@ -664,6 +664,7 @@
   border-top: 1px solid #454545;
   background: #232323;
 }
+.workstation-settings-footer[hidden] { display: none; }
 .workstation-settings-footer-actions { display: flex; gap: 9px; }
 .workstation-settings-footer .button {
   min-height: 36px;

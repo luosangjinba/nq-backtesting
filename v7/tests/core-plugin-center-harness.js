@@ -82,6 +82,7 @@ try {
   assert.equal(await evaluate(cdp, `document.querySelector('.core-plugin-no-settings').textContent.includes('no package or profile settings')`), true);
   assert.equal(await evaluate(cdp, `document.querySelector('.workstation-settings-dialog').dataset.settingsDestination`), 'core-plugins');
   assert.equal(await evaluate(cdp, `document.querySelector('.workstation-settings-footer').hidden`), true);
+  assert.equal(await evaluate(cdp, `getComputedStyle(document.querySelector('.workstation-settings-footer')).display`), 'none');
 
   await click(cdp, '.core-plugin-toggle input');
   await waitFor(cdp, `globalThis.__corePluginCenterEvidence.snapshot.restartRequired === true`, 5_000);
