@@ -1003,9 +1003,11 @@ Pine are not runtime languages, and WASM is deferred beyond the initial SDK.
 Existing trusted-build JavaScript semantic packages are adapted incrementally
 rather than forcing a host-wide TypeScript migration.
 
-`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` now specifies the proposed
-headless Agent-native contract surface. One canonical operation engine behind
-the library/CLI owns machine-readable SDK/schema/capability discovery,
+`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` now specifies the accepted
+headless Agent-native contract surface; its non-normative Chinese rationale is
+`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`. One canonical
+operation engine behind the library/CLI owns machine-readable
+SDK/schema/capability discovery,
 scaffold, validation, pinned build, deterministic conformance, preview, pack,
 and inspection. P1a pack emits a non-installable developer evidence bundle;
 its immutable synthetic-host test process receives no production owners or
@@ -1031,7 +1033,7 @@ closes the production FVG vertical slice through it with removable
 Inspector view models, exact selection is adapted from the active accepted
 Pane, Annotation Runtime remains the only accepted Artifact writer, and the
 Chart adapter remains the only Primitive/gesture owner. P0b adds the trusted-
-build Core Center; the proposed P1a contract would add the Agent-native
+build Core Center; the accepted P1a contract would add the Agent-native
 Developer Kit/Harness; P1b would add file/unpacked declarative packages plus
 the bounded MCP adapter; P2 would add the signed free registry; P3a would add
 isolated TypeScript-to-ESM calculation Workers; and P3b would add assisted Pine
@@ -1052,8 +1054,8 @@ non-removable Core profile owner holds active/pending revisions and diagnostics;
 one removable Plugin Center UI renders immutable view models and dispatches
 commands. A read-only pre-boot selector may inspect the profile but cannot
 write, repair, or control lifecycle. P0b/H115 are accepted after automated and
-corrected focused human visual/interaction evidence. P1a specification design
-is complete pending review; no P1 implementation is authorized.
+corrected focused human visual/interaction evidence. P1a specification is
+accepted; no P1 implementation is authorized.
 
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,

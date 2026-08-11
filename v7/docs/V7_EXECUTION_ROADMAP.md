@@ -1216,7 +1216,7 @@ owner or upstream-plugin state access.
 Core classification neither authorizes these steps nor weakens their focused
 semantic/no-future/human gates.
 
-### Plugin Platform Program — P1a Specified, Pending Review
+### Plugin Platform Program — P1a Specification Accepted
 
 Build the thin host contract before scaling plugin families, then validate each
 broader platform layer with real packages. Activate at most one separately
@@ -1231,7 +1231,8 @@ numbered phase at a time:
    trusted-build packages, including status, dependencies, package/default
    settings, diagnostics, and restart-bound enable/disable through one
    immutable ModuleHost generation;
-4. **Specified; pending review:** P1a Agent-native Plugin Developer Kit: one
+4. **Specification accepted; implementation not authorized:** P1a Agent-native
+   Plugin Developer Kit: one
    versioned strict-TypeScript SDK, machine-readable
    schemas/capabilities/examples, deterministic CLI/library operation engine
    and conformance Harness, immutable synthetic-host fixtures/simulation,
@@ -1255,8 +1256,8 @@ numbered phase at a time:
 9. P4 paid Marketplace only after a separate product/business decision.
 
 P0a, R13.10e, and P0b are closed. H115 passes its automated gates and the
-corrected focused human visual/interaction review. P1a specification design is
-complete pending review; no P1–P4 implementation is authorized. Plugin Center
+corrected focused human visual/interaction review. The P1a specification is
+accepted; no P1–P4 implementation is authorized. Plugin Center
 does not imply arbitrary code,
 local install does not imply network access, and a free registry does not imply
 payment. Strict TypeScript is the executable authoring language; JSON and JSON
@@ -1265,8 +1266,9 @@ only pinned compiled ESM artifacts. Trusted Core output may enter the
 application build; externally installed executable output is confined to an
 authorized Worker tier. Binding classification, sequencing, and P0b contract:
 `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` and
-`V7_CORE_PLUGIN_CENTER_P0B.md`. Proposed P1a contract:
-`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`.
+`V7_CORE_PLUGIN_CENTER_P0B.md`. Binding P1a contract and rationale:
+`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` and
+`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`.
 
 “Agent-native” means there is no undocumented GUI-only authoring step: an AI
 agent can discover contracts, scaffold, validate, build, test, inspect, and

@@ -1,7 +1,7 @@
 # V7 Agent-Native Plugin Developer Kit — P1a
 
-Status: specified 2026-08-11; pending product-owner review; implementation not
-authorized; H116 declared
+Status: specification accepted 2026-08-11; implementation not authorized; H116
+declared
 
 Date: 2026-08-11
 
@@ -9,6 +9,9 @@ Depends on: accepted ADR-V7-004, P0a/H113, R13.10e/H114, P0b/H115, and the
 accepted Agent-native/Pine authoring amendment
 
 Harness: H116, declared only
+
+Plain-language design rationale:
+`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`
 
 ## Outcome
 
@@ -652,22 +655,34 @@ then fail for its intended reason when enabled.
   implementation adds any dependency.
 
 P1a adds no product-visible UI, so H116 requires no pixel baseline or focused
-visual gate. Human review remains mandatory for this specification and for any
-later visible behavior, disputed semantics, permission increase, install/
-activation action, or Pine equivalence claim.
+visual gate. Human review of this specification is complete; review remains
+mandatory for any later visible behavior, disputed semantics, permission
+increase, install/activation action, or Pine equivalence claim.
 
 ## Acceptance And Next Gate
 
-The product owner authorized P1a **specification design** on 2026-08-11. This
-document is the resulting proposed contract. Until the product owner accepts
-it and separately directs implementation:
+The product owner authorized P1a **specification design** on 2026-08-11 and,
+after reviewing a detailed plain-language explanation, explicitly accepted all
+four material boundary choices:
+
+1. P1a owns development/evidence; P1b owns installation.
+2. The initial profile contains only real FVG and
+   `trusted-built-in-core-v1`.
+3. The developer test process is separate from the future production Worker.
+4. `.v7dk.tar` never conveys installation or execution authorization.
+
+This document is therefore the accepted P1a contract. The explanatory record
+is `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`, and the
+acceptance evidence is
+`../sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`.
+Until the product owner separately directs implementation:
 
 - H116 stays `declared` with no Harness or acceptance evidence;
 - `v7-harness-rules.json` keeps P0b as the current implemented step;
 - no Developer Kit source, SDK package, compiler dependency, fixture, archive,
   MCP server, installer, or production behavior is authorized.
 
-After specification acceptance, the next decision is whether to authorize the
-bounded P1a implementation exactly as specified. P1b local packages/MCP, P2
+The next decision is whether to authorize the bounded P1a implementation
+exactly as specified. P1b local packages/MCP, P2
 registry, P3a Worker execution, P3b Pine migration, new business plugins, and
 Marketplace remain separately gated.

@@ -620,7 +620,7 @@ Binding contract:
 Binding contract:
 `docs/V7_CORE_PLUGIN_CENTER_P0B.md`.
 
-## P1a Agent-Native Plugin Developer Kit — Specified 2026-08-11; Pending Review
+## P1a Agent-Native Plugin Developer Kit — Specification Accepted 2026-08-11
 
 - [x] receive authorization to specify, but not implement, the next bounded
   Plugin Platform phase;
@@ -643,14 +643,16 @@ Binding contract:
 - [x] declare H116 with deterministic CLI/library equivalence, strict build,
   isolation, no-future, tamper/path controls, architecture, and regression
   evidence;
-- [ ] receive explicit review acceptance and separate implementation
-  authorization before adding SDK/tool source, compiler dependencies, H116
-  fixtures, or developer bundles;
+- [x] receive explicit review acceptance of the four material boundaries and
+  preserve the detailed Chinese design rationale for future maintainers;
+- [ ] receive separate implementation authorization before adding SDK/tool
+  source, compiler dependencies, H116 fixtures, or developer bundles;
 - [ ] keep P1b install-from-file/Developer Mode/MCP, P2 registry, P3a Worker,
   P3b Pine migration, new Core business plugins, and Marketplace outside P1a.
 
-Binding proposed contract:
-`docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`.
+Binding contract and rationale:
+`docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` and
+`docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`.
 
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
@@ -1348,9 +1350,9 @@ Binding ES full-chain repair:
   SDK, machine-readable contract bundle, deterministic CLI/library and
   conformance Harness, immutable headless host fixtures/simulation, reference
   packages, diagnostics, receipts, and static build/pack path;
-- [ ] P1a implementation: only after explicit review acceptance, implement
-  the bounded Developer Kit and H116 without install/activation or production
-  external-code execution;
+- [ ] P1a implementation: after accepted specification, require a separate
+  product-owner instruction before implementing the bounded Developer Kit and
+  H116 without install/activation or production external-code execution;
 - [ ] P1b: specify local declarative install-from-file plus Developer Mode
   load-unpacked/reload/validate-pack, transactional lifecycle, integrity/source
   disclosure, migration, uninstall/data survival, restricted-mode startup, and

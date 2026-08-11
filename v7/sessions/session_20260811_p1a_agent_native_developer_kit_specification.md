@@ -2,8 +2,8 @@
 
 Date: 2026-08-11
 
-Status: specification completed; pending review; implementation not authorized;
-H116 declared
+Status: specification accepted after subsequent product-owner review;
+implementation not authorized; H116 declared
 
 ## Request
 
@@ -191,5 +191,10 @@ so the service was not restarted merely to review a documentation contract.
 Because H116 is future work, this session cannot claim an executable H116
 Harness, negative fixture, production behavior, or visual acceptance.
 
-Binding proposed contract:
+Binding contract after subsequent acceptance:
 `../docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`.
+
+Subsequent acceptance and preserved rationale:
+`session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`
+and
+`../docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`.

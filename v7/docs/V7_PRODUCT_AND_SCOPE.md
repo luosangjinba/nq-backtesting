@@ -47,8 +47,9 @@ dependencies; they may not control Kernel owners or one another directly.
 Kernel Session, Replay, Bar Data, Chart, Workspace transaction, persistence,
 and module-lifecycle owners remain non-plugin infrastructure. The P0b
 host-rendered trusted-build Core Plugin Center is implemented and accepted with
-restart-bound single-ModuleHost generations. P1a now has a proposed bounded
-Developer Kit specification, but no SDK/tool implementation is authorized.
+restart-bound single-ModuleHost generations. The product owner accepted P1a's
+bounded Developer Kit specification after detailed review, but no SDK/tool
+implementation is authorized.
 Local installation, the free Community registry, isolated calculation tier,
 and any paid Marketplace remain separate later phases with no current delivery
 authorization. Core classification does not make a semantic variant consensus
@@ -62,8 +63,9 @@ Visibility settings. V7 does not expose Python, Pine Script, arbitrary plugin
 DOM, or WASM as parallel initial plugin models. A thin built-in-package
 contract and FVG reference vertical slice precede the visual Core Center and
 external distribution phases. Binding P0b scope:
-`V7_CORE_PLUGIN_CENTER_P0B.md`. Proposed P1a scope:
-`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`.
+`V7_CORE_PLUGIN_CENTER_P0B.md`. Binding P1a scope and rationale:
+`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` and
+`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`.
 
 Future plugin authoring is Agent-native by contract: the product supplies
 machine-readable SDK/schema/capability metadata, deterministic headless
@@ -77,8 +79,8 @@ tests, and provenance. It does not execute Pine, promise universal semantic
 equivalence, or bring strategy/broker simulation into current product scope.
 P1a now specifies the canonical SDK/CLI/Harness, isolated synthetic-host,
 developer evidence bundle, diagnostic, and receipt contract under future H116.
-It remains pending review and has no implementation delivery authorization;
-MCP and Pine remain later phases.
+Its specification is accepted, but it has no implementation delivery
+authorization; MCP and Pine remain later phases.
 
 ## Current Resolution And Simulation Boundary
 
