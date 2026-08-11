@@ -985,13 +985,32 @@ ModuleHost resolves and injects declared ports, suspends incompatible
 dependents, and disposes in reverse dependency order. Plugin-produced durable
 evidence remains host-owned and readable when a package is disabled or absent.
 
-The eventual host-rendered Plugin Center is delivered separately: P0 manages
-trusted-build Core packages only; later phases add local declarative install,
-a signed free Community registry, and isolated calculation workers. Arbitrary
-community privileges and a paid Marketplace are not implied or authorized.
-R13.10d remains bounded to the now-accepted Inspector/override slice. R13.10e
-remains the separately unauthorized manual FVG production closure; neither may
-absorb the general Plugin Center.
+The plugin platform has one thin waist and does not create a parallel
+`PluginHost`: versioned package/contribution descriptors enter domain
+registries, host-rendered settings schemas enter the common UI surface, and
+the existing ModuleHost remains the sole activation/disposal owner. Built-in,
+registry, local-archive, and Developer Mode unpacked sources all stage through
+one validation/dependency/permission/migration transaction before ModuleHost
+activation. The catalog/installer reports state but never owns feature
+lifecycle.
+
+Executable plugin authors use one strict TypeScript SDK which emits pinned
+ES2022 ESM. Trusted Core output may be included in the application build;
+external executable output may run only in the separately authorized Worker
+tier. Manifests, declarative contributions, settings, and UI hints use
+versioned JSON/JSON Schema. Plugins ship no arbitrary settings DOM. Python and
+Pine are not runtime languages, and WASM is deferred beyond the initial SDK.
+Existing trusted-build JavaScript semantic packages are adapted incrementally
+rather than forcing a host-wide TypeScript migration.
+
+P0a first establishes that thin contract and uses FVG as its conformance
+package; R13.10e then closes the production FVG vertical slice through it. P0b
+adds the trusted-build Core Center, P1 adds file/unpacked declarative packages,
+P2 adds the signed free registry, and P3 adds isolated TypeScript-to-ESM
+calculation Workers. Arbitrary community privileges and a paid Marketplace are
+not implied or authorized. R13.10d remains bounded to the now-accepted
+Inspector/override slice. P0a and R13.10e remain separately unauthorized and
+may not absorb the broader catalog/distribution phases.
 
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,

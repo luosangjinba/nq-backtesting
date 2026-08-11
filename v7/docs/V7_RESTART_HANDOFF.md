@@ -1,6 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-10 after accepted R13.10d/H112
+Last updated: 2026-08-10 after accepted R13.10d/H112 and the ADR-V7-004 plugin
+platform interface/language amendment
 
 ## Restart Resume Checkpoint
 
@@ -23,20 +24,26 @@ Then read, in order:
 
 1. `v7/docs/V7_RESTART_HANDOFF.md`
 2. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
-3. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
-4. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
-5. `v7/sessions/session_20260810_r13_10d_fvg_evidence_inspector_override.md`
-6. `v7/sessions/session_20260810_core_community_plugin_model_spec.md`
-7. `v7/TODO.md`
+3. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
+4. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
+5. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
+6. `v7/sessions/session_20260810_r13_10d_fvg_evidence_inspector_override.md`
+7. `v7/sessions/session_20260810_core_community_plugin_model_spec.md`
+8. `v7/TODO.md`
 
 R13.10b/H110 and R13.10c/H111 are accepted. The focused FVG fixture contains
 no temporary diagnostic surface, and its acceptance server is stopped.
 ADR-V7-004 now classifies FVG, MA/SMA, BSL/SSL, and Fibonacci as built-in Core
 Plugin capabilities and binds public derived dependencies plus a future
-host-rendered Core/Community Plugin Center. R13.10d Evidence Inspector and
+host-rendered Core/Community Plugin Center. Its later amendment binds one
+strict TypeScript SDK/compiled ESM artifact model, JSON-schema-rendered
+Inputs/Style/Visibility and applicable Evidence/History panels, and one
+candidate pipeline for registry, local archive, and Developer Mode unpacked
+sources. The thin P0a manifest/contribution/settings substrate must be proven
+by FVG before broader plugin families or distribution layers. R13.10d Evidence Inspector and
 validated overrides are accepted under H112 after the corrected single-layer
 Preview human gate. R13.10e production manual FVG closure is still
-unauthorized. Detector, general Plugin Center, loader,
+unauthorized. P0a, detector, general Plugin Center, loader,
 Community registry, SDK, arbitrary code, Marketplace, and later implementation
 remain unauthorized.
 
@@ -1113,13 +1120,16 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
-R13.10d/H112 is closed. Do not begin R13.10e automatically. Its production
-Picker → Evidence → Core FVG → Inspector → projection composition requires a
-separate binding spec, new Harness allocation, and explicit user authorization.
-It must remain a generic package contribution through existing owners and may
-not absorb the general Plugin Center, detector, Community loader, SDK, MA/SMA,
-Fibonacci, or Marketplace scope. R13.11–R13.13 likewise remain planned rather
-than implicitly authorized.
+R13.10d/H112 is closed. Do not begin P0a or R13.10e automatically. The next
+bounded specification must define the minimum trusted-build manifest,
+contribution, dependency/status, host-rendered settings, and ModuleHost bridge,
+then route the production Picker → Evidence → Core FVG → Inspector → projection
+composition through it. FVG is the reference package, not a reason to add a
+route-level branch. That slice requires a new Harness allocation and explicit
+authorization and may not absorb the visual Core Center, external loader,
+Community registry, public SDK, Worker runtime, detector, MA/SMA, Fibonacci,
+or Marketplace. R13.11–R13.13 likewise remain planned rather than implicitly
+authorized.
 
 Older clean-host, physical cross-device, Data Acquisition admin, resource, and
 known H091 visual checks remain non-blocking operational follow-up for the

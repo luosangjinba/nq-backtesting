@@ -62,12 +62,22 @@ Open discussion:
   relationships and prohibit private imports or direct feature control;
 - [x] bind an Obsidian-like host-rendered Plugin Center with separate Core,
   Community, Installed, Updates, and local-install concepts;
+- [x] bind registry archive, local archive, and Developer Mode unpacked sources
+  to one non-executing validation/staging pipeline and retain ModuleHost as the
+  sole activation/disposal owner;
+- [x] standardize contribution parameter surfaces as host-rendered Inputs,
+  Style, Visibility, and applicable Evidence/History tabs with package,
+  profile/default, and instance scopes;
+- [x] choose strict TypeScript as the sole executable plugin authoring language,
+  pinned compiled ES2022 ESM as the runtime artifact (trusted build for Core,
+  isolated Worker only for later external code), and JSON/JSON Schema as the
+  declarative wire format; leave Pine/Python and an initial WASM SDK out;
 - [x] copy the management clarity rather than unrestricted application
   privileges: declarative-first, least privilege, restricted mode, explicit
-  budgets, and later isolated Worker/WASM tiers;
+  budgets, and a later isolated TypeScript-to-ESM Worker tier;
 - [x] partially promote MEMO-V7-001 while leaving general-futures scope,
-  Setup/AI, concrete runtime/SDK, remote registry operation, commercialization,
-  and paid Marketplace unresolved;
+  Setup/AI, concrete runtime/SDK implementation, remote registry operation,
+  commercialization, and paid Marketplace unresolved;
 - [x] allocate no delivery id and authorize no loader, installer, Community
   registry, arbitrary code, MA/SMA, Fibonacci, detector, or Marketplace through
   this documentation decision.
@@ -516,12 +526,14 @@ Binding contract:
   accepted Picker → Evidence → Core FVG → Inspector → projection path;
 - [ ] expose generic built-in first-party package metadata/status without a
   product-route branch for FVG;
+- [ ] first establish the bounded P0a manifest/contribution/settings bridge and
+  make FVG its reference package without duplicating ModuleHost lifecycle;
 - [ ] add only the production tool entry and lifecycle/error/acceptance surface
   required for the manual evidence-constrained FVG workflow;
 - [ ] preserve native Chart behavior, no-future, multi-Pane, rollback,
   unresolved durability, and all sole-owner boundaries;
-- [ ] exclude a general Plugin Center, external installation, Community
-  registry, SDK, detector, MA/SMA, Fibonacci, and Marketplace.
+- [ ] exclude the visual Core Center, external installation, public SDK,
+  Community registry, detector, MA/SMA, Fibonacci, and Marketplace.
 
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
@@ -1200,16 +1212,20 @@ Binding ES full-chain repair:
 - [ ] keep the binding SMC/ICT product scope and activate no P-phase, loader,
   SDK, arbitrary code, remote registry, Marketplace, payment, or product-scope
   change without a separately accepted implementation/product decision;
-- [ ] finish the bounded manual semantic chain and prove multiple package/
-  dependency boundaries before scaling the platform surface;
-- [ ] P0: specify and separately authorize a host-rendered Core Plugin Catalog/
-  Center over trusted-build packages only;
-- [ ] P1: only after P0, specify local declarative install-from-file,
-  transactional lifecycle, integrity, migration, uninstall/data survival, and
-  conformance tooling;
+- [ ] P0a: separately specify and authorize the thin manifest/contribution/
+  settings substrate over trusted-build packages, retain ModuleHost as sole
+  lifecycle owner, and pass FVG as the first conformance package;
+- [ ] close R13.10e through P0a before scaling MA/SMA, Fibonacci, or another
+  plugin family;
+- [ ] P0b: only after that vertical proof, specify and authorize the
+  host-rendered Core Plugin Catalog/Center over trusted-build packages;
+- [ ] P1: only after P0b, specify local declarative install-from-file plus
+  Developer Mode load-unpacked/reload/validate-pack, transactional lifecycle,
+  integrity/source disclosure, migration, uninstall/data survival, and strict
+  TypeScript SDK/conformance tooling plus restricted-mode startup;
 - [ ] P2/P3: separately prove a signed free Community registry/restricted mode
-  and isolated Worker/WASM calculation tier with measured permissions/resource
-  budgets;
+  and isolated TypeScript-to-ESM Worker calculation tier with measured
+  permissions/resource budgets; keep WASM a later separate decision;
 - [ ] leave paid Marketplace, entitlement, commission, and operations to P4 and
   a separate business decision after free ecosystem evidence exists.
 

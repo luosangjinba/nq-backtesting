@@ -115,10 +115,14 @@ outside the plugin catalog, classifies FVG, MA/SMA, BSL/SSL, and Fibonacci as
 built-in Core Plugin capabilities, and permits derived plugins only through
 declared public dependencies. It binds an Obsidian-like host-rendered Plugin
 Center and a declarative/local/free-registry/isolated-worker sequence while
-copying none of Obsidian's broad application privileges. It allocates no
-delivery id, loader, registry, arbitrary-code tier, product-scope expansion, or
-Marketplace implementation. MEMO-V7-001 remains open for those unresolved
-questions.
+copying none of Obsidian's broad application privileges. Its 2026-08-10
+amendment binds Chrome-like file/unpacked developer channels to the same
+candidate pipeline, TradingView-like host-rendered Inputs/Style/Visibility and
+Evidence/History surfaces, strict TypeScript authoring with compiled ESM plus
+JSON Schema wire contracts, and a P0a-thin-platform/FVG-reference sequence. It
+allocates no delivery id, loader, registry, Worker tier, product-scope
+expansion, or Marketplace implementation. MEMO-V7-001 remains open for those
+unresolved operations and product questions.
 The accepted post-milestone foundation is
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
 market-coordinate geometry, generic drawings, typed semantic artifacts,
@@ -209,8 +213,10 @@ bytes, and Cancel/Apply settle to one accepted layer. R13.10d is accepted and
 closed. Production manual workflow closure remains R13.10e and unauthorized.
 The accepted
 Core/Community plugin model classifies the existing FVG and BSL/SSL packages as
-built-in Core capabilities but does not retrofit R13.10c or authorize a Plugin
-Center, loader, detector, or later implementation.
+built-in Core capabilities. Its amendment makes a minimal P0a
+manifest/contribution/settings bridge the prerequisite/reference boundary for
+R13.10e, but does not retrofit accepted code or authorize P0a, R13.10e, a
+Plugin Center, loader, detector, or later implementation.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

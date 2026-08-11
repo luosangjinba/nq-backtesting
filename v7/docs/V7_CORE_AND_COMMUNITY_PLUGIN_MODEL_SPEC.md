@@ -7,6 +7,9 @@ allocated
 
 Decision date: 2026-08-10
 
+Amended: 2026-08-10 — installation/developer channels, host-rendered parameter
+surfaces, one executable authoring language, and platform-first delivery order
+
 Decider: V7 product owner
 
 Related decisions: `ADR-V7-001`, `ADR-V7-002`, `ADR-V7-003`
@@ -24,9 +27,15 @@ managed extensions:
 - one host-owned **Plugin Center** eventually exposes discovery, status,
   configuration, dependency, enable/disable, install, update, and removal
   workflows appropriate to each tier;
+- every plugin uses one host-defined manifest, contribution, settings, and
+  lifecycle boundary regardless of whether it is built in, loaded locally, or
+  obtained from a Community registry;
 - other plugins may derive from Core Plugin capabilities through declared,
   versioned dependencies rather than private imports or direct feature-to-
-  feature control.
+  feature control;
+- executable plugin authors use strict TypeScript through one public SDK;
+  packages carry compiled ES modules, while manifests and declarative
+  contributions use versioned JSON schemas.
 
 FVG, MA/SMA, BSL/SSL, and Fibonacci are accepted initial Core Plugin
 capabilities. This classification is binding even though MA/SMA and Fibonacci
@@ -46,7 +55,7 @@ management experience, trust model, and staged delivery sequence. It does not
 itself authorize:
 
 - a dynamic loader, package installer, public SDK, arbitrary JavaScript, or
-  Worker/WASM execution;
+  isolated Worker execution;
 - network access, a remote registry, signing service, update service, account,
   entitlement, payment, or paid Marketplace;
 - a general-futures product-scope change;
@@ -55,6 +64,9 @@ itself authorize:
 - expansion of R13.10c after its accepted closure;
 - replacement or duplication of Session, Replay, Bar Data, Chart, Annotation,
   Workspace Transaction, persistence, or ModuleHost ownership.
+
+This amendment freezes the platform contract and order; it does not authorize
+P0a, R13.10e, an SDK implementation, a package format, or any runtime code.
 
 Every implementation remains separately specified, authorized, tested, and
 committed. The current trusted-build Semantic Package Registry is a compatible
@@ -170,6 +182,40 @@ Plugin-produced accepted Artifacts, indicator evidence, settings, and workflow
 records are stored through host owners. A package owns meaning/policies, not
 the only readable copy of user data.
 
+## Unified Authoring Language And Package Artifact
+
+V7 will expose one executable plugin authoring language, not a different
+runtime stack for each plugin category:
+
+1. **Strict TypeScript** is the sole supported executable authoring language
+   for the initial public Plugin SDK and for new or migrated Core and Community
+   Plugin implementations.
+2. V7 never executes TypeScript source directly. The supported build produces
+   pinned ES2022 ESM JavaScript artifacts. Trusted Core output may be included
+   in the first-party application build; externally installed executable output
+   may run only in the separately authorized isolated Worker tier. Neither is a
+   Node.js module or receives Node built-ins.
+3. `JSON` plus versioned `JSON Schema` is the wire format for manifests,
+   declarative definitions, settings, UI hints, migrations, and conformance
+   fixtures. JSON is data, not a second executable plugin language.
+4. Plugins do not ship executable HTML, arbitrary settings DOM, or unrestricted
+   CSS. They declare controls and style tokens; the host renders the surface.
+5. Python and Pine Script are not V7 runtime languages. A future Pine importer
+   or formula translator would be a separately accepted ingestion tool that
+   records source/provenance and emits a valid V7 contribution. It would not
+   execute Pine inside the workstation.
+6. Rust/WASM is not part of the initial public SDK. A later measured compute
+   tier may reconsider WASM behind the same immutable capability API, but it
+   must not force ordinary plugin authors or the host to support two public
+   programming models.
+
+The existing trusted-build JavaScript semantic packages are compatible
+predecessors. V7 need not migrate the whole host to TypeScript before P0a; each
+package can be adapted or ported when it crosses the common plugin boundary.
+Core and Community packages nevertheless target the same SDK types and wire
+contracts. Distribution tier changes trust and execution policy, not the
+programming model.
+
 ## Derived Plugin Contract
 
 Core Plugins are reusable foundations, not feature controllers. A derived
@@ -229,6 +275,31 @@ should contain:
 - **Install from file** — a later local/offline package path using the same
   manifest, validation, transaction, and lifecycle as registry installation.
 
+Developer Mode additionally provides Chrome-like **Load unpacked**, **Reload**,
+and **Validate/Pack** actions for an explicit local package directory. An
+unpacked package is a development generation, is visibly marked, never
+auto-updates, cannot masquerade as a signed registry release, and is disabled
+outside Developer Mode. “Pack” here means producing a validated installable
+archive; it is distinct from the curated product **pack** defined earlier.
+
+Built-in Core metadata, a registry artifact, a local archive, and an unpacked
+directory are different sources for one candidate pipeline, not four plugin
+APIs. The host must:
+
+1. resolve a candidate without executing it;
+2. validate package format, manifest, compatibility, integrity/source, and
+   contribution schemas;
+3. resolve dependencies, permissions, migrations, and resource policy;
+4. stage the candidate generation and request activation through the existing
+   ModuleHost lifecycle owner;
+5. publish atomically, or leave it disabled/quarantined and retain the previous
+   compatible generation.
+
+The package/catalog surface never becomes a second lifecycle owner. It stages
+and reports candidates; ModuleHost remains the sole activation/disposal owner,
+and domain contribution registries remain the validators for their public
+contracts.
+
 Each detail view must disclose at least package id/version, publisher, source,
 integrity/signature state, distribution/trust tier, host API range, supplied
 and required capabilities, permissions, resource budgets, settings, data
@@ -254,6 +325,44 @@ One safe/restricted-mode action must start V7 while ignoring Community Plugin
 execution and retaining diagnostic access and user data. Core Plugins may be
 individually disabled; Kernel remains active.
 
+## Host-Rendered Parameters And Settings
+
+V7 adopts the consistency of TradingView-style indicator dialogs without
+allowing plugins to own dialog DOM. A contribution supplies a versioned
+parameter schema and optional host-supported UI hints. The host supplies one
+shell and renders only applicable tabs:
+
+- **Inputs** — calculation, definition, or behavior parameters;
+- **Style** — host-supported projection/series appearance and design tokens;
+- **Visibility** — timeframe, Session, Pane, and other bounded visibility
+  rules;
+- **Evidence / History** — host-owned provenance, immutable baseline, validated
+  semantic override, and accepted-revision history when the contribution
+  creates evidence-grade Artifacts.
+
+Empty tabs are omitted, but tab meaning, controls, keyboard behavior,
+validation presentation, accessibility, Apply/Cancel/Reset semantics, and
+dirty-state handling are host-owned and consistent. A plugin may expose a pure
+validator through a declared capability; it may not mutate a store, Chart, or
+DOM from validation.
+
+Settings have three explicit scopes:
+
+1. **package scope** — package-wide user configuration; host-owned trust,
+   permission, update, and data-retention policy remains management metadata,
+   not a plugin-mutated setting;
+2. **profile/default scope** — defaults for future contribution instances in a
+   workstation or named profile;
+3. **instance scope** — settings for one indicator, drawing, semantic Artifact,
+   or workflow instance.
+
+Where a field supports all scopes, instance overrides profile/default, which
+overrides the definition default. The host computes and discloses the effective
+value and its source. Package upgrades migrate each scope transactionally.
+Definition baselines and accepted evidence are not ordinary settings: changing
+an FVG price in the Inspector remains an append-only validated Artifact
+override with provenance, not a hidden package-setting mutation.
+
 ## Trust, Permissions, And Execution Tiers
 
 V7 adopts the discoverability and management clarity of Obsidian's Core/
@@ -268,9 +377,10 @@ The staged execution tiers are:
 1. **host-rendered declarative contributions** — schemas, definitions,
    expressions in an accepted bounded language, projection descriptions, and
    settings; the safest default for Community Plugins;
-2. **isolated calculation workers** — separately authorized JavaScript/WASM
-   workers with immutable inputs, cancellation, CPU/memory/output budgets,
-   deterministic fixtures where applicable, and no owner handles;
+2. **isolated calculation workers** — separately authorized SDK-built
+   TypeScript-to-ESM workers with immutable inputs, cancellation,
+   CPU/memory/output budgets, deterministic fixtures where applicable, and no
+   owner handles;
 3. **privileged adapters** — data connectors, native renderers, file/network
    integrations, or other elevated capabilities; first-party or separately
    reviewed only and never the default community tier.
@@ -296,6 +406,8 @@ represent:
 - distribution/trust tier and update source;
 - `provides`, `requires`, and `extends` capability relationships;
 - contribution descriptors and host-rendered settings schema;
+- an optional ESM worker entrypoint produced by the pinned TypeScript SDK build
+  profile, with no source-language or module-system negotiation;
 - explicit permissions and execution tier;
 - CPU, memory, output, task, and storage budgets;
 - durable schema versions, migrations, downgrade/quarantine behavior, and data
@@ -320,8 +432,8 @@ consistent with this specification. No retrofit enters the accepted commit.
 
 ### R13.10d — Evidence Inspector And Validated Overrides
 
-R13.10d remains a separately bounded slice requiring explicit authorization.
-Its future specification must:
+R13.10d is accepted and closed under H112. Its accepted contract and
+implementation do the following:
 
 - render package/type/definition identity, exact Bar evidence, baseline values,
   effective values, and value sources through the host-owned Inspector;
@@ -331,15 +443,22 @@ Its future specification must:
   writes;
 - avoid Plugin Center, installation, detector, and production-workflow scope.
 
+The accepted preview behavior is one effective Preview FVG while editing,
+followed by one accepted projection after Apply or the original accepted
+projection after Cancel. Retaining two simultaneously visible FVG rectangles
+would not be accepted behavior.
+
 ### R13.10e — Production Manual FVG Workflow Closure
 
 R13.10e remains the separately bounded production composition of accepted Bar
 selection, Evidence resolution, FVG construction, Inspector behavior, and
 Chart projection. Its future specification must treat FVG as a discoverable
 built-in first-party plugin contribution and avoid product-route branches by
-semantic id. It may add only the package metadata/control surface needed for
-that closed workflow. It must not absorb a general Plugin Center, dynamic
-loader, Community registry, or SDK.
+semantic id. It is the first production vertical slice through the minimum P0a
+manifest/contribution/settings bridge and may add only the generic substrate
+and package metadata/control surface needed for that closed workflow. It must
+not absorb the visual Core Center, dynamic loader, Community registry, or
+public SDK.
 
 ### R13.11–R13.13
 
@@ -352,32 +471,48 @@ loader, Community registry, or SDK.
   plugin can require Core semantic capabilities while preserving distinct
   `suggested` provenance and zero direct owner authority.
 
-These R13 steps remain independently authorized. This decision neither
+These R13 steps require independent authorization. This decision neither
 renumbers them nor starts them.
 
 ### Plugin Platform Program — Specified, Unscheduled
 
-After the manual semantic chain is complete and multiple packages have proven
-the public boundaries, later delivery proceeds in separate phases:
+V7 does not finish a speculative Marketplace before writing plugins, and it no
+longer scales plugin families before a common platform boundary exists. The
+order is a thin platform first, validated by real reference plugins, followed
+by progressively broader distribution:
 
-1. **P0 Core Plugin Catalog/Center** — host-rendered catalog, status,
-   dependencies, settings, diagnostics, and enable/disable over trusted-build
-   packages only; no external installation or arbitrary code;
-2. **P1 Local Declarative Packages** — common manifest/archive, transactional
-   install-from-file, integrity checks, migrations, uninstall/data survival,
-   and developer conformance tooling, initially without arbitrary JavaScript;
-3. **P2 Signed Free Community Registry** — discovery, review metadata,
+1. **P0a Plugin Contract Substrate** — versioned manifest and contribution
+   descriptors, built-in-package adapter, dependency/status model, the common
+   host-rendered parameter schema, and activation/disposal through ModuleHost.
+   Existing FVG is the first conformance package; no external installation,
+   visual Plugin Center, or arbitrary code enters this slice.
+2. **R13.10e Reference Vertical Slice** — close the production manual FVG
+   workflow through P0a rather than a route-specific FVG branch. This validates
+   the thin waist before MA/SMA, Fibonacci, or another plugin family scales it.
+3. **P0b Core Plugin Center** — host-rendered Core catalog, status,
+   dependencies, package/default settings, diagnostics, and enable/disable over
+   trusted-build packages only.
+4. **P1 Local Declarative Packages** — common manifest/archive, transactional
+   install-from-file, Developer Mode load-unpacked/reload/validate-pack,
+   integrity/source disclosure, migrations, uninstall/data survival, and
+   TypeScript SDK/conformance tooling plus restricted-mode startup; executable
+   workers remain disabled.
+5. **P2 Signed Free Community Registry** — discovery, review metadata,
    signatures, explicit updates, restricted mode, incident response, and the
-   same package lifecycle as local installation;
-4. **P3 Isolated Calculation Extensions** — separately authorized Worker/WASM
-   tier with permissions and measured resource/failure boundaries;
-5. **P4 Commercial Marketplace** — a distinct product/business decision only
+   same package lifecycle as local installation.
+6. **P3 Isolated Calculation Extensions** — separately authorized
+   TypeScript-to-ESM Worker tier with permissions and measured
+   CPU/memory/output/failure boundaries. WASM remains a later separate
+   reconsideration rather than a second initial SDK language.
+7. **P4 Commercial Marketplace** — a distinct product/business decision only
    after the free ecosystem, security operations, developer demand, support
    load, licensing, and sustainable economics are evidenced.
 
-No P-phase receives an R delivery id until separately specified and accepted.
-Local installation and a free registry must work before any paid Marketplace
-decision; payment is not an architectural prerequisite for plugins.
+No P0a/P0b/P1–P4 phase receives a delivery id until separately specified and
+accepted. R13.10e retains its existing identity and is merely the first
+reference consumer after P0a. Local installation and a free registry must work
+before any paid Marketplace decision; payment is not an architectural
+prerequisite for plugins.
 
 ## Chosen And Rejected Alternatives
 
@@ -388,6 +523,10 @@ Chosen:
 - built-in first-party foundations with versioned definitions;
 - host-mediated derivation and declarative contributions;
 - Plugin Center before arbitrary community code;
+- one strict TypeScript SDK and host-rendered JSON-schema UI rather than
+  per-plugin languages or DOM;
+- thin contract substrate before additional plugin families, validated by FVG
+  before the catalog/distribution surface expands;
 - local/declarative and free-registry capability before paid distribution.
 
 Rejected:
@@ -398,6 +537,10 @@ Rejected:
   definition and maintenance commitment;
 - direct plugin-to-plugin imports/control;
 - equating install consent with unrestricted application privileges;
+- supporting Python, Pine, JavaScript, Rust/WASM, and custom web UIs as parallel
+  initial plugin programming models;
+- finishing a registry/Marketplace in isolation before a reference plugin
+  proves the manifest, settings, lifecycle, and contribution boundaries;
 - shipping a Marketplace as the first plugin milestone;
 - deleting historical user evidence when a package is disabled or removed.
 
@@ -408,6 +551,14 @@ the prior Core/Community discussion as a specification and adjust R13.10 or
 later planning around it. The product owner explicitly classified common
 foundations including FVG, MA/SMA, BSL, and Fibonacci as Core Plugins and
 accepted that other plugins may derive from them.
+
+Later on 2026-08-10, the product owner supplied Chrome extension, Obsidian Core/
+Community Plugin, and TradingView parameter-panel references and directed the
+specification to settle installation channels, the plugin-bearing interface,
+delivery order, and a unified language. The accepted amendment binds one
+host-rendered management/settings surface, registry/file/unpacked sources over
+one candidate pipeline, strict TypeScript as the executable authoring language,
+and a P0a-thin-platform/FVG-reference sequence before further plugin families.
 
 This closes the classification/product-direction decision. Delivery remains
 bounded by the authorization boundary above.

@@ -4,10 +4,11 @@ Memo id: `MEMO-V7-001`
 
 First formed: 2026-08-01
 
-Last substantive revision: 2026-08-01
+Last substantive revision: 2026-08-10
 
-Status: partially promoted by `ADR-V7-004`; remaining product scope, runtime,
-AI, distribution, Marketplace, and implementation decisions deferred
+Status: partially promoted by `ADR-V7-004` and its interface/language amendment;
+remaining product scope, concrete runtime/sandbox, AI, remote distribution,
+Marketplace, and implementation decisions deferred
 
 Registry: `V7_NON_DECISION_MEMO_REGISTRY.md`
 
@@ -27,11 +28,13 @@ open-source, local-first SMC/ICT validation and Replay-practice workstation.
 On 2026-08-10, `ADR-V7-004` in
 `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` promoted only the Kernel/Core/
 Community taxonomy, initial Core capability classification, derived dependency
-direction, Plugin Center product contract, trust posture, and phased platform
-sequence. This memo remains the non-binding record for general-futures scope,
-Setup/AI capability, detailed SDK/runtime choices, remote distribution,
-commercialization, and paid Marketplace questions. Where the accepted spec and
-this earlier candidate differ, the accepted spec governs.
+direction, Plugin Center product contract, install/developer channels,
+host-rendered settings scopes, strict TypeScript/compiled ESM/JSON Schema
+authoring model, trust posture, and thin-platform-first sequence. This memo
+remains the non-binding record for general-futures scope, Setup/AI capability,
+concrete loader/sandbox/runtime implementation, remote distribution,
+commercialization, and paid Marketplace questions. Where the accepted spec
+and this earlier candidate differ, the accepted spec governs.
 
 Work may begin only after the current system's human-review obligations are
 closed. At activation time, every applicable `humanReviewRequired` rule must
@@ -894,3 +897,15 @@ host-rendered Plugin Center is delivered in bounded trust phases. The accepted
 spec allocates no implementation step. General-futures scope, Setup/AI design,
 arbitrary code, remote registry operation, commercialization, and paid
 Marketplace remain unresolved in this memo.
+
+### 2026-08-10 — Plugin Interface And Language Amendment
+
+The product owner supplied Chrome extension, Obsidian Core/Community Plugin,
+and TradingView parameter-panel references and requested one plugin-bearing
+interface, an explicit platform-versus-plugin order, and one language. The
+accepted ADR amendment now governs: all sources use one validation/staging
+pipeline; Developer Mode may load/reload/pack an unpacked package; the host
+renders package/default/instance parameter schemas; executable authors use
+strict TypeScript compiled to pinned ESM; JSON/JSON Schema carries declarations;
+and P0a plus the FVG reference vertical slice precede the visual catalog and
+external distribution phases. The exact implementation remains unauthorized.

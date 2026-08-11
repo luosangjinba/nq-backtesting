@@ -1165,15 +1165,19 @@ separate planned step requiring explicit authorization.
 - expose FVG as a discoverable built-in first-party plugin contribution, with
   generic package metadata and enable/disable status rather than a semantic-id
   branch in the product route;
+- first establish the minimum P0a manifest/contribution/settings bridge and
+  pass the FVG package through it; do not create a second lifecycle owner;
 - add only the production tool entry, lifecycle/error state, and acceptance
   coverage required to close manual evidence-constrained FVG creation;
 - preserve native Chart navigation, multi-Pane/no-future behavior, owner
   isolation, durable unresolved records, and full rollback;
-- exclude a general Plugin Center, external package loading, Community
-  registry, SDK, detector, MA/SMA, Fibonacci, and Marketplace.
+- exclude the visual Core Center, external package loading, public SDK,
+  Community registry, detector, MA/SMA, Fibonacci, and Marketplace.
 
-R13.10e closes the manual FVG product workflow; it does not become the plugin
-platform. It must be separately specified and authorized after R13.10d.
+R13.10e closes the manual FVG product workflow as the first production
+vertical slice through the thin P0a boundary; it does not become the complete
+plugin platform. P0a and R13.10e must be separately specified and authorized
+after R13.10d.
 
 ### Core/Derived Package Consequences For R13.11–R13.13
 
@@ -1190,23 +1194,37 @@ semantic/no-future/human gates.
 
 ### Plugin Platform Program — Specified, Unscheduled
 
-After the manual semantic chain and multiple package boundaries are proven,
-activate at most one separately numbered phase at a time:
+Build the thin host contract before scaling plugin families, then validate each
+broader platform layer with real packages. Activate at most one separately
+numbered phase at a time:
 
-1. P0 host-rendered Core Plugin Catalog/Center over trusted-build packages,
-   including status, dependencies, settings, diagnostics, and enable/disable;
-2. P1 transactional local install-from-file for declarative packages, with one
-   common manifest, integrity, migration, uninstall, data-survival, and SDK/
-   conformance path;
-3. P2 signed free Community registry with discovery, review metadata, explicit
+1. P0a versioned manifest/contribution descriptors, built-in adapter,
+   dependency/status model, common host-rendered Inputs/Style/Visibility and
+   evidence/history schema, and ModuleHost-mediated activation/disposal; FVG is
+   the first conformance package;
+2. R13.10e production FVG vertical slice through P0a;
+3. P0b host-rendered Core Plugin Center over trusted-build packages, including
+   status, dependencies, package/default settings, diagnostics, and
+   enable/disable;
+4. P1 transactional install-from-file plus Developer Mode load-unpacked,
+   reload, validate/pack for declarative packages, with one common manifest,
+   integrity/source disclosure, migration, uninstall, data survival, and
+   strict TypeScript SDK/conformance path plus restricted-mode startup;
+5. P2 signed free Community registry with discovery, review metadata, explicit
    updates, restricted mode, rollback, and incident response;
-4. P3 separately authorized isolated Worker/WASM calculation extensions with
-   explicit permissions and measured CPU/memory/output/failure budgets;
-5. P4 paid Marketplace only after a separate product/business decision.
+6. P3 separately authorized TypeScript-to-ESM Worker calculation extensions
+   with explicit permissions and measured CPU/memory/output/failure budgets;
+   WASM remains a later separate decision rather than a second initial SDK
+   language;
+7. P4 paid Marketplace only after a separate product/business decision.
 
 No phase is currently a delivery step. Plugin Center does not imply arbitrary
 code, local install does not imply network access, and a free registry does not
-imply payment. Binding classification and sequencing:
+imply payment. Strict TypeScript is the executable authoring language; JSON and
+JSON Schema carry manifests and declarative/host-rendered settings, and V7
+loads only pinned compiled ESM artifacts. Trusted Core output may enter the
+application build; externally installed executable output is confined to an
+authorized Worker tier. Binding classification and sequencing:
 `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`.
 
 ## Deferred Product Boundary — Second-Level Replay

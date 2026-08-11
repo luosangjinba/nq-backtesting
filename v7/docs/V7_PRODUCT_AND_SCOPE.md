@@ -51,6 +51,15 @@ isolated calculation tier, and any paid Marketplace are separate phases with
 no current delivery authorization. Core classification does not make a
 semantic variant consensus truth or move optional feature code into Kernel.
 
+The accepted plugin authoring model is one strict TypeScript SDK producing
+pinned ESM artifacts. Trusted Core output may enter the first-party build;
+external executable output may run only in an authorized isolated Worker tier.
+JSON/JSON Schema carries manifests and host-rendered declarative Inputs/Style/
+Visibility settings. V7 does not expose Python, Pine Script, arbitrary plugin
+DOM, or WASM as parallel initial plugin models. A thin built-in-package
+contract and FVG reference vertical slice precede the visual Core Center and
+external distribution phases.
+
 ## Current Resolution And Simulation Boundary
 
 The current product is minute-sourced historical Replay with registered higher
