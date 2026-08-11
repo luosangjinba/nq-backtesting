@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-11 after accepted R13.10e/H114 and the Agent-native plugin
-authoring/Pine migration planning amendment
+Last updated: 2026-08-11 after the P0b Core Plugin Center specification and
+H115 declaration
 
 ## Restart Resume Checkpoint
 
@@ -10,6 +10,8 @@ contains separately committed accepted R13.10c and R13.10d checkpoints plus
 the Core/Community plugin-model decision. P0a/H113 now closes as its own thin
 contract checkpoint. R13.10e is accepted as the first production vertical
 slice through it; H114 passed its automated and focused human visual gates.
+P0b is now separately specified without implementation, H115 is declared, and
+the current machine step remains R13.10e.
 `git log` is the authoritative commit identity.
 
 After a machine or agent restart, run:
@@ -24,15 +26,17 @@ git status --short
 Then read, in order:
 
 1. `v7/docs/V7_RESTART_HANDOFF.md`
-2. `v7/docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`
-3. `v7/sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md`
-4. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
-5. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
-6. `v7/sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
-7. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
-8. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
-9. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
-10. `v7/TODO.md`
+2. `v7/docs/V7_CORE_PLUGIN_CENTER_P0B.md`
+3. `v7/sessions/session_20260811_p0b_core_plugin_center_specification.md`
+4. `v7/docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`
+5. `v7/sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md`
+6. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
+7. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
+8. `v7/sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
+9. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
+10. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
+11. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
+12. `v7/TODO.md`
 
 R13.10b/H110 and R13.10c/H111 are accepted. The focused FVG fixture contains
 no temporary diagnostic surface, and its acceptance server is stopped.
@@ -48,8 +52,10 @@ Inspector and validated overrides are accepted under H112 after the corrected
 single-layer Preview human gate. R13.10e now composes the generic production
 tool → exact Picker → Evidence → Core FVG → Runtime → multi-Pane projection →
 Inspector path. H114 passes automation and the user accepted the focused
-production review on 2026-08-11. Detector, general Plugin Center, loader,
-Community registry, Developer Kit/Harness/MCP implementation, Pine translator,
+production review on 2026-08-11. P0b now specifies the trusted-build Core-only
+Center, restart-bound single-ModuleHost generation, durable Core profile, and
+H115 gate, but adds no implementation. Community/Installed/Updates surfaces,
+loader, registry, Developer Kit/Harness/MCP implementation, Pine translator,
 arbitrary code, Marketplace, and later implementation remain unauthorized.
 
 ADR-V7-004's 2026-08-11 amendment requires a future Agent-native developer
@@ -1153,13 +1159,15 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
-R13.10e and H114 are closed. The next plugin-platform delivery in the accepted
-sequence is a separately specified P0b Core Plugin Center over trusted-build
-packages. Do not implement it until explicitly authorized, and do not skip
-ahead to P1a Developer Kit/Harness, P1b local packages/MCP, P2 registry, P3a
-Worker runtime, P3b Pine migration, detector, MA/SMA, Fibonacci, Marketplace,
-or R13.11–R13.13. The Agent/MCP/Pine amendment records future requirements and
-ordering only; it allocates no delivery id and adds no runtime code.
+R13.10e and H114 are closed. P0b is now separately specified in
+`V7_CORE_PLUGIN_CENTER_P0B.md`, and H115 is declared but not executable. The
+exact next gate is user review/acceptance of that contract followed by a
+separate implementation authorization. Do not create P0b production modules,
+UI, storage, restart behavior, Harness fixtures, or changed pixels before that
+authorization, and do not skip ahead to P1a Developer Kit/Harness, P1b local
+packages/MCP, P2 registry, P3a Worker runtime, P3b Pine migration, detector,
+MA/SMA, Fibonacci, Marketplace, or R13.11–R13.13. The Agent/MCP/Pine amendment
+records future requirements and ordering only; it adds no runtime code.
 
 Older clean-host, physical cross-device, Data Acquisition admin, resource, and
 known H091 visual checks remain non-blocking operational follow-up for the

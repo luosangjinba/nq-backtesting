@@ -1216,7 +1216,7 @@ owner or upstream-plugin state access.
 Core classification neither authorizes these steps nor weakens their focused
 semantic/no-future/human gates.
 
-### Plugin Platform Program — Specified; P0a Implemented
+### Plugin Platform Program — P0b Specified; P0a/R13.10e Accepted
 
 Build the thin host contract before scaling plugin families, then validate each
 broader platform layer with real packages. Activate at most one separately
@@ -1227,9 +1227,10 @@ numbered phase at a time:
    Inputs/Style/Visibility and evidence/history schema, and ModuleHost-mediated
    activation/disposal; FVG is the first conformance package;
 2. **Accepted:** R13.10e production FVG vertical slice through P0a;
-3. P0b host-rendered Core Plugin Center over trusted-build packages, including
-   status, dependencies, package/default settings, diagnostics, and
-   enable/disable;
+3. **Specified, pending review:** P0b host-rendered Core Plugin Center over
+   trusted-build packages, including status, dependencies, package/default
+   settings, diagnostics, and restart-bound enable/disable through one
+   immutable ModuleHost generation;
 4. P1a Agent-native Plugin Developer Kit: one versioned strict-TypeScript SDK,
    machine-readable schemas/capabilities/examples, deterministic CLI/library
    and conformance Harness, immutable headless host fixtures/simulation,
@@ -1251,15 +1252,18 @@ numbered phase at a time:
    semantic/visual review; Pine is never a V7 runtime;
 9. P4 paid Marketplace only after a separate product/business decision.
 
-P0a and R13.10e are closed; no remaining P0b/P1–P4 phase is currently a
-delivery step. Plugin Center does not imply arbitrary code, local install does
-not imply network access, and a free registry does not imply payment. Strict
-TypeScript is the executable authoring language; JSON and JSON Schema carry
-manifests and declarative/host-rendered settings, and V7 loads only pinned
-compiled ESM artifacts. Trusted Core output may enter the application build;
-externally installed executable output is confined to an authorized Worker
-tier. Binding classification and sequencing:
-`V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`.
+P0a and R13.10e are closed. P0b now has a separately bounded contract and H115
+is declared, but the current machine delivery step remains R13.10e and P0b
+implementation requires explicit review acceptance and authorization. No
+P1–P4 phase is a delivery step. Plugin Center does not imply arbitrary code,
+local install does not imply network access, and a free registry does not imply
+payment. Strict TypeScript is the executable authoring language; JSON and JSON
+Schema carry manifests and declarative/host-rendered settings, and V7 loads
+only pinned compiled ESM artifacts. Trusted Core output may enter the
+application build; externally installed executable output is confined to an
+authorized Worker tier. Binding classification, sequencing, and P0b contract:
+`V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` and
+`V7_CORE_PLUGIN_CENTER_P0B.md`.
 
 “Agent-native” means there is no undocumented GUI-only authoring step: an AI
 agent can discover contracts, scaffold, validate, build, test, inspect, and

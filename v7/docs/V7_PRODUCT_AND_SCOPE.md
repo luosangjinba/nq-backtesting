@@ -45,9 +45,11 @@ Community Plugins may derive from their public capabilities through declared
 dependencies; they may not control Kernel owners or one another directly.
 
 Kernel Session, Replay, Bar Data, Chart, Workspace transaction, persistence,
-and module-lifecycle owners remain non-plugin infrastructure. The future
-host-rendered Plugin Center, local installation, free Community registry,
-isolated calculation tier, and any paid Marketplace are separate phases with
+and module-lifecycle owners remain non-plugin infrastructure. The P0b
+host-rendered trusted-build Core Plugin Center is now separately specified with
+restart-bound single-ModuleHost generations, but implementation is not yet
+authorized. Local installation, the free Community registry, isolated
+calculation tier, and any paid Marketplace remain separate later phases with
 no current delivery authorization. Core classification does not make a
 semantic variant consensus truth or move optional feature code into Kernel.
 
@@ -58,7 +60,8 @@ JSON/JSON Schema carries manifests and host-rendered declarative Inputs/Style/
 Visibility settings. V7 does not expose Python, Pine Script, arbitrary plugin
 DOM, or WASM as parallel initial plugin models. A thin built-in-package
 contract and FVG reference vertical slice precede the visual Core Center and
-external distribution phases.
+external distribution phases. Binding P0b scope:
+`V7_CORE_PLUGIN_CENTER_P0B.md`.
 
 Future plugin authoring is Agent-native by contract: the product supplies
 machine-readable SDK/schema/capability metadata, deterministic headless

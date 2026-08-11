@@ -2,8 +2,8 @@
 
 Decision id: `ADR-V7-004`
 
-Status: accepted binding product and architecture specification; delivery not
-allocated
+Status: accepted binding product and architecture specification; P0b contract
+specified separately; implementation not allocated
 
 Decision date: 2026-08-10
 
@@ -12,6 +12,9 @@ surfaces, one executable authoring language, and platform-first delivery order
 
 Amended: 2026-08-11 — Agent-native developer Harness/MCP and assisted Pine
 indicator migration
+
+Amended: 2026-08-11 — P0b trusted-build Core Center generation/profile
+contract specified without implementation
 
 Decider: V7 product owner
 
@@ -78,9 +81,11 @@ itself authorize:
   Workspace Transaction, persistence, or ModuleHost ownership.
 
 The original decision did not authorize P0a or R13.10e; each was later
-separately specified, implemented, and accepted. This amendment freezes future
-Developer Kit/MCP/Pine contracts and order; it does not authorize P0b, P1–P4,
-an SDK implementation, a package format, or any new runtime code.
+separately specified, implemented, and accepted. The Agent-native amendment
+froze future Developer Kit/MCP/Pine contracts and order without authorizing
+P0b. P0b was later separately specified in
+`V7_CORE_PLUGIN_CENTER_P0B.md`; its production implementation and every P1–P4
+phase remain unauthorized.
 
 Every implementation remains separately specified, authorized, tested, and
 committed. The current trusted-build Semantic Package Registry is a compatible
@@ -627,7 +632,7 @@ Core Center, dynamic loader, Community registry, or public SDK.
 These R13 steps require independent authorization. This decision neither
 renumbers them nor starts them.
 
-### Plugin Platform Program — Specified, Unscheduled
+### Plugin Platform Program — P0b Specified; Implementation Unscheduled
 
 V7 does not finish a speculative Marketplace before writing plugins, and it no
 longer scales plugin families before a common platform boundary exists. The
@@ -643,9 +648,13 @@ by progressively broader distribution:
    workflow closes through P0a rather than a route-specific FVG branch. This
    validates the thin waist before MA/SMA, Fibonacci, or another plugin family
    scales it.
-3. **P0b Core Plugin Center** — host-rendered Core catalog, status,
-   dependencies, package/default settings, diagnostics, and enable/disable over
-   trusted-build packages only.
+3. **P0b Core Plugin Center — separately specified, pending review** —
+   host-rendered Core catalog, two-dimensional runtime/pending status,
+   dependencies, package/default settings, diagnostics, and restart-bound
+   enable/disable over trusted-build packages only. One durable active/pending
+   Core profile selects one immutable ModuleHost generation; failed candidates
+   fully roll back before last-known-good or Kernel-safe fallback. Binding
+   contract: `V7_CORE_PLUGIN_CENTER_P0B.md`.
 4. **P1a Agent-Native Plugin Developer Kit** — versioned TypeScript SDK and
    machine-readable contract bundle, deterministic CLI/library and conformance
    Harness, reference packages, structured diagnostics/receipts, and static
@@ -672,8 +681,10 @@ by progressively broader distribution:
    after the free ecosystem, security operations, developer demand, support
    load, licensing, and sustainable economics are evidenced.
 
-P0a and R13.10e were separately authorized and accepted. No remaining
-P0b/P1–P4 phase receives a delivery id until separately specified and accepted.
+P0a and R13.10e were separately authorized and accepted. P0b is now separately
+specified and H115 is declared, but it is not implemented or active until the
+contract receives review acceptance and separate implementation authorization.
+No P1–P4 phase receives a delivery id until separately specified and accepted.
 R13.10e retains its existing identity as the first reference consumer after
 P0a. Local installation and a free registry must work before any paid
 Marketplace decision; payment is not an architectural prerequisite for
@@ -740,11 +751,20 @@ ordering: one deterministic Agent-native Developer Kit is canonical; MCP is a
 bounded adapter over it; and Pine migration emits the same strict-TypeScript
 package and evidence as native authoring after the target runtime exists.
 
+Later on 2026-08-11, the product owner authorized the exact next planning step.
+P0b was separately specified without runtime implementation. The specification
+chooses restart-bound single-ModuleHost generations, one active/pending durable
+Core profile, explicit dependency-impact confirmation, host-rendered Core-only
+management/settings, settled rollback before fallback, and byte-preserving
+disable/re-enable. H115 is declared but remains non-executable pending review
+and implementation authorization.
+
 This closes the classification/product-direction decision. Delivery remains
 bounded by the authorization boundary above.
 
 Amendment evidence:
-`../sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`.
+`../sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
+and `../sessions/session_20260811_p0b_core_plugin_center_specification.md`.
 
 ## Reference Product Evidence
 

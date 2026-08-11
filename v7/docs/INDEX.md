@@ -120,10 +120,12 @@ amendment binds Chrome-like file/unpacked developer channels to the same
 candidate pipeline, TradingView-like host-rendered Inputs/Style/Visibility and
 Evidence/History surfaces, strict TypeScript authoring with compiled ESM plus
 JSON Schema wire contracts, and a P0a-thin-platform/FVG-reference sequence. It
-allocates no delivery id, loader, registry, Worker tier, product-scope
-expansion, or Marketplace implementation. MEMO-V7-001 remains open for those
-unresolved operations and product questions. The separately authorized P0a
-implementation contract is `V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`.
+did not itself allocate a delivery id, loader, registry, Worker tier,
+product-scope expansion, or Marketplace implementation. MEMO-V7-001 remains
+open for those unresolved operations and product questions. The separately
+authorized P0a implementation contract is
+`V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`; the later P0b specification is
+`V7_CORE_PLUGIN_CENTER_P0B.md` and remains unimplemented pending review.
 The accepted post-milestone foundation is
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
 market-coordinate geometry, generic drawings, typed semantic artifacts,
@@ -224,6 +226,13 @@ first production vertical slice through P0a: generic tool contribution, exact
 Bar evidence, Core FVG construction, durable Runtime commit, multi-Pane
 projection, and host-rendered Inspector. H114 passes automated evidence and
 the focused production visual gate; R13.10e was accepted on 2026-08-11.
+`V7_CORE_PLUGIN_CENTER_P0B.md` is the separately specified next Plugin
+Platform boundary. It freezes a host-rendered trusted-build Core-only catalog,
+one durable active/pending Core profile, explicit dependency impact,
+restart-bound single-ModuleHost generations, settled fallback, package/default
+settings, and byte-preserving disable/re-enable. H115 is declared but not
+executable; P0b implementation and changed pixels remain unauthorized pending
+review acceptance.
 ADR-V7-004's 2026-08-11 amendment additionally makes plugin development Agent-
 native: a deterministic machine-readable Developer Kit/Harness is canonical,
 with a local MCP adapter over the same operations. A later Pine indicator

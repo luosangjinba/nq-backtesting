@@ -583,6 +583,37 @@ Binding contract:
 Binding contract:
 `docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`.
 
+## P0b Trusted-Build Core Plugin Center — Specified 2026-08-11; Pending Review
+
+- [x] receive authorization to specify, but not implement, the next bounded
+  Plugin Platform phase;
+- [x] freeze one host-rendered Core-only catalog/detail/settings surface over
+  validated trusted-build manifests, with no placeholder future plugins;
+- [x] choose explicit restart-bound enablement and one immutable ModuleHost
+  definition generation instead of live hot-plug or a second PluginHost;
+- [x] assign one durable Core profile owner with active/pending profiles,
+  exact-revision transactions, package/profile settings, last-known-good
+  recovery, and read-only pre-boot selection;
+- [x] separate per-package runtime state from pending-change state and require
+  explicit dependency/dependent impact confirmation;
+- [x] preserve disabled-package evidence/settings byte-for-byte and restore
+  compatible resolution without a new Artifact revision after re-enable;
+- [x] declare H115 with headless, negative, real-browser, architecture,
+  rollback/fallback, data-survival, accessibility, and focused human visual
+  requirements;
+- [x] prohibit new behavior in the source files already at or near their
+  source-quality ceilings and require focused decomposition before catalog
+  generalization touches the production manual workflow;
+- [ ] receive explicit review acceptance and separate implementation
+  authorization before creating H115 code, production modules, UI, storage,
+  reload behavior, or changed pixels;
+- [ ] keep P1a/P1b, Community installation/registry, Worker execution, Pine
+  migration, MA/SMA, Liquidity, Fibonacci, detectors, and Marketplace outside
+  P0b implementation.
+
+Binding contract:
+`docs/V7_CORE_PLUGIN_CENTER_P0B.md`.
+
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
 
 - [x] accept the current standalone ES/NQ minute-replay product as a complete,
@@ -792,12 +823,14 @@ decoupling rules to the complete deployed product. Binding plan:
 - [ ] complete H087/H088/H091, the clean-host/cross-device checks, and the
   remaining overall-acceptance human gates.
 
-## Phase-One Overall Acceptance — In Progress
+## Historical Phase-One Acceptance Record — Milestone Closed
 
-The main-program acceptance pass is still active. R8 architecture recovery
-closure and individual R9 implementations do not close it. The current
-machine-local reviewer checklist is `v7/tmp/验收1.md`; Data Acquisition and
-Contract Roll retain their separate gate.
+This section preserves the original overall-acceptance and host-operation
+checklist. V7.0.0 later closed the product milestone; unchecked clean-host,
+cross-device, deployment, Data Acquisition administration, performance, and
+known visual items below are non-blocking operational follow-up unless a later
+decision explicitly promotes one. They are not the active feature queue. The
+historical machine-local reviewer checklist is `v7/tmp/验收1.md`.
 
 ### R10.10 Debian/Ubuntu Venv Recovery — Superseded by R11 Host Transaction
 
@@ -1266,8 +1299,11 @@ Binding ES full-chain repair:
   lifecycle owner, and pass FVG as the first conformance package;
 - [x] close R13.10e through P0a before scaling MA/SMA, Fibonacci, or another
   plugin family;
-- [ ] P0b: only after that vertical proof, specify and authorize the
-  host-rendered Core Plugin Catalog/Center over trusted-build packages;
+- [x] P0b: after that vertical proof, separately specify the host-rendered
+  Core Plugin Catalog/Center over trusted-build packages, restart-bound
+  generation activation, Core profile owner, and H115 acceptance boundary;
+- [ ] P0b implementation: only after explicit review acceptance, implement the
+  specified surface and lifecycle without a second PluginHost or hot-plug;
 - [ ] P1a: only after P0b, specify the Agent-native strict-TypeScript SDK,
   machine-readable contract bundle, deterministic CLI/library and conformance
   Harness, immutable headless host fixtures/simulation, reference packages,
@@ -1286,8 +1322,9 @@ Binding ES full-chain repair:
 - [ ] leave paid Marketplace, entitlement, commission, and operations to P4 and
   a separate business decision after free ecosystem evidence exists.
 
-Binding specification and remaining memo:
-`docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` and
+Binding specifications and remaining memo:
+`docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`,
+`docs/V7_CORE_PLUGIN_CENTER_P0B.md`, and
 `docs/V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md`.
 
 ### Deferred Candidate — Second-Level Replay And Tick-Sourced Data

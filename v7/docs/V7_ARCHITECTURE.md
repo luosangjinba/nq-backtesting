@@ -1037,6 +1037,19 @@ to the accepted Inspector/override slice. P0a is implemented under H113;
 R13.10e is accepted under H114 after its focused human visual gate on
 2026-08-11. Neither may absorb broader catalog/distribution phases.
 
+`V7_CORE_PLUGIN_CENTER_P0B.md` now separately specifies, but does not implement,
+the trusted-build Core management slice. Enablement and package/profile-setting
+changes are complete pending profiles which apply only after an explicit
+restart. Application composition selects one immutable descriptor generation;
+ModuleHost alone constructs and owns it. A failed candidate must settle full
+reverse rollback before the prior active or Kernel-safe profile starts, so two
+Chart/Replay/persistence writer generations never coexist. One future
+non-removable Core profile owner holds active/pending revisions and diagnostics;
+one removable Plugin Center UI renders immutable view models and dispatches
+commands. A read-only pre-boot selector may inspect the profile but cannot
+write, repair, or control lifecycle. H115 is declared, current machine step
+remains R13.10e, and P0b production code is not yet authorized.
+
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,
 coordinate conversion, update, and teardown patterns, but reviewed community
