@@ -1,0 +1,16 @@
+:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #090c11; }
+* { box-sizing: border-box; }
+body { min-height: 100vh; margin: 0; background: radial-gradient(circle at 50% -20%, #20314a, #090c11 48%); color: #eef2f7; }
+.fixture-shell { width: min(1120px, calc(100vw - 32px)); margin: 0 auto; padding: 34px 0; }
+.fixture-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px; border: 1px solid #2d3949; border-radius: 14px; background: rgba(20,26,35,.94); box-shadow: 0 28px 80px rgba(0,0,0,.35); }
+.fixture-header span { color: #69a7ff; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.fixture-header h1 { margin: 4px 0; font-size: 25px; }
+.fixture-header p,
+.fixture-note { margin: 0; color: #9ca9b9; font-size: 12px; }
+#open-settings { min-height: 38px; padding: 0 16px; border: 1px solid #4a8ce8; border-radius: 8px; background: #286bc8; color: white; font-weight: 750; cursor: pointer; }
+.fixture-context { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+.fixture-context > div { display: grid; gap: 6px; padding: 15px; border: 1px solid #293341; border-radius: 9px; background: #111720; }
+.fixture-context small { color: #77879b; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.fixture-context strong { color: #dce6f3; font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.fixture-note { padding: 15px 3px; }
+@media (max-width: 680px) { .fixture-context { grid-template-columns: 1fr; } .fixture-header { align-items: flex-start; flex-direction: column; } }

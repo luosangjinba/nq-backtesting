@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>P0b Core Plugin Center</title>
+    <link rel="stylesheet" href="../../../src/replay-workspace-ui/styles.css">
+    <link rel="stylesheet" href="../../../src/plugin-center-ui/styles.css">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body data-status="loading">
+    <main class="fixture-shell">
+      <header class="fixture-header">
+        <div>
+          <span>P0b · Restart-bound generation</span>
+          <h1>Core Plugin Center</h1>
+          <p>Trusted manifest → staged profile → restart → rollback-safe activation</p>
+        </div>
+        <button id="open-settings" type="button">Open Settings</button>
+      </header>
+      <section class="fixture-context">
+        <div><small>Generation</small><strong id="generation-state">Preparing…</strong></div>
+        <div><small>Profile</small><strong id="profile-state">Preparing…</strong></div>
+        <div><small>Evidence bytes</small><strong id="artifact-state">Preparing…</strong></div>
+      </section>
+      <p class="fixture-note">Core changes remain pending until Restart now. Artifact bytes and settings are deliberately outside package lifecycle.</p>
+      <div id="dialog-host"></div>
+    </main>
+    <script>
+      globalThis.addEventListener('error', (event) => {
+        document.body.dataset.status = 'failed';
+        document.body.dataset.error = event.error?.stack ?? event.message;
+      });
+      globalThis.addEventListener('unhandledrejection', (event) => {
+        document.body.dataset.status = 'failed';
+        document.body.dataset.error = event.reason?.stack ?? String(event.reason);
+      });
+    </script>
+    <script type="module" src="./scenario.js?v=h115-20260811a"></script>
+  </body>
+</html>

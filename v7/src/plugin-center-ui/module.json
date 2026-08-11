@@ -1,0 +1,12 @@
+{
+  "id": "adapter.plugin-center-ui",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "plugin-center-ui",
+  "publicEntry": "src/plugin-center-ui/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/core-plugin-center-harness.js",
+  "removable": true
+}

@@ -23,6 +23,11 @@
       "allowedModuleIds": ["adapter.lightweight-chart", "optional.annotation-chart-projection"]
     },
     {
+      "surface": "corePluginProfile",
+      "detectorId": "core-plugin-profile-commit",
+      "allowedModuleIds": ["core.plugin-profile"]
+    },
+    {
       "surface": "layoutSyncPolicy",
       "detectorId": "layout-sync-policy-commit",
       "allowedModuleIds": ["core.session-store"]
@@ -31,6 +36,11 @@
       "surface": "paneWorkspace",
       "detectorId": "pane-workspace-accepted-state",
       "allowedModuleIds": ["core.workspace-state-runtime"]
+    },
+    {
+      "surface": "pluginCenterDom",
+      "detectorId": "plugin-center-dom-commit",
+      "allowedModuleIds": ["adapter.plugin-center-ui"]
     },
     {
       "surface": "rawBarRequest",

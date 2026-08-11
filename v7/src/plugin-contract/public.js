@@ -23,3 +23,26 @@ export {
   listBuiltInPluginStatuses,
   readBuiltInPluginPlan,
 } from './built-in-plugin-plan.js';
+export {
+  CORE_PLUGIN_PROFILE_RECORD_SCHEMA,
+  CORE_PLUGIN_PROFILE_RECORD_VERSION,
+  corePluginProfilesEqual,
+  createCorePluginProfileRecord,
+  createDefaultCorePluginProfile,
+  createKernelSafeCorePluginProfile,
+  deserializeCorePluginProfileRecord,
+  inspectStoredCorePluginProfile,
+  normalizeCorePluginProfile,
+  readCorePluginProfileRecord,
+  serializeCorePluginProfileRecord,
+} from './core-plugin-profile-value.js';
+export {
+  prepareCorePluginProfileChange,
+  readCorePluginChangePreparation,
+} from './core-plugin-change-plan.js';
+export { planCorePluginApplicationImpact } from './core-plugin-application-impact.js';
+export {
+  createCorePluginBootFailure,
+  createCorePluginBootSelection,
+} from './core-plugin-boot-selection.js';
+export { createCorePluginCatalogSnapshot } from './core-plugin-status.js';

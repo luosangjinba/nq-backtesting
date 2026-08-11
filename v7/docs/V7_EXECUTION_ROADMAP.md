@@ -1216,7 +1216,7 @@ owner or upstream-plugin state access.
 Core classification neither authorizes these steps nor weakens their focused
 semantic/no-future/human gates.
 
-### Plugin Platform Program — P0b Specified; P0a/R13.10e Accepted
+### Plugin Platform Program — P0b Implemented; Human Gate Open
 
 Build the thin host contract before scaling plugin families, then validate each
 broader platform layer with real packages. Activate at most one separately
@@ -1227,7 +1227,7 @@ numbered phase at a time:
    Inputs/Style/Visibility and evidence/history schema, and ModuleHost-mediated
    activation/disposal; FVG is the first conformance package;
 2. **Accepted:** R13.10e production FVG vertical slice through P0a;
-3. **Specified, pending review:** P0b host-rendered Core Plugin Center over
+3. **Implemented, pending human acceptance:** P0b host-rendered Core Plugin Center over
    trusted-build packages, including status, dependencies, package/default
    settings, diagnostics, and restart-bound enable/disable through one
    immutable ModuleHost generation;
@@ -1252,9 +1252,9 @@ numbered phase at a time:
    semantic/visual review; Pine is never a V7 runtime;
 9. P4 paid Marketplace only after a separate product/business decision.
 
-P0a and R13.10e are closed. P0b now has a separately bounded contract and H115
-is declared, but the current machine delivery step remains R13.10e and P0b
-implementation requires explicit review acceptance and authorization. No
+P0a and R13.10e are closed. P0b is implemented, the current machine delivery
+step is P0b, and H115 passes its automated gates while its focused human visual
+acceptance remains open. No
 P1–P4 phase is a delivery step. Plugin Center does not imply arbitrary code,
 local install does not imply network access, and a free registry does not imply
 payment. Strict TypeScript is the executable authoring language; JSON and JSON

@@ -7,6 +7,10 @@
     },
     {
       "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "adapter.plugin-center-ui"
+    },
+    {
+      "consumerModuleId": "adapter.session-application",
       "omittedModuleId": "adapter.replay-workspace-ui"
     },
     {

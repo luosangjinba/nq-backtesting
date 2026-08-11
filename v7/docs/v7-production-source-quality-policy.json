@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R13.10e",
+  "deliveryStep": "P0b",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -60,6 +60,7 @@
       "core.bar-data-runtime",
       "core.chart-snapshot-application",
       "core.module-host",
+      "core.plugin-profile",
       "core.pane-set-materialization",
       "core.provider-execution-runtime",
       "core.replay-navigation-runtime",
@@ -91,6 +92,7 @@
       "adapter.calendar-surface",
       "adapter.data-acquisition-ui",
       "adapter.database-bootstrap-ui",
+      "adapter.plugin-center-ui",
       "adapter.replay-workspace-ui",
       "adapter.session-browser-ui"
     ]

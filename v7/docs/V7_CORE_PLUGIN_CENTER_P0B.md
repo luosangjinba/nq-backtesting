@@ -1,6 +1,7 @@
 # V7 Trusted-Build Core Plugin Center — P0b
 
-Status: specified 2026-08-11; pending review; implementation not authorized
+Status: specification accepted and implemented 2026-08-11; H115 automated gates
+pass; pending focused human visual acceptance
 
 Date: 2026-08-11
 
@@ -8,7 +9,7 @@ Depends on: accepted ADR-V7-004, P0a/H113, R13.10e/H114, the production
 ModuleHost boot boundary, Session persistence, and the R13 Annotation owner
 graph
 
-Future Harness: H115, declared but not executable
+Harness: H115, executable; human acceptance evidence intentionally remains open
 
 ## Outcome
 
@@ -447,9 +448,9 @@ accepts the reviewed change.
 
 ## Authorization Boundary
 
-This document specifies P0b and declares H115 only. It adds no production
-module, UI, persistence record, setting, reload behavior, Harness fixture, or
-changed pixel. P0b implementation remains unauthorized until this contract is
-reviewed and the user explicitly requests it. P1a/P1b, Community distribution,
-Workers, Pine migration, new Core business packages, and Marketplace remain
-later separately specified phases.
+This document first specified P0b and declared H115. The user accepted that
+contract and explicitly authorized implementation on 2026-08-11. P0b is now
+implemented and its automated H115 evidence passes; the focused human visual
+and interaction gate remains open, so H115/P0b are not yet marked accepted.
+P1a/P1b, Community distribution, Workers, Pine migration, new Core business
+packages, and Marketplace remain later separately specified phases.

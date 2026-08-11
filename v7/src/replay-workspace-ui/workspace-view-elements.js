@@ -97,6 +97,7 @@ function createWorkspaceControls(options, activeWorkstationSettings, getExactDef
     onPreview: options.onPreviewWorkstationSettings,
     onRecordRecentColors: options.onRecordRecentColors,
     onSave: options.onSaveWorkstationSettings,
+    pluginCenter: options.pluginCenter,
   });
   const paneGrid = createPaneGridView({
     initialLayout: options.initialLayout,

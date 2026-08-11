@@ -8,7 +8,7 @@ import {
   switchControl,
 } from './settings-dialog-primitives.js';
 
-const TABS = Object.freeze([
+const BASE_TABS = Object.freeze([
   Object.freeze({ id: 'symbol', label: 'Symbol' }),
   Object.freeze({ id: 'status', label: 'Status line' }),
   Object.freeze({ id: 'scales', label: 'Scales and lines' }),
@@ -139,8 +139,8 @@ function createMargins() {
   });
 }
 
-function createPanels(controls) {
-  return new Map([
+function createPanels(controls, pluginCenter) {
+  const panels = new Map([
     ['symbol', element('section', { className: 'workstation-settings-symbol' }, [
       element('span', { className: 'workstation-settings-kicker', text: 'Candles' }),
       controls.candles.body.root, controls.candles.borders.root, controls.candles.wicks.root,
@@ -171,6 +171,8 @@ function createPanels(controls) {
     ])],
     ['canvas', createCanvasPanel(controls)],
   ]);
+  if (pluginCenter) panels.set('core-plugins', pluginCenter.root);
+  return panels;
 }
 
 function createCanvasPanel(controls) {
@@ -193,9 +195,10 @@ function createCanvasPanel(controls) {
   ]);
 }
 
-function createDialogShell(panels) {
+function createDialogShell(panels, tabsConfiguration) {
   const tabs = new Map();
   let activeTab = 'symbol';
+  let selectionObserver = () => {};
   const tabRail = element('nav', { className: 'workstation-settings-tabs' });
   tabRail.setAttribute('aria-label', 'Settings categories');
   tabRail.setAttribute('role', 'tablist');
@@ -209,8 +212,9 @@ function createDialogShell(panels) {
       button.tabIndex = active ? 0 : -1;
       panels.get(tabId).hidden = !active;
     }
+    selectionObserver(id);
   };
-  for (const tab of TABS) {
+  for (const tab of tabsConfiguration) {
     const button = element('button', { className: 'workstation-settings-tab', text: tab.label, type: 'button' });
     button.dataset.settingsTab = tab.id;
     button.id = `workstation-settings-tab-${tab.id}`;
@@ -227,7 +231,13 @@ function createDialogShell(panels) {
     tabRail.append(button);
     panelHost.append(panel);
   }
-  return Object.freeze({ activeTab: () => activeTab, panelHost, selectTab, tabRail });
+  return Object.freeze({
+    activeTab: () => activeTab,
+    panelHost,
+    selectTab,
+    setSelectionObserver(observer) { selectionObserver = observer; },
+    tabRail,
+  });
 }
 
 function createDialogFrame(shell) {
@@ -251,10 +261,11 @@ function createDialogFrame(shell) {
   const dialog = element('dialog', { className: 'workstation-settings-dialog' }, [content]);
   dialog.setAttribute('aria-labelledby', 'workstation-settings-title');
   content.querySelector('h2').id = 'workstation-settings-title';
-  return Object.freeze({ cancel, close, dialog, recovery, reset, save, validation });
+  const footer = content.querySelector('.workstation-settings-footer');
+  return Object.freeze({ cancel, close, dialog, footer, recovery, reset, save, validation });
 }
 
-export function createSettingsDialogForm({ getRecentColors, onColorChange }) {
+export function createSettingsDialogForm({ getRecentColors, onColorChange, pluginCenter = null }) {
   const pickerControls = [];
   const closePickers = (except = null) => {
     for (const picker of pickerControls) if (picker !== except) picker.close();
@@ -292,9 +303,17 @@ export function createSettingsDialogForm({ getRecentColors, onColorChange }) {
     ...presentation,
   };
   controls.grid = controls.gridControl.input;
-  const panels = createPanels(controls);
-  const shell = createDialogShell(panels);
+  const panels = createPanels(controls, pluginCenter);
+  const tabs = pluginCenter === null ? BASE_TABS : Object.freeze([
+    ...BASE_TABS,
+    Object.freeze({ id: 'core-plugins', label: 'Core Plugins' }),
+  ]);
+  const shell = createDialogShell(panels, tabs);
   const frame = createDialogFrame(shell);
+  shell.setSelectionObserver((id) => {
+    frame.dialog.dataset.settingsDestination = id;
+    frame.footer.hidden = id === 'core-plugins';
+  });
   return Object.freeze({
     ...controls,
     ...frame,
@@ -302,11 +321,15 @@ export function createSettingsDialogForm({ getRecentColors, onColorChange }) {
     closePickers,
     disposePickers() { for (const picker of pickerControls) picker.dispose(); },
     focusTab(id) {
-      if (id === 'canvas') canvasPickers.background.focus();
+      if (id === 'core-plugins') pluginCenter.focus();
+      else if (id === 'canvas') canvasPickers.background.focus();
       else (id === 'symbol' ? candles.body.visible
         : id === 'status' ? controls.readout.ohlc.input : controls.currentPrice.name.input).focus();
     },
     pickerByName: new Map(pickerControls.map((picker) => [picker.input.name, picker])),
-    selectTab(id) { closePickers(); shell.selectTab(id); },
+    selectTab(id) {
+      closePickers();
+      shell.selectTab(id);
+    },
   });
 }

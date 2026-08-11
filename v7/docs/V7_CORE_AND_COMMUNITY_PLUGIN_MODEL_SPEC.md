@@ -84,8 +84,8 @@ The original decision did not authorize P0a or R13.10e; each was later
 separately specified, implemented, and accepted. The Agent-native amendment
 froze future Developer Kit/MCP/Pine contracts and order without authorizing
 P0b. P0b was later separately specified in
-`V7_CORE_PLUGIN_CENTER_P0B.md`; its production implementation and every P1–P4
-phase remain unauthorized.
+`V7_CORE_PLUGIN_CENTER_P0B.md`, explicitly authorized, and implemented. H115's
+focused human gate remains open; every P1–P4 phase remains unauthorized.
 
 Every implementation remains separately specified, authorized, tested, and
 committed. The current trusted-build Semantic Package Registry is a compatible
@@ -632,7 +632,7 @@ Core Center, dynamic loader, Community registry, or public SDK.
 These R13 steps require independent authorization. This decision neither
 renumbers them nor starts them.
 
-### Plugin Platform Program — P0b Specified; Implementation Unscheduled
+### Plugin Platform Program — P0b Implemented; Human Gate Open
 
 V7 does not finish a speculative Marketplace before writing plugins, and it no
 longer scales plugin families before a common platform boundary exists. The
@@ -648,7 +648,7 @@ by progressively broader distribution:
    workflow closes through P0a rather than a route-specific FVG branch. This
    validates the thin waist before MA/SMA, Fibonacci, or another plugin family
    scales it.
-3. **P0b Core Plugin Center — separately specified, pending review** —
+3. **P0b Core Plugin Center — implemented, pending human acceptance** —
    host-rendered Core catalog, two-dimensional runtime/pending status,
    dependencies, package/default settings, diagnostics, and restart-bound
    enable/disable over trusted-build packages only. One durable active/pending
@@ -681,9 +681,9 @@ by progressively broader distribution:
    after the free ecosystem, security operations, developer demand, support
    load, licensing, and sustainable economics are evidenced.
 
-P0a and R13.10e were separately authorized and accepted. P0b is now separately
-specified and H115 is declared, but it is not implemented or active until the
-contract receives review acceptance and separate implementation authorization.
+P0a and R13.10e were separately authorized and accepted. P0b was separately
+accepted and implemented; H115 is executable and its automated gates pass, but
+the changed Settings surface remains unaccepted until focused human review.
 No P1–P4 phase receives a delivery id until separately specified and accepted.
 R13.10e retains its existing identity as the first reference consumer after
 P0a. Local installation and a free registry must work before any paid
@@ -752,19 +752,20 @@ bounded adapter over it; and Pine migration emits the same strict-TypeScript
 package and evidence as native authoring after the target runtime exists.
 
 Later on 2026-08-11, the product owner authorized the exact next planning step.
-P0b was separately specified without runtime implementation. The specification
-chooses restart-bound single-ModuleHost generations, one active/pending durable
+P0b was separately specified, reviewed, explicitly authorized, and implemented.
+It uses restart-bound single-ModuleHost generations, one active/pending durable
 Core profile, explicit dependency-impact confirmation, host-rendered Core-only
 management/settings, settled rollback before fallback, and byte-preserving
-disable/re-enable. H115 is declared but remains non-executable pending review
-and implementation authorization.
+disable/re-enable. H115 now passes its automated evidence and remains open only
+for focused human visual/interaction acceptance.
 
 This closes the classification/product-direction decision. Delivery remains
 bounded by the authorization boundary above.
 
 Amendment evidence:
 `../sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
-and `../sessions/session_20260811_p0b_core_plugin_center_specification.md`.
+`../sessions/session_20260811_p0b_core_plugin_center_specification.md`, and
+`../sessions/session_20260811_p0b_core_plugin_center_implementation.md`.
 
 ## Reference Product Evidence
 

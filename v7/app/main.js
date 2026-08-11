@@ -1,19 +1,21 @@
 import { createModuleHost } from '../src/module-host/public.js';
-import { loadProductionApplicationDefinitions } from './production-module-catalog.js';
+import { startProductionCorePluginGeneration } from './core-plugin-boot-supervisor.js';
+import { loadProductionModuleCatalog } from './production-module-catalog.js';
 
-let host = null;
-const definitions = await loadProductionApplicationDefinitions({
-  environment: {
+const storage = window.localStorage;
+const catalog = await loadProductionModuleCatalog();
+const generation = await startProductionCorePluginGeneration({
+  catalog,
+  createEnvironment: ({ readModuleHostSnapshot }) => ({
     browserWindow: window,
     crypto: window.crypto,
     fetch: window.fetch.bind(window),
     reload: () => window.location.reload(),
-    readStorage: () => window.localStorage,
-    readModuleHostSnapshot: () => host?.snapshot() ?? Object.freeze({ moduleIds: [], status: 'idle' }),
+    readStorage: () => storage,
+    readModuleHostSnapshot,
     root: document.querySelector('#app'),
-  },
-  rootModuleId: 'adapter.session-application',
+  }),
+  createHost: (definitions) => createModuleHost(definitions),
+  storage,
 });
-host = createModuleHost(definitions);
-await host.start();
-window.addEventListener('pagehide', () => { void host.stop(); }, { once: true });
+window.addEventListener('pagehide', () => { void generation.host.stop(); }, { once: true });

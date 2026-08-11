@@ -105,6 +105,7 @@ function createBoundView(options, state, capabilities, callbacks) {
     onTimeframe: (timeframeId) => callbacks.timeframe?.(timeframeId),
     onTruncation: () => callbacks.truncation?.(),
     playbackSpeedOptions: AUTOPLAY_SPEED_OPTIONS,
+    pluginCenter: options.pluginCenter,
     replayRange: record.configuration.historicalRange,
     replayStepOptions: capabilities.replayStepOptions,
     sessionHoursModes: capabilities.sessionHoursModes,
@@ -148,8 +149,9 @@ function bindCommands(callbacks, commands) {
 export function mountReplayWorkspace(options) {
   const state = restoredWorkspace(options.record);
   const callbacks = createCallbacks();
+  const pluginCenter = options.pluginCenter?.() ?? null;
   const capabilities = createFoundationCapabilities(options.record.configuration.instrumentIds);
-  const view = createBoundView(options, state, capabilities, callbacks);
+  const view = createBoundView({ ...options, pluginCenter }, state, capabilities, callbacks);
   view.setSelection({
     sessionHoursMode: state.initialCheckpoint === null
       ? capabilities.defaultTarget.sessionHoursMode

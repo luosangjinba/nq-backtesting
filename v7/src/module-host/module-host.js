@@ -19,12 +19,16 @@ async function cleanup(records, startedIds) {
   const errors = [];
   for (const record of [...records].reverse()) {
     if (startedIds.has(record.id) && record.instance.stop) {
-      try { await record.instance.stop(); } catch (error) { errors.push(error); }
+      try { await record.instance.stop(); } catch (error) {
+        errors.push(Object.freeze({ error, moduleId: record.id }));
+      }
     }
   }
   for (const record of [...records].reverse()) {
     if (record.instance.dispose) {
-      try { await record.instance.dispose(); } catch (error) { errors.push(error); }
+      try { await record.instance.dispose(); } catch (error) {
+        errors.push(Object.freeze({ error, moduleId: record.id }));
+      }
     }
   }
   return errors;
@@ -55,8 +59,12 @@ export function createModuleHost(definitions) {
       throw new ModuleHostError('INVALID_HOST_STATE', `Cannot start module host from ${status}.`);
     }
     status = 'starting';
+    let failingModuleId = null;
+    let failingPhase = 'instantiate';
     try {
       for (const id of order) {
+        failingModuleId = id;
+        failingPhase = 'instantiate';
         const definition = definitionsById.get(id);
         const instance = definition.instantiate
           ? normalizeModuleInstance(
@@ -68,6 +76,8 @@ export function createModuleHost(definitions) {
         publicApis.set(id, instance.publicApi);
       }
       for (const record of records) {
+        failingModuleId = record.id;
+        failingPhase = 'start';
         // Mark before awaiting start so a partially-started failing module is
         // included in rollback and cannot strand resources it acquired first.
         startedIds.add(record.id);
@@ -82,13 +92,22 @@ export function createModuleHost(definitions) {
       records = [];
       status = 'failed';
       if (rollbackErrors.length > 0) {
+        const rollbackFailure = rollbackErrors[0];
         throw new ModuleHostError(
           'MODULE_HOST_ROLLBACK_FAILED',
           'Module host start failed and rollback completed with errors.',
-          { cause: new AggregateError([cause, ...rollbackErrors]) },
+          {
+            cause: new AggregateError([cause, ...rollbackErrors.map(({ error }) => error)]),
+            moduleId: rollbackFailure.moduleId,
+            phase: 'rollback',
+          },
         );
       }
-      throw new ModuleHostError('MODULE_HOST_START_FAILED', 'Module host start rolled back.', { cause });
+      throw new ModuleHostError('MODULE_HOST_START_FAILED', 'Module host start rolled back.', {
+        cause,
+        moduleId: failingModuleId,
+        phase: failingPhase,
+      });
     }
   }
 
@@ -105,7 +124,9 @@ export function createModuleHost(definitions) {
     status = 'stopped';
     if (errors.length > 0) {
       throw new ModuleHostError('MODULE_HOST_CLEANUP_FAILED', 'Module host cleanup completed with errors.', {
-        cause: new AggregateError(errors),
+        cause: new AggregateError(errors.map(({ error }) => error)),
+        moduleId: errors[0].moduleId,
+        phase: 'rollback',
       });
     }
     return snapshot();

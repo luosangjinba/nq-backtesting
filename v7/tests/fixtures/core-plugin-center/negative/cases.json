@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    { "name": "unknown-profile-package", "expectedCode": "CORE_PLUGIN_PROFILE_UNKNOWN_PACKAGE" },
+    { "name": "invalid-package-setting", "expectedCode": "PLUGIN_SETTINGS_INVALID" },
+    { "name": "unconfirmed-dependency-cascade", "expectedCode": "CORE_PLUGIN_PROFILE_CONFIRMATION_REQUIRED" },
+    { "name": "stale-preparation", "expectedCode": "CORE_PLUGIN_PROFILE_CAS_STALE" },
+    { "name": "stale-restart-receipt", "expectedCode": "CORE_PLUGIN_PROFILE_RECEIPT_STALE" },
+    { "name": "mismatched-host-generation", "expectedCode": "CORE_PLUGIN_HOST_SNAPSHOT_MISMATCH" },
+    { "name": "non-removable-application-impact", "expectedCode": "CORE_PLUGIN_IMPACT_NON_REMOVABLE" },
+    { "name": "module-start-failure", "expectedCode": "MODULE_HOST_START_FAILED" }
+  ]
+}

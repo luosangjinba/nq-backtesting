@@ -9,6 +9,8 @@ export class ModuleHostError extends Error {
     super(message, options);
     this.name = 'ModuleHostError';
     this.code = code;
+    if (options.moduleId !== undefined) this.moduleId = options.moduleId;
+    if (options.phase !== undefined) this.phase = options.phase;
   }
 }
 

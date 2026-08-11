@@ -583,7 +583,7 @@ Binding contract:
 Binding contract:
 `docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`.
 
-## P0b Trusted-Build Core Plugin Center — Specified 2026-08-11; Pending Review
+## P0b Trusted-Build Core Plugin Center — Implemented 2026-08-11; Pending Human Acceptance
 
 - [x] receive authorization to specify, but not implement, the next bounded
   Plugin Platform phase;
@@ -604,12 +604,18 @@ Binding contract:
 - [x] prohibit new behavior in the source files already at or near their
   source-quality ceilings and require focused decomposition before catalog
   generalization touches the production manual workflow;
-- [ ] receive explicit review acceptance and separate implementation
-  authorization before creating H115 code, production modules, UI, storage,
-  reload behavior, or changed pixels;
-- [ ] keep P1a/P1b, Community installation/registry, Worker execution, Pine
+- [x] receive explicit review acceptance and implementation authorization;
+- [x] implement the pure profile/status/impact/boot contracts, the sole
+  device-local profile owner, bounded ModuleHost generation supervisor, and
+  host-rendered Core Plugins Settings destination;
+- [x] prove real FVG disable/re-enable through restart, explicit dependency
+  confirmation, exact failure module/phase, last-known-good recovery, retained
+  Artifact bytes/settings, local-only profile scope, and no second lifecycle
+  host through H115 headless and Chromium evidence;
+- [ ] receive focused human visual acceptance before marking H115/P0b accepted;
+- [x] keep P1a/P1b, Community installation/registry, Worker execution, Pine
   migration, MA/SMA, Liquidity, Fibonacci, detectors, and Marketplace outside
-  P0b implementation.
+  this delivery.
 
 Binding contract:
 `docs/V7_CORE_PLUGIN_CENTER_P0B.md`.
@@ -1302,8 +1308,10 @@ Binding ES full-chain repair:
 - [x] P0b: after that vertical proof, separately specify the host-rendered
   Core Plugin Catalog/Center over trusted-build packages, restart-bound
   generation activation, Core profile owner, and H115 acceptance boundary;
-- [ ] P0b implementation: only after explicit review acceptance, implement the
+- [x] P0b implementation: after explicit review acceptance, implement the
   specified surface and lifecycle without a second PluginHost or hot-plug;
+- [ ] P0b acceptance: complete H115's focused human visual/interaction review
+  before closing the step or authorizing P1a;
 - [ ] P1a: only after P0b, specify the Agent-native strict-TypeScript SDK,
   machine-readable contract bundle, deterministic CLI/library and conformance
   Harness, immutable headless host fixtures/simulation, reference packages,
@@ -1425,8 +1433,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 449 files, 37,062 effective lines, 3,890 functions, and 407 public exports; the architecture baseline
-contains 64 modules, 147 edges, 122 construction sites, 23 writers, and zero
+The current production source baseline contains 465 files, 38,855 effective lines, 4,067 functions, and 428 public exports; the architecture baseline
+contains 66 modules, 148 edges, 128 construction sites, 25 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -1437,7 +1445,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 449 files, 37,062 effective lines, 3,890 functions, and 407 public exports, 64 modules, 147 edges, 122 construction sites, 23 writers, and zero
+currently at 465 files, 38,855 effective lines, 4,067 functions, and 428 public exports, 66 modules, 148 edges, 128 construction sites, 25 writers, and zero
 findings.
 
 ## Established Foundation Governance

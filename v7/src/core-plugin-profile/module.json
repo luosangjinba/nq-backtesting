@@ -1,0 +1,12 @@
+{
+  "id": "core.plugin-profile",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "plugin-profile",
+  "publicEntry": "src/core-plugin-profile/public.js",
+  "requiredPorts": ["core.plugin-contract"],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/core-plugin-center-harness.js",
+  "removable": false
+}

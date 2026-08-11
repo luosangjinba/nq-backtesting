@@ -8,11 +8,13 @@
     "adapter.session-browser-ui",
     "adapter.session-persistence",
     "adapter.market-data-provider",
+    "core.plugin-profile",
     "core.replay-navigation-preference-store",
     "core.session-store",
     "core.workstation-settings"
   ],
   "optionalPorts": [
+    "adapter.plugin-center-ui",
     "adapter.replay-workspace-ui",
     "adapter.server-state-sync",
     "optional.annotation-manual-workflow"

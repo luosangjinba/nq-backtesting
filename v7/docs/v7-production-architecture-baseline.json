@@ -4,6 +4,10 @@
       {
         "moduleId": "core.module-host",
         "reason": "Module Host consumes participant lifecycle handles but exposes start/stop as its own lifecycle."
+      },
+      {
+        "moduleId": "core.plugin-profile",
+        "reason": "Application composition owns each isolated profile runtime and releases it after the mounted Plugin Center unsubscribes; the static public module itself acquires no resources."
       }
     ],
     "writerPolicies": [
@@ -37,6 +41,13 @@
         ]
       },
       {
+        "surface": "corePluginProfile",
+        "detectorId": "core-plugin-profile-commit",
+        "allowedModuleIds": [
+          "core.plugin-profile"
+        ]
+      },
+      {
         "surface": "layoutSyncPolicy",
         "detectorId": "layout-sync-policy-commit",
         "allowedModuleIds": [
@@ -48,6 +59,13 @@
         "detectorId": "pane-workspace-accepted-state",
         "allowedModuleIds": [
           "core.workspace-state-runtime"
+        ]
+      },
+      {
+        "surface": "pluginCenterDom",
+        "detectorId": "plugin-center-dom-commit",
+        "allowedModuleIds": [
+          "adapter.plugin-center-ui"
         ]
       },
       {
@@ -136,7 +154,7 @@
       }
     ]
   },
-  "deliveryStep": "R13.10e",
+  "deliveryStep": "P0b",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -189,6 +207,13 @@
       {
         "callCount": 1,
         "factory": "createBuiltInPluginPlan",
+        "sourceFile": "app/core-plugin-catalog.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "core.plugin-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createBuiltInPluginPlan",
         "sourceFile": "src/annotation-manual-workflow/semantic-tool-catalog.js",
         "sourceModuleId": "optional.annotation-manual-workflow",
         "targetModuleId": "core.plugin-contract"
@@ -213,6 +238,41 @@
         "sourceFile": "src/lightweight-chart-adapter/pane-set-adapter.js",
         "sourceModuleId": "adapter.lightweight-chart",
         "targetModuleId": "core.chart-snapshot-application"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCorePluginBootFailure",
+        "sourceFile": "app/core-plugin-boot-supervisor.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "core.plugin-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCorePluginBootSelection",
+        "sourceFile": "app/core-plugin-boot-supervisor.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "core.plugin-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCorePluginBootSelection",
+        "sourceFile": "app/production-module-catalog.js",
+        "sourceModuleId": "application",
+        "targetModuleId": "core.plugin-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCorePluginCatalogSnapshot",
+        "sourceFile": "src/core-plugin-profile/profile-runtime.js",
+        "sourceModuleId": "core.plugin-profile",
+        "targetModuleId": "core.plugin-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCorePluginProfileRecord",
+        "sourceFile": "src/core-plugin-profile/profile-runtime.js",
+        "sourceModuleId": "core.plugin-profile",
+        "targetModuleId": "core.plugin-contract"
       },
       {
         "callCount": 1,
@@ -1042,6 +1102,12 @@
       },
       {
         "moduleIds": [
+          "adapter.plugin-center-ui"
+        ],
+        "surface": "pluginCenterDom"
+      },
+      {
+        "moduleIds": [
           "adapter.replay-workspace-ui"
         ],
         "surface": "replayWorkspaceDom"
@@ -1069,6 +1135,12 @@
           "core.bar-data-runtime"
         ],
         "surface": "rawMarketDataRetention"
+      },
+      {
+        "moduleIds": [
+          "core.plugin-profile"
+        ],
+        "surface": "corePluginProfile"
       },
       {
         "moduleIds": [
@@ -4068,6 +4140,15 @@
             "targetFile": "src/module-host/public.js",
             "targetModuleId": "core.module-host",
             "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "normalizeModuleDescriptor"
+            ],
+            "sourceFile": "src/plugin-contract/core-plugin-application-impact.js",
+            "targetFile": "src/module-host/public.js",
+            "targetModuleId": "core.module-host",
+            "throughPublicEntry": true
           }
         ],
         "independentHarness": "tests/plugin-contract-substrate-harness.js",
@@ -4243,6 +4324,45 @@
         ],
         "owner": "semantic-fair-value-gap",
         "publicEntry": "src/semantic-fair-value-gap/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.plugin-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.plugin-contract"
+        ],
+        "descriptorPath": "src/core-plugin-profile/module.json",
+        "id": "core.plugin-profile",
+        "importSites": [
+          {
+            "importedNames": [
+              "CORE_PLUGIN_PROFILE_RECORD_SCHEMA",
+              "CORE_PLUGIN_PROFILE_RECORD_VERSION",
+              "corePluginProfilesEqual",
+              "createCorePluginCatalogSnapshot",
+              "createCorePluginProfileRecord",
+              "prepareCorePluginProfileChange",
+              "readCorePluginChangePreparation",
+              "readCorePluginProfileRecord",
+              "serializeCorePluginProfileRecord"
+            ],
+            "sourceFile": "src/core-plugin-profile/profile-runtime.js",
+            "targetFile": "src/plugin-contract/public.js",
+            "targetModuleId": "core.plugin-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/core-plugin-center-harness.js",
+        "independentHarnessMode": "public-entry-fixture",
+        "kind": "core",
+        "observedDisposeSites": [
+          "src/core-plugin-profile/profile-runtime.js"
+        ],
+        "owner": "plugin-profile",
+        "publicEntry": "src/core-plugin-profile/public.js"
       },
       {
         "actualDependencies": [
@@ -4662,6 +4782,7 @@
           "stop"
         ],
         "declaredOptionalPorts": [
+          "adapter.plugin-center-ui",
           "adapter.replay-workspace-ui",
           "adapter.server-state-sync",
           "optional.annotation-manual-workflow"
@@ -4670,6 +4791,7 @@
           "adapter.market-data-provider",
           "adapter.session-browser-ui",
           "adapter.session-persistence",
+          "core.plugin-profile",
           "core.replay-navigation-preference-store",
           "core.session-store",
           "core.workstation-settings"
@@ -4681,7 +4803,8 @@
         "independentHarnessMode": "public-entry-direct",
         "kind": "adapter",
         "observedDisposeSites": [
-          "src/session-application/application-definition.js"
+          "src/session-application/application-definition.js",
+          "src/session-application/application-resources.js"
         ],
         "owner": "application-composition",
         "publicEntry": "src/session-application/public.js"
@@ -4774,6 +4897,25 @@
         ],
         "owner": "annotation-semantic-registry",
         "publicEntry": "src/annotation-semantic-registry/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/plugin-center-ui/module.json",
+        "id": "adapter.plugin-center-ui",
+        "importSites": [],
+        "independentHarness": "tests/core-plugin-center-harness.js",
+        "independentHarnessMode": "public-entry-fixture",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/plugin-center-ui/plugin-center-control.js"
+        ],
+        "owner": "plugin-center-ui",
+        "publicEntry": "src/plugin-center-ui/public.js"
       },
       {
         "actualDependencies": [],
@@ -5094,6 +5236,12 @@
         "surface": "calendarSurfaceDom"
       },
       {
+        "detectorId": "core-plugin-profile-commit",
+        "sourceFile": "src/core-plugin-profile/profile-runtime.js",
+        "sourceModuleId": "core.plugin-profile",
+        "surface": "corePluginProfile"
+      },
+      {
         "detectorId": "layout-sync-policy-commit",
         "sourceFile": "src/session-store/session-store.js",
         "sourceModuleId": "core.session-store",
@@ -5140,6 +5288,12 @@
         "sourceFile": "src/workspace-state-runtime/workspace-state-runtime.js",
         "sourceModuleId": "core.workspace-state-runtime",
         "surface": "paneWorkspace"
+      },
+      {
+        "detectorId": "plugin-center-dom-commit",
+        "sourceFile": "src/plugin-center-ui/plugin-center-control.js",
+        "sourceModuleId": "adapter.plugin-center-ui",
+        "surface": "pluginCenterDom"
       },
       {
         "detectorId": "raw-provider-request",

@@ -23,6 +23,7 @@ export function createWorkstationSettingsDialog({
   onPreview,
   onRecordRecentColors = () => {},
   onSave,
+  pluginCenter = null,
 }) {
   requireDialogPorts({ getSnapshot, onCancelPreview, onPreview, onSave });
   let touchedColors = [];
@@ -33,7 +34,7 @@ export function createWorkstationSettingsDialog({
     previewDraft();
   }
 
-  form = createSettingsDialogForm({ getRecentColors, onColorChange: markColorTouched });
+  form = createSettingsDialogForm({ getRecentColors, onColorChange: markColorTouched, pluginCenter });
   const { cancel, close, dialog, recovery, reset, save, validation } = form;
 
   function populate(settings) {
@@ -115,6 +116,7 @@ export function createWorkstationSettingsDialog({
   return Object.freeze({
     dispose() {
       if (dialog.open) onCancelPreview();
+      pluginCenter?.dispose();
       form.disposePickers();
       dialog.remove();
     },
