@@ -5,6 +5,7 @@
   "owner": "semantic-fair-value-gap",
   "publicEntry": "src/semantic-fair-value-gap/public.js",
   "requiredPorts": [
+    "core.plugin-contract",
     "core.session-identity",
     "optional.annotation-evidence-resolver",
     "optional.annotation-geometry-domain",

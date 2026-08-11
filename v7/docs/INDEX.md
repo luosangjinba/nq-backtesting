@@ -122,7 +122,8 @@ Evidence/History surfaces, strict TypeScript authoring with compiled ESM plus
 JSON Schema wire contracts, and a P0a-thin-platform/FVG-reference sequence. It
 allocates no delivery id, loader, registry, Worker tier, product-scope
 expansion, or Marketplace implementation. MEMO-V7-001 remains open for those
-unresolved operations and product questions.
+unresolved operations and product questions. The separately authorized P0a
+implementation contract is `V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`.
 The accepted post-milestone foundation is
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
 market-coordinate geometry, generic drawings, typed semantic artifacts,
@@ -215,8 +216,10 @@ The accepted
 Core/Community plugin model classifies the existing FVG and BSL/SSL packages as
 built-in Core capabilities. Its amendment makes a minimal P0a
 manifest/contribution/settings bridge the prerequisite/reference boundary for
-R13.10e, but does not retrofit accepted code or authorize P0a, R13.10e, a
-Plugin Center, loader, detector, or later implementation.
+R13.10e. `V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md` now records the
+implemented pure contract, FVG conformance manifest, and H113 automated gate;
+it does not authorize R13.10e, a Plugin Center, loader, detector, or later
+implementation.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
@@ -331,6 +334,9 @@ Read in this order before V7 implementation work:
 98. `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` as accepted ADR-V7-004;
     read before specifying Core/Community packages, dependency graphs, Plugin
     Center, installation, SDK, registry, or Marketplace behavior
+98a. `V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md` as the implemented pure
+     built-in manifest/contribution/settings/status boundary and FVG/H113
+     conformance record
 99. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
 100. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,

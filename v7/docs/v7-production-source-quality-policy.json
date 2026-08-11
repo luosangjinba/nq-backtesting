@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "R13.10d",
+  "deliveryStep": "P0a",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -28,6 +28,7 @@
       "core.capability-contract",
       "core.coverage-planning-contract",
       "core.prepared-commit-contract",
+      "core.plugin-contract",
       "core.projected-history-contract",
       "core.provider-policy-contract",
       "core.raw-coverage-lease-contract",
@@ -184,6 +185,10 @@
     },
     {
       "path": "sessions/session_20260810_r13_10d_fvg_evidence_inspector_override.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260810_p0a_built_in_plugin_contract_substrate.md",
       "expectedOccurrences": 1
     }
   ],

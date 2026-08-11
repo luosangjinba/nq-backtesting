@@ -76,8 +76,7 @@ no-future, disposal, and sole-owner rules. No dependency was added.
   read-only market-data service. Its temporary loopback process was stopped
   afterward, and the pre-existing `v4-api.service` was restored active with a
   passing `/v4/health` response.
-- Current production source evidence is 422 files, 34,566 effective lines,
-  3,582 functions, and 394 public exports, with no source-size/function
+- Current production source evidence is 430 files, 35,415 effective lines, 3,674 functions, and 405 public exports, with no source-size/function
   exception and no validation finding.
 
 ## Human Gate — Accepted 2026-08-10

@@ -1003,14 +1003,16 @@ Pine are not runtime languages, and WASM is deferred beyond the initial SDK.
 Existing trusted-build JavaScript semantic packages are adapted incrementally
 rather than forcing a host-wide TypeScript migration.
 
-P0a first establishes that thin contract and uses FVG as its conformance
-package; R13.10e then closes the production FVG vertical slice through it. P0b
+P0a now establishes that thin contract in non-removable
+`core.plugin-contract` and uses FVG as its conformance package; R13.10e can
+later close the production FVG vertical slice through it. P0b
 adds the trusted-build Core Center, P1 adds file/unpacked declarative packages,
 P2 adds the signed free registry, and P3 adds isolated TypeScript-to-ESM
 calculation Workers. Arbitrary community privileges and a paid Marketplace are
-not implied or authorized. R13.10d remains bounded to the now-accepted
-Inspector/override slice. P0a and R13.10e remain separately unauthorized and
-may not absorb the broader catalog/distribution phases.
+not implied or authorized. R13.10d remains bounded to the accepted
+Inspector/override slice. P0a is implemented under H113; R13.10e remains
+separately unauthorized, and neither may absorb broader catalog/distribution
+phases.
 
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,

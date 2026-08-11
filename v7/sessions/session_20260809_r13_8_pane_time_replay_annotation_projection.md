@@ -43,7 +43,7 @@ Production assembly contains 61 public modules, 25 lifecycle modules, and 24
 optional-removal cases. Architecture evidence contains 61 modules, 132
 dependency edges, 115 construction sites, 18 declared writer surfaces, 23
 observed writer files, and zero blocking findings. Current source evidence
-contains 422 files, 34,566 effective lines, 3,582 functions, and 394 public exports with no accepted exception.
+contains 430 files, 35,415 effective lines, 3,674 functions, and 405 public exports with no accepted exception.
 
 The focused R13.2–R13.7 regressions, source quality, writer closure, standalone
 runtime, and complete eight-scenario production regression matrix pass. The

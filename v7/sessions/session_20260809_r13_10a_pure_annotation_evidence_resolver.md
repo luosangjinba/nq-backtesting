@@ -41,7 +41,7 @@ Production architecture contains 61 modules, 132 dependency edges, 115
 construction sites, 23 writer sites, and zero findings. Module assembly contains
 61 public entries, 25 lifecycle modules, and 24 optional-removal cases. Writer
 closure remains 18 surfaces and 23 observed writer files. Architecture
-hardening covers 110 rules. Current source quality is 422 files, 34,566 effective lines, 3,582 functions, and 394 public exports, with no accepted
+hardening covers 110 rules. Current source quality is 430 files, 35,415 effective lines, 3,674 functions, and 405 public exports, with no accepted
 exception.
 
 ## Closure

@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/plugin-parameters-v1.json",
+  "title": "V7 Plugin Parameter Schema V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "tabs"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "tabs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "allOf": [
+        {
+          "contains": { "type": "object", "required": ["id"], "properties": { "id": { "const": "inputs" } } },
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": { "type": "object", "required": ["id"], "properties": { "id": { "const": "style" } } },
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": { "type": "object", "required": ["id"], "properties": { "id": { "const": "visibility" } } },
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": { "type": "object", "required": ["id"], "properties": { "id": { "const": "evidence" } } },
+          "minContains": 0,
+          "maxContains": 1
+        },
+        {
+          "contains": { "type": "object", "required": ["id"], "properties": { "id": { "const": "history" } } },
+          "minContains": 0,
+          "maxContains": 1
+        }
+      ],
+      "items": { "$ref": "#/$defs/tab" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][A-Za-z0-9.-]{0,63}$"
+    },
+    "tab": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source"],
+      "properties": {
+        "id": {
+          "enum": ["inputs", "style", "visibility", "evidence", "history"]
+        },
+        "source": {
+          "oneOf": [
+            { "$ref": "#/$defs/settingsSource" },
+            { "$ref": "#/$defs/inspectorSource" }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["id"],
+            "properties": { "id": { "enum": ["style", "visibility"] } }
+          },
+          "then": { "properties": { "source": { "$ref": "#/$defs/settingsSource" } } }
+        },
+        {
+          "if": {
+            "required": ["id"],
+            "properties": { "id": { "enum": ["evidence", "history"] } }
+          },
+          "then": { "properties": { "source": { "$ref": "#/$defs/inspectorSource" } } }
+        }
+      ]
+    },
+    "settingsSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "fields"],
+      "properties": {
+        "kind": { "const": "settings" },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/field" }
+        }
+      }
+    },
+    "inspectorSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "groupIds"],
+      "properties": {
+        "kind": { "const": "inspector-groups" },
+        "groupIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "control", "defaultValue", "scopes"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 96 },
+        "control": { "$ref": "#/$defs/control" },
+        "defaultValue": {},
+        "scopes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": { "enum": ["package", "profile", "instance"] }
+        }
+      }
+    },
+    "control": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": { "kind": { "enum": ["boolean", "color"] } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "min", "max", "step"],
+          "properties": {
+            "kind": { "const": "number" },
+            "min": { "type": "number" },
+            "max": { "type": "number" },
+            "step": { "type": "number", "exclusiveMinimum": 0 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "maxLength"],
+          "properties": {
+            "kind": { "const": "text" },
+            "maxLength": { "type": "integer", "minimum": 1, "maximum": 512 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "options"],
+          "properties": {
+            "kind": { "const": "select" },
+            "options": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 64,
+              "uniqueItems": true,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["label", "value"],
+                "properties": {
+                  "label": { "type": "string", "minLength": 1, "maxLength": 80 },
+                  "value": { "type": "string", "minLength": 1, "maxLength": 80 }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

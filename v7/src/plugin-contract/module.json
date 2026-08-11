@@ -1,0 +1,12 @@
+{
+  "id": "core.plugin-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "plugin-contract",
+  "publicEntry": "src/plugin-contract/public.js",
+  "requiredPorts": ["core.module-host"],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/plugin-contract-substrate-harness.js",
+  "removable": false
+}

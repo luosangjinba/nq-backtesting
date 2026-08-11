@@ -17,3 +17,7 @@ export {
   FAIR_VALUE_GAP_TYPE_ID,
   FAIR_VALUE_GAP_VERSION,
 } from './fvg-artifact.js';
+export {
+  FAIR_VALUE_GAP_PLUGIN_MANIFEST,
+  FAIR_VALUE_GAP_TOOL_ID,
+} from './plugin-manifest.js';

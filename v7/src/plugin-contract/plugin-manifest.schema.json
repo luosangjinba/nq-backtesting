@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/built-in-plugin-manifest-v1.json",
+  "title": "V7 Built-In Core Plugin Manifest V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifestVersion",
+    "packageId",
+    "packageVersion",
+    "module",
+    "display",
+    "distribution",
+    "hostApiRange",
+    "capabilities",
+    "contributions",
+    "permissions",
+    "conformance"
+  ],
+  "properties": {
+    "manifestVersion": { "const": 1 },
+    "packageId": { "$ref": "#/$defs/id" },
+    "packageVersion": { "$ref": "#/$defs/version" },
+    "module": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "version": { "$ref": "#/$defs/version" }
+      }
+    },
+    "display": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 96 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 320 }
+      }
+    },
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tier", "source", "publisherId", "trust"],
+      "properties": {
+        "tier": { "const": "core" },
+        "source": { "const": "built-in" },
+        "publisherId": { "$ref": "#/$defs/id" },
+        "trust": { "const": "first-party" }
+      }
+    },
+    "hostApiRange": { "$ref": "#/$defs/range" },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provides", "requires", "extends"],
+      "properties": {
+        "provides": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/provided" }
+        },
+        "requires": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/dependency" }
+        },
+        "extends": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/dependency" }
+        }
+      }
+    },
+    "contributions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/contribution" }
+    },
+    "permissions": { "type": "array", "maxItems": 0 },
+    "conformance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["harness"],
+      "properties": {
+        "harness": {
+          "type": "string",
+          "pattern": "^tests/[a-z0-9-]+-harness\\.js$"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+    },
+    "range": {
+      "type": "string",
+      "pattern": "^\\^?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+    },
+    "provided": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "version": { "$ref": "#/$defs/version" }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "range"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "range": { "$ref": "#/$defs/range" }
+      }
+    },
+    "contribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "version", "displayName", "parameters"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": {
+          "enum": ["drawing", "indicator", "semantic-type", "tool", "workflow"]
+        },
+        "version": { "$ref": "#/$defs/version" },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 96 },
+        "parameters": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "https://replay-lab.local/schemas/plugin-parameters-v1.json" }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,15 +1,14 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-10 after accepted R13.10d/H112 and the ADR-V7-004 plugin
-platform interface/language amendment
+Last updated: 2026-08-10 after implemented P0a/H113 built-in plugin contract
+substrate
 
 ## Restart Resume Checkpoint
 
 Resume on branch `feature/v7-drawing-semantic-annotation`. The current branch
-contains the separately committed accepted R13.10c checkpoint followed by one
-documentation-only Core/Community plugin-model decision. R13.10d/H112 is now
-accepted and closes as its own commit. `git log` is the authoritative commit
-identity.
+contains separately committed accepted R13.10c and R13.10d checkpoints plus
+the Core/Community plugin-model decision. P0a/H113 now closes as its own thin
+contract checkpoint. `git log` is the authoritative commit identity.
 
 After a machine or agent restart, run:
 
@@ -23,13 +22,14 @@ git status --short
 Then read, in order:
 
 1. `v7/docs/V7_RESTART_HANDOFF.md`
-2. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
-3. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
-4. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
-5. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
-6. `v7/sessions/session_20260810_r13_10d_fvg_evidence_inspector_override.md`
-7. `v7/sessions/session_20260810_core_community_plugin_model_spec.md`
-8. `v7/TODO.md`
+2. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
+3. `v7/sessions/session_20260810_p0a_built_in_plugin_contract_substrate.md`
+4. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
+5. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
+6. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
+7. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
+8. `v7/sessions/session_20260810_r13_10d_fvg_evidence_inspector_override.md`
+9. `v7/TODO.md`
 
 R13.10b/H110 and R13.10c/H111 are accepted. The focused FVG fixture contains
 no temporary diagnostic surface, and its acceptance server is stopped.
@@ -39,11 +39,11 @@ host-rendered Core/Community Plugin Center. Its later amendment binds one
 strict TypeScript SDK/compiled ESM artifact model, JSON-schema-rendered
 Inputs/Style/Visibility and applicable Evidence/History panels, and one
 candidate pipeline for registry, local archive, and Developer Mode unpacked
-sources. The thin P0a manifest/contribution/settings substrate must be proven
+sources. The thin P0a manifest/contribution/settings substrate is now proven
 by FVG before broader plugin families or distribution layers. R13.10d Evidence Inspector and
 validated overrides are accepted under H112 after the corrected single-layer
 Preview human gate. R13.10e production manual FVG closure is still
-unauthorized. P0a, detector, general Plugin Center, loader,
+unauthorized. Detector, general Plugin Center, loader,
 Community registry, SDK, arbitrary code, Marketplace, and later implementation
 remain unauthorized.
 
@@ -123,6 +123,13 @@ H112. Its real-Chromium automation and corrected human interaction/visual gate
 pass: accepted bytes remain intact while one dirty Preview is visible, and
 Cancel/Apply settle to one accepted layer. H112 and R13.10d are accepted.
 Detector and production-toolbar behavior remain unauthorized.
+P0a is now implemented under
+`V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`: non-removable
+`core.plugin-contract` validates portable built-in manifests, contribution and
+parameter schemas, scoped effective settings, dependency plans, and read-only
+ModuleHost status. FVG is its first conformance manifest. H113 passes without a
+human gate because P0a adds no product UI or Chart behavior; ModuleHost remains
+the sole lifecycle owner.
 ADR-V7-002 audited the current public Lightweight Charts drawing,
 indicator, toolkit, and alternative-engine ecosystem at pinned revisions.
 Official Primitive/rendering patterns are approved for adaptation, but no
@@ -144,7 +151,8 @@ Binding records:
 `V7_SEMANTIC_CONTRACT_HARDENING_R13_9B.md` and
 `V7_PURE_ANNOTATION_EVIDENCE_RESOLVER_R13_10A.md` and
 `V7_EXACT_BAR_PICKER_R13_10B.md` and
-`V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`, with frozen candidate evidence in
+`V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md` and
+`V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`, with frozen candidate evidence in
 `v7-community-reuse-audit.json`.
 
 R11 is the closed architecture-recovery record underlying the accepted
@@ -1120,13 +1128,12 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
-R13.10d/H112 is closed. Do not begin P0a or R13.10e automatically. The next
-bounded specification must define the minimum trusted-build manifest,
-contribution, dependency/status, host-rendered settings, and ModuleHost bridge,
-then route the production Picker → Evidence → Core FVG → Inspector → projection
-composition through it. FVG is the reference package, not a reason to add a
-route-level branch. That slice requires a new Harness allocation and explicit
-authorization and may not absorb the visual Core Center, external loader,
+P0a/H113 is closed. Do not begin R13.10e automatically. The next separately
+authorized slice may route the production Picker → Evidence → Core FVG →
+Inspector → projection composition through the completed P0a boundary. FVG is
+the reference package, not a reason to add a route-level branch. R13.10e
+requires a new Harness allocation and explicit authorization and may not absorb
+the visual Core Center, external loader,
 Community registry, public SDK, Worker runtime, detector, MA/SMA, Fibonacci,
 or Marketplace. R13.11–R13.13 likewise remain planned rather than implicitly
 authorized.

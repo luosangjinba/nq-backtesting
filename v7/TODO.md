@@ -520,13 +520,40 @@ Binding contract:
 Binding contract:
 `docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`.
 
+## P0a Built-In Plugin Contract Substrate — Implemented 2026-08-10
+
+- [x] receive separate authorization and freeze the thin built-in manifest,
+  contribution, parameter-schema, dependency-plan, and status contract;
+- [x] add non-removable `core.plugin-contract` without creating a second
+  lifecycle owner, loader, settings writer, or product UI;
+- [x] bind exact portable manifest/parameter JSON wires and matching Draft
+  2020-12 JSON Schemas;
+- [x] validate Core/built-in/first-party distribution, empty permissions,
+  ModuleHost descriptor identity, host API/capability compatibility,
+  extension targets, collisions, and dependency cycles before activation;
+- [x] resolve package/profile/instance settings purely with exact source
+  provenance and instance-over-profile-over-package precedence;
+- [x] expose FVG as the first conformance manifest while retaining its accepted
+  inner Semantic package and advertising no inert Style/Visibility controls;
+- [x] activate H113 with 25 negative controls, real ModuleHost lifecycle/status
+  and derived-port parity evidence, H111/H112 regression evidence, a
+  113-Harness sweep with only the three preserved H091 pixel gates, and no
+  human visual gate because P0a changes no visible surface;
+- [x] preserve strict TypeScript → pinned ES2022 ESM as the future executable
+  authoring path while adding no SDK/build/Worker or external-code runtime;
+- [x] exclude R13.10e, Plugin Center, installation, Community registry,
+  MA/SMA, Fibonacci, detector, and Marketplace.
+
+Binding contract:
+`docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`.
+
 ## R13.10e Production Manual FVG Workflow Closure — Planned, Not Authorized
 
 - [ ] after accepted R13.10d, receive separate authorization and compose the
   accepted Picker → Evidence → Core FVG → Inspector → projection path;
 - [ ] expose generic built-in first-party package metadata/status without a
   product-route branch for FVG;
-- [ ] first establish the bounded P0a manifest/contribution/settings bridge and
+- [x] first establish the bounded P0a manifest/contribution/settings bridge and
   make FVG its reference package without duplicating ModuleHost lifecycle;
 - [ ] add only the production tool entry and lifecycle/error/acceptance surface
   required for the manual evidence-constrained FVG workflow;
@@ -1209,10 +1236,11 @@ Binding ES full-chain repair:
 - [x] promote only the Kernel/Core/Community taxonomy, initial Core catalog,
   public derived dependencies, Plugin Center contract, strict trust posture,
   and phased delivery sequence through ADR-V7-004;
-- [ ] keep the binding SMC/ICT product scope and activate no P-phase, loader,
+- [x] keep the binding SMC/ICT product scope and activate no P-phase, loader,
   SDK, arbitrary code, remote registry, Marketplace, payment, or product-scope
-  change without a separately accepted implementation/product decision;
-- [ ] P0a: separately specify and authorize the thin manifest/contribution/
+  change without a separately accepted implementation/product decision; P0a
+  was the first separately authorized exception and changed no product scope;
+- [x] P0a: separately specify and authorize the thin manifest/contribution/
   settings substrate over trusted-build packages, retain ModuleHost as sole
   lifecycle owner, and pass FVG as the first conformance package;
 - [ ] close R13.10e through P0a before scaling MA/SMA, Fibonacci, or another
@@ -1331,8 +1359,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 422 files, 34,566 effective lines, 3,582 functions, and 394 public exports; the architecture baseline
-contains 61 modules, 132 edges, 115 construction sites, 23 writers, and zero
+The current production source baseline contains 430 files, 35,415 effective lines, 3,674 functions, and 405 public exports; the architecture baseline
+contains 63 modules, 136 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -1343,7 +1371,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 422 files, 34,566 effective lines, 3,582 functions, and 394 public exports, 62 modules, 134 edges, 115 construction sites, 23 writers, and zero
+currently at 430 files, 35,415 effective lines, 3,674 functions, and 405 public exports, 63 modules, 136 edges, 115 construction sites, 23 writers, and zero
 findings.
 
 ## Established Foundation Governance

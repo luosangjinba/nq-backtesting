@@ -1157,6 +1157,26 @@ cutoff states, effective-zone Preview/save/reset, Core Plugin disable/re-enable,
 and native Chart behavior. H112 and R13.10d are accepted. R13.10e remains a
 separate planned step requiring explicit authorization.
 
+### P0a — Built-In Plugin Contract Substrate — Implemented 2026-08-10
+
+- add one pure, non-removable `core.plugin-contract` over the existing
+  ModuleHost rather than a parallel Plugin Host;
+- validate portable Core/built-in/first-party manifests, versioned
+  contributions, host API/capability dependencies, extension targets,
+  descriptor-port parity, and cycles before activation;
+- standardize host-rendered parameter tabs and pure package/profile/instance
+  setting resolution without adding a settings writer or visible Plugin Center;
+- expose ModuleHost state only through a read-only status projection and leave
+  all start/stop/disposal authority with `core.module-host`;
+- pass the existing FVG package as the first outer-manifest/inner-package
+  conformance proof, without changing its R13.10c/R13.10d behavior;
+- prove the boundary through H113 and 25 negative controls; require no human
+  gate because this step changes no DOM, Chart primitive, control, or pixel.
+
+Implemented under `V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`. P0a adds no
+loader, installer, public SDK, external code, Community registry, Plugin Center,
+or production tool entry. R13.10e remains separately unauthorized.
+
 ### R13.10e — Production Manual FVG Workflow Closure — Planned, Not Authorized
 
 - compose the already accepted exact Bar Picker, Evidence Resolver, Core FVG
@@ -1165,8 +1185,8 @@ separate planned step requiring explicit authorization.
 - expose FVG as a discoverable built-in first-party plugin contribution, with
   generic package metadata and enable/disable status rather than a semantic-id
   branch in the product route;
-- first establish the minimum P0a manifest/contribution/settings bridge and
-  pass the FVG package through it; do not create a second lifecycle owner;
+- consume the completed P0a manifest/contribution/settings bridge and its FVG
+  reference package; do not create a second lifecycle owner;
 - add only the production tool entry, lifecycle/error state, and acceptance
   coverage required to close manual evidence-constrained FVG creation;
 - preserve native Chart navigation, multi-Pane/no-future behavior, owner
@@ -1176,8 +1196,8 @@ separate planned step requiring explicit authorization.
 
 R13.10e closes the manual FVG product workflow as the first production
 vertical slice through the thin P0a boundary; it does not become the complete
-plugin platform. P0a and R13.10e must be separately specified and authorized
-after R13.10d.
+plugin platform. P0a is now implemented; R13.10e still requires separate
+authorization.
 
 ### Core/Derived Package Consequences For R13.11–R13.13
 
@@ -1192,16 +1212,16 @@ owner or upstream-plugin state access.
 Core classification neither authorizes these steps nor weakens their focused
 semantic/no-future/human gates.
 
-### Plugin Platform Program — Specified, Unscheduled
+### Plugin Platform Program — Specified; P0a Implemented
 
 Build the thin host contract before scaling plugin families, then validate each
 broader platform layer with real packages. Activate at most one separately
 numbered phase at a time:
 
-1. P0a versioned manifest/contribution descriptors, built-in adapter,
-   dependency/status model, common host-rendered Inputs/Style/Visibility and
-   evidence/history schema, and ModuleHost-mediated activation/disposal; FVG is
-   the first conformance package;
+1. **Implemented:** P0a versioned manifest/contribution descriptors, built-in
+   adapter, dependency/status model, common host-rendered
+   Inputs/Style/Visibility and evidence/history schema, and ModuleHost-mediated
+   activation/disposal; FVG is the first conformance package;
 2. R13.10e production FVG vertical slice through P0a;
 3. P0b host-rendered Core Plugin Center over trusted-build packages, including
    status, dependencies, package/default settings, diagnostics, and
