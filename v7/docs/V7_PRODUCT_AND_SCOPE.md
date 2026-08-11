@@ -60,6 +60,18 @@ DOM, or WASM as parallel initial plugin models. A thin built-in-package
 contract and FVG reference vertical slice precede the visual Core Center and
 external distribution phases.
 
+Future plugin authoring is Agent-native by contract: the product supplies
+machine-readable SDK/schema/capability metadata, deterministic headless
+scaffold/validate/build/test/pack operations, an evidence-producing conformance
+Harness, and a local workspace-bounded MCP adapter over the same operations.
+This enables an AI coding agent to complete the ordinary developer workflow but
+does not bypass candidate transactions, permissions, no-future evidence, or
+human review. A later Pine indicator migration assistant may parse supported
+source and generate a normal strict-TypeScript plugin plus compatibility report,
+tests, and provenance. It does not execute Pine, promise universal semantic
+equivalence, or bring strategy/broker simulation into current product scope.
+These are accepted future platform outcomes with no implementation delivery id.
+
 ## Current Resolution And Simulation Boundary
 
 The current product is minute-sourced historical Replay with registered higher

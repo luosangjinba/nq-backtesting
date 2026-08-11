@@ -1003,20 +1003,39 @@ Pine are not runtime languages, and WASM is deferred beyond the initial SDK.
 Existing trusted-build JavaScript semantic packages are adapted incrementally
 rather than forcing a host-wide TypeScript migration.
 
+The future Developer Kit is a headless, Agent-native contract surface. One
+canonical library/CLI owns machine-readable SDK/schema/capability discovery,
+scaffold, validation, pinned build, deterministic conformance, preview, pack,
+and candidate inspection. Its Harness emits structured reproducible receipts
+and covers no-future/repaint, lifecycle, resource, host-rendered UI, provenance,
+and sole-owner invariants as applicable. A local MCP server may adapt these
+operations for AI agents, but it cannot reimplement validation, expose arbitrary
+shell/filesystem/network/owner handles, activate packages directly, or become a
+second ModuleHost/package lifecycle owner.
+
+Pine migration is an authoring ingestion pipeline after the target SDK/runtime
+tiers exist: parse and inventory authorized indicator source, classify
+unsupported or risky semantics, generate strict TypeScript plus manifest/schema
+and tests, then run the ordinary Harness and human equivalence gate. Pine is
+never loaded as executable workstation code. Strategy/broker behavior, future-
+leaking lookahead, unsupported repaint/realtime assumptions, and unmediated
+multi-context data fail closed.
+
 P0a now establishes that thin contract in non-removable
 `core.plugin-contract` and uses FVG as its conformance package. R13.10e now
 closes the production FVG vertical slice through it with removable
 `optional.annotation-manual-workflow`: production UI consumes generic tool and
 Inspector view models, exact selection is adapted from the active accepted
 Pane, Annotation Runtime remains the only accepted Artifact writer, and the
-Chart adapter remains the only Primitive/gesture owner. P0b
-adds the trusted-build Core Center, P1 adds file/unpacked declarative packages,
-P2 adds the signed free registry, and P3 adds isolated TypeScript-to-ESM
-calculation Workers. Arbitrary community privileges and a paid Marketplace are
-not implied or authorized. R13.10d remains bounded to the accepted
-Inspector/override slice. P0a is implemented under H113; R13.10e is accepted
-under H114 after its focused human visual gate on 2026-08-11. Neither may absorb
-broader catalog/distribution phases.
+Chart adapter remains the only Primitive/gesture owner. P0b adds the trusted-
+build Core Center; P1a adds the Agent-native Developer Kit/Harness; P1b adds
+file/unpacked declarative packages plus the bounded MCP adapter; P2 adds the
+signed free registry; P3a adds isolated TypeScript-to-ESM calculation Workers;
+and P3b adds assisted Pine indicator migration. Arbitrary community privileges
+and a paid Marketplace are not implied or authorized. R13.10d remains bounded
+to the accepted Inspector/override slice. P0a is implemented under H113;
+R13.10e is accepted under H114 after its focused human visual gate on
+2026-08-11. Neither may absorb broader catalog/distribution phases.
 
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,

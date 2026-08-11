@@ -224,6 +224,13 @@ first production vertical slice through P0a: generic tool contribution, exact
 Bar evidence, Core FVG construction, durable Runtime commit, multi-Pane
 projection, and host-rendered Inspector. H114 passes automated evidence and
 the focused production visual gate; R13.10e was accepted on 2026-08-11.
+ADR-V7-004's 2026-08-11 amendment additionally makes plugin development Agent-
+native: a deterministic machine-readable Developer Kit/Harness is canonical,
+with a local MCP adapter over the same operations. A later Pine indicator
+migration assistant emits ordinary strict-TypeScript packages, compatibility
+reports, tests, and provenance after the target SDK/runtime exists; Pine is not
+a runtime language and semantic equivalence still requires evidence and human
+review. No implementation phase is authorized by that amendment.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
@@ -337,7 +344,8 @@ Read in this order before V7 implementation work:
     partially promoted context whose remaining questions are non-binding
 98. `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` as accepted ADR-V7-004;
     read before specifying Core/Community packages, dependency graphs, Plugin
-    Center, installation, SDK, registry, or Marketplace behavior
+    Center, installation, SDK, Agent authoring Harness/MCP, Pine migration,
+    registry, or Marketplace behavior
 98a. `V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md` as the implemented pure
      built-in manifest/contribution/settings/status boundary and FVG/H113
      conformance record

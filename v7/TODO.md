@@ -71,16 +71,25 @@ Open discussion:
 - [x] choose strict TypeScript as the sole executable plugin authoring language,
   pinned compiled ES2022 ESM as the runtime artifact (trusted build for Core,
   isolated Worker only for later external code), and JSON/JSON Schema as the
-  declarative wire format; leave Pine/Python and an initial WASM SDK out;
+  declarative wire format; leave Pine/Python and an initial WASM SDK out as
+  runtime languages;
+- [x] require an Agent-native Developer Kit with machine-readable contracts,
+  deterministic scaffold/validate/build/test/pack operations, a conformance
+  Harness, structured receipts, and a local MCP thin adapter over the same
+  operations;
+- [x] require a later AI-assisted Pine indicator migration path that parses and
+  inventories source, reports compatibility gaps, generates an ordinary strict-
+  TypeScript package plus tests/provenance, and requires conformance and human
+  equivalence review rather than executing Pine;
 - [x] copy the management clarity rather than unrestricted application
   privileges: declarative-first, least privilege, restricted mode, explicit
   budgets, and a later isolated TypeScript-to-ESM Worker tier;
 - [x] partially promote MEMO-V7-001 while leaving general-futures scope,
   Setup/AI, concrete runtime/SDK implementation, remote registry operation,
   commercialization, and paid Marketplace unresolved;
-- [x] allocate no delivery id and authorize no loader, installer, Community
-  registry, arbitrary code, MA/SMA, Fibonacci, detector, or Marketplace through
-  this documentation decision.
+- [x] allocate no delivery id and authorize no loader, installer, Developer
+  Kit/Harness/MCP, Pine translator, Community registry, arbitrary code, MA/SMA,
+  Fibonacci, detector, or Marketplace through this documentation decision.
 
 Binding specification:
 `docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`.
@@ -1259,13 +1268,21 @@ Binding ES full-chain repair:
   plugin family;
 - [ ] P0b: only after that vertical proof, specify and authorize the
   host-rendered Core Plugin Catalog/Center over trusted-build packages;
-- [ ] P1: only after P0b, specify local declarative install-from-file plus
-  Developer Mode load-unpacked/reload/validate-pack, transactional lifecycle,
-  integrity/source disclosure, migration, uninstall/data survival, and strict
-  TypeScript SDK/conformance tooling plus restricted-mode startup;
-- [ ] P2/P3: separately prove a signed free Community registry/restricted mode
+- [ ] P1a: only after P0b, specify the Agent-native strict-TypeScript SDK,
+  machine-readable contract bundle, deterministic CLI/library and conformance
+  Harness, immutable headless host fixtures/simulation, reference packages,
+  diagnostics, receipts, and static build/pack path;
+- [ ] P1b: specify local declarative install-from-file plus Developer Mode
+  load-unpacked/reload/validate-pack, transactional lifecycle, integrity/source
+  disclosure, migration, uninstall/data survival, restricted-mode startup, and
+  a workspace-bounded MCP adapter over P1a rather than a second toolchain;
+- [ ] P2/P3a: separately prove a signed free Community registry/restricted mode
   and isolated TypeScript-to-ESM Worker calculation tier with measured
   permissions/resource budgets; keep WASM a later separate decision;
+- [ ] P3b: after the target SDK and Worker tier exist, specify the AI-assisted
+  Pine indicator migration assistant, versioned compatibility matrix,
+  source-to-target provenance, generated tests/differential evidence, fail-
+  closed unsupported constructs, and mandatory human equivalence review;
 - [ ] leave paid Marketplace, entitlement, commission, and operations to P4 and
   a separate business decision after free ecosystem evidence exists.
 

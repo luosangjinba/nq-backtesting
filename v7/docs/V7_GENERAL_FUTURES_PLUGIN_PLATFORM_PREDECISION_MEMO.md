@@ -909,3 +909,18 @@ renders package/default/instance parameter schemas; executable authors use
 strict TypeScript compiled to pinned ESM; JSON/JSON Schema carries declarations;
 and P0a plus the FVG reference vertical slice precede the visual catalog and
 external distribution phases. The exact implementation remains unauthorized.
+
+### 2026-08-11 — Agent Authoring And Pine Migration Amendment
+
+After accepting R13.10e/H114, the product owner required future developers to
+be able to author complete plugins with AI coding agents through software-
+provided Harness and MCP surfaces, and required an AI-assisted path for
+migrating Pine indicator source into plugins. ADR-V7-004 now promotes these
+outcomes with strict boundaries: the deterministic machine-readable Developer
+Kit/CLI/Harness is canonical; MCP is a workspace-bounded local adapter rather
+than a second validator or lifecycle owner; and Pine is parsed as authorized
+input to generate an ordinary strict-TypeScript package, compatibility report,
+tests, and provenance after the target SDK/Worker tier exists. Strategies,
+future-leaking or unsupported repaint/realtime semantics, unmediated external
+data, and unreviewed equivalence fail closed. No implementation delivery is
+authorized by this amendment.

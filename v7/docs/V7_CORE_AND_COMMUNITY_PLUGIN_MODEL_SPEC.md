@@ -10,6 +10,9 @@ Decision date: 2026-08-10
 Amended: 2026-08-10 — installation/developer channels, host-rendered parameter
 surfaces, one executable authoring language, and platform-first delivery order
 
+Amended: 2026-08-11 — Agent-native developer Harness/MCP and assisted Pine
+indicator migration
+
 Decider: V7 product owner
 
 Related decisions: `ADR-V7-001`, `ADR-V7-002`, `ADR-V7-003`
@@ -35,7 +38,14 @@ managed extensions:
   feature control;
 - executable plugin authors use strict TypeScript through one public SDK;
   packages carry compiled ES modules, while manifests and declarative
-  contributions use versioned JSON schemas.
+  contributions use versioned JSON schemas;
+- plugin development must be completely operable by an AI coding agent through
+  machine-readable contracts, a deterministic conformance Harness, and a local
+  MCP adapter over the same authoring operations;
+- a later assisted Pine Script migration path may analyze supported indicator
+  source and generate a TypeScript plugin plus evidence, but Pine never becomes
+  a V7 runtime language or an equivalence claim without conformance and human
+  review.
 
 FVG, MA/SMA, BSL/SSL, and Fibonacci are accepted initial Core Plugin
 capabilities. This classification is binding even though MA/SMA and Fibonacci
@@ -56,6 +66,8 @@ itself authorize:
 
 - a dynamic loader, package installer, public SDK, arbitrary JavaScript, or
   isolated Worker execution;
+- an Agent developer kit, authoring Harness/CLI, MCP server, Pine parser,
+  translator, compatibility service, or generated plugin;
 - network access, a remote registry, signing service, update service, account,
   entitlement, payment, or paid Marketplace;
 - a general-futures product-scope change;
@@ -65,8 +77,10 @@ itself authorize:
 - replacement or duplication of Session, Replay, Bar Data, Chart, Annotation,
   Workspace Transaction, persistence, or ModuleHost ownership.
 
-This amendment freezes the platform contract and order; it does not authorize
-P0a, R13.10e, an SDK implementation, a package format, or any runtime code.
+The original decision did not authorize P0a or R13.10e; each was later
+separately specified, implemented, and accepted. This amendment freezes future
+Developer Kit/MCP/Pine contracts and order; it does not authorize P0b, P1–P4,
+an SDK implementation, a package format, or any new runtime code.
 
 Every implementation remains separately specified, authorized, tested, and
 committed. The current trusted-build Semantic Package Registry is a compatible
@@ -200,10 +214,10 @@ runtime stack for each plugin category:
    fixtures. JSON is data, not a second executable plugin language.
 4. Plugins do not ship executable HTML, arbitrary settings DOM, or unrestricted
    CSS. They declare controls and style tokens; the host renders the surface.
-5. Python and Pine Script are not V7 runtime languages. A future Pine importer
-   or formula translator would be a separately accepted ingestion tool that
-   records source/provenance and emits a valid V7 contribution. It would not
-   execute Pine inside the workstation.
+5. Python and Pine Script are not V7 runtime languages. The accepted future
+   Pine migration contract below is an ingestion/developer tool which records
+   source/provenance and emits a normal TypeScript V7 contribution; it never
+   executes Pine inside the workstation.
 6. Rust/WASM is not part of the initial public SDK. A later measured compute
    tier may reconsider WASM behind the same immutable capability API, but it
    must not force ordinary plugin authors or the host to support two public
@@ -215,6 +229,146 @@ package can be adapted or ported when it crosses the common plugin boundary.
 Core and Community packages nevertheless target the same SDK types and wire
 contracts. Distribution tier changes trust and execution policy, not the
 programming model.
+
+## Agent-Native Plugin Developer Contract
+
+“An AI agent can write a complete plugin” is a product requirement, not a claim
+that generated code is automatically correct. For every contribution tier that
+V7 authorizes, an agent must be able to discover the contract, scaffold a
+package, edit it, validate it, execute its applicable tests, inspect precise
+diagnostics, produce an install candidate, and obtain a machine-readable
+receipt without an undocumented GUI-only step.
+
+The future Plugin Developer Kit therefore has one canonical headless domain
+surface with all of the following:
+
+1. versioned TypeScript SDK types, JSON Schemas, capability/dependency and
+   permission catalogs, supported UI-control metadata, compatibility ranges,
+   examples, and stable diagnostic codes;
+2. deterministic scaffold, validate, build, test, preview, pack, and candidate-
+   inspection operations, exposed first through a local CLI/library;
+3. a conformance Harness that owns fixtures, negative controls, golden vectors,
+   test isolation, reproducible seeds/time, and structured pass/fail receipts;
+4. a headless host simulator which supplies immutable canonical Bars, Session
+   Hours/timezone, timeframe, Replay cutoff, Pane, settings, and lifecycle
+   inputs through the same public shapes, without becoming another runtime
+   owner;
+5. reference Core and Community packages small enough for an agent to inspect,
+   including at least one overlay, one sub-Pane indicator, one semantic tool,
+   and one derived dependency when those tiers are authorized;
+6. a compatibility report that distinguishes errors, unsupported capabilities,
+   permission increases, human-review requirements, and safe automated fixes;
+7. a package provenance record containing SDK/build versions, source and
+   artifact hashes, requested capabilities, executed Harness identities, and
+   the exact generated receipt.
+
+The same command must produce the same normalized result whether called by a
+human, CI, an AI agent, the Plugin Center, or MCP. Human-readable text may be
+added, but it cannot replace the stable JSON result. The CLI/library and
+Harness are authoritative; the MCP server is a thin local adapter over those
+operations, not a second validator, package format, build system, or lifecycle
+owner.
+
+The MCP surface must provide machine-readable SDK/schema/capability discovery
+and the bounded authoring operations above. It must be local-first, restricted
+to an explicitly selected plugin workspace, and deny arbitrary shell,
+filesystem, credential, database, Chart, Replay, Bar Data, Annotation-store,
+DOM, and network access. Plugin source, README text, diagnostics, and migration
+input are untrusted data and can never grant the agent or MCP new authority.
+Install, enable, update, publish, permission expansion, signing, and removal are
+separate state-changing operations routed through the common candidate
+transaction and explicit user approval; MCP cannot silently activate or
+publish a package.
+
+The conformance Harness grows with the contribution tier. Applicable gates
+include:
+
+- manifest, schema, contribution, dependency, compatibility, permission, and
+  package-integrity validation;
+- pinned TypeScript compilation and forbidden-import/runtime-capability checks;
+- deterministic calculation vectors, `na`/missing-data behavior, warm-up,
+  incremental versus full recomputation, and stable output identity;
+- no-future/lookahead, confirmed-Bar, Replay cutoff, stale generation, race,
+  cancellation, rollback, and repaint classification;
+- activation/disposal, dependency suspension, upgrade/downgrade migration,
+  uninstall/data-survival, and leak checks through ModuleHost;
+- CPU, memory, output, task, storage, and timeout budgets for an authorized
+  Worker tier;
+- host-rendered Inputs/Style/Visibility accessibility and visual fixtures,
+  native Chart behavior, multi-Pane mapping, and zero direct owner writes;
+- provenance and differential/golden evidence sufficient for a reviewer to
+  reproduce the claimed behavior.
+
+Automation may make a package conformant, but it does not waive required human
+review for visible behavior, disputed market semantics, permissions, or a Pine
+migration's semantic equivalence.
+
+## Assisted Pine Script Indicator Migration Contract
+
+Pine Script is an ingestion source, not a second supported plugin language.
+The supported outcome is a normal strict-TypeScript V7 package, compiled by the
+pinned SDK build and carrying the same manifest, settings, permissions,
+Harnesses, provenance, and runtime restrictions as a hand-authored plugin.
+
+Migration is a staged, inspectable workflow rather than an opaque LLM rewrite:
+
+1. accept only source the user is entitled to inspect and migrate; record the
+   exact source hash, declared Pine version, author/license assertion, and
+   migration-tool/model versions;
+2. parse and statically inventory the script before generation, classifying
+   script kind, inputs, series/history state, built-ins, imported libraries,
+   timeframes/symbols, Session/timezone and gaps/alignment rules, `request.*()`
+   calls, plots/drawings and offsets, alerts, strategies, realtime behavior,
+   lookahead, and known repaint risks;
+3. compare that inventory to a versioned Pine compatibility matrix and emit
+   `supported`, `requires-human-choice`, `semantically-risky`, or `unsupported`
+   findings with source locations; unsupported constructs never disappear
+   silently;
+4. generate TypeScript source, manifest/contribution metadata, JSON-schema
+   Inputs/Style/Visibility controls, required permissions, fixtures, golden or
+   differential tests, and a human-readable migration report;
+5. run the ordinary build and conformance Harness, then require explicit human
+   review of every unresolved mapping and of visible/semantic equivalence;
+6. package or install only through the same candidate pipeline used by native
+   V7 plugins.
+
+The first supported profile targets indicators, not strategies or broker
+emulation. Straightforward mappings may include Pine `input.*()` to host-
+rendered Inputs, OHLCV/time/history series and a documented `ta.*()` subset to
+SDK calculations, and supported plots/styles to declarative Chart outputs.
+Persistent `var` state, `na` propagation, local-scope history, realtime
+rollback, drawings, tables, alerts, imported libraries, dynamic requests, and
+other-timeframe or other-symbol data require explicit compatibility rules.
+
+The following fail closed unless a later contract supplies an exact equivalent:
+
+- `strategy()` orders, fills, broker-emulator state, Deep Backtesting, or other
+  execution/simulation behavior outside V7's accepted product boundary;
+- future-leaking lookahead, evidence-displacing plot/series offsets, or repaint-
+  dependent logic that violates V7 Replay/no-future truth;
+- `request.*()` or multi-context semantics without an authorized host-mediated
+  dataset capability, exact cutoff alignment, and provenance;
+- realtime tick/rollback or intrabar assumptions that minute-sourced historical
+  Replay cannot reproduce;
+- platform-only drawing/table/UI behavior, alerts, external data, protected
+  libraries, or resource behavior for which the SDK has no bounded contract.
+
+V7 does not claim to embed or reproduce TradingView's proprietary Pine runtime.
+Differential evidence comes from user-authorized bars plus expected series,
+events, screenshots, or other exported vectors. Absence of such evidence is
+reported as an equivalence gap, never converted into a success claim. Generated
+code retains a traceable source-to-target mapping so an agent and human can
+review every approximation.
+
+The compatibility model is grounded in Pine's documented bar-by-bar and
+realtime rollback execution, repainting behavior, other-timeframe/data request
+semantics, strategy broker model, and resource limits:
+
+- <https://www.tradingview.com/pine-script-docs/language/execution-model/>
+- <https://www.tradingview.com/pine-script-docs/concepts/repainting/>
+- <https://www.tradingview.com/pine-script-docs/concepts/other-timeframes-and-data/>
+- <https://www.tradingview.com/pine-script-docs/concepts/strategies/>
+- <https://www.tradingview.com/pine-script-docs/writing/limitations/>
 
 ## Derived Plugin Contract
 
@@ -492,27 +646,38 @@ by progressively broader distribution:
 3. **P0b Core Plugin Center** — host-rendered Core catalog, status,
    dependencies, package/default settings, diagnostics, and enable/disable over
    trusted-build packages only.
-4. **P1 Local Declarative Packages** — common manifest/archive, transactional
-   install-from-file, Developer Mode load-unpacked/reload/validate-pack,
-   integrity/source disclosure, migrations, uninstall/data survival, and
-   TypeScript SDK/conformance tooling plus restricted-mode startup; executable
-   workers remain disabled.
-5. **P2 Signed Free Community Registry** — discovery, review metadata,
+4. **P1a Agent-Native Plugin Developer Kit** — versioned TypeScript SDK and
+   machine-readable contract bundle, deterministic CLI/library and conformance
+   Harness, reference packages, structured diagnostics/receipts, and static
+   build/package checks. It supports every contribution tier authorized at that
+   point but does not itself authorize external code execution.
+5. **P1b Local Packages And Authoring MCP** — common manifest/archive,
+   transactional install-from-file, Developer Mode load-unpacked/reload/
+   validate-pack, integrity/source disclosure, migrations, uninstall/data
+   survival, restricted-mode startup, and a workspace-bounded local MCP adapter
+   over the P1a operations. Executable workers remain disabled.
+6. **P2 Signed Free Community Registry** — discovery, review metadata,
    signatures, explicit updates, restricted mode, incident response, and the
    same package lifecycle as local installation.
-6. **P3 Isolated Calculation Extensions** — separately authorized
+7. **P3a Isolated Calculation Extensions** — separately authorized
    TypeScript-to-ESM Worker tier with permissions and measured
    CPU/memory/output/failure boundaries. WASM remains a later separate
    reconsideration rather than a second initial SDK language.
-7. **P4 Commercial Marketplace** — a distinct product/business decision only
+8. **P3b Pine Indicator Migration Assistant** — source/version inventory,
+   compatibility analysis, TypeScript/package/test generation, differential
+   evidence, ordinary conformance, and explicit human review. Analysis-only
+   prototypes may occur earlier, but supported end-to-end migration cannot be
+   accepted before the target SDK contribution and execution tiers exist.
+9. **P4 Commercial Marketplace** — a distinct product/business decision only
    after the free ecosystem, security operations, developer demand, support
    load, licensing, and sustainable economics are evidenced.
 
-No P0a/P0b/P1–P4 phase receives a delivery id until separately specified and
-accepted. R13.10e retains its existing identity and is merely the first
-reference consumer after P0a. Local installation and a free registry must work
-before any paid Marketplace decision; payment is not an architectural
-prerequisite for plugins.
+P0a and R13.10e were separately authorized and accepted. No remaining
+P0b/P1–P4 phase receives a delivery id until separately specified and accepted.
+R13.10e retains its existing identity as the first reference consumer after
+P0a. Local installation and a free registry must work before any paid
+Marketplace decision; payment is not an architectural prerequisite for
+plugins.
 
 ## Chosen And Rejected Alternatives
 
@@ -525,6 +690,11 @@ Chosen:
 - Plugin Center before arbitrary community code;
 - one strict TypeScript SDK and host-rendered JSON-schema UI rather than
   per-plugin languages or DOM;
+- a deterministic, machine-readable Agent authoring Harness first, with MCP as
+  a thin adapter over the same operations rather than an alternate toolchain;
+- Pine indicator migration into ordinary TypeScript packages after the target
+  SDK/runtime contract exists, with explicit compatibility gaps and human
+  equivalence review;
 - thin contract substrate before additional plugin families, validated by FVG
   before the catalog/distribution surface expands;
 - local/declarative and free-registry capability before paid distribution.
@@ -539,6 +709,8 @@ Rejected:
 - equating install consent with unrestricted application privileges;
 - supporting Python, Pine, JavaScript, Rust/WASM, and custom web UIs as parallel
   initial plugin programming models;
+- using LLM text generation as the validator, silently approximating unsupported
+  Pine behavior, or embedding Pine as another workstation runtime;
 - finishing a registry/Marketplace in isolation before a reference plugin
   proves the manifest, settings, lifecycle, and contribution boundaries;
 - shipping a Marketplace as the first plugin milestone;
@@ -560,8 +732,19 @@ host-rendered management/settings surface, registry/file/unpacked sources over
 one candidate pipeline, strict TypeScript as the executable authoring language,
 and a P0a-thin-platform/FVG-reference sequence before further plugin families.
 
+On 2026-08-11, after accepting R13.10e/H114, the product owner required future
+plugin development to be completely operable by AI coding agents through a V7-
+provided Harness and MCP, and required an AI-assisted path for migrating Pine
+indicator source into plugins. This amendment accepts those outcomes and their
+ordering: one deterministic Agent-native Developer Kit is canonical; MCP is a
+bounded adapter over it; and Pine migration emits the same strict-TypeScript
+package and evidence as native authoring after the target runtime exists.
+
 This closes the classification/product-direction decision. Delivery remains
 bounded by the authorization boundary above.
+
+Amendment evidence:
+`../sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`.
 
 ## Reference Product Evidence
 

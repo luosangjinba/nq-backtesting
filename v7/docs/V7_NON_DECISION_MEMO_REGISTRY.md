@@ -44,7 +44,7 @@ converted into a decision.
 
 | Memo id | Topic | First formed | Last substantive revision | Current status | File |
 | --- | --- | --- | --- | --- | --- |
-| `MEMO-V7-001` | General futures/plugin platform, semantic tools, Setup workflow, AI, distribution, marketplace | 2026-08-01 | 2026-08-10 | partially promoted by ADR-V7-004 and its interface/language amendment; general-futures scope, Setup/AI, concrete runtime/sandbox, registry operations, commercialization, and Marketplace remain open | `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` |
+| `MEMO-V7-001` | General futures/plugin platform, semantic tools, Setup workflow, AI, distribution, marketplace | 2026-08-01 | 2026-08-11 | partially promoted by ADR-V7-004 and its interface/language plus Agent-authoring/Pine-migration amendments; general-futures scope, Setup/AI, concrete runtime/sandbox/tooling, registry operations, commercialization, and Marketplace remain open | `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` |
 | `MEMO-V7-002` | Second-level Replay and tick-sourced data | 2026-08-01 | 2026-08-06 | current deferral position recorded; future activation undecided | `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` |
 | `MEMO-V7-003` | AI-Agent-participatory Research, Training, and Trading Review system, using semantic Study Cases/Cohorts | 2026-08-07 | 2026-08-07 12:12 PDT | partially promoted by ADR-V7-003; system boundary, autonomy, workflow ownership, and business model remain undecided | `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` |
 | `MEMO-V7-004` | Semantic-dataset competitive landscape, commercialization, open-source/SaaS path, market-data economics, and open-model use | 2026-08-09 | 2026-08-09 PDT | core evidence-dataset product position promoted by ADR-V7-003; hosting, shared data, branding, pricing, and market entry remain open | `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md` |
@@ -105,7 +105,10 @@ delete it.
   a thin-platform/reference-plugin/declarative-local/free-registry delivery
   sequence. Its amendment also accepts strict TypeScript authoring, compiled
   ESM artifacts, JSON-schema host-rendered settings, and unified registry/file/
-  unpacked candidate channels.
+  unpacked candidate channels. The 2026-08-11 amendment further accepts a
+  future Agent-native Developer Kit/Harness with MCP as a bounded adapter, plus
+  assisted Pine-indicator ingestion into ordinary TypeScript packages after the
+  target SDK/runtime tiers exist.
 - It does not accept the memo's broader general-futures repositioning, complete
   Setup/AI system, concrete loader/sandbox implementation, remote service
   operation, commercialization model, or paid Marketplace.
@@ -198,7 +201,7 @@ A memo becomes a decision only through a separate ADR/specification which:
 | `ADR-V7-001` / `R13.1` | 2026-08-08 | accepts Drawing/Semantic Annotation terminology, ownership, package, provenance, interaction, and projection foundations discussed broadly by MEMO-V7-001 and required by MEMO-V7-003 | general plugin SDK/marketplace and complete Research/Training/Review product remain open | `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md` |
 | `ADR-V7-002` | 2026-08-08 | accepts official Primitive-pattern adaptation while rejecting reviewed community packages as parallel V7 owners | Indicator reuse and later community/plugin distribution remain separately undecided | `V7_COMMUNITY_REUSE_GATE_FOR_R13_6.md` |
 | `ADR-V7-003` | 2026-08-09 | partially promotes MEMO-V7-003's evidence/case/cohort constraints and MEMO-V7-004's evidence-grade semantic dataset product position, user ownership, human-governed AI, and local-first initial boundary | complete learning-system ownership, commercial model, hosted service, public/shared datasets, branding, pricing, and implementation remain open | `V7_EVIDENCE_GRADE_SEMANTIC_DATASET_PRODUCT_DECISION.md` |
-| `ADR-V7-004` | 2026-08-10 | partially promotes MEMO-V7-001's Kernel/Core/Community taxonomy, FVG/MA/SMA/BSL/Fib Core classification, declared derived dependencies, Plugin Center experience, unified install/developer channels, host-rendered settings, strict TypeScript/ESM/JSON Schema model, stricter trust tiers, and thin-platform/local/free-registry sequence | general-futures scope, Setup/AI system, concrete loader/sandbox implementation, remote registry operations, commercialization, and paid Marketplace remain open | `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` |
+| `ADR-V7-004` | 2026-08-10; amended 2026-08-11 | partially promotes MEMO-V7-001's Kernel/Core/Community taxonomy, FVG/MA/SMA/BSL/Fib Core classification, declared derived dependencies, Plugin Center experience, unified install/developer channels, host-rendered settings, strict TypeScript/ESM/JSON Schema model, Agent-native Developer Kit/Harness and MCP boundary, assisted Pine-to-TypeScript indicator migration, stricter trust tiers, and thin-platform/local/free-registry sequence | general-futures scope, Setup/AI system, concrete loader/sandbox/Developer-Kit/MCP/Pine implementation, remote registry operations, commercialization, and paid Marketplace remain open | `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` |
 
 No registered memo has been fully promoted and closed. MEMO-V7-001,
 MEMO-V7-003, and MEMO-V7-004 are partially promoted; their explicitly

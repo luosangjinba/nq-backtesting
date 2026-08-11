@@ -1226,30 +1226,50 @@ numbered phase at a time:
    adapter, dependency/status model, common host-rendered
    Inputs/Style/Visibility and evidence/history schema, and ModuleHost-mediated
    activation/disposal; FVG is the first conformance package;
-2. R13.10e production FVG vertical slice through P0a;
+2. **Accepted:** R13.10e production FVG vertical slice through P0a;
 3. P0b host-rendered Core Plugin Center over trusted-build packages, including
    status, dependencies, package/default settings, diagnostics, and
    enable/disable;
-4. P1 transactional install-from-file plus Developer Mode load-unpacked,
+4. P1a Agent-native Plugin Developer Kit: one versioned strict-TypeScript SDK,
+   machine-readable schemas/capabilities/examples, deterministic CLI/library
+   and conformance Harness, immutable headless host fixtures/simulation,
+   reference packages, structured diagnostics and reproducible receipts;
+5. P1b transactional install-from-file plus Developer Mode load-unpacked,
    reload, validate/pack for declarative packages, with one common manifest,
-   integrity/source disclosure, migration, uninstall, data survival, and
-   strict TypeScript SDK/conformance path plus restricted-mode startup;
-5. P2 signed free Community registry with discovery, review metadata, explicit
+   integrity/source disclosure, migration, uninstall, data survival,
+   restricted-mode startup, and a local workspace-bounded MCP adapter over the
+   P1a operations;
+6. P2 signed free Community registry with discovery, review metadata, explicit
    updates, restricted mode, rollback, and incident response;
-6. P3 separately authorized TypeScript-to-ESM Worker calculation extensions
+7. P3a separately authorized TypeScript-to-ESM Worker calculation extensions
    with explicit permissions and measured CPU/memory/output/failure budgets;
    WASM remains a later separate decision rather than a second initial SDK
    language;
-7. P4 paid Marketplace only after a separate product/business decision.
+8. P3b AI-assisted Pine indicator migration after the target SDK and execution
+   tier exist: parse/version and compatibility report, TypeScript/package/test
+   generation, ordinary Harness conformance, differential evidence, and human
+   semantic/visual review; Pine is never a V7 runtime;
+9. P4 paid Marketplace only after a separate product/business decision.
 
-No phase is currently a delivery step. Plugin Center does not imply arbitrary
-code, local install does not imply network access, and a free registry does not
-imply payment. Strict TypeScript is the executable authoring language; JSON and
-JSON Schema carry manifests and declarative/host-rendered settings, and V7
-loads only pinned compiled ESM artifacts. Trusted Core output may enter the
-application build; externally installed executable output is confined to an
-authorized Worker tier. Binding classification and sequencing:
+P0a and R13.10e are closed; no remaining P0b/P1–P4 phase is currently a
+delivery step. Plugin Center does not imply arbitrary code, local install does
+not imply network access, and a free registry does not imply payment. Strict
+TypeScript is the executable authoring language; JSON and JSON Schema carry
+manifests and declarative/host-rendered settings, and V7 loads only pinned
+compiled ESM artifacts. Trusted Core output may enter the application build;
+externally installed executable output is confined to an authorized Worker
+tier. Binding classification and sequencing:
 `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`.
+
+“Agent-native” means there is no undocumented GUI-only authoring step: an AI
+agent can discover contracts, scaffold, validate, build, test, inspect, and
+pack through stable machine-readable operations. It does not mean generated
+code bypasses permissions, candidate transactions, no-future gates, or human
+review. MCP reuses the canonical Developer Kit/Harness and never becomes a
+second package validator or ModuleHost. Pine migration targets ordinary strict-
+TypeScript plugins and fails closed on strategies, future-leaking/repainting
+logic, unmediated multi-context data, unsupported realtime behavior, or
+platform-only constructs.
 
 ## Deferred Product Boundary — Second-Level Replay
 

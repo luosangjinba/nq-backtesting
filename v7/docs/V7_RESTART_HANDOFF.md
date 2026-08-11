@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-11 after accepted R13.10e/H114 production manual FVG
-workflow
+Last updated: 2026-08-11 after accepted R13.10e/H114 and the Agent-native plugin
+authoring/Pine migration planning amendment
 
 ## Restart Resume Checkpoint
 
@@ -28,10 +28,11 @@ Then read, in order:
 3. `v7/sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md`
 4. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
 5. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
-6. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
-7. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
-8. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
-9. `v7/TODO.md`
+6. `v7/sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
+7. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
+8. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
+9. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
+10. `v7/TODO.md`
 
 R13.10b/H110 and R13.10c/H111 are accepted. The focused FVG fixture contains
 no temporary diagnostic surface, and its acceptance server is stopped.
@@ -48,8 +49,17 @@ single-layer Preview human gate. R13.10e now composes the generic production
 tool → exact Picker → Evidence → Core FVG → Runtime → multi-Pane projection →
 Inspector path. H114 passes automation and the user accepted the focused
 production review on 2026-08-11. Detector, general Plugin Center, loader,
-Community registry, SDK, arbitrary code, Marketplace, and later implementation
-remain unauthorized.
+Community registry, Developer Kit/Harness/MCP implementation, Pine translator,
+arbitrary code, Marketplace, and later implementation remain unauthorized.
+
+ADR-V7-004's 2026-08-11 amendment requires a future Agent-native developer
+path: one machine-readable strict-TypeScript SDK, canonical CLI/library,
+deterministic conformance Harness and receipts, then a workspace-bounded local
+MCP adapter over the same operations. A later Pine indicator migration
+assistant parses and inventories authorized source, generates an ordinary
+TypeScript package and tests, and fails closed on unsupported/no-future/
+realtime/strategy semantics. It follows the target SDK and Worker tier; it does
+not make Pine a runtime language or bypass human equivalence review.
 
 ## Current Overall Acceptance State
 
@@ -1143,11 +1153,13 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
-R13.10e and H114 are closed. Do not begin P0b, external loading, Community
-registry, public SDK, Worker runtime, detector, MA/SMA, Fibonacci, Marketplace,
-or R13.11–R13.13 without a separately specified and authorized next delivery.
-The next plugin-platform step is a product/architecture decision, not an
-implicit continuation of R13.10e.
+R13.10e and H114 are closed. The next plugin-platform delivery in the accepted
+sequence is a separately specified P0b Core Plugin Center over trusted-build
+packages. Do not implement it until explicitly authorized, and do not skip
+ahead to P1a Developer Kit/Harness, P1b local packages/MCP, P2 registry, P3a
+Worker runtime, P3b Pine migration, detector, MA/SMA, Fibonacci, Marketplace,
+or R13.11–R13.13. The Agent/MCP/Pine amendment records future requirements and
+ordering only; it allocates no delivery id and adds no runtime code.
 
 Older clean-host, physical cross-device, Data Acquisition admin, resource, and
 known H091 visual checks remain non-blocking operational follow-up for the
