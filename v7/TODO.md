@@ -583,7 +583,7 @@ Binding contract:
 Binding contract:
 `docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`.
 
-## P0b Trusted-Build Core Plugin Center — Implemented 2026-08-11; Pending Human Acceptance
+## P0b Trusted-Build Core Plugin Center — Accepted 2026-08-11
 
 - [x] receive authorization to specify, but not implement, the next bounded
   Plugin Platform phase;
@@ -612,7 +612,7 @@ Binding contract:
   confirmation, exact failure module/phase, last-known-good recovery, retained
   Artifact bytes/settings, local-only profile scope, and no second lifecycle
   host through H115 headless and Chromium evidence;
-- [ ] receive focused human visual acceptance before marking H115/P0b accepted;
+- [x] receive focused human visual acceptance and mark H115/P0b accepted;
 - [x] keep P1a/P1b, Community installation/registry, Worker execution, Pine
   migration, MA/SMA, Liquidity, Fibonacci, detectors, and Marketplace outside
   this delivery.
@@ -1310,8 +1310,8 @@ Binding ES full-chain repair:
   generation activation, Core profile owner, and H115 acceptance boundary;
 - [x] P0b implementation: after explicit review acceptance, implement the
   specified surface and lifecycle without a second PluginHost or hot-plug;
-- [ ] P0b acceptance: complete H115's focused human visual/interaction review
-  before closing the step or authorizing P1a;
+- [x] P0b acceptance: complete H115's focused human visual/interaction review
+  and close the step without implicitly authorizing P1a;
 - [ ] P1a: only after P0b, specify the Agent-native strict-TypeScript SDK,
   machine-readable contract bundle, deterministic CLI/library and conformance
   Harness, immutable headless host fixtures/simulation, reference packages,

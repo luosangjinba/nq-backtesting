@@ -1,7 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-11 after P0b Core Plugin Center implementation and H115
-automated closure; focused human acceptance remains open
+Last updated: 2026-08-11 after P0b Core Plugin Center and H115 acceptance
 
 ## Restart Resume Checkpoint
 
@@ -10,8 +9,8 @@ contains separately committed accepted R13.10c and R13.10d checkpoints plus
 the Core/Community plugin-model decision. P0a/H113 now closes as its own thin
 contract checkpoint. R13.10e is accepted as the first production vertical
 slice through it; H114 passed its automated and focused human visual gates.
-P0b is implemented, H115 is executable with passing automated evidence, and
-the current machine step is P0b; only its focused human visual gate remains.
+P0b and H115 are accepted after passing automated evidence and the corrected
+focused human visual/interaction gate. No P1 phase is yet authorized.
 `git log` is the authoritative commit identity.
 
 After a machine or agent restart, run:
@@ -55,7 +54,8 @@ tool → exact Picker → Evidence → Core FVG → Runtime → multi-Pane proje
 Inspector path. H114 passes automation and the user accepted the focused
 production review on 2026-08-11. P0b now implements the trusted-build Core-only
 Center, restart-bound single-ModuleHost generation, durable Core profile, and
-H115 automated gate. Its visual acceptance remains open. Community/Installed/Updates surfaces,
+H115 gate. The first review found and corrected a shared-footer overlap; the
+user accepted the corrected surface. Community/Installed/Updates surfaces,
 loader, registry, Developer Kit/Harness/MCP implementation, Pine translator,
 arbitrary code, Marketplace, and later implementation remain unauthorized.
 
@@ -1160,14 +1160,13 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
-R13.10e and H114 are closed. P0b is implemented under
-`V7_CORE_PLUGIN_CENTER_P0B.md`, and H115 passes its automated and real-Chromium
-gates. The exact next gate is focused human review of the Core Plugins Settings
-surface; do not mark H115/P0b accepted before that review, and do not skip ahead
-to P1a Developer Kit/Harness, P1b local
-packages/MCP, P2 registry, P3a Worker runtime, P3b Pine migration, detector,
-MA/SMA, Fibonacci, Marketplace, or R13.11–R13.13. The Agent/MCP/Pine amendment
-records future requirements and ordering only; it adds no runtime code.
+R13.10e/H114 and P0b/H115 are closed. The exact next product decision is whether
+to authorize a bounded P1a Agent-native Developer Kit specification. Do not
+start P1a implementation, P1b local packages/MCP, P2 registry, P3a Worker
+runtime, P3b Pine migration, detector, MA/SMA, Fibonacci, Marketplace, or
+R13.11–R13.13 without its separately accepted specification and authorization.
+The Agent/MCP/Pine amendment records future requirements and ordering only; it
+adds no runtime code.
 
 Older clean-host, physical cross-device, Data Acquisition admin, resource, and
 known H091 visual checks remain non-blocking operational follow-up for the

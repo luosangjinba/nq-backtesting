@@ -2,8 +2,7 @@
 
 Date: 2026-08-11
 
-Status: implementation complete; H115 executable and passing; focused human
-visual acceptance remains open
+Status: accepted; H115 automated and focused human gates passed
 
 ## Delivered
 
@@ -37,10 +36,9 @@ reloads, simulates a failed candidate with last-known-good recovery, verifies
 unchanged Artifact bytes, exercises search/no-settings/pending states, checks a
 narrow layout, and captures painted pixels.
 
-H115 remains `executable`, not `accepted`, because its specification requires a
-human review of the changed Settings surface. Community packages, installation,
-Worker execution, SDK/MCP, Pine migration, and new Core capabilities remain out
-of scope.
+H115 is accepted after automated evidence and focused human review of the
+changed Settings surface. Community packages, installation, Worker execution,
+SDK/MCP, Pine migration, and new Core capabilities remain out of scope.
 
 The refreshed production graph contains 66 modules, 148 actual dependency
 edges, 128 construction sites, 25 writer sites, and zero architecture findings.
@@ -79,4 +77,10 @@ The corrected shell now gives Core Plugins only header/body rows and explicitly
 maps a hidden Settings footer to `display: none`. H115 additionally asserts the
 computed hidden state. H115, Workstation Settings, Replay Workspace UI
 independence, production application host, and source-quality Harnesses pass;
-the corrected pixels still require human review before acceptance.
+the user accepted the corrected pixels and interaction on 2026-08-11.
+
+## Human Acceptance
+
+The product owner accepted P0b after reviewing the corrected Core Plugins
+Settings surface. H115 and P0b are closed. The acceptance server was stopped;
+no P1 phase was implicitly authorized.

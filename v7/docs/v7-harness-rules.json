@@ -2563,7 +2563,7 @@
       "owner": "plugin-contract/plugin-profile/module-lifecycle/plugin-center-ui",
       "v6FailurePrevented": "a Plugin Center became a second lifecycle host, staged toggles masqueraded as active state, dependency changes were implicit, Core settings acquired a second writer, failed generations stranded owners or bricked startup, disabled packages deleted evidence, or product UI branched on FVG",
       "activationStep": "P0b",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/core-plugin-center-harness.js",
       "positiveEvidence": [
         "docs/V7_CORE_PLUGIN_CENTER_P0B.md",
@@ -2580,7 +2580,7 @@
         "tests/fixtures/core-plugin-center/negative/cases.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260811_p0b_core_plugin_center_implementation.md"
     }
   ]
 }

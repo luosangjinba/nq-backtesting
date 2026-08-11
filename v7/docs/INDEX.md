@@ -231,8 +231,9 @@ Platform boundary. It freezes a host-rendered trusted-build Core-only catalog,
 one durable active/pending Core profile, explicit dependency impact,
 restart-bound single-ModuleHost generations, settled fallback, package/default
 settings, and byte-preserving disable/re-enable. P0b is implemented and H115's
-automated evidence passes; its focused human visual/interaction gate remains
-open, so neither H115 nor P0b is yet marked accepted.
+automated evidence passes. Its first focused review found and corrected the
+shared footer overlap; the corrected visual/interaction gate and P0b were
+accepted on 2026-08-11.
 ADR-V7-004's 2026-08-11 amendment additionally makes plugin development Agent-
 native: a deterministic machine-readable Developer Kit/Harness is canonical,
 with a local MCP adapter over the same operations. A later Pine indicator
@@ -359,7 +360,7 @@ Read in this order before V7 implementation work:
      built-in manifest/contribution/settings/status boundary and FVG/H113
      conformance record
 98b. `V7_CORE_PLUGIN_CENTER_P0B.md` as the implemented restart-bound trusted
-     Core catalog/profile/generation contract; H115 awaits human visual acceptance
+     Core catalog/profile/generation contract accepted under H115
 99. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
 100. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "p0b-core-plugin-center-implementation-pending-human-acceptance",
+  "status": "p0b-core-plugin-center-accepted",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [

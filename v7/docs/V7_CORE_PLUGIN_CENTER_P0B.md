@@ -1,7 +1,7 @@
 # V7 Trusted-Build Core Plugin Center — P0b
 
-Status: specification accepted and implemented 2026-08-11; H115 automated gates
-pass; pending focused human visual acceptance
+Status: accepted 2026-08-11 after implementation, automated H115 evidence, and
+focused human visual/interaction review
 
 Date: 2026-08-11
 
@@ -9,7 +9,7 @@ Depends on: accepted ADR-V7-004, P0a/H113, R13.10e/H114, the production
 ModuleHost boot boundary, Session persistence, and the R13 Annotation owner
 graph
 
-Harness: H115, executable; human acceptance evidence intentionally remains open
+Harness: H115, accepted
 
 ## Outcome
 
@@ -394,10 +394,10 @@ hotspots:
 The implementation must remain below the canonical source-quality ceilings
 with no new exception or debt comment.
 
-## H115 Future Acceptance Gate
+## H115 Acceptance Gate
 
-H115 remains `declared` until implementation receives separate authorization
-and real evidence exists. It will require:
+H115 was accepted after implementation produced the following automated,
+browser, production, and human evidence:
 
 ### Headless and negative controls
 
@@ -441,16 +441,17 @@ and real evidence exists. It will require:
 - new Core Center normal, pending, disabled, and recovery visual fixtures pass
   at the accepted reference viewport.
 
-H115 requires focused human visual/interaction review because P0b adds a
-visible management surface and restart-bound behavior. No visual baseline may
-be re-recorded before the implementation is correct and the user explicitly
-accepts the reviewed change.
+H115 required focused human visual/interaction review because P0b adds a
+visible management surface and restart-bound behavior. The first review found
+the shared Settings footer painting over Core Plugin detail text; after the
+footer containment correction and focused regression rerun, the user accepted
+the corrected surface on 2026-08-11. No visual baseline was re-recorded.
 
 ## Authorization Boundary
 
 This document first specified P0b and declared H115. The user accepted that
 contract and explicitly authorized implementation on 2026-08-11. P0b is now
-implemented and its automated H115 evidence passes; the focused human visual
-and interaction gate remains open, so H115/P0b are not yet marked accepted.
+implemented and accepted under H115, including the corrected focused human
+visual and interaction gate.
 P1a/P1b, Community distribution, Workers, Pine migration, new Core business
 packages, and Marketplace remain later separately specified phases.
