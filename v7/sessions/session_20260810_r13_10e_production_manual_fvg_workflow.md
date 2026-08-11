@@ -4,7 +4,7 @@ Date: 2026-08-10
 
 Branch: `feature/v7-drawing-semantic-annotation`
 
-Status: implemented; H114 executable; focused human acceptance pending
+Status: accepted; H114 accepted after focused human review on 2026-08-11
 
 ## Outcome
 
@@ -62,10 +62,9 @@ retain their existing sole-owner authority.
 - Production assembly executes 64 public module entries, 27 lifecycle modules,
   and all 40 declared optional-removal cases, including omission of the whole
   workflow and each required optional dependency.
-- The nine-scenario production regression matrix passes. It reproduces the two
-  pre-existing H091 visual findings and separately inventories the expected
-  R13.10e FVG-toolbar pixel change pending this step's human gate; no existing
-  visual baseline was re-recorded.
+- The nine-scenario production regression matrix passed before review while
+  reproducing the two pre-existing H091 visual findings and separately
+  inventorying the expected R13.10e FVG-toolbar pixel change.
 - The complete sequential sweep invokes all 114 top-level Harnesses. One
   hundred ten pass directly. The four non-zero exits are exactly the three
   preserved H091 Session date-picker, mixed-Pane, and Replay Workspace pixel
@@ -79,8 +78,18 @@ retain their existing sole-owner authority.
 - The temporary V7 read-only market-data service used by browser regression was
   stopped afterward. The original transient `v4-api-restored.service` was
   recreated and `/v4/health` returned version 4.0 `ok`.
-- H114 remains `executable`; automation does not satisfy its mandatory human
-  interaction/visual gate.
+- After explicit user acceptance, the four R6.9 fixtures affected by the new
+  toolbar were re-recorded and immediately passed their real-Chromium harness.
+  The unrelated H091 fixtures were preserved.
+- The post-acceptance nine-scenario production matrix passes with the R13.10e
+  layout scenario direct-green and only the two declared pre-existing H091
+  scenario failures reproduced.
+- The post-acceptance complete sweep invoked all 114 top-level Harnesses: 110
+  passed directly, the three expected H091 visual Harnesses remained non-zero,
+  and the production-matrix wrapper saw one truncated HTTP JSON response. The
+  matrix was immediately rerun in isolation and passed all nine scenarios,
+  including direct-green R13.10e layout and FVG workflow scenarios. The
+  transient is not inventoried as a product or visual known failure.
 
 ## Upstream Reuse Decision
 
@@ -98,12 +107,14 @@ tooling, Community registry, external executable code, Worker/WASM runtime,
 automatic detector, MA/SMA, BSL/SSL expansion, Fibonacci, Marketplace,
 payment, or licensing behavior enters R13.10e.
 
-## Human Gate
+## Human Gate — Accepted 2026-08-11
 
-The focused production fixture must still be reviewed for toolbar discoverability
-and states, invalid/valid candle selection, Inspector legibility, one-layer
-Preview/Cancel/Apply behavior, multi-Pane/no-future correctness, native Chart
-navigation, and hard-reload provenance. Only explicit user acceptance may move
-H114 and R13.10e to accepted.
+The user explicitly accepted the focused production round after reviewing the
+toolbar and states, invalid/valid candle selection, Inspector behavior,
+single-layer Preview/Cancel/Apply settlement, multi-Pane/no-future projection,
+native Chart navigation, and durable reload behavior. H114 and R13.10e are
+therefore accepted. This acceptance authorizes only the reviewed R13.10e
+surface; it does not authorize a broader Plugin Center, loader, SDK, registry,
+Worker runtime, detector, or another plugin family.
 
 Binding contract: `docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`.

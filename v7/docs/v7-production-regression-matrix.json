@@ -14,12 +14,6 @@
       "bugId": "BUG-V7-VISUAL-PANE-MIXED",
       "outputPattern": "multi-mixed-1440x900\\.png visual pixels changed",
       "evidence": "sessions/session_20260805_r10_9_database_bootstrap_import.md"
-    },
-    {
-      "scenarioId": "layout-focus-instrument-browser",
-      "bugId": "GATE-R13-10E-VISUAL-TOOLBAR-PENDING",
-      "outputPattern": "R6\\.9 Pane visual fixture changed",
-      "evidence": "sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md"
     }
   ],
   "runtimeDependencies": {

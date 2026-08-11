@@ -1,8 +1,10 @@
 # V7 Production Manual FVG Workflow Closure — R13.10e
 
-Status: implemented; H114 automated gate passes; human acceptance pending
+Status: accepted; H114 automated and focused human gates pass
 
 Date: 2026-08-10
+
+Accepted: 2026-08-11
 
 Depends on: accepted R13.10a–R13.10d, P0a, ModuleHost, H109–H113
 
@@ -194,14 +196,14 @@ H114 must prove:
 Representative negative controls are mandatory; positive-only product
 automation cannot make H114 executable.
 
-H114 is executable and passes six declarative negative controls plus its real-
-Chromium production path. The automated result does not waive the visual gate
-below and does not change H114 to accepted.
+H114 passes six declarative negative controls plus its real-Chromium production
+path. Its focused human visual gate was accepted on 2026-08-11, so H114 is
+accepted.
 
 ## Human Visual Gate
 
-H114 cannot become accepted until the user confirms on the focused production
-surface:
+The user confirmed the following on the focused production surface on
+2026-08-11:
 
 1. the Core FVG tool is discoverable, compact, and has clear armed/error state;
 2. one exact candle click either creates one strict FVG or visibly explains why
@@ -214,8 +216,10 @@ surface:
    remain correct;
 7. a hard reload restores the Artifact and its override provenance.
 
-Until that explicit review is recorded, R13.10e and H114 remain implemented or
-executable rather than accepted.
+That explicit review accepts R13.10e and H114. The intentional R13.10e toolbar
+pixel change was recorded into the four affected R6.9 visual fixtures only
+after this decision; the three unrelated H091 visual findings remain open and
+were not re-recorded.
 
 ## Explicit Exclusions
 

@@ -2539,7 +2539,7 @@
       "owner": "annotation-workflow-composition/replay-workspace-ui/chart-runtime-adapter",
       "v6FailurePrevented": "a product route branched on FVG, pointer selection escaped the accepted Workspace snapshot, invalid evidence wrote an Artifact, accepted and Preview layers overlapped, reload lost provenance, or a feature composition acquired Chart/Replay/Bar/storage ownership",
       "activationStep": "R13.10e",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/production-manual-fvg-workflow-browser-harness.js",
       "positiveEvidence": [
         "docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md",
@@ -2555,7 +2555,7 @@
         "tests/fixtures/production-manual-fvg-workflow/negative/cases.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md"
     }
   ]
 }

@@ -1177,7 +1177,7 @@ Implemented under `V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`. P0a adds no
 loader, installer, public SDK, external code, Community registry, Plugin Center,
 or production tool entry. R13.10e consumes this boundary without expanding it.
 
-### R13.10e — Production Manual FVG Workflow Closure — Implemented, Human Acceptance Pending
+### R13.10e — Production Manual FVG Workflow Closure — Accepted 2026-08-11
 
 - compose the already accepted exact Bar Picker, Evidence Resolver, Core FVG
   Plugin construction/projection, and R13.10d Inspector behavior into one
@@ -1198,8 +1198,10 @@ R13.10e closes the manual FVG product workflow as the first production
 vertical slice through the thin P0a boundary; it does not become the complete
 plugin platform. The removable workflow owner, generic production toolbar and
 Inspector surface, Chart-owned Annotation ports, durable composition, and H114
-are implemented. H114 passes six negative controls plus real-Chromium behavior
-and remains `executable` until the focused production visual gate is accepted.
+are implemented. H114 passes six negative controls plus real-Chromium behavior;
+the focused production visual gate was accepted on 2026-08-11. The four R6.9
+fixtures affected by the toolbar were then recorded, while unrelated H091
+visual findings remain preserved.
 
 ### Core/Derived Package Consequences For R13.11–R13.13
 

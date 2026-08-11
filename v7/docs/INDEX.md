@@ -223,7 +223,7 @@ phase. `V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md` now binds the implemented
 first production vertical slice through P0a: generic tool contribution, exact
 Bar evidence, Core FVG construction, durable Runtime commit, multi-Pane
 projection, and host-rendered Inspector. H114 passes automated evidence and
-remains executable pending the focused production visual gate.
+the focused production visual gate; R13.10e was accepted on 2026-08-11.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

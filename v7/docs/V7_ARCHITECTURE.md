@@ -1014,9 +1014,9 @@ adds the trusted-build Core Center, P1 adds file/unpacked declarative packages,
 P2 adds the signed free registry, and P3 adds isolated TypeScript-to-ESM
 calculation Workers. Arbitrary community privileges and a paid Marketplace are
 not implied or authorized. R13.10d remains bounded to the accepted
-Inspector/override slice. P0a is implemented under H113; R13.10e is implemented
-under executable H114 and awaits its focused human visual gate. Neither may
-absorb broader catalog/distribution phases.
+Inspector/override slice. P0a is implemented under H113; R13.10e is accepted
+under H114 after its focused human visual gate on 2026-08-11. Neither may absorb
+broader catalog/distribution phases.
 
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,

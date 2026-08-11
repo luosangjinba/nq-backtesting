@@ -1,15 +1,15 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-11 after implemented R13.10e/H114 production manual FVG
-workflow, pending focused human acceptance
+Last updated: 2026-08-11 after accepted R13.10e/H114 production manual FVG
+workflow
 
 ## Restart Resume Checkpoint
 
 Resume on branch `feature/v7-drawing-semantic-annotation`. The current branch
 contains separately committed accepted R13.10c and R13.10d checkpoints plus
 the Core/Community plugin-model decision. P0a/H113 now closes as its own thin
-contract checkpoint. R13.10e is implemented as the first production vertical
-slice through it; H114 is executable and awaits the focused human visual gate.
+contract checkpoint. R13.10e is accepted as the first production vertical
+slice through it; H114 passed its automated and focused human visual gates.
 `git log` is the authoritative commit identity.
 
 After a machine or agent restart, run:
@@ -46,8 +46,8 @@ by FVG before broader plugin families or distribution layers. R13.10d Evidence
 Inspector and validated overrides are accepted under H112 after the corrected
 single-layer Preview human gate. R13.10e now composes the generic production
 tool → exact Picker → Evidence → Core FVG → Runtime → multi-Pane projection →
-Inspector path. H114 passes automation and remains executable pending human
-review. Detector, general Plugin Center, loader,
+Inspector path. H114 passes automation and the user accepted the focused
+production review on 2026-08-11. Detector, general Plugin Center, loader,
 Community registry, SDK, arbitrary code, Marketplace, and later implementation
 remain unauthorized.
 
@@ -134,7 +134,7 @@ parameter schemas, scoped effective settings, dependency plans, and read-only
 ModuleHost status. FVG is its first conformance manifest. H113 passes without a
 human gate because P0a adds no product UI or Chart behavior; ModuleHost remains
 the sole lifecycle owner.
-R13.10e is implemented under
+R13.10e is accepted under
 `V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`: removable
 `optional.annotation-manual-workflow` consumes only public P0a, Picker,
 Evidence, Semantic Registry, Runtime, persistence, projection, Chart-surface,
@@ -142,9 +142,9 @@ and UI ports. The product route contains no FVG semantic branch. H114 passes
 six negative controls and real Chromium for invalid/valid exact clicks,
 single-write construction, single-layer Preview/Cancel/Apply, multi-Pane
 projection, hard-reload provenance, unchanged candles, and native wheel input.
-Because the workflow changes visible production UI, H114 remains executable
-and R13.10e remains implemented rather than accepted until the user completes
-the focused visual gate.
+The focused production interaction/visual gate was explicitly accepted on
+2026-08-11. The four R6.9 baselines affected by the FVG toolbar were recorded
+only afterward; unrelated H091 visual findings remain preserved.
 ADR-V7-002 audited the current public Lightweight Charts drawing,
 indicator, toolkit, and alternative-engine ecosystem at pinned revisions.
 Official Primitive/rendering patterns are approved for adaptation, but no
@@ -1143,16 +1143,11 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
-Run the focused R13.10e production interaction/visual gate and record the
-user's decision. Verify the generic Core FVG toolbar state, invalid-click error,
-one valid exact-click Artifact, Inputs/Evidence/History Inspector, one-layer
-Preview/Cancel/Apply settlement, multi-Pane/no-future behavior, native Chart
-navigation, and hard-reload provenance. Only explicit user acceptance may move
-H114 from `executable` to `accepted` and close R13.10e.
-
-Do not begin P0b, external loading, Community registry, public SDK, Worker
-runtime, detector, MA/SMA, Fibonacci, Marketplace, or R13.11–R13.13 while this
-human gate remains open; none is implied by R13.10e implementation.
+R13.10e and H114 are closed. Do not begin P0b, external loading, Community
+registry, public SDK, Worker runtime, detector, MA/SMA, Fibonacci, Marketplace,
+or R13.11–R13.13 without a separately specified and authorized next delivery.
+The next plugin-platform step is a product/architecture decision, not an
+implicit continuation of R13.10e.
 
 Older clean-host, physical cross-device, Data Acquisition admin, resource, and
 known H091 visual checks remain non-blocking operational follow-up for the

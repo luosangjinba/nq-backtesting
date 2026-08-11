@@ -547,7 +547,7 @@ Binding contract:
 Binding contract:
 `docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`.
 
-## R13.10e Production Manual FVG Workflow Closure — Implemented, Human Acceptance Pending
+## R13.10e Production Manual FVG Workflow Closure — Accepted 2026-08-11
 
 - [x] after accepted R13.10d, receive separate authorization and compose the
   accepted Picker → Evidence → Core FVG → Inspector → projection path;
@@ -565,8 +565,9 @@ Binding contract:
 - [x] execute all 114 top-level Harnesses with 110 direct passes, only the three
   preserved H091 pixel gates plus the separately inventoried R13.10e toolbar
   visual gate, and a passing nine-scenario production regression matrix;
-- [ ] complete the focused production interaction/visual gate and only then
-  mark H114 and R13.10e accepted;
+- [x] complete the focused production interaction/visual gate, mark H114 and
+  R13.10e accepted, and only then record the four affected R6.9 toolbar visual
+  fixtures while preserving the unrelated H091 findings;
 - [x] exclude the visual Core Center, external installation, public SDK,
   Community registry, detector, MA/SMA, Fibonacci, and Marketplace.
 
@@ -1254,7 +1255,7 @@ Binding ES full-chain repair:
 - [x] P0a: separately specify and authorize the thin manifest/contribution/
   settings substrate over trusted-build packages, retain ModuleHost as sole
   lifecycle owner, and pass FVG as the first conformance package;
-- [ ] close R13.10e through P0a before scaling MA/SMA, Fibonacci, or another
+- [x] close R13.10e through P0a before scaling MA/SMA, Fibonacci, or another
   plugin family;
 - [ ] P0b: only after that vertical proof, specify and authorize the
   host-rendered Core Plugin Catalog/Center over trusted-build packages;

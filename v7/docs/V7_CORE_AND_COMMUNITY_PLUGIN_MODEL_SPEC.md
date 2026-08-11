@@ -450,15 +450,14 @@ would not be accepted behavior.
 
 ### R13.10e — Production Manual FVG Workflow Closure
 
-R13.10e remains the separately bounded production composition of accepted Bar
+R13.10e is accepted as the separately bounded production composition of Bar
 selection, Evidence resolution, FVG construction, Inspector behavior, and
-Chart projection. Its future specification must treat FVG as a discoverable
-built-in first-party plugin contribution and avoid product-route branches by
-semantic id. It is the first production vertical slice through the minimum P0a
-manifest/contribution/settings bridge and may add only the generic substrate
-and package metadata/control surface needed for that closed workflow. It must
-not absorb the visual Core Center, dynamic loader, Community registry, or
-public SDK.
+Chart projection. It treats FVG as a discoverable built-in first-party plugin
+contribution and avoids product-route branches by semantic id. It is the first
+production vertical slice through the minimum P0a manifest/contribution/
+settings bridge and added only the generic substrate and package metadata/
+control surface needed for that closed workflow. It did not absorb the visual
+Core Center, dynamic loader, Community registry, or public SDK.
 
 ### R13.11–R13.13
 
@@ -486,9 +485,10 @@ by progressively broader distribution:
    host-rendered parameter schema, and activation/disposal through ModuleHost.
    Existing FVG is the first conformance package; no external installation,
    visual Plugin Center, or arbitrary code enters this slice.
-2. **R13.10e Reference Vertical Slice** — close the production manual FVG
-   workflow through P0a rather than a route-specific FVG branch. This validates
-   the thin waist before MA/SMA, Fibonacci, or another plugin family scales it.
+2. **R13.10e Reference Vertical Slice — accepted** — the production manual FVG
+   workflow closes through P0a rather than a route-specific FVG branch. This
+   validates the thin waist before MA/SMA, Fibonacci, or another plugin family
+   scales it.
 3. **P0b Core Plugin Center** — host-rendered Core catalog, status,
    dependencies, package/default settings, diagnostics, and enable/disable over
    trusted-build packages only.
