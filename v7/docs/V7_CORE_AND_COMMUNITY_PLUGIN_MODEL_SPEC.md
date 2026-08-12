@@ -3,8 +3,8 @@
 Decision id: `ADR-V7-004`
 
 Status: accepted binding product and architecture specification; P0b and P1a
-implemented and accepted; P1b specification accepted; P1b–P4 implementation
-not allocated
+implemented and accepted; P1b specification accepted; P1b.1–P1b.3 separately
+implemented; P1b.3 human review and P1b.4–P4 remain open
 
 Decision date: 2026-08-10
 
@@ -21,8 +21,11 @@ Amended: 2026-08-11 — P1a Agent-native Developer Kit contract specified,
 separately implemented, and accepted under H116
 
 Amended: 2026-08-11 — P1b local packages/Developer Mode/authoring MCP contract
-accepted after explicit review of all five material decisions; implementation
-remains unauthorized
+accepted after explicit review of all five material decisions
+
+Amended: 2026-08-12 — separately authorized P1b.1 contract/archive, P1b.2
+transaction/storage, and P1b.3 Plugin Center/Developer Mode implemented; H117
+executable and unaccepted
 
 Decider: V7 product owner
 
@@ -103,11 +106,13 @@ The product owner then separately authorized P1a implementation; the SDK,
 Developer Kit, and H116 were implemented and accepted. The product owner then
 accepted all five P1b material decisions in
 `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`, then separately authorized
-P1b.1 and later P1b.2. Manifest V2/profile/schema/catalog, deterministic
+P1b.1, later P1b.2, and then P1b.3. Manifest V2/profile/schema/catalog, deterministic
 pack/inspect v2, strict archive validation, portable candidate receipts, one
 inactive package-store owner, atomic IndexedDB CAS, migration/retention/
-recovery, and the combined executable H117 subset are implemented. H117
-remains unaccepted and no P1b.3–P4 implementation is authorized.
+recovery, host-rendered Installed/Developer Mode surfaces, and the combined
+executable H117 subset are implemented. H117 remains unaccepted pending the
+P1b.3 human gate and separately authorized P1b.4 closure; no P1b.4–P4
+implementation is authorized.
 
 Every implementation remains separately specified, authorized, tested, and
 committed. The current trusted-build Semantic Package Registry is a compatible
@@ -819,11 +824,12 @@ local archive, non-executing device-local inventory transactions, prepared-
 candidate Developer Mode, restricted-mode/data-survival rules, and a `stdio`
 MCP adapter which can invoke only the canonical P1a authoring operations. After
 detailed review, the product owner accepted its five material decisions on
-2026-08-11. The product owner later separately authorized P1b.1 and P1b.2,
-which now implement the non-executing contract/archive and transaction/storage
-subsets and register H117 as executable. H117 is not accepted; product UI,
-Developer Mode, MCP, registry, external execution, and later phases remain
-unauthorized.
+2026-08-11. The product owner later separately authorized P1b.1, P1b.2, and
+P1b.3, which now implement the non-executing contract/archive,
+transaction/storage, and Plugin Center/Developer Mode subsets and register
+H117 as executable with 54 frozen negative groups. H117 is not accepted; its
+focused human review, MCP, registry, external execution, and later phases
+remain open or unauthorized as applicable.
 
 This closes the classification/product-direction decision. Delivery remains
 bounded by the authorization boundary above.
@@ -837,7 +843,9 @@ Amendment evidence:
 - `../sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`;
 - `../sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md`;
 - `../sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_draft.md`;
-- `../sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_acceptance.md`.
+- `../sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_acceptance.md`;
+- `../sessions/session_20260812_p1b_2_inventory_transaction_implementation.md`;
+- `../sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md`.
 
 ## Reference Product Evidence
 

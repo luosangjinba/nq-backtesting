@@ -380,8 +380,8 @@ try {
   chrome.kill('SIGTERM');
   await new Promise((resolve) => chrome.once('exit', resolve));
   await new Promise((resolve) => server.close(resolve));
-  fs.rmSync(userDataDirectory, {
-    force: true, maxRetries: 5, recursive: true, retryDelay: 100,
+  await fs.promises.rm(userDataDirectory, {
+    force: true, maxRetries: 10, recursive: true, retryDelay: 50,
   });
 }
 

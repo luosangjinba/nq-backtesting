@@ -306,7 +306,7 @@ export function createSettingsDialogForm({ getRecentColors, onColorChange, plugi
   const panels = createPanels(controls, pluginCenter);
   const tabs = pluginCenter === null ? BASE_TABS : Object.freeze([
     ...BASE_TABS,
-    Object.freeze({ id: 'core-plugins', label: 'Core Plugins' }),
+    Object.freeze({ id: 'core-plugins', label: 'Plugins' }),
   ]);
   const shell = createDialogShell(panels, tabs);
   const frame = createDialogFrame(shell);

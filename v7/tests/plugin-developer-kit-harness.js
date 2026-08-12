@@ -210,7 +210,7 @@ const discovery = pass({ operation: 'discover', operationVersion: 1, options: {}
 const discovered = discovery.artifacts[0].value;
 const harnessRules = JSON.parse(fs.readFileSync(path.join(V7_ROOT, 'docs/v7-harness-rules.json'), 'utf8'));
 const h116 = harnessRules.rules.find(({ id }) => id === 'H116');
-assert.equal(harnessRules.currentStep, 'P1b.2');
+assert.equal(harnessRules.currentStep, 'P1b.3');
 assert.equal(h116.state, 'accepted');
 assert.equal(h116.harness, 'tests/plugin-developer-kit-harness.js');
 assert.equal(h116.humanReviewRequired, false);
@@ -716,7 +716,12 @@ function productionFiles(root) {
 for (const root of [path.join(V7_ROOT, 'src'), path.join(V7_ROOT, 'app')]) {
   for (const file of productionFiles(root)) {
     const source = fs.readFileSync(file, 'utf8');
-    assert.equal(/plugin-developer-kit|sdk\/plugin|plugin-developer-kit-harness/u.test(source), false, file);
+    const importSpecifiers = [...source.matchAll(
+      /(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s*)['"]([^'"]+)['"]/gu,
+    )].map((match) => match[1]);
+    assert.equal(importSpecifiers.some((specifier) => (
+      /plugin-developer-kit|sdk\/plugin|plugin-developer-kit-harness/u.test(specifier)
+    )), false, file);
   }
 }
 

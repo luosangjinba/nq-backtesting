@@ -1216,7 +1216,7 @@ owner or upstream-plugin state access.
 Core classification neither authorizes these steps nor weakens their focused
 semantic/no-future/human gates.
 
-### Plugin Platform Program — P1a Accepted, P1b.2 Implemented
+### Plugin Platform Program — P1a Accepted, P1b.3 Implemented
 
 Build the thin host contract before scaling plugin families, then validate each
 broader platform layer with real packages. Activate at most one separately
@@ -1237,7 +1237,7 @@ numbered phase at a time:
    and conformance Harness, immutable synthetic-host fixtures/simulation,
    reference workspaces, structured diagnostics/receipts, and a
    non-installable developer evidence bundle under accepted H116;
-5. **Accepted specification; P1b.2 implemented:** P1b defines transactional
+5. **Accepted specification; P1b.3 implemented:** P1b defines transactional
    install-from-file plus
    Developer Mode load-unpacked, reload, and validate/pack for prepared local
    declarative candidates, with one common manifest, integrity/source
@@ -1252,9 +1252,13 @@ numbered phase at a time:
    inactive package-store owner, immutable generations, exact-revision staged
    transactions and receipts, atomic IndexedDB CAS, package/profile settings,
    declarative migration, rollback/quarantine/tombstones, cleanup/restart
-   recovery, and Restricted Mode, while remaining non-executing. P1b.3 UI/
-   Developer Mode and P1b.4 MCP/H117 acceptance remain separately gated. Binding
-   specification: `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`;
+   recovery, and Restricted Mode, while remaining non-executing. The separately
+   authorized P1b.3 slice adds the Installed review/detail/recovery surface,
+   device-local Developer Mode, exact prepared-directory snapshots, explicit
+   load/reload/validate-pack/unload, 18 additive negative groups, and focused
+   real-browser evidence. Its human review is pending; P1b.4 MCP/H117 acceptance
+   remains separately gated. Binding specification:
+   `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`;
 6. P2 signed free Community registry with discovery, review metadata, explicit
    updates, restricted mode, rollback, and incident response;
 7. P3a separately authorized TypeScript-to-ESM Worker calculation extensions
@@ -1270,11 +1274,11 @@ numbered phase at a time:
 P0a, R13.10e, P0b, and P1a are closed. H115 passes its automated and focused
 human visual/interaction gates; H116 passes its headless deterministic and
 isolation gates. The P1b specification and its five material decisions are
-accepted; P1b.1 and P1b.2 are implemented and H117 is registered as an
-executable partial gate with 36 negative groups and real-browser storage
-evidence, but it is not accepted. No browser package UI, Developer Mode, MCP
-server, activation, external execution, or P1b.3–P4 implementation is
-authorized. Plugin Center does not imply arbitrary code,
+accepted; P1b.1–P1b.3 are implemented and H117 is registered as an executable
+partial gate with 54 negative groups and real-browser storage/product evidence,
+but it is not accepted. The P1b.3 focused human review and separately
+authorized P1b.4 MCP/closure remain open. No activation, external execution,
+or P2–P4 implementation is authorized. Plugin Center does not imply arbitrary code,
 local install does not imply network access, and a free registry does not imply
 payment. Strict TypeScript is the executable authoring language; JSON and JSON
 Schema carry manifests and declarative/host-rendered settings, and V7 loads

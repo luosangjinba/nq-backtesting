@@ -128,15 +128,32 @@ function conformanceIdentity() {
     'tests/fixtures/plugin-developer-kit/negative/cases.json',
     'tests/plugin-developer-kit-harness.js',
     'docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md',
+    'docs/V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md',
     'tests/fixtures/local-plugin-package/negative/cases.json',
     'tests/fixtures/local-plugin-package/transaction-negative/cases.json',
+    'tests/fixtures/local-plugin-package/developer-negative/cases.json',
     'tests/fixtures/local-plugin-package/storage-browser/index.html',
     'tests/fixtures/local-plugin-package/storage-browser/main.js',
+    'tests/fixtures/local-plugin-package/product-browser/index.html',
+    'tests/fixtures/local-plugin-package/product-browser/scenario.js',
+    'tests/fixtures/local-plugin-package/product-browser/styles.css',
     'tests/local-plugin-package-contract-suite.js',
+    'tests/local-plugin-package-developer-suite.js',
     'tests/local-plugin-package-harness.js',
+    'tests/local-plugin-package-product-browser-suite.js',
     'tests/local-plugin-package-storage-browser-suite.js',
     'tests/local-plugin-package-transaction-suite.js',
+    'tests/support/local-plugin-package-fixture.js',
+    'src/plugin-center-ui/public.js',
+    'src/plugin-center-ui/plugin-center-workspace-control.js',
+    'src/plugin-center-ui/local-package-browser-adapter.js',
+    'src/plugin-center-ui/local-package-directory-snapshot.js',
+    'src/plugin-center-ui/local-package-installed-control.js',
+    'src/plugin-center-ui/developer-mode-control.js',
+    'scripts/refresh-plugin-package-browser-release.mjs',
+    'scripts/review-local-plugin-package-p1b3.mjs',
     'sessions/session_20260812_p1b_2_inventory_transaction_implementation.md',
+    'sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md',
   ];
   const files = relativePaths.map((logicalPath) => relativeFileIdentity(
     V7_ROOT,
@@ -149,17 +166,18 @@ function conformanceIdentity() {
   const harnessRules = readJson(path.join(V7_ROOT, 'docs/v7-harness-rules.json'));
   const rule = harnessRules.rules.find(({ id }) => id === 'H116');
   const pendingRule = harnessRules.rules.find(({ id }) => id === 'H117');
-  if (harnessRules.currentStep !== 'P1b.2' || rule?.state !== 'accepted'
+  if (harnessRules.currentStep !== 'P1b.3' || rule?.state !== 'accepted'
     || rule.harness !== 'tests/plugin-developer-kit-harness.js'
     || rule.acceptanceEvidence
       !== 'sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md'
     || rule.humanReviewRequired !== false
     || !rule.negativeFixtures.includes('tests/fixtures/plugin-developer-kit/negative/cases.json')
-    || pendingRule?.activationStep !== 'P1b.2' || pendingRule?.state !== 'executable'
+    || pendingRule?.activationStep !== 'P1b.3' || pendingRule?.state !== 'executable'
     || pendingRule.harness !== 'tests/local-plugin-package-harness.js'
     || pendingRule.humanReviewRequired !== true || pendingRule.acceptanceEvidence !== null
     || !pendingRule.negativeFixtures.includes('tests/fixtures/local-plugin-package/negative/cases.json')
-    || !pendingRule.negativeFixtures.includes('tests/fixtures/local-plugin-package/transaction-negative/cases.json')) {
+    || !pendingRule.negativeFixtures.includes('tests/fixtures/local-plugin-package/transaction-negative/cases.json')
+    || !pendingRule.negativeFixtures.includes('tests/fixtures/local-plugin-package/developer-negative/cases.json')) {
     fail('internal', 'V7DK_INTERNAL_TOOLCHAIN', 'release', 'Developer Kit conformance identity is incomplete.');
   }
   return Object.freeze({
@@ -174,8 +192,9 @@ function conformanceIdentity() {
       negativeControlCount: [
         'tests/fixtures/local-plugin-package/negative/cases.json',
         'tests/fixtures/local-plugin-package/transaction-negative/cases.json',
+        'tests/fixtures/local-plugin-package/developer-negative/cases.json',
       ].reduce((total, logicalPath) => total + readJson(path.join(V7_ROOT, logicalPath)).length, 0),
-      scope: 'P1b.1-contract-archive-plus-P1b.2-transactions-recovery',
+      scope: 'P1b.1-contract-archive-plus-P1b.2-transactions-recovery-plus-P1b.3-product-developer-mode',
       state: pendingRule.state,
     }),
     state: rule.state,

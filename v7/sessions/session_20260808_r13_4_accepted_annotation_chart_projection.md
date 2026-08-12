@@ -60,7 +60,7 @@ The independent H102 Harness proves:
   same-handle update, detach/destroy, and exact unchanged candlestick data;
 - real ModuleHost public entry and standalone optional removal.
 
-Current machine evidence contains 485 files, 42,009 effective lines, 4,354 functions, and 452 public exports. Architecture evidence contains
+Current machine evidence contains 499 files, 44,187 effective lines, 4,604 functions, and 462 public exports. Architecture evidence contains
 59 modules, 131 actual dependency edges, 115 construction sites, 18 declared
 writer surfaces, 21 observed writer files, 21 lifecycle modules, twelve
 optional-removal cases, and zero blocking findings.

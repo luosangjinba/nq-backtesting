@@ -33,9 +33,15 @@
             {
               "id": "lifecycleLabel",
               "label": "Lifecycle label",
-              "scopes": ["package", "profile"],
+              "scopes": [
+                "package",
+                "profile"
+              ],
               "defaultValue": "inactive",
-              "control": { "kind": "text", "maxLength": 32 }
+              "control": {
+                "kind": "text",
+                "maxLength": 32
+              }
             }
           ]
         }
@@ -54,7 +60,7 @@
   },
   "conformance": {
     "sdkVersion": "1.0.0",
-    "toolchainDigest": "sha256:f082cb5a7661627bd3aac839582cd7d6101cb83f5c005034f10e2b8c4d530004",
+    "toolchainDigest": "sha256:1fcc0f8f7537ea80f4121e456a42dd2e373766560696e08236b5780d85345d00",
     "requiredReceiptDigests": []
   }
 }

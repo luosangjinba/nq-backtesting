@@ -49,6 +49,16 @@ export function createProductionModuleDefinition({
         'core.plugin-profile',
         'createCorePluginProfileRuntime',
       );
+      requireApplicationPort(
+        requiredPorts,
+        'adapter.plugin-package-storage',
+        'createIndexedDbPluginPackageStorage',
+      );
+      requireApplicationPort(
+        requiredPorts,
+        'core.plugin-package-store',
+        'createPluginPackageStoreRuntime',
+      );
       const resources = createSessionApplicationResources({
         browserApi,
         dateApi,

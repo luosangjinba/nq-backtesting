@@ -263,6 +263,7 @@ for (const rule of [
   'global-workstation-settings-transactional-all-pane',
   'versioned-session-layout-sync-policy',
   'local-plugin-package-inventory-atomic-inactive-and-device-local',
+  'local-plugin-center-host-rendered-and-developer-generations-inactive',
   'annotation-geometry-market-coordinate-extensible',
   'headless-annotation-document-sole-writer',
   'accepted-annotation-projection-reversible-and-chart-owned',

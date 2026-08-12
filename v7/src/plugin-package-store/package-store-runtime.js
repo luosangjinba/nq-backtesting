@@ -14,7 +14,10 @@ import {
   serializeLocalPluginInventory,
 } from './inventory-value.js';
 import { digestPackageStoreValue } from './portable-digest.js';
-import { readPluginPackageStorePreparationInternal } from './store-preparation.js';
+import {
+  readPluginPackageStorePreparation,
+  readPluginPackageStorePreparationInternal,
+} from './store-preparation.js';
 import {
   projectPackageStoreSnapshot,
   sanitizedRestrictedSnapshot,
@@ -299,6 +302,7 @@ export function createPluginPackageStoreRuntime({
 
   return Object.freeze({
     commitPrepared,
+    describePreparation: readPluginPackageStorePreparation,
     dispose() {
       if (disposed) return;
       disposed = true;

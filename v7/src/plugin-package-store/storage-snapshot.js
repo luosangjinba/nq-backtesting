@@ -246,6 +246,7 @@ function packageSummary(selection, indexes) {
   return Object.freeze({
     activated: false,
     candidateDigest: selection.candidateDigest,
+    compatibility: generation.candidate.compatibility,
     display: manifest.display,
     generationId: selection.generationId,
     license: manifest.license,
@@ -254,10 +255,15 @@ function packageSummary(selection, indexes) {
     productionExecutionAuthorized: false,
     publisher: Object.freeze({ ...manifest.publisher, verification: 'self-asserted' }),
     publisherTrusted: false,
+    persistence: manifest.persistence,
     retainedPrior: selection.retainedPrior ?? null,
-    settings: projectedSettings(generation, settings),
+    settings: Object.freeze({
+      ...projectedSettings(generation, settings),
+      definition: manifest.settings,
+    }),
     source: selection.source,
     state: selection.state,
+    unavailableClaims: generation.candidate.unavailableClaims,
   });
 }
 

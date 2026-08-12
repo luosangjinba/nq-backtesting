@@ -1042,8 +1042,13 @@ Manifest/candidate values within `core.plugin-contract` and deterministic
 pack/inspect tooling. P1b.2 adds `core.plugin-package-store` as the sole owner
 of device-local inactive generations and exact transactions, plus
 `adapter.plugin-package-storage` as the atomic IndexedDB mechanics boundary.
-Neither module imports package code, enters ModuleHost application composition,
-or writes the Core profile; P2 would add the signed free registry;
+P1b.3 extends the existing `adapter.plugin-center-ui` composition with
+Installed/recovery and Developer Mode controls. Its browser adapter owns only
+explicit file/directory handles, one local preference, strict candidate
+snapshots, and session-scoped inactive generations; the package store remains
+the only installed-inventory writer. None of these modules imports package
+code, enters ModuleHost application composition, or writes the Core profile;
+P2 would add the signed free registry;
 P3a would add
 isolated TypeScript-to-ESM calculation Workers; and P3b would add assisted Pine
 indicator migration. Arbitrary community privileges and a paid Marketplace are
@@ -1064,9 +1069,9 @@ one removable Plugin Center UI renders immutable view models and dispatches
 commands. A read-only pre-boot selector may inspect the profile but cannot
 write, repair, or control lifecycle. P0b/H115 are accepted after automated and
 corrected focused human visual/interaction evidence. P1a/H116 are implemented
-and accepted. P1b.1 and P1b.2 are separately authorized and implemented with
-no product UI, Developer Mode, MCP, external descriptor, import/evaluation, or
-activation; P1b.3 and P1b.4 remain separately gated.
+and accepted. P1b.1–P1b.3 are separately authorized and implemented with no
+MCP, external descriptor, import/evaluation, or activation. P1b.3's focused
+human review and the separately authorized P1b.4 closure remain open.
 
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,

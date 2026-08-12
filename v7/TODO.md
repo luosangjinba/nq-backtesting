@@ -667,7 +667,7 @@ Binding contract and rationale:
 `docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` and
 `docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`.
 
-## P1b Local Plugin Packages And Authoring MCP — P1b.2 Implemented 2026-08-12
+## P1b Local Plugin Packages And Authoring MCP — P1b.3 Implemented 2026-08-12
 
 - [x] receive authorization to correct stale P1a status language and draft,
   but not implement, the next Plugin Platform contract;
@@ -720,8 +720,8 @@ Binding contract and rationale:
 - [x] register H117 as an executable P1b.1 subset and pass two-root archive
   determinism, prepared/archive byte equivalence, CLI/Library equivalence,
   P1a/H116 regression, and 18 synthetic negative groups;
-- [x] keep H117 unaccepted after P1b.2 pending P1b.3/P1b.4 product-browser,
-  MCP, and human closure;
+- [x] keep H117 unaccepted after P1b.3 pending focused-human review and the
+  separately authorized P1b.4 MCP/standing-evidence closure;
 - [x] receive separate product-owner authorization for only P1b.2 package-
   store/storage, without inferring P1b.3 or P1b.4 authority;
 - [x] add pure change/migration contracts plus one
@@ -738,8 +738,27 @@ Binding contract and rationale:
 - [x] extend H117 without accepting it: retain 18 P1b.1 groups, add 18
   P1b.2 transaction/recovery groups, and prove real-Chromium IndexedDB failed-
   write atomicity, close/reopen durability, and stale CAS rejection;
-- [ ] require separate authorization before P1b.3 Plugin Center/Developer Mode
-  UI or P1b.4 MCP/H117 acceptance work;
+- [x] receive separate product-owner authorization for only P1b.3 Plugin
+  Center/Developer Mode, without inferring P1b.4 authority;
+- [x] compose the existing Core Plugins surface with separate Included,
+  Installed, and Developer Mode tabs while keeping Core profile, local package
+  inventory, and session development generations under their existing owners;
+- [x] add Install from file review/cancel/confirm/error-retry, honest inactive
+  local-package detail/settings/retention copy, and sanitized Restricted Mode
+  diagnostics/recovery through immutable store snapshots and explicit commands;
+- [x] add a device-local, off-by-default, persistent and visibly marked
+  Developer Mode adapter that accepts only exact prepared candidates, double-
+  snapshots files, rejects source/symlink/special/stale inputs, and performs
+  explicit load/reload/validate-pack/unload without watcher, install,
+  evaluation, activation, or synchronization;
+- [x] extend H117 to 54 frozen negative groups and prove real-Chromium install
+  review/cancel/commit-failure recovery, IndexedDB revision, inactive status,
+  Developer Mode load/reload/pack/unload, keyboard/focus/accessibility,
+  reduced-motion, and 620 px layout behavior;
+- [x] prepare the focused P1b.3 human-review fixture/checklist without claiming
+  acceptance evidence; record the product owner's later pass or rejection
+  before treating that visible gate as closed;
+- [ ] require separate authorization before P1b.4 MCP or H117 acceptance work;
 - [x] keep P2 registry, P3a Worker, P3b Pine migration, P4 Marketplace, new
   business plugins, and R13.11–R13.13 outside P1b.
 
@@ -1460,8 +1479,13 @@ Binding ES full-chain repair:
   implement only package inventory transactions, atomic browser storage,
   declarative migration/settings, retention, recovery, and the additive H117
   transaction/browser-storage evidence;
-- [ ] P1b.3–P1b.4: require a new product-owner instruction before Plugin Center/
-  Developer Mode UI, MCP, or H117 acceptance;
+- [x] P1b.3 implementation: after its separate product-owner instruction,
+  implement only Plugin Center local-package review/inventory/recovery,
+  Developer Mode prepared-candidate load/reload/validate-pack, 18 additive
+  negative groups, product-browser automation, and a pending focused-human
+  review gate;
+- [ ] P1b.4: require a new product-owner instruction before the authoring MCP
+  adapter or H117 acceptance;
 - [ ] P2/P3a: separately prove a signed free Community registry/restricted mode
   and isolated TypeScript-to-ESM Worker calculation tier with measured
   permissions/resource budgets; keep WASM a later separate decision;
@@ -1576,8 +1600,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 485 files, 42,009 effective lines, 4,354 functions, and 452 public exports; the architecture baseline
-contains 68 modules, 149 edges, 133 construction sites, 27 writers, and zero
+The current production source baseline contains 499 files, 44,187 effective lines, 4,604 functions, and 462 public exports; the architecture baseline
+contains 68 modules, 150 edges, 133 construction sites, 27 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -1588,7 +1612,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 485 files, 42,009 effective lines, 4,354 functions, and 452 public exports, 68 modules, 149 edges, 133 construction sites, 27 writers, and zero
+currently at 499 files, 44,187 effective lines, 4,604 functions, and 462 public exports, 68 modules, 150 edges, 133 construction sites, 27 writers, and zero
 findings.
 
 ## Established Foundation Governance

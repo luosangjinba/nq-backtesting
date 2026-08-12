@@ -1,0 +1,27 @@
+:root {
+  color-scheme: dark;
+  font: 13px/1.45 Inter, ui-sans-serif, system-ui, sans-serif;
+  background: #0b1118;
+  color: #d7e1ec;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+main { width: min(1180px, calc(100vw - 32px)); margin: 16px auto; }
+.fixture-heading { margin-bottom: 14px; }
+.fixture-heading span { color: #d9a84c; font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+.fixture-heading h1 { margin: 3px 0; color: #f2f7fc; font-size: 22px; }
+.fixture-heading p { margin: 0; color: #8fa2b5; }
+.fixture-controls { margin: 0 0 14px; padding: 12px; border: 1px solid #4a3c24; border-radius: 10px; background: #17140f; }
+.fixture-controls h2 { margin: 0; color: #f2d28d; font-size: 14px; }
+.fixture-controls p { margin: 4px 0 0; color: #b9aa8e; }
+.fixture-control-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.fixture-control-actions button { min-height: 34px; border: 1px solid #5a4b32; border-radius: 7px; background: #211c14; color: #f0dfbc; }
+.fixture-control-feedback:empty { display: none; }
+.plugin-center-workspace { min-height: 680px; padding: 14px; border: 1px solid #273646; border-radius: 14px; background: #0f1721; }
+button:focus-visible, input:focus-visible { outline: 2px solid #62a5ff; outline-offset: 2px; }
+
+@media (max-width: 660px) {
+  main { width: calc(100vw - 16px); margin: 8px auto; }
+  .plugin-center-workspace { padding: 8px; }
+}

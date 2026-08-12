@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>H117 Plugin Center and Developer Mode</title>
+    <link rel="stylesheet" href="/v7/src/plugin-center-ui/styles.css">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body data-status="loading">
+    <main>
+      <header class="fixture-heading">
+        <span>H117 · P1b.3</span>
+        <h1>Plugin Center</h1>
+        <p>Host-rendered inactive local package and prepared-candidate evidence.</p>
+      </header>
+      <div id="plugin-center"></div>
+    </main>
+    <script>
+      globalThis.addEventListener('error', (event) => {
+        globalThis.__h117PluginCenterStartupError = event.error?.stack ?? event.message;
+        document.body.dataset.status = 'error';
+      });
+      globalThis.addEventListener('unhandledrejection', (event) => {
+        globalThis.__h117PluginCenterStartupError = event.reason?.stack ?? String(event.reason);
+        document.body.dataset.status = 'error';
+      });
+    </script>
+    <script type="module" src="./scenario.js"></script>
+  </body>
+</html>

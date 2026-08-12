@@ -139,6 +139,25 @@
         "v7/tests/production-architecture-harness.js",
         "v7/tests/source-quality-harness.js"
       ]
+    },
+    {
+      "id": "tooling.v7-local-plugin-package-browser",
+      "kind": "tooling",
+      "owner": "local-package-conformance",
+      "entry": "v7/scripts/refresh-plugin-package-browser-release.mjs",
+      "ownedPaths": [
+        "v7/scripts/refresh-plugin-package-browser-release.mjs",
+        "v7/scripts/review-local-plugin-package-p1b3.mjs"
+      ],
+      "requiredComponents": [],
+      "optionalComponents": [],
+      "writerSurfaces": [
+        "pluginPackageBrowserReleaseIdentity",
+        "pluginPackageExampleManifest"
+      ],
+      "independentHarnesses": [
+        "v7/tests/local-plugin-package-harness.js"
+      ]
     }
   ],
   "serviceUnitDirectory": "v7/deploy/linux/systemd",
@@ -264,6 +283,8 @@
     "hostServiceConfiguration": "deployment.linux",
     "marketDatabaseActivation": "service.v7-database-import",
     "marketDatabaseActivationLock": "service.v7-database-import",
+    "pluginPackageBrowserReleaseIdentity": "tooling.v7-local-plugin-package-browser",
+    "pluginPackageExampleManifest": "tooling.v7-local-plugin-package-browser",
     "proxyConfiguration": "deployment.linux",
     "releaseFilesystem": "deployment.linux",
     "sourceQualityBaseline": "tooling.v7-architecture-baseline",
@@ -277,6 +298,8 @@
     { "surface": "hostServiceConfiguration", "path": "v7/deploy/linux/install.sh", "pattern": "/etc/systemd/system" },
     { "surface": "marketDatabaseActivation", "path": "v7/server/database_import_store.py", "pattern": "os.link" },
     { "surface": "marketDatabaseActivationLock", "path": "v7/server/database_import_store.py", "pattern": "activation_lock" },
+    { "surface": "pluginPackageBrowserReleaseIdentity", "path": "v7/scripts/refresh-plugin-package-browser-release.mjs", "pattern": "plugin-package-release-identity.js" },
+    { "surface": "pluginPackageExampleManifest", "path": "v7/scripts/refresh-plugin-package-browser-release.mjs", "pattern": "v7-package.json" },
     { "surface": "proxyConfiguration", "path": "v7/deploy/linux/install.sh", "pattern": "/etc/caddy/Caddyfile" },
     { "surface": "releaseFilesystem", "path": "v7/deploy/linux/install.sh", "pattern": "current.next" },
     { "surface": "sourceQualityBaseline", "path": "v7/scripts/refresh-production-source-quality-baseline.mjs", "pattern": "writeFileSync" },

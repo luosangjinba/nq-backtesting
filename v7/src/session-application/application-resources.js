@@ -3,10 +3,14 @@ import { createHashNavigation } from './hash-navigation.js';
 import { requireApplicationPort, SESSION_APPLICATION_MODULE_ID } from './application-ports.js';
 import { composeSessionApplicationStores } from './application-stores.js';
 
-async function releaseResources({ browser, pluginProfile, replayWorkspace, stateSync }) {
+async function releaseResources({
+  browser, packageBrowser, packageStore, pluginProfile, replayWorkspace, stateSync,
+}) {
   const errors = [];
   try { browser?.dispose(); } catch (error) { errors.push(error); }
   try { await replayWorkspace?.dispose(); } catch (error) { errors.push(error); }
+  try { packageBrowser?.dispose(); } catch (error) { errors.push(error); }
+  try { packageStore?.dispose(); } catch (error) { errors.push(error); }
   try { pluginProfile?.dispose(); } catch (error) { errors.push(error); }
   try { await stateSync?.dispose(); } catch (error) { errors.push(error); }
   if (errors.length > 0) throw new AggregateError(errors, 'Session application cleanup failed.');
@@ -20,7 +24,9 @@ function validateOptionalPorts(optionalPorts) {
   if (replayApi && typeof replayApi.createReplayWorkspaceSurface !== 'function') {
     throw new TypeError(`${SESSION_APPLICATION_MODULE_ID} received an invalid optional Replay Workspace port.`);
   }
-  if (pluginCenterApi && typeof pluginCenterApi.createCorePluginCenterControl !== 'function') {
+  if (pluginCenterApi && (typeof pluginCenterApi.createCorePluginCenterControl !== 'function'
+    || typeof pluginCenterApi.createLocalPluginPackageBrowserAdapter !== 'function'
+    || typeof pluginCenterApi.createPluginCenterWorkspaceControl !== 'function')) {
     throw new TypeError(`${SESSION_APPLICATION_MODULE_ID} received an invalid optional Plugin Center port.`);
   }
   if (stateSyncApi && typeof stateSyncApi.createServerStateSync !== 'function') {
@@ -45,6 +51,8 @@ export function createSessionApplicationResources({
 }) {
   const optional = validateOptionalPorts(optionalPorts);
   let browser = null;
+  let packageBrowser = null;
+  let packageStore = null;
   let pluginProfile = null;
   let replayWorkspace = null;
   let stateSync = null;
@@ -108,18 +116,54 @@ export function createSessionApplicationResources({
     return composeSessionApplicationStores({ ports: requiredPorts, storage });
   }
 
+  async function initializeLocalPackages(rawStorage) {
+    if (!optional.pluginCenterApi) return;
+    const storageApi = requireApplicationPort(
+      requiredPorts, 'adapter.plugin-package-storage', 'createIndexedDbPluginPackageStorage',
+    );
+    const storeApi = requireApplicationPort(
+      requiredPorts, 'core.plugin-package-store', 'createPluginPackageStoreRuntime',
+    );
+    const packageStorage = storageApi.createIndexedDbPluginPackageStorage({
+      indexedDB: environment.browserWindow.indexedDB,
+    });
+    packageStore = storeApi.createPluginPackageStoreRuntime({
+      cryptoPort: environment.crypto,
+      idFactory: () => `package-${environment.crypto.randomUUID()}`,
+      storage: packageStorage,
+    });
+    await packageStore.initialize();
+    packageBrowser = optional.pluginCenterApi.createLocalPluginPackageBrowserAdapter({
+      cryptoPort: environment.crypto,
+      deviceStorage: rawStorage,
+    });
+  }
+
   function createPluginCenterFactory() {
     if (!optional.pluginCenterApi || !pluginProfile) return null;
-    return () => optional.pluginCenterApi.createCorePluginCenterControl({
+    if (!packageBrowser || !packageStore) {
+      return () => optional.pluginCenterApi.createCorePluginCenterControl({
+        onRestart: restartApplication,
+        profile: pluginProfile,
+      });
+    }
+    return () => optional.pluginCenterApi.createPluginCenterWorkspaceControl({
+      browser: packageBrowser,
+      idFactory: () => `command-${environment.crypto.randomUUID()}`,
       onRestart: (receipt) => {
-        pluginProfile.validateRestartReceipt(receipt);
-        if (typeof environment.reload !== 'function') {
-          throw new Error('Application restart is unavailable in this host.');
-        }
-        environment.reload();
+        restartApplication(receipt);
       },
       profile: pluginProfile,
+      store: packageStore,
     });
+  }
+
+  function restartApplication(receipt) {
+    pluginProfile.validateRestartReceipt(receipt);
+    if (typeof environment.reload !== 'function') {
+      throw new Error('Application restart is unavailable in this host.');
+    }
+    environment.reload();
   }
 
   function createReplayWorkspace(composed) {
@@ -164,6 +208,7 @@ export function createSessionApplicationResources({
     let composed = null;
     try { composed = await initializeStores(rawStorage); } catch { composed = null; }
     storageAvailable = composed !== null;
+    await initializeLocalPackages(rawStorage);
     const unavailableMessage = composed ? null
       : 'Local Session storage could not be initialized. Check browser site-data permissions and reload.';
     replayWorkspace = createReplayWorkspace(composed);
@@ -175,8 +220,12 @@ export function createSessionApplicationResources({
   }
 
   async function cleanup(nextStatus) {
-    const resources = { browser, pluginProfile, replayWorkspace, stateSync };
+    const resources = {
+      browser, packageBrowser, packageStore, pluginProfile, replayWorkspace, stateSync,
+    };
     browser = null;
+    packageBrowser = null;
+    packageStore = null;
     pluginProfile = null;
     replayWorkspace = null;
     stateSync = null;

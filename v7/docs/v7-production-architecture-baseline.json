@@ -168,7 +168,7 @@
       }
     ]
   },
-  "deliveryStep": "P1b.2",
+  "deliveryStep": "P1b.3",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -4467,6 +4467,57 @@
         "actualDependencies": [
           "core.plugin-contract"
         ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.plugin-contract"
+        ],
+        "descriptorPath": "src/plugin-center-ui/module.json",
+        "id": "adapter.plugin-center-ui",
+        "importSites": [
+          {
+            "importedNames": [
+              "LOCAL_PLUGIN_ARCHIVE_LIMITS"
+            ],
+            "sourceFile": "src/plugin-center-ui/local-package-directory-snapshot.js",
+            "targetFile": "src/plugin-contract/public.js",
+            "targetModuleId": "core.plugin-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "MAX_LOCAL_PLUGIN_ARCHIVE_BYTES",
+              "inspectLocalPluginPackageArchive",
+              "inspectLocalPluginPackageEntries",
+              "packLocalPluginPackageEntries",
+              "readLocalPluginPackageCandidatePlan",
+              "readLocalPluginPackageManifest"
+            ],
+            "sourceFile": "src/plugin-center-ui/local-package-browser-adapter.js",
+            "targetFile": "src/plugin-contract/public.js",
+            "targetModuleId": "core.plugin-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/core-plugin-center-harness.js",
+        "independentHarnessMode": "public-entry-fixture",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/plugin-center-ui/developer-mode-control.js",
+          "src/plugin-center-ui/local-package-browser-adapter.js",
+          "src/plugin-center-ui/local-package-installed-control.js",
+          "src/plugin-center-ui/plugin-center-control.js",
+          "src/plugin-center-ui/plugin-center-workspace-control.js"
+        ],
+        "owner": "plugin-center-ui",
+        "publicEntry": "src/plugin-center-ui/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.plugin-contract"
+        ],
         "declaredLifecycle": [],
         "declaredOptionalPorts": [],
         "declaredRequiredPorts": [
@@ -4927,8 +4978,10 @@
         ],
         "declaredRequiredPorts": [
           "adapter.market-data-provider",
+          "adapter.plugin-package-storage",
           "adapter.session-browser-ui",
           "adapter.session-persistence",
+          "core.plugin-package-store",
           "core.plugin-profile",
           "core.replay-navigation-preference-store",
           "core.session-store",
@@ -5035,25 +5088,6 @@
         ],
         "owner": "annotation-semantic-registry",
         "publicEntry": "src/annotation-semantic-registry/public.js"
-      },
-      {
-        "actualDependencies": [],
-        "declaredLifecycle": [
-          "dispose"
-        ],
-        "declaredOptionalPorts": [],
-        "declaredRequiredPorts": [],
-        "descriptorPath": "src/plugin-center-ui/module.json",
-        "id": "adapter.plugin-center-ui",
-        "importSites": [],
-        "independentHarness": "tests/core-plugin-center-harness.js",
-        "independentHarnessMode": "public-entry-fixture",
-        "kind": "adapter",
-        "observedDisposeSites": [
-          "src/plugin-center-ui/plugin-center-control.js"
-        ],
-        "owner": "plugin-center-ui",
-        "publicEntry": "src/plugin-center-ui/public.js"
       },
       {
         "actualDependencies": [],

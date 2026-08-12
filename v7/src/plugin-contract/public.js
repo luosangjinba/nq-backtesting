@@ -39,6 +39,16 @@ export {
   readLocalPluginPackageChangePreparation,
 } from './local-plugin-package-change.js';
 export {
+  inspectLocalPluginPackageArchive,
+  inspectLocalPluginPackageEntries,
+  packLocalPluginPackageEntries,
+} from './local-plugin-package-inspection.js';
+export {
+  LOCAL_PLUGIN_ARCHIVE,
+  LOCAL_PLUGIN_ARCHIVE_LIMITS,
+  MAX_LOCAL_PLUGIN_ARCHIVE_BYTES,
+} from './local-plugin-package-archive.js';
+export {
   createBuiltInPluginPlan,
   listBuiltInPluginStatuses,
   readBuiltInPluginPlan,

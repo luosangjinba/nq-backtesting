@@ -21,6 +21,193 @@
   background: #191c22;
   color: #e8ebf0;
 }
+
+.plugin-center-workspace {
+  display: grid;
+  min-height: 0;
+  gap: 14px;
+}
+
+.plugin-center-surface-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--ui-border, #263445);
+  border-radius: 10px;
+  background: #111923;
+  overflow-x: auto;
+}
+
+.plugin-center-surface-tab {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 7px;
+  color: #9eb0c4;
+  background: transparent;
+  font: inherit;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.plugin-center-surface-tab[aria-selected="true"] {
+  color: #f0f6fc;
+  background: #243246;
+}
+
+.plugin-center-surface-panel,
+.local-plugin-installed,
+.local-plugin-developer-mode {
+  min-width: 0;
+}
+
+.local-plugin-review {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding: 16px;
+  border: 1px solid #a87621;
+  border-radius: 12px;
+  background: #211b12;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 35%);
+}
+
+.local-plugin-review[hidden],
+.local-plugin-recovery[hidden],
+.core-plugin-center[hidden],
+.local-plugin-installed[hidden],
+.local-plugin-developer-mode[hidden] {
+  display: none;
+}
+
+.local-plugin-review-header,
+.local-plugin-developer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.local-plugin-warning-stack,
+.local-plugin-developer-body {
+  display: grid;
+  gap: 10px;
+}
+
+.local-plugin-warning,
+.local-plugin-inactive-note,
+.local-plugin-recovery,
+.local-plugin-developer-marker,
+.local-plugin-developer-off {
+  padding: 12px;
+  border: 1px solid #705625;
+  border-radius: 9px;
+  color: #e8d5aa;
+  background: #1e1a13;
+}
+
+.local-plugin-warning,
+.local-plugin-inactive-note p,
+.local-plugin-recovery p,
+.local-plugin-developer-off p {
+  margin: 0;
+}
+
+.local-plugin-inactive-note {
+  border-color: #3a526c;
+  color: #c7dbef;
+  background: #111d29;
+}
+
+.local-plugin-review-actions,
+.local-plugin-detail-actions,
+.local-plugin-developer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.local-plugin-layout {
+  margin-top: 12px;
+}
+
+.local-plugin-row small {
+  color: #d9b05c;
+}
+
+.local-plugin-detail-host {
+  min-width: 0;
+}
+
+.local-plugin-setting-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.local-plugin-developer-mode {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #564225;
+  border-radius: 12px;
+  background: #15130f;
+}
+
+.local-plugin-developer-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #e8d5aa;
+  font-weight: 700;
+}
+
+.local-plugin-developer-marker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-color: #c88928;
+  background: #2a1d0b;
+}
+
+.local-plugin-developer-marker strong {
+  color: #ffc85b;
+  letter-spacing: .08em;
+}
+
+.local-plugin-developer-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #3b4654;
+  border-radius: 10px;
+  background: #121923;
+}
+
+@media (max-width: 760px) {
+  .local-plugin-review-header,
+  .local-plugin-developer-header,
+  .local-plugin-developer-marker {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .local-plugin-setting-control {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plugin-center-workspace *,
+  .plugin-center-workspace *::before,
+  .plugin-center-workspace *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
 .core-plugin-center-header {
   display: flex;
   align-items: center;

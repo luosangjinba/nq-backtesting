@@ -8,7 +8,9 @@
     "adapter.session-browser-ui",
     "adapter.session-persistence",
     "adapter.market-data-provider",
+    "adapter.plugin-package-storage",
     "core.plugin-profile",
+    "core.plugin-package-store",
     "core.replay-navigation-preference-store",
     "core.session-store",
     "core.workstation-settings"

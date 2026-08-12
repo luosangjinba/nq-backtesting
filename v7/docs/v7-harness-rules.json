@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "currentStep": "P1b.2",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15", "R8.16", "R9", "R9.1", "R9.2", "R9.3", "R9.4", "R10", "R10.1", "R10.2", "R10.3", "R10.4", "R10.5", "R10.6", "R10.7", "R10.8", "R10.9", "R10.10", "R11", "R11.1", "R12", "R12.1", "R12.2", "R12.3", "R12.4", "R12.5", "R12.6", "R12.7", "R12.8", "R13.1", "R13.2", "R13.3", "R13.4", "R13.5", "R13.6", "R13.7", "R13.8", "R13.9", "R13.9b", "R13.10a", "R13.10b", "R13.10c", "R13.10d", "P0a", "R13.10e", "P0b", "P1a", "P1b.1", "P1b.2"],
+  "currentStep": "P1b.3",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15", "R8.16", "R9", "R9.1", "R9.2", "R9.3", "R9.4", "R10", "R10.1", "R10.2", "R10.3", "R10.4", "R10.5", "R10.6", "R10.7", "R10.8", "R10.9", "R10.10", "R11", "R11.1", "R12", "R12.1", "R12.2", "R12.3", "R12.4", "R12.5", "R12.6", "R12.7", "R12.8", "R13.1", "R13.2", "R13.3", "R13.4", "R13.5", "R13.6", "R13.7", "R13.8", "R13.9", "R13.9b", "R13.10a", "R13.10b", "R13.10c", "R13.10d", "P0a", "R13.10e", "P0b", "P1a", "P1b.1", "P1b.2", "P1b.3"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
     "active": false,
@@ -2607,10 +2607,10 @@
     },
     {
       "id": "H117",
-      "name": "local-declarative-package-contract-archive-and-transactional-inventory",
-      "owner": "plugin-contract/plugin-package-store/plugin-package-storage/plugin-sdk/plugin-developer-kit/conformance-harness",
-      "v6FailurePrevented": "developer evidence masqueraded as install input, local metadata forged Core trust or execution, archive parsing extracted or evaluated payload, stale receipts admitted changed bytes, output kind followed a filename, package lifecycle semantics arrived without a pure contract boundary, or interrupted package writes exposed a mixed generation and damaged retained user data",
-      "activationStep": "P1b.2",
+      "name": "local-declarative-package-transactional-inventory-plugin-center-and-developer-mode",
+      "owner": "plugin-contract/plugin-package-store/plugin-package-storage/plugin-center-ui/session-application/plugin-sdk/plugin-developer-kit/conformance-harness",
+      "v6FailurePrevented": "developer evidence masqueraded as install input, local metadata forged Core trust or execution, archive parsing extracted or evaluated payload, stale receipts admitted changed bytes, output kind followed a filename, package lifecycle semantics arrived without a pure contract boundary, interrupted package writes exposed a mixed generation and damaged retained user data, host UI blurred Core/local trust, or Developer Mode watched/executed source and retained stale generations",
+      "activationStep": "P1b.3",
       "state": "executable",
       "harness": "tests/local-plugin-package-harness.js",
       "positiveEvidence": [
@@ -2618,6 +2618,9 @@
         "src/plugin-contract/local-plugin-package-manifest.js",
         "src/plugin-contract/local-plugin-package-plan.js",
         "src/plugin-contract/local-plugin-package-change.js",
+        "src/plugin-contract/local-plugin-package-archive.js",
+        "src/plugin-contract/local-plugin-package-inspection.js",
+        "src/plugin-contract/local-plugin-package-receipts.js",
         "src/plugin-contract/local-plugin-settings-migration.js",
         "src/plugin-contract/local-plugin-package-manifest.schema.json",
         "src/plugin-package-store/public.js",
@@ -2632,6 +2635,13 @@
         "src/plugin-package-store/storage-snapshot.js",
         "src/plugin-package-storage/public.js",
         "src/plugin-package-storage/indexeddb-package-storage.js",
+        "src/plugin-center-ui/public.js",
+        "src/plugin-center-ui/plugin-center-workspace-control.js",
+        "src/plugin-center-ui/local-package-installed-control.js",
+        "src/plugin-center-ui/local-package-browser-adapter.js",
+        "src/plugin-center-ui/local-package-directory-snapshot.js",
+        "src/plugin-center-ui/developer-mode-control.js",
+        "src/session-application/application-resources.js",
         "sdk/plugin/catalogs/local-packages.json",
         "sdk/plugin/examples/local-lifecycle-v1/v7-plugin-kit.json",
         "tools/plugin-developer-kit/adapters/local-package.js",
@@ -2641,12 +2651,20 @@
         "tests/local-plugin-package-harness.js",
         "tests/local-plugin-package-storage-browser-suite.js",
         "tests/local-plugin-package-transaction-suite.js",
+        "tests/local-plugin-package-developer-suite.js",
+        "tests/local-plugin-package-product-browser-suite.js",
         "tests/fixtures/local-plugin-package/storage-browser/main.js",
-        "sessions/session_20260812_p1b_2_inventory_transaction_implementation.md"
+        "tests/fixtures/local-plugin-package/product-browser/index.html",
+        "tests/fixtures/local-plugin-package/product-browser/scenario.js",
+        "docs/V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md",
+        "scripts/review-local-plugin-package-p1b3.mjs",
+        "sessions/session_20260812_p1b_2_inventory_transaction_implementation.md",
+        "sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md"
       ],
       "negativeFixtures": [
         "tests/fixtures/local-plugin-package/negative/cases.json",
-        "tests/fixtures/local-plugin-package/transaction-negative/cases.json"
+        "tests/fixtures/local-plugin-package/transaction-negative/cases.json",
+        "tests/fixtures/local-plugin-package/developer-negative/cases.json"
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": null

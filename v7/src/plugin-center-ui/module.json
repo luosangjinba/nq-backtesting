@@ -4,7 +4,7 @@
   "kind": "adapter",
   "owner": "plugin-center-ui",
   "publicEntry": "src/plugin-center-ui/public.js",
-  "requiredPorts": [],
+  "requiredPorts": ["core.plugin-contract"],
   "optionalPorts": [],
   "lifecycle": ["dispose"],
   "independentHarness": "tests/core-plugin-center-harness.js",

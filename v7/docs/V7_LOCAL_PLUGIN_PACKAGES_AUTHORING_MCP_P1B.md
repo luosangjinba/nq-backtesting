@@ -1,8 +1,9 @@
 # V7 Local Plugin Packages And Authoring MCP — P1b Accepted Specification
 
-Status: accepted binding specification 2026-08-11; P1b.1 and P1b.2 separately
-authorized and implemented by 2026-08-12; H117 executable for the combined
-contract/archive and transaction/storage subset, not accepted
+Status: accepted binding specification 2026-08-11; P1b.1–P1b.3 separately
+authorized and implemented by 2026-08-12; H117 executable with 54 frozen
+negative groups and product-browser evidence, focused human review pending,
+not accepted
 
 Date: 2026-08-11
 
@@ -14,6 +15,9 @@ P1b.1 implementation record:
 
 P1b.2 implementation record:
 `../sessions/session_20260812_p1b_2_inventory_transaction_implementation.md`
+
+P1b.3 implementation record:
+`../sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md`
 
 Depends on:
 
@@ -97,9 +101,11 @@ After that acceptance, the product owner separately instructed
 the required decomposition was authorized by that instruction. On 2026-08-12,
 the product owner then separately instructed `授权 P1b.2`, authorizing only the
 inventory transaction owner, atomic browser storage, migration, quarantine,
-tombstone, and recovery slice. P1b.1 and P1b.2 are implemented. Neither
-instruction authorizes P1b.3 Plugin Center/Developer Mode or P1b.4 MCP/H117
-closure.
+tombstone, and recovery slice. The product owner then instructed
+`授权 P1b.3 Plugin Center 与 Developer Mode。` on 2026-08-12, authorizing only
+the host-rendered local-package product surface, browser adapter, and its
+additive H117 evidence. P1b.1–P1b.3 are implemented. None of these
+instructions authorizes P1b.4 MCP/H117 closure.
 
 A separately authorized P1b implementation may include only:
 
@@ -142,8 +148,8 @@ P1b explicitly excludes:
 No new package, installed row, control, storage record, MCP server, schema,
 Harness entry, or production code may be created from specification acceptance
 alone. Every implementation slice requires a separate product-owner
-instruction. P1b.1 and P1b.2 received their own instructions; P1b.3 and P1b.4
-still require theirs.
+instruction. P1b.1–P1b.3 received their own instructions; P1b.4 still requires
+one.
 
 ## Accepted Material Decisions
 
@@ -751,9 +757,11 @@ activation, publisher trust, signature, and production execution.
 H117 is allocated in `v7-harness-rules.json` as `executable`, not `accepted`.
 P1b.1 freezes 18 Package Contract And Archive negative groups. P1b.2 adds 18
 transaction/migration/recovery groups plus real-Chromium IndexedDB atomicity,
-durability, and CAS evidence, for 36 groups total. P1b.3 and P1b.4 must extend
-the same gate with the remaining product-browser, MCP, and human evidence; they
-may not reinterpret or prematurely accept it.
+durability, and CAS evidence. P1b.3 adds 18 Developer Mode selection/snapshot/
+reload/cancellation groups and real-Chromium product evidence, for 54 groups
+total. Its focused human checklist is prepared but remains pending. P1b.4 must
+add the MCP controls, complete the standing evidence, and may not reinterpret
+or prematurely accept H117.
 
 ### Package Contract And Archive
 
@@ -785,13 +793,16 @@ may not reinterpret or prematurely accept it.
 - corrupt inventory, digest mismatch, unknown schema, and repeated recovery
   failure enter Restricted Mode while Kernel/P0b remains usable.
 
-### Developer Mode And MCP
+### Developer Mode
 
 - Developer Mode is off by default, device-local, visually marked, and unloads
   every development generation when disabled;
 - load/reload/validate-pack accepts only a prepared candidate directory,
   rejects path/symlink/special-file/stale-receipt attacks, never watches or
   executes code, and never installs automatically;
+
+### MCP — P1b.4 Pending
+
 - Library, CLI, and MCP produce equivalent canonical results for all eight
   P1a operations and pack v2 where applicable;
 - the MCP server uses only `stdio`, exactly one startup-allowlisted root, no
@@ -808,8 +819,9 @@ may not reinterpret or prematurely accept it.
 - real Chromium proves Install from file review/cancel/commit/failure,
   Installed detail/status, Developer Mode load/reload/unload, restricted-mode
   diagnostics, focus/keyboard/accessibility, and narrow-window behavior;
-- a focused human gate accepts the visible source/trust/integrity warnings,
-  inactive-status honesty, confirmations, recovery, and Developer Mode marker;
+- the prepared focused human gate must accept the visible source/trust/
+  integrity warnings, inactive-status honesty, confirmations, recovery, and
+  Developer Mode marker before that evidence is recorded;
 - production architecture proves one package store, one Core profile owner,
   one ModuleHost, zero external descriptors, zero external imports/evaluation,
   and no new owner write outside declared surfaces;
@@ -850,19 +862,20 @@ controls, run standing gates, pass `git diff --check`, update TODO/session/
 handoff records, and stop after one bounded commit. Acceptance of this document
 approves the contract only; each implementation slice still requires a
 separate product-owner instruction. P1b.1 received that instruction on
-2026-08-11; P1b.2 received its instruction on 2026-08-12. P1b.3 and P1b.4
-remain separately gated.
+2026-08-11; P1b.2 and P1b.3 received their own instructions on 2026-08-12.
+P1b.4 remains separately gated.
 
 ## Accepted State And Next Gate
 
-Current state after the separately authorized P1b.2 implementation:
+Current state after the separately authorized P1b.3 implementation:
 
 - P0a/H113, R13.10e/H114, P0b/H115, and P1a/H116 remain implemented and
   accepted;
 - this P1b document is the accepted binding specification;
 - H117 is `executable` with 18 frozen P1b.1 contract/archive groups, 18 frozen
-  P1b.2 transaction/recovery groups, and real-Chromium IndexedDB evidence; it
-  deliberately has no acceptance evidence yet;
+  P1b.2 transaction/recovery groups, 18 frozen P1b.3 Developer Mode groups,
+  real-Chromium IndexedDB/product evidence, and a pending focused-human
+  checklist; it deliberately has no acceptance evidence yet;
 - Manifest V2, `local-declarative-package-v1`, 22 schemas, 10 catalogs,
   explicit pack/inspect v2, deterministic `.v7plugin`, prepared candidate
   layout, portable candidate receipts, and strict in-memory inspection exist;
@@ -871,13 +884,19 @@ Current state after the separately authorized P1b.2 implementation:
   tombstones, startup recovery, and Restricted Mode;
 - `adapter.plugin-package-storage` owns one dedicated atomic IndexedDB database
   with multi-record CAS; package inventory remains outside Server State Sync;
-- no Plugin Center local-package UI, Developer Mode browser adapter, MCP server,
-  declarative business runtime, external descriptor, import/evaluation, or
-  activation path exists;
+- `adapter.plugin-center-ui` now composes Included, Installed, install review,
+  Restricted Mode recovery, and visibly marked Developer Mode surfaces from
+  immutable owner snapshots and explicit commands;
+- its browser adapter owns only native file/directory handles, a device-local
+  mode preference, strict double snapshots, and session-scoped
+  `developer-inactive` generations; load/reload/validate-pack never watches,
+  evaluates, installs, activates, or synchronizes package code;
+- no MCP server, declarative business runtime, external descriptor,
+  import/evaluation, or activation path exists;
 - P2 registry, P3a Worker, P3b Pine migration, P4 Marketplace, and new business
   plugins remain separately gated.
 
-The exact next product decision is whether to separately authorize P1b.3's
-Plugin Center and Developer Mode slice. Until that instruction is given, no
-local-package product UI, Developer Mode adapter, MCP, or further H117 closure
-may begin.
+The exact immediate gate is the focused P1b.3 human review in
+`V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md`. Acceptance or rejection must be
+recorded explicitly. P1b.4 remains a later, separately authorized decision;
+until that instruction is given, no MCP adapter or H117 closure may begin.

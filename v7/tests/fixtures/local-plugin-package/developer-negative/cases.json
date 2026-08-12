@@ -1,0 +1,20 @@
+[
+  { "case": "wrong-archive-suffix", "expectedDiagnostic": "V7DK_PACKAGE_FORMAT_MISMATCH" },
+  { "case": "oversized-archive", "expectedDiagnostic": "V7DK_RESOURCE_LIMIT" },
+  { "case": "developer-mode-disabled", "expectedDiagnostic": "V7DK_DEVELOPER_MODE_DISABLED" },
+  { "case": "invalid-directory-root", "expectedDiagnostic": "V7DK_DEVELOPER_DIRECTORY_INVALID" },
+  { "case": "source-workspace-layout", "expectedDiagnostic": "V7DK_PACKAGE_LAYOUT_INVALID" },
+  { "case": "symlink-directory-root", "expectedDiagnostic": "V7DK_DEVELOPER_DIRECTORY_INVALID" },
+  { "case": "symlink-candidate-entry", "expectedDiagnostic": "V7DK_PACKAGE_PATH_INVALID" },
+  { "case": "special-candidate-entry", "expectedDiagnostic": "V7DK_PACKAGE_PATH_INVALID" },
+  { "case": "unsafe-candidate-path", "expectedDiagnostic": "V7DK_PACKAGE_PATH_INVALID" },
+  { "case": "directory-resource-limit", "expectedDiagnostic": "V7DK_RESOURCE_LIMIT" },
+  { "case": "changing-directory-snapshot", "expectedDiagnostic": "V7DK_DEVELOPER_SNAPSHOT_STALE" },
+  { "case": "stale-candidate-receipt", "expectedDiagnostic": "V7DK_PACKAGE_RECEIPT_STALE" },
+  { "case": "concurrent-directory-read", "expectedDiagnostic": "V7DK_TRANSACTION_CONCURRENT" },
+  { "case": "reload-failure-retains-prior", "expectedDiagnostic": "V7DK_PACKAGE_LAYOUT_INVALID" },
+  { "case": "reload-identity-change", "expectedDiagnostic": "V7DK_DEVELOPER_SNAPSHOT_STALE" },
+  { "case": "validate-pack-stale-generation", "expectedDiagnostic": "V7DK_DEVELOPER_SNAPSHOT_STALE" },
+  { "case": "disable-cancels-read", "expectedDiagnostic": "V7DK_DEVELOPER_MODE_DISABLED" },
+  { "case": "disposed-developer-adapter", "expectedDiagnostic": "V7DK_DEVELOPER_MODE_DISABLED" }
+]

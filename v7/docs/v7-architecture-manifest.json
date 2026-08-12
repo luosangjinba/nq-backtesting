@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "p1b-2-local-package-transactions-implemented",
+  "status": "p1b-3-plugin-center-developer-mode-implemented",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -31,6 +31,7 @@
     "docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md",
     "docs/V7_CORE_PLUGIN_CENTER_P0B.md",
     "docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md",
+    "docs/V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md",
     "docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md",
     "docs/V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md",
     "docs/V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md",
@@ -390,6 +391,7 @@
     "deterministic-evidence-derived-fvg-construction-and-projection",
     "fvg-host-rendered-evidence-inspector-and-validated-override",
     "trusted-build-core-plugin-center-profile-generation",
-    "local-plugin-package-inventory-atomic-inactive-and-device-local"
+    "local-plugin-package-inventory-atomic-inactive-and-device-local",
+    "local-plugin-center-host-rendered-and-developer-generations-inactive"
   ]
 }
