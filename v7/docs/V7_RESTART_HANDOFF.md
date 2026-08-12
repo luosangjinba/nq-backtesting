@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
 Last updated: 2026-08-11 after P1a/H116 acceptance, P1a status-ledger
-correction, and the documentation-only P1b specification draft
+correction, and P1b specification acceptance
 
 ## Restart Resume Checkpoint
 
@@ -12,9 +12,9 @@ contract checkpoint. R13.10e is accepted as the first production vertical
 slice through it; H114 passed its automated and focused human visual gates.
 P0b and H115 are accepted after passing automated evidence and the corrected
 focused human visual/interaction gate. P1a and H116 are accepted after the
-separately authorized headless implementation. P1b now has a draft contract
-awaiting review; it is not accepted, H117 remains proposed only, and no P1b or
-later implementation is authorized.
+separately authorized headless implementation. P1b now has an accepted binding
+specification; H117 is declared but not registered, implemented, or accepted,
+and no P1b or later implementation is authorized.
 `git log` is the authoritative commit identity.
 
 After a machine or agent restart, run:
@@ -72,16 +72,16 @@ developer evidence bundle, structured diagnostics/provenance, and H116. Its
 Chinese rationale preserves the four accepted boundary decisions; its source
 stays outside the production graph. Community/Installed/Updates installation,
 MCP, registry, Pine translator, arbitrary production code, Marketplace, and
-later implementation remain unavailable. P1b now has a documentation-only
-review draft which preserves those runtime exclusions: it proposes inactive
+later implementation remain unavailable. P1b now has an accepted specification
+which preserves those runtime exclusions: it defines inactive
 local package inventory, prepared-candidate Developer Mode, and authoring-only
 MCP, but adds none of them to the application.
 
 ADR-V7-004's 2026-08-11 amendment requires the now-implemented Agent-native
 developer path: one machine-readable strict-TypeScript SDK, canonical
-CLI/library, deterministic conformance Harness and receipts. The P1b draft
-proposes a local `stdio`, workspace-bounded MCP adapter over those same eight
-operations with no install or lifecycle authority. A later Pine indicator
+CLI/library, deterministic conformance Harness and receipts. The accepted P1b
+specification defines a local `stdio`, workspace-bounded MCP adapter over those
+same eight operations with no install or lifecycle authority. A later Pine indicator
 migration assistant parses and inventories authorized source, generates an
 ordinary TypeScript package and tests, and fails closed on unsupported/no-future/
 realtime/strategy semantics. It follows the target SDK and Worker tier; it does
@@ -1181,16 +1181,16 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 R13.10e/H114, P0b/H115, and P1a/H116 are closed. The Developer Kit is an
 authoring/evidence boundary only: it has no install, activation, MCP, registry,
-or production candidate execution path. P1b is now drafted in
-`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`, but the specification is not
-accepted and H117 remains proposed only. Its five review decisions are:
+or production candidate execution path. The accepted P1b specification is
+`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`; H117 is declared but remains
+unregistered, unimplemented, and unaccepted. Its five binding decisions are:
 installation is not activation; `.v7plugin` is distinct from `.v7dk.tar`; one
 device-local package store owns inventory transactions; Developer Mode loads
 prepared candidates rather than executing source; and local `stdio` MCP is
-authoring-only. The exact next step is product-owner review/revision or
-acceptance of those decisions. Even acceptance does not authorize P1b.1 or any
-implementation; a separate instruction remains required. Do not create P1b
-code, P2 registry, P3a Worker runtime, P3b Pine migration, detector, MA/SMA,
+authoring-only. The exact next product decision is whether to separately
+authorize P1b.1 contract/archive implementation. Specification acceptance does
+not provide that authorization. Do not create P1b code, P2 registry, P3a
+Worker runtime, P3b Pine migration, detector, MA/SMA,
 Fibonacci, Marketplace, or R13.11–R13.13 before the applicable authorization.
 
 Older clean-host, physical cross-device, Data Acquisition admin, resource, and

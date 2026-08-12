@@ -129,10 +129,9 @@ accepted under `V7_CORE_PLUGIN_CENTER_P0B.md`. The P1a authoring
 contract in `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` is implemented and
 accepted under H116; its Chinese design rationale is preserved in
 `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`. The P1b local
-package/Developer Mode/authoring MCP contract is drafted for review in
-`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`; it is not accepted and no P1b
-implementation is authorized. Registry, Worker, and Pine phases remain
-unauthorized.
+package/Developer Mode/authoring MCP contract is accepted in
+`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`; implementation, H117 evidence,
+and all later registry, Worker, and Pine phases remain unauthorized.
 The accepted post-milestone foundation is
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
 market-coordinate geometry, generic drawings, typed semantic artifacts,
@@ -254,13 +253,14 @@ It adds no MCP, installation, Worker, or product-visible behavior. After
 detailed review, the product owner accepted the specification's four material
 boundaries, requested the plain-language reasoning be retained for future
 maintainers, and separately authorized the bounded P1a implementation.
-`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md` is the subsequent documentation-
-only draft. It proposes a distinct `.v7plugin` archive, non-executing device-
+`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md` is the subsequent accepted
+specification. It defines a distinct `.v7plugin` archive, non-executing device-
 local inventory transactions, prepared-candidate Developer Mode, declarative
 settings migration/data survival, Restricted Mode, and a local `stdio` MCP
-adapter over P1a's eight operations. Its five material decisions and proposed
-H117 await explicit review; the draft adds no schema, Harness, installer,
-storage owner, UI, MCP server, or external execution path.
+adapter over P1a's eight operations. The product owner accepted all five
+material decisions on 2026-08-11. H117 is declared but unregistered and no
+schema, Harness, installer, storage owner, UI, MCP server, or external
+execution path has been implemented.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
@@ -388,10 +388,11 @@ Read in this order before V7 implementation work:
 98d. `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md` as the
      non-normative Chinese explanation of P1a's motivations, four accepted
      material boundaries, authoring flow, isolation, and phase separation
-98e. `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md` as the documentation-only
-     P1b review draft for local inactive-package admission, transactional
+98e. `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md` as the accepted binding
+     P1b specification for local inactive-package admission, transactional
      inventory/recovery, prepared-candidate Developer Mode, and a bounded
-     authoring MCP adapter; do not treat it as accepted or implemented
+     authoring MCP adapter; do not treat specification acceptance as
+     implementation authorization
 99. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
 100. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,

@@ -1,9 +1,12 @@
-# V7 Local Plugin Packages And Authoring MCP — P1b Draft
+# V7 Local Plugin Packages And Authoring MCP — P1b Accepted Specification
 
-Status: draft for product-owner review; not accepted; implementation and H117
-are not authorized
+Status: accepted binding specification 2026-08-11; implementation is not
+authorized; H117 is declared but not registered, implemented, or accepted
 
 Date: 2026-08-11
+
+Acceptance record:
+`../sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_acceptance.md`
 
 Depends on:
 
@@ -14,7 +17,7 @@ Depends on:
 
 ## Outcome
 
-P1b proposes the first local package-admission layer above the accepted P1a
+P1b defines the first local package-admission layer above the accepted P1a
 Developer Kit. It gives a user a transactional **Install from file** workflow,
 a visibly separate **Developer Mode** for an unpacked candidate directory, and
 a local workspace-bounded MCP adapter over the existing P1a authoring
@@ -74,13 +77,15 @@ product's privilege model:
 These references are evidence for interaction and threat-model choices. They
 do not replace V7's own ownership, transaction, no-future, or acceptance gates.
 
-## Draft Authorization Boundary
+## Authorization Boundary
 
 The product owner authorized **drafting this specification and correcting the
-P1a status record** on 2026-08-11. That instruction does not accept this draft
-and does not authorize P1b implementation.
+P1a status record** on 2026-08-11. After detailed review, the product owner
+explicitly accepted all five material decisions below on 2026-08-11. That
+acceptance makes this document the binding P1b specification; it does not
+authorize P1b.1 or any implementation.
 
-If later accepted and separately authorized, P1b would include only:
+A separately authorized P1b implementation may include only:
 
 - one versioned, deterministic local-install archive distinct from P1a's
   `.v7dk.tar` evidence bundle;
@@ -96,7 +101,7 @@ If later accepted and separately authorized, P1b would include only:
   behavior;
 - one local `stdio` MCP adapter exposing the eight existing P1a authoring
   operations within one selected workspace;
-- the proposed H117 automated, browser, architecture, and human-review gate.
+- the declared H117 automated, browser, architecture, and human-review gate.
 
 P1b explicitly excludes:
 
@@ -119,12 +124,14 @@ P1b explicitly excludes:
   local inventory.
 
 No new package, installed row, control, storage record, MCP server, schema,
-Harness entry, or production code may be created from this draft alone.
+Harness entry, or production code may be created from specification acceptance
+alone. P1b.1 or any later implementation slice requires a separate product-
+owner instruction.
 
-## Material Decisions Requiring Review
+## Accepted Material Decisions
 
-The draft makes five material choices which require explicit product-owner
-acceptance before implementation can be authorized:
+The product owner explicitly accepted these five material choices on
+2026-08-11:
 
 1. **Install is not activate.** P1b stores and manages local package candidates
    but executes none of their external code or business contributions.
@@ -136,7 +143,7 @@ acceptance before implementation can be authorized:
    domain evidence, or application lifecycle.
 4. **Developer Mode loads prepared candidates.** Source editing, compilation,
    isolated tests, and preview stay in the P1a CLI/library operation engine,
-   reached through CLI or the proposed P1b MCP adapter. The browser reads an
+   reached through CLI or the P1b MCP adapter. The browser reads an
    unpacked candidate output and current receipts without evaluating code.
 5. **MCP is authoring-only.** It uses local `stdio`, one startup-allowlisted
    workspace, and the canonical P1a engine. It cannot perform package lifecycle
@@ -154,7 +161,7 @@ P1b uses these names consistently:
 - **Developer Evidence Bundle** — P1a's deterministic `.v7dk.tar`; always
   `installable: false` and never accepted by the package store.
 - **Unpacked Candidate Directory** — a prepared output layout containing the
-  proposed P1b manifest, payload, index, source disclosure, and exact current
+  P1b manifest, payload, index, source disclosure, and exact current
   P1a/P1b receipts. It is not an arbitrary source directory.
 - **Local Plugin Archive** — the deterministic `.v7plugin` installation
   candidate produced from an eligible unpacked candidate by `pack` v2.
@@ -174,7 +181,7 @@ P1b uses these names consistently:
 
 ## P1b Contract Profile
 
-P1b proposes one additive profile:
+P1b defines one additive profile:
 
 ```text
 profile id: local-declarative-package-v1
@@ -210,9 +217,10 @@ party release.
 
 ## Package Manifest V2
 
-P1b proposes `PluginPackageManifestV2` as a portable package-authored value.
-Exact JSON Schema field spellings and limits become binding only when this
-draft is accepted and the implementation step adds the schema.
+P1b defines `PluginPackageManifestV2` as a portable package-authored value.
+The accepted shape and constraints below bind P1b.1. Exact JSON Schema field
+spellings and catalog limits become implementation artifacts only when a
+separately authorized P1b.1 adds them; a material change requires review.
 
 ```text
 PluginPackageManifestV2 {
@@ -286,7 +294,7 @@ and inventory revision; a changed byte invalidates it.
 
 ## Deterministic Local Plugin Archive V1
 
-P1b proposes suffix `.v7plugin` and media identity
+P1b defines suffix `.v7plugin` and media identity
 `application/vnd.replay-lab.v7-plugin+tar`. The container is deterministic
 uncompressed ustar so the already-proven strict P1a tar boundary can be reused
 rather than adding a second archive parser or decompression attack surface.
@@ -314,7 +322,7 @@ The package-candidate receipt binds:
 - `installCandidateEligible: true`, `installed: false`, `activated: false`,
   `publisherTrusted: false`, and `productionExecutionAuthorized: false`.
 
-`pack` operation v1 remains byte-for-byte P1a evidence behavior. P1b proposes
+`pack` operation v1 remains byte-for-byte P1a evidence behavior. P1b defines
 `pack` operation v2 with explicit `outputKind: "unpacked-local-candidate"` or
 `"local-install-archive"` plus profile selection; output kind is never inferred
 from a filename. The first form creates the exact prepared directory consumed
@@ -378,7 +386,7 @@ reinterpret eligibility.
 
 ## Device-Local Inventory Contract
 
-P1b proposes one record family owned by `core.plugin-package-store`:
+P1b defines one record family owned by `core.plugin-package-store`:
 
 ```text
 LocalPluginInventoryRecordV1 {
@@ -474,7 +482,7 @@ Kernel/P0b available.
 
 P1b never executes a migration script. `MigrationPlanV1` is a host-interpreted,
 bounded transformation over package-owned package/profile setting values only.
-The proposed operation set is:
+The accepted operation set is:
 
 - rename one declared field to one declared field;
 - copy one declared field when the destination is absent;
@@ -551,7 +559,7 @@ reload, background polling, or reload triggered by package content.
 `Validate/Pack` statically verifies the prepared layout and current receipts
 and can encode `.v7plugin` through `pack` v2. Source compilation, isolated
 fixture execution, and preview remain work of the P1a CLI/library operation
-engine, reached through CLI or the proposed P1b MCP adapter; the browser does
+engine, reached through CLI or the P1b MCP adapter; the browser does
 not duplicate the compiler/Harness or evaluate candidate code. A stale or
 missing P1a receipt blocks packing and presents the exact operation request
 needed to refresh it.
@@ -590,7 +598,7 @@ error or partial transaction.
 
 ## Owner And Module Boundaries
 
-P1b proposes this ownership graph for later implementation:
+P1b binds this ownership graph for later implementation:
 
 ```text
 core.plugin-contract
@@ -695,7 +703,7 @@ write authority into application lifecycle authority.
 
 ## Stable Diagnostics And Receipts
 
-P1b diagnostic codes extend, not reinterpret, P1a `V7DK_` codes. The proposed
+P1b diagnostic codes extend, not reinterpret, P1a `V7DK_` codes. The accepted
 catalog must distinguish at least:
 
 - evidence bundle supplied where an install archive is required;
@@ -716,11 +724,11 @@ but do not contain host paths or secrets. Install receipts record explicit user
 confirmation and committed inventory revision as host facts; they still deny
 activation, publisher trust, signature, and production execution.
 
-## Proposed H117 Acceptance Gate
+## Declared H117 Acceptance Gate
 
-H117 is proposed by this draft but is not allocated in
-`v7-harness-rules.json`, implemented, or accepted. If the specification and
-implementation are separately authorized, H117 must cover the following.
+H117 is declared by this accepted specification but is not allocated in
+`v7-harness-rules.json`, implemented, or accepted. If implementation is
+separately authorized, H117 must cover the following.
 
 ### Package Contract And Archive
 
@@ -795,8 +803,8 @@ produce Chart or Semantic output in P1b.
 
 ## Required Implementation Decomposition
 
-If this draft is accepted and implementation is separately authorized, the
-work should remain bounded and committed in this order:
+If implementation is separately authorized, the work must remain bounded and
+committed in this order:
 
 1. **P1b.1 — Contract and archive:** Manifest V2/profile/schema/catalog,
    pack v2, strict archive inspection, portable candidate/receipt, synthetic
@@ -814,23 +822,23 @@ work should remain bounded and committed in this order:
 Each slice must preserve one public owner boundary, add its applicable negative
 controls, run standing gates, pass `git diff --check`, update TODO/session/
 handoff records, and stop after one bounded commit. Acceptance of this document
-would approve the contract only; implementation still requires a separate
-product-owner instruction.
+approves the contract only; implementation still requires a separate product-
+owner instruction.
 
-## Review And Next Gate
+## Accepted State And Next Gate
 
 Current state after this documentation step:
 
 - P0a/H113, R13.10e/H114, P0b/H115, and P1a/H116 remain implemented and
   accepted;
-- this P1b document is a draft awaiting product-owner review;
-- H117 remains proposed only and has no machine-readable rule, Harness,
+- this P1b document is the accepted binding specification;
+- H117 is declared but has no machine-readable rule, Harness,
   fixture, code, or acceptance evidence;
 - no P1b implementation, installed package format, package store, UI, MCP
   server, declarative runtime, or external execution path exists;
 - P2 registry, P3a Worker, P3b Pine migration, P4 Marketplace, and new business
   plugins remain separately gated.
 
-The next permitted action is review and revision or explicit acceptance of the
-five material decisions. Only after specification acceptance may the product
-owner separately authorize P1b.1 implementation.
+The exact next product decision is whether to separately authorize P1b.1
+contract/archive implementation. Until that instruction is given, revision of
+this specification is the only other permitted P1b action.

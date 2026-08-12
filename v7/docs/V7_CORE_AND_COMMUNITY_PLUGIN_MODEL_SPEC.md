@@ -3,8 +3,8 @@
 Decision id: `ADR-V7-004`
 
 Status: accepted binding product and architecture specification; P0b and P1a
-implemented and accepted; P1b specification draft awaiting review; P1b–P4
-implementation not allocated
+implemented and accepted; P1b specification accepted; P1b–P4 implementation
+not allocated
 
 Decision date: 2026-08-10
 
@@ -21,8 +21,8 @@ Amended: 2026-08-11 — P1a Agent-native Developer Kit contract specified,
 separately implemented, and accepted under H116
 
 Amended: 2026-08-11 — P1b local packages/Developer Mode/authoring MCP contract
-drafted for review; the draft is not accepted and implementation remains
-unauthorized
+accepted after explicit review of all five material decisions; implementation
+remains unauthorized
 
 Decider: V7 product owner
 
@@ -100,10 +100,11 @@ design was later separately authorized and accepted in
 `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`; its Chinese design rationale is
 preserved in `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`.
 The product owner then separately authorized P1a implementation; the SDK,
-Developer Kit, and H116 were implemented and accepted. P1b is now drafted in
-`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md` for product-owner review only.
-The P1b specification is not yet accepted, H117 remains proposed only, and no
-P1b–P4 implementation is authorized.
+Developer Kit, and H116 were implemented and accepted. The product owner then
+accepted all five P1b material decisions in
+`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`. H117 is declared but not
+registered, implemented, or accepted, and no P1b–P4 implementation is
+authorized.
 
 Every implementation remains separately specified, authorized, tested, and
 committed. The current trusted-build Semantic Package Registry is a compatible
@@ -292,11 +293,12 @@ Harness are authoritative; the MCP server is a thin local adapter over those
 operations, not a second validator, package format, build system, or lifecycle
 owner.
 
-P1a realizes the authoring/evidence subset of this final workflow. Before P1b
-defines an install archive and candidate transaction, `pack` emits only a
-non-installable developer evidence bundle and every receipt denies activation.
-The Developer Kit must report install-candidate creation unavailable rather
-than treating P1a evidence as user consent or installed-package trust.
+P1a realizes the authoring/evidence subset of this final workflow. Until a
+separately authorized P1b implementation supplies the accepted install archive
+and candidate transaction, `pack` v1 emits only a non-installable developer
+evidence bundle and every receipt denies activation. The current Developer Kit
+must report install-candidate creation unavailable rather than treating P1a
+evidence as user consent or installed-package trust.
 
 The MCP surface must provide machine-readable SDK/schema/capability discovery
 and the bounded authoring operations above. It must be local-first, restricted
@@ -656,7 +658,7 @@ Core Center, dynamic loader, Community registry, or public SDK.
 These R13 steps require independent authorization. This decision neither
 renumbers them nor starts them.
 
-### Plugin Platform Program — P1a Accepted, P1b Drafted
+### Plugin Platform Program — P1a Accepted, P1b Specification Accepted
 
 V7 does not finish a speculative Marketplace before writing plugins, and it no
 longer scales plugin families before a common platform boundary exists. The
@@ -688,13 +690,13 @@ by progressively broader distribution:
    authorize production external-code execution. Binding contract:
    `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`; non-normative rationale:
    `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`.
-5. **P1b Local Packages And Authoring MCP — draft awaiting review** — common
+5. **P1b Local Packages And Authoring MCP — accepted specification** — common
    manifest/archive, transactional install-from-file, Developer Mode
    load-unpacked/reload/validate-pack, integrity/source disclosure, migrations,
    uninstall/data survival, restricted-mode startup, and a workspace-bounded
-   local MCP adapter
-   over the P1a operations. Installation is not activation, externally supplied
-   code remains non-executable, and MCP has no lifecycle authority. Draft:
+   local MCP adapter over the P1a operations. Installation is not activation,
+   externally supplied code remains non-executable, and MCP has no lifecycle
+   authority. Binding specification:
    `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`.
 6. **P2 Signed Free Community Registry** — discovery, review metadata,
    signatures, explicit updates, restricted mode, incident response, and the
@@ -715,11 +717,10 @@ by progressively broader distribution:
 P0a and R13.10e were separately authorized and accepted. P0b was separately
 specified, implemented, corrected after focused visual feedback, and accepted
 under H115. P1a was separately specified, reviewed, implemented, and accepted
-under H116; it adds no install path, MCP, or production execution. P1b drafting
-was separately authorized, but the resulting draft is neither accepted nor an
-implementation authorization. No P1b–P4 implementation is authorized until
-its contract is accepted and the product owner gives a separate implementation
-instruction.
+under H116; it adds no install path, MCP, or production execution. P1b was
+separately drafted, reviewed, and accepted as a specification, but that
+acceptance is not implementation authorization. No P1b–P4 implementation is
+authorized until the product owner gives a separate implementation instruction.
 R13.10e retains its existing identity as the first reference consumer after
 P0a. Local installation and a free registry must work before any paid
 Marketplace decision; payment is not an architectural prerequisite for
@@ -809,14 +810,15 @@ P1a implementation. It was committed with its SDK/toolchain and H116, whose
 headless deterministic/isolation evidence is accepted; P1a is closed.
 
 After P1a acceptance, the product owner authorized correction of this status
-record and drafting, but not implementing, P1b. The draft
-`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md` proposes a distinct deterministic
+record and drafting, but not implementing, P1b. The resulting
+`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md` defines a distinct deterministic
 local archive, non-executing device-local inventory transactions, prepared-
 candidate Developer Mode, restricted-mode/data-survival rules, and a `stdio`
-MCP adapter which can invoke only the canonical P1a authoring operations. The
-draft and proposed H117 await product-owner review. No P1b implementation,
-registry, external execution, or later phase is authorized by that drafting
-instruction.
+MCP adapter which can invoke only the canonical P1a authoring operations. After
+detailed review, the product owner accepted its five material decisions on
+2026-08-11. H117 is declared but unregistered and unimplemented. No P1b
+implementation, registry, external execution, or later phase is authorized by
+specification acceptance.
 
 This closes the classification/product-direction decision. Delivery remains
 bounded by the authorization boundary above.
@@ -829,7 +831,8 @@ Amendment evidence:
 - `../sessions/session_20260811_p1a_agent_native_developer_kit_specification.md`;
 - `../sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`;
 - `../sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md`;
-- `../sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_draft.md`.
+- `../sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_draft.md`;
+- `../sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_acceptance.md`.
 
 ## Reference Product Evidence
 

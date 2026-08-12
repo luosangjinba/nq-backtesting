@@ -52,10 +52,10 @@ For operation in Chinese, start with the
 
 Developer Kit usage and its explicit non-installation boundary are documented
 in [tools/plugin-developer-kit/README.md](tools/plugin-developer-kit/README.md).
-The proposed next local-package/Developer Mode/authoring MCP boundary is a
-review draft only in the
-[P1b specification](docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md); it is
-neither accepted nor implemented.
+The accepted next local-package/Developer Mode/authoring MCP boundary is in the
+[P1b specification](docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md). Its
+five material decisions are accepted, but no P1b implementation is authorized
+or present.
 
 ## Quick Deployment
 
@@ -120,9 +120,9 @@ the [Linux deployment guide](deploy/linux/README.md).
   data-cost, cache, and capacity decision;
 - live brokerage connectivity, order execution, Journal, and Validation
   Campaigns are outside V7.0.0;
-- P1b plugin installation/MCP has a documentation-only draft but no accepted
-  specification or implementation; a Community registry, production Worker
-  execution, and Pine migration also remain unavailable;
+- P1b plugin installation/MCP has an accepted specification but no authorized
+  implementation; a Community registry, production Worker execution, and Pine
+  migration also remain unavailable;
 - Basic Auth provides one state namespace per username, not registration,
   roles, tenancy administration, or a general multi-user account system;
 - historical maintenance and Contract Roll writes are optional and disabled in

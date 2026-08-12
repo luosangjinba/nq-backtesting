@@ -1216,7 +1216,7 @@ owner or upstream-plugin state access.
 Core classification neither authorizes these steps nor weakens their focused
 semantic/no-future/human gates.
 
-### Plugin Platform Program — P1a Accepted, P1b Specification Drafted
+### Plugin Platform Program — P1a Accepted, P1b Specification Accepted
 
 Build the thin host contract before scaling plugin families, then validate each
 broader platform layer with real packages. Activate at most one separately
@@ -1237,13 +1237,14 @@ numbered phase at a time:
    and conformance Harness, immutable synthetic-host fixtures/simulation,
    reference workspaces, structured diagnostics/receipts, and a
    non-installable developer evidence bundle under accepted H116;
-5. **Draft awaiting review:** P1b transactional install-from-file plus
+5. **Accepted specification; implementation awaiting authorization:** P1b
+   transactional install-from-file plus
    Developer Mode load-unpacked, reload, and validate/pack for prepared local
    declarative candidates, with one common manifest, integrity/source
    disclosure, migration, uninstall/data survival, restricted-mode startup,
    and a local `stdio`, workspace-bounded MCP adapter over the P1a operations.
    Installation remains distinct from activation; external code and business
-   contributions remain non-executable. Draft contract:
+   contributions remain non-executable. Binding specification:
    `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`;
 6. P2 signed free Community registry with discovery, review metadata, explicit
    updates, restricted mode, rollback, and incident response;
@@ -1259,9 +1260,10 @@ numbered phase at a time:
 
 P0a, R13.10e, P0b, and P1a are closed. H115 passes its automated and focused
 human visual/interaction gates; H116 passes its headless deterministic and
-isolation gates. The P1b specification is drafted but not accepted; H117
-remains proposed only, and no P1b–P4 implementation is authorized. Plugin
-Center does not imply arbitrary code,
+isolation gates. The P1b specification and its five material decisions are
+accepted; H117 is declared but not registered, implemented, or accepted, and
+no P1b–P4 implementation is authorized. Plugin Center does not imply arbitrary
+code,
 local install does not imply network access, and a free registry does not imply
 payment. Strict TypeScript is the executable authoring language; JSON and JSON
 Schema carry manifests and declarative/host-rendered settings, and V7 loads
@@ -1271,7 +1273,8 @@ authorized Worker tier. Binding classification, sequencing, and P0b contract:
 `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` and
 `V7_CORE_PLUGIN_CENTER_P0B.md`. Binding P1a contract and rationale:
 `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` and
-`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`. P1b review draft:
+`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`. Binding P1b
+specification:
 `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`.
 
 “Agent-native” means there is no undocumented GUI-only authoring step: an AI

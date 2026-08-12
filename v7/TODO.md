@@ -667,7 +667,7 @@ Binding contract and rationale:
 `docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` and
 `docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`.
 
-## P1b Local Plugin Packages And Authoring MCP — Drafted 2026-08-11
+## P1b Local Plugin Packages And Authoring MCP — Accepted 2026-08-11
 
 - [x] receive authorization to correct stale P1a status language and draft,
   but not implement, the next Plugin Platform contract;
@@ -694,14 +694,14 @@ Binding contract and rationale:
   lifecycle/application authority;
 - [x] draft H117 automated/browser/architecture/human acceptance requirements
   without adding Harness metadata, fixtures, schemas, dependencies, or code;
-- [ ] receive explicit product-owner review acceptance of the five material
+- [x] receive explicit product-owner review acceptance of the five material
   P1b boundary decisions;
 - [ ] after specification acceptance, receive separate authorization before
   implementing P1b.1 contract/archive or any later P1b slice;
 - [x] keep P2 registry, P3a Worker, P3b Pine migration, P4 Marketplace, new
   business plugins, and R13.11–R13.13 outside P1b.
 
-Draft contract:
+Binding specification:
 `docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`.
 
 ## V7.0.0 Foundation Milestone — Accepted 2026-08-07
@@ -1403,13 +1403,15 @@ Binding ES full-chain repair:
 - [x] P1a implementation: after accepted specification, require a separate
   product-owner instruction before implementing the bounded Developer Kit and
   H116 without install/activation or production external-code execution;
-- [x] P1b specification draft: define local declarative install-from-file plus
-  Developer Mode load-unpacked/reload/validate-pack, transactional lifecycle,
-  integrity/source disclosure, migration, uninstall/data survival,
+- [x] P1b specification: define and accept local declarative install-from-file
+  plus Developer Mode load-unpacked/reload/validate-pack, transactional
+  lifecycle, integrity/source disclosure, migration, uninstall/data survival,
   restricted-mode startup, and a workspace-bounded MCP adapter over P1a rather
   than a second toolchain;
-- [ ] P1b acceptance/implementation: accept the five material draft decisions,
-  then require a separate instruction for P1b.1 or any implementation;
+- [x] P1b specification acceptance: accept the five material boundary
+  decisions without authorizing implementation;
+- [ ] P1b.1 implementation authorization: require a separate product-owner
+  instruction before contract/archive implementation or any later P1b slice;
 - [ ] P2/P3a: separately prove a signed free Community registry/restricted mode
   and isolated TypeScript-to-ESM Worker calculation tier with measured
   permissions/resource budgets; keep WASM a later separate decision;
