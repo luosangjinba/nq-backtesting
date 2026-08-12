@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "profiles": [
+    {
+      "id": "trusted-built-in-core-v1",
+      "manifestVersion": 1,
+      "distribution": {
+        "tier": "core",
+        "source": "built-in",
+        "trust": "first-party"
+      },
+      "permissions": [],
+      "productionExecutionTarget": null,
+      "referencePackageId": "first-party.fair-value-gap"
+    }
+  ]
+}

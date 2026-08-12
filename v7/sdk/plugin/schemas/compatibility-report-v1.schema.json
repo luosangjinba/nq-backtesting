@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/developer-compatibility-report-v1.json",
+  "title": "V7 Plugin Developer Compatibility Report V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "requested", "resolved", "contributions", "capabilities", "permissions",
+    "safeFixes", "humanChoices", "gates", "review", "developerBundleOnly", "laterCandidateEligible"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "requested": { "type": "object" },
+    "resolved": { "type": "object" },
+    "contributions": { "type": "object" },
+    "capabilities": { "type": "object" },
+    "permissions": { "type": "object" },
+    "safeFixes": { "type": "array", "items": {} },
+    "humanChoices": { "type": "array", "items": {} },
+    "gates": { "type": "object" },
+    "review": { "type": "object" },
+    "developerBundleOnly": { "const": true },
+    "laterCandidateEligible": { "const": false }
+  }
+}

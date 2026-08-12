@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "developerKitRange": "^1.0.0",
+  "sdkRange": "^1.0.0",
+  "contractProfile": "trusted-built-in-core-v1",
+  "manifestPath": "plugin.manifest.json",
+  "sourceRoot": "src",
+  "entrypoints": [
+    {
+      "id": "semantic.imbalance.fvg",
+      "kind": "semantic-construction",
+      "path": "src/index.ts"
+    }
+  ],
+  "fixtureSuites": [
+    {
+      "id": "strict-fvg-vectors",
+      "path": "fixtures/strict-fvg-vectors.json"
+    }
+  ],
+  "expectedOutputs": [
+    {
+      "fixtureSuiteId": "strict-fvg-vectors",
+      "path": "expected/strict-fvg-vectors.json"
+    }
+  ]
+}

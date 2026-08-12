@@ -1,0 +1,59 @@
+{
+  "manifestVersion": 1,
+  "packageId": "first-party.fair-value-gap",
+  "packageVersion": "1.0.0",
+  "module": {
+    "id": "optional.semantic-fair-value-gap",
+    "version": "1.0.0"
+  },
+  "display": {
+    "name": "Fair Value Gap",
+    "description": "Strict evidence-derived three-Bar wick-gap semantics and projections."
+  },
+  "distribution": {
+    "tier": "core",
+    "source": "built-in",
+    "publisherId": "first-party.replay-lab",
+    "trust": "first-party"
+  },
+  "hostApiRange": "^1.0.0",
+  "capabilities": {
+    "provides": [
+      { "id": "semantic.imbalance.fvg", "version": "1.0.0" },
+      { "id": "construct.imbalance.fvg", "version": "1.0.0" }
+    ],
+    "requires": [
+      { "id": "annotation.evidence.bundle", "range": "^1.0.0" },
+      { "id": "annotation.geometry.rectangle", "range": "^1.0.0" },
+      { "id": "annotation.geometry.segment", "range": "^1.0.0" }
+    ],
+    "extends": []
+  },
+  "contributions": [
+    {
+      "id": "semantic.imbalance.fvg",
+      "kind": "semantic-type",
+      "version": "1.0.0",
+      "displayName": "Fair Value Gap",
+      "parameters": {
+        "schemaVersion": 1,
+        "tabs": [
+          { "id": "inputs", "source": { "kind": "inspector-groups", "groupIds": ["semantic"] } },
+          { "id": "evidence", "source": { "kind": "inspector-groups", "groupIds": ["evidence"] } },
+          { "id": "history", "source": { "kind": "inspector-groups", "groupIds": ["history"] } }
+        ]
+      }
+    },
+    {
+      "id": "construct.imbalance.fvg",
+      "kind": "tool",
+      "version": "1.0.0",
+      "displayName": "FVG",
+      "parameters": null
+    }
+  ],
+  "permissions": [],
+  "conformance": {
+    "harness": "tests/plugin-contract-substrate-harness.js"
+  }
+}

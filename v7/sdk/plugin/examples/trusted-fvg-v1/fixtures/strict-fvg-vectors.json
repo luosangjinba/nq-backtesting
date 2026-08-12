@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "id": "strict-fvg-vectors",
+  "entrypointId": "semantic.imbalance.fvg",
+  "cases": [
+    {
+      "id": "bullish-three-bar-gap",
+      "input": {
+        "schemaVersion": 1,
+        "session": { "id": "session.p1a-fvg" },
+        "workspace": { "revision": 17 },
+        "pane": {
+          "id": "pane.nq-1m",
+          "instrumentId": "instrument.nq",
+          "displayTimeframeId": "timeframe.1m",
+          "sourceResolution": "timeframe.1m",
+          "datasetRevision": "dataset.p1a"
+        },
+        "replay": { "cutoffEpochMs": 180000 },
+        "evidence": {
+          "selectedBarStartEpochMs": 60000,
+          "bars": [
+            { "startEpochMs": 0, "endEpochMs": 60000, "open": 100, "high": 101, "low": 99, "close": 100.5, "volume": 11 },
+            { "startEpochMs": 60000, "endEpochMs": 120000, "open": 100.5, "high": 105, "low": 100, "close": 104, "volume": 18 },
+            { "startEpochMs": 120000, "endEpochMs": 180000, "open": 104, "high": 106, "low": 103, "close": 105, "volume": 14 }
+          ]
+        },
+        "settings": {}
+      }
+    },
+    {
+      "id": "bearish-three-bar-gap",
+      "input": {
+        "schemaVersion": 1,
+        "session": { "id": "session.p1a-fvg" },
+        "workspace": { "revision": 17 },
+        "pane": {
+          "id": "pane.nq-1m",
+          "instrumentId": "instrument.nq",
+          "displayTimeframeId": "timeframe.1m",
+          "sourceResolution": "timeframe.1m",
+          "datasetRevision": "dataset.p1a"
+        },
+        "replay": { "cutoffEpochMs": 180000 },
+        "evidence": {
+          "selectedBarStartEpochMs": 60000,
+          "bars": [
+            { "startEpochMs": 0, "endEpochMs": 60000, "open": 105, "high": 106, "low": 103, "close": 104, "volume": 11 },
+            { "startEpochMs": 60000, "endEpochMs": 120000, "open": 104, "high": 105, "low": 99, "close": 100, "volume": 18 },
+            { "startEpochMs": 120000, "endEpochMs": 180000, "open": 100, "high": 101, "low": 98, "close": 99, "volume": 14 }
+          ]
+        },
+        "settings": {}
+      }
+    }
+  ]
+}

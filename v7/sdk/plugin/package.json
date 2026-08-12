@@ -1,0 +1,11 @@
+{
+  "name": "@replay-lab/v7-plugin-sdk",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./runtime.js"
+    }
+  }
+}

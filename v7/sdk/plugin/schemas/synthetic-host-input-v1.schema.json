@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/synthetic-host-input-v1.json",
+  "title": "V7 Plugin Developer Synthetic Host Input V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "session", "workspace", "pane", "replay", "evidence", "settings"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "session": { "$ref": "#/$defs/session" },
+    "workspace": { "$ref": "#/$defs/workspace" },
+    "pane": { "$ref": "#/$defs/pane" },
+    "replay": { "$ref": "#/$defs/replay" },
+    "evidence": { "$ref": "#/$defs/evidence" },
+    "settings": { "type": "object" }
+  },
+  "$defs": {
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": { "id": { "type": "string", "minLength": 1, "maxLength": 128 } }
+    },
+    "workspace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision"],
+      "properties": { "revision": { "type": "integer", "minimum": 0 } }
+    },
+    "pane": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "instrumentId", "displayTimeframeId", "sourceResolution", "datasetRevision"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "instrumentId": { "type": "string", "minLength": 1 },
+        "displayTimeframeId": { "type": "string", "minLength": 1 },
+        "sourceResolution": { "type": "string", "minLength": 1 },
+        "datasetRevision": { "type": "string", "minLength": 1 }
+      }
+    },
+    "replay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cutoffEpochMs"],
+      "properties": { "cutoffEpochMs": { "type": "integer", "minimum": 0 } }
+    },
+    "bar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startEpochMs", "endEpochMs", "open", "high", "low", "close", "volume"],
+      "properties": {
+        "startEpochMs": { "type": "integer", "minimum": 0 },
+        "endEpochMs": { "type": "integer", "minimum": 1 },
+        "open": { "type": "number" },
+        "high": { "type": "number" },
+        "low": { "type": "number" },
+        "close": { "type": "number" },
+        "volume": { "type": ["number", "null"] }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selectedBarStartEpochMs", "bars"],
+      "properties": {
+        "selectedBarStartEpochMs": { "type": "integer", "minimum": 0 },
+        "bars": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "$ref": "#/$defs/bar" } }
+      }
+    }
+  }
+}

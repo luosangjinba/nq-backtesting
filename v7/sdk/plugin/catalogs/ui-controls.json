@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "tabOrder": ["inputs", "style", "visibility", "evidence", "history"],
+  "controls": ["boolean", "number", "color", "text", "select"],
+  "customHtml": false,
+  "customCss": false,
+  "hostRendered": true
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "hostApiVersion": "1.0.0",
+  "capabilities": [
+    { "id": "annotation.evidence.bundle", "version": "1.0.0" },
+    { "id": "annotation.geometry.rectangle", "version": "1.0.0" },
+    { "id": "annotation.geometry.segment", "version": "1.0.0" }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "operations": [
+    { "id": "discover", "version": 1, "candidateExecution": "never" },
+    { "id": "scaffold", "version": 1, "candidateExecution": "never" },
+    { "id": "validate", "version": 1, "candidateExecution": "never" },
+    { "id": "build", "version": 1, "candidateExecution": "compiler-only" },
+    { "id": "test", "version": 1, "candidateExecution": "isolated-profile-gated" },
+    { "id": "preview", "version": 1, "candidateExecution": "isolated-profile-gated" },
+    { "id": "pack", "version": 1, "candidateExecution": "never" },
+    { "id": "inspect", "version": 1, "candidateExecution": "never" }
+  ]
+}

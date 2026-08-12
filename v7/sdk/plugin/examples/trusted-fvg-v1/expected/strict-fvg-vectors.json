@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "fixtureSuiteId": "strict-fvg-vectors",
+  "cases": [
+    {
+      "id": "bullish-three-bar-gap",
+      "output": {
+        "schemaVersion": 1,
+        "artifact": {
+          "typeId": "imbalance.fvg",
+          "definitionId": "imbalance.fvg.strict-three-bar-wick-gap",
+          "direction": "bullish",
+          "lowerPrice": 101,
+          "upperPrice": 103,
+          "midpointPrice": 102,
+          "observedAtReplayCutoffEpochMs": 180000,
+          "source": {
+            "sessionId": "session.p1a-fvg",
+            "workspaceRevision": 17,
+            "paneId": "pane.nq-1m",
+            "instrumentId": "instrument.nq",
+            "displayTimeframeId": "timeframe.1m",
+            "sourceResolution": "timeframe.1m",
+            "datasetRevision": "dataset.p1a",
+            "selectedBarStartEpochMs": 60000,
+            "barStartsEpochMs": [0, 60000, 120000]
+          }
+        },
+        "projections": [
+          {
+            "kind": "rectangle",
+            "fromEpochMs": 0,
+            "toEpochMs": 120000,
+            "lowerPrice": 101,
+            "upperPrice": 103,
+            "label": "Bullish FVG"
+          },
+          {
+            "kind": "segment",
+            "fromEpochMs": 0,
+            "toEpochMs": 120000,
+            "price": 102
+          }
+        ]
+      }
+    },
+    {
+      "id": "bearish-three-bar-gap",
+      "output": {
+        "schemaVersion": 1,
+        "artifact": {
+          "typeId": "imbalance.fvg",
+          "definitionId": "imbalance.fvg.strict-three-bar-wick-gap",
+          "direction": "bearish",
+          "lowerPrice": 101,
+          "upperPrice": 103,
+          "midpointPrice": 102,
+          "observedAtReplayCutoffEpochMs": 180000,
+          "source": {
+            "sessionId": "session.p1a-fvg",
+            "workspaceRevision": 17,
+            "paneId": "pane.nq-1m",
+            "instrumentId": "instrument.nq",
+            "displayTimeframeId": "timeframe.1m",
+            "sourceResolution": "timeframe.1m",
+            "datasetRevision": "dataset.p1a",
+            "selectedBarStartEpochMs": 60000,
+            "barStartsEpochMs": [0, 60000, 120000]
+          }
+        },
+        "projections": [
+          {
+            "kind": "rectangle",
+            "fromEpochMs": 0,
+            "toEpochMs": 120000,
+            "lowerPrice": 101,
+            "upperPrice": 103,
+            "label": "Bearish FVG"
+          },
+          {
+            "kind": "segment",
+            "fromEpochMs": 0,
+            "toEpochMs": 120000,
+            "price": 102
+          }
+        ]
+      }
+    }
+  ]
+}

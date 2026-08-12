@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/developer-kit-receipt-v1.json",
+  "title": "V7 Plugin Developer Kit Receipt V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "receiptVersion", "operation", "operationVersion", "packageId", "packageVersion",
+    "contractProfile", "identities", "content", "conformance", "execution", "diagnosticCodes",
+    "reviewRequirements", "installable", "activated", "publisherTrusted",
+    "productionExecutionAuthorized", "digest"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "receiptVersion": { "const": 1 },
+    "operation": { "enum": ["build", "test", "preview", "pack"] },
+    "operationVersion": { "const": 1 },
+    "packageId": { "type": "string", "minLength": 1 },
+    "packageVersion": { "type": "string", "minLength": 1 },
+    "contractProfile": { "const": "trusted-built-in-core-v1" },
+    "identities": { "type": "object" },
+    "content": { "type": "object" },
+    "conformance": { "type": "object" },
+    "execution": { "type": "object" },
+    "diagnosticCodes": { "type": "array", "items": { "type": "string" } },
+    "reviewRequirements": { "type": "array", "items": { "type": "string" } },
+    "installable": { "const": false },
+    "activated": { "const": false },
+    "publisherTrusted": { "const": false },
+    "productionExecutionAuthorized": { "const": false },
+    "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+  }
+}

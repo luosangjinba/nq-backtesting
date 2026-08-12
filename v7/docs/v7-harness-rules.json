@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "currentStep": "P0b",
+  "currentStep": "P1a",
   "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7", "R7.3", "R8", "R8.1", "R8.2", "R8.3", "R8.4", "R8.5", "R8.6", "R8.7", "R8.8", "R8.9", "R8.10", "R8.11", "R8.12", "R8.13", "R8.14", "R8.15", "R8.16", "R9", "R9.1", "R9.2", "R9.3", "R9.4", "R10", "R10.1", "R10.2", "R10.3", "R10.4", "R10.5", "R10.6", "R10.7", "R10.8", "R10.9", "R10.10", "R11", "R11.1", "R12", "R12.1", "R12.2", "R12.3", "R12.4", "R12.5", "R12.6", "R12.7", "R12.8", "R13.1", "R13.2", "R13.3", "R13.4", "R13.5", "R13.6", "R13.7", "R13.8", "R13.9", "R13.9b", "R13.10a", "R13.10b", "R13.10c", "R13.10d", "P0a", "R13.10e", "P0b", "P1a"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted", "regressed"],
   "recoveryMode": {
@@ -2588,14 +2588,22 @@
       "owner": "plugin-sdk/plugin-developer-kit/conformance-harness",
       "v6FailurePrevented": "plugin authoring depended on undocumented GUI steps or scattered source knowledge, human/CI/Agent paths disagreed, a developer bundle masqueraded as install consent, untrusted tests reached production owners or ambient authority, outputs were non-reproducible, diagnostics were prose-only, or forged provenance claimed conformance",
       "activationStep": "P1a",
-      "state": "declared",
-      "harness": null,
+      "state": "accepted",
+      "harness": "tests/plugin-developer-kit-harness.js",
       "positiveEvidence": [
-        "docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md"
+        "docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md",
+        "sdk/plugin/index.d.ts",
+        "sdk/plugin/catalogs/toolchain.json",
+        "sdk/plugin/examples/trusted-fvg-v1/v7-plugin-kit.json",
+        "tools/plugin-developer-kit/public.js",
+        "tests/plugin-developer-kit-harness.js",
+        "sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md"
       ],
-      "negativeFixtures": [],
+      "negativeFixtures": [
+        "tests/fixtures/plugin-developer-kit/negative/cases.json"
+      ],
       "humanReviewRequired": false,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md"
     }
   ]
 }

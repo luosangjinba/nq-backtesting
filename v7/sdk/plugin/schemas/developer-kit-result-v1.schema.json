@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/developer-kit-result-v1.json",
+  "title": "V7 Plugin Developer Kit Result V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "operation",
+    "operationVersion",
+    "status",
+    "exitCode",
+    "contractProfile",
+    "sdkVersion",
+    "toolchainDigest",
+    "inputDigest",
+    "diagnostics",
+    "artifacts"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "operation": { "type": "string" },
+    "operationVersion": { "const": 1 },
+    "status": { "enum": ["passed", "failed", "blocked"] },
+    "exitCode": { "enum": [0, 1, 2, 3, 4] },
+    "contractProfile": { "type": "string" },
+    "sdkVersion": { "type": "string" },
+    "toolchainDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "inputDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "diagnostics": { "type": "array", "items": { "$ref": "developer-diagnostic-v1.schema.json" } },
+    "artifacts": { "type": "array", "items": {} },
+    "compatibilityReport": { "type": "object" },
+    "receipt": { "type": "object" }
+  }
+}

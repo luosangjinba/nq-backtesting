@@ -1,14 +1,13 @@
 # V7 Agent-Native Plugin Developer Kit — P1a
 
-Status: specification accepted 2026-08-11; implementation not authorized; H116
-declared
+Status: implemented and accepted 2026-08-11; H116 automated gate passed
 
 Date: 2026-08-11
 
 Depends on: accepted ADR-V7-004, P0a/H113, R13.10e/H114, P0b/H115, and the
 accepted Agent-native/Pine authoring amendment
 
-Harness: H116, declared only
+Harness: H116, accepted; no human visual gate required
 
 Plain-language design rationale:
 `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`
@@ -73,12 +72,13 @@ part of the versioned Developer Kit contract:
 
 - <https://json-schema.org/draft/2020-12/json-schema-core>
 
-These checks add no upstream production dependency. Dependency selection and
-license/integrity review occur only if P1a implementation is later authorized.
+These checks add no upstream production dependency. The P1a implementation
+pins TypeScript `7.0.2`; its package and 20 platform-optional compiler packages
+are all Apache-2.0 and have exact integrity values in the toolchain catalog.
 
 ## Authorization Boundary
 
-P1a specification includes only:
+The separately authorized P1a implementation includes only:
 
 - versioned SDK value types and JSON Schemas;
 - versioned capability, contribution-contract, permission, UI-control, and
@@ -89,7 +89,7 @@ P1a specification includes only:
 - an immutable synthetic-host simulator and isolated developer test runner;
 - real FVG plus bounded synthetic reference workspaces;
 - stable diagnostics, compatibility reports, provenance, and receipts;
-- H116's future automated acceptance boundary.
+- H116's automated acceptance boundary.
 
 P1a explicitly excludes:
 
@@ -107,9 +107,9 @@ P1a explicitly excludes:
 - a new Core business plugin, MA/SMA, Fibonacci, Liquidity expansion,
   detector, R13.11–R13.13, or product-visible pixels.
 
-This document authorizes no source implementation. Review acceptance and a
-separate implementation instruction are required before creating the SDK,
-tooling, reference workspaces, H116 executable Harness, or dependencies.
+The product owner separately authorized this bounded implementation on
+2026-08-11. That instruction did not authorize any excluded P1b, P2, P3, new
+business-plugin, or product-visible behavior.
 
 ## One Authoritative Operation Engine
 
@@ -537,7 +537,7 @@ is added; P1a must not fake them with inert manifests.
 
 ## Ownership And Module Placement
 
-Future P1a implementation must stay outside the production owner graph except
+The P1a implementation stays outside the production owner graph except
 for importing read-only public schemas/types through an explicit adapter.
 
 ```text
@@ -570,8 +570,8 @@ receipt and compatibility construction remain pure and testable.
 
 ## H116 Acceptance Gate
 
-H116 is declared now and remains non-executable until P1a implementation is
-separately authorized. Acceptance requires all of the following.
+H116 is executable and accepted. Its acceptance evidence covers all of the
+following.
 
 ### Contract And Determinism
 
@@ -672,17 +672,13 @@ four material boundary choices:
 4. `.v7dk.tar` never conveys installation or execution authorization.
 
 This document is therefore the accepted P1a contract. The explanatory record
-is `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`, and the
-acceptance evidence is
+is `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`; specification
+acceptance is recorded in
 `../sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`.
-Until the product owner separately directs implementation:
+The separately authorized implementation and H116 evidence are recorded in
+`../sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md`.
 
-- H116 stays `declared` with no Harness or acceptance evidence;
-- `v7-harness-rules.json` keeps P0b as the current implemented step;
-- no Developer Kit source, SDK package, compiler dependency, fixture, archive,
-  MCP server, installer, or production behavior is authorized.
-
-The next decision is whether to authorize the bounded P1a implementation
-exactly as specified. P1b local packages/MCP, P2
-registry, P3a Worker execution, P3b Pine migration, new business plugins, and
-Marketplace remain separately gated.
+P1a is closed with `currentStep: P1a` and H116 `accepted`. P1b local
+packages/MCP, P2 registry, P3a Worker execution, P3b Pine migration, new
+business plugins, and Marketplace remain separately gated; no next phase is
+authorized by P1a acceptance.

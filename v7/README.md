@@ -44,8 +44,14 @@ For operation in Chinese, start with the
 - a read-only standalone V7 market-data service;
 - local persistence plus authenticated, user-scoped server state for use across
   computers;
+- a headless P1a Plugin Developer Kit for the trusted FVG contract, with strict
+  TypeScript, isolated fixtures, and non-installable deterministic evidence
+  bundles;
 - one Linux deployment entry for local, cloud IPv4, public-domain, and private-
   domain hosts.
+
+Developer Kit usage and its explicit non-installation boundary are documented
+in [tools/plugin-developer-kit/README.md](tools/plugin-developer-kit/README.md).
 
 ## Quick Deployment
 
@@ -110,6 +116,8 @@ the [Linux deployment guide](deploy/linux/README.md).
   data-cost, cache, and capacity decision;
 - live brokerage connectivity, order execution, Journal, and Validation
   Campaigns are outside V7.0.0;
+- P1b plugin installation/MCP, a Community registry, production Worker
+  execution, and Pine migration are not part of P1a;
 - Basic Auth provides one state namespace per username, not registration,
   roles, tenancy administration, or a general multi-user account system;
 - historical maintenance and Contract Roll writes are optional and disabled in

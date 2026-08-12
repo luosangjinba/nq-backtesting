@@ -1,0 +1,12 @@
+{
+  "name": "@replay-lab/v7-plugin-developer-kit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "v7-plugin-kit": "./cli/main.js"
+  },
+  "exports": {
+    ".": "./public.js"
+  }
+}

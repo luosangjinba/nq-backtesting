@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "tabs": [
+    {
+      "id": "inputs",
+      "source": {
+        "kind": "settings",
+        "fields": [
+          { "id": "enabled", "label": "Enabled", "control": { "kind": "boolean" }, "defaultValue": true, "scopes": ["package", "profile", "instance"] },
+          { "id": "length", "label": "Length", "control": { "kind": "number", "min": 1, "max": 100, "step": 1 }, "defaultValue": 3, "scopes": ["profile", "instance"] },
+          { "id": "label", "label": "Label", "control": { "kind": "text", "maxLength": 48 }, "defaultValue": "FVG", "scopes": ["instance"] },
+          { "id": "mode", "label": "Mode", "control": { "kind": "select", "options": [{ "label": "Strict", "value": "strict" }, { "label": "Relaxed", "value": "relaxed" }] }, "defaultValue": "strict", "scopes": ["package"] }
+        ]
+      }
+    },
+    {
+      "id": "style",
+      "source": {
+        "kind": "settings",
+        "fields": [
+          { "id": "color", "label": "Color", "control": { "kind": "color" }, "defaultValue": "#10b981", "scopes": ["profile", "instance"] }
+        ]
+      }
+    },
+    {
+      "id": "visibility",
+      "source": {
+        "kind": "settings",
+        "fields": [
+          { "id": "visible", "label": "Visible", "control": { "kind": "boolean" }, "defaultValue": true, "scopes": ["instance"] }
+        ]
+      }
+    },
+    { "id": "evidence", "source": { "kind": "inspector-groups", "groupIds": ["evidence"] } },
+    { "id": "history", "source": { "kind": "inspector-groups", "groupIds": ["history"] } }
+  ]
+}

@@ -1,0 +1,22 @@
+[
+  { "case": "request-closure", "expectedDiagnostic": "V7DK_REQUEST_UNKNOWN_FIELD" },
+  { "case": "unsupported-profile-sdk", "expectedDiagnostic": "V7DK_SDK_UNSUPPORTED" },
+  { "case": "unauthorized-community-worker-subpane", "expectedDiagnostic": "V7DK_PROFILE_UNSUPPORTED" },
+  { "case": "forged-first-party", "expectedDiagnostic": "V7DK_DISTRIBUTION_UNAUTHORIZED" },
+  { "case": "manifest-field-permission", "expectedDiagnostic": "V7DK_MANIFEST_INVALID" },
+  { "case": "capability-graph", "expectedDiagnostic": "V7DK_CAPABILITY_MISSING" },
+  { "case": "custom-ui-owner-handle", "expectedDiagnostic": "V7DK_API_FORBIDDEN" },
+  { "case": "forbidden-imports", "expectedDiagnostic": "V7DK_IMPORT_FORBIDDEN" },
+  { "case": "dynamic-code-lifecycle", "expectedDiagnostic": "V7DK_API_FORBIDDEN" },
+  { "case": "weakened-typescript", "expectedDiagnostic": "V7DK_COMPILER_CONFIGURATION_FORBIDDEN" },
+  { "case": "workspace-path-surface", "expectedDiagnostic": "V7DK_WORKSPACE_PATH_ESCAPE" },
+  { "case": "scaffold-overwrite", "expectedDiagnostic": "V7DK_SCAFFOLD_TARGET_NOT_EMPTY" },
+  { "case": "ambient-input", "expectedDiagnostic": "V7DK_API_FORBIDDEN" },
+  { "case": "replay-future-repaint", "expectedDiagnostic": "V7DK_REPLAY_FUTURE_READ" },
+  { "case": "expected-output-mismatch", "expectedDiagnostic": "V7DK_FIXTURE_MISMATCH" },
+  { "case": "isolation-resource-leak", "expectedDiagnostic": "V7DK_ISOLATION_UNAVAILABLE" },
+  { "case": "stale-build", "expectedDiagnostic": "V7DK_STALE_OUTPUT" },
+  { "case": "tampered-bundle-receipt", "expectedDiagnostic": "V7DK_INTEGRITY_MISMATCH" },
+  { "case": "malicious-bundle-entry", "expectedDiagnostic": "V7DK_BUNDLE_INVALID" },
+  { "case": "lifecycle-operation", "expectedDiagnostic": "V7DK_OPERATION_UNSUPPORTED" }
+]

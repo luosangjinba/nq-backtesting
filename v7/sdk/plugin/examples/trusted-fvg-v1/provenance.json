@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "source": "repository-trusted-reference",
+  "packageId": "first-party.fair-value-gap",
+  "license": "MIT",
+  "networkDerived": false,
+  "credentialsIncluded": false,
+  "productionExecutionAuthorized": false
+}

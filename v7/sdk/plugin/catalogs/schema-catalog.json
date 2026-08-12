@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "schemas": [
+    { "id": "bundle-index-v1", "path": "sdk/plugin/schemas/bundle-index-v1.schema.json" },
+    { "id": "compatibility-report-v1", "path": "sdk/plugin/schemas/compatibility-report-v1.schema.json" },
+    { "id": "developer-diagnostic-v1", "path": "sdk/plugin/schemas/developer-diagnostic-v1.schema.json" },
+    { "id": "developer-kit-receipt-v1", "path": "sdk/plugin/schemas/developer-kit-receipt-v1.schema.json" },
+    { "id": "developer-kit-request-v1", "path": "sdk/plugin/schemas/developer-kit-request-v1.schema.json" },
+    { "id": "developer-kit-result-v1", "path": "sdk/plugin/schemas/developer-kit-result-v1.schema.json" },
+    { "id": "developer-workspace-v1", "path": "sdk/plugin/schemas/developer-workspace-v1.schema.json" },
+    { "id": "expected-output-suite-v1", "path": "sdk/plugin/schemas/expected-output-suite-v1.schema.json" },
+    { "id": "fixture-suite-v1", "path": "sdk/plugin/schemas/fixture-suite-v1.schema.json" },
+    { "id": "p0a-built-in-plugin-manifest-v1", "path": "src/plugin-contract/plugin-manifest.schema.json" },
+    { "id": "p0a-plugin-parameters-v1", "path": "src/plugin-contract/plugin-parameters.schema.json" },
+    { "id": "synthetic-host-input-v1", "path": "sdk/plugin/schemas/synthetic-host-input-v1.schema.json" },
+    { "id": "synthetic-host-output-v1", "path": "sdk/plugin/schemas/synthetic-host-output-v1.schema.json" }
+  ]
+}

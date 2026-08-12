@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "contributions": [
+    {
+      "kind": "semantic-type",
+      "availability": "trusted-build",
+      "fixtureAbi": "semantic-construction-v1"
+    },
+    {
+      "kind": "tool",
+      "availability": "fixture",
+      "fixtureAbi": "semantic-construction-v1"
+    },
+    {
+      "kind": "indicator",
+      "availability": "unavailable",
+      "fixtureAbi": null
+    },
+    {
+      "kind": "drawing",
+      "availability": "unavailable",
+      "fixtureAbi": null
+    },
+    {
+      "kind": "workflow",
+      "availability": "unavailable",
+      "fixtureAbi": null
+    }
+  ]
+}

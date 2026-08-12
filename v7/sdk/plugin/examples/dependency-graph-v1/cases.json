@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    { "id": "stable-order", "expected": "passed" },
+    { "id": "missing-capability", "expectedDiagnostic": "V7DK_CAPABILITY_MISSING" },
+    { "id": "incompatible-capability", "expectedDiagnostic": "V7DK_CAPABILITY_INCOMPATIBLE" },
+    { "id": "provider-collision", "expectedDiagnostic": "V7DK_CAPABILITY_COLLISION" },
+    { "id": "self-reference", "expectedDiagnostic": "V7DK_CAPABILITY_SELF_REFERENCE" },
+    { "id": "dependency-cycle", "expectedDiagnostic": "V7DK_CAPABILITY_CYCLE" }
+  ]
+}

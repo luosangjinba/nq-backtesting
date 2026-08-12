@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/developer-evidence-bundle-index-v1.json",
+  "title": "V7 P1a Developer Evidence Bundle Index V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "bundleKind", "developerKitVersion", "contractProfile", "files", "limits",
+    "installable", "activated", "productionExecutionAuthorized"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "bundleKind": { "const": "p1a-developer-evidence" },
+    "developerKitVersion": { "const": "1.0.0" },
+    "contractProfile": { "const": "trusted-built-in-core-v1" },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "size"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "size": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "limits": { "type": "object" },
+    "installable": { "const": false },
+    "activated": { "const": false },
+    "productionExecutionAuthorized": { "const": false }
+  }
+}

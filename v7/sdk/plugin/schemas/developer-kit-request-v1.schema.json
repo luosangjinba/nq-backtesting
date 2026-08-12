@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/developer-kit-request-v1.json",
+  "title": "V7 Plugin Developer Kit Request V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "operation", "operationVersion", "options"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "operation": {
+      "enum": ["discover", "scaffold", "validate", "build", "test", "preview", "pack", "inspect"]
+    },
+    "operationVersion": { "const": 1 },
+    "workspaceRoot": { "type": "string", "minLength": 1 },
+    "outputRoot": { "type": "string", "minLength": 1 },
+    "contractProfile": { "const": "trusted-built-in-core-v1" },
+    "sdkVersion": { "const": "1.0.0" },
+    "fixtureSelection": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9.-]{0,127}$" }
+    },
+    "options": { "type": "object" }
+  }
+}

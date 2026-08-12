@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/developer-workspace-v1.json",
+  "title": "V7 Plugin Developer Workspace V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "developerKitRange",
+    "sdkRange",
+    "contractProfile",
+    "manifestPath",
+    "sourceRoot",
+    "entrypoints",
+    "fixtureSuites",
+    "expectedOutputs"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "developerKitRange": { "const": "^1.0.0" },
+    "sdkRange": { "const": "^1.0.0" },
+    "contractProfile": { "const": "trusted-built-in-core-v1" },
+    "manifestPath": { "$ref": "#/$defs/path" },
+    "sourceRoot": { "$ref": "#/$defs/path" },
+    "entrypoints": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "path"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "kind": { "const": "semantic-construction" },
+          "path": { "$ref": "#/$defs/typescriptPath" }
+        }
+      }
+    },
+    "fixtureSuites": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/pathRecord" }
+    },
+    "expectedOutputs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fixtureSuiteId", "path"],
+        "properties": {
+          "fixtureSuiteId": { "$ref": "#/$defs/id" },
+          "path": { "$ref": "#/$defs/path" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9.-]{0,127}$" },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)[A-Za-z0-9._/-]+$"
+    },
+    "typescriptPath": {
+      "allOf": [
+        { "$ref": "#/$defs/path" },
+        { "pattern": "\\.ts$" }
+      ]
+    },
+    "pathRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "path": { "$ref": "#/$defs/path" }
+      }
+    }
+  }
+}

@@ -1216,7 +1216,7 @@ owner or upstream-plugin state access.
 Core classification neither authorizes these steps nor weakens their focused
 semantic/no-future/human gates.
 
-### Plugin Platform Program — P1a Specification Accepted
+### Plugin Platform Program — P1a Implemented And Accepted
 
 Build the thin host contract before scaling plugin families, then validate each
 broader platform layer with real packages. Activate at most one separately
@@ -1231,13 +1231,12 @@ numbered phase at a time:
    trusted-build packages, including status, dependencies, package/default
    settings, diagnostics, and restart-bound enable/disable through one
    immutable ModuleHost generation;
-4. **Specification accepted; implementation not authorized:** P1a Agent-native
-   Plugin Developer Kit: one
+4. **Implemented and accepted:** P1a Agent-native Plugin Developer Kit: one
    versioned strict-TypeScript SDK, machine-readable
    schemas/capabilities/examples, deterministic CLI/library operation engine
    and conformance Harness, immutable synthetic-host fixtures/simulation,
    reference workspaces, structured diagnostics/receipts, and a
-   non-installable developer evidence bundle under future H116;
+   non-installable developer evidence bundle under accepted H116;
 5. P1b transactional install-from-file plus Developer Mode load-unpacked,
    reload, validate/pack for declarative packages, with one common manifest,
    integrity/source disclosure, migration, uninstall, data survival,
@@ -1255,10 +1254,10 @@ numbered phase at a time:
    semantic/visual review; Pine is never a V7 runtime;
 9. P4 paid Marketplace only after a separate product/business decision.
 
-P0a, R13.10e, and P0b are closed. H115 passes its automated gates and the
-corrected focused human visual/interaction review. The P1a specification is
-accepted; no P1–P4 implementation is authorized. Plugin Center
-does not imply arbitrary code,
+P0a, R13.10e, P0b, and P1a are closed. H115 passes its automated and focused
+human visual/interaction gates; H116 passes its headless deterministic and
+isolation gates. No P1b–P4 implementation is authorized. Plugin Center does
+not imply arbitrary code,
 local install does not imply network access, and a free registry does not imply
 payment. Strict TypeScript is the executable authoring language; JSON and JSON
 Schema carry manifests and declarative/host-rendered settings, and V7 loads

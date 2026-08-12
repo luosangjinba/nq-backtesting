@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/synthetic-host-output-v1.json",
+  "title": "V7 Plugin Developer Synthetic Host Output V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "artifact", "projections"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "typeId", "definitionId", "direction", "lowerPrice", "upperPrice", "midpointPrice",
+        "observedAtReplayCutoffEpochMs", "source"
+      ],
+      "properties": {
+        "typeId": { "const": "imbalance.fvg" },
+        "definitionId": { "const": "imbalance.fvg.strict-three-bar-wick-gap" },
+        "direction": { "enum": ["bullish", "bearish"] },
+        "lowerPrice": { "type": "number" },
+        "upperPrice": { "type": "number" },
+        "midpointPrice": { "type": "number" },
+        "observedAtReplayCutoffEpochMs": { "type": "integer", "minimum": 0 },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sessionId", "workspaceRevision", "paneId", "instrumentId", "displayTimeframeId",
+            "sourceResolution", "datasetRevision", "selectedBarStartEpochMs", "barStartsEpochMs"
+          ],
+          "properties": {
+            "sessionId": { "type": "string", "minLength": 1 },
+            "workspaceRevision": { "type": "integer", "minimum": 0 },
+            "paneId": { "type": "string", "minLength": 1 },
+            "instrumentId": { "type": "string", "minLength": 1 },
+            "displayTimeframeId": { "type": "string", "minLength": 1 },
+            "sourceResolution": { "type": "string", "minLength": 1 },
+            "datasetRevision": { "type": "string", "minLength": 1 },
+            "selectedBarStartEpochMs": { "type": "integer", "minimum": 0 },
+            "barStartsEpochMs": {
+              "type": "array", "minItems": 3, "maxItems": 3,
+              "items": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "projections": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "fromEpochMs", "toEpochMs", "lowerPrice", "upperPrice", "label"],
+            "properties": {
+              "kind": { "const": "rectangle" },
+              "fromEpochMs": { "type": "integer", "minimum": 0 },
+              "toEpochMs": { "type": "integer", "minimum": 0 },
+              "lowerPrice": { "type": "number" },
+              "upperPrice": { "type": "number" },
+              "label": { "type": "string", "minLength": 1 }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "fromEpochMs", "toEpochMs", "price"],
+            "properties": {
+              "kind": { "const": "segment" },
+              "fromEpochMs": { "type": "integer", "minimum": 0 },
+              "toEpochMs": { "type": "integer", "minimum": 0 },
+              "price": { "type": "number" }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

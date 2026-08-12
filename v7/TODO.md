@@ -620,7 +620,7 @@ Binding contract:
 Binding contract:
 `docs/V7_CORE_PLUGIN_CENTER_P0B.md`.
 
-## P1a Agent-Native Plugin Developer Kit — Specification Accepted 2026-08-11
+## P1a Agent-Native Plugin Developer Kit — Implemented 2026-08-11
 
 - [x] receive authorization to specify, but not implement, the next bounded
   Plugin Platform phase;
@@ -645,9 +645,22 @@ Binding contract:
   evidence;
 - [x] receive explicit review acceptance of the four material boundaries and
   preserve the detailed Chinese design rationale for future maintainers;
-- [ ] receive separate implementation authorization before adding SDK/tool
+- [x] receive separate implementation authorization before adding SDK/tool
   source, compiler dependencies, H116 fixtures, or developer bundles;
-- [ ] keep P1b install-from-file/Developer Mode/MCP, P2 registry, P3a Worker,
+- [x] implement one strict, content-addressed SDK/tool release with TypeScript
+  7.0.2, 13 public JSON Schemas, versioned catalogs, and exact dependency
+  license/integrity identity;
+- [x] implement all eight operations through one engine shared by Library and
+  CLI, with root-free canonical results, structured diagnostics, compatibility
+  reports, receipts, and an ownership-marked output surface;
+- [x] run `test`/`preview` only through disposable bubblewrap network/PID/
+  filesystem isolation, Node permissions, and a context-local VM linker; fail
+  `blocked` when that isolation is unavailable;
+- [x] prove real FVG bullish/bearish vectors, host-rendered controls, derived
+  capability ordering, deterministic ustar pack/inspect, stale/tamper/path
+  rejection, and Library/CLI equivalence through H116's 20 negative controls;
+- [x] mark H116/P1a accepted without a visual gate because P1a adds no pixels;
+- [x] keep P1b install-from-file/Developer Mode/MCP, P2 registry, P3a Worker,
   P3b Pine migration, new Core business plugins, and Marketplace outside P1a.
 
 Binding contract and rationale:
@@ -1350,7 +1363,7 @@ Binding ES full-chain repair:
   SDK, machine-readable contract bundle, deterministic CLI/library and
   conformance Harness, immutable headless host fixtures/simulation, reference
   packages, diagnostics, receipts, and static build/pack path;
-- [ ] P1a implementation: after accepted specification, require a separate
+- [x] P1a implementation: after accepted specification, require a separate
   product-owner instruction before implementing the bounded Developer Kit and
   H116 without install/activation or production external-code execution;
 - [ ] P1b: specify local declarative install-from-file plus Developer Mode
