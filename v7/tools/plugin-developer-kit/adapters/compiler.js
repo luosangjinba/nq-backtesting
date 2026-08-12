@@ -6,7 +6,11 @@ import { canonicalJson, compareText, digestValue, sha256Bytes } from '../domain/
 import { DeveloperKitFailure, diagnostic, fail } from '../domain/diagnostic.js';
 import { analyzeEmittedModule } from '../domain/static-analysis.js';
 import { TYPESCRIPT_CLI, SDK_ROOT } from './layout.js';
-import { replaceOwnedDirectory, writeOutputJson } from './workspace-io.js';
+import {
+  replaceOwnedDirectory,
+  requireOutputRegularFile,
+  writeOutputJson,
+} from './output-io.js';
 
 function copyFile(from, to) {
   fs.mkdirSync(path.dirname(to), { recursive: true, mode: 0o755 });
@@ -14,14 +18,24 @@ function copyFile(from, to) {
   fs.chmodSync(to, 0o644);
 }
 
-function listBuildFiles(root) {
+function listBuildFiles(outputRoot) {
+  const root = path.join(outputRoot, 'build');
+  let rootStats;
+  try { rootStats = fs.lstatSync(root); } catch {
+    fail('candidate', 'V7DK_STALE_OUTPUT', 'build', 'Build directory is missing.');
+  }
+  if (!rootStats.isDirectory() || rootStats.isSymbolicLink()) {
+    fail('candidate', 'V7DK_UNSAFE_OVERWRITE', 'build', 'Build root must be a real directory.');
+  }
   const values = [];
   function visit(directory, prefix = '') {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true }).sort((a, b) => compareText(a.name, b.name))) {
       const logicalPath = prefix ? `${prefix}/${entry.name}` : entry.name;
       const target = path.join(directory, entry.name);
       const stats = fs.lstatSync(target);
-      if (stats.isDirectory()) visit(target, logicalPath);
+      if (stats.isSymbolicLink()) {
+        fail('candidate', 'V7DK_UNSAFE_OVERWRITE', 'build', 'Build output cannot contain symlinks.');
+      } else if (stats.isDirectory()) visit(target, logicalPath);
       else if (stats.isFile()) values.push({ logicalPath: `build/${logicalPath}`, target });
       else fail('internal', 'V7DK_ARTIFACT_INVALID', 'build', 'Compiler emitted a special file.');
     }
@@ -113,7 +127,7 @@ export function compileWorkspace({ outputRoot, release, workspace }) {
         },
       ));
     }
-    const files = listBuildFiles(buildRoot);
+    const files = listBuildFiles(outputRoot);
     const expectedJavaScript = new Set(workspace.sources.map(({ logicalPath }) => (
       `build/${path.posix.relative(workspace.document.sourceRoot, logicalPath).replace(/\.ts$/u, '.js')}`
     )));
@@ -163,15 +177,16 @@ export function compileWorkspace({ outputRoot, release, workspace }) {
 export function requireCurrentBuild({ outputRoot, release, workspace }) {
   let state;
   try {
-    state = JSON.parse(fs.readFileSync(path.join(outputRoot, 'state/build-state.json'), 'utf8'));
+    state = JSON.parse(fs.readFileSync(requireOutputRegularFile(outputRoot, 'state/build-state.json'), 'utf8'));
   } catch {
     fail('candidate', 'V7DK_STALE_OUTPUT', 'build', 'A current successful build is required.');
   }
   if (state.schemaVersion !== 1 || state.workspaceDigest !== workspace.content.workspaceDigest
+    || state.contractProfile !== workspace.document.contractProfile
     || state.toolchainDigest !== release.toolchainDigest || typeof state.artifactDigest !== 'string') {
     fail('candidate', 'V7DK_STALE_OUTPUT', 'build', 'Build output is stale for the current workspace or toolchain.');
   }
-  const files = listBuildFiles(path.join(outputRoot, 'build'));
+  const files = listBuildFiles(outputRoot);
   const artifacts = files.map(({ logicalPath, target }) => {
     const bytes = fs.readFileSync(target);
     return { logicalPath, sha256: sha256Bytes(bytes), size: bytes.length };

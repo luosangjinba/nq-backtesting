@@ -6,7 +6,11 @@ const RANGE = /^(\^)?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
 function components(value, pattern, label) {
   const match = typeof value === 'string' ? value.match(pattern) : null;
   if (!match) failPluginContract('PLUGIN_VERSION_INVALID', `${label} is invalid.`);
-  return Object.freeze(match.slice(-3).map(Number));
+  const values = match.slice(-3).map(Number);
+  if (values.some((component) => !Number.isSafeInteger(component))) {
+    failPluginContract('PLUGIN_VERSION_INVALID', `${label} exceeds the portable version bound.`);
+  }
+  return Object.freeze(values);
 }
 
 export function pluginVersion(value, label) {

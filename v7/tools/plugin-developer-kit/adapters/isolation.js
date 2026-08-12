@@ -54,12 +54,22 @@ function verifyIsolation() {
 }
 
 function copyBuild(buildRoot, targetRoot) {
+  let rootStats;
+  try { rootStats = fs.lstatSync(buildRoot); } catch {
+    fail('candidate', 'V7DK_STALE_OUTPUT', 'isolation', 'Build root is missing.');
+  }
+  if (!rootStats.isDirectory() || rootStats.isSymbolicLink()) {
+    fail('candidate', 'V7DK_UNSAFE_OVERWRITE', 'isolation', 'Build root must be a real directory.');
+  }
   function visit(directory, prefix = '') {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       const logicalPath = prefix ? `${prefix}/${entry.name}` : entry.name;
       const source = path.join(directory, entry.name);
-      if (entry.isDirectory()) visit(source, logicalPath);
-      else if (entry.isFile() && logicalPath.endsWith('.js')) {
+      const stats = fs.lstatSync(source);
+      if (stats.isSymbolicLink()) {
+        fail('candidate', 'V7DK_UNSAFE_OVERWRITE', 'isolation', 'Build output cannot contain symlinks.');
+      } else if (stats.isDirectory()) visit(source, logicalPath);
+      else if (stats.isFile() && logicalPath.endsWith('.js')) {
         const target = path.join(targetRoot, ...logicalPath.split('/'));
         fs.mkdirSync(path.dirname(target), { recursive: true, mode: 0o755 });
         fs.copyFileSync(source, target);

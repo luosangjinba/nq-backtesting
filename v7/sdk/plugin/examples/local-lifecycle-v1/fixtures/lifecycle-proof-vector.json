@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "lifecycle-proof-vector",
+  "entrypointId": "fixture.lifecycle-proof",
+  "cases": [
+    {
+      "id": "deterministic-inactive-probe",
+      "input": {
+        "schemaVersion": 1,
+        "session": { "id": "session.p1b-lifecycle" },
+        "workspace": { "revision": 1 },
+        "pane": {
+          "id": "pane.lifecycle-probe",
+          "instrumentId": "instrument.synthetic",
+          "displayTimeframeId": "timeframe.1m",
+          "sourceResolution": "timeframe.1m",
+          "datasetRevision": "dataset.p1b"
+        },
+        "replay": { "cutoffEpochMs": 180000 },
+        "evidence": {
+          "selectedBarStartEpochMs": 60000,
+          "bars": [
+            { "startEpochMs": 0, "endEpochMs": 60000, "open": 100, "high": 101, "low": 99, "close": 100.5, "volume": 11 },
+            { "startEpochMs": 60000, "endEpochMs": 120000, "open": 100.5, "high": 105, "low": 100, "close": 104, "volume": 18 },
+            { "startEpochMs": 120000, "endEpochMs": 180000, "open": 104, "high": 106, "low": 103, "close": 105, "volume": 14 }
+          ]
+        },
+        "settings": { "lifecycleLabel": "inactive" }
+      }
+    }
+  ]
+}

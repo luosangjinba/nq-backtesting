@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "source": "repository-synthetic-lifecycle-reference",
+  "packageId": "community.lifecycle-proof",
+  "license": "MIT",
+  "networkDerived": false,
+  "credentialsIncluded": false,
+  "productionExecutionAuthorized": false
+}

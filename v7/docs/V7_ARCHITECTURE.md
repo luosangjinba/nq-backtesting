@@ -1036,8 +1036,11 @@ Inspector view models, exact selection is adapted from the active accepted
 Pane, Annotation Runtime remains the only accepted Artifact writer, and the
 Chart adapter remains the only Primitive/gesture owner. P0b adds the trusted-
 build Core Center, and P1a adds the Agent-native Developer Kit/Harness. The
-accepted but unimplemented P1b specification defines file/unpacked declarative
-packages plus the bounded MCP adapter; P2 would add the signed free registry;
+accepted P1b specification defines file/unpacked declarative packages plus the
+bounded MCP adapter. Its separately authorized P1b.1 slice now adds pure
+Manifest/candidate values within the existing `core.plugin-contract` node and
+deterministic pack/inspect tooling outside the production graph, without a new
+descriptor; P2 would add the signed free registry;
 P3a would add
 isolated TypeScript-to-ESM calculation Workers; and P3b would add assisted Pine
 indicator migration. Arbitrary community privileges and a paid Marketplace are
@@ -1058,8 +1061,9 @@ one removable Plugin Center UI renders immutable view models and dispatches
 commands. A read-only pre-boot selector may inspect the profile but cannot
 write, repair, or control lifecycle. P0b/H115 are accepted after automated and
 corrected focused human visual/interaction evidence. P1a/H116 are implemented
-and accepted. The P1b specification is accepted, but no P1b implementation is
-authorized.
+and accepted. P1b.1 is separately authorized and implemented with no package
+store, UI, MCP, external descriptor, import/evaluation, or activation; later
+P1b slices remain separately gated.
 
 ADR-V7-002 adds a mandatory community-reuse gate before R13.6. V7 may adapt
 official Lightweight Charts Series Primitive lifecycle, renderer/view,

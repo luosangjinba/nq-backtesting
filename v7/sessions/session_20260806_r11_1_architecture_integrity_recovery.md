@@ -63,7 +63,7 @@ Focused transaction, persistence, lease, dataset-revision, state-sync, static-
 surface, optional-removal, deployed-runtime, Linux rollback, architecture, and
 writer-closure Harnesses pass. The architecture baseline contains 56 modules,
 129 dependency edges, 115 construction sites, 18 declared writer surfaces, 23
-observed writer files, and zero findings. The source baseline contains 465 files, 38,855 effective lines, 4,067 functions, and 428 public exports, with no
+observed writer files, and zero findings. The source baseline contains 467 files, 39,300 effective lines, 4,115 functions, and 434 public exports, with no
 source exception or production violation.
 
 The complete sequential sweep invoked all 93 top-level Harnesses. Ninety pass

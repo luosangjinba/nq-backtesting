@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "fixtureSuiteId": "lifecycle-proof-vector",
+  "cases": [
+    {
+      "id": "deterministic-inactive-probe",
+      "output": {
+        "schemaVersion": 1,
+        "artifact": {
+          "typeId": "imbalance.fvg",
+          "definitionId": "imbalance.fvg.strict-three-bar-wick-gap",
+          "direction": "bullish",
+          "lowerPrice": 101,
+          "upperPrice": 103,
+          "midpointPrice": 102,
+          "observedAtReplayCutoffEpochMs": 180000,
+          "source": {
+            "sessionId": "session.p1b-lifecycle",
+            "workspaceRevision": 1,
+            "paneId": "pane.lifecycle-probe",
+            "instrumentId": "instrument.synthetic",
+            "displayTimeframeId": "timeframe.1m",
+            "sourceResolution": "timeframe.1m",
+            "datasetRevision": "dataset.p1b",
+            "selectedBarStartEpochMs": 60000,
+            "barStartsEpochMs": [0, 60000, 120000]
+          }
+        },
+        "projections": [
+          {
+            "kind": "rectangle",
+            "fromEpochMs": 0,
+            "toEpochMs": 120000,
+            "lowerPrice": 101,
+            "upperPrice": 103,
+            "label": "Bullish FVG"
+          },
+          {
+            "kind": "segment",
+            "fromEpochMs": 0,
+            "toEpochMs": 120000,
+            "price": 102
+          }
+        ]
+      }
+    }
+  ]
+}

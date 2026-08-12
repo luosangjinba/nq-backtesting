@@ -12,6 +12,21 @@
       "permissions": [],
       "productionExecutionTarget": null,
       "referencePackageId": "first-party.fair-value-gap"
+    },
+    {
+      "id": "local-declarative-package-v1",
+      "manifestVersion": 2,
+      "distribution": {
+        "tier": "community",
+        "sources": ["local-archive", "developer-unpacked"],
+        "hostIssuedTrust": ["unverified-local", "developer-local"]
+      },
+      "permissions": [],
+      "provides": [],
+      "contributions": [],
+      "productionExecutionTarget": null,
+      "automaticUpdate": false,
+      "network": "unavailable"
     }
   ]
 }

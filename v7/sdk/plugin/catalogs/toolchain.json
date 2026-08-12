@@ -2,6 +2,7 @@
   "schemaVersion": 1,
   "developerKitVersion": "1.0.0",
   "sdkVersion": "1.0.0",
+  "hostApiVersion": "1.0.0",
   "compiler": {
     "package": "typescript",
     "version": "7.0.2",
@@ -54,5 +55,13 @@
     "format": "ustar",
     "suffix": ".v7dk.tar",
     "installable": false
+  },
+  "localArchive": {
+    "version": 1,
+    "format": "ustar",
+    "suffix": ".v7plugin",
+    "mediaType": "application/vnd.replay-lab.v7-plugin+tar",
+    "installCandidate": true,
+    "productionExecutionAuthorized": false
   }
 }

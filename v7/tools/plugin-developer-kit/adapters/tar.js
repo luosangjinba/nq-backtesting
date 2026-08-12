@@ -4,6 +4,8 @@ import { fail } from '../domain/diagnostic.js';
 import { verifyReceipt } from '../domain/receipt.js';
 
 const BLOCK = 512;
+export const MAX_TAR_BYTES = LIMITS.archiveUnpackedBytes
+  + (LIMITS.archiveEntries * BLOCK * 2) + (BLOCK * 2);
 
 function putString(buffer, offset, length, value) {
   const bytes = Buffer.from(value, 'utf8');
@@ -34,9 +36,17 @@ function splitName(logicalPath) {
 function validateArchivePath(logicalPath, phase = 'pack') {
   if (typeof logicalPath !== 'string' || logicalPath.length === 0 || logicalPath.includes('\0')
     || logicalPath.includes('\\') || logicalPath.startsWith('/') || logicalPath.includes('//')
+    || logicalPath.normalize('NFC') !== logicalPath
+    || Buffer.from(logicalPath, 'utf8').toString('utf8') !== logicalPath
     || logicalPath.split('/').some((part) => part === '' || part === '.' || part === '..')) {
     fail('candidate', 'V7DK_BUNDLE_INVALID', phase, 'Archive entry path is unsafe.', { logicalPath });
   }
+}
+
+function hasPathPrefixCollision(paths, logicalPath) {
+  return paths.some((candidate) => (
+    candidate.startsWith(`${logicalPath}/`) || logicalPath.startsWith(`${candidate}/`)
+  ));
 }
 
 function headerFor(logicalPath, size) {
@@ -66,13 +76,15 @@ export function encodeTar(entries) {
     fail('candidate', 'V7DK_RESOURCE_LIMIT', 'pack', 'Archive entry count exceeds P1a limits.');
   }
   const sorted = [...entries].sort((a, b) => compareText(a.path, b.path));
-  if (new Set(sorted.map(({ path }) => path)).size !== sorted.length) {
-    fail('candidate', 'V7DK_BUNDLE_INVALID', 'pack', 'Archive entry paths must be unique.');
+  sorted.forEach(({ path: logicalPath }) => validateArchivePath(logicalPath));
+  const sortedPaths = sorted.map(({ path: logicalPath }) => logicalPath);
+  if (new Set(sortedPaths).size !== sorted.length
+    || sortedPaths.some((logicalPath, index) => hasPathPrefixCollision(sortedPaths.slice(0, index), logicalPath))) {
+    fail('candidate', 'V7DK_BUNDLE_INVALID', 'pack', 'Archive entry paths must be unique and prefix-safe.');
   }
   let unpacked = 0;
   const blocks = [];
   for (const entry of sorted) {
-    validateArchivePath(entry.path);
     const bytes = Buffer.isBuffer(entry.bytes) ? entry.bytes : Buffer.from(entry.bytes);
     if (bytes.length > LIMITS.archiveEntryBytes) {
       fail('candidate', 'V7DK_RESOURCE_LIMIT', 'pack', 'Archive entry exceeds the per-file byte limit.', {
@@ -97,6 +109,20 @@ function readString(header, offset, length) {
   return header.subarray(offset, stop).toString('utf8');
 }
 
+function readCanonicalUtf8(header, offset, length) {
+  const field = header.subarray(offset, offset + length);
+  const zero = field.indexOf(0);
+  const raw = zero === -1 ? field : field.subarray(0, zero);
+  if (zero !== -1 && !field.subarray(zero).every((byte) => byte === 0)) {
+    fail('candidate', 'V7DK_BUNDLE_INVALID', 'inspect', 'Tar text field has non-normal trailing bytes.');
+  }
+  const value = raw.toString('utf8');
+  if (!Buffer.from(value, 'utf8').equals(raw)) {
+    fail('candidate', 'V7DK_BUNDLE_INVALID', 'inspect', 'Tar path is not canonical UTF-8.');
+  }
+  return value;
+}
+
 function readOctal(header, offset, length) {
   const text = header.subarray(offset, offset + length).toString('ascii').replace(/[\0 ]+$/u, '');
   if (!/^[0-7]+$/u.test(text)) fail('candidate', 'V7DK_BUNDLE_INVALID', 'inspect', 'Tar numeric field is malformed.');
@@ -113,11 +139,13 @@ function checksumOf(header) {
 
 /** Parse only normalized ustar regular files; never extract to disk. */
 export function parseTar(bytes) {
-  if (!Buffer.isBuffer(bytes) || bytes.length < BLOCK * 2 || bytes.length % BLOCK !== 0) {
+  if (!Buffer.isBuffer(bytes) || bytes.length < BLOCK * 2 || bytes.length > MAX_TAR_BYTES
+    || bytes.length % BLOCK !== 0) {
     fail('candidate', 'V7DK_BUNDLE_INVALID', 'inspect', 'Bundle is not block-aligned ustar.');
   }
   const entries = [];
   const paths = new Set();
+  const normalizedPaths = new Set();
   let offset = 0;
   let unpacked = 0;
   let zeroBlocks = 0;
@@ -138,12 +166,14 @@ export function parseTar(bytes) {
     if (recordedChecksum !== checksumOf(header)) {
       fail('candidate', 'V7DK_INTEGRITY_MISMATCH', 'inspect', 'Tar header checksum does not match.');
     }
-    const name = readString(header, 0, 100);
-    const prefix = readString(header, 345, 155);
+    const name = readCanonicalUtf8(header, 0, 100);
+    const prefix = readCanonicalUtf8(header, 345, 155);
     const logicalPath = prefix ? `${prefix}/${name}` : name;
     validateArchivePath(logicalPath, 'inspect');
-    if (paths.has(logicalPath)) {
-      fail('candidate', 'V7DK_BUNDLE_INVALID', 'inspect', 'Bundle contains a duplicate path.', { logicalPath });
+    const normalizedPath = logicalPath.normalize('NFC');
+    if (paths.has(logicalPath) || normalizedPaths.has(normalizedPath)
+      || hasPathPrefixCollision([...paths], logicalPath)) {
+      fail('candidate', 'V7DK_BUNDLE_INVALID', 'inspect', 'Bundle contains a duplicate or prefix-colliding path.', { logicalPath });
     }
     if (previousPath !== null && compareText(previousPath, logicalPath) >= 0) {
       fail('candidate', 'V7DK_BUNDLE_INVALID', 'inspect', 'Bundle entries are not in canonical lexical order.', {
@@ -152,6 +182,7 @@ export function parseTar(bytes) {
     }
     previousPath = logicalPath;
     paths.add(logicalPath);
+    normalizedPaths.add(normalizedPath);
     const type = readString(header, 156, 1);
     const mode = readOctal(header, 100, 8);
     const uid = readOctal(header, 108, 8);
@@ -163,6 +194,11 @@ export function parseTar(bytes) {
       || readString(header, 297, 32) !== '' || readString(header, 329, 8) !== ''
       || readString(header, 337, 8) !== '') {
       fail('candidate', 'V7DK_BUNDLE_INVALID', 'inspect', 'Bundle contains a link, device, or non-normalized metadata.', {
+        logicalPath,
+      });
+    }
+    if (!header.equals(headerFor(logicalPath, size))) {
+      fail('candidate', 'V7DK_BUNDLE_INVALID', 'inspect', 'Bundle tar header is not in canonical ustar form.', {
         logicalPath,
       });
     }

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/local-package-candidate-receipt-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "receiptVersion", "contractProfile", "packageId", "packageVersion", "archive", "identities", "developerReceiptDigests", "compatibility", "settings", "migrations", "permissions", "unavailableClaims", "installCandidateEligible", "installed", "activated", "publisherTrusted", "productionExecutionAuthorized", "digest"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "receiptVersion": { "const": 1 },
+    "contractProfile": { "const": "local-declarative-package-v1" },
+    "packageId": { "$ref": "#/$defs/id" },
+    "packageVersion": { "$ref": "#/$defs/version" },
+    "archive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "mediaType", "suffix", "version"],
+      "properties": {
+        "format": { "const": "ustar" },
+        "mediaType": { "const": "application/vnd.replay-lab.v7-plugin+tar" },
+        "suffix": { "const": ".v7plugin" },
+        "version": { "const": 1 }
+      }
+    },
+    "identities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["archiveCatalog", "contentIndex", "manifest", "operations", "payload", "schemas", "sdk", "toolchain", "workspace"],
+      "properties": {
+        "archiveCatalog": { "$ref": "#/$defs/digest" },
+        "contentIndex": { "$ref": "#/$defs/digest" },
+        "manifest": { "$ref": "#/$defs/digest" },
+        "operations": { "$ref": "#/$defs/digest" },
+        "payload": { "$ref": "#/$defs/digest" },
+        "schemas": { "$ref": "#/$defs/digest" },
+        "sdk": { "$ref": "#/$defs/digest" },
+        "toolchain": { "$ref": "#/$defs/digest" },
+        "workspace": { "$ref": "#/$defs/workspace" }
+      }
+    },
+    "developerReceiptDigests": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/digest" }
+    },
+    "compatibility": { "type": "object" },
+    "settings": { "type": ["object", "null"] },
+    "migrations": { "type": "array", "maxItems": 32 },
+    "permissions": { "type": "array", "maxItems": 0 },
+    "unavailableClaims": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "uniqueItems": true,
+      "items": { "enum": ["activation", "custom-surface", "drawing", "indicator", "network", "semantic-type", "tool", "worker", "workflow"] }
+    },
+    "installCandidateEligible": { "const": true },
+    "installed": { "const": false },
+    "activated": { "const": false },
+    "publisherTrusted": { "const": false },
+    "productionExecutionAuthorized": { "const": false },
+    "digest": { "$ref": "#/$defs/digest" }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$", "maxLength": 128 },
+    "version": { "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$" },
+    "workspace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expectedDigest", "fixtureDigest", "manifestDigest", "sourceDigest", "workspaceDigest"],
+      "properties": {
+        "expectedDigest": { "$ref": "#/$defs/digest" },
+        "fixtureDigest": { "$ref": "#/$defs/digest" },
+        "manifestDigest": { "$ref": "#/$defs/digest" },
+        "sourceDigest": { "$ref": "#/$defs/digest" },
+        "workspaceDigest": { "$ref": "#/$defs/digest" }
+      }
+    }
+  }
+}

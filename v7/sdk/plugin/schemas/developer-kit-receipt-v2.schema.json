@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/developer-kit-receipt-v2.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "receiptVersion", "operation", "operationVersion", "packageId", "packageVersion", "contractProfile", "identities", "content", "conformance", "execution", "diagnosticCodes", "reviewRequirements", "installable", "activated", "publisherTrusted", "productionExecutionAuthorized", "digest"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "receiptVersion": { "const": 2 },
+    "operation": { "enum": ["build", "test", "preview"] },
+    "operationVersion": { "const": 1 },
+    "packageId": { "type": "string" },
+    "packageVersion": { "type": "string" },
+    "contractProfile": { "const": "local-declarative-package-v1" },
+    "identities": { "type": "object" },
+    "content": { "type": "object" },
+    "conformance": { "type": "object" },
+    "execution": { "type": "object" },
+    "diagnosticCodes": { "type": "array", "items": { "type": "string" } },
+    "reviewRequirements": { "type": "array", "items": { "type": "string" } },
+    "installable": { "const": false },
+    "activated": { "const": false },
+    "publisherTrusted": { "const": false },
+    "productionExecutionAuthorized": { "const": false },
+    "digest": { "$ref": "#/$defs/digest" }
+  },
+  "$defs": { "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" } }
+}

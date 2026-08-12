@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "developerKitRange": "^1.0.0",
+  "sdkRange": "^1.0.0",
+  "contractProfile": "local-declarative-package-v1",
+  "manifestPath": "v7-package.json",
+  "sourceRoot": "src",
+  "entrypoints": [
+    {
+      "id": "fixture.lifecycle-proof",
+      "kind": "fixture-probe",
+      "path": "src/index.ts"
+    }
+  ],
+  "fixtureSuites": [
+    {
+      "id": "lifecycle-proof-vector",
+      "path": "fixtures/lifecycle-proof-vector.json"
+    }
+  ],
+  "expectedOutputs": [
+    {
+      "fixtureSuiteId": "lifecycle-proof-vector",
+      "path": "expected/lifecycle-proof-vector.json"
+    }
+  ]
+}

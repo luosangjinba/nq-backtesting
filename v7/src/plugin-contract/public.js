@@ -19,6 +19,16 @@ export {
   readBuiltInPluginManifest,
 } from './plugin-manifest.js';
 export {
+  defineLocalPluginPackageManifest,
+  finalizeLocalPluginPackageManifest,
+  LOCAL_PLUGIN_CONTRACT_PROFILE,
+  readLocalPluginPackageManifest,
+} from './local-plugin-package-manifest.js';
+export {
+  createLocalPluginPackageCandidatePlan,
+  readLocalPluginPackageCandidatePlan,
+} from './local-plugin-package-plan.js';
+export {
   createBuiltInPluginPlan,
   listBuiltInPluginStatuses,
   readBuiltInPluginPlan,

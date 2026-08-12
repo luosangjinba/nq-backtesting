@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/developer-kit-request-v2.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "operation", "operationVersion", "contractProfile", "options"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "operation": { "enum": ["scaffold", "validate", "build", "test", "preview", "pack", "inspect"] },
+    "operationVersion": { "enum": [1, 2] },
+    "contractProfile": { "const": "local-declarative-package-v1" },
+    "workspaceRoot": { "type": "string", "minLength": 1 },
+    "outputRoot": { "type": "string", "minLength": 1 },
+    "sdkVersion": { "const": "1.0.0" },
+    "fixtureSelection": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9.-]{0,127}$" }
+    },
+    "options": { "type": "object" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "operation": { "const": "scaffold" } }, "required": ["operation"] },
+      "then": {
+        "required": ["workspaceRoot"],
+        "properties": {
+          "operationVersion": { "const": 1 },
+          "options": { "$ref": "#/$defs/scaffoldOptions" }
+        },
+        "not": { "anyOf": [{ "required": ["outputRoot"] }, { "required": ["fixtureSelection"] }] }
+      }
+    },
+    {
+      "if": { "properties": { "operation": { "const": "validate" } }, "required": ["operation"] },
+      "then": {
+        "required": ["workspaceRoot"],
+        "properties": { "operationVersion": { "const": 1 }, "options": { "$ref": "#/$defs/emptyOptions" } },
+        "not": { "anyOf": [{ "required": ["outputRoot"] }, { "required": ["fixtureSelection"] }] }
+      }
+    },
+    {
+      "if": { "properties": { "operation": { "const": "build" } }, "required": ["operation"] },
+      "then": {
+        "required": ["workspaceRoot", "outputRoot"],
+        "properties": { "operationVersion": { "const": 1 }, "options": { "$ref": "#/$defs/emptyOptions" } },
+        "not": { "required": ["fixtureSelection"] }
+      }
+    },
+    {
+      "if": { "properties": { "operation": { "enum": ["test", "preview"] } }, "required": ["operation"] },
+      "then": {
+        "required": ["workspaceRoot", "outputRoot"],
+        "properties": { "operationVersion": { "const": 1 }, "options": { "$ref": "#/$defs/emptyOptions" } }
+      }
+    },
+    {
+      "if": { "properties": { "operation": { "const": "pack" } }, "required": ["operation"] },
+      "then": {
+        "required": ["workspaceRoot", "outputRoot"],
+        "properties": { "operationVersion": { "const": 2 }, "options": { "$ref": "#/$defs/packOptions" } },
+        "not": { "required": ["fixtureSelection"] }
+      }
+    },
+    {
+      "if": { "properties": { "operation": { "const": "inspect" } }, "required": ["operation"] },
+      "then": {
+        "required": ["workspaceRoot"],
+        "properties": { "operationVersion": { "const": 2 }, "options": { "$ref": "#/$defs/inspectOptions" } },
+        "not": { "anyOf": [{ "required": ["outputRoot"] }, { "required": ["fixtureSelection"] }] }
+      }
+    }
+  ],
+  "$defs": {
+    "emptyOptions": { "type": "object", "additionalProperties": false, "maxProperties": 0 },
+    "scaffoldOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["templateId"],
+      "properties": { "templateId": { "const": "local-lifecycle-v1" } }
+    },
+    "packOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outputKind", "profile"],
+      "properties": {
+        "outputKind": { "enum": ["unpacked-local-candidate", "local-install-archive"] },
+        "profile": { "const": "local-declarative-package-v1" }
+      }
+    },
+    "inspectOptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "target"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "target": { "const": "local-package" }
+      }
+    }
+  }
+}

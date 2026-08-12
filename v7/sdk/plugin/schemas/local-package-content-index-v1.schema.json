@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/local-package-content-index-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "archiveFormatVersion", "packageId", "packageVersion", "files", "contentDigest", "payloadDigest"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "archiveFormatVersion": { "const": 1 },
+    "packageId": { "type": "string" },
+    "packageVersion": { "type": "string" },
+    "files": {
+      "type": "array", "minItems": 5, "maxItems": 510, "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["path", "sha256", "size"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "size": { "type": "integer", "minimum": 0, "maximum": 2097152 }
+        }
+      }
+    },
+    "contentDigest": { "$ref": "#/$defs/digest" },
+    "payloadDigest": { "$ref": "#/$defs/digest" }
+  },
+  "$defs": { "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" } }
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/developer-kit-result-v2.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "operation", "operationVersion", "status", "exitCode", "contractProfile", "sdkVersion", "toolchainDigest", "inputDigest", "diagnostics", "artifacts"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "operation": { "type": "string" },
+    "operationVersion": { "enum": [1, 2] },
+    "status": { "enum": ["passed", "failed", "blocked"] },
+    "exitCode": { "enum": [0, 1, 2, 3, 4] },
+    "contractProfile": { "const": "local-declarative-package-v1" },
+    "sdkVersion": { "const": "1.0.0" },
+    "toolchainDigest": { "$ref": "#/$defs/digest" },
+    "inputDigest": { "$ref": "#/$defs/digest" },
+    "diagnostics": { "type": "array" },
+    "artifacts": { "type": "array" },
+    "compatibilityReport": { "type": "object" },
+    "receipt": { "type": "object" }
+  },
+  "$defs": { "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" } }
+}

@@ -1,0 +1,20 @@
+[
+  { "case": "request-v2-closure", "expectedDiagnostic": "V7DK_REQUEST_INVALID" },
+  { "case": "manifest-unknown-field", "expectedDiagnostic": "V7DK_MANIFEST_INVALID" },
+  { "case": "forged-core-identity", "expectedDiagnostic": "V7DK_DISTRIBUTION_UNAUTHORIZED" },
+  { "case": "permission-request", "expectedDiagnostic": "V7DK_PERMISSION_UNSUPPORTED" },
+  { "case": "contribution-claim", "expectedDiagnostic": "V7DK_CONTRIBUTION_UNAVAILABLE" },
+  { "case": "execution-entrypoint", "expectedDiagnostic": "V7DK_EXECUTION_UNAVAILABLE" },
+  { "case": "instance-or-inspector-settings", "expectedDiagnostic": "V7DK_MANIFEST_INVALID" },
+  { "case": "migration-script-or-wildcard", "expectedDiagnostic": "V7DK_MIGRATION_INVALID" },
+  { "case": "stale-developer-receipt", "expectedDiagnostic": "V7DK_PACKAGE_RECEIPT_STALE" },
+  { "case": "renamed-evidence-bundle", "expectedDiagnostic": "V7DK_PACKAGE_FORMAT_MISMATCH" },
+  { "case": "wrong-install-suffix", "expectedDiagnostic": "V7DK_PACKAGE_FORMAT_MISMATCH" },
+  { "case": "content-index-tamper", "expectedDiagnostic": "V7DK_INTEGRITY_MISMATCH" },
+  { "case": "receipt-authority-forgery", "expectedDiagnostic": "V7DK_PACKAGE_RECEIPT_STALE" },
+  { "case": "archive-path-unicode-hardening", "expectedDiagnostic": "V7DK_BUNDLE_INVALID" },
+  { "case": "archive-metadata-hardening", "expectedDiagnostic": "V7DK_BUNDLE_INVALID" },
+  { "case": "undeclared-archive-entry", "expectedDiagnostic": "V7DK_PACKAGE_LAYOUT_INVALID" },
+  { "case": "nested-archive-payload", "expectedDiagnostic": "V7DK_PACKAGE_LAYOUT_INVALID" },
+  { "case": "lifecycle-operation", "expectedDiagnostic": "V7DK_OPERATION_UNSUPPORTED" }
+]

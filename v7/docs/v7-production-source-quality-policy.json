@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "P1a",
+  "deliveryStep": "P1b.1",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -196,6 +196,10 @@
     },
     {
       "path": "sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260811_p1b_1_contract_archive_implementation.md",
       "expectedOccurrences": 1
     }
   ],

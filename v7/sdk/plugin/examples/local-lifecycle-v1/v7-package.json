@@ -1,0 +1,60 @@
+{
+  "manifestVersion": 2,
+  "packageId": "community.lifecycle-proof",
+  "packageVersion": "1.0.0",
+  "display": {
+    "name": "Local Lifecycle Proof",
+    "description": "Synthetic inactive package used only to prove deterministic local package admission evidence."
+  },
+  "publisher": {
+    "id": "community.replay-lab-example",
+    "name": "Replay Lab Example Publisher"
+  },
+  "license": {
+    "expression": "MIT",
+    "noticePath": "LICENSE"
+  },
+  "hostApiRange": "^1.0.0",
+  "contractProfile": "local-declarative-package-v1",
+  "capabilities": {
+    "provides": [],
+    "requires": [],
+    "extends": []
+  },
+  "contributions": [],
+  "settings": {
+    "schemaVersion": 1,
+    "tabs": [
+      {
+        "id": "inputs",
+        "source": {
+          "kind": "settings",
+          "fields": [
+            {
+              "id": "lifecycleLabel",
+              "label": "Lifecycle label",
+              "scopes": ["package", "profile"],
+              "defaultValue": "inactive",
+              "control": { "kind": "text", "maxLength": 32 }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "permissions": [],
+  "execution": {
+    "tier": "none",
+    "entrypoint": null
+  },
+  "persistence": {
+    "schemaVersion": 1,
+    "retention": "preserve-on-uninstall",
+    "migrations": []
+  },
+  "conformance": {
+    "sdkVersion": "1.0.0",
+    "toolchainDigest": "sha256:b4cb2429cd04943be8256130c0522e163874333a03d7f6255a826d4812ee53de",
+    "requiredReceiptDigests": []
+  }
+}

@@ -14,17 +14,20 @@ export function createReceipt({
   diagnostics,
   manifest,
   operation,
+  operationVersion = OPERATION_VERSION,
   operationDigest,
   schemaDigest,
   sdkDigest,
   simulatorDigest,
   toolchainDigest,
+  contractProfile = CONTRACT_PROFILE,
 }) {
+  const local = contractProfile === 'local-declarative-package-v1';
   const value = {
     activated: false,
     conformance,
     content,
-    contractProfile: CONTRACT_PROFILE,
+    contractProfile,
     diagnosticCodes: [...new Set(diagnostics.map(({ code }) => code))].sort(),
     execution: {
       classification: operation === 'test' || operation === 'preview'
@@ -36,7 +39,7 @@ export function createReceipt({
     identities: {
       catalogs,
       compiler,
-      operation: { digest: operationDigest, version: OPERATION_VERSION },
+      operation: { digest: operationDigest, version: operationVersion },
       schemas: { digest: schemaDigest, version: 1 },
       sdk: { digest: sdkDigest, version: '1.0.0' },
       simulator: { digest: simulatorDigest, version: 1 },
@@ -44,14 +47,14 @@ export function createReceipt({
     },
     installable: false,
     operation,
-    operationVersion: OPERATION_VERSION,
+    operationVersion,
     packageId: manifest.packageId,
     packageVersion: manifest.packageVersion,
     productionExecutionAuthorized: false,
     publisherTrusted: false,
-    receiptVersion: 1,
+    receiptVersion: local ? 2 : 1,
     reviewRequirements: [],
-    schemaVersion: 1,
+    schemaVersion: local ? 2 : 1,
   };
   return Object.freeze({ ...value, digest: digestValue(value) });
 }
@@ -65,10 +68,13 @@ export function verifyReceipt(receipt) {
     'packageVersion', 'productionExecutionAuthorized', 'publisherTrusted', 'receiptVersion',
     'reviewRequirements', 'schemaVersion',
   ];
+  const trusted = receipt.schemaVersion === 1 && receipt.receiptVersion === 1
+    && receipt.operationVersion === 1 && receipt.contractProfile === 'trusted-built-in-core-v1';
+  const local = receipt.schemaVersion === 2 && receipt.receiptVersion === 2
+    && [1, 2].includes(receipt.operationVersion)
+    && receipt.contractProfile === 'local-declarative-package-v1';
   if (Object.keys(receipt).sort().join(',') !== fields.sort().join(',')
-    || receipt.schemaVersion !== 1 || receipt.receiptVersion !== 1
-    || receipt.operationVersion !== 1 || !['build', 'test', 'preview', 'pack'].includes(receipt.operation)
-    || receipt.contractProfile !== 'trusted-built-in-core-v1'
+    || (!trusted && !local) || !['build', 'test', 'preview', 'pack'].includes(receipt.operation)
     || typeof receipt.packageId !== 'string' || typeof receipt.packageVersion !== 'string'
     || !receipt.identities || typeof receipt.identities !== 'object' || Array.isArray(receipt.identities)
     || !receipt.content || typeof receipt.content !== 'object' || Array.isArray(receipt.content)

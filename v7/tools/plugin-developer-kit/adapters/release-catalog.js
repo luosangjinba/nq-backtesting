@@ -2,9 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
   CONTRACT_PROFILE,
+  CONTRACT_PROFILES,
   DEVELOPER_KIT_VERSION,
   DETERMINISM,
+  HOST_API_VERSION,
   LIMITS,
+  LOCAL_ARCHIVE,
+  LOCAL_CONTRACT_PROFILE,
   SDK_VERSION,
 } from '../domain/contract.js';
 import { canonicalJson, compareText, digestBytes, digestValue, sha256Bytes } from '../domain/canonical-json.js';
@@ -94,6 +98,28 @@ function verifyCompiler(toolchain) {
   });
 }
 
+function verifyLocalPackageCatalog(catalogs) {
+  const catalog = catalogs.find(({ path: logicalPath }) => logicalPath === 'catalogs/local-packages.json')?.value;
+  const expectedArchive = {
+    compression: 'none',
+    format: LOCAL_ARCHIVE.format,
+    limits: {
+      maxEntries: LIMITS.archiveEntries,
+      maxEntryBytes: LIMITS.archiveEntryBytes,
+      maxUnpackedBytes: LIMITS.archiveUnpackedBytes,
+    },
+    mediaType: LOCAL_ARCHIVE.mediaType,
+    opaqueArchiveSuffixes: [],
+    suffix: LOCAL_ARCHIVE.suffix,
+    version: LOCAL_ARCHIVE.version,
+  };
+  if (catalog?.schemaVersion !== 1 || catalog.profile !== LOCAL_CONTRACT_PROFILE
+    || canonicalJson(catalog.archive) !== canonicalJson(expectedArchive)) {
+    fail('internal', 'V7DK_INTERNAL_TOOLCHAIN', 'release', 'Local package archive catalog is invalid.');
+  }
+  return catalog;
+}
+
 function conformanceIdentity() {
   const relativePaths = [
     'docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md',
@@ -101,6 +127,9 @@ function conformanceIdentity() {
     'sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md',
     'tests/fixtures/plugin-developer-kit/negative/cases.json',
     'tests/plugin-developer-kit-harness.js',
+    'docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md',
+    'tests/fixtures/local-plugin-package/negative/cases.json',
+    'tests/local-plugin-package-harness.js',
   ];
   const files = relativePaths.map((logicalPath) => relativeFileIdentity(
     V7_ROOT,
@@ -112,13 +141,18 @@ function conformanceIdentity() {
   )).map(({ case: id, expectedDiagnostic }) => ({ expectedDiagnostic, id }));
   const harnessRules = readJson(path.join(V7_ROOT, 'docs/v7-harness-rules.json'));
   const rule = harnessRules.rules.find(({ id }) => id === 'H116');
-  if (harnessRules.currentStep !== 'P1a' || rule?.state !== 'accepted'
+  const pendingRule = harnessRules.rules.find(({ id }) => id === 'H117');
+  if (harnessRules.currentStep !== 'P1b.1' || rule?.state !== 'accepted'
     || rule.harness !== 'tests/plugin-developer-kit-harness.js'
     || rule.acceptanceEvidence
       !== 'sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md'
     || rule.humanReviewRequired !== false
-    || !rule.negativeFixtures.includes('tests/fixtures/plugin-developer-kit/negative/cases.json')) {
-    fail('internal', 'V7DK_INTERNAL_TOOLCHAIN', 'release', 'H116 acceptance identity is incomplete.');
+    || !rule.negativeFixtures.includes('tests/fixtures/plugin-developer-kit/negative/cases.json')
+    || pendingRule?.state !== 'executable'
+    || pendingRule.harness !== 'tests/local-plugin-package-harness.js'
+    || pendingRule.humanReviewRequired !== true || pendingRule.acceptanceEvidence !== null
+    || !pendingRule.negativeFixtures.includes('tests/fixtures/local-plugin-package/negative/cases.json')) {
+    fail('internal', 'V7DK_INTERNAL_TOOLCHAIN', 'release', 'Developer Kit conformance identity is incomplete.');
   }
   return Object.freeze({
     digest: digestValue(files),
@@ -126,6 +160,16 @@ function conformanceIdentity() {
     gate: 'H116',
     harness: 'tests/plugin-developer-kit-harness.js',
     negativeControls: Object.freeze(negativeControls),
+    pendingGate: Object.freeze({
+      gate: 'H117',
+      harness: pendingRule.harness,
+      negativeControlCount: readJson(path.join(
+        V7_ROOT,
+        'tests/fixtures/local-plugin-package/negative/cases.json',
+      )).length,
+      scope: 'P1b.1-contract-and-archive',
+      state: pendingRule.state,
+    }),
     state: rule.state,
     trustedHarnesses: Object.freeze([
       'tests/plugin-contract-substrate-harness.js',
@@ -147,16 +191,21 @@ export function loadReleaseCatalog({ refresh = false } = {}) {
   }));
   const toolchain = catalogs.find(({ path: logicalPath }) => logicalPath === 'catalogs/toolchain.json')?.value;
   if (!toolchain || toolchain.developerKitVersion !== DEVELOPER_KIT_VERSION
-    || toolchain.sdkVersion !== SDK_VERSION) {
+    || toolchain.sdkVersion !== SDK_VERSION || toolchain.hostApiVersion !== HOST_API_VERSION) {
     fail('internal', 'V7DK_INTERNAL_TOOLCHAIN', 'release', 'Toolchain catalog identity is invalid.');
   }
   const compiler = verifyCompiler(toolchain);
+  const localPackageCatalog = verifyLocalPackageCatalog(catalogs);
   const schemaCatalog = loadSchemaCatalog();
   const sdkFiles = listFiles(SDK_ROOT, (file) => (
     !file.includes(`${path.sep}examples${path.sep}`)
   )).map((file) => relativeFileIdentity(SDK_ROOT, file));
-  const operationFiles = listFiles(TOOL_ROOT, (file) => file.endsWith('.js'))
-    .map((file) => relativeFileIdentity(TOOL_ROOT, file, 'tools'));
+  const operationFiles = [
+    ...listFiles(TOOL_ROOT, (file) => file.endsWith('.js'))
+      .map((file) => relativeFileIdentity(TOOL_ROOT, file, 'tools')),
+    ...listFiles(path.join(V7_ROOT, 'src/plugin-contract'), (file) => file.endsWith('.js'))
+      .map((file) => relativeFileIdentity(V7_ROOT, file)),
+  ].sort((left, right) => compareText(left.path, right.path));
   const exampleFiles = fs.existsSync(path.join(SDK_ROOT, 'examples'))
     ? listFiles(path.join(SDK_ROOT, 'examples')).map((file) => (
       relativeFileIdentity(path.join(SDK_ROOT, 'examples'), file, 'examples')
@@ -198,6 +247,7 @@ export function loadReleaseCatalog({ refresh = false } = {}) {
     exampleFiles: Object.freeze(exampleFiles),
     operationDigest,
     operationFiles: Object.freeze(operationFiles),
+    localPackageCatalog,
     schemaCatalog: schemaCatalog.catalog,
     schemaDigest,
     schemas: schemaCatalog.schemas,
@@ -215,7 +265,7 @@ export function discoverRelease(release = loadReleaseCatalog()) {
     catalogs: release.catalogs.map(({ path: logicalPath, sha256, size, value }) => ({
       path: logicalPath, sha256, size, value,
     })),
-    contractProfiles: [CONTRACT_PROFILE],
+    contractProfiles: CONTRACT_PROFILES,
     developerKitVersion: DEVELOPER_KIT_VERSION,
     examples: release.exampleFiles.map((identity) => ({
       ...identity,

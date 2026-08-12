@@ -1,5 +1,8 @@
 import {
   CONTRACT_PROFILE,
+  LOCAL_CONTRACT_PROFILE,
+  LOCAL_OPERATION_VERSION,
+  LOCAL_TEMPLATE_ID,
   OPERATIONS,
   OPERATION_VERSION,
   SDK_VERSION,
@@ -22,6 +25,20 @@ const ROOTS = Object.freeze({
   validate: ['workspaceRoot'],
 });
 
+function requestProtocol(value) {
+  if (value.schemaVersion === 1 && value.operationVersion === OPERATION_VERSION) {
+    return Object.freeze({ contractProfile: CONTRACT_PROFILE, schemaVersion: 1 });
+  }
+  const localV1Operation = value.schemaVersion === 2 && value.operationVersion === OPERATION_VERSION
+    && ['scaffold', 'validate', 'build', 'test', 'preview'].includes(value.operation);
+  const localV2Operation = value.schemaVersion === 2 && value.operationVersion === LOCAL_OPERATION_VERSION
+    && ['pack', 'inspect'].includes(value.operation);
+  if ((localV1Operation || localV2Operation) && value.contractProfile === LOCAL_CONTRACT_PROFILE) {
+    return Object.freeze({ contractProfile: LOCAL_CONTRACT_PROFILE, schemaVersion: 2 });
+  }
+  fail('request', 'V7DK_REQUEST_INVALID', 'request', 'Unsupported request/profile/operation version combination.');
+}
+
 function exactFields(value, allowed, label, phase = 'request') {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     fail('request', 'V7DK_REQUEST_INVALID', phase, `${label} must be an object.`);
@@ -35,23 +52,34 @@ function exactFields(value, allowed, label, phase = 'request') {
   }
 }
 
-function validateOptions(operation, options) {
+function validateOptions(operation, options, protocol) {
+  if (protocol.contractProfile === LOCAL_CONTRACT_PROFILE && operation === 'pack') {
+    exactFields(options, new Set(['outputKind', 'profile']), `${operation} options`);
+    if (!['unpacked-local-candidate', 'local-install-archive'].includes(options.outputKind)
+      || options.profile !== LOCAL_CONTRACT_PROFILE) {
+      fail('request', 'V7DK_REQUEST_INVALID', 'request', 'pack v2 requires an explicit local output kind and profile.');
+    }
+    return;
+  }
   const allowed = new Set(operation === 'scaffold'
     ? ['templateId']
     : operation === 'inspect' ? ['path', 'target'] : []);
   exactFields(options, allowed, `${operation} options`);
-  if (operation === 'scaffold' && options.templateId !== TEMPLATE_ID) {
-    fail('request', 'V7DK_REQUEST_INVALID', 'request', `scaffold requires templateId ${TEMPLATE_ID}.`, {
+  const templateId = protocol.contractProfile === LOCAL_CONTRACT_PROFILE ? LOCAL_TEMPLATE_ID : TEMPLATE_ID;
+  if (operation === 'scaffold' && options.templateId !== templateId) {
+    fail('request', 'V7DK_REQUEST_INVALID', 'request', `scaffold requires templateId ${templateId}.`, {
       jsonPointer: '/options/templateId',
     });
   }
   if (operation === 'inspect') {
-    if (!['workspace', 'bundle'].includes(options.target)) {
-      fail('request', 'V7DK_REQUEST_INVALID', 'request', 'inspect target must be workspace or bundle.', {
+    const targets = protocol.contractProfile === LOCAL_CONTRACT_PROFILE
+      ? ['local-package'] : ['workspace', 'bundle'];
+    if (!targets.includes(options.target)) {
+      fail('request', 'V7DK_REQUEST_INVALID', 'request', `inspect target must be ${targets.join(' or ')}.`, {
         jsonPointer: '/options/target',
       });
     }
-    if (options.target === 'bundle') {
+    if (options.target === 'bundle' || options.target === 'local-package') {
       if (typeof options.path !== 'string' || options.path.length === 0) {
         fail('request', 'V7DK_REQUEST_INVALID', 'request', 'Bundle inspection requires a logical path.', {
           jsonPointer: '/options/path',
@@ -68,9 +96,6 @@ function validateOptions(operation, options) {
 /** Fail closed and resolve one public request without reading either root. */
 export function readRequest(value) {
   exactFields(value, REQUEST_FIELDS, 'Developer Kit request');
-  if (value.schemaVersion !== 1 || value.operationVersion !== OPERATION_VERSION) {
-    fail('request', 'V7DK_REQUEST_INVALID', 'request', 'Unsupported request or operation version.');
-  }
   if (!OPERATIONS.includes(value.operation)) {
     fail('request', 'V7DK_OPERATION_UNSUPPORTED', 'request', 'The requested operation is unsupported.', {
       jsonPointer: '/operation',
@@ -81,7 +106,8 @@ export function readRequest(value) {
       jsonPointer: '/options',
     });
   }
-  if (value.contractProfile !== undefined && value.contractProfile !== CONTRACT_PROFILE) {
+  const protocol = requestProtocol(value);
+  if (value.contractProfile !== undefined && value.contractProfile !== protocol.contractProfile) {
     fail('request', 'V7DK_PROFILE_UNSUPPORTED', 'request', 'The requested contract profile is unsupported.', {
       jsonPointer: '/contractProfile',
     });
@@ -123,15 +149,15 @@ export function readRequest(value) {
       });
     }
   }
-  validateOptions(value.operation, value.options);
+  validateOptions(value.operation, value.options, protocol);
   return Object.freeze({
-    contractProfile: CONTRACT_PROFILE,
+    contractProfile: protocol.contractProfile,
     fixtureSelection: Object.freeze([...(value.fixtureSelection ?? [])].sort()),
     operation: value.operation,
-    operationVersion: OPERATION_VERSION,
+    operationVersion: value.operationVersion,
     options: Object.freeze({ ...value.options }),
     outputRoot: value.outputRoot,
-    schemaVersion: 1,
+    schemaVersion: protocol.schemaVersion,
     sdkVersion: SDK_VERSION,
     workspaceRoot: value.workspaceRoot,
   });

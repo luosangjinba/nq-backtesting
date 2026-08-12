@@ -102,9 +102,11 @@ preserved in `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`.
 The product owner then separately authorized P1a implementation; the SDK,
 Developer Kit, and H116 were implemented and accepted. The product owner then
 accepted all five P1b material decisions in
-`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`. H117 is declared but not
-registered, implemented, or accepted, and no P1b–P4 implementation is
-authorized.
+`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`, then separately authorized
+P1b.1. Manifest V2/profile/schema/catalog, deterministic pack/inspect v2,
+strict archive validation, portable candidate receipts, and the executable
+H117 contract/archive subset are implemented. H117 remains unaccepted and no
+P1b.2–P4 implementation is authorized.
 
 Every implementation remains separately specified, authorized, tested, and
 committed. The current trusted-build Semantic Package Registry is a compatible
@@ -816,9 +818,10 @@ local archive, non-executing device-local inventory transactions, prepared-
 candidate Developer Mode, restricted-mode/data-survival rules, and a `stdio`
 MCP adapter which can invoke only the canonical P1a authoring operations. After
 detailed review, the product owner accepted its five material decisions on
-2026-08-11. H117 is declared but unregistered and unimplemented. No P1b
-implementation, registry, external execution, or later phase is authorized by
-specification acceptance.
+2026-08-11. The product owner later separately authorized P1b.1, which now
+implements the non-executing contract/archive subset and registers H117 as
+executable. H117 is not accepted; package storage, product UI, MCP, registry,
+external execution, and later phases remain unauthorized.
 
 This closes the classification/product-direction decision. Delivery remains
 bounded by the authorization boundary above.

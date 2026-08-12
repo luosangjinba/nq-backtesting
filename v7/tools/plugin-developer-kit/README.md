@@ -1,6 +1,6 @@
-# V7 Plugin Developer Kit P1a
+# V7 Plugin Developer Kit P1a / P1b.1
 
-This directory contains the one canonical P1a operation engine. The public
+This directory contains the one canonical P1a/P1b.1 operation engine. The public
 Library is `public.js`; the CLI is `cli/main.js`. Both accept the same closed
 JSON request and return byte-equivalent canonical JSON.
 
@@ -38,6 +38,11 @@ namespaces, and Node's permission/VM-module support; unavailable enforcement
 returns `blocked` and never falls back to in-process execution.
 
 P1a output is developer evidence only. `.v7dk.tar` and every receipt explicitly
-deny installation, activation, publisher trust, and production execution. P1b
-installation/MCP, registry access, and a production Worker are not implemented
-here.
+deny installation, activation, publisher trust, and production execution.
+P1b.1 additionally supports the synthetic `local-lifecycle-v1` template under
+request schema v2. Build/test/preview stay operation v1; `pack`/`inspect` use
+operation v2 with an explicit `local-declarative-package-v1` profile and either
+`unpacked-local-candidate` or `local-install-archive` output. The resulting
+`.v7plugin` is an installation candidate only: no package store, production UI,
+MCP, activation, external module import, registry access, or Worker exists in
+this slice.

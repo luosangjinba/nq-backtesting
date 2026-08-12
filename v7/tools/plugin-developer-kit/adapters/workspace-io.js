@@ -1,11 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { LIMITS } from '../domain/contract.js';
-import { canonicalJson, compareText, digestValue, sha256Bytes } from '../domain/canonical-json.js';
+import { compareText, digestValue, sha256Bytes } from '../domain/canonical-json.js';
 import { DeveloperKitFailure, diagnostic, fail } from '../domain/diagnostic.js';
 import { scanTypeScriptSource } from '../domain/static-analysis.js';
 import { readExpectedSuite, readFixtureSuite } from '../domain/synthetic-contract.js';
 import { readProfileManifest } from './p0a-contract.js';
+import { readLocalProfileManifest } from './local-contract.js';
 import { LOGICAL } from './layout.js';
 
 const WORKSPACE_FIELDS = new Set([
@@ -50,19 +51,24 @@ function inside(root, logicalPath) {
 }
 
 function requireRegularFile(root, logicalPath) {
-  const target = inside(root, readLogicalPath(logicalPath));
+  const safePath = readLogicalPath(logicalPath);
+  const resolvedRoot = path.resolve(root);
+  let target = resolvedRoot;
   let stats;
-  try { stats = fs.lstatSync(target); } catch {
-    fail('candidate', 'V7DK_WORKSPACE_INVALID', 'workspace', 'A declared workspace file is missing.', { logicalPath });
-  }
-  if (stats.isSymbolicLink()) {
-    fail('candidate', 'V7DK_WORKSPACE_PATH_ESCAPE', 'workspace', 'Workspace symlinks are forbidden.', { logicalPath });
+  for (const segment of safePath.split('/')) {
+    target = path.join(target, segment);
+    try { stats = fs.lstatSync(target); } catch {
+      fail('candidate', 'V7DK_WORKSPACE_INVALID', 'workspace', 'A declared workspace file is missing.', { logicalPath: safePath });
+    }
+    if (stats.isSymbolicLink()) {
+      fail('candidate', 'V7DK_WORKSPACE_PATH_ESCAPE', 'workspace', 'Workspace symlinks are forbidden.', { logicalPath: safePath });
+    }
   }
   if (!stats.isFile()) {
-    fail('candidate', 'V7DK_WORKSPACE_SPECIAL_FILE', 'workspace', 'Workspace paths must name regular files.', { logicalPath });
+    fail('candidate', 'V7DK_WORKSPACE_SPECIAL_FILE', 'workspace', 'Workspace paths must name regular files.', { logicalPath: safePath });
   }
   if (stats.size > LIMITS.workspaceFileBytes) {
-    fail('candidate', 'V7DK_RESOURCE_LIMIT', 'workspace', 'A workspace file exceeds the byte limit.', { logicalPath });
+    fail('candidate', 'V7DK_RESOURCE_LIMIT', 'workspace', 'A workspace file exceeds the byte limit.', { logicalPath: safePath });
   }
   return target;
 }
@@ -132,8 +138,9 @@ function pathRecords(values, fields, label) {
 
 function readWorkspaceDocument(value) {
   exact(value, WORKSPACE_FIELDS, 'Developer Workspace', LOGICAL.workspace);
-  if (value.schemaVersion !== 1 || value.developerKitRange !== '^1.0.0'
-    || value.sdkRange !== '^1.0.0' || value.contractProfile !== 'trusted-built-in-core-v1') {
+  const trusted = value.schemaVersion === 1 && value.contractProfile === 'trusted-built-in-core-v1';
+  const local = value.schemaVersion === 2 && value.contractProfile === 'local-declarative-package-v1';
+  if ((!trusted && !local) || value.developerKitRange !== '^1.0.0' || value.sdkRange !== '^1.0.0') {
     fail('candidate', 'V7DK_PROFILE_UNSUPPORTED', 'workspace', 'Workspace versions or contract profile are unsupported.', {
       logicalPath: LOGICAL.workspace,
     });
@@ -144,8 +151,9 @@ function readWorkspaceDocument(value) {
     });
   }
   const entrypoints = pathRecords(value.entrypoints, ['id', 'kind', 'path'], 'Entrypoint');
-  if (entrypoints.some(({ kind, path: logicalPath }) => kind !== 'semantic-construction' || !logicalPath.endsWith('.ts'))) {
-    fail('candidate', 'V7DK_CONTRIBUTION_UNAVAILABLE', 'workspace', 'Only TypeScript semantic-construction entrypoints are available.');
+  const entrypointKind = local ? 'fixture-probe' : 'semantic-construction';
+  if (entrypoints.some(({ kind, path: logicalPath }) => kind !== entrypointKind || !logicalPath.endsWith('.ts'))) {
+    fail('candidate', 'V7DK_CONTRIBUTION_UNAVAILABLE', 'workspace', `Only TypeScript ${entrypointKind} entrypoints are available.`);
   }
   return Object.freeze({
     contractProfile: value.contractProfile,
@@ -158,7 +166,7 @@ function readWorkspaceDocument(value) {
     )),
     fixtureSuites: Object.freeze(pathRecords(value.fixtureSuites, ['id', 'path'], 'Fixture suite')),
     manifestPath: readLogicalPath(value.manifestPath, 'Manifest path'),
-    schemaVersion: 1,
+    schemaVersion: value.schemaVersion,
     sdkRange: value.sdkRange,
     sourceRoot: readLogicalPath(value.sourceRoot, 'Source root'),
   });
@@ -186,7 +194,7 @@ function verifyRelativeImports(sourceFiles, sourceRoot) {
 }
 
 /** Read one complete workspace with a closed, regular-file-only surface. */
-export function readWorkspace(workspaceRoot) {
+export function readWorkspace(workspaceRoot, release) {
   const root = path.resolve(workspaceRoot);
   let stats;
   try { stats = fs.lstatSync(root); } catch {
@@ -197,7 +205,21 @@ export function readWorkspace(workspaceRoot) {
   }
   const document = readWorkspaceDocument(readJson(root, LOGICAL.workspace));
   const manifestValue = readJson(root, document.manifestPath);
-  const { graph, manifest } = readProfileManifest(manifestValue, document.manifestPath);
+  const { graph, manifest } = document.contractProfile === 'local-declarative-package-v1'
+    ? readLocalProfileManifest(manifestValue, document.manifestPath)
+    : readProfileManifest(manifestValue, document.manifestPath);
+  if (release && document.contractProfile === 'local-declarative-package-v1') {
+    if (manifest.conformance.sdkVersion !== release.toolchain.sdkVersion) {
+      fail('candidate', 'V7DK_SDK_UNSUPPORTED', 'manifest', 'Local manifest targets an unsupported Plugin SDK version.', {
+        logicalPath: document.manifestPath,
+      });
+    }
+    if (manifest.conformance.toolchainDigest !== release.toolchainDigest) {
+      fail('candidate', 'V7DK_STALE_OUTPUT', 'manifest', 'Local manifest targets a different Developer Kit toolchain.', {
+        logicalPath: document.manifestPath,
+      });
+    }
+  }
   const sourceDirectory = inside(root, document.sourceRoot);
   let sourceStats;
   try { sourceStats = fs.lstatSync(sourceDirectory); } catch {
@@ -251,6 +273,9 @@ export function readWorkspace(workspaceRoot) {
     ...document.fixtureSuites.map(({ path: logicalPath }) => logicalPath),
     ...document.expectedOutputs.map(({ path: logicalPath }) => logicalPath),
   ]);
+  if (document.contractProfile === 'local-declarative-package-v1') {
+    declared.add(manifest.license.noticePath);
+  }
   for (const optional of ['LICENSE', 'NOTICE', 'provenance.json']) {
     if (allEntries.some(({ logicalPath }) => logicalPath === optional)) declared.add(optional);
   }
@@ -297,13 +322,16 @@ export function readWorkspaceFile(workspace, logicalPath) {
 
 export function scaffoldWorkspace(targetRoot, files) {
   const root = path.resolve(targetRoot);
-  if (fs.existsSync(root)) {
-    const stats = fs.lstatSync(root);
+  let stats;
+  try { stats = fs.lstatSync(root); } catch { stats = null; }
+  if (stats) {
     if (!stats.isDirectory() || stats.isSymbolicLink() || fs.readdirSync(root).length > 0) {
       fail('candidate', 'V7DK_SCAFFOLD_TARGET_NOT_EMPTY', 'scaffold', 'Scaffold target must be a new empty directory.');
     }
   } else {
-    fs.mkdirSync(root, { recursive: true, mode: 0o755 });
+    try { fs.mkdirSync(root, { recursive: true, mode: 0o755 }); } catch {
+      fail('candidate', 'V7DK_SCAFFOLD_TARGET_NOT_EMPTY', 'scaffold', 'Scaffold target cannot be created safely.');
+    }
   }
   const paths = new Set();
   for (const file of [...files].sort((a, b) => compareText(a.path, b.path))) {
@@ -315,65 +343,4 @@ export function scaffoldWorkspace(targetRoot, files) {
     fs.writeFileSync(target, file.bytes, { flag: 'wx', mode: 0o644 });
   }
   return Object.freeze([...paths].sort());
-}
-
-function outputMarker(releaseDigest) {
-  return { kind: 'v7-plugin-developer-kit-output', releaseDigest, schemaVersion: 1 };
-}
-
-export function prepareOutputRoot(outputRoot, releaseDigest) {
-  const root = path.resolve(outputRoot);
-  if (!fs.existsSync(root)) fs.mkdirSync(root, { recursive: true, mode: 0o755 });
-  const stats = fs.lstatSync(root);
-  if (!stats.isDirectory() || stats.isSymbolicLink()) {
-    fail('candidate', 'V7DK_UNSAFE_OVERWRITE', 'output', 'Output root must be a real directory.');
-  }
-  const markerPath = path.join(root, LOGICAL.outputMarker);
-  const entries = fs.readdirSync(root);
-  if (entries.length > 0) {
-    let marker;
-    try { marker = JSON.parse(fs.readFileSync(markerPath, 'utf8')); } catch {
-      fail('candidate', 'V7DK_UNSAFE_OVERWRITE', 'output', 'Non-empty output root is not owned by this Developer Kit.');
-    }
-    if (canonicalJson(marker) !== canonicalJson(outputMarker(releaseDigest))) {
-      fail('candidate', 'V7DK_UNSAFE_OVERWRITE', 'output', 'Output ownership marker does not match this release.');
-    }
-  } else {
-    fs.writeFileSync(markerPath, `${canonicalJson(outputMarker(releaseDigest))}\n`, { flag: 'wx', mode: 0o644 });
-  }
-  return root;
-}
-
-export function replaceOwnedDirectory(outputRoot, logicalDirectory) {
-  const logicalPath = readLogicalPath(logicalDirectory, 'Output directory');
-  const target = inside(outputRoot, logicalPath);
-  if (fs.existsSync(target)) fs.rmSync(target, { force: true, recursive: true });
-  fs.mkdirSync(target, { recursive: true, mode: 0o755 });
-  return target;
-}
-
-export function writeOutputFile(outputRoot, logicalPath, bytes) {
-  const target = inside(outputRoot, readLogicalPath(logicalPath, 'Output file'));
-  fs.mkdirSync(path.dirname(target), { recursive: true, mode: 0o755 });
-  fs.writeFileSync(target, bytes, { mode: 0o644 });
-  return Object.freeze({ logicalPath, sha256: sha256Bytes(bytes), size: Buffer.byteLength(bytes) });
-}
-
-export function writeOutputJson(outputRoot, logicalPath, value) {
-  return writeOutputFile(outputRoot, logicalPath, `${canonicalJson(value)}\n`);
-}
-
-export function readOutputJson(outputRoot, logicalPath) {
-  const target = inside(outputRoot, readLogicalPath(logicalPath, 'Output file'));
-  try { return JSON.parse(fs.readFileSync(target, 'utf8')); } catch {
-    fail('candidate', 'V7DK_STALE_OUTPUT', 'output', 'Required Developer Kit output is missing or malformed.', {
-      logicalPath,
-    });
-  }
-}
-
-export function outputFileIdentity(outputRoot, logicalPath) {
-  const target = requireRegularFile(outputRoot, logicalPath);
-  const bytes = fs.readFileSync(target);
-  return Object.freeze({ logicalPath, sha256: sha256Bytes(bytes), size: bytes.length });
 }

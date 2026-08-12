@@ -1,20 +1,20 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import { packBundle, inspectBundleAt } from './adapters/bundle.js';
+import { inspectLocalPackageAt, packLocalPackage } from './adapters/local-package.js';
 import { compileWorkspace, requireCurrentBuild } from './adapters/compiler.js';
 import { runIsolatedFixtures } from './adapters/isolation.js';
 import { discoverRelease, loadReleaseCatalog } from './adapters/release-catalog.js';
 import { loadTemplate } from './adapters/template.js';
+import { prepareOutputRoot, readOutputJson, writeOutputJson } from './adapters/output-io.js';
 import {
-  prepareOutputRoot,
   readWorkspace,
   scaffoldWorkspace,
-  writeOutputJson,
 } from './adapters/workspace-io.js';
 import { canonicalJson, digestValue, sha256Bytes } from './domain/canonical-json.js';
 import { compatibilityReport } from './domain/compatibility.js';
 import { asFailure, fail } from './domain/diagnostic.js';
 import { createReceipt } from './domain/receipt.js';
+import { LOCAL_CONTRACT_PROFILE } from './domain/contract.js';
 import { readRequest, requestIdentity } from './domain/request.js';
 import { createResult } from './domain/result.js';
 
@@ -26,6 +26,18 @@ function safeRawIdentity(value) {
     try { canonicalJson(value[key]); result[key] = value[key]; } catch { result[key] = '<non-portable>'; }
   }
   return result;
+}
+
+function responseContractHint(value) {
+  if (value && typeof value === 'object' && !Array.isArray(value)
+    && value.schemaVersion === 2 && value.contractProfile === LOCAL_CONTRACT_PROFILE) {
+    return Object.freeze({
+      contractProfile: LOCAL_CONTRACT_PROFILE,
+      operationVersion: [1, 2].includes(value.operationVersion) ? value.operationVersion : 1,
+      schemaVersion: 2,
+    });
+  }
+  return Object.freeze({});
 }
 
 function inputDigest(request, workspace, extra = {}) {
@@ -40,7 +52,7 @@ function gates({ applicable = [], blocked = [], failed = [], passed = [] }) {
   return { applicable, blocked, failed, notApplicable: [], passed };
 }
 
-function receiptFor({ conformance, content, diagnostics = [], operation, release, workspace }) {
+function receiptFor({ conformance, content, diagnostics = [], operation, release, request, workspace }) {
   return createReceipt({
     catalogs: { digest: release.catalogDigest, version: 1 },
     compiler: release.compiler,
@@ -52,11 +64,13 @@ function receiptFor({ conformance, content, diagnostics = [], operation, release
     diagnostics,
     manifest: workspace.manifest,
     operation,
+    operationVersion: request.operationVersion,
     operationDigest: release.operationDigest,
     schemaDigest: release.schemaDigest,
     sdkDigest: release.sdkDigest,
     simulatorDigest: release.simulatorDigest,
     toolchainDigest: release.toolchainDigest,
+    contractProfile: request.contractProfile,
   });
 }
 
@@ -74,7 +88,7 @@ function requireSeparateOutput(request) {
 }
 
 function validateOperation(request, release) {
-  const workspace = readWorkspace(request.workspaceRoot);
+  const workspace = readWorkspace(request.workspaceRoot, release);
   const report = compatibilityReport({
     gates: gates({
       applicable: ['workspace', 'manifest', 'capability-graph', 'fixtures', 'static-analysis'],
@@ -98,7 +112,7 @@ function validateOperation(request, release) {
 
 function buildOperation(request, release) {
   requireSeparateOutput(request);
-  const workspace = readWorkspace(request.workspaceRoot);
+  const workspace = readWorkspace(request.workspaceRoot, release);
   const outputRoot = prepareOutputRoot(request.outputRoot, release.toolchainDigest);
   const built = compileWorkspace({ outputRoot, release, workspace });
   const report = compatibilityReport({
@@ -115,6 +129,7 @@ function buildOperation(request, release) {
     content,
     operation: 'build',
     release,
+    request,
     workspace,
   });
   const reportArtifact = writeOutputJson(outputRoot, 'reports/build-compatibility.json', report);
@@ -129,7 +144,7 @@ function buildOperation(request, release) {
 
 function testOperation(request, release, adapters) {
   requireSeparateOutput(request);
-  const workspace = readWorkspace(request.workspaceRoot);
+  const workspace = readWorkspace(request.workspaceRoot, release);
   const outputRoot = prepareOutputRoot(request.outputRoot, release.toolchainDigest);
   const build = requireCurrentBuild({ outputRoot, release, workspace });
   const fixtureResults = adapters.runIsolatedFixtures({
@@ -180,6 +195,7 @@ function testOperation(request, release, adapters) {
     content,
     operation: 'test',
     release,
+    request,
     workspace,
   });
   const resultArtifact = writeOutputJson(outputRoot, 'results/test.json', testReport);
@@ -196,7 +212,7 @@ function testOperation(request, release, adapters) {
 
 function previewOperation(request, release, adapters) {
   requireSeparateOutput(request);
-  const workspace = readWorkspace(request.workspaceRoot);
+  const workspace = readWorkspace(request.workspaceRoot, release);
   const outputRoot = prepareOutputRoot(request.outputRoot, release.toolchainDigest);
   const build = requireCurrentBuild({ outputRoot, release, workspace });
   const fixtureResults = adapters.runIsolatedFixtures({
@@ -204,8 +220,27 @@ function previewOperation(request, release, adapters) {
     selection: request.fixtureSelection,
     workspace,
   });
-  const semantic = workspace.manifest.contributions.find(({ kind }) => kind === 'semantic-type');
-  const preview = Object.freeze({
+  const local = request.contractProfile === LOCAL_CONTRACT_PROFILE;
+  const semantic = local ? null : workspace.manifest.contributions.find(({ kind }) => kind === 'semantic-type');
+  const preview = local ? Object.freeze({
+    cases: fixtureResults.map(({ caseId, fixtureSuiteId, output }) => ({
+      caseId,
+      fixtureSuiteId,
+      outputDigest: digestValue(output),
+      status: 'passed',
+    })),
+    contractProfile: workspace.document.contractProfile,
+    packageId: workspace.manifest.packageId,
+    parameters: {
+      customCss: false,
+      customHtml: false,
+      hostRendered: true,
+      schema: workspace.manifest.settings,
+    },
+    payloadRendered: false,
+    productionApplicationOpened: false,
+    schemaVersion: 2,
+  }) : Object.freeze({
     cases: fixtureResults.map(({ caseId, fixtureSuiteId, output }) => ({
       artifact: output.artifact,
       caseId,
@@ -253,6 +288,7 @@ function previewOperation(request, release, adapters) {
     content,
     operation: 'preview',
     release,
+    request,
     workspace,
   });
   const previewArtifact = writeOutputJson(outputRoot, 'previews/preview.json', preview);
@@ -269,17 +305,34 @@ function previewOperation(request, release, adapters) {
 
 function packOperation(request, release) {
   requireSeparateOutput(request);
-  const workspace = readWorkspace(request.workspaceRoot);
+  const workspace = readWorkspace(request.workspaceRoot, release);
   const outputRoot = prepareOutputRoot(request.outputRoot, release.toolchainDigest);
   const build = requireCurrentBuild({ outputRoot, release, workspace });
   const report = compatibilityReport({
     gates: gates({
-      applicable: ['current-build', 'current-test', 'current-preview', 'deterministic-archive', 'bundle-inspection'],
-      passed: ['current-build', 'current-test', 'current-preview', 'deterministic-archive', 'bundle-inspection'],
+      applicable: ['current-build', 'current-test', 'current-preview', 'host-api', 'deterministic-archive', 'bundle-inspection'],
+      passed: ['current-build', 'current-test', 'current-preview', 'host-api', 'deterministic-archive', 'bundle-inspection'],
     }),
     requested: request,
     toolchain: release.compiler,
   });
+  if (request.contractProfile === LOCAL_CONTRACT_PROFILE) {
+    const packed = packLocalPackage({
+      build,
+      compatibility: report,
+      outputKind: request.options.outputKind,
+      outputRoot,
+      release,
+      workspace,
+    });
+    const reportArtifact = writeOutputJson(outputRoot, 'reports/pack-v2-compatibility.json', report);
+    return {
+      artifacts: [packed.artifact, reportArtifact],
+      compatibilityReport: report,
+      inputDigest: inputDigest(request, workspace),
+      receipt: packed.candidateReceipt,
+    };
+  }
   const packed = packBundle({ build, compatibility: report, outputRoot, release, workspace });
   const testState = readOutputState(outputRoot, 'test');
   const previewState = readOutputState(outputRoot, 'preview');
@@ -299,6 +352,7 @@ function packOperation(request, release) {
     content,
     operation: 'pack',
     release,
+    request,
     workspace,
   });
   const reportArtifact = writeOutputJson(outputRoot, 'reports/pack-compatibility.json', report);
@@ -312,18 +366,28 @@ function packOperation(request, release) {
 }
 
 function readOutputState(outputRoot, stage) {
-  const target = path.join(outputRoot, 'state', `${stage}-state.json`);
-  try { return JSON.parse(fs.readFileSync(target, 'utf8')); } catch {
-    fail('candidate', 'V7DK_STALE_OUTPUT', 'pack', `${stage} state is missing.`);
-  }
+  return readOutputJson(outputRoot, `state/${stage}-state.json`);
 }
 
 const defaultAdapters = Object.freeze({
   inspectBundleAt,
+  inspectLocalPackageAt,
   runIsolatedFixtures,
 });
 
 function inspectOperation(request, release, adapters) {
+  if (request.options.target === 'local-package') {
+    const inspected = adapters.inspectLocalPackageAt(request.workspaceRoot, request.options.path, release);
+    return {
+      artifacts: [{ kind: 'local-package-inspection', ...inspected }],
+      compatibilityReport: compatibilityReport({
+        gates: gates({ applicable: ['package-integrity'], passed: ['package-integrity'] }),
+        requested: request,
+        toolchain: release.compiler,
+      }),
+      inputDigest: inputDigest(request, null, { archiveDigest: inspected.archiveDigest }),
+    };
+  }
   if (request.options.target === 'bundle') {
     const inspected = adapters.inspectBundleAt(request.workspaceRoot, request.options.path, release);
     return {
@@ -382,6 +446,7 @@ export function runDeveloperKit(rawRequest, overrides = {}) {
       ...outcome,
       kind: 'passed',
       operation: request.operation,
+      responseContract: request,
       toolchainDigest: release.toolchainDigest,
     });
   } catch (error) {
@@ -393,6 +458,7 @@ export function runDeveloperKit(rawRequest, overrides = {}) {
       inputDigest: request ? inputDigest(request) : fallbackDigest,
       kind: failure.kind,
       operation: request?.operation ?? operation,
+      responseContract: request ?? responseContractHint(rawRequest),
       toolchainDigest: release?.toolchainDigest ?? digestValue({ toolchain: 'unavailable' }),
     });
   }

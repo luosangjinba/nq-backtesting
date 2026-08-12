@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/local-package-source-disclosure-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "packageId", "authoringSource", "license", "networkDerived", "credentialsIncluded", "sourceIncluded", "absolutePathsIncluded", "publisherVerification", "payloadExecutionAuthorized"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "packageId": { "type": "string" },
+    "authoringSource": { "type": "string", "pattern": "^[a-z][a-z0-9.-]{0,159}$" },
+    "license": { "type": "string" },
+    "networkDerived": { "type": "boolean" },
+    "credentialsIncluded": { "const": false },
+    "sourceIncluded": { "const": false },
+    "absolutePathsIncluded": { "const": false },
+    "publisherVerification": { "const": "self-asserted" },
+    "payloadExecutionAuthorized": { "const": false }
+  }
+}

@@ -667,7 +667,7 @@ Binding contract and rationale:
 `docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` and
 `docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`.
 
-## P1b Local Plugin Packages And Authoring MCP — Accepted 2026-08-11
+## P1b Local Plugin Packages And Authoring MCP — P1b.1 Implemented 2026-08-12
 
 - [x] receive authorization to correct stale P1a status language and draft,
   but not implement, the next Plugin Platform contract;
@@ -696,8 +696,34 @@ Binding contract and rationale:
   without adding Harness metadata, fixtures, schemas, dependencies, or code;
 - [x] receive explicit product-owner review acceptance of the five material
   P1b boundary decisions;
-- [ ] after specification acceptance, receive separate authorization before
-  implementing P1b.1 contract/archive or any later P1b slice;
+- [x] after specification acceptance, receive separate authorization for only
+  the bounded P1b.1 contract/archive slice;
+- [x] add pure Manifest V2 and inactive candidate-plan contracts under the
+  existing `core.plugin-contract`, with no external descriptor or lifecycle;
+- [x] publish `local-declarative-package-v1`, 22 exact schemas, 10 versioned
+  catalogs, `.v7plugin` media identity/limits, explicit host-API compatibility,
+  and a synthetic lifecycle workspace that publishes no contribution,
+  capability, permission, or execution entrypoint;
+- [x] extend the canonical engine with request schema v2 and explicit `pack`/
+  `inspect` operation v2 while retaining all eight P1a operation-v1 paths;
+- [x] produce one canonical candidate layout as either
+  `unpacked-local-candidate` or deterministic uncompressed ustar
+  `local-install-archive`, never inferred from a filename;
+- [x] bind current build/test/preview receipts, workspace/source/fixture/
+  expected/build digests, Manifest V2, schema/catalog/toolchain identity,
+  content index, payload, provenance, settings/migrations, permission denials,
+  and inactive authority flags into portable receipts;
+- [x] harden shared in-memory tar parsing for canonical UTF-8/NFC paths, exact
+  ustar headers, duplicate/normalization/prefix collisions, links/devices/
+  extensions, ordering, padding/trailing bytes, limits, no-follow output paths,
+  and undeclared/nested payloads;
+- [x] register H117 as an executable P1b.1 subset and pass two-root archive
+  determinism, prepared/archive byte equivalence, CLI/Library equivalence,
+  P1a/H116 regression, and 18 synthetic negative groups;
+- [x] keep H117 unaccepted pending the later P1b.2–P1b.4 transaction/browser/
+  MCP/human closure;
+- [ ] require separate authorization before P1b.2 package-store/storage,
+  P1b.3 Plugin Center/Developer Mode UI, or P1b.4 MCP/H117 acceptance work;
 - [x] keep P2 registry, P3a Worker, P3b Pine migration, P4 Marketplace, new
   business plugins, and R13.11–R13.13 outside P1b.
 
@@ -1410,8 +1436,12 @@ Binding ES full-chain repair:
   than a second toolchain;
 - [x] P1b specification acceptance: accept the five material boundary
   decisions without authorizing implementation;
-- [ ] P1b.1 implementation authorization: require a separate product-owner
-  instruction before contract/archive implementation or any later P1b slice;
+- [x] P1b.1 implementation: after the separate product-owner instruction,
+  implement only Manifest V2/profile/schema/catalog, explicit pack/inspect v2,
+  strict archive validation, portable candidate/receipt evidence, and the
+  executable H117 contract/archive subset;
+- [ ] P1b.2–P1b.4: require a new product-owner instruction before package
+  inventory/storage, Plugin Center/Developer Mode UI, MCP, or H117 acceptance;
 - [ ] P2/P3a: separately prove a signed free Community registry/restricted mode
   and isolated TypeScript-to-ESM Worker calculation tier with measured
   permissions/resource budgets; keep WASM a later separate decision;
@@ -1526,7 +1556,7 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 465 files, 38,855 effective lines, 4,067 functions, and 428 public exports; the architecture baseline
+The current production source baseline contains 467 files, 39,300 effective lines, 4,115 functions, and 434 public exports; the architecture baseline
 contains 66 modules, 148 edges, 128 construction sites, 25 writers, and zero
 findings.
 
@@ -1538,7 +1568,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 465 files, 38,855 effective lines, 4,067 functions, and 428 public exports, 66 modules, 148 edges, 128 construction sites, 25 writers, and zero
+currently at 467 files, 39,300 effective lines, 4,115 functions, and 434 public exports, 66 modules, 148 edges, 128 construction sites, 25 writers, and zero
 findings.
 
 ## Established Foundation Governance

@@ -1,4 +1,9 @@
-import { CONTRACT_PROFILE, DEVELOPER_KIT_VERSION, SDK_VERSION } from './contract.js';
+import {
+  CONTRACT_PROFILE,
+  DEVELOPER_KIT_VERSION,
+  LOCAL_CONTRACT_PROFILE,
+  SDK_VERSION,
+} from './contract.js';
 
 const CONTRIBUTIONS = Object.freeze({
   deprecated: Object.freeze([]),
@@ -22,6 +27,36 @@ export function compatibilityReport({ gates = {}, requested = {}, toolchain }) {
     notApplicable: [...(gates.notApplicable ?? [])].sort(),
     passed: [...(gates.passed ?? [])].sort(),
   };
+  const local = requested.contractProfile === LOCAL_CONTRACT_PROFILE;
+  if (local) {
+    return Object.freeze({
+      capabilities: Object.freeze({ deprecated: Object.freeze([]), supported: Object.freeze([]), unavailable: Object.freeze([
+        'activation', 'custom-surface', 'drawing', 'indicator', 'network', 'semantic-type',
+        'tool', 'worker', 'workflow',
+      ]) }),
+      contributions: Object.freeze({ deprecated: Object.freeze([]), supported: Object.freeze([]), unavailable: CONTRIBUTIONS.unavailable }),
+      developerBundleOnly: false,
+      gates: Object.freeze(normalizedGates),
+      humanChoices: Object.freeze([]),
+      laterCandidateEligible: true,
+      permissions: Object.freeze({ increased: Object.freeze([]), requested: Object.freeze([]) }),
+      requested: Object.freeze({
+        contractProfile: LOCAL_CONTRACT_PROFILE,
+        developerKitVersion: requested.developerKitVersion ?? DEVELOPER_KIT_VERSION,
+        sdkVersion: requested.sdkVersion ?? SDK_VERSION,
+      }),
+      resolved: Object.freeze({
+        contractProfile: LOCAL_CONTRACT_PROFILE,
+        developerKitVersion: DEVELOPER_KIT_VERSION,
+        productionExecutionTarget: null,
+        sdkVersion: SDK_VERSION,
+        toolchain,
+      }),
+      review: Object.freeze({ permissionReviewRequired: false, semanticReviewRequired: false, visibleReviewRequired: true }),
+      safeFixes: Object.freeze([]),
+      schemaVersion: 1,
+    });
+  }
   return Object.freeze({
     capabilities: Object.freeze({
       deprecated: Object.freeze([]),

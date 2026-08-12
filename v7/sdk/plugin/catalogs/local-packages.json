@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "profile": "local-declarative-package-v1",
+  "archive": {
+    "version": 1,
+    "format": "ustar",
+    "suffix": ".v7plugin",
+    "mediaType": "application/vnd.replay-lab.v7-plugin+tar",
+    "compression": "none",
+    "opaqueArchiveSuffixes": [],
+    "limits": {
+      "maxEntries": 512,
+      "maxEntryBytes": 2097152,
+      "maxUnpackedBytes": 8388608
+    }
+  },
+  "sources": ["local-archive", "developer-unpacked"],
+  "trust": ["unverified-local", "developer-local"],
+  "states": ["candidate", "installed-inactive", "developer-inactive", "incompatible", "quarantined", "migration-blocked", "removed"],
+  "outputKinds": ["unpacked-local-candidate", "local-install-archive"],
+  "productionExecutionTarget": null,
+  "automaticUpdate": false,
+  "network": "unavailable"
+}

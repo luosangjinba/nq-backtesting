@@ -1,15 +1,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { TEMPLATE_ID } from '../domain/contract.js';
+import { TEMPLATE_IDS } from '../domain/contract.js';
 import { fail } from '../domain/diagnostic.js';
 import { compareText } from '../domain/canonical-json.js';
 import { EXAMPLES_ROOT } from './layout.js';
 
 export function loadTemplate(templateId) {
-  if (templateId !== TEMPLATE_ID) {
+  if (!TEMPLATE_IDS.includes(templateId)) {
     fail('request', 'V7DK_REQUEST_INVALID', 'scaffold', 'Scaffold template is unsupported.');
   }
-  const root = path.join(EXAMPLES_ROOT, TEMPLATE_ID);
+  const root = path.join(EXAMPLES_ROOT, templateId);
   const files = [];
   function visit(directory, prefix = '') {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true }).sort((a, b) => compareText(a.name, b.name))) {

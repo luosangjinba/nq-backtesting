@@ -4,7 +4,8 @@ import { canonicalJson, compareText, digestValue, sha256Bytes } from '../domain/
 import { fail } from '../domain/diagnostic.js';
 import { verifyReceipt } from '../domain/receipt.js';
 import { bundleIndex, encodeTar, inspectTar, jsonEntry } from './tar.js';
-import { readLogicalPath, readOutputJson, writeOutputFile } from './workspace-io.js';
+import { readOutputJson, writeOutputFile } from './output-io.js';
+import { readLogicalPath } from './workspace-io.js';
 
 function regularBytes(root, logicalPath) {
   const target = path.resolve(root, ...logicalPath.split('/'));

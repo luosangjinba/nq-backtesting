@@ -8,6 +8,8 @@
     { "id": "test", "version": 1, "candidateExecution": "isolated-profile-gated" },
     { "id": "preview", "version": 1, "candidateExecution": "isolated-profile-gated" },
     { "id": "pack", "version": 1, "candidateExecution": "never" },
-    { "id": "inspect", "version": 1, "candidateExecution": "never" }
+    { "id": "inspect", "version": 1, "candidateExecution": "never" },
+    { "id": "pack", "version": 2, "profile": "local-declarative-package-v1", "outputKinds": ["unpacked-local-candidate", "local-install-archive"], "candidateExecution": "never" },
+    { "id": "inspect", "version": 2, "profile": "local-declarative-package-v1", "target": "local-package", "candidateExecution": "never" }
   ]
 }

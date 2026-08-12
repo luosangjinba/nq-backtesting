@@ -2409,6 +2409,110 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 108,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "normalizeInput",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 52,
+          "name": "createLocalPluginPackageCandidatePlan",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "digest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readLocalPluginPackageCandidatePlan",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.plugin-contract",
+      "owner": "plugin-contract",
+      "ownsContract": false,
+      "path": "src/plugin-contract/local-plugin-package-plan.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "createLocalPluginPackageCandidatePlan",
+          "semanticMatches": [
+            "package",
+            "plan",
+            "plugin"
+          ],
+          "semanticTerms": [
+            "candidate",
+            "local",
+            "package",
+            "plan",
+            "plugin"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "readLocalPluginPackageCandidatePlan",
+          "semanticMatches": [
+            "package",
+            "plan",
+            "plugin"
+          ],
+          "semanticTerms": [
+            "candidate",
+            "local",
+            "package",
+            "plan",
+            "plugin"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "60cf7a952b554178c6720c8855d0f3673284ca2c81f007932cdb2d03d14ac037"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 109,
       "forwardingOnly": false,
       "functions": [
@@ -13786,52 +13890,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 31,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 4,
-          "name": "pluginVersion",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "pluginVersionRange",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "components",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "compare",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "pluginVersionSatisfies",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "contract",
-      "moduleId": "core.plugin-contract",
-      "owner": "plugin-contract",
-      "ownsContract": false,
-      "path": "src/plugin-contract/semantic-version.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "af045cf80c4e402602a4bb748892532fa799964e98c3eba159359c809fcd4ec4"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 32,
       "forwardingOnly": false,
       "functions": [
@@ -13920,6 +13978,331 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "fcae254996901f9a2feeeb63c6a53971e9724b5a4f61a317e60b87255c90507f"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 323,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-21>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-22>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-26>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-27>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-34>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-35>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-37>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "finalizeLocalPluginPackageManifest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "localIdentity",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "normalizePersistence",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "normalizeLicense",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "normalizeMigrations",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "normalizeSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "requireCurrentMigrationDestinations",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "hasPointerCycle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "normalizeConformance",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "settingPointer",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "validateManifestShape",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-23>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "defineLocalPluginPackageManifest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 32,
+          "name": "normalizeManifest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-25>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 42,
+          "name": "normalizeMigrationOperation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "digest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "normalizeExecution",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "positiveInteger",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readLocalPluginPackageManifest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireEmpty",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "currentSettingField",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "normalizeCapabilities",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "normalizedPointer",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.plugin-contract",
+      "owner": "plugin-contract",
+      "ownsContract": false,
+      "path": "src/plugin-contract/local-plugin-package-manifest.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "defineLocalPluginPackageManifest",
+          "semanticMatches": [
+            "manifest",
+            "package",
+            "plugin"
+          ],
+          "semanticTerms": [
+            "local",
+            "manifest",
+            "package",
+            "plugin"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "finalizeLocalPluginPackageManifest",
+          "semanticMatches": [
+            "manifest",
+            "package",
+            "plugin"
+          ],
+          "semanticTerms": [
+            "finalize",
+            "local",
+            "manifest",
+            "package",
+            "plugin"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "LOCAL_PLUGIN_CONTRACT_PROFILE",
+          "semanticMatches": [
+            "plugin"
+          ],
+          "semanticTerms": [
+            "local",
+            "plugin",
+            "profile"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "readLocalPluginPackageManifest",
+          "semanticMatches": [
+            "manifest",
+            "package",
+            "plugin"
+          ],
+          "semanticTerms": [
+            "local",
+            "manifest",
+            "package",
+            "plugin"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "ef328109d616daac0f2bf92ead8f48bce6a4759faee535ee52f53ec56e976004"
     },
     {
       "adaptsBoundary": false,
@@ -14911,6 +15294,57 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 35,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "pluginVersion",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "pluginVersionRange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "compare",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "components",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "pluginVersionSatisfies",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.plugin-contract",
+      "owner": "plugin-contract",
+      "ownsContract": false,
+      "path": "src/plugin-contract/semantic-version.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "80bc2a1ede93bfb45c58c15a2e8e76db6c90a15951cbc9694d2405f9d3389458"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 37,
       "forwardingOnly": false,
       "functions": [
@@ -15340,26 +15774,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "2da33b8040c08530293aa112615e99d471b111fcd0505aa26efa44414e81c524"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 38,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "contract",
-      "moduleId": "core.plugin-contract",
-      "owner": "plugin-contract",
-      "ownsContract": true,
-      "path": "src/plugin-contract/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "1fd02b72376813b3bc3e5d4ee6824e3e075caa74659e0679192e854db1aafd7f"
     },
     {
       "adaptsBoundary": false,
@@ -16959,6 +17373,26 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "4d24b4dae0be4c9acbd6fd9ee6892ea1f4ccf83fd83bebb51634826a18887a0b"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 48,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "contract",
+      "moduleId": "core.plugin-contract",
+      "owner": "plugin-contract",
+      "ownsContract": true,
+      "path": "src/plugin-contract/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "38f2a1ab690d555334bc9e4bf8288ab546fab809d2f9540086c568ed7d96a226"
     },
     {
       "adaptsBoundary": false,
@@ -41132,11 +41566,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 38855,
-    "files": 465,
-    "functions": 4067,
-    "publicExports": 428
+    "effectiveLines": 39300,
+    "files": 467,
+    "functions": 4115,
+    "publicExports": 434
   },
-  "deliveryStep": "P1a",
-  "generatedFromCommit": "working-tree-p1a"
+  "deliveryStep": "P1b.1",
+  "generatedFromCommit": "working-tree-p1b.1"
 }

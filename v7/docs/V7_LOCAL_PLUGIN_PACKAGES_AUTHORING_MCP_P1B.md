@@ -1,12 +1,16 @@
 # V7 Local Plugin Packages And Authoring MCP — P1b Accepted Specification
 
-Status: accepted binding specification 2026-08-11; implementation is not
-authorized; H117 is declared but not registered, implemented, or accepted
+Status: accepted binding specification 2026-08-11; P1b.1 separately authorized
+2026-08-11 and implemented 2026-08-12; H117 executable for the P1b.1 subset,
+not accepted
 
 Date: 2026-08-11
 
 Acceptance record:
 `../sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_acceptance.md`
+
+P1b.1 implementation record:
+`../sessions/session_20260811_p1b_1_contract_archive_implementation.md`
 
 Depends on:
 
@@ -85,6 +89,12 @@ explicitly accepted all five material decisions below on 2026-08-11. That
 acceptance makes this document the binding P1b specification; it does not
 authorize P1b.1 or any implementation.
 
+After that acceptance, the product owner separately instructed
+`授权按已验收的 P1b 规格开始实现 P1b.1。` Only the contract/archive slice in
+the required decomposition is therefore authorized and implemented. This
+historical implementation instruction does not authorize P1b.2 inventory/
+storage, P1b.3 Plugin Center/Developer Mode, or P1b.4 MCP/H117 closure.
+
 A separately authorized P1b implementation may include only:
 
 - one versioned, deterministic local-install archive distinct from P1a's
@@ -126,7 +136,8 @@ P1b explicitly excludes:
 No new package, installed row, control, storage record, MCP server, schema,
 Harness entry, or production code may be created from specification acceptance
 alone. P1b.1 or any later implementation slice requires a separate product-
-owner instruction.
+owner instruction. P1b.1 received that instruction; every later slice still
+requires its own instruction.
 
 ## Accepted Material Decisions
 
@@ -726,9 +737,11 @@ activation, publisher trust, signature, and production execution.
 
 ## Declared H117 Acceptance Gate
 
-H117 is declared by this accepted specification but is not allocated in
-`v7-harness-rules.json`, implemented, or accepted. If implementation is
-separately authorized, H117 must cover the following.
+H117 is now allocated in `v7-harness-rules.json` as `executable`, not
+`accepted`. The separately authorized P1b.1 Harness covers the Package Contract
+And Archive subset below with 18 negative groups. Later P1b slices must extend
+the same H117 gate with the remaining transaction, browser, MCP, architecture,
+and human evidence; they may not reinterpret or prematurely accept it.
 
 ### Package Contract And Archive
 
@@ -793,8 +806,9 @@ separately authorized, H117 must cover the following.
   writer-closure, source-quality, deployed-runtime, and full regression gates
   retain their accepted behavior;
 - every negative control first passes with the violation disabled, then fails
-  for its intended reason; exact count and fixtures are frozen with an accepted
-  implementation contract before H117 metadata is added.
+  for its intended reason; P1b.1 freezes its 18 contract/archive groups, and
+  each later separately authorized slice must freeze its additive count and
+  fixtures before H117 can be accepted.
 
 H117 requires a human gate because P1b changes visible Plugin Center behavior
 and asks the user to make local source/trust/data-retention decisions. It does
@@ -822,23 +836,29 @@ committed in this order:
 Each slice must preserve one public owner boundary, add its applicable negative
 controls, run standing gates, pass `git diff --check`, update TODO/session/
 handoff records, and stop after one bounded commit. Acceptance of this document
-approves the contract only; implementation still requires a separate product-
-owner instruction.
+approves the contract only; each implementation slice still requires a
+separate product-owner instruction. P1b.1 received that instruction on
+2026-08-11.
 
 ## Accepted State And Next Gate
 
-Current state after this documentation step:
+Current state after the separately authorized P1b.1 implementation:
 
 - P0a/H113, R13.10e/H114, P0b/H115, and P1a/H116 remain implemented and
   accepted;
 - this P1b document is the accepted binding specification;
-- H117 is declared but has no machine-readable rule, Harness,
-  fixture, code, or acceptance evidence;
-- no P1b implementation, installed package format, package store, UI, MCP
-  server, declarative runtime, or external execution path exists;
+- H117 is registered as `executable`, with a P1b.1 contract/archive Harness and
+  18 negative groups; it deliberately has no acceptance evidence yet;
+- Manifest V2, `local-declarative-package-v1`, 22 schemas, 10 catalogs,
+  explicit pack/inspect v2, deterministic `.v7plugin`, prepared candidate
+  layout, portable candidate receipts, and strict in-memory inspection exist;
+- no installed generation, package store, storage transaction, Plugin Center
+  local-package UI, Developer Mode browser adapter, MCP server, declarative
+  business runtime, external descriptor, import/evaluation, or activation path
+  exists;
 - P2 registry, P3a Worker, P3b Pine migration, P4 Marketplace, and new business
   plugins remain separately gated.
 
-The exact next product decision is whether to separately authorize P1b.1
-contract/archive implementation. Until that instruction is given, revision of
-this specification is the only other permitted P1b action.
+The exact next product decision is whether to separately authorize P1b.2's
+inventory transaction owner. Until that instruction is given, no package
+storage, UI, Developer Mode, MCP, or further H117 implementation may begin.
