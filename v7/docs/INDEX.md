@@ -128,8 +128,11 @@ authorized P0a implementation contract is
 accepted under `V7_CORE_PLUGIN_CENTER_P0B.md`. The P1a authoring
 contract in `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` is implemented and
 accepted under H116; its Chinese design rationale is preserved in
-`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`. P1b installation
-and MCP, registry, Worker, and Pine phases remain unauthorized.
+`V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`. The P1b local
+package/Developer Mode/authoring MCP contract is drafted for review in
+`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`; it is not accepted and no P1b
+implementation is authorized. Registry, Worker, and Pine phases remain
+unauthorized.
 The accepted post-milestone foundation is
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
 market-coordinate geometry, generic drawings, typed semantic artifacts,
@@ -244,13 +247,20 @@ with a local MCP adapter over the same operations. A later Pine indicator
 migration assistant emits ordinary strict-TypeScript packages, compatibility
 reports, tests, and provenance after the target SDK/runtime exists; Pine is not
 a runtime language and semantic equivalence still requires evidence and human
-review. `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` now binds the implemented bounded
-SDK/CLI/Harness contract, non-installable developer evidence bundle, isolated
-synthetic test host, diagnostics, receipts, and accepted H116 gate. It adds no
-MCP, installation, Worker, or product-visible behavior. After detailed review,
-the product owner accepted the specification's four material boundaries,
-requested the plain-language reasoning be retained for future maintainers, and
-separately authorized the bounded P1a implementation.
+review. `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` now binds the implemented
+bounded SDK/CLI/Harness contract, non-installable developer evidence bundle,
+isolated synthetic test host, diagnostics, receipts, and accepted H116 gate.
+It adds no MCP, installation, Worker, or product-visible behavior. After
+detailed review, the product owner accepted the specification's four material
+boundaries, requested the plain-language reasoning be retained for future
+maintainers, and separately authorized the bounded P1a implementation.
+`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md` is the subsequent documentation-
+only draft. It proposes a distinct `.v7plugin` archive, non-executing device-
+local inventory transactions, prepared-candidate Developer Mode, declarative
+settings migration/data survival, Restricted Mode, and a local `stdio` MCP
+adapter over P1a's eight operations. Its five material decisions and proposed
+H117 await explicit review; the draft adds no schema, Harness, installer,
+storage owner, UI, MCP server, or external execution path.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record
@@ -378,6 +388,10 @@ Read in this order before V7 implementation work:
 98d. `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md` as the
      non-normative Chinese explanation of P1a's motivations, four accepted
      material boundaries, authoring flow, isolation, and phase separation
+98e. `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md` as the documentation-only
+     P1b review draft for local inactive-package admission, transactional
+     inventory/recovery, prepared-candidate Developer Mode, and a bounded
+     authoring MCP adapter; do not treat it as accepted or implemented
 99. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
 100. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,

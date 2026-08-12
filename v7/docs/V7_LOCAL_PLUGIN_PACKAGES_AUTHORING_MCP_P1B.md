@@ -1,0 +1,836 @@
+# V7 Local Plugin Packages And Authoring MCP — P1b Draft
+
+Status: draft for product-owner review; not accepted; implementation and H117
+are not authorized
+
+Date: 2026-08-11
+
+Depends on:
+
+- `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` (`ADR-V7-004`);
+- `V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md` and accepted H113;
+- `V7_CORE_PLUGIN_CENTER_P0B.md` and accepted H115;
+- `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` and accepted H116.
+
+## Outcome
+
+P1b proposes the first local package-admission layer above the accepted P1a
+Developer Kit. It gives a user a transactional **Install from file** workflow,
+a visibly separate **Developer Mode** for an unpacked candidate directory, and
+a local workspace-bounded MCP adapter over the existing P1a authoring
+operations.
+
+P1b does not authorize external package code to execute. In this phase,
+installation means that verified immutable package bytes, metadata, settings,
+and provenance enter a device-local inventory. It does not mean enablement,
+ModuleHost composition, production execution, publisher trust, or access to
+V7 owners. An external package which declares an executable or otherwise
+unavailable contribution is reported honestly as unavailable and cannot enter
+an active definition graph.
+
+This deliberately separates three security decisions:
+
+1. P1a can prove that a developer workspace produced reproducible evidence.
+2. P1b may admit a distinct local package archive to a device-local inventory
+   after explicit user review.
+3. Only a later authorized declarative runtime or P3a Worker tier may make an
+   external contribution executable.
+
+P1b therefore closes local packaging, inventory, recovery, and authoring
+transport boundaries without pretending that Community execution already
+exists.
+
+## Upstream Capability And Security Check
+
+The design borrows established workflow ideas without inheriting another
+product's privilege model:
+
+- Visual Studio Code supports explicit local archive installation and disables
+  automatic update for a manually installed VSIX by default. V7 adopts the
+  visible local-source and manual-update posture, not VS Code extensions'
+  application-level privileges:
+  <https://code.visualstudio.com/docs/configure/extensions/extension-marketplace#_install-from-a-vsix>
+- VS Code Workspace Trust demonstrates that untrusted workspace content should
+  enter a restricted mode before any automatic code execution. P1b is stricter:
+  external code never executes in this phase:
+  <https://code.visualstudio.com/api/extension-guides/workspace-trust>
+- MCP `2025-11-25` defines `stdio` as a client-launched subprocess transport;
+  P1b selects it so no localhost listener or remote endpoint exists:
+  <https://modelcontextprotocol.io/specification/2025-11-25/basic/transports>
+- MCP Roots define explicit filesystem operating boundaries and require path
+  traversal and access controls. P1b treats roots as a narrowing hint in
+  addition to, never instead of, its own startup allowlist:
+  <https://modelcontextprotocol.io/specification/2025-11-25/client/roots>
+- MCP Tools recommends clear exposure and a human ability to deny tool calls.
+  P1b exposes stable read/write annotations but does not treat annotations as
+  enforcement or permit any tool to install or activate a package:
+  <https://modelcontextprotocol.io/specification/2025-11-25/server/tools>
+- MCP's security guidance identifies local-server command execution,
+  filesystem reach, and network reach as material risks. P1b uses one visible
+  fixed startup command, a workspace allowlist, no network transport, and no
+  generic command passthrough:
+  <https://modelcontextprotocol.io/docs/2026-07-28/tutorials/security/security_best_practices>
+
+These references are evidence for interaction and threat-model choices. They
+do not replace V7's own ownership, transaction, no-future, or acceptance gates.
+
+## Draft Authorization Boundary
+
+The product owner authorized **drafting this specification and correcting the
+P1a status record** on 2026-08-11. That instruction does not accept this draft
+and does not authorize P1b implementation.
+
+If later accepted and separately authorized, P1b would include only:
+
+- one versioned, deterministic local-install archive distinct from P1a's
+  `.v7dk.tar` evidence bundle;
+- one pure package-candidate validator and planner extending the existing
+  plugin-contract boundary rather than creating a second plugin API;
+- one device-local transactional package inventory owner with immutable
+  generations, exact-revision commands, recovery, quarantine, and rollback;
+- Install from file, Installed, and Developer Mode host-rendered Plugin Center
+  surfaces for local packages;
+- load/reload of an explicit unpacked **candidate output directory**, not
+  automatic execution of a source workspace;
+- declarative settings migration, uninstall/data-survival, and restricted-mode
+  behavior;
+- one local `stdio` MCP adapter exposing the eight existing P1a authoring
+  operations within one selected workspace;
+- the proposed H117 automated, browser, architecture, and human-review gate.
+
+P1b explicitly excludes:
+
+- importing, evaluating, activating, or dynamically loading external ESM,
+  TypeScript, WASM, Python, Pine, HTML, CSS, or lifecycle scripts;
+- creating external ModuleHost descriptors or allowing an installed package
+  into an application definition graph;
+- a production Worker, calculation runtime, arbitrary declarative expression
+  language, native renderer, custom DOM, or direct Chart/Series/Canvas handle;
+- package filesystem, shell, process, credential, database, Bar Data, Replay,
+  Workspace, Annotation repository, Journal, network, or AI-provider access;
+- registry discovery, download, publishing, signing, publisher verification,
+  automatic update, revocation service, accounts, entitlement, or Marketplace;
+- silently converting a P1a developer evidence bundle into an install archive;
+- MCP install, update, uninstall, enable/disable, trust, permission, restart,
+  package-store, Plugin Center, or ModuleHost operations;
+- MA/SMA, Fibonacci, a detector, a new Semantic package, a new drawing, a
+  product Setup workflow, R13.11–R13.13, P2, P3a, P3b, or P4 behavior;
+- cross-device replication of package bytes, trust choices, Developer Mode, or
+  local inventory.
+
+No new package, installed row, control, storage record, MCP server, schema,
+Harness entry, or production code may be created from this draft alone.
+
+## Material Decisions Requiring Review
+
+The draft makes five material choices which require explicit product-owner
+acceptance before implementation can be authorized:
+
+1. **Install is not activate.** P1b stores and manages local package candidates
+   but executes none of their external code or business contributions.
+2. **The install archive is a new artifact.** `.v7dk.tar` remains evidence-only;
+   a `.v7plugin` archive requires a separate versioned pack result and explicit
+   install confirmation.
+3. **Local inventory has one new owner.** A device-local package-store runtime
+   owns bytes and transactions; it does not absorb the Core profile, ModuleHost,
+   domain evidence, or application lifecycle.
+4. **Developer Mode loads prepared candidates.** Source editing, compilation,
+   isolated tests, and preview stay in the P1a CLI/library operation engine,
+   reached through CLI or the proposed P1b MCP adapter. The browser reads an
+   unpacked candidate output and current receipts without evaluating code.
+5. **MCP is authoring-only.** It uses local `stdio`, one startup-allowlisted
+   workspace, and the canonical P1a engine. It cannot perform package lifecycle
+   actions even when an agent asks.
+
+If any of these choices changes, this document must be revised and reviewed
+before implementation rather than letting code silently settle the policy.
+
+## Terms And Artifact Separation
+
+P1b uses these names consistently:
+
+- **Developer Workspace** — the P1a source, fixtures, expected outputs, and
+  authoring configuration rooted by `v7-plugin-kit.json`.
+- **Developer Evidence Bundle** — P1a's deterministic `.v7dk.tar`; always
+  `installable: false` and never accepted by the package store.
+- **Unpacked Candidate Directory** — a prepared output layout containing the
+  proposed P1b manifest, payload, index, source disclosure, and exact current
+  P1a/P1b receipts. It is not an arbitrary source directory.
+- **Local Plugin Archive** — the deterministic `.v7plugin` installation
+  candidate produced from an eligible unpacked candidate by `pack` v2.
+- **Installed Generation** — immutable archive bytes plus host-issued source,
+  trust, compatibility, and inventory metadata committed by the package store.
+- **Active Generation** — a package generation admitted to a production
+  execution graph. P1b never creates one for a local package.
+- **Quarantine** — retained bytes and diagnostics which are excluded from
+  contribution resolution because integrity, compatibility, migration, or
+  recovery failed.
+- **Restricted Mode** — a startup condition in which external inventory is
+  ignored for contribution selection while diagnostic and recovery access
+  remains available.
+
+`installable`, `installed`, `enabled`, `active`, `conformant`, `trusted`, and
+`signed` are independent claims. No adapter may infer one from another.
+
+## P1b Contract Profile
+
+P1b proposes one additive profile:
+
+```text
+profile id: local-declarative-package-v1
+distribution tier: community
+admitted sources: local-archive | developer-unpacked
+host-issued trust: unverified-local | developer-local
+permissions: []
+production execution target: null
+production execution authorized: false
+automatic update: false
+network: unavailable
+```
+
+The profile admits package metadata, host-rendered management fields, settings
+schemas, source/license disclosure, conformance evidence, and opaque build
+artifacts. It does not publish a business capability or application module.
+Its `provides`, live `contributions`, permissions, and executable entrypoint
+must therefore be empty. A candidate requesting an indicator, Semantic type,
+drawing, tool, workflow, custom surface, or Worker is `unavailable`, not
+partially installed and not misreported as active.
+
+This intentionally makes the first implementation a real package-lifecycle
+proof rather than an inert example pretending to perform trading behavior.
+H117 may use synthetic lifecycle packages but P1b adds no built-in product
+package. A later declarative contribution profile or P3a Worker profile must
+add its own schema version, real reference contribution, permissions, resource
+limits, Harness growth, human review, and separate authorization.
+
+P1a's `trusted-built-in-core-v1` profile remains unchanged. A local archive
+cannot claim `core`, `built-in`, `first-party`, or the identity of an included
+Core package. Repacking the FVG reference never turns it into a local first-
+party release.
+
+## Package Manifest V2
+
+P1b proposes `PluginPackageManifestV2` as a portable package-authored value.
+Exact JSON Schema field spellings and limits become binding only when this
+draft is accepted and the implementation step adds the schema.
+
+```text
+PluginPackageManifestV2 {
+  manifestVersion: 2
+  packageId
+  packageVersion
+  display: { name, description }
+  publisher: { id, name }
+  license: { expression, noticePath }
+  hostApiRange
+  contractProfile: "local-declarative-package-v1"
+  capabilities: { provides: [], requires: [], extends: [] }
+  contributions: []
+  settings: null | host-rendered package/profile schema
+  permissions: []
+  execution: { tier: "none", entrypoint: null }
+  persistence: {
+    schemaVersion
+    retention: "preserve-on-uninstall"
+    migrations[]
+  }
+  conformance: {
+    sdkVersion
+    toolchainDigest
+    requiredReceiptDigests[]
+  }
+}
+```
+
+The publisher fields are self-asserted display/provenance data. They are not a
+verified identity. The manifest does not authoritatively declare install
+source, trust, signature, selected file path, install time, or user consent;
+the host records those facts separately.
+
+Unknown fields, non-portable numbers, duplicate ids, incompatible versions,
+non-empty permissions/capabilities/contributions, an entrypoint, remote URL
+used as executable input, or a P0a first-party distribution claim fail closed.
+README, notices, changelog, and other package text are rendered as escaped
+plain text or a separately accepted sanitized subset; they never supply HTML,
+commands, links with automatic navigation, or authority.
+
+## Host-Issued Source And Trust Record
+
+The package store creates an immutable record which cannot be supplied or
+overridden by archive bytes:
+
+```text
+PackageSourceRecordV1 {
+  sourceKind: "local-archive" | "developer-unpacked"
+  trust: "unverified-local" | "developer-local"
+  archiveDigest | unpackedSnapshotDigest
+  manifestDigest
+  selectedByUser: true
+  automaticUpdate: false
+  signature: { status: "not-applicable" }
+  publisherVerification: { status: "self-asserted" }
+}
+```
+
+Host paths, usernames, directory names, file-picker handles, wall-clock values,
+and MCP client identity do not enter portable package identity or content
+digests. A local path may appear transiently in host UI but is neither exported
+nor exposed to package content.
+
+Install confirmation must show package id/version, self-asserted publisher,
+source kind, archive SHA-256, license, host compatibility, profile, requested
+permissions, unavailable contribution claims, settings/data-retention policy,
+dependencies, migrations, and whether this is an install, upgrade, downgrade,
+or same-version replacement. Confirmation binds to the exact candidate digest
+and inventory revision; a changed byte invalidates it.
+
+## Deterministic Local Plugin Archive V1
+
+P1b proposes suffix `.v7plugin` and media identity
+`application/vnd.replay-lab.v7-plugin+tar`. The container is deterministic
+uncompressed ustar so the already-proven strict P1a tar boundary can be reused
+rather than adding a second archive parser or decompression attack surface.
+
+The archive contains only:
+
+```text
+v7-package.json
+content-index.json
+provenance/source-disclosure.json
+receipts/developer-kit.json
+receipts/package-candidate.json
+LICENSE or the manifest-declared notice path
+payload/**
+```
+
+The package-candidate receipt binds:
+
+- the exact P1a evidence/workspace, manifest, source, artifact, fixture, and
+  expected-output digests;
+- P1b manifest/profile/schema/catalog and archive-format identities;
+- every content-index entry and the canonical unpacked payload digest;
+- compatibility, declared settings/migrations, permissions, and unavailable
+  claims;
+- `installCandidateEligible: true`, `installed: false`, `activated: false`,
+  `publisherTrusted: false`, and `productionExecutionAuthorized: false`.
+
+`pack` operation v1 remains byte-for-byte P1a evidence behavior. P1b proposes
+`pack` operation v2 with explicit `outputKind: "unpacked-local-candidate"` or
+`"local-install-archive"` plus profile selection; output kind is never inferred
+from a filename. The first form creates the exact prepared directory consumed
+by Developer Mode, and the second encodes the same canonical layout as ustar.
+Both refuse when required P1a receipts are absent, stale, blocked, or tied to
+different bytes. A `.v7dk.tar` file is rejected by Install from file even if
+renamed to `.v7plugin`.
+
+Archive parsing is non-executing and fail-closed. It rejects absolute or parent
+paths, alternate separators, Unicode/path normalization collisions, duplicate
+entries, links, devices, sparse files, PAX/GNU extensions, undeclared entries,
+non-normal metadata, padding/trailing bytes, excessive entry count, excessive
+per-file or total unpacked size, digest mismatch, stale receipts, and nested
+archives beyond the explicitly indexed opaque-file policy. Exact limits live
+in the versioned P1b catalog and cannot be raised by a package.
+
+Inspection extracts nothing to a caller-selected filesystem path. The browser
+and package-store adapters stream/parse into bounded memory or private staged
+storage; only the store's immutable commit writes durable bytes.
+
+## One Candidate Pipeline
+
+Local archive and unpacked Developer Mode sources enter the same non-executing
+pipeline:
+
+```text
+selected bytes/directory snapshot
+        |
+        v
+strict archive/layout parser
+        |
+        v
+plugin-contract manifest/profile/compatibility validator
+        |
+        v
+receipt + integrity + source/trust planner
+        |
+        v
+exact impact/migration/retention plan
+        |
+        v
+explicit user confirmation (install-from-file only)
+        |
+        v
+plugin-package-store transaction
+        |
+        v
+installed-inactive inventory OR quarantined diagnostic
+```
+
+No step imports ESM, constructs a module descriptor, calls a package callback,
+starts ModuleHost, mutates the Core profile, or publishes a domain capability.
+Developer Mode stops before durable install unless the user separately packs
+an archive and completes Install from file.
+
+The pure planner returns a portable candidate result containing candidate
+digest, source/trust, compatibility, current/prior version, dependency impact,
+settings-migration plan, data-retention effect, required review statements,
+and stable diagnostic codes. UI text is derived from that result and cannot
+reinterpret eligibility.
+
+## Device-Local Inventory Contract
+
+P1b proposes one record family owned by `core.plugin-package-store`:
+
+```text
+LocalPluginInventoryRecordV1 {
+  schema
+  version
+  revision
+  installed: package-id -> InstalledPackageGenerationV1
+  quarantined: package-id -> QuarantinedPackageRecordV1
+  pending: null | PackageTransactionV1
+  tombstones: package-id -> PackageTombstoneV1
+}
+```
+
+An installed generation contains immutable archive/content/manifest/receipt
+digests, host-issued source/trust, compatibility, settings schema version,
+retained prior-generation identity, and state. It never contains an imported
+function, owner handle, DOM node, native browser handle, absolute host path, or
+ModuleHost descriptor.
+
+The inventory is device-local and excluded from Server State Sync. Package
+bytes, trust choices, Developer Mode state, pending transactions, and local
+paths never replicate. Host-owned Session/Replay/Annotation/Journal data keeps
+its existing synchronization and ownership rules. A later cross-device package
+policy must resolve device inventory and compatibility before it can be
+specified; it cannot add P1b keys to the current allowlist silently.
+
+The storage adapter must provide atomic multi-record transactions suitable for
+immutable package bytes and a compare-and-swap inventory revision. `localStorage`
+alone is not an acceptable package-byte transaction store. Storage mechanics
+remain adapter-owned; candidate validity and transaction state remain domain-
+owned.
+
+## Local Package Settings
+
+An eligible package may declare only host-rendered package and profile/default
+settings using P1a-supported control/value schemas. The package store keeps
+those values in the package's device-local namespace and applies complete
+values through the same exact inventory revision contract. The package supplies
+no callback validator, default function, DOM, or migration code.
+
+Apply, Cancel, and Reset remain host-owned. Apply validates the complete static
+schema, rejects stale inventory or package generation, commits atomically, and
+does not activate a contribution. Reset removes the selected override so the
+declared default and effective-value source remain visible. P1b has no instance
+settings because it has no live external contribution instance.
+
+P0b's `core.plugin-profile` remains the sole owner of built-in Core package/
+profile settings. The P1b package store neither copies nor generalizes that
+record; it owns only external local-package namespaces. Upgrade migration and
+uninstall quarantine preserve these external values without touching Core or
+host-owned evidence.
+
+## Install, Upgrade, Downgrade, And Recovery Transaction
+
+Every state-changing command carries the last observed inventory revision and
+one exact candidate or transaction receipt. The package store serializes
+transactions and rejects stale, duplicated, overlapping, or replayed receipts.
+
+Install/upgrade/downgrade uses this sequence:
+
+1. Read selected bytes without executing or extracting them to a public path.
+2. Parse and validate archive, index, manifest, receipts, profile, compatibility,
+   dependencies, settings schema, migration, retention, and exact limits.
+3. Compare against the current immutable inventory and construct one complete
+   impact plan without writing.
+4. Show the exact source/trust/integrity/version/migration/retention plan and
+   require explicit confirmation bound to candidate digest plus inventory
+   revision.
+5. In one private transaction, stage immutable candidate bytes, migrated
+   package-owned settings, the previous-generation reference, and a pending
+   journal record.
+6. Re-read and verify every staged digest and migration output. No package code
+   participates.
+7. Atomically replace the inventory pointer, increment revision, and mark the
+   generation `installed-inactive`; then clear pending state.
+8. On validation, quota, storage, migration, cancellation, stale-revision, or
+   crash failure, expose no candidate generation and preserve the prior
+   committed generation byte-for-byte.
+
+A same-version changed-digest replacement is not a routine reinstall. It is a
+visible source substitution requiring explicit confirmation and preserved
+prior provenance. Downgrade is explicit and allowed only when the declarative
+migration/retention plan can preserve current data; otherwise it is blocked or
+quarantined, never coerced.
+
+At startup, a complete pending journal is either finalized only when every
+commit marker and digest proves the atomic commit already happened, or rolled
+back to the last complete inventory. Recovery never guesses which generation
+the user intended. Repeated recovery failure enters Restricted Mode and keeps
+Kernel/P0b available.
+
+## Declarative Migration And Data Survival
+
+P1b never executes a migration script. `MigrationPlanV1` is a host-interpreted,
+bounded transformation over package-owned package/profile setting values only.
+The proposed operation set is:
+
+- rename one declared field to one declared field;
+- copy one declared field when the destination is absent;
+- set a declared default only when a value is absent;
+- move a removed/unknown field into an opaque quarantine map.
+
+Every step declares from/to schema versions, exact JSON Pointer paths, input
+preconditions, and expected output digest. Cycles, ambiguous paths, wildcard
+paths, type changes without a host validator, arbitrary expressions, callbacks,
+and access outside the package namespace fail. Original bytes and the
+pre-migration value remain available for rollback.
+
+P1b migrations never rewrite accepted Annotation revisions, evidence,
+provenance, Session, Replay, Workspace, Journal, or Core profile values. Those
+owners preserve package ids, schema ids, and opaque unresolved fields. A later
+runtime-specific migration must use the applicable owner transaction and
+receive separate authorization.
+
+Uninstall removes current package payload bytes from the active inventory only
+after dependency and retention review. It retains a compact tombstone with
+package/version/source/digest/schema identity, package-owned settings in
+quarantine, and references required to explain host-owned historical records.
+It does not delete user evidence. Permanent data deletion/export is a separate
+future operation and is not implied by uninstall.
+
+## Package States And Restricted Mode
+
+P1b local packages use honest non-executing states:
+
+```text
+candidate | installed-inactive | developer-inactive | incompatible |
+quarantined | migration-blocked | removed
+```
+
+They never report `active`, `enabled`, `running`, or `trusted`. The detail view
+states that an execution tier is unavailable and identifies the later contract
+required. P0b Core runtime/change states remain separate and unchanged.
+
+V7 enters or offers Restricted Mode when:
+
+- the inventory or package-store schema cannot be read exactly;
+- a pending journal cannot be deterministically finalized or rolled back;
+- installed content, index, manifest, or receipt digests disagree;
+- compatibility/profile/catalog identity is unknown or stale;
+- storage initialization fails or the user explicitly requests safe startup.
+
+Restricted Mode starts Kernel and accepted trusted-build Core behavior using
+the existing P0b boot/fallback rules, ignores every external package for
+contribution selection, performs no migration/update/removal automatically,
+and exposes sanitized inventory diagnostics and explicit retry/export/remove
+recovery actions. Because P1b external packages never execute, Restricted Mode
+is also a durable forward contract for P2/P3 rather than a claim that P1b code
+was sandboxed.
+
+## Developer Mode
+
+Developer Mode is explicit, device-local, off by default, visually persistent
+while enabled, and never synchronized. Enabling it does not trust a publisher,
+grant permissions, or enable production execution.
+
+`Load unpacked` selects one **Unpacked Candidate Directory**, snapshots only
+the allowlisted candidate layout, validates it through the same package
+contract, and records a session-scoped `developer-inactive` generation. It
+does not select an arbitrary source repository, follow symlinks, retain an
+unbounded filesystem handle, execute emitted code, install bytes, or enter the
+Core profile. Closing Developer Mode unloads every development generation.
+
+`Reload` rereads the exact selected candidate root after an explicit user
+action, builds a new snapshot digest, and atomically replaces the prior
+development snapshot only if validation passes. Failure leaves the prior
+snapshot visible and inactive with diagnostics. There is no watcher, automatic
+reload, background polling, or reload triggered by package content.
+
+`Validate/Pack` statically verifies the prepared layout and current receipts
+and can encode `.v7plugin` through `pack` v2. Source compilation, isolated
+fixture execution, and preview remain work of the P1a CLI/library operation
+engine, reached through CLI or the proposed P1b MCP adapter; the browser does
+not duplicate the compiler/Harness or evaluate candidate code. A stale or
+missing P1a receipt blocks packing and presents the exact operation request
+needed to refresh it.
+
+Developer Mode and Install from file are separate actions. Packing does not
+install. Installing a packed development candidate requires leaving the
+development transaction, selecting the resulting archive, reviewing the
+host-issued unverified-local source/trust record, and explicitly confirming
+the normal package-store transaction.
+
+## Plugin Center Surface
+
+P1b extends the host-owned Plugin Center without adding package DOM:
+
+- **Installed** lists built-in Core rows plus local installed/quarantined rows
+  with an explicit source filter; Core controls remain governed by P0b;
+- **Install from file** opens a host file picker for one `.v7plugin`, then a
+  review surface before any package-store write;
+- **Developer Mode** exposes its opt-in warning, Load unpacked, Reload,
+  Validate/Pack, diagnostics, exact snapshot digest, and unload actions;
+- package details disclose identity, self-asserted publisher, local source,
+  digest, signature-not-applicable state, compatibility, unavailable execution,
+  settings, migrations, retention, prior generation, and recovery state;
+- upgrade, downgrade, same-version replacement, uninstall, retry, quarantine,
+  and rollback use exact plans and confirmations rather than optimistic labels.
+
+The UI receives immutable snapshots and dispatches commands. It never parses an
+archive, decides compatibility, writes inventory, touches Core profile state,
+or calls ModuleHost. It renders package prose as safe host-owned text and does
+not load package icons, remote images, HTML, CSS, or links automatically.
+
+The visible implementation requires keyboard, focus-return, screen-reader,
+contrast, narrow-window, cancellation, stale-result, progress, error, and
+reduced-motion evidence. File/directory picker cancellation is a no-op, not an
+error or partial transaction.
+
+## Owner And Module Boundaries
+
+P1b proposes this ownership graph for later implementation:
+
+```text
+core.plugin-contract
+  extends: pure V2 manifest/profile/archive-candidate normalization,
+           compatibility, dependency, migration, and impact planning
+  never owns: bytes, persistence, DOM, lifecycle, or code execution
+
+core.plugin-package-store
+  owns: device-local immutable package generations, inventory revision,
+        transaction journal, quarantine, tombstones, and exact commands
+  never owns: Core profile, ModuleHost, domain evidence, DOM, network,
+              application restart, or package execution
+
+adapter.plugin-package-storage
+  owns: atomic browser storage mechanics and quota/error translation
+  never owns: candidate validity, migrations, recovery policy, or status
+
+adapter.plugin-center-ui
+  extends: Installed/Install from file/Developer Mode DOM and local drafts
+  never owns: archive parsing, inventory truth, compatibility, or lifecycle
+
+v7/tools/plugin-developer-kit
+  extends: pack v2 plus the canonical authoring operation implementation
+  remains outside: the production owner graph
+
+v7/tools/plugin-developer-kit/mcp
+  owns: MCP JSON-RPC/stdio transport and request/result adaptation only
+  never owns: validation meaning, package lifecycle, app state, or authority
+
+core.plugin-profile
+  remains: sole P0b built-in Core active/pending profile owner
+
+core.module-host
+  remains: sole application module construction/start/stop/disposal owner;
+           it receives no P1b external package descriptor
+```
+
+There is no `PluginHost`, installer-owned module lifecycle, package service
+locator, UI store, or MCP-to-application control channel. New internal files
+must be split by manifest/archive contract, inventory values, transaction
+planning, store runtime, browser storage, UI, and MCP transport rather than
+accumulating in an existing route/runtime entry file.
+
+## MCP Adapter Contract
+
+P1b pins the initial adapter to MCP protocol version `2025-11-25` and local
+`stdio`. A later protocol/transport upgrade requires compatibility review. The
+server opens no TCP/HTTP/Unix listener, performs no OAuth flow, contacts no
+registry, and has no long-running daemon/install mode.
+
+The user/client launches one fixed executable with an explicit absolute
+`--workspace-root`. The exact command and root must be visible before first
+execution. The server canonicalizes the root once, rejects a missing/non-
+directory/symlink root, and never accepts a broader root from a tool argument.
+If the MCP client supplies Roots, the effective root is the intersection of
+the startup allowlist and one matching client root; Roots can narrow but never
+broaden authority. A root change cancels or blocks unsettled operations before
+adoption.
+
+The adapter exposes exactly these tools, mapped one-to-one to P1a operations:
+
+```text
+v7_plugin_discover
+v7_plugin_scaffold
+v7_plugin_validate
+v7_plugin_build
+v7_plugin_test
+v7_plugin_preview
+v7_plugin_pack
+v7_plugin_inspect
+```
+
+Each tool uses the versioned DeveloperKit request schema and returns the exact
+canonical `DeveloperKitResultV1` or its explicitly versioned successor as MCP
+structured content. Optional text is presentation only. The same request,
+workspace bytes, SDK, toolchain, and output kind must yield the same result,
+diagnostics, artifacts, and receipt through Library, CLI, and MCP.
+
+The server exposes no resources, prompts, sampling, elicitation, completions,
+experimental tasks, generic file read/write, shell, Git, package-manager,
+browser, database, registry, install, lifecycle, or application tools. Unknown
+methods and fields fail closed. Tool annotations truthfully distinguish
+read-only and workspace-writing operations, but authorization never relies on
+untrusted annotations.
+
+All client paths are workspace-relative. The adapter injects the selected root,
+revalidates every resolved real path against it, rejects symlink/hardlink/path
+escape and special files, and permits writes only to the P1a ownership-marked
+output root or a new empty scaffold target. It never overwrites source. It
+serializes workspace-writing operations, rejects stale input digests, and
+propagates cancellation/timeout through the existing isolated child cleanup.
+
+The server starts with an environment allowlist sufficient only to locate its
+pinned runtime/toolchain. It never returns environment variables, credentials,
+home paths, hostnames, Git state, or absolute paths. Candidate test/preview
+continues to run through P1a's disposable bubblewrap/Node/VM isolation with no
+network; MCP is not the sandbox.
+
+MCP cannot install the archive it just produced. Human package admission stays
+inside the host-owned Plugin Center transaction so an agent cannot turn source
+write authority into application lifecycle authority.
+
+## Stable Diagnostics And Receipts
+
+P1b diagnostic codes extend, not reinterpret, P1a `V7DK_` codes. The proposed
+catalog must distinguish at least:
+
+- evidence bundle supplied where an install archive is required;
+- archive format/version/path/size/index/integrity failure;
+- forged distribution, trust, publisher, signature, receipt, or Core identity;
+- unsupported profile, permission, execution tier, contribution, or entrypoint;
+- incompatible host, dependency, schema, migration, or downgrade;
+- stale inventory/candidate/confirmation/receipt and concurrent transaction;
+- storage quota/read/write/commit/recovery failure;
+- quarantined, restricted-mode, or retained-data state;
+- Developer Mode disabled, invalid directory, stale snapshot, or blocked pack;
+- MCP root unavailable/changed/escaped, unsupported client capability,
+  cancelled operation, malformed tool call, or forbidden lifecycle request.
+
+Every prepare, commit, rollback, quarantine, uninstall, Developer Mode, and MCP
+operation returns a stable portable result. Receipts bind content and decisions
+but do not contain host paths or secrets. Install receipts record explicit user
+confirmation and committed inventory revision as host facts; they still deny
+activation, publisher trust, signature, and production execution.
+
+## Proposed H117 Acceptance Gate
+
+H117 is proposed by this draft but is not allocated in
+`v7-harness-rules.json`, implemented, or accepted. If the specification and
+implementation are separately authorized, H117 must cover the following.
+
+### Package Contract And Archive
+
+- `.v7dk.tar` and renamed evidence bundles are never installable;
+- pack v1 remains unchanged while pack v2 produces byte-identical `.v7plugin`
+  archives for identical inputs across two clean roots;
+- archive inspection validates exact layout, ustar metadata, index, receipts,
+  provenance, license, limits, and content binding without execution;
+- local candidates cannot forge Core/built-in/first-party/signed/trusted state;
+- non-empty executable contributions, permissions, entrypoints, scripts, DOM,
+  remote resources, or unsupported profiles fail closed.
+
+### Transactions, Migration, And Recovery
+
+- install, upgrade, downgrade, replacement, rollback, quarantine, and uninstall
+  use exact candidate/inventory revisions and immutable generations;
+- injected failures before staging, during each storage write, before commit,
+  after commit marker, during cleanup, and across restart yield either the
+  previous complete generation or the new complete generation, never both or
+  neither;
+- stale, duplicated, replayed, cancelled, or concurrent commands cannot change
+  inventory;
+- host-rendered local package-setting Apply/Reset uses exact revisions,
+  preserves defaults/source, and never changes Core profile or activation;
+- declarative migrations are namespace-bounded, deterministic, reversible,
+  and cannot touch host-owned evidence or the Core profile;
+- uninstall preserves tombstone/settings/provenance and leaves historical
+  Session/Annotation/Journal bytes readable and unchanged;
+- corrupt inventory, digest mismatch, unknown schema, and repeated recovery
+  failure enter Restricted Mode while Kernel/P0b remains usable.
+
+### Developer Mode And MCP
+
+- Developer Mode is off by default, device-local, visually marked, and unloads
+  every development generation when disabled;
+- load/reload/validate-pack accepts only a prepared candidate directory,
+  rejects path/symlink/special-file/stale-receipt attacks, never watches or
+  executes code, and never installs automatically;
+- Library, CLI, and MCP produce equivalent canonical results for all eight
+  P1a operations and pack v2 where applicable;
+- the MCP server uses only `stdio`, exactly one startup-allowlisted root, no
+  listener/network, no arbitrary files/shell/resources/prompts/sampling/tasks,
+  no secret/absolute-path leakage, and complete cancellation cleanup;
+- client Roots can narrow but not broaden access; root change, traversal,
+  symlink escape, output escape, unknown tool/field/version, and lifecycle calls
+  fail for the intended stable diagnostic;
+- MCP-generated output cannot install, enable, trust, publish, update,
+  uninstall, restart, or control ModuleHost.
+
+### Product, Architecture, And Regression
+
+- real Chromium proves Install from file review/cancel/commit/failure,
+  Installed detail/status, Developer Mode load/reload/unload, restricted-mode
+  diagnostics, focus/keyboard/accessibility, and narrow-window behavior;
+- a focused human gate accepts the visible source/trust/integrity warnings,
+  inactive-status honesty, confirmations, recovery, and Developer Mode marker;
+- production architecture proves one package store, one Core profile owner,
+  one ModuleHost, zero external descriptors, zero external imports/evaluation,
+  and no new owner write outside declared surfaces;
+- package inventory is device-local and absent from state-sync allowlists;
+- P0a/H113, R13.10e/H114, P0b/H115, P1a/H116, ModuleHost, architecture,
+  writer-closure, source-quality, deployed-runtime, and full regression gates
+  retain their accepted behavior;
+- every negative control first passes with the violation disabled, then fails
+  for its intended reason; exact count and fixtures are frozen with an accepted
+  implementation contract before H117 metadata is added.
+
+H117 requires a human gate because P1b changes visible Plugin Center behavior
+and asks the user to make local source/trust/data-retention decisions. It does
+not require a trading-chart semantic/visual gate because no local package can
+produce Chart or Semantic output in P1b.
+
+## Required Implementation Decomposition
+
+If this draft is accepted and implementation is separately authorized, the
+work should remain bounded and committed in this order:
+
+1. **P1b.1 — Contract and archive:** Manifest V2/profile/schema/catalog,
+   pack v2, strict archive inspection, portable candidate/receipt, synthetic
+   negative fixtures; no production UI or storage.
+2. **P1b.2 — Inventory transaction owner:** package-store domain/runtime,
+   atomic browser-storage adapter, migrations, quarantine, tombstones,
+   restricted-mode recovery; no package execution.
+3. **P1b.3 — Plugin Center and Developer Mode:** Installed/Install from file,
+   review/confirmation/recovery surfaces, prepared-directory load/reload/
+   validate-pack, browser automation and focused human gate.
+4. **P1b.4 — Authoring MCP and H117 closure:** local `stdio` adapter over P1a,
+   root/cancellation/security controls, Library/CLI/MCP equivalence, complete
+   H117 and standing regression evidence.
+
+Each slice must preserve one public owner boundary, add its applicable negative
+controls, run standing gates, pass `git diff --check`, update TODO/session/
+handoff records, and stop after one bounded commit. Acceptance of this document
+would approve the contract only; implementation still requires a separate
+product-owner instruction.
+
+## Review And Next Gate
+
+Current state after this documentation step:
+
+- P0a/H113, R13.10e/H114, P0b/H115, and P1a/H116 remain implemented and
+  accepted;
+- this P1b document is a draft awaiting product-owner review;
+- H117 remains proposed only and has no machine-readable rule, Harness,
+  fixture, code, or acceptance evidence;
+- no P1b implementation, installed package format, package store, UI, MCP
+  server, declarative runtime, or external execution path exists;
+- P2 registry, P3a Worker, P3b Pine migration, P4 Marketplace, and new business
+  plugins remain separately gated.
+
+The next permitted action is review and revision or explicit acceptance of the
+five material decisions. Only after specification acceptance may the product
+owner separately authorize P1b.1 implementation.

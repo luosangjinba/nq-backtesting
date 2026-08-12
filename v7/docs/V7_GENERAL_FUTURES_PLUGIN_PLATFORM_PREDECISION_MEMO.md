@@ -4,11 +4,12 @@ Memo id: `MEMO-V7-001`
 
 First formed: 2026-08-01
 
-Last substantive revision: 2026-08-10
+Last substantive revision: 2026-08-11
 
 Status: partially promoted by `ADR-V7-004` and its interface/language amendment;
-remaining product scope, concrete runtime/sandbox, AI, remote distribution,
-Marketplace, and implementation decisions deferred
+P0a/P0b/P1a later delivered through separate accepted contracts; P1b review
+drafted separately; remaining product scope, execution sandbox, AI, remote
+distribution, Marketplace, and implementation decisions deferred
 
 Registry: `V7_NON_DECISION_MEMO_REGISTRY.md`
 
@@ -924,3 +925,15 @@ tests, and provenance after the target SDK/Worker tier exists. Strategies,
 future-leaking or unsupported repaint/realtime semantics, unmediated external
 data, and unreviewed equivalence fail closed. No implementation delivery is
 authorized by this amendment.
+
+### 2026-08-11 — P1a Closure And P1b Draft Status
+
+The two preceding sections preserve what their amendments authorized at those
+checkpoints; they are not the current delivery ledger. P0a/H113, P0b/H115, and
+P1a/H116 were later separately specified, authorized, implemented, and
+accepted. The product owner has now authorized correction of the stale P1a
+status language and drafting, but not implementing, P1b. The review draft is
+`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`. It proposes non-executing local
+package admission and authoring-only MCP; it does not promote this memo's
+remaining registry, Worker, Pine-runtime, general-futures, or Marketplace
+questions and does not authorize P1b code.

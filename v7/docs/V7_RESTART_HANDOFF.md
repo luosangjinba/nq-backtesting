@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-11 after P1a Developer Kit implementation and H116
-acceptance
+Last updated: 2026-08-11 after P1a/H116 acceptance, P1a status-ledger
+correction, and the documentation-only P1b specification draft
 
 ## Restart Resume Checkpoint
 
@@ -12,8 +12,9 @@ contract checkpoint. R13.10e is accepted as the first production vertical
 slice through it; H114 passed its automated and focused human visual gates.
 P0b and H115 are accepted after passing automated evidence and the corrected
 focused human visual/interaction gate. P1a and H116 are accepted after the
-separately authorized headless implementation; no P1b or later implementation
-is authorized.
+separately authorized headless implementation. P1b now has a draft contract
+awaiting review; it is not accepted, H117 remains proposed only, and no P1b or
+later implementation is authorized.
 `git log` is the authoritative commit identity.
 
 After a machine or agent restart, run:
@@ -28,23 +29,25 @@ git status --short
 Then read, in order:
 
 1. `v7/docs/V7_RESTART_HANDOFF.md`
-2. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md`
-3. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`
-4. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`
-5. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`
-6. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification.md`
-7. `v7/docs/V7_CORE_PLUGIN_CENTER_P0B.md`
-8. `v7/sessions/session_20260811_p0b_core_plugin_center_implementation.md`
-9. `v7/sessions/session_20260811_p0b_core_plugin_center_specification.md`
-10. `v7/docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`
-11. `v7/sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md`
-12. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
-13. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
-14. `v7/sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
-15. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
-16. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
-17. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
-18. `v7/TODO.md`
+2. `v7/docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`
+3. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_draft.md`
+4. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md`
+5. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`
+6. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`
+7. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`
+8. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification.md`
+9. `v7/docs/V7_CORE_PLUGIN_CENTER_P0B.md`
+10. `v7/sessions/session_20260811_p0b_core_plugin_center_implementation.md`
+11. `v7/sessions/session_20260811_p0b_core_plugin_center_specification.md`
+12. `v7/docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`
+13. `v7/sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md`
+14. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
+15. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
+16. `v7/sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
+17. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
+18. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
+19. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
+20. `v7/TODO.md`
 
 R13.10b/H110 and R13.10c/H111 are accepted. The focused FVG fixture contains
 no temporary diagnostic surface, and its acceptance server is stopped.
@@ -69,14 +72,18 @@ developer evidence bundle, structured diagnostics/provenance, and H116. Its
 Chinese rationale preserves the four accepted boundary decisions; its source
 stays outside the production graph. Community/Installed/Updates installation,
 MCP, registry, Pine translator, arbitrary production code, Marketplace, and
-later implementation remain unauthorized.
+later implementation remain unavailable. P1b now has a documentation-only
+review draft which preserves those runtime exclusions: it proposes inactive
+local package inventory, prepared-candidate Developer Mode, and authoring-only
+MCP, but adds none of them to the application.
 
 ADR-V7-004's 2026-08-11 amendment requires the now-implemented Agent-native
 developer path: one machine-readable strict-TypeScript SDK, canonical
-CLI/library, deterministic conformance Harness and receipts. A future P1b may
-add a workspace-bounded local MCP adapter over the same operations. A later Pine indicator migration
-assistant parses and inventories authorized source, generates an ordinary
-TypeScript package and tests, and fails closed on unsupported/no-future/
+CLI/library, deterministic conformance Harness and receipts. The P1b draft
+proposes a local `stdio`, workspace-bounded MCP adapter over those same eight
+operations with no install or lifecycle authority. A later Pine indicator
+migration assistant parses and inventories authorized source, generates an
+ordinary TypeScript package and tests, and fails closed on unsupported/no-future/
 realtime/strategy semantics. It follows the target SDK and Worker tier; it does
 not make Pine a runtime language or bypass human equivalence review.
 
@@ -1174,12 +1181,17 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 R13.10e/H114, P0b/H115, and P1a/H116 are closed. The Developer Kit is an
 authoring/evidence boundary only: it has no install, activation, MCP, registry,
-or production candidate execution path. No next implementation phase is
-authorized. The next product decision, if requested, is whether to specify P1b
-local declarative installation/Developer Mode and the thin workspace-bounded
-MCP adapter over P1a. Do not create P1b, P2 registry, P3a Worker runtime, P3b
-Pine migration, detector, MA/SMA, Fibonacci, Marketplace, or R13.11–R13.13
-before the applicable separate authorization.
+or production candidate execution path. P1b is now drafted in
+`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`, but the specification is not
+accepted and H117 remains proposed only. Its five review decisions are:
+installation is not activation; `.v7plugin` is distinct from `.v7dk.tar`; one
+device-local package store owns inventory transactions; Developer Mode loads
+prepared candidates rather than executing source; and local `stdio` MCP is
+authoring-only. The exact next step is product-owner review/revision or
+acceptance of those decisions. Even acceptance does not authorize P1b.1 or any
+implementation; a separate instruction remains required. Do not create P1b
+code, P2 registry, P3a Worker runtime, P3b Pine migration, detector, MA/SMA,
+Fibonacci, Marketplace, or R13.11–R13.13 before the applicable authorization.
 
 Older clean-host, physical cross-device, Data Acquisition admin, resource, and
 known H091 visual checks remain non-blocking operational follow-up for the
