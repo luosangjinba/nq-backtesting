@@ -210,7 +210,7 @@ const discovery = pass({ operation: 'discover', operationVersion: 1, options: {}
 const discovered = discovery.artifacts[0].value;
 const harnessRules = JSON.parse(fs.readFileSync(path.join(V7_ROOT, 'docs/v7-harness-rules.json'), 'utf8'));
 const h116 = harnessRules.rules.find(({ id }) => id === 'H116');
-assert.equal(harnessRules.currentStep, 'P1b.1');
+assert.equal(harnessRules.currentStep, 'P1b.2');
 assert.equal(h116.state, 'accepted');
 assert.equal(h116.harness, 'tests/plugin-developer-kit-harness.js');
 assert.equal(h116.humanReviewRequired, false);

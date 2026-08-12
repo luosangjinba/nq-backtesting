@@ -131,11 +131,12 @@ accepted under H116; its Chinese design rationale is preserved in
 `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`. The P1b local
 package/Developer Mode/authoring MCP contract is accepted in
 `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`. Its separately authorized
-P1b.1 contract/archive slice is implemented: Manifest V2, the inactive local
-profile, explicit pack/inspect v2, strict `.v7plugin` inspection, portable
-candidate receipts, and the executable H117 subset. H117 remains unaccepted;
-package storage, product UI, MCP, registry, Worker, and Pine phases remain
-separately gated.
+P1b.1 contract/archive and P1b.2 transaction/storage slices are implemented:
+Manifest V2, deterministic `.v7plugin`, portable candidate receipts, the sole
+inactive package inventory owner, atomic IndexedDB CAS, declarative settings
+migration, retention, recovery, and the combined executable H117 subset. H117
+remains unaccepted; product UI, Developer Mode, MCP, registry, Worker, and Pine
+phases remain separately gated.
 The accepted post-milestone foundation is
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
 market-coordinate geometry, generic drawings, typed semantic artifacts,
@@ -262,12 +263,13 @@ specification. It defines a distinct `.v7plugin` archive, non-executing device-
 local inventory transactions, prepared-candidate Developer Mode, declarative
 settings migration/data survival, Restricted Mode, and a local `stdio` MCP
 adapter over P1a's eight operations. The product owner accepted all five
-material decisions on 2026-08-11. The separately authorized P1b.1 slice now
-registers H117 as executable and implements 22 schemas, 10 catalogs, pure
-Manifest/candidate contracts, deterministic `.v7plugin` pack/inspect, portable
-receipts, and 18 negative groups. It adds no installer, storage owner, UI, MCP
+material decisions on 2026-08-11. Separately authorized P1b.1 and P1b.2 now
+register H117 as executable and implement 22 schemas, 10 catalogs, pure
+Manifest/candidate/change/migration contracts, deterministic `.v7plugin`
+pack/inspect, portable receipts, a sole package-store runtime, atomic
+IndexedDB, and 36 negative groups. They add no product UI, Developer Mode, MCP
 server, activation, external import/evaluation, or business contribution;
-H117 remains unaccepted pending the later complete P1b gate.
+H117 remains unaccepted pending the complete P1b gate.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

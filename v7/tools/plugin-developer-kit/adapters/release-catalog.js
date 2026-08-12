@@ -129,7 +129,14 @@ function conformanceIdentity() {
     'tests/plugin-developer-kit-harness.js',
     'docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md',
     'tests/fixtures/local-plugin-package/negative/cases.json',
+    'tests/fixtures/local-plugin-package/transaction-negative/cases.json',
+    'tests/fixtures/local-plugin-package/storage-browser/index.html',
+    'tests/fixtures/local-plugin-package/storage-browser/main.js',
+    'tests/local-plugin-package-contract-suite.js',
     'tests/local-plugin-package-harness.js',
+    'tests/local-plugin-package-storage-browser-suite.js',
+    'tests/local-plugin-package-transaction-suite.js',
+    'sessions/session_20260812_p1b_2_inventory_transaction_implementation.md',
   ];
   const files = relativePaths.map((logicalPath) => relativeFileIdentity(
     V7_ROOT,
@@ -142,16 +149,17 @@ function conformanceIdentity() {
   const harnessRules = readJson(path.join(V7_ROOT, 'docs/v7-harness-rules.json'));
   const rule = harnessRules.rules.find(({ id }) => id === 'H116');
   const pendingRule = harnessRules.rules.find(({ id }) => id === 'H117');
-  if (harnessRules.currentStep !== 'P1b.1' || rule?.state !== 'accepted'
+  if (harnessRules.currentStep !== 'P1b.2' || rule?.state !== 'accepted'
     || rule.harness !== 'tests/plugin-developer-kit-harness.js'
     || rule.acceptanceEvidence
       !== 'sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md'
     || rule.humanReviewRequired !== false
     || !rule.negativeFixtures.includes('tests/fixtures/plugin-developer-kit/negative/cases.json')
-    || pendingRule?.state !== 'executable'
+    || pendingRule?.activationStep !== 'P1b.2' || pendingRule?.state !== 'executable'
     || pendingRule.harness !== 'tests/local-plugin-package-harness.js'
     || pendingRule.humanReviewRequired !== true || pendingRule.acceptanceEvidence !== null
-    || !pendingRule.negativeFixtures.includes('tests/fixtures/local-plugin-package/negative/cases.json')) {
+    || !pendingRule.negativeFixtures.includes('tests/fixtures/local-plugin-package/negative/cases.json')
+    || !pendingRule.negativeFixtures.includes('tests/fixtures/local-plugin-package/transaction-negative/cases.json')) {
     fail('internal', 'V7DK_INTERNAL_TOOLCHAIN', 'release', 'Developer Kit conformance identity is incomplete.');
   }
   return Object.freeze({
@@ -163,11 +171,11 @@ function conformanceIdentity() {
     pendingGate: Object.freeze({
       gate: 'H117',
       harness: pendingRule.harness,
-      negativeControlCount: readJson(path.join(
-        V7_ROOT,
+      negativeControlCount: [
         'tests/fixtures/local-plugin-package/negative/cases.json',
-      )).length,
-      scope: 'P1b.1-contract-and-archive',
+        'tests/fixtures/local-plugin-package/transaction-negative/cases.json',
+      ].reduce((total, logicalPath) => total + readJson(path.join(V7_ROOT, logicalPath)).length, 0),
+      scope: 'P1b.1-contract-archive-plus-P1b.2-transactions-recovery',
       state: pendingRule.state,
     }),
     state: rule.state,

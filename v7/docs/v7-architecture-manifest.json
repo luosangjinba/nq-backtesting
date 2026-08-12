@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "p0b-core-plugin-center-accepted",
+  "status": "p1b-2-local-package-transactions-implemented",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -30,6 +30,7 @@
     "docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md",
     "docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md",
     "docs/V7_CORE_PLUGIN_CENTER_P0B.md",
+    "docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md",
     "docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md",
     "docs/V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md",
     "docs/V7_HEADLESS_ANNOTATION_RUNTIME_R13_3.md",
@@ -122,6 +123,8 @@
     "plugin-contract",
     "plugin-profile",
     "plugin-center-ui",
+    "plugin-package-store",
+    "plugin-package-storage",
     "chart-runtime-adapter",
     "viewport-runtime",
     "pane-workspace-domain",
@@ -168,6 +171,8 @@
     "src/prepared-commit-contract/module.json",
     "src/module-host/module.json",
     "src/plugin-contract/module.json",
+    "src/plugin-package-storage/module.json",
+    "src/plugin-package-store/module.json",
     "src/core-plugin-profile/module.json",
     "src/annotation-geometry-domain/module.json",
     "src/annotation-persistence/module.json",
@@ -293,6 +298,8 @@
     "sessionRecord": ["core.session-store"],
     "workspaceCheckpoint": ["core.session-store"],
     "layoutSyncPolicy": ["core.session-store"],
+    "localPluginPackageInventory": ["core.plugin-package-store"],
+    "localPluginPackageStorage": ["adapter.plugin-package-storage"],
     "replayNavigationPreferences": ["core.replay-navigation-preference-store"],
     "workstationSettings": ["core.workstation-settings"],
     "corePluginProfile": ["core.plugin-profile"],
@@ -382,6 +389,7 @@
     "accepted-snapshot-evidence-resolution-is-bounded-and-io-free",
     "deterministic-evidence-derived-fvg-construction-and-projection",
     "fvg-host-rendered-evidence-inspector-and-validated-override",
-    "trusted-build-core-plugin-center-profile-generation"
+    "trusted-build-core-plugin-center-profile-generation",
+    "local-plugin-package-inventory-atomic-inactive-and-device-local"
   ]
 }

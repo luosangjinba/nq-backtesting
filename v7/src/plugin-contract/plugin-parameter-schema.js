@@ -225,18 +225,32 @@ function validateOverrides(values, scope, fields) {
   )));
 }
 
-/** Resolve effective package/profile/instance values without owning their persistence. */
-export function resolvePluginSettings(schema, input = {}) {
+/** Validate and freeze complete package/profile/instance override maps. */
+export function validatePluginSettings(schema, input = {}) {
   const wire = readPluginParameterSchema(schema);
+  if (!input || typeof input !== 'object' || Array.isArray(input)
+    || Object.getPrototypeOf(input) !== Object.prototype) {
+    failPluginContract('PLUGIN_SETTINGS_INVALID', 'Settings input must be a plain record.');
+  }
   const keys = Object.keys(input);
   if (keys.some((key) => !['instanceValues', 'packageValues', 'profileValues'].includes(key))) {
     failPluginContract('PLUGIN_SETTINGS_INVALID', 'Settings input contains unknown fields.');
   }
   const fields = new Map(wire.tabs.flatMap(({ source }) => source.kind === 'settings'
     ? source.fields.map((field) => [field.id, field]) : []));
-  const packageValues = validateOverrides(input.packageValues ?? {}, 'package', fields);
-  const profileValues = validateOverrides(input.profileValues ?? {}, 'profile', fields);
-  const instanceValues = validateOverrides(input.instanceValues ?? {}, 'instance', fields);
+  return Object.freeze({
+    instanceValues: validateOverrides(input.instanceValues ?? {}, 'instance', fields),
+    packageValues: validateOverrides(input.packageValues ?? {}, 'package', fields),
+    profileValues: validateOverrides(input.profileValues ?? {}, 'profile', fields),
+  });
+}
+
+/** Resolve effective package/profile/instance values without owning their persistence. */
+export function resolvePluginSettings(schema, input = {}) {
+  const wire = readPluginParameterSchema(schema);
+  const fields = new Map(wire.tabs.flatMap(({ source }) => source.kind === 'settings'
+    ? source.fields.map((field) => [field.id, field]) : []));
+  const { instanceValues, packageValues, profileValues } = validatePluginSettings(schema, input);
   const values = [...fields.values()].map((field) => {
     const candidates = [
       ['instance', instanceValues],

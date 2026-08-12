@@ -30,6 +30,14 @@ function compare(left, right) {
   return 0;
 }
 
+/** Compare two exact semantic versions, returning a negative, zero, or positive number. */
+export function comparePluginVersions(left, right) {
+  return compare(
+    components(left, VERSION, 'Left plugin version'),
+    components(right, VERSION, 'Right plugin version'),
+  );
+}
+
 export function pluginVersionSatisfies(version, range) {
   const candidate = components(version, VERSION, 'Plugin version');
   const required = components(range, RANGE, 'Plugin version range');

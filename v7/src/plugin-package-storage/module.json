@@ -1,0 +1,12 @@
+{
+  "id": "adapter.plugin-package-storage",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "plugin-package-storage",
+  "publicEntry": "src/plugin-package-storage/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/local-plugin-package-harness.js",
+  "removable": true
+}

@@ -1,0 +1,20 @@
+[
+  { "case": "stale-inventory-revision", "expectedDiagnostic": "V7DK_INVENTORY_STALE" },
+  { "case": "stale-candidate-generation", "expectedDiagnostic": "V7DK_CANDIDATE_STALE" },
+  { "case": "confirmation-digest-revision", "expectedDiagnostic": "V7DK_CONFIRMATION_REQUIRED" },
+  { "case": "duplicate-replayed-command", "expectedDiagnostic": "V7DK_TRANSACTION_REPLAYED" },
+  { "case": "concurrent-command", "expectedDiagnostic": "V7DK_TRANSACTION_CONCURRENT" },
+  { "case": "cancelled-before-commit", "expectedDiagnostic": "V7DK_TRANSACTION_CANCELLED" },
+  { "case": "stage-storage-write", "expectedDiagnostic": "V7DK_STORAGE_WRITE_FAILED" },
+  { "case": "storage-quota", "expectedDiagnostic": "V7DK_STORAGE_QUOTA" },
+  { "case": "commit-storage-write", "expectedDiagnostic": "V7DK_STORAGE_COMMIT_FAILED" },
+  { "case": "migration-plan-digest", "expectedDiagnostic": "V7DK_MIGRATION_BLOCKED" },
+  { "case": "migration-precondition", "expectedDiagnostic": "V7DK_MIGRATION_BLOCKED" },
+  { "case": "downgrade-schema-coercion", "expectedDiagnostic": "V7DK_MIGRATION_BLOCKED" },
+  { "case": "settings-schema-validation", "expectedDiagnostic": "V7DK_SETTINGS_INVALID" },
+  { "case": "rollback-without-prior", "expectedDiagnostic": "V7DK_ROLLBACK_UNAVAILABLE" },
+  { "case": "quarantine-stale-generation", "expectedDiagnostic": "V7DK_CANDIDATE_STALE" },
+  { "case": "installed-digest-corruption", "expectedDiagnostic": "V7DK_INTEGRITY_MISMATCH" },
+  { "case": "unknown-inventory-schema", "expectedDiagnostic": "V7DK_INVENTORY_INVALID" },
+  { "case": "repeated-recovery-failure", "expectedDiagnostic": "V7DK_STORAGE_RECOVERY_FAILED" }
+]

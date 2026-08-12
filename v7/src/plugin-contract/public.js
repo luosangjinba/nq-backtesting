@@ -13,6 +13,7 @@ export {
   definePluginParameterSchema,
   readPluginParameterSchema,
   resolvePluginSettings,
+  validatePluginSettings,
 } from './plugin-parameter-schema.js';
 export {
   defineBuiltInPluginManifest,
@@ -28,6 +29,15 @@ export {
   createLocalPluginPackageCandidatePlan,
   readLocalPluginPackageCandidatePlan,
 } from './local-plugin-package-plan.js';
+export {
+  createLocalPluginSettingsState,
+  migrateLocalPluginSettingsState,
+  readLocalPluginSettingsState,
+} from './local-plugin-settings-migration.js';
+export {
+  prepareLocalPluginPackageChange,
+  readLocalPluginPackageChangePreparation,
+} from './local-plugin-package-change.js';
 export {
   createBuiltInPluginPlan,
   listBuiltInPluginStatuses,

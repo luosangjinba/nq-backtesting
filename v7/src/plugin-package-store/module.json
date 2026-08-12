@@ -1,0 +1,12 @@
+{
+  "id": "core.plugin-package-store",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "plugin-package-store",
+  "publicEntry": "src/plugin-package-store/public.js",
+  "requiredPorts": ["core.plugin-contract", "adapter.plugin-package-storage"],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/local-plugin-package-harness.js",
+  "removable": false
+}

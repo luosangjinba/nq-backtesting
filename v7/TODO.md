@@ -667,7 +667,7 @@ Binding contract and rationale:
 `docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` and
 `docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`.
 
-## P1b Local Plugin Packages And Authoring MCP — P1b.1 Implemented 2026-08-12
+## P1b Local Plugin Packages And Authoring MCP — P1b.2 Implemented 2026-08-12
 
 - [x] receive authorization to correct stale P1a status language and draft,
   but not implement, the next Plugin Platform contract;
@@ -720,10 +720,26 @@ Binding contract and rationale:
 - [x] register H117 as an executable P1b.1 subset and pass two-root archive
   determinism, prepared/archive byte equivalence, CLI/Library equivalence,
   P1a/H116 regression, and 18 synthetic negative groups;
-- [x] keep H117 unaccepted pending the later P1b.2–P1b.4 transaction/browser/
-  MCP/human closure;
-- [ ] require separate authorization before P1b.2 package-store/storage,
-  P1b.3 Plugin Center/Developer Mode UI, or P1b.4 MCP/H117 acceptance work;
+- [x] keep H117 unaccepted after P1b.2 pending P1b.3/P1b.4 product-browser,
+  MCP, and human closure;
+- [x] receive separate product-owner authorization for only P1b.2 package-
+  store/storage, without inferring P1b.3 or P1b.4 authority;
+- [x] add pure change/migration contracts plus one
+  `core.plugin-package-store` owner for immutable inactive generations,
+  exact-revision prepare/confirm/commit receipts, serialized commands,
+  settings Apply/Reset, upgrade/downgrade/replacement, rollback, quarantine,
+  tombstones, cleanup, restart recovery, and Restricted Mode;
+- [x] add one `adapter.plugin-package-storage` IndexedDB boundary with a
+  dedicated database, atomic generation/settings/journal/receipt/inventory
+  phases, strict durability, and revision/pending-transaction CAS;
+- [x] preserve Core profile, ModuleHost, host-owned historical evidence, and
+  Server State Sync boundaries; expose no external descriptor, contribution,
+  import/evaluation, trust, activation, or production-execution path;
+- [x] extend H117 without accepting it: retain 18 P1b.1 groups, add 18
+  P1b.2 transaction/recovery groups, and prove real-Chromium IndexedDB failed-
+  write atomicity, close/reopen durability, and stale CAS rejection;
+- [ ] require separate authorization before P1b.3 Plugin Center/Developer Mode
+  UI or P1b.4 MCP/H117 acceptance work;
 - [x] keep P2 registry, P3a Worker, P3b Pine migration, P4 Marketplace, new
   business plugins, and R13.11–R13.13 outside P1b.
 
@@ -1440,8 +1456,12 @@ Binding ES full-chain repair:
   implement only Manifest V2/profile/schema/catalog, explicit pack/inspect v2,
   strict archive validation, portable candidate/receipt evidence, and the
   executable H117 contract/archive subset;
-- [ ] P1b.2–P1b.4: require a new product-owner instruction before package
-  inventory/storage, Plugin Center/Developer Mode UI, MCP, or H117 acceptance;
+- [x] P1b.2 implementation: after its separate product-owner instruction,
+  implement only package inventory transactions, atomic browser storage,
+  declarative migration/settings, retention, recovery, and the additive H117
+  transaction/browser-storage evidence;
+- [ ] P1b.3–P1b.4: require a new product-owner instruction before Plugin Center/
+  Developer Mode UI, MCP, or H117 acceptance;
 - [ ] P2/P3a: separately prove a signed free Community registry/restricted mode
   and isolated TypeScript-to-ESM Worker calculation tier with measured
   permissions/resource budgets; keep WASM a later separate decision;
@@ -1556,8 +1576,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 467 files, 39,300 effective lines, 4,115 functions, and 434 public exports; the architecture baseline
-contains 66 modules, 148 edges, 128 construction sites, 25 writers, and zero
+The current production source baseline contains 485 files, 42,009 effective lines, 4,354 functions, and 452 public exports; the architecture baseline
+contains 68 modules, 149 edges, 133 construction sites, 27 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -1568,7 +1588,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 467 files, 39,300 effective lines, 4,115 functions, and 434 public exports, 66 modules, 148 edges, 128 construction sites, 25 writers, and zero
+currently at 485 files, 42,009 effective lines, 4,354 functions, and 452 public exports, 68 modules, 149 edges, 133 construction sites, 27 writers, and zero
 findings.
 
 ## Established Foundation Governance

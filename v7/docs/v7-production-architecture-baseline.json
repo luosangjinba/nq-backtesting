@@ -55,6 +55,20 @@
         ]
       },
       {
+        "surface": "localPluginPackageInventory",
+        "detectorId": "local-plugin-package-inventory-commit",
+        "allowedModuleIds": [
+          "core.plugin-package-store"
+        ]
+      },
+      {
+        "surface": "localPluginPackageStorage",
+        "detectorId": "local-plugin-package-storage-commit",
+        "allowedModuleIds": [
+          "adapter.plugin-package-storage"
+        ]
+      },
+      {
         "surface": "paneWorkspace",
         "detectorId": "pane-workspace-accepted-state",
         "allowedModuleIds": [
@@ -154,7 +168,7 @@
       }
     ]
   },
-  "deliveryStep": "P1b.1",
+  "deliveryStep": "P1b.2",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -364,6 +378,27 @@
         "sourceFile": "src/replay-workspace-composition/workspace-chart-assembly.js",
         "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "adapter.lightweight-chart"
+      },
+      {
+        "callCount": 1,
+        "factory": "createLocalPluginPackageCandidatePlan",
+        "sourceFile": "src/plugin-package-store/package-records.js",
+        "sourceModuleId": "core.plugin-package-store",
+        "targetModuleId": "core.plugin-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createLocalPluginPackageCandidatePlan",
+        "sourceFile": "src/plugin-package-store/storage-snapshot.js",
+        "sourceModuleId": "core.plugin-package-store",
+        "targetModuleId": "core.plugin-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createLocalPluginSettingsState",
+        "sourceFile": "src/plugin-package-store/admission-preparation.js",
+        "sourceModuleId": "core.plugin-package-store",
+        "targetModuleId": "core.plugin-contract"
       },
       {
         "callCount": 1,
@@ -948,6 +983,20 @@
       },
       {
         "callCount": 2,
+        "factory": "createLocalPluginSettingsState",
+        "sourceFile": "src/plugin-package-store/settings-preparations.js",
+        "sourceModuleId": "core.plugin-package-store",
+        "targetModuleId": "core.plugin-contract"
+      },
+      {
+        "callCount": 2,
+        "factory": "createLocalPluginSettingsState",
+        "sourceFile": "src/plugin-package-store/storage-snapshot.js",
+        "sourceModuleId": "core.plugin-package-store",
+        "targetModuleId": "core.plugin-contract"
+      },
+      {
+        "callCount": 2,
         "factory": "createPaneWorkspace",
         "sourceFile": "src/workspace-state-runtime/owned-pane-state.js",
         "sourceModuleId": "core.workspace-state-runtime",
@@ -1108,6 +1157,12 @@
       },
       {
         "moduleIds": [
+          "adapter.plugin-package-storage"
+        ],
+        "surface": "localPluginPackageStorage"
+      },
+      {
+        "moduleIds": [
           "adapter.replay-workspace-ui"
         ],
         "surface": "replayWorkspaceDom"
@@ -1135,6 +1190,12 @@
           "core.bar-data-runtime"
         ],
         "surface": "rawMarketDataRetention"
+      },
+      {
+        "moduleIds": [
+          "core.plugin-package-store"
+        ],
+        "surface": "localPluginPackageInventory"
       },
       {
         "moduleIds": [
@@ -4329,6 +4390,83 @@
         "actualDependencies": [
           "core.plugin-contract"
         ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "adapter.plugin-package-storage",
+          "core.plugin-contract"
+        ],
+        "descriptorPath": "src/plugin-package-store/module.json",
+        "id": "core.plugin-package-store",
+        "importSites": [
+          {
+            "importedNames": [
+              "createLocalPluginPackageCandidatePlan",
+              "createLocalPluginSettingsState",
+              "defineLocalPluginPackageManifest",
+              "readLocalPluginPackageCandidatePlan",
+              "readLocalPluginPackageManifest",
+              "readLocalPluginSettingsState"
+            ],
+            "sourceFile": "src/plugin-package-store/storage-snapshot.js",
+            "targetFile": "src/plugin-contract/public.js",
+            "targetModuleId": "core.plugin-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createLocalPluginPackageCandidatePlan",
+              "defineLocalPluginPackageManifest",
+              "readLocalPluginPackageCandidatePlan",
+              "readLocalPluginPackageManifest"
+            ],
+            "sourceFile": "src/plugin-package-store/package-records.js",
+            "targetFile": "src/plugin-contract/public.js",
+            "targetModuleId": "core.plugin-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createLocalPluginSettingsState",
+              "defineLocalPluginPackageManifest",
+              "readLocalPluginSettingsState"
+            ],
+            "sourceFile": "src/plugin-package-store/settings-preparations.js",
+            "targetFile": "src/plugin-contract/public.js",
+            "targetModuleId": "core.plugin-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createLocalPluginSettingsState",
+              "migrateLocalPluginSettingsState",
+              "prepareLocalPluginPackageChange",
+              "readLocalPluginPackageCandidatePlan",
+              "readLocalPluginPackageChangePreparation",
+              "readLocalPluginPackageManifest",
+              "readLocalPluginSettingsState"
+            ],
+            "sourceFile": "src/plugin-package-store/admission-preparation.js",
+            "targetFile": "src/plugin-contract/public.js",
+            "targetModuleId": "core.plugin-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/local-plugin-package-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [
+          "src/plugin-package-store/package-store-runtime.js"
+        ],
+        "owner": "plugin-package-store",
+        "publicEntry": "src/plugin-package-store/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.plugin-contract"
+        ],
         "declaredLifecycle": [],
         "declaredOptionalPorts": [],
         "declaredRequiredPorts": [
@@ -5130,6 +5268,21 @@
         "declaredLifecycle": [],
         "declaredOptionalPorts": [],
         "declaredRequiredPorts": [],
+        "descriptorPath": "src/plugin-package-storage/module.json",
+        "id": "adapter.plugin-package-storage",
+        "importSites": [],
+        "independentHarness": "tests/local-plugin-package-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [],
+        "owner": "plugin-package-storage",
+        "publicEntry": "src/plugin-package-storage/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
         "descriptorPath": "src/projected-history-contract/module.json",
         "id": "core.projected-history-contract",
         "importSites": [],
@@ -5246,6 +5399,18 @@
         "sourceFile": "src/session-store/session-store.js",
         "sourceModuleId": "core.session-store",
         "surface": "layoutSyncPolicy"
+      },
+      {
+        "detectorId": "local-plugin-package-inventory-commit",
+        "sourceFile": "src/plugin-package-store/package-store-runtime.js",
+        "sourceModuleId": "core.plugin-package-store",
+        "surface": "localPluginPackageInventory"
+      },
+      {
+        "detectorId": "local-plugin-package-storage-commit",
+        "sourceFile": "src/plugin-package-storage/indexeddb-package-storage.js",
+        "sourceModuleId": "adapter.plugin-package-storage",
+        "surface": "localPluginPackageStorage"
       },
       {
         "detectorId": "market-data-retention-ledger",

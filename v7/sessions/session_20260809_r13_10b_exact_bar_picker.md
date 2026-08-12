@@ -37,7 +37,7 @@ Focused R13.4–R13.6 interaction/projection browser regressions pass. Current
 architecture contains 61 modules, 132 dependency edges, 115 construction sites,
 23 writer sites, and zero findings. Module assembly contains 61 public entries,
 25 lifecycle modules, and 24 optional-removal cases. Current source quality is
-467 files, 39,300 effective lines, 4,115 functions, and 434 public exports, with
+485 files, 42,009 effective lines, 4,354 functions, and 452 public exports, with
 no accepted exception. The standing R13 closure gates pass.
 
 The first human pass rejected two details. The highlight used target-center to

@@ -1027,6 +1027,60 @@
       "functions": [
         {
           "effectiveLines": 3,
+          "name": "failPluginPackageStore",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.plugin-package-store",
+      "owner": "plugin-package-store",
+      "ownsContract": false,
+      "path": "src/plugin-package-store/store-error.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "plugin-package-store.",
+            "purpose": "expose the sole device-local inactive-package inventory and exact transaction commands.",
+            "inputs": "branded package candidates/manifests, immutable archive bytes, exact revisions, confirmations, and storage ports.",
+            "outputs": "byte-free immutable snapshots, preparations, receipts, quarantine/tombstone state, and sanitized recovery evidence.",
+            "sideEffects": "writes only through adapter.plugin-package-storage; never touches Core profile, ModuleHost, domain evidence, DOM, or network.",
+            "lifecycle": "initialize/recover before use, serialize commands, subscribe read-only consumers, then dispose.",
+            "errors": "stable V7DK diagnostics reject stale, replayed, concurrent, corrupt, incompatible, or unconfirmed commands.",
+            "concurrencyCancellation": "one in-flight command plus storage CAS; pre-commit cancellation rolls staged records back exactly."
+          },
+          "moduleId": "core.plugin-package-store",
+          "name": "PluginPackageStoreError",
+          "semanticMatches": [
+            "package"
+          ],
+          "semanticTerms": [
+            "package",
+            "plugin",
+            "store"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "45700be4a6cb907b69ce4ce1de2d19618b3c83c302809f05f76afee28292fb9c"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 10,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 3,
           "name": "failPreparedCommit",
           "reviewedDecompositionException": false
         },
@@ -1691,6 +1745,26 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "c736c06889f855472fcb71cd728f3507048ef3c485c27e7504713e2d1496d677"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 10,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "runtime",
+      "moduleId": "core.plugin-package-store",
+      "owner": "plugin-package-store",
+      "ownsContract": true,
+      "path": "src/plugin-package-store/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "81e52ac86f4ae9b092cfbe863b42807d70253f2c6c117128449ed95db0eb7eae"
     },
     {
       "adaptsBoundary": false,
@@ -7280,6 +7354,57 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 164,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 19,
+          "name": "settingsRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 28,
+          "name": "preparePackageSettingsApply",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 36,
+          "name": "preparePackageSettingsReset",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 51,
+          "name": "settingsPreparation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireRevision",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireInstalled",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.plugin-package-store",
+      "owner": "plugin-package-store",
+      "ownsContract": false,
+      "path": "src/plugin-package-store/settings-preparations.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "528a461a74bbecff138f33611d47d0d92f6a06768ea5d51043880d537c2610f8"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 168,
       "forwardingOnly": false,
       "functions": [
@@ -7532,6 +7657,67 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "f5f10f075f8c3033b67dfc4102c1ca2968f17a4bd024692d47b304e998092a32"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 170,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 13,
+          "name": "preparation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "lifecyclePlan",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "preparePackageRollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "preparePackageQuarantine",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 47,
+          "name": "preparePackageUninstall",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "retained",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireRevision",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireInstalled",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.plugin-package-store",
+      "owner": "plugin-package-store",
+      "ownsContract": false,
+      "path": "src/plugin-package-store/command-preparations.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "8fed9e6acfddae0621a2a17ab4f47410d7cd3f428c05792e2270b95bf3feb378"
     },
     {
       "adaptsBoundary": false,
@@ -7799,6 +7985,181 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "cfb1e21fe99d9c520de9c457a727f987ac15ab4e616076e5f38e2c0c3c0d3f3f"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 175,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "createLocalPluginSettingsState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "readLocalPluginSettingsState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "applyOperation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "normalizedCurrentState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "settingsSchema",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "deletePointer",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "hasPointer",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "pointerParts",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "readPointer",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "writePointer",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 56,
+          "name": "migrateLocalPluginSettingsState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "plainMap",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "mutableState",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.plugin-contract",
+      "owner": "plugin-contract",
+      "ownsContract": false,
+      "path": "src/plugin-contract/local-plugin-settings-migration.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "createLocalPluginSettingsState",
+          "semanticMatches": [
+            "plugin",
+            "settings"
+          ],
+          "semanticTerms": [
+            "local",
+            "plugin",
+            "settings",
+            "state"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "migrateLocalPluginSettingsState",
+          "semanticMatches": [
+            "plugin",
+            "settings"
+          ],
+          "semanticTerms": [
+            "local",
+            "migrate",
+            "plugin",
+            "settings",
+            "state"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "readLocalPluginSettingsState",
+          "semanticMatches": [
+            "plugin",
+            "settings"
+          ],
+          "semanticTerms": [
+            "local",
+            "plugin",
+            "settings",
+            "state"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "fc1ec59a8bd6c05c642beecb966b4faf9f82bf5678567d3cee0677ef7f97d7c6"
     },
     {
       "adaptsBoundary": false,
@@ -8453,6 +8814,77 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "c0ad1e0325a170b15ddd1872b38ea815a0d7d10d32ad1e3b7b93d89233b6d398"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 184,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "digestValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "admissionValues",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "migratedSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "settingsRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "changePreparation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "retained",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "verifyAdmissionDigests",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 60,
+          "name": "preparePackageAdmission",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireRevision",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "settingsValue",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.plugin-package-store",
+      "owner": "plugin-package-store",
+      "ownsContract": false,
+      "path": "src/plugin-package-store/admission-preparation.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "4cd2f2840f3de9705cc915d3d2c0fb04868cea08361e7d6f093a5b3f8079d695"
     },
     {
       "adaptsBoundary": false,
@@ -11239,249 +11671,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 237,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-14>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-17>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-18>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-20>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-27>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-29>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-31>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "read",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "<anonymous-25>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "normalizeSelectOptions",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "valueMatchesControl",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "<anonymous-30>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "resolvePluginSettings",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 2,
-          "name": "<anonymous-19>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 2,
-          "name": "<anonymous-28>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 20,
-          "name": "normalizeField",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 23,
-          "name": "normalizePluginParameterSchemaWire",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 28,
-          "name": "normalizeTabSource",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-11>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "definePluginParameterSchema",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 44,
-          "name": "normalizeControl",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "validateOverrides",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "readPluginParameterSchema",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "<anonymous-16>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "settingsMap",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "normalizeScopes",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "contract",
-      "moduleId": "core.plugin-contract",
-      "owner": "plugin-contract",
-      "ownsContract": false,
-      "path": "src/plugin-contract/plugin-parameter-schema.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "plugin-contract.",
-            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
-            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
-            "outputs": "immutable plans, effective settings, and read-only package status projections.",
-            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
-            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
-            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
-            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
-          },
-          "moduleId": "core.plugin-contract",
-          "name": "definePluginParameterSchema",
-          "semanticMatches": [
-            "plugin"
-          ],
-          "semanticTerms": [
-            "parameter",
-            "plugin",
-            "schema"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "plugin-contract.",
-            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
-            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
-            "outputs": "immutable plans, effective settings, and read-only package status projections.",
-            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
-            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
-            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
-            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
-          },
-          "moduleId": "core.plugin-contract",
-          "name": "readPluginParameterSchema",
-          "semanticMatches": [
-            "plugin"
-          ],
-          "semanticTerms": [
-            "parameter",
-            "plugin",
-            "schema"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "plugin-contract.",
-            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
-            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
-            "outputs": "immutable plans, effective settings, and read-only package status projections.",
-            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
-            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
-            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
-            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
-          },
-          "moduleId": "core.plugin-contract",
-          "name": "resolvePluginSettings",
-          "semanticMatches": [
-            "plugin",
-            "settings"
-          ],
-          "semanticTerms": [
-            "plugin",
-            "settings"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "b66e508a200824bb91e25e4ac7358ec9234092ba9ff857c147f1242e66be5ae6"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 24,
       "forwardingOnly": false,
       "functions": [
@@ -11644,6 +11833,112 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 243,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "createStoredPackageSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "normalizedCandidate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "readStoredPackageSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "readStoredPackageGeneration",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "createStoredPackageGeneration",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "readPackageCommandReceipt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "readPackageTransactionJournal",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "digest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "identifier",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "positiveInteger",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requirePackageStoreOperation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "exact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "idList",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "migrationEvidenceList",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "normalizedManifest",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.plugin-package-store",
+      "owner": "plugin-package-store",
+      "ownsContract": false,
+      "path": "src/plugin-package-store/package-records.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "76b86118c6e08aca83728b39d7634d474ba02d7f1724d2840c2b89d1cefe5cd5"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 244,
       "forwardingOnly": false,
       "functions": [
@@ -11786,6 +12081,287 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "7243f5e0da7bea4804118dfc8ea8d96177a98294aa3bd2f11ba085956c726361"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 249,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-27>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-29>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-32>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-34>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "<anonymous-25>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "normalizeSelectOptions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "valueMatchesControl",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "<anonymous-33>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "validatePluginSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-28>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-31>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "normalizeField",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "normalizePluginParameterSchemaWire",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 28,
+          "name": "normalizeTabSource",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "definePluginParameterSchema",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 44,
+          "name": "normalizeControl",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "validateOverrides",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readPluginParameterSchema",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "settingsMap",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "normalizeScopes",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "resolvePluginSettings",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.plugin-contract",
+      "owner": "plugin-contract",
+      "ownsContract": false,
+      "path": "src/plugin-contract/plugin-parameter-schema.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "definePluginParameterSchema",
+          "semanticMatches": [
+            "plugin"
+          ],
+          "semanticTerms": [
+            "parameter",
+            "plugin",
+            "schema"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "readPluginParameterSchema",
+          "semanticMatches": [
+            "plugin"
+          ],
+          "semanticTerms": [
+            "parameter",
+            "plugin",
+            "schema"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "resolvePluginSettings",
+          "semanticMatches": [
+            "plugin",
+            "settings"
+          ],
+          "semanticTerms": [
+            "plugin",
+            "settings"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "validatePluginSettings",
+          "semanticMatches": [
+            "plugin",
+            "settings"
+          ],
+          "semanticTerms": [
+            "plugin",
+            "settings",
+            "validate"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "8477161dae7ca59762ccd2581748547668d3039bb7a16126538e6b90c016c62a"
     },
     {
       "adaptsBoundary": false,
@@ -12093,6 +12669,280 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "3e3777baec3bfa2494913e1168bbff2730b044b07502ef02b0505e1e6ca748f7"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 252,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "sourceRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "createQuarantinedPackageSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "createPackageTombstone",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "quarantinedSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "pendingTransaction",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "tombstone",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "createInstalledPackageSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "normalizedInventory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 28,
+          "name": "installedSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "deserializeLocalPluginInventory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "serializeLocalPluginInventory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "inventoryWithoutPending",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "replaceLocalPluginInventory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "createEmptyLocalPluginInventory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "digest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "identifier",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readLocalPluginInventory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "exact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "retainedPrior",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "recordMap",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.plugin-package-store",
+      "owner": "plugin-package-store",
+      "ownsContract": false,
+      "path": "src/plugin-package-store/inventory-value.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "plugin-package-store.",
+            "purpose": "expose the sole device-local inactive-package inventory and exact transaction commands.",
+            "inputs": "branded package candidates/manifests, immutable archive bytes, exact revisions, confirmations, and storage ports.",
+            "outputs": "byte-free immutable snapshots, preparations, receipts, quarantine/tombstone state, and sanitized recovery evidence.",
+            "sideEffects": "writes only through adapter.plugin-package-storage; never touches Core profile, ModuleHost, domain evidence, DOM, or network.",
+            "lifecycle": "initialize/recover before use, serialize commands, subscribe read-only consumers, then dispose.",
+            "errors": "stable V7DK diagnostics reject stale, replayed, concurrent, corrupt, incompatible, or unconfirmed commands.",
+            "concurrencyCancellation": "one in-flight command plus storage CAS; pre-commit cancellation rolls staged records back exactly."
+          },
+          "moduleId": "core.plugin-package-store",
+          "name": "createEmptyLocalPluginInventory",
+          "semanticMatches": [
+            "inventory",
+            "local",
+            "package"
+          ],
+          "semanticTerms": [
+            "empty",
+            "inventory",
+            "local",
+            "package",
+            "plugin",
+            "store"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-package-store.",
+            "purpose": "expose the sole device-local inactive-package inventory and exact transaction commands.",
+            "inputs": "branded package candidates/manifests, immutable archive bytes, exact revisions, confirmations, and storage ports.",
+            "outputs": "byte-free immutable snapshots, preparations, receipts, quarantine/tombstone state, and sanitized recovery evidence.",
+            "sideEffects": "writes only through adapter.plugin-package-storage; never touches Core profile, ModuleHost, domain evidence, DOM, or network.",
+            "lifecycle": "initialize/recover before use, serialize commands, subscribe read-only consumers, then dispose.",
+            "errors": "stable V7DK diagnostics reject stale, replayed, concurrent, corrupt, incompatible, or unconfirmed commands.",
+            "concurrencyCancellation": "one in-flight command plus storage CAS; pre-commit cancellation rolls staged records back exactly."
+          },
+          "moduleId": "core.plugin-package-store",
+          "name": "deserializeLocalPluginInventory",
+          "semanticMatches": [
+            "inventory",
+            "local",
+            "package"
+          ],
+          "semanticTerms": [
+            "deserialize",
+            "inventory",
+            "local",
+            "package",
+            "plugin",
+            "store"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-package-store.",
+            "purpose": "expose the sole device-local inactive-package inventory and exact transaction commands.",
+            "inputs": "branded package candidates/manifests, immutable archive bytes, exact revisions, confirmations, and storage ports.",
+            "outputs": "byte-free immutable snapshots, preparations, receipts, quarantine/tombstone state, and sanitized recovery evidence.",
+            "sideEffects": "writes only through adapter.plugin-package-storage; never touches Core profile, ModuleHost, domain evidence, DOM, or network.",
+            "lifecycle": "initialize/recover before use, serialize commands, subscribe read-only consumers, then dispose.",
+            "errors": "stable V7DK diagnostics reject stale, replayed, concurrent, corrupt, incompatible, or unconfirmed commands.",
+            "concurrencyCancellation": "one in-flight command plus storage CAS; pre-commit cancellation rolls staged records back exactly."
+          },
+          "moduleId": "core.plugin-package-store",
+          "name": "INVENTORY_SCHEMA",
+          "semanticMatches": [
+            "inventory",
+            "package"
+          ],
+          "semanticTerms": [
+            "inventory",
+            "package",
+            "plugin",
+            "schema",
+            "store"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-package-store.",
+            "purpose": "expose the sole device-local inactive-package inventory and exact transaction commands.",
+            "inputs": "branded package candidates/manifests, immutable archive bytes, exact revisions, confirmations, and storage ports.",
+            "outputs": "byte-free immutable snapshots, preparations, receipts, quarantine/tombstone state, and sanitized recovery evidence.",
+            "sideEffects": "writes only through adapter.plugin-package-storage; never touches Core profile, ModuleHost, domain evidence, DOM, or network.",
+            "lifecycle": "initialize/recover before use, serialize commands, subscribe read-only consumers, then dispose.",
+            "errors": "stable V7DK diagnostics reject stale, replayed, concurrent, corrupt, incompatible, or unconfirmed commands.",
+            "concurrencyCancellation": "one in-flight command plus storage CAS; pre-commit cancellation rolls staged records back exactly."
+          },
+          "moduleId": "core.plugin-package-store",
+          "name": "readLocalPluginInventory",
+          "semanticMatches": [
+            "inventory",
+            "local",
+            "package"
+          ],
+          "semanticTerms": [
+            "inventory",
+            "local",
+            "package",
+            "plugin",
+            "store"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-package-store.",
+            "purpose": "expose the sole device-local inactive-package inventory and exact transaction commands.",
+            "inputs": "branded package candidates/manifests, immutable archive bytes, exact revisions, confirmations, and storage ports.",
+            "outputs": "byte-free immutable snapshots, preparations, receipts, quarantine/tombstone state, and sanitized recovery evidence.",
+            "sideEffects": "writes only through adapter.plugin-package-storage; never touches Core profile, ModuleHost, domain evidence, DOM, or network.",
+            "lifecycle": "initialize/recover before use, serialize commands, subscribe read-only consumers, then dispose.",
+            "errors": "stable V7DK diagnostics reject stale, replayed, concurrent, corrupt, incompatible, or unconfirmed commands.",
+            "concurrencyCancellation": "one in-flight command plus storage CAS; pre-commit cancellation rolls staged records back exactly."
+          },
+          "moduleId": "core.plugin-package-store",
+          "name": "serializeLocalPluginInventory",
+          "semanticMatches": [
+            "inventory",
+            "local",
+            "package"
+          ],
+          "semanticTerms": [
+            "inventory",
+            "local",
+            "package",
+            "plugin",
+            "serialize",
+            "store"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "27734cab86c86108ec5c091969dee2094c3f6b7cf148699d8553a66f9bf7b5a5"
     },
     {
       "adaptsBoundary": false,
@@ -13319,6 +14169,102 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 288,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "pendingValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "finalizeCommitted",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "rollbackStaged",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "transactionReceipt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "resolveCommitFailure",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 31,
+          "name": "phaseChange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 36,
+          "name": "recoverPluginPackageTransaction",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "failStorage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "requireNotCancelled",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 51,
+          "name": "transactionRecords",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 52,
+          "name": "executePluginPackageTransaction",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "storageCode",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.plugin-package-store",
+      "owner": "plugin-package-store",
+      "ownsContract": false,
+      "path": "src/plugin-package-store/transaction-executor.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "3a39bd218dbbb8cd83078364a98776c23e7bd91f42eed79a8ebee0021edac555"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 29,
       "forwardingOnly": false,
       "functions": [
@@ -13345,6 +14291,272 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "e171712579e04f3c5ebff0d86e306b2b3a01cac74e252bed8127170170d8396d"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 29,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 4,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "createPluginPackageStorePreparation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "readPluginPackageStorePreparation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "readPluginPackageStorePreparationInternal",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.plugin-package-store",
+      "owner": "plugin-package-store",
+      "ownsContract": false,
+      "path": "src/plugin-package-store/store-preparation.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "plugin-package-store.",
+            "purpose": "expose the sole device-local inactive-package inventory and exact transaction commands.",
+            "inputs": "branded package candidates/manifests, immutable archive bytes, exact revisions, confirmations, and storage ports.",
+            "outputs": "byte-free immutable snapshots, preparations, receipts, quarantine/tombstone state, and sanitized recovery evidence.",
+            "sideEffects": "writes only through adapter.plugin-package-storage; never touches Core profile, ModuleHost, domain evidence, DOM, or network.",
+            "lifecycle": "initialize/recover before use, serialize commands, subscribe read-only consumers, then dispose.",
+            "errors": "stable V7DK diagnostics reject stale, replayed, concurrent, corrupt, incompatible, or unconfirmed commands.",
+            "concurrencyCancellation": "one in-flight command plus storage CAS; pre-commit cancellation rolls staged records back exactly."
+          },
+          "moduleId": "core.plugin-package-store",
+          "name": "readPluginPackageStorePreparation",
+          "semanticMatches": [
+            "package"
+          ],
+          "semanticTerms": [
+            "package",
+            "plugin",
+            "preparation",
+            "store"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "f875ff22b6c12b43c646c19dc51fa0e1aae5f06dbba0a59b5a5e1b16b34f4b2b"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 294,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-21>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-22>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-23>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-24>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-25>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-29>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "uniqueIndex",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "verifySelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "projectPackageStoreSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "sanitizedRestrictedSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "safeIds",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "packageSummary",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "verifyPendingReceiptClosure",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "referencedIds",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "verifyGeneration",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-35>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "storageSnapshotsEqual",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-30>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "unsignedReceipt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "unsignedSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-31>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "projectedSettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "verifyReceipt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 53,
+          "name": "validatePackageStorageSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "<anonymous-34>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "verifySettings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "verifyCommittedInventoryDigest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "verifyJournalRecordClosure",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "settingsValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "verifyReceiptHistory",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.plugin-package-store",
+      "owner": "plugin-package-store",
+      "ownsContract": false,
+      "path": "src/plugin-package-store/storage-snapshot.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "63c697eb74c93beec00e99457928750f527dfd9f5a33e0b956aa6989bda528ef"
     },
     {
       "adaptsBoundary": false,
@@ -15294,52 +16506,195 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 35,
+      "effectiveLines": 361,
       "forwardingOnly": false,
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "<anonymous-2>",
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "prepareInstall",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "prepareQuarantine",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "prepareRollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "prepareSettingsApply",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "prepareSettingsReset",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "prepareUninstall",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "unsubscribe",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requireReady",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "enterRestricted",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "retryRecovery",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "refreshAfterFailure",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "exportDiagnostics",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "initialize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "publicSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "removeRestrictedInventory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "requireLive",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "validate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "settle",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 4,
-          "name": "pluginVersion",
+          "name": "prepare",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 4,
-          "name": "pluginVersionRange",
+          "effectiveLines": 42,
+          "name": "createPluginPackageStoreRuntime",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 6,
-          "name": "compare",
+          "name": "dispose",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 9,
-          "name": "components",
+          "effectiveLines": 7,
+          "name": "publish",
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 9,
-          "name": "pluginVersionSatisfies",
+          "effectiveLines": 7,
+          "name": "subscribe",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 77,
+          "name": "commitPrepared",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "rawCasIdentity",
           "reviewedDecompositionException": false
         }
       ],
-      "kind": "contract",
-      "moduleId": "core.plugin-contract",
-      "owner": "plugin-contract",
+      "kind": "runtime",
+      "moduleId": "core.plugin-package-store",
+      "owner": "plugin-package-store",
       "ownsContract": false,
-      "path": "src/plugin-contract/semantic-version.js",
-      "publicExports": [],
+      "path": "src/plugin-package-store/package-store-runtime.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "plugin-package-store.",
+            "purpose": "expose the sole device-local inactive-package inventory and exact transaction commands.",
+            "inputs": "branded package candidates/manifests, immutable archive bytes, exact revisions, confirmations, and storage ports.",
+            "outputs": "byte-free immutable snapshots, preparations, receipts, quarantine/tombstone state, and sanitized recovery evidence.",
+            "sideEffects": "writes only through adapter.plugin-package-storage; never touches Core profile, ModuleHost, domain evidence, DOM, or network.",
+            "lifecycle": "initialize/recover before use, serialize commands, subscribe read-only consumers, then dispose.",
+            "errors": "stable V7DK diagnostics reject stale, replayed, concurrent, corrupt, incompatible, or unconfirmed commands.",
+            "concurrencyCancellation": "one in-flight command plus storage CAS; pre-commit cancellation rolls staged records back exactly."
+          },
+          "moduleId": "core.plugin-package-store",
+          "name": "createPluginPackageStoreRuntime",
+          "semanticMatches": [
+            "package"
+          ],
+          "semanticTerms": [
+            "package",
+            "plugin",
+            "store"
+          ]
+        }
+      ],
       "responsibilities": [
         "internal-state-or-pure-computation"
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "80bc2a1ede93bfb45c58c15a2e8e76db6c90a15951cbc9694d2405f9d3389458"
+      "sourceHash": "357f049c62f0fee37fcb2fb9fcb868120a30300674be6d1be50dfd250647a3dd"
     },
     {
       "adaptsBoundary": false,
@@ -16644,6 +17999,62 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 41,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "pluginVersion",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "pluginVersionRange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "compare",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "comparePluginVersions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "components",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "pluginVersionSatisfies",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.plugin-contract",
+      "owner": "plugin-contract",
+      "ownsContract": false,
+      "path": "src/plugin-contract/semantic-version.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "44d4c2b5b3fa2ff91e838b603d8ad202c441c5b343c80d6516a4e274f459d827"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 42,
       "forwardingOnly": false,
       "functions": [
@@ -17378,26 +18789,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 48,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "contract",
-      "moduleId": "core.plugin-contract",
-      "owner": "plugin-contract",
-      "ownsContract": true,
-      "path": "src/plugin-contract/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "38f2a1ab690d555334bc9e4bf8288ab546fab809d2f9540086c568ed7d96a226"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 5,
       "forwardingOnly": true,
       "functions": [],
@@ -17715,6 +19106,72 @@
       "functions": [
         {
           "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "normalized",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "canonicalPackageStoreJson",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "canonicalPackageStoreValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "digestPackageStoreValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "cryptoDigestPort",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "digestPackageStoreBytes",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.plugin-package-store",
+      "owner": "plugin-package-store",
+      "ownsContract": false,
+      "path": "src/plugin-package-store/portable-digest.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "ffd6152738df059404e886261ae049c5c11f117d5e351ec1737921c1e9d993d4"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 53,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
           "name": "constructor",
           "reviewedDecompositionException": false
         },
@@ -17986,6 +19443,57 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "0f223766bf866f0b0be487f729221cd46d41db5c0a2ee25c9e76354cc2883847"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 56,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "initialPackageStorageChange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "packageStoreDiagnostic",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "packageTransactionIdFactory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requirePackageCommandId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requirePackageStoragePort",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.plugin-package-store",
+      "owner": "plugin-package-store",
+      "ownsContract": false,
+      "path": "src/plugin-package-store/runtime-support.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "e49835bd2a4a414c12d97230b61111efdcedebbd52458c71900d1deb046d6be2"
     },
     {
       "adaptsBoundary": false,
@@ -18551,6 +20059,26 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "aeed7e9b27ce5aa22d5e460f8f216359bca58cdfc7510ee9af10928db1a82ecf"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 58,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "contract",
+      "moduleId": "core.plugin-contract",
+      "owner": "plugin-contract",
+      "ownsContract": true,
+      "path": "src/plugin-contract/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "285e5b56974b0aedc64231b8dff6424293e0c348ac1da6d7b41105be5e605627"
     },
     {
       "adaptsBoundary": false,
@@ -21707,6 +23235,108 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 88,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "operationFor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "currentGeneration",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 41,
+          "name": "prepareLocalPluginPackageChange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readLocalPluginPackageChangePreparation",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.plugin-contract",
+      "owner": "plugin-contract",
+      "ownsContract": false,
+      "path": "src/plugin-contract/local-plugin-package-change.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "prepareLocalPluginPackageChange",
+          "semanticMatches": [
+            "package",
+            "plugin"
+          ],
+          "semanticTerms": [
+            "change",
+            "local",
+            "package",
+            "plugin",
+            "prepare"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-contract.",
+            "purpose": "expose trusted-build plugin manifest, contribution, settings, plan, and status contracts.",
+            "inputs": "branded portable manifests/schemas, normalized module descriptors, host capabilities, and snapshots.",
+            "outputs": "immutable plans, effective settings, and read-only package status projections.",
+            "sideEffects": "none; this module never loads code, persists settings, renders DOM, or controls lifecycle.",
+            "lifecycle": "pure values remain usable independently; ModuleHost alone starts/stops/disposes modules.",
+            "errors": "PluginContractError fails malformed, incompatible, colliding, foreign, or unauthorized values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no owner handles."
+          },
+          "moduleId": "core.plugin-contract",
+          "name": "readLocalPluginPackageChangePreparation",
+          "semanticMatches": [
+            "package",
+            "plugin"
+          ],
+          "semanticTerms": [
+            "change",
+            "local",
+            "package",
+            "plugin",
+            "preparation"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "bbd751f3f0e2ed25be7a0a58bbfa87b65bc8d078e5e36b94d90a46614d01aa96"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 89,
       "forwardingOnly": false,
       "functions": [
@@ -24658,6 +26288,61 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "a49dc9eab44b02e083dc2eb62dd755a376e34d7a1ac400162ed40807d92ef54c"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 10,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 3,
+          "name": "failPluginPackageStorage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "persistence",
+      "moduleId": "adapter.plugin-package-storage",
+      "owner": "plugin-package-storage",
+      "ownsContract": false,
+      "path": "src/plugin-package-storage/storage-error.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "plugin-package-storage.",
+            "purpose": "expose atomic IndexedDB mechanics for immutable local package records.",
+            "inputs": "exact package-store phase envelopes and an injected IndexedDB factory.",
+            "outputs": "complete storage snapshots or successful all-record transaction settlement.",
+            "sideEffects": "writes only the dedicated device-local package IndexedDB database.",
+            "lifecycle": "initialize once, transact/read serially or through IndexedDB CAS, then close.",
+            "errors": "stable adapter errors distinguish availability, quota, read, write, reset, and CAS failures.",
+            "concurrencyCancellation": "IndexedDB transactions are atomic; owner revisions reject cross-tab staleness."
+          },
+          "moduleId": "adapter.plugin-package-storage",
+          "name": "PluginPackageStorageError",
+          "semanticMatches": [
+            "package",
+            "storage"
+          ],
+          "semanticTerms": [
+            "package",
+            "plugin",
+            "storage"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "d99a29ca76057bb37ba37d71689b7ee9aa7ad5597c9e78455ac6796d61f32ccb"
     },
     {
       "adaptsBoundary": true,
@@ -32903,6 +34588,323 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 288,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-27>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-32>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-34>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-36>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-39>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-41>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-43>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "<anonymous-25>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "initialize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "<anonymous-31>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "<anonymous-38>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "transact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "queueChanges",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "reset",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "<anonymous-33>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "<anonymous-40>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "createIndexedDbPluginPackageStorage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "normalizedChange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-22>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "pendingId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-21>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "openDatabase",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-28>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-35>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-42>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "<anonymous-26>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "close",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "idList",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireFactory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireOpen",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "translatedFailure",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "<anonymous-29>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "createTransaction",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "recordList",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "expectedIdentity",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "persistence",
+      "moduleId": "adapter.plugin-package-storage",
+      "owner": "plugin-package-storage",
+      "ownsContract": false,
+      "path": "src/plugin-package-storage/indexeddb-package-storage.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "plugin-package-storage.",
+            "purpose": "expose atomic IndexedDB mechanics for immutable local package records.",
+            "inputs": "exact package-store phase envelopes and an injected IndexedDB factory.",
+            "outputs": "complete storage snapshots or successful all-record transaction settlement.",
+            "sideEffects": "writes only the dedicated device-local package IndexedDB database.",
+            "lifecycle": "initialize once, transact/read serially or through IndexedDB CAS, then close.",
+            "errors": "stable adapter errors distinguish availability, quota, read, write, reset, and CAS failures.",
+            "concurrencyCancellation": "IndexedDB transactions are atomic; owner revisions reject cross-tab staleness."
+          },
+          "moduleId": "adapter.plugin-package-storage",
+          "name": "createIndexedDbPluginPackageStorage",
+          "semanticMatches": [
+            "indexed",
+            "package",
+            "storage"
+          ],
+          "semanticTerms": [
+            "indexed",
+            "package",
+            "plugin",
+            "storage"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-package-storage.",
+            "purpose": "expose atomic IndexedDB mechanics for immutable local package records.",
+            "inputs": "exact package-store phase envelopes and an injected IndexedDB factory.",
+            "outputs": "complete storage snapshots or successful all-record transaction settlement.",
+            "sideEffects": "writes only the dedicated device-local package IndexedDB database.",
+            "lifecycle": "initialize once, transact/read serially or through IndexedDB CAS, then close.",
+            "errors": "stable adapter errors distinguish availability, quota, read, write, reset, and CAS failures.",
+            "concurrencyCancellation": "IndexedDB transactions are atomic; owner revisions reject cross-tab staleness."
+          },
+          "moduleId": "adapter.plugin-package-storage",
+          "name": "PLUGIN_PACKAGE_DATABASE_NAME",
+          "semanticMatches": [
+            "package",
+            "storage"
+          ],
+          "semanticTerms": [
+            "database",
+            "name",
+            "package",
+            "plugin",
+            "storage"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "plugin-package-storage.",
+            "purpose": "expose atomic IndexedDB mechanics for immutable local package records.",
+            "inputs": "exact package-store phase envelopes and an injected IndexedDB factory.",
+            "outputs": "complete storage snapshots or successful all-record transaction settlement.",
+            "sideEffects": "writes only the dedicated device-local package IndexedDB database.",
+            "lifecycle": "initialize once, transact/read serially or through IndexedDB CAS, then close.",
+            "errors": "stable adapter errors distinguish availability, quota, read, write, reset, and CAS failures.",
+            "concurrencyCancellation": "IndexedDB transactions are atomic; owner revisions reject cross-tab staleness."
+          },
+          "moduleId": "adapter.plugin-package-storage",
+          "name": "PLUGIN_PACKAGE_DATABASE_VERSION",
+          "semanticMatches": [
+            "package",
+            "storage"
+          ],
+          "semanticTerms": [
+            "database",
+            "package",
+            "plugin",
+            "storage",
+            "version"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "48277b9f4b74b6d2e2c8268d8189bf01b4da980cd4528b9cb566b6d680d020e7"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 29,
       "forwardingOnly": false,
       "functions": [
@@ -38401,6 +40403,26 @@
       "effectiveLines": 6,
       "forwardingOnly": true,
       "functions": [],
+      "kind": "persistence",
+      "moduleId": "adapter.plugin-package-storage",
+      "owner": "plugin-package-storage",
+      "ownsContract": true,
+      "path": "src/plugin-package-storage/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "78302715ad463ff40d008bea681608fb703858fbfe1ad664a3aa9247bc7a7504"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 6,
+      "forwardingOnly": true,
+      "functions": [],
       "kind": "ui",
       "moduleId": "adapter.session-browser-ui",
       "owner": "session-store",
@@ -41566,11 +43588,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 39300,
-    "files": 467,
-    "functions": 4115,
-    "publicExports": 434
+    "effectiveLines": 42009,
+    "files": 485,
+    "functions": 4354,
+    "publicExports": 452
   },
-  "deliveryStep": "P1b.1",
-  "generatedFromCommit": "working-tree-p1b.1"
+  "deliveryStep": "P1b.2",
+  "generatedFromCommit": "working-tree-p1b.2"
 }

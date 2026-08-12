@@ -8,6 +8,8 @@ const WRITER_DETECTORS = Object.freeze({
   'calendar-surface-dom-commit': /\breplaceChildren\s*\(\s*this\.nodes\.body\s*,/,
   'core-plugin-profile-commit': /\bport\.write\s*\(\s*storageKey\s*,\s*raw\s*\)/,
   'layout-sync-policy-commit': /\bsaveLayoutSync\s*\([^)]*\)\s*\{[\s\S]*?configuredWorkspace\s*\(\s*current\s*,\s*\{\s*layoutSync:/,
+  'local-plugin-package-inventory-commit': /\bcommittedInventory:\s*prepared\.committedInventory\b/,
+  'local-plugin-package-storage-commit': /\btransaction\.objectStore\(['"]inventory['"]\)\.put\s*\(/,
   'market-data-retention-ledger': /\bacceptedByConsumer\.set\s*\(/,
   'native-chart-series': /\b(?:series|futureTimeAxisSeries|acceptedSeries)\.(?:attachPrimitive|detachPrimitive|setData|update)\s*\(/,
   'pane-workspace-accepted-state': /\bsnapshot\s*=\s*candidateSnapshot\b/,

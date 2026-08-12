@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "P1b.1",
+  "deliveryStep": "P1b.2",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -60,6 +60,7 @@
       "core.bar-data-runtime",
       "core.chart-snapshot-application",
       "core.module-host",
+      "core.plugin-package-store",
       "core.plugin-profile",
       "core.pane-set-materialization",
       "core.provider-execution-runtime",
@@ -85,6 +86,7 @@
     ],
     "persistence": [
       "adapter.annotation-persistence",
+      "adapter.plugin-package-storage",
       "adapter.session-persistence",
       "core.replay-navigation-preference-store"
     ],
@@ -200,6 +202,10 @@
     },
     {
       "path": "sessions/session_20260811_p1b_1_contract_archive_implementation.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260812_p1b_2_inventory_transaction_implementation.md",
       "expectedOccurrences": 1
     }
   ],
