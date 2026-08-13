@@ -52,10 +52,13 @@ For operation in Chinese, start with the
 
 Developer Kit usage and its explicit non-installation boundary are documented
 in [tools/plugin-developer-kit/README.md](tools/plugin-developer-kit/README.md).
-The accepted next local-package/Developer Mode/authoring MCP boundary is in the
-[P1b specification](docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md). Its
-five material decisions are accepted, but no P1b implementation is authorized
-or present.
+The accepted and amended local-package/authoring MCP boundary is in the
+[P1b specification](docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md).
+P1b.1–P1b.3 implement deterministic `.v7plugin` candidates, inactive local
+inventory/recovery, and a two-surface Included/Installed Plugin Center. The
+post-implementation correction removes top-level Developer Mode while retaining
+strict unpacked-candidate inspection as tooling-only security evidence. P1b.4
+MCP and H117 acceptance remain separately gated.
 
 ## Quick Deployment
 

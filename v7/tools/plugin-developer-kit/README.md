@@ -46,3 +46,9 @@ operation v2 with an explicit `local-declarative-package-v1` profile and either
 `.v7plugin` is an installation candidate only: no package store, production UI,
 MCP, activation, external module import, registry access, or Worker exists in
 this slice.
+
+The later P1b.3 product correction deliberately keeps Developer Mode out of the
+production Plugin Center. Prepared `unpacked-local-candidate` outputs remain
+Developer Kit artifacts. The tooling-only unpacked inspection adapter preserves
+bounded double snapshots and path/symlink/special-file/receipt checks without a
+persistent mode, retained generation, install command, or execution authority.

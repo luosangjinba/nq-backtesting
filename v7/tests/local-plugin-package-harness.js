@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import * as pluginPackageStorage from '../src/plugin-package-storage/public.js';
 import * as pluginPackageStore from '../src/plugin-package-store/public.js';
 import * as pluginCenterUi from '../src/plugin-center-ui/public.js';
-import { runLocalPluginPackageDeveloperSuite } from './local-plugin-package-developer-suite.js';
+import { runLocalPluginPackageUnpackedSecuritySuite } from './local-plugin-package-unpacked-security-suite.js';
 import { runLocalPluginPackageProductBrowserSuite } from './local-plugin-package-product-browser-suite.js';
 import { runLocalPluginPackageStorageBrowserSuite } from './local-plugin-package-storage-browser-suite.js';
 import { runLocalPluginPackageTransactionSuite } from './local-plugin-package-transaction-suite.js';
@@ -26,8 +26,8 @@ assert.equal(typeof pluginCenterUi.createPluginCenterWorkspaceControl, 'function
 const transactionEvidence = await runLocalPluginPackageTransactionSuite();
 assert.equal(transactionEvidence.negativeEvidence.length, 18);
 const browserStorageEvidence = await runLocalPluginPackageStorageBrowserSuite();
-const developerEvidence = await runLocalPluginPackageDeveloperSuite();
-assert.equal(developerEvidence.negativeEvidence.length, 18);
+const unpackedSecurityEvidence = await runLocalPluginPackageUnpackedSecuritySuite();
+assert.equal(unpackedSecurityEvidence.negativeEvidence.length, 18);
 const productBrowserEvidence = await runLocalPluginPackageProductBrowserSuite();
 
 console.log(JSON.stringify({
@@ -35,7 +35,7 @@ console.log(JSON.stringify({
   negativeControls: [
     ...contractEvidence.negativeControls,
     ...transactionEvidence.negativeEvidence,
-    ...developerEvidence.negativeEvidence,
+    ...unpackedSecurityEvidence.negativeEvidence,
   ],
   packageContract: Object.freeze({
     archiveDigest: contractEvidence.archiveDigest,
@@ -45,16 +45,16 @@ console.log(JSON.stringify({
   profile: 'local-declarative-package-v1',
   productBrowser: Object.freeze({ ...productBrowserEvidence, status: 'passed' }),
   storageAdapter: Object.freeze({ ...browserStorageEvidence, status: 'passed' }),
-  scope: 'P1b.1-contract-archive-plus-P1b.2-transactions-recovery-plus-P1b.3-product-developer-mode',
+  scope: 'P1b.1-contract-archive-plus-P1b.2-transactions-recovery-plus-P1b.3-two-surface-product-and-unpacked-security',
   status: 'passed',
   transactions: Object.freeze({
     ...transactionEvidence.positive,
     negativeGroupCount: transactionEvidence.negativeEvidence.length,
     status: 'passed',
   }),
-  developerMode: Object.freeze({
-    ...developerEvidence.positive,
-    negativeGroupCount: developerEvidence.negativeEvidence.length,
+  unpackedCandidateSecurity: Object.freeze({
+    ...unpackedSecurityEvidence.positive,
+    negativeGroupCount: unpackedSecurityEvidence.negativeEvidence.length,
     status: 'passed',
   }),
   visibleReviewRequired: true,

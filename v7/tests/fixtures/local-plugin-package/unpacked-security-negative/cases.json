@@ -1,0 +1,20 @@
+[
+  { "case": "wrong-archive-suffix", "expectedDiagnostic": "V7DK_PACKAGE_FORMAT_MISMATCH" },
+  { "case": "oversized-archive", "expectedDiagnostic": "V7DK_RESOURCE_LIMIT" },
+  { "case": "developer-ports-rejected", "expectedDiagnostic": "V7DK_DEVELOPER_MODE_REMOVED" },
+  { "case": "invalid-directory-root", "expectedDiagnostic": "V7DK_UNPACKED_DIRECTORY_INVALID" },
+  { "case": "source-workspace-layout", "expectedDiagnostic": "V7DK_PACKAGE_LAYOUT_INVALID" },
+  { "case": "symlink-directory-root", "expectedDiagnostic": "V7DK_UNPACKED_DIRECTORY_INVALID" },
+  { "case": "symlink-candidate-entry", "expectedDiagnostic": "V7DK_PACKAGE_PATH_INVALID" },
+  { "case": "special-candidate-entry", "expectedDiagnostic": "V7DK_PACKAGE_PATH_INVALID" },
+  { "case": "unsafe-candidate-path", "expectedDiagnostic": "V7DK_PACKAGE_PATH_INVALID" },
+  { "case": "directory-resource-limit", "expectedDiagnostic": "V7DK_RESOURCE_LIMIT" },
+  { "case": "changing-directory-snapshot", "expectedDiagnostic": "V7DK_UNPACKED_SNAPSHOT_STALE" },
+  { "case": "stale-candidate-receipt", "expectedDiagnostic": "V7DK_PACKAGE_RECEIPT_STALE" },
+  { "case": "cancelled-directory-snapshot", "expectedDiagnostic": "V7DK_OPERATION_CANCELLED" },
+  { "case": "duplicate-candidate-entry", "expectedDiagnostic": "V7DK_BUNDLE_INVALID" },
+  { "case": "prefix-collision-entry", "expectedDiagnostic": "V7DK_BUNDLE_INVALID" },
+  { "case": "invalid-archive-handle", "expectedDiagnostic": "V7DK_PACKAGE_PATH_INVALID" },
+  { "case": "symlink-archive-handle", "expectedDiagnostic": "V7DK_PACKAGE_PATH_INVALID" },
+  { "case": "disposed-archive-adapter", "expectedDiagnostic": "V7DK_BROWSER_ADAPTER_DISPOSED" }
+]

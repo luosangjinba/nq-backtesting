@@ -2,8 +2,8 @@
 
 Date: 2026-08-12
 
-Status: compact layout corrected and automated evidence passed; Developer Mode
-top-level disposition pending explicit product-owner direction
+Status: compact layout corrected and automated evidence passed; subsequent
+product-owner direction accepted the recommended top-level removal
 
 ## Request And Boundary
 
@@ -55,9 +55,10 @@ when a separately authorized runtime can safely preview an external
 contribution, or when observed developer use proves a browser-only unpacked
 workflow that P1a CLI/Library/MCP cannot serve.
 
-No removal or relocation is implemented in this session because that changes
-the accepted P1b product surface. The product owner must explicitly choose to
-retain, relocate, or remove it before final P1b.3 visible acceptance.
+No removal was implemented in this review commit because that required explicit
+product-owner direction. The owner subsequently accepted the recommendation;
+the bounded correction is recorded in
+`session_20260812_p1b_3_developer_mode_surface_removal.md`.
 
 ## Verification
 

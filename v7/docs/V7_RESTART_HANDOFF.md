@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-12 after the separately authorized P1b.3 Plugin Center/
-Developer Mode implementation and additive executable H117 evidence
+Last updated: 2026-08-12 after the accepted P1b.3 Developer Mode product-surface
+removal and corrected executable H117 evidence
 
 ## Restart Resume Checkpoint
 
@@ -14,9 +14,9 @@ P0b and H115 are accepted after passing automated evidence and the corrected
 focused human visual/interaction gate. P1a and H116 are accepted after the
 separately authorized headless implementation. P1b has an accepted binding
 specification and its separately authorized P1b.1 contract/archive, P1b.2
-transaction/storage, and P1b.3 Plugin Center/Developer Mode slices are
+transaction/storage, and P1b.3 two-surface Plugin Center correction are
 implemented. H117 is executable with 54 frozen negative groups and real-browser
-IndexedDB/product evidence but remains unaccepted; the focused P1b.3 human
+IndexedDB/product evidence but remains unaccepted; the corrected P1b.3 human
 review, P1b.4 MCP/H117 closure, and all later phases remain separately gated.
 `git log` is the authoritative commit identity.
 
@@ -34,28 +34,29 @@ Then read, in order:
 1. `v7/docs/V7_RESTART_HANDOFF.md`
 2. `v7/docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`
 3. `v7/docs/V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md`
-4. `v7/sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md`
-5. `v7/sessions/session_20260812_p1b_2_inventory_transaction_implementation.md`
-6. `v7/sessions/session_20260811_p1b_1_contract_archive_implementation.md`
-7. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_acceptance.md`
-8. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_draft.md`
-9. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md`
-10. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`
-11. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`
-12. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`
-13. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification.md`
-14. `v7/docs/V7_CORE_PLUGIN_CENTER_P0B.md`
-15. `v7/sessions/session_20260811_p0b_core_plugin_center_implementation.md`
-16. `v7/sessions/session_20260811_p0b_core_plugin_center_specification.md`
-17. `v7/docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`
-18. `v7/sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md`
-19. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
-20. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
-21. `v7/sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
-22. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
-23. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
-24. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
-25. `v7/TODO.md`
+4. `v7/sessions/session_20260812_p1b_3_developer_mode_surface_removal.md`
+5. `v7/sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md`
+6. `v7/sessions/session_20260812_p1b_2_inventory_transaction_implementation.md`
+7. `v7/sessions/session_20260811_p1b_1_contract_archive_implementation.md`
+8. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_acceptance.md`
+9. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_draft.md`
+10. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md`
+11. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`
+12. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`
+13. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`
+14. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification.md`
+15. `v7/docs/V7_CORE_PLUGIN_CENTER_P0B.md`
+16. `v7/sessions/session_20260811_p0b_core_plugin_center_implementation.md`
+17. `v7/sessions/session_20260811_p0b_core_plugin_center_specification.md`
+18. `v7/docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`
+19. `v7/sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md`
+20. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
+21. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
+22. `v7/sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
+23. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
+24. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
+25. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
+26. `v7/TODO.md`
 
 R13.10b/H110 and R13.10c/H111 are accepted. The focused FVG fixture contains
 no temporary diagnostic surface, and its acceptance server is stopped.
@@ -64,8 +65,8 @@ Plugin capabilities and binds public derived dependencies plus a future
 host-rendered Core/Community Plugin Center. Its later amendment binds one
 strict TypeScript SDK/compiled ESM artifact model, JSON-schema-rendered
 Inputs/Style/Visibility and applicable Evidence/History panels, and one
-candidate pipeline for registry, local archive, and Developer Mode unpacked
-sources. The thin P0a manifest/contribution/settings substrate is now proven
+candidate pipeline for registry and local archives, with unpacked candidate
+inspection retained as tooling. The thin P0a manifest/contribution/settings substrate is now proven
 by FVG before broader plugin families or distribution layers. R13.10d Evidence
 Inspector and validated overrides are accepted under H112 after the corrected
 single-layer Preview human gate. R13.10e now composes the generic production
@@ -84,13 +85,14 @@ later execution remain unavailable. P1b.1 implements the non-executing
 contract/archive substrate. P1b.2 now adds pure change/migration contracts, one
 sole inactive package-store runtime, immutable generations and receipts,
 package/profile settings, atomic IndexedDB CAS, rollback/quarantine/tombstones,
-cleanup/restart recovery, and Restricted Mode. P1b.3 composes
-the Core-only Included surface with separate Installed and Developer Mode
-owners, explicit archive review/commit/recovery, strict prepared-directory
-snapshots, and inactive load/reload/validate-pack/unload. H117 now has 18 + 18
-+ 18 negative groups and real-Chromium IndexedDB/product evidence. It adds no
-MCP, external descriptor, import, evaluation, trust, execution, or activation
-path.
+cleanup/restart recovery, and Restricted Mode. P1b.3 now composes exactly the
+Core-only Included and local Installed owners with explicit archive review/
+commit/recovery. The accepted correction removes the production Developer Mode,
+preference, retained directory handles, and generation lifecycle while keeping
+strict unpacked inspection as Developer Kit security evidence. H117 has 18 + 18
++ 18 negative groups and corrected real-Chromium IndexedDB/product evidence. It
+adds no MCP, external descriptor, import, evaluation, trust, execution, or
+activation path.
 
 ADR-V7-004's 2026-08-11 amendment requires the now-implemented Agent-native
 developer path: one machine-readable strict-TypeScript SDK, canonical
@@ -1195,25 +1197,25 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 ## Exact Next Step
 
 R13.10e/H114, P0b/H115, and P1a/H116 are closed. P1b.1–P1b.3 implement the
-non-executing local package contract/archive, transaction/storage, and Plugin
-Center/Developer Mode boundaries. Installed and development generations remain
-explicitly inactive and cannot reach activation, MCP, registry, or production
-candidate execution. The accepted P1b
+non-executing local package contract/archive, transaction/storage, and corrected
+two-surface Plugin Center boundaries. Installed generations remain explicitly
+inactive and cannot reach activation, MCP, registry, or production candidate
+execution. The accepted amended P1b
 specification is
 `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`; H117 is registered as
 executable with 54 groups but remains unaccepted. Its five binding decisions are:
 installation is not activation; `.v7plugin` is distinct from `.v7dk.tar`; one
-device-local package store owns inventory transactions; Developer Mode loads
-prepared candidates rather than executing source; and local `stdio` MCP is
-authoring-only. Focused review corrected a vertically stretched three-tab
+device-local package store owns inventory transactions; prepared candidates
+remain non-executing authoring/tool artifacts; and local `stdio` MCP is
+authoring-only. Focused review first corrected a vertically stretched tab
 layout and bound a compact 40 px strip with 30 px controls in real Chromium.
-The accompanying role review found that current Developer Mode has no unique
+The accompanying role review found that Developer Mode had no unique
 product outcome: P1a owns validate/build/test/preview/pack, Installed owns
-admission, and P1b cannot execute or preview an external package. The
-recommendation is to remove it as a top-level production mode while preserving
-strict unpacked-candidate inspection as developer tooling/security evidence.
-The exact immediate gate is explicit product-owner direction to retain,
-relocate, or remove that surface before completing
+admission, and P1b cannot execute or preview an external package. The product
+owner accepted its removal: production now has exactly Included and Installed,
+the browser adapter is archive-only, and strict unpacked-candidate inspection
+remains tooling/security evidence without retained handles or mode state. The
+exact immediate gate is the corrected focused human review in
 `V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md`. P1b.4 still requires a separate
 product-owner instruction. Do not create its MCP adapter or claim H117
 acceptance, P2 registry, P3a Worker runtime, P3b Pine migration, detector, MA/SMA,

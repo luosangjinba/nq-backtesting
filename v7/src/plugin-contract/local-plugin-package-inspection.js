@@ -264,7 +264,7 @@ export async function inspectLocalPluginPackageEntries(entries, {
 } = {}) {
   const currentRelease = requireRelease(release);
   if (sourceKind !== 'developer-unpacked') {
-    fail('V7DK_PACKAGE_FORMAT_MISMATCH', 'Entry inspection requires a prepared Developer Mode candidate.');
+    fail('V7DK_PACKAGE_FORMAT_MISMATCH', 'Entry inspection requires a prepared unpacked candidate.');
   }
   const values = normalizeLocalPluginArchiveEntries(entries);
   const map = new Map(values.map(({ bytes, path }) => [path, bytes]));

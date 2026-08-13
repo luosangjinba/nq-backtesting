@@ -1237,10 +1237,10 @@ numbered phase at a time:
    and conformance Harness, immutable synthetic-host fixtures/simulation,
    reference workspaces, structured diagnostics/receipts, and a
    non-installable developer evidence bundle under accepted H116;
-5. **Accepted specification; P1b.3 implemented:** P1b defines transactional
-   install-from-file plus
-   Developer Mode load-unpacked, reload, and validate/pack for prepared local
-   declarative candidates, with one common manifest, integrity/source
+5. **Accepted amended specification; P1b.3 product correction implemented:**
+   P1b defines transactional install-from-file plus tooling-only inspection for
+   prepared local declarative candidates, with one common manifest,
+   integrity/source
    disclosure, migration, uninstall/data survival, restricted-mode startup,
    and a local `stdio`, workspace-bounded MCP adapter over the P1a operations.
    Installation remains distinct from activation; external code and business
@@ -1253,10 +1253,12 @@ numbered phase at a time:
    transactions and receipts, atomic IndexedDB CAS, package/profile settings,
    declarative migration, rollback/quarantine/tombstones, cleanup/restart
    recovery, and Restricted Mode, while remaining non-executing. The separately
-   authorized P1b.3 slice adds the Installed review/detail/recovery surface,
-   device-local Developer Mode, exact prepared-directory snapshots, explicit
-   load/reload/validate-pack/unload, 18 additive negative groups, and focused
-   real-browser evidence. Its human review is pending; P1b.4 MCP/H117 acceptance
+   authorized P1b.3 slice adds the Included/Installed review/detail/recovery
+   surface and focused real-browser evidence. Its post-implementation correction
+   removes the top-level Developer Mode, persistent preference, retained
+   directory handles, and development generations; exact unpacked snapshots and
+   their 18 additive security/product-absence groups remain tooling/H117
+   evidence. Its corrected human review is pending; P1b.4 MCP/H117 acceptance
    remains separately gated. Binding specification:
    `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`;
 6. P2 signed free Community registry with discovery, review metadata, explicit

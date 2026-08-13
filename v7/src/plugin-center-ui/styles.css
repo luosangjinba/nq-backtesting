@@ -64,8 +64,7 @@
 }
 
 .plugin-center-surface-panel,
-.local-plugin-installed,
-.local-plugin-developer-mode {
+.local-plugin-installed {
   min-width: 0;
 }
 
@@ -83,30 +82,25 @@
 .local-plugin-review[hidden],
 .local-plugin-recovery[hidden],
 .core-plugin-center[hidden],
-.local-plugin-installed[hidden],
-.local-plugin-developer-mode[hidden] {
+.local-plugin-installed[hidden] {
   display: none;
 }
 
-.local-plugin-review-header,
-.local-plugin-developer-header {
+.local-plugin-review-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
 }
 
-.local-plugin-warning-stack,
-.local-plugin-developer-body {
+.local-plugin-warning-stack {
   display: grid;
   gap: 10px;
 }
 
 .local-plugin-warning,
 .local-plugin-inactive-note,
-.local-plugin-recovery,
-.local-plugin-developer-marker,
-.local-plugin-developer-off {
+.local-plugin-recovery {
   padding: 12px;
   border: 1px solid #705625;
   border-radius: 9px;
@@ -116,8 +110,7 @@
 
 .local-plugin-warning,
 .local-plugin-inactive-note p,
-.local-plugin-recovery p,
-.local-plugin-developer-off p {
+.local-plugin-recovery p {
   margin: 0;
 }
 
@@ -128,8 +121,7 @@
 }
 
 .local-plugin-review-actions,
-.local-plugin-detail-actions,
-.local-plugin-developer-actions {
+.local-plugin-detail-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -154,50 +146,8 @@
   gap: 8px;
 }
 
-.local-plugin-developer-mode {
-  display: grid;
-  gap: 12px;
-  padding: 16px;
-  border: 1px solid #564225;
-  border-radius: 12px;
-  background: #15130f;
-}
-
-.local-plugin-developer-toggle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #e8d5aa;
-  font-weight: 700;
-}
-
-.local-plugin-developer-marker {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border-color: #c88928;
-  background: #2a1d0b;
-}
-
-.local-plugin-developer-marker strong {
-  color: #ffc85b;
-  letter-spacing: .08em;
-}
-
-.local-plugin-developer-card {
-  display: grid;
-  gap: 12px;
-  padding: 14px;
-  border: 1px solid #3b4654;
-  border-radius: 10px;
-  background: #121923;
-}
-
 @media (max-width: 760px) {
-  .local-plugin-review-header,
-  .local-plugin-developer-header,
-  .local-plugin-developer-marker {
+  .local-plugin-review-header {
     align-items: stretch;
     flex-direction: column;
   }

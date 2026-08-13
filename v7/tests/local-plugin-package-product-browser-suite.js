@@ -161,52 +161,17 @@ export async function runLocalPluginPackageProductBrowserSuite() {
       tab.focus();
       tab.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
     }`);
-    assert.equal(await evaluate(cdp, `document.querySelector('.plugin-center-workspace').dataset.pluginCenterSurface`), 'developer');
-    assert.equal(await evaluate(cdp, `document.activeElement.textContent`), 'Developer Mode');
-    assert.equal(await evaluate(cdp, `document.querySelector('.local-plugin-developer-mode').dataset.developerMode`), 'disabled');
-    await click(cdp, '.local-plugin-developer-toggle input');
-    await waitFor(cdp, `document.querySelector('.local-plugin-developer-mode').dataset.developerMode === 'enabled'`, 5_000);
-    assert.equal(await evaluate(cdp, `document.querySelector('.local-plugin-developer-marker').textContent.includes('DEVELOPER MODE · ON')`), true);
-
-    await evaluate(cdp, 'globalThis.__h117QueueDirectory()');
-    await click(cdp, '.local-plugin-developer-actions button');
-    await waitFor(cdp, `document.querySelectorAll('.local-plugin-developer-card').length === 1`, 8_000);
-    await waitFor(cdp, `document.activeElement.textContent === 'Load unpacked'`, 5_000);
-    const developerCopy = await evaluate(cdp, `document.querySelector('.local-plugin-developer-card').textContent`);
-    assert.ok(developerCopy.includes('developer inactive'));
-    assert.ok(developerCopy.includes('no watcher'));
-    const readCount = await evaluate(cdp, 'globalThis.__h117PluginCenterEvidence.directoryRootReads');
-    await click(cdp, '.local-plugin-developer-card .local-plugin-detail-actions button:first-child');
-    await waitFor(cdp, `globalThis.__h117PluginCenterEvidence.directoryRootReads > ${readCount}
-      && document.querySelector('.local-plugin-developer-card .local-plugin-detail-actions button:nth-child(2)').disabled === false`, 8_000);
-    assert.equal(await evaluate(cdp, `document.activeElement.textContent`), 'Reload');
-    await click(cdp, '.local-plugin-developer-card .local-plugin-detail-actions button:nth-child(2)');
-    await waitFor(cdp, `globalThis.__h117PluginCenterEvidence.packCount === 1
-      || document.querySelector('.local-plugin-developer-mode .local-plugin-feedback').dataset.kind === 'error'`, 8_000);
-    const packEvidence = await evaluate(cdp, `({
-      count: globalThis.__h117PluginCenterEvidence.packCount,
-      error: document.querySelector('.local-plugin-developer-mode .local-plugin-feedback').textContent,
-      matches: globalThis.__h117PluginCenterEvidence.packedMatchesArchive,
-    })`);
-    assert.equal(packEvidence.count, 1, packEvidence.error);
-    assert.equal(packEvidence.matches, true);
-    assert.equal(await evaluate(cdp, `document.activeElement.textContent`), 'Validate / Pack');
-    await evaluate(cdp, 'globalThis.__h117CancelNextSave()');
-    await click(cdp, '.local-plugin-developer-card .local-plugin-detail-actions button:nth-child(2)');
-    await waitFor(cdp, `document.querySelector('.local-plugin-developer-mode .local-plugin-feedback')
-      .textContent.includes('Save cancelled')`, 8_000);
-    assert.equal(await evaluate(cdp, `globalThis.__h117PluginCenterEvidence.packCount`), 1);
-    assert.equal(await evaluate(cdp, `document.activeElement.textContent`), 'Validate / Pack');
-    await click(cdp, '.local-plugin-developer-card .local-plugin-detail-actions button:last-child');
-    assert.equal(await evaluate(cdp, `document.querySelectorAll('.local-plugin-developer-card').length`), 0);
-    assert.equal(await evaluate(cdp, `document.activeElement.textContent`), 'Load unpacked');
-
-    await evaluate(cdp, 'globalThis.__h117QueueDirectory()');
-    await click(cdp, '.local-plugin-developer-actions button');
-    await waitFor(cdp, `document.querySelectorAll('.local-plugin-developer-card').length === 1`, 8_000);
-    await click(cdp, '.local-plugin-developer-toggle input');
-    await waitFor(cdp, `document.querySelector('.local-plugin-developer-mode').dataset.developerMode === 'disabled'`, 5_000);
-    assert.equal(await evaluate(cdp, `document.querySelectorAll('.local-plugin-developer-card').length`), 0);
+    assert.equal(await evaluate(cdp, `document.querySelector('.plugin-center-workspace').dataset.pluginCenterSurface`), 'core');
+    assert.equal(await evaluate(cdp, `document.activeElement.textContent`), 'Included');
+    assert.deepEqual(await evaluate(cdp, `({
+      developerText: document.querySelector('.plugin-center-workspace').textContent.includes('Developer Mode'),
+      developerSurface: document.querySelector('.local-plugin-developer-mode') !== null,
+      labels: [...document.querySelectorAll('.plugin-center-surface-tab')].map(({ textContent }) => textContent),
+    })`), {
+      developerSurface: false,
+      developerText: false,
+      labels: ['Included', 'Installed'],
+    });
 
     const accessibility = await evaluate(cdp, `(() => ({
       blankButtons: [...document.querySelectorAll('button')].filter((button) =>
@@ -221,7 +186,7 @@ export async function runLocalPluginPackageProductBrowserSuite() {
     }))()`);
     assert.deepEqual(accessibility, {
       blankButtons: 0, duplicateIds: 0, liveRegion: 'polite',
-      reviewLabel: 'Local package install review', tabList: 'tablist', tabPanels: 3,
+      reviewLabel: 'Local package install review', tabList: 'tablist', tabPanels: 2,
     });
     await cdp.send('Emulation.setEmulatedMedia', {
       features: [{ name: 'prefers-reduced-motion', value: 'reduce' }],
@@ -241,12 +206,11 @@ export async function runLocalPluginPackageProductBrowserSuite() {
     return Object.freeze({
       accessibility,
       archiveReviewCancelCommitFailure: true,
-      developerLoadReloadPackUnload: true,
       focusReturn: true,
       indexedDbRevision: 3,
       narrow,
+      productionDeveloperSurfaceAbsent: true,
       restrictedRecovery: true,
-      saveCancellationNoWrite: true,
       settingsApplyReset: true,
       screenshotBytes: Buffer.from(screenshot.data, 'base64').length,
       tabLayout,

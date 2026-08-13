@@ -1,9 +1,9 @@
 # V7 Local Plugin Packages And Authoring MCP — P1b Accepted Specification
 
-Status: accepted binding specification 2026-08-11; P1b.1–P1b.3 separately
-authorized and implemented by 2026-08-12; H117 executable with 54 frozen
-negative groups and product-browser evidence, focused human review pending,
-not accepted
+Status: accepted binding specification 2026-08-11, amended 2026-08-12 to remove
+the top-level production Developer Mode; P1b.1–P1b.3 separately authorized and
+implemented; H117 executable with 54 frozen negative groups and corrected
+two-surface product-browser evidence, focused human review pending, not accepted
 
 Date: 2026-08-11
 
@@ -19,6 +19,34 @@ P1b.2 implementation record:
 P1b.3 implementation record:
 `../sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md`
 
+P1b.3 product-correction record:
+`../sessions/session_20260812_p1b_3_developer_mode_surface_removal.md`
+
+## 2026-08-12 Binding Product-Surface Amendment
+
+After implementation, the product owner accepted the recommendation to remove
+Developer Mode as a top-level production surface. P1a already owns source
+validate/build/test/preview/pack; Installed owns meaningful package admission;
+and P1b authorizes no external runtime with which browser Reload could provide a
+live feedback loop. The extra mode, persistent preference, retained directory
+handles, and session generation lifecycle therefore added no unique product
+outcome.
+
+This amendment supersedes every original requirement below for a production
+Developer Mode tab, toggle, Load unpacked, Reload, Validate/Pack, Unload,
+preference, retained directory handle, or `developer-inactive` generation. The
+production Plugin Center contains exactly Included and Installed. Its browser
+adapter selects and inspects only `.v7plugin` archive snapshots.
+
+The security boundary is retained, not weakened: the pure unpacked-entry
+inspector remains in `core.plugin-contract`, and strict directory double-
+snapshot/path/symlink/special-file/resource/cancellation/receipt checks remain
+tooling-only H117 evidence. The stable internal source kind
+`developer-unpacked` records artifact provenance; it does not name or authorize
+a product mode. A visible developer surface may return only under a separately
+reviewed specification when a safe external preview runtime or demonstrated
+browser-only workflow creates a distinct user outcome.
+
 Depends on:
 
 - `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` (`ADR-V7-004`);
@@ -30,9 +58,9 @@ Depends on:
 
 P1b defines the first local package-admission layer above the accepted P1a
 Developer Kit. It gives a user a transactional **Install from file** workflow,
-a visibly separate **Developer Mode** for an unpacked candidate directory, and
-a local workspace-bounded MCP adapter over the existing P1a authoring
-operations.
+an honest Installed inventory/recovery surface, and a local workspace-bounded
+MCP adapter over the existing P1a authoring operations. Prepared unpacked
+candidates remain Developer Kit artifacts rather than a production mode.
 
 P1b does not authorize external package code to execute. In this phase,
 installation means that verified immutable package bytes, metadata, settings,
@@ -104,7 +132,9 @@ inventory transaction owner, atomic browser storage, migration, quarantine,
 tombstone, and recovery slice. The product owner then instructed
 `授权 P1b.3 Plugin Center 与 Developer Mode。` on 2026-08-12, authorizing only
 the host-rendered local-package product surface, browser adapter, and its
-additive H117 evidence. P1b.1–P1b.3 are implemented. None of these
+additive H117 evidence. After reviewing the implemented mode, the owner accepted
+the recommendation to remove that top-level surface and proceed with the
+bounded P1b.3 correction. P1b.1–P1b.3 are implemented as amended. None of these
 instructions authorizes P1b.4 MCP/H117 closure.
 
 A separately authorized P1b implementation may include only:
@@ -115,10 +145,11 @@ A separately authorized P1b implementation may include only:
   plugin-contract boundary rather than creating a second plugin API;
 - one device-local transactional package inventory owner with immutable
   generations, exact-revision commands, recovery, quarantine, and rollback;
-- Install from file, Installed, and Developer Mode host-rendered Plugin Center
-  surfaces for local packages;
-- load/reload of an explicit unpacked **candidate output directory**, not
-  automatic execution of a source workspace;
+- Included, Install from file, and Installed host-rendered Plugin Center
+  surfaces, with Core/local trust kept visibly separate;
+- tooling-only inspection of an explicit unpacked **candidate output
+  directory**, never automatic execution of a source workspace or a production
+  directory-picker lifecycle;
 - declarative settings migration, uninstall/data-survival, and restricted-mode
   behavior;
 - one local `stdio` MCP adapter exposing the eight existing P1a authoring
@@ -142,8 +173,7 @@ P1b explicitly excludes:
   package-store, Plugin Center, or ModuleHost operations;
 - MA/SMA, Fibonacci, a detector, a new Semantic package, a new drawing, a
   product Setup workflow, R13.11–R13.13, P2, P3a, P3b, or P4 behavior;
-- cross-device replication of package bytes, trust choices, Developer Mode, or
-  local inventory.
+- cross-device replication of package bytes, trust choices, or local inventory.
 
 No new package, installed row, control, storage record, MCP server, schema,
 Harness entry, or production code may be created from specification acceptance
@@ -164,10 +194,12 @@ The product owner explicitly accepted these five material choices on
 3. **Local inventory has one new owner.** A device-local package-store runtime
    owns bytes and transactions; it does not absorb the Core profile, ModuleHost,
    domain evidence, or application lifecycle.
-4. **Developer Mode loads prepared candidates.** Source editing, compilation,
-   isolated tests, and preview stay in the P1a CLI/library operation engine,
-   reached through CLI or the P1b MCP adapter. The browser reads an
-   unpacked candidate output and current receipts without evaluating code.
+4. **Prepared candidates stay authoring/tool artifacts.** The original accepted
+   design placed their non-executing inspection behind a production Developer
+   Mode. The 2026-08-12 amendment removes that surface: source editing,
+   compilation, isolated tests, preview, pack, and unpacked inspection stay in
+   the P1a/Developer Kit boundary. Production admits only a separately selected
+   `.v7plugin` archive after explicit review.
 5. **MCP is authoring-only.** It uses local `stdio`, one startup-allowlisted
    workspace, and the canonical P1a engine. It cannot perform package lifecycle
    actions even when an agent asks.
@@ -349,7 +381,8 @@ The package-candidate receipt binds:
 `pack` operation v2 with explicit `outputKind: "unpacked-local-candidate"` or
 `"local-install-archive"` plus profile selection; output kind is never inferred
 from a filename. The first form creates the exact prepared directory consumed
-by Developer Mode, and the second encodes the same canonical layout as ustar.
+by Developer Kit/tooling inspection, and the second encodes the same canonical
+layout as ustar.
 Both refuse when required P1a receipts are absent, stale, blocked, or tied to
 different bytes. A `.v7dk.tar` file is rejected by Install from file even if
 renamed to `.v7plugin`.
@@ -368,11 +401,12 @@ storage; only the store's immutable commit writes durable bytes.
 
 ## One Candidate Pipeline
 
-Local archive and unpacked Developer Mode sources enter the same non-executing
-pipeline:
+Local archive admission and tooling-only unpacked inspection share the same pure
+non-executing validation boundary. Only the archive path can continue into the
+production transaction:
 
 ```text
-selected bytes/directory snapshot
+selected archive bytes
         |
         v
 strict archive/layout parser
@@ -398,8 +432,9 @@ installed-inactive inventory OR quarantined diagnostic
 
 No step imports ESM, constructs a module descriptor, calls a package callback,
 starts ModuleHost, mutates the Core profile, or publishes a domain capability.
-Developer Mode stops before durable install unless the user separately packs
-an archive and completes Install from file.
+Tooling-only unpacked inspection stops before the product boundary. To install,
+the user separately packs an archive, selects it through Install from file, and
+completes the ordinary review/transaction.
 
 The pure planner returns a portable candidate result containing candidate
 digest, source/trust, compatibility, current/prior version, dependency impact,
@@ -430,8 +465,8 @@ function, owner handle, DOM node, native browser handle, absolute host path, or
 ModuleHost descriptor.
 
 The inventory is device-local and excluded from Server State Sync. Package
-bytes, trust choices, Developer Mode state, pending transactions, and local
-paths never replicate. Host-owned Session/Replay/Annotation/Journal data keeps
+bytes, trust choices, pending transactions, and local paths never replicate.
+Host-owned Session/Replay/Annotation/Journal data keeps
 its existing synchronization and ownership rules. A later cross-device package
 policy must resolve device inventory and compatibility before it can be
 specified; it cannot add P1b keys to the current allowlist silently.
@@ -541,7 +576,7 @@ future operation and is not implied by uninstall.
 P1b local packages use honest non-executing states:
 
 ```text
-candidate | installed-inactive | developer-inactive | incompatible |
+candidate | installed-inactive | incompatible |
 quarantined | migration-blocked | removed
 ```
 
@@ -565,49 +600,31 @@ recovery actions. Because P1b external packages never execute, Restricted Mode
 is also a durable forward contract for P2/P3 rather than a claim that P1b code
 was sandboxed.
 
-## Developer Mode
+## Unpacked Candidate Inspection — Tooling Only
 
-Developer Mode is explicit, device-local, off by default, visually persistent
-while enabled, and never synchronized. Enabling it does not trust a publisher,
-grant permissions, or enable production execution.
+An **Unpacked Candidate Directory** is an explicit P1a/P1b output, not a source
+workspace or production package state. The tooling adapter double-snapshots only
+bounded regular files, rejects unsafe/NFC-invalid paths, prefix collisions,
+symlinks, special files, resource excess, cancellation, changed snapshots, and
+stale receipts, then delegates to the same pure contract entry inspector used
+by archive inspection.
 
-`Load unpacked` selects one **Unpacked Candidate Directory**, snapshots only
-the allowlisted candidate layout, validates it through the same package
-contract, and records a session-scoped `developer-inactive` generation. It
-does not select an arbitrary source repository, follow symlinks, retain an
-unbounded filesystem handle, execute emitted code, install bytes, or enter the
-Core profile. Closing Developer Mode unloads every development generation.
-
-`Reload` rereads the exact selected candidate root after an explicit user
-action, builds a new snapshot digest, and atomically replaces the prior
-development snapshot only if validation passes. Failure leaves the prior
-snapshot visible and inactive with diagnostics. There is no watcher, automatic
-reload, background polling, or reload triggered by package content.
-
-`Validate/Pack` statically verifies the prepared layout and current receipts
-and can encode `.v7plugin` through `pack` v2. Source compilation, isolated
-fixture execution, and preview remain work of the P1a CLI/library operation
-engine, reached through CLI or the P1b MCP adapter; the browser does
-not duplicate the compiler/Harness or evaluate candidate code. A stale or
-missing P1a receipt blocks packing and presents the exact operation request
-needed to refresh it.
-
-Developer Mode and Install from file are separate actions. Packing does not
-install. Installing a packed development candidate requires leaving the
-development transaction, selecting the resulting archive, reviewing the
-host-issued unverified-local source/trust record, and explicitly confirming
-the normal package-store transaction.
+The call retains no directory handle or generation after it settles. It has no
+preference, watcher, automatic reload, background polling, install command,
+package-store reference, code evaluation, ModuleHost descriptor, or production
+DOM. Pack remains an explicit P1a Developer Kit operation. Installing its
+`.v7plugin` result always requires the independent host-owned Install from file
+review and transaction.
 
 ## Plugin Center Surface
 
 P1b extends the host-owned Plugin Center without adding package DOM:
 
-- **Installed** lists built-in Core rows plus local installed/quarantined rows
-  with an explicit source filter; Core controls remain governed by P0b;
+- **Included** remains the P0b Core-only surface;
+- **Installed** lists local installed/quarantined rows and recovery state,
+  visibly separate from Core trust;
 - **Install from file** opens a host file picker for one `.v7plugin`, then a
   review surface before any package-store write;
-- **Developer Mode** exposes its opt-in warning, Load unpacked, Reload,
-  Validate/Pack, diagnostics, exact snapshot digest, and unload actions;
 - package details disclose identity, self-asserted publisher, local source,
   digest, signature-not-applicable state, compatibility, unavailable execution,
   settings, migrations, retention, prior generation, and recovery state;
@@ -621,8 +638,9 @@ not load package icons, remote images, HTML, CSS, or links automatically.
 
 The visible implementation requires keyboard, focus-return, screen-reader,
 contrast, narrow-window, cancellation, stale-result, progress, error, and
-reduced-motion evidence. File/directory picker cancellation is a no-op, not an
-error or partial transaction.
+reduced-motion evidence. File-picker cancellation is a no-op, not an error or
+partial transaction. The surface must also prove that no Developer Mode label,
+toggle, directory action, or development-generation DOM exists.
 
 ## Owner And Module Boundaries
 
@@ -645,11 +663,12 @@ adapter.plugin-package-storage
   never owns: candidate validity, migrations, recovery policy, or status
 
 adapter.plugin-center-ui
-  extends: Installed/Install from file/Developer Mode DOM and local drafts
+  extends: Included/Installed/Install from file DOM and local review drafts
   never owns: archive parsing, inventory truth, compatibility, or lifecycle
 
 v7/tools/plugin-developer-kit
-  extends: pack v2 plus the canonical authoring operation implementation
+  extends: pack v2, canonical authoring operations, and tooling-only unpacked
+           candidate inspection/security checks
   remains outside: the production owner graph
 
 v7/tools/plugin-developer-kit/mcp
@@ -742,12 +761,13 @@ catalog must distinguish at least:
 - stale inventory/candidate/confirmation/receipt and concurrent transaction;
 - storage quota/read/write/commit/recovery failure;
 - quarantined, restricted-mode, or retained-data state;
-- Developer Mode disabled, invalid directory, stale snapshot, or blocked pack;
+- removed production developer ports, invalid unpacked directory, unsafe path,
+  cancelled/stale snapshot, or stale candidate receipt;
 - MCP root unavailable/changed/escaped, unsupported client capability,
   cancelled operation, malformed tool call, or forbidden lifecycle request.
 
-Every prepare, commit, rollback, quarantine, uninstall, Developer Mode, and MCP
-operation returns a stable portable result. Receipts bind content and decisions
+Every prepare, commit, rollback, quarantine, uninstall, unpacked tooling
+inspection, and MCP operation returns a stable portable result. Receipts bind content and decisions
 but do not contain host paths or secrets. Install receipts record explicit user
 confirmation and committed inventory revision as host facts; they still deny
 activation, publisher trust, signature, and production execution.
@@ -757,8 +777,8 @@ activation, publisher trust, signature, and production execution.
 H117 is allocated in `v7-harness-rules.json` as `executable`, not `accepted`.
 P1b.1 freezes 18 Package Contract And Archive negative groups. P1b.2 adds 18
 transaction/migration/recovery groups plus real-Chromium IndexedDB atomicity,
-durability, and CAS evidence. P1b.3 adds 18 Developer Mode selection/snapshot/
-reload/cancellation groups and real-Chromium product evidence, for 54 groups
+durability, and CAS evidence. P1b.3 retains 18 product/browser and unpacked-
+candidate security groups plus corrected real-Chromium evidence, for 54 groups
 total. Its focused human checklist is prepared but remains pending. P1b.4 must
 add the MCP controls, complete the standing evidence, and may not reinterpret
 or prematurely accept H117.
@@ -793,13 +813,15 @@ or prematurely accept H117.
 - corrupt inventory, digest mismatch, unknown schema, and repeated recovery
   failure enter Restricted Mode while Kernel/P0b remains usable.
 
-### Developer Mode
+### Two-Surface Product And Unpacked Security
 
-- Developer Mode is off by default, device-local, visually marked, and unloads
-  every development generation when disabled;
-- load/reload/validate-pack accepts only a prepared candidate directory,
-  rejects path/symlink/special-file/stale-receipt attacks, never watches or
-  executes code, and never installs automatically;
+- production Plugin Center exposes exactly Included and Installed; its browser
+  adapter has no developer preference, directory/save port, retained handle,
+  generation, reload, or pack API, and rejects deprecated ports fail-closed;
+- tooling-only unpacked inspection accepts only a prepared candidate directory,
+  rejects path/NFC/symlink/special-file/resource/cancellation/stale-snapshot/
+  stale-receipt attacks, retains no handle, never watches or executes code, and
+  never installs automatically;
 
 ### MCP — P1b.4 Pending
 
@@ -817,11 +839,13 @@ or prematurely accept H117.
 ### Product, Architecture, And Regression
 
 - real Chromium proves Install from file review/cancel/commit/failure,
-  Installed detail/status, Developer Mode load/reload/unload, restricted-mode
-  diagnostics, focus/keyboard/accessibility, and narrow-window behavior;
+  Installed detail/status, the absence of a Developer Mode surface,
+  restricted-mode diagnostics, focus/keyboard/accessibility, compact two-tab
+  layout, and narrow-window behavior;
 - the prepared focused human gate must accept the visible source/trust/
   integrity warnings, inactive-status honesty, confirmations, recovery, and
-  Developer Mode marker before that evidence is recorded;
+  minimal Included/Installed information architecture before that evidence is
+  recorded;
 - production architecture proves one package store, one Core profile owner,
   one ModuleHost, zero external descriptors, zero external imports/evaluation,
   and no new owner write outside declared surfaces;
@@ -850,9 +874,11 @@ committed in this order:
 2. **P1b.2 — Inventory transaction owner:** package-store domain/runtime,
    atomic browser-storage adapter, migrations, quarantine, tombstones,
    restricted-mode recovery; no package execution.
-3. **P1b.3 — Plugin Center and Developer Mode:** Installed/Install from file,
-   review/confirmation/recovery surfaces, prepared-directory load/reload/
-   validate-pack, browser automation and focused human gate.
+3. **P1b.3 — Two-surface Plugin Center:** Included/Installed/Install from file,
+   review/confirmation/recovery surfaces, archive-only browser adapter, tooling-
+   only unpacked security inspection, browser automation, and focused human
+   gate. The initially implemented Developer Mode was removed by the binding
+   2026-08-12 product amendment.
 4. **P1b.4 — Authoring MCP and H117 closure:** local `stdio` adapter over P1a,
    root/cancellation/security controls, Library/CLI/MCP equivalence, complete
    H117 and standing regression evidence.
@@ -873,9 +899,9 @@ Current state after the separately authorized P1b.3 implementation:
   accepted;
 - this P1b document is the accepted binding specification;
 - H117 is `executable` with 18 frozen P1b.1 contract/archive groups, 18 frozen
-  P1b.2 transaction/recovery groups, 18 frozen P1b.3 Developer Mode groups,
-  real-Chromium IndexedDB/product evidence, and a pending focused-human
-  checklist; it deliberately has no acceptance evidence yet;
+  P1b.2 transaction/recovery groups, 18 frozen P1b.3 two-surface/unpacked-
+  security groups, real-Chromium IndexedDB/product evidence, and a pending
+  focused-human checklist; it deliberately has no acceptance evidence yet;
 - Manifest V2, `local-declarative-package-v1`, 22 schemas, 10 catalogs,
   explicit pack/inspect v2, deterministic `.v7plugin`, prepared candidate
   layout, portable candidate receipts, and strict in-memory inspection exist;
@@ -884,13 +910,15 @@ Current state after the separately authorized P1b.3 implementation:
   tombstones, startup recovery, and Restricted Mode;
 - `adapter.plugin-package-storage` owns one dedicated atomic IndexedDB database
   with multi-record CAS; package inventory remains outside Server State Sync;
-- `adapter.plugin-center-ui` now composes Included, Installed, install review,
-  Restricted Mode recovery, and visibly marked Developer Mode surfaces from
-  immutable owner snapshots and explicit commands;
-- its browser adapter owns only native file/directory handles, a device-local
-  mode preference, strict double snapshots, and session-scoped
-  `developer-inactive` generations; load/reload/validate-pack never watches,
-  evaluates, installs, activates, or synchronizes package code;
+- `adapter.plugin-center-ui` composes exactly Included, Installed, install
+  review, and Restricted Mode recovery from immutable owner snapshots and
+  explicit commands;
+- its browser adapter owns only one explicitly selected archive snapshot and
+  retains no native directory handle, mode preference, development generation,
+  reload, or pack lifecycle;
+- strict unpacked directory/entry inspection remains tooling-only security
+  evidence and never watches, evaluates, installs, activates, synchronizes, or
+  creates a production descriptor;
 - no MCP server, declarative business runtime, external descriptor,
   import/evaluation, or activation path exists;
 - P2 registry, P3a Worker, P3b Pine migration, P4 Marketplace, and new business

@@ -1,4 +1,4 @@
-/** Stable UI-adapter error for picker, directory-snapshot, and Developer Mode failures. */
+/** Stable UI-adapter error for local package archive-picker failures. */
 export class LocalPluginPackageBrowserError extends Error {
   constructor(code, message, options = {}) {
     super(message, options);

@@ -16,7 +16,7 @@
   },
   "sources": ["local-archive", "developer-unpacked"],
   "trust": ["unverified-local", "developer-local"],
-  "states": ["candidate", "installed-inactive", "developer-inactive", "incompatible", "quarantined", "migration-blocked", "removed"],
+  "states": ["candidate", "installed-inactive", "incompatible", "quarantined", "migration-blocked", "removed"],
   "outputKinds": ["unpacked-local-candidate", "local-install-archive"],
   "productionExecutionTarget": null,
   "automaticUpdate": false,

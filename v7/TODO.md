@@ -62,9 +62,9 @@ Open discussion:
   relationships and prohibit private imports or direct feature control;
 - [x] bind an Obsidian-like host-rendered Plugin Center with separate Core,
   Community, Installed, Updates, and local-install concepts;
-- [x] bind registry archive, local archive, and Developer Mode unpacked sources
-  to one non-executing validation/staging pipeline and retain ModuleHost as the
-  sole activation/disposal owner;
+- [x] bind registry/local archives and tooling-only unpacked candidates to one
+  non-executing validation contract, while retaining ModuleHost as the sole
+  activation/disposal owner and no unpacked source as a production mode;
 - [x] standardize contribution parameter surfaces as host-rendered Inputs,
   Style, Visibility, and applicable Evidence/History tabs with package,
   profile/default, and instance scopes;
@@ -667,7 +667,7 @@ Binding contract and rationale:
 `docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` and
 `docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`.
 
-## P1b Local Plugin Packages And Authoring MCP — P1b.3 Implemented 2026-08-12
+## P1b Local Plugin Packages And Authoring MCP — P1b.3 Product Correction Implemented 2026-08-12
 
 - [x] receive authorization to correct stale P1a status language and draft,
   but not implement, the next Plugin Platform contract;
@@ -765,9 +765,21 @@ Binding contract and rationale:
   owns validate/build/test/preview/pack, Installed owns archive admission, and
   P1b cannot execute or preview external packages, so a persistent top-level
   mode has no unique current product value;
-- [ ] receive explicit product-owner direction to retain, relocate, or remove
+- [x] receive explicit product-owner acceptance of the recommendation to remove
   the top-level Developer Mode surface before final P1b.3 visible acceptance;
-  preserve strict unpacked-candidate inspection/security evidence meanwhile;
+- [x] remove the production Developer Mode tab/control, persistent preference,
+  retained directory/save handles, development generations, reload/pack
+  lifecycle, public export, styles, and application wiring;
+- [x] narrow the production browser adapter to one explicit `.v7plugin` picker
+  snapshot and reject deprecated developer ports fail-closed;
+- [x] retain strict unpacked-candidate entry/directory inspection as tooling-only
+  security evidence with no product mode, handle retention, install, evaluation,
+  activation, watcher, synchronization, or ModuleHost descriptor;
+- [x] rebaseline H117's third 18 frozen groups and real-Chromium fixture to prove
+  the two-tab Included/Installed surface, developer-surface absence, archive-only
+  production adapter, and unpacked candidate path/receipt controls;
+- [ ] record the corrected focused P1b.3 human-review result before treating the
+  visible gate as closed;
 - [ ] require separate authorization before P1b.4 MCP or H117 acceptance work;
 - [x] keep P2 registry, P3a Worker, P3b Pine migration, P4 Marketplace, new
   business plugins, and R13.11–R13.13 outside P1b.
@@ -1474,8 +1486,8 @@ Binding ES full-chain repair:
 - [x] P1a implementation: after accepted specification, require a separate
   product-owner instruction before implementing the bounded Developer Kit and
   H116 without install/activation or production external-code execution;
-- [x] P1b specification: define and accept local declarative install-from-file
-  plus Developer Mode load-unpacked/reload/validate-pack, transactional
+- [x] P1b specification: define and accept local declarative install-from-file,
+  tooling-only unpacked inspection (after the accepted surface amendment), transactional
   lifecycle, integrity/source disclosure, migration, uninstall/data survival,
   restricted-mode startup, and a workspace-bounded MCP adapter over P1a rather
   than a second toolchain;
@@ -1489,11 +1501,12 @@ Binding ES full-chain repair:
   implement only package inventory transactions, atomic browser storage,
   declarative migration/settings, retention, recovery, and the additive H117
   transaction/browser-storage evidence;
-- [x] P1b.3 implementation: after its separate product-owner instruction,
-  implement only Plugin Center local-package review/inventory/recovery,
-  Developer Mode prepared-candidate load/reload/validate-pack, 18 additive
-  negative groups, product-browser automation, and a pending focused-human
-  review gate;
+- [x] P1b.3 implementation and correction: after separate product-owner
+  instructions, implement Plugin Center local-package review/inventory/recovery,
+  then remove the no-unique-outcome Developer Mode and retain its strict
+  prepared-candidate checks as tooling-only evidence; preserve 18 additive
+  negative groups, corrected product-browser automation, and a pending focused-
+  human review gate;
 - [ ] P1b.4: require a new product-owner instruction before the authoring MCP
   adapter or H117 acceptance;
 - [ ] P2/P3a: separately prove a signed free Community registry/restricted mode
@@ -1610,7 +1623,7 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 499 files, 44,187 effective lines, 4,604 functions, and 462 public exports; the architecture baseline
+The current production source baseline contains 497 files, 43,718 effective lines, 4,546 functions, and 461 public exports; the architecture baseline
 contains 68 modules, 150 edges, 133 construction sites, 27 writers, and zero
 findings.
 
@@ -1622,7 +1635,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 499 files, 44,187 effective lines, 4,604 functions, and 462 public exports, 68 modules, 150 edges, 133 construction sites, 27 writers, and zero
+currently at 497 files, 43,718 effective lines, 4,546 functions, and 461 public exports, 68 modules, 150 edges, 133 construction sites, 27 writers, and zero
 findings.
 
 ## Established Foundation Governance

@@ -211,6 +211,10 @@
     {
       "path": "sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md",
       "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260812_p1b_3_developer_mode_surface_removal.md",
+      "expectedOccurrences": 1
     }
   ],
   "sizeExceptions": [],

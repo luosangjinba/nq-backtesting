@@ -2607,9 +2607,9 @@
     },
     {
       "id": "H117",
-      "name": "local-declarative-package-transactional-inventory-plugin-center-and-developer-mode",
+      "name": "local-declarative-package-transactional-inventory-two-surface-plugin-center-and-unpacked-security",
       "owner": "plugin-contract/plugin-package-store/plugin-package-storage/plugin-center-ui/session-application/plugin-sdk/plugin-developer-kit/conformance-harness",
-      "v6FailurePrevented": "developer evidence masqueraded as install input, local metadata forged Core trust or execution, archive parsing extracted or evaluated payload, stale receipts admitted changed bytes, output kind followed a filename, package lifecycle semantics arrived without a pure contract boundary, interrupted package writes exposed a mixed generation and damaged retained user data, host UI blurred Core/local trust, or Developer Mode watched/executed source and retained stale generations",
+      "v6FailurePrevented": "developer evidence masqueraded as install input, local metadata forged Core trust or execution, archive parsing extracted or evaluated payload, stale receipts admitted changed bytes, output kind followed a filename, package lifecycle semantics arrived without a pure contract boundary, interrupted package writes exposed a mixed generation and damaged retained user data, host UI blurred Core/local trust, or an unnecessary production developer surface retained directory handles or implied execution authority",
       "activationStep": "P1b.3",
       "state": "executable",
       "harness": "tests/local-plugin-package-harness.js",
@@ -2639,19 +2639,18 @@
         "src/plugin-center-ui/plugin-center-workspace-control.js",
         "src/plugin-center-ui/local-package-installed-control.js",
         "src/plugin-center-ui/local-package-browser-adapter.js",
-        "src/plugin-center-ui/local-package-directory-snapshot.js",
-        "src/plugin-center-ui/developer-mode-control.js",
         "src/session-application/application-resources.js",
         "sdk/plugin/catalogs/local-packages.json",
         "sdk/plugin/examples/local-lifecycle-v1/v7-plugin-kit.json",
         "tools/plugin-developer-kit/adapters/local-package.js",
         "tools/plugin-developer-kit/adapters/local-package-inspection.js",
+        "tools/plugin-developer-kit/adapters/unpacked-candidate-inspection.js",
         "tools/plugin-developer-kit/adapters/output-io.js",
         "tools/plugin-developer-kit/domain/local-package-receipt.js",
         "tests/local-plugin-package-harness.js",
         "tests/local-plugin-package-storage-browser-suite.js",
         "tests/local-plugin-package-transaction-suite.js",
-        "tests/local-plugin-package-developer-suite.js",
+        "tests/local-plugin-package-unpacked-security-suite.js",
         "tests/local-plugin-package-product-browser-suite.js",
         "tests/fixtures/local-plugin-package/storage-browser/main.js",
         "tests/fixtures/local-plugin-package/product-browser/index.html",
@@ -2659,12 +2658,13 @@
         "docs/V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md",
         "scripts/review-local-plugin-package-p1b3.mjs",
         "sessions/session_20260812_p1b_2_inventory_transaction_implementation.md",
-        "sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md"
+        "sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md",
+        "sessions/session_20260812_p1b_3_developer_mode_surface_removal.md"
       ],
       "negativeFixtures": [
         "tests/fixtures/local-plugin-package/negative/cases.json",
         "tests/fixtures/local-plugin-package/transaction-negative/cases.json",
-        "tests/fixtures/local-plugin-package/developer-negative/cases.json"
+        "tests/fixtures/local-plugin-package/unpacked-security-negative/cases.json"
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": null

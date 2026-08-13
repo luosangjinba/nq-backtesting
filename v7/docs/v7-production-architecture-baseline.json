@@ -4479,21 +4479,8 @@
         "importSites": [
           {
             "importedNames": [
-              "LOCAL_PLUGIN_ARCHIVE_LIMITS"
-            ],
-            "sourceFile": "src/plugin-center-ui/local-package-directory-snapshot.js",
-            "targetFile": "src/plugin-contract/public.js",
-            "targetModuleId": "core.plugin-contract",
-            "throughPublicEntry": true
-          },
-          {
-            "importedNames": [
               "MAX_LOCAL_PLUGIN_ARCHIVE_BYTES",
-              "inspectLocalPluginPackageArchive",
-              "inspectLocalPluginPackageEntries",
-              "packLocalPluginPackageEntries",
-              "readLocalPluginPackageCandidatePlan",
-              "readLocalPluginPackageManifest"
+              "inspectLocalPluginPackageArchive"
             ],
             "sourceFile": "src/plugin-center-ui/local-package-browser-adapter.js",
             "targetFile": "src/plugin-contract/public.js",
@@ -4505,7 +4492,6 @@
         "independentHarnessMode": "public-entry-fixture",
         "kind": "adapter",
         "observedDisposeSites": [
-          "src/plugin-center-ui/developer-mode-control.js",
           "src/plugin-center-ui/local-package-browser-adapter.js",
           "src/plugin-center-ui/local-package-installed-control.js",
           "src/plugin-center-ui/plugin-center-control.js",

@@ -129,20 +129,23 @@ accepted under `V7_CORE_PLUGIN_CENTER_P0B.md`. The P1a authoring
 contract in `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md` is implemented and
 accepted under H116; its Chinese design rationale is preserved in
 `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`. The P1b local
-package/Developer Mode/authoring MCP contract is accepted in
+package/authoring MCP contract is accepted and amended in
 `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`. Its separately authorized
 P1b.1 contract/archive, P1b.2 transaction/storage, and P1b.3 Plugin Center/
-Developer Mode slices are implemented: Manifest V2, deterministic `.v7plugin`,
+product-correction slices are implemented: Manifest V2, deterministic `.v7plugin`,
 portable candidate receipts, the sole inactive package inventory owner, atomic
 IndexedDB CAS, declarative settings migration/retention/recovery, explicit
-install review, and prepared-directory load/reload/validate-pack. H117 is
-executable with 54 frozen negative groups and product-browser evidence; its
-focused human review and separately authorized P1b.4 MCP/closure remain open.
+install review, a two-surface Included/Installed Center, archive-only production
+browser adapter, and tooling-only unpacked security inspection. H117 is
+executable with 54 frozen negative groups and corrected product-browser
+evidence; its focused human review and separately authorized P1b.4 MCP/closure
+remain open.
 `V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md` is the bounded review checklist.
 Its compact-tab correction and post-implementation recommendation not to keep
 Developer Mode as a top-level production surface are recorded in
 `../sessions/session_20260812_p1b_3_tab_layout_and_developer_mode_review.md`;
-surface removal or relocation still requires explicit product-owner direction.
+the accepted removal is implemented and recorded in
+`../sessions/session_20260812_p1b_3_developer_mode_surface_removal.md`.
 The accepted post-milestone foundation is
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
 market-coordinate geometry, generic drawings, typed semantic artifacts,
@@ -266,15 +269,16 @@ boundaries, requested the plain-language reasoning be retained for future
 maintainers, and separately authorized the bounded P1a implementation.
 `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md` is the subsequent accepted
 specification. It defines a distinct `.v7plugin` archive, non-executing device-
-local inventory transactions, prepared-candidate Developer Mode, declarative
+local inventory transactions, tooling-only prepared-candidate inspection, declarative
 settings migration/data survival, Restricted Mode, and a local `stdio` MCP
 adapter over P1a's eight operations. The product owner accepted all five
 material decisions on 2026-08-11. Separately authorized P1b.1–P1b.3 now
 register H117 as executable and implement 22 schemas, 10 catalogs, pure
 Manifest/candidate/change/migration contracts, deterministic `.v7plugin`
 pack/inspect, portable receipts, a sole package-store runtime, atomic
-IndexedDB, separate Installed/Developer Mode surfaces, a strict browser
-candidate adapter, and 54 negative groups. They add no MCP server, activation,
+IndexedDB, separate Included/Installed surfaces, an archive-only browser
+adapter, tooling-only unpacked security checks, and 54 negative groups. They add
+no MCP server, activation,
 external import/evaluation, or business contribution; H117 remains unaccepted
 pending focused P1b.3 human review and the complete P1b.4 gate.
 The completed NQ historical-roll sequence is recorded in
@@ -405,8 +409,9 @@ Read in this order before V7 implementation work:
      non-normative Chinese explanation of P1a's motivations, four accepted
      material boundaries, authoring flow, isolation, and phase separation
 98e. `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md` as the accepted binding
-     P1b specification for local inactive-package admission, transactional
-     inventory/recovery, prepared-candidate Developer Mode, and a bounded
+     amended P1b specification for local inactive-package admission,
+     transactional inventory/recovery, tooling-only prepared-candidate
+     inspection, and a bounded
      authoring MCP adapter; do not treat specification acceptance as
      implementation authorization
 99. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,

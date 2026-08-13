@@ -1,9 +1,8 @@
 import { element } from './dom-primitives.js';
 import { createCorePluginCenterControl } from './plugin-center-control.js';
-import { createDeveloperModeControl } from './developer-mode-control.js';
 import { createLocalPluginInstalledControl } from './local-package-installed-control.js';
 
-/** Compose Core, Installed, and Developer Mode as separate host-owned Plugin Center surfaces. */
+/** Compose Included and Installed as separate host-owned Plugin Center surfaces. */
 export function createPluginCenterWorkspaceControl({
   browser,
   confirmDependencyImpact,
@@ -18,7 +17,6 @@ export function createPluginCenterWorkspaceControl({
   const installed = createLocalPluginInstalledControl({
     browser, confirmPlan, idFactory, onExportDiagnostics, store,
   });
-  const developer = createDeveloperModeControl({ browser });
   const root = element('section', { className: 'plugin-center-workspace' });
   const tabList = element('div', { className: 'plugin-center-surface-tabs' });
   tabList.setAttribute('aria-label', 'Plugin Center sections');
@@ -27,7 +25,6 @@ export function createPluginCenterWorkspaceControl({
   const surfaces = new Map([
     ['core', { control: core, label: 'Included' }],
     ['installed', { control: installed, label: 'Installed' }],
-    ['developer', { control: developer, label: 'Developer Mode' }],
   ]);
   let active = 'core';
 
@@ -67,7 +64,7 @@ export function createPluginCenterWorkspaceControl({
   select(active);
   return Object.freeze({
     dispose() {
-      core.dispose(); installed.dispose(); developer.dispose(); root.remove();
+      core.dispose(); installed.dispose(); root.remove();
     },
     focus() { surfaces.get(active).control.focus(); },
     root,

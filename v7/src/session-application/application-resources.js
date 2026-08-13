@@ -116,7 +116,7 @@ export function createSessionApplicationResources({
     return composeSessionApplicationStores({ ports: requiredPorts, storage });
   }
 
-  async function initializeLocalPackages(rawStorage) {
+  async function initializeLocalPackages() {
     if (!optional.pluginCenterApi) return;
     const storageApi = requireApplicationPort(
       requiredPorts, 'adapter.plugin-package-storage', 'createIndexedDbPluginPackageStorage',
@@ -135,7 +135,6 @@ export function createSessionApplicationResources({
     await packageStore.initialize();
     packageBrowser = optional.pluginCenterApi.createLocalPluginPackageBrowserAdapter({
       cryptoPort: environment.crypto,
-      deviceStorage: rawStorage,
     });
   }
 
@@ -208,7 +207,7 @@ export function createSessionApplicationResources({
     let composed = null;
     try { composed = await initializeStores(rawStorage); } catch { composed = null; }
     storageAvailable = composed !== null;
-    await initializeLocalPackages(rawStorage);
+    await initializeLocalPackages();
     const unavailableMessage = composed ? null
       : 'Local Session storage could not be initialized. Check browser site-data permissions and reload.';
     replayWorkspace = createReplayWorkspace(composed);

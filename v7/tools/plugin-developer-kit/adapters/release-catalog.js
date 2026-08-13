@@ -131,14 +131,14 @@ function conformanceIdentity() {
     'docs/V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md',
     'tests/fixtures/local-plugin-package/negative/cases.json',
     'tests/fixtures/local-plugin-package/transaction-negative/cases.json',
-    'tests/fixtures/local-plugin-package/developer-negative/cases.json',
+    'tests/fixtures/local-plugin-package/unpacked-security-negative/cases.json',
     'tests/fixtures/local-plugin-package/storage-browser/index.html',
     'tests/fixtures/local-plugin-package/storage-browser/main.js',
     'tests/fixtures/local-plugin-package/product-browser/index.html',
     'tests/fixtures/local-plugin-package/product-browser/scenario.js',
     'tests/fixtures/local-plugin-package/product-browser/styles.css',
     'tests/local-plugin-package-contract-suite.js',
-    'tests/local-plugin-package-developer-suite.js',
+    'tests/local-plugin-package-unpacked-security-suite.js',
     'tests/local-plugin-package-harness.js',
     'tests/local-plugin-package-product-browser-suite.js',
     'tests/local-plugin-package-storage-browser-suite.js',
@@ -147,13 +147,13 @@ function conformanceIdentity() {
     'src/plugin-center-ui/public.js',
     'src/plugin-center-ui/plugin-center-workspace-control.js',
     'src/plugin-center-ui/local-package-browser-adapter.js',
-    'src/plugin-center-ui/local-package-directory-snapshot.js',
     'src/plugin-center-ui/local-package-installed-control.js',
-    'src/plugin-center-ui/developer-mode-control.js',
+    'tools/plugin-developer-kit/adapters/unpacked-candidate-inspection.js',
     'scripts/refresh-plugin-package-browser-release.mjs',
     'scripts/review-local-plugin-package-p1b3.mjs',
     'sessions/session_20260812_p1b_2_inventory_transaction_implementation.md',
     'sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md',
+    'sessions/session_20260812_p1b_3_developer_mode_surface_removal.md',
   ];
   const files = relativePaths.map((logicalPath) => relativeFileIdentity(
     V7_ROOT,
@@ -177,7 +177,7 @@ function conformanceIdentity() {
     || pendingRule.humanReviewRequired !== true || pendingRule.acceptanceEvidence !== null
     || !pendingRule.negativeFixtures.includes('tests/fixtures/local-plugin-package/negative/cases.json')
     || !pendingRule.negativeFixtures.includes('tests/fixtures/local-plugin-package/transaction-negative/cases.json')
-    || !pendingRule.negativeFixtures.includes('tests/fixtures/local-plugin-package/developer-negative/cases.json')) {
+    || !pendingRule.negativeFixtures.includes('tests/fixtures/local-plugin-package/unpacked-security-negative/cases.json')) {
     fail('internal', 'V7DK_INTERNAL_TOOLCHAIN', 'release', 'Developer Kit conformance identity is incomplete.');
   }
   return Object.freeze({
@@ -192,9 +192,9 @@ function conformanceIdentity() {
       negativeControlCount: [
         'tests/fixtures/local-plugin-package/negative/cases.json',
         'tests/fixtures/local-plugin-package/transaction-negative/cases.json',
-        'tests/fixtures/local-plugin-package/developer-negative/cases.json',
+        'tests/fixtures/local-plugin-package/unpacked-security-negative/cases.json',
       ].reduce((total, logicalPath) => total + readJson(path.join(V7_ROOT, logicalPath)).length, 0),
-      scope: 'P1b.1-contract-archive-plus-P1b.2-transactions-recovery-plus-P1b.3-product-developer-mode',
+      scope: 'P1b.1-contract-archive-plus-P1b.2-transactions-recovery-plus-P1b.3-two-surface-product-and-unpacked-security',
       state: pendingRule.state,
     }),
     state: rule.state,

@@ -27,6 +27,9 @@ Amended: 2026-08-12 — separately authorized P1b.1 contract/archive, P1b.2
 transaction/storage, and P1b.3 Plugin Center/Developer Mode implemented; H117
 executable and unaccepted
 
+Amended: 2026-08-12 — post-implementation review removed Developer Mode as a
+top-level production surface; strict unpacked inspection remains tooling-only
+
 Decider: V7 product owner
 
 Related decisions: `ADR-V7-001`, `ADR-V7-002`, `ADR-V7-003`
@@ -109,8 +112,9 @@ accepted all five P1b material decisions in
 P1b.1, later P1b.2, and then P1b.3. Manifest V2/profile/schema/catalog, deterministic
 pack/inspect v2, strict archive validation, portable candidate receipts, one
 inactive package-store owner, atomic IndexedDB CAS, migration/retention/
-recovery, host-rendered Installed/Developer Mode surfaces, and the combined
-executable H117 subset are implemented. H117 remains unaccepted pending the
+recovery, a host-rendered Included/Installed surface, tooling-only unpacked
+security inspection, and the combined executable H117 subset are implemented.
+H117 remains unaccepted pending the
 P1b.3 human gate and separately authorized P1b.4 closure; no P1b.4–P4
 implementation is authorized.
 
@@ -468,12 +472,12 @@ should contain:
 - **Install from file** — a later local/offline package path using the same
   manifest, validation, transaction, and lifecycle as registry installation.
 
-Developer Mode additionally provides Chrome-like **Load unpacked**, **Reload**,
-and **Validate/Pack** actions for an explicit local package directory. An
-unpacked package is a development generation, is visibly marked, never
-auto-updates, cannot masquerade as a signed registry release, and is disabled
-outside Developer Mode. “Pack” here means producing a validated installable
-archive; it is distinct from the curated product **pack** defined earlier.
+The original roadmap proposed a Chrome-like Developer Mode with **Load
+unpacked**, **Reload**, and **Validate/Pack**. Post-implementation review found
+no unique product outcome while external execution/preview is unavailable, so
+the 2026-08-12 P1b amendment removes that top-level production surface. Strict
+unpacked-candidate inspection remains Developer Kit tooling/security evidence;
+production local admission uses only **Install from file** with `.v7plugin`.
 
 Built-in Core metadata, a registry artifact, a local archive, and an unpacked
 directory are different sources for one candidate pipeline, not four plugin
@@ -698,9 +702,9 @@ by progressively broader distribution:
    authorize production external-code execution. Binding contract:
    `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`; non-normative rationale:
    `V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`.
-5. **P1b Local Packages And Authoring MCP — accepted specification** — common
-   manifest/archive, transactional install-from-file, Developer Mode
-   load-unpacked/reload/validate-pack, integrity/source disclosure, migrations,
+5. **P1b Local Packages And Authoring MCP — accepted amended specification** —
+   common manifest/archive, transactional install-from-file, tooling-only
+   unpacked inspection, integrity/source disclosure, migrations,
    uninstall/data survival, restricted-mode startup, and a workspace-bounded
    local MCP adapter over the P1a operations. Installation is not activation,
    externally supplied code remains non-executable, and MCP has no lifecycle
@@ -821,13 +825,15 @@ After P1a acceptance, the product owner authorized correction of this status
 record and drafting, but not implementing, P1b. The resulting
 `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md` defines a distinct deterministic
 local archive, non-executing device-local inventory transactions, prepared-
-candidate Developer Mode, restricted-mode/data-survival rules, and a `stdio`
+candidate tooling inspection, restricted-mode/data-survival rules, and a `stdio`
 MCP adapter which can invoke only the canonical P1a authoring operations. After
 detailed review, the product owner accepted its five material decisions on
 2026-08-11. The product owner later separately authorized P1b.1, P1b.2, and
 P1b.3, which now implement the non-executing contract/archive,
-transaction/storage, and Plugin Center/Developer Mode subsets and register
-H117 as executable with 54 frozen negative groups. H117 is not accepted; its
+transaction/storage, and two-surface Plugin Center subsets. After review, the
+owner accepted removal of the top-level Developer Mode; strict unpacked checks
+remain tooling-only, and H117 remains executable with 54 frozen groups. H117 is
+not accepted; its
 focused human review, MCP, registry, external execution, and later phases
 remain open or unauthorized as applicable.
 

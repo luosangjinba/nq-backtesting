@@ -1,7 +1,4 @@
 import {
-  parseLocalPluginArchive,
-} from '../../../../src/plugin-contract/local-plugin-package-archive.js';
-import {
   createLocalPluginPackageBrowserAdapter,
   createPluginCenterWorkspaceControl,
 } from '../../../../src/plugin-center-ui/public.js';
@@ -20,36 +17,6 @@ function fileHandle(name, bytes) {
     name,
     async getFile() { return new File([bytes], name); },
   });
-}
-
-function directoryHandle(entries) {
-  const root = { children: new Map(), kind: 'directory', name: 'community.lifecycle-proof-1.0.0' };
-  for (const entry of entries) {
-    const parts = entry.path.split('/');
-    let directory = root;
-    parts.forEach((part, index) => {
-      if (index === parts.length - 1) {
-        directory.children.set(part, fileHandle(part, entry.bytes));
-      } else {
-        if (!directory.children.has(part)) {
-          directory.children.set(part, { children: new Map(), kind: 'directory', name: part });
-        }
-        directory = directory.children.get(part);
-      }
-    });
-  }
-  function handle(node, rootHandle = false) {
-    if (node.kind === 'file') return node;
-    return Object.freeze({
-      kind: 'directory',
-      name: node.name,
-      async *values() {
-        if (rootHandle) evidence.directoryRootReads += 1;
-        for (const child of node.children.values()) yield handle(child);
-      },
-    });
-  }
-  return handle(root, true);
 }
 
 function profilePort() {
@@ -139,7 +106,7 @@ function controlledStore(store) {
   });
 }
 
-function mountManualReviewControls({ controlled, entries, evidence, bytes }) {
+function mountManualReviewControls({ controlled, evidence, bytes }) {
   if (new URL(location.href).searchParams.get('manual') !== '1') return;
   const controls = document.createElement('section');
   controls.className = 'fixture-controls';
@@ -157,7 +124,6 @@ function mountManualReviewControls({ controlled, entries, evidence, bytes }) {
     ))],
     ['Fail next install commit', () => controlled.failCommit()],
     ['Enter Restricted Mode', () => controlled.forceRestricted()],
-    ['Queue prepared directory', () => evidence.directorySelections.push(directoryHandle(entries))],
   ];
   const actionList = document.createElement('div');
   actionList.className = 'fixture-control-actions';
@@ -177,18 +143,12 @@ function mountManualReviewControls({ controlled, entries, evidence, bytes }) {
 
 const evidence = {
   archiveSelections: [],
-  cancelNextSave: false,
-  directoryRootReads: 0,
-  directorySelections: [],
-  packCount: 0,
-  packedMatchesArchive: false,
   status: 'starting',
 };
 globalThis.__h117PluginCenterEvidence = evidence;
 
 async function run() {
   const bytes = archiveBytes();
-  const entries = parseLocalPluginArchive(bytes);
   const token = new URL(location.href).searchParams.get('token') ?? crypto.randomUUID();
   const storage = createIndexedDbPluginPackageStorage({
     databaseName: `v7.h117.plugin-center.${token}`,
@@ -201,19 +161,7 @@ async function run() {
   await store.initialize();
   const controlled = controlledStore(store);
   const browser = createLocalPluginPackageBrowserAdapter({
-    deviceStorage: localStorage,
     pickArchive: async () => evidence.archiveSelections.shift() ?? null,
-    pickDirectory: async () => evidence.directorySelections.shift() ?? null,
-    saveArchive: async ({ bytes: packed }) => {
-      if (evidence.cancelNextSave) {
-        evidence.cancelNextSave = false;
-        return false;
-      }
-      evidence.packCount += 1;
-      evidence.packedMatchesArchive = packed.length === bytes.length
-        && packed.every((byte, index) => byte === bytes[index]);
-      return true;
-    },
   });
   const control = createPluginCenterWorkspaceControl({
     browser,
@@ -227,16 +175,14 @@ async function run() {
   });
   document.querySelector('#plugin-center').replaceChildren(control.root);
   Object.assign(globalThis, {
-    __h117CancelNextSave: () => { evidence.cancelNextSave = true; },
     __h117FailNextCommit: () => controlled.failCommit(),
     __h117ForceRestricted: () => controlled.forceRestricted(),
     __h117QueueArchive: () => evidence.archiveSelections.push(fileHandle(
       'community.lifecycle-proof-1.0.0.v7plugin', bytes,
     )),
-    __h117QueueDirectory: () => evidence.directorySelections.push(directoryHandle(entries)),
     __h117StoreSnapshot: () => controlled.port.snapshot(),
   });
-  mountManualReviewControls({ controlled, entries, evidence, bytes });
+  mountManualReviewControls({ controlled, evidence, bytes });
   evidence.status = 'ready';
   document.body.dataset.status = 'ready';
 }

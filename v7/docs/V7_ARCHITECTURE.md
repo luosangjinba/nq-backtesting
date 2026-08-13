@@ -989,10 +989,11 @@ The plugin platform has one thin waist and does not create a parallel
 `PluginHost`: versioned package/contribution descriptors enter domain
 registries, host-rendered settings schemas enter the common UI surface, and
 the existing ModuleHost remains the sole activation/disposal owner. Built-in,
-registry, local-archive, and Developer Mode unpacked sources all stage through
-one validation/dependency/permission/migration transaction before ModuleHost
-activation. The catalog/installer reports state but never owns feature
-lifecycle.
+registry, and local-archive sources all stage through one validation/dependency/
+permission/migration transaction before ModuleHost activation. Prepared
+unpacked candidates are tooling inputs to the same pure inspection contract,
+not a production source or lifecycle. The catalog/installer reports state but
+never owns feature lifecycle.
 
 Executable plugin authors use one strict TypeScript SDK which emits pinned
 ES2022 ESM. Trusted Core output may be included in the application build;
@@ -1042,12 +1043,14 @@ Manifest/candidate values within `core.plugin-contract` and deterministic
 pack/inspect tooling. P1b.2 adds `core.plugin-package-store` as the sole owner
 of device-local inactive generations and exact transactions, plus
 `adapter.plugin-package-storage` as the atomic IndexedDB mechanics boundary.
-P1b.3 extends the existing `adapter.plugin-center-ui` composition with
-Installed/recovery and Developer Mode controls. Its browser adapter owns only
-explicit file/directory handles, one local preference, strict candidate
-snapshots, and session-scoped inactive generations; the package store remains
-the only installed-inventory writer. None of these modules imports package
-code, enters ModuleHost application composition, or writes the Core profile;
+P1b.3 extends the existing `adapter.plugin-center-ui` composition with the
+separate Included and Installed/recovery controls. After the accepted product
+correction, its browser adapter owns only one explicitly selected `.v7plugin`
+archive snapshot; it retains no directory handle, mode preference, reload/pack
+state, or development generation. Strict unpacked snapshots remain outside the
+production graph in Developer Kit tooling. The package store remains the only
+installed-inventory writer. None of these modules imports package code, enters
+ModuleHost application composition, or writes the Core profile;
 P2 would add the signed free registry;
 P3a would add
 isolated TypeScript-to-ESM calculation Workers; and P3b would add assisted Pine
