@@ -209,6 +209,25 @@ entry logic, and outcome claims are separate contributions.
 Future Core candidates must pass the classification rule; “and so on” is not
 a wildcard authorizing every familiar indicator or semantic concept.
 
+## Adjacent Indicator Compatibility Candidate — Not Yet An Amendment
+
+The product-owner-directed `ADR-V7-005` candidate in
+`V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` proposes the common
+Indicator compatibility layer anticipated by this model. It treats Main and
+internal Chart Regions as user-owned placement targets rather than different
+Indicator/plugin categories; defines generic Plot Groups, standard Plots,
+structural Scale compatibility, exact no-future projection frames, and
+host-owned instance/layout state; and requires Core and future Community
+Indicators to share one semantic SDK/result/settings/lifecycle ABI. Trust tier
+would change only the admitted executor, distribution, and resource policy;
+neither tier would receive native Chart ownership.
+
+That document is a decision candidate, not an accepted amendment. It does not
+authorize MA/SMA implementation, classify RSI/ATR/MACD or another example as
+Core, enable Community Indicator execution, alter current P1a/P1b catalogs, or
+start P1b.4. This specification retains its existing binding state until the
+candidate receives explicit product-owner acceptance or amendment.
+
 ## Package, Contribution, And Pack
 
 These terms name different things:

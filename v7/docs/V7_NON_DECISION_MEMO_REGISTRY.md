@@ -4,7 +4,7 @@ Status: binding documentation-governance index
 
 Created: 2026-08-07
 
-Last updated: 2026-08-10
+Last updated: 2026-08-12
 
 ## Purpose
 
@@ -51,8 +51,12 @@ converted into a decision.
 
 ## Adjacent Decision Candidates
 
-No adjacent decision candidate is currently registered. Accepted decisions
-which promote or constrain memo content are recorded in Decision History.
+| Candidate id | Topic | Drafted | Current status | File |
+| --- | --- | --- | --- | --- |
+| `ADR-V7-005` candidate | Generic Indicator projection, user-owned Main/internal-Chart-region placement, structural Scale compatibility, and one Core/Community semantic ABI | 2026-08-12 | product-owner-directed draft awaiting review; no delivery or implementation authorized; P1b.4 remains paused | `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` |
+
+Accepted decisions which promote or constrain memo content are recorded in
+Decision History.
 
 When a decision candidate is accepted, move its row to the decision history
 below. When rejected, retain the row with the rejection date and reason; do not
@@ -118,6 +122,21 @@ delete it.
 - The accepted spec translates semantic annotations to ADR-V7-001's
   `SemanticArtifact` and `ArtifactProjection` terms. Remaining memo work must
   use that vocabulary and ADR-V7-003's evidence-grade dataset constraints.
+
+### ADR-V7-005 Candidate Versus Remaining MEMO-V7-001 Scope
+
+- The candidate proposes to promote MEMO-V7-001's generic calculated-Indicator,
+  host-mediated Chart-contribution, native-sub-pane, resource-budget, and
+  Core/Community compatibility positions.
+- It strengthens the earlier examples by making Main versus internal Chart
+  Region a user-owned Indicator-instance placement rather than a permanent
+  Indicator category; an MA may therefore move off the candle region.
+- It does not promote general-futures scope, Setup/AI ownership, Community
+  execution, registry operation, privileged renderers, commercialization, or
+  Marketplace. Those positions remain open and cannot be inferred from a
+  generic Chart-region substrate.
+- Until accepted, `ADR-V7-005` remains a decision candidate and changes no
+  P1a/P1b availability, H117 state, or implementation authority.
 
 ### MEMO-V7-004 Versus Broad Commercialization
 

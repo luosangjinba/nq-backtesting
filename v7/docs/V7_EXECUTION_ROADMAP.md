@@ -1216,6 +1216,26 @@ owner or upstream-plugin state access.
 Core classification neither authorizes these steps nor weakens their focused
 semantic/no-future/human gates.
 
+### Generic Indicator Projection And Chart Regions — ADR-V7-005 Candidate
+
+The product owner directed one generic internal Chart-region capability for
+Core and future Community Indicator Plugins. The candidate specification
+`V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` separates existing
+Workspace Panes from stable host-owned Chart Regions; makes Main/new/existing
+region placement an Indicator-instance value; defines Plot Groups, standard
+Plots, structural Scale compatibility, exact no-future projection frames,
+unresolved instance survival, reversible Chart-owned materialization, and one
+Core/Community semantic ABI. MA may default to Main and still be moved to an
+internal region. RSI, ATR, MACD, and Volume are illustrative rather than
+authorized product packages.
+
+This is a draft decision candidate only. It allocates no delivery or Harness
+id, changes no SDK/catalog/runtime availability, authorizes no MA or Community
+execution, and does not start P1b.4 or accept H117. After product-owner review,
+an accepted architecture decision would still require separately authorized
+pure-contract, Chart-projection, trusted vertical-slice, layout, and Community
+integration specifications.
+
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 
 Build the thin host contract before scaling plugin families, then validate each

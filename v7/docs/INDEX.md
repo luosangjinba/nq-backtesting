@@ -89,6 +89,17 @@ records tensions that a later decision must resolve. The registered
 possible next product and business directions. Accepted ADRs may partially
 promote named portions, but the remaining memo content authorizes no
 implementation.
+The adjacent `ADR-V7-005` candidate is drafted in
+`V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`. It proposes one
+generic host-owned Indicator projection and internal Chart-region contract:
+Main/new/existing-region placement belongs to the user-owned Indicator
+instance, Scale sharing is structurally compatible rather than Indicator-name
+based, multi-Plot/multi-group output is standard, and Core/future Community
+plugins share one semantic ABI while the Chart adapter remains the sole native
+writer. It is not accepted, allocates no delivery or Harness id, leaves named
+RSI/ATR/MACD examples unclassified, leaves MA/SMA unimplemented, changes no
+P1a/P1b availability, and does not start P1b.4. The drafting record is
+`../sessions/session_20260812_generic_indicator_projection_chart_region_specification_draft.md`.
 The seconds/tick memo additionally records the current decision that minute-
 sourced V7 remains valid without simulated-live training, defines the three-
 of-four investigation signals, and keeps every future seconds path behind the

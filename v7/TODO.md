@@ -19,6 +19,41 @@
 
 Canonical registry: `docs/V7_NON_DECISION_MEMO_REGISTRY.md`.
 
+## ADR-V7-005 Candidate — Generic Indicator Projection And Chart Regions
+
+- [x] receive product-owner direction that internal Indicator regions are one
+  generic host capability for Core and future Community Plugins rather than
+  RSI/ATR/MACD-specific panes;
+- [x] make Main versus new/existing Chart Region an Indicator-instance
+  placement so an MA or another conventionally overlaid Indicator can move to
+  an internal region without changing its formula;
+- [x] draft stable `IndicatorInstance`, `ChartRegion`, `PlotGroup`, `Plot`,
+  `ScaleGroup`, and exact `IndicatorProjectionFrame` concepts while keeping
+  Workspace Pane and native Lightweight Charts pane distinct;
+- [x] draft structural dimension/unit/domain/formatter compatibility instead of
+  Indicator-name branching or silent cross-scale normalization;
+- [x] require one semantic SDK/result/settings/lifecycle ABI for Core and future
+  Community Indicators, with trust tier changing only executor, distribution,
+  and resource policy;
+- [x] preserve the sole Chart writer, immutable no-future Pane inputs, exact
+  cutoff/snapshot projection, unresolved instance survival, reversible visible
+  application, and bounded resources;
+- [x] retain RSI, ATR, MACD, Volume, and other named Indicators as unclassified
+  examples; retain MA/SMA as classified but unauthorized for implementation;
+- [x] register the draft as an adjacent `ADR-V7-005` candidate without
+  allocating a delivery id or Harness id;
+- [ ] obtain explicit product-owner acceptance or amendment of the eight
+  material decisions before writing an implementation specification;
+- [ ] after acceptance, require separate authorization for each pure-contract,
+  Chart-projection, trusted MA, generic multi-Plot/layout, and later Community
+  integration slice;
+- [x] do not start P1b.4, accept H117, alter P1a/P1b Indicator availability,
+  authorize Community execution/P3a, or add production/SDK/schema/test code
+  through this draft.
+
+Candidate specification:
+`docs/V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`.
+
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09
 
 - [x] preserve validation as the user outcome and Replay as the controlled

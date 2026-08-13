@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-12 after the accepted P1b.3 Developer Mode product-surface
-removal and corrected executable H117 evidence
+Last updated: 2026-08-12 after drafting the non-implementing ADR-V7-005 Generic
+Indicator Projection And Chart Regions candidate
 
 ## Restart Resume Checkpoint
 
@@ -18,7 +18,11 @@ transaction/storage, and P1b.3 two-surface Plugin Center correction are
 implemented. H117 is executable with 54 frozen negative groups and real-browser
 IndexedDB/product evidence. The corrected P1b.3 focused human review passed on
 2026-08-12, but H117 remains unaccepted because P1b.4 MCP/closure and all later
-phases remain separately gated.
+phases remain separately gated. The current next review is the eight material
+decisions in `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`. It
+proposes generic Core/future-Community Indicator projection and user-owned
+Main/internal-region placement, but remains unaccepted and authorizes no code.
+P1b.4 remains paused.
 `git log` is the authoritative commit identity.
 
 After a machine or agent restart, run:
@@ -33,31 +37,34 @@ git status --short
 Then read, in order:
 
 1. `v7/docs/V7_RESTART_HANDOFF.md`
-2. `v7/docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`
-3. `v7/docs/V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md`
-4. `v7/sessions/session_20260812_p1b_3_developer_mode_surface_removal.md`
-5. `v7/sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md`
-6. `v7/sessions/session_20260812_p1b_2_inventory_transaction_implementation.md`
-7. `v7/sessions/session_20260811_p1b_1_contract_archive_implementation.md`
-8. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_acceptance.md`
-9. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_draft.md`
-10. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md`
-11. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`
-12. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`
-13. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`
-14. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification.md`
-15. `v7/docs/V7_CORE_PLUGIN_CENTER_P0B.md`
-16. `v7/sessions/session_20260811_p0b_core_plugin_center_implementation.md`
-17. `v7/sessions/session_20260811_p0b_core_plugin_center_specification.md`
-18. `v7/docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`
-19. `v7/sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md`
-20. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
-21. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
-22. `v7/sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
-23. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
-24. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
-25. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
-26. `v7/TODO.md`
+2. `v7/docs/V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`
+3. `v7/sessions/session_20260812_generic_indicator_projection_chart_region_specification_draft.md`
+4. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
+5. `v7/docs/V7_REAL_PANE_WORKSPACE_R6_5.md`
+6. `v7/docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`
+7. `v7/docs/V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md`
+8. `v7/sessions/session_20260812_p1b_3_developer_mode_surface_removal.md`
+9. `v7/sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md`
+10. `v7/sessions/session_20260812_p1b_2_inventory_transaction_implementation.md`
+11. `v7/sessions/session_20260811_p1b_1_contract_archive_implementation.md`
+12. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_acceptance.md`
+13. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_draft.md`
+14. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md`
+15. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`
+16. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`
+17. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`
+18. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification.md`
+19. `v7/docs/V7_CORE_PLUGIN_CENTER_P0B.md`
+20. `v7/sessions/session_20260811_p0b_core_plugin_center_implementation.md`
+21. `v7/sessions/session_20260811_p0b_core_plugin_center_specification.md`
+22. `v7/docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`
+23. `v7/sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md`
+24. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
+25. `v7/sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
+26. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
+27. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
+28. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
+29. `v7/TODO.md`
 
 R13.10b/H110 and R13.10c/H111 are accepted. The focused FVG fixture contains
 no temporary diagnostic surface, and its acceptance server is stopped.
