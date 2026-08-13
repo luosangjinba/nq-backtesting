@@ -1236,9 +1236,9 @@ a package cannot self-register one. The product owner accepted all ten material
 decisions before beginning ADR-V7-005 review and authorized no code. P1b.4 and
 H117 acceptance remain separately gated.
 
-### Calculated-Series Projection And Chart Regions — ADR-V7-005 Candidate
+### Calculated-Series Projection And Chart Regions — ADR-V7-005 Accepted 2026-08-12
 
-The product owner directed one generic internal Chart-region capability for
+The product owner accepted one generic internal Chart-region capability for
 Core and future Community Contributions claiming the accepted architecture
 `analysis.calculated-series` Profile. The revised subordinate specification
 `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` separates existing
@@ -1252,13 +1252,12 @@ than authorized product packages. Anchored studies, Drawings, Semantic
 Artifacts, detectors, and a universal visual ABI are explicitly outside its
 scope.
 
-This is a draft decision candidate only. It allocates no delivery or Harness
-id, changes no SDK/catalog/runtime availability, authorizes no MA or Community
-execution, and does not start P1b.4 or accept H117. Its ADR-V7-006 prerequisite
-is now accepted, so the revised eight decisions are under product-owner review.
-Later ADR-V7-005 acceptance would still require separately authorized pure-
-contract, Chart-projection, trusted vertical-slice, layout, and Community
-integration specifications.
+The product owner accepted all eight revised material decisions without
+amendment. Acceptance allocates no delivery or Harness id, changes no SDK/
+catalog/runtime availability, authorizes no MA or Community execution, and does
+not start P1b.4 or accept H117. Any delivery still requires separately
+authorized pure-contract, Chart-projection, trusted vertical-slice, layout, and
+Community integration specifications.
 
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 

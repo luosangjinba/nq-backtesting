@@ -6,11 +6,12 @@ First formed: 2026-08-01
 
 Last substantive revision: 2026-08-12
 
-Status: partially promoted by `ADR-V7-004` and accepted `ADR-V7-006`, including
-interface/language, open Contribution Profile, and typed-composition boundaries;
-P0a/P0b/P1a later delivered through separate accepted contracts; P1b
-specification accepted separately; remaining product scope, execution sandbox,
-AI, remote distribution, Marketplace, and implementation decisions deferred
+Status: partially promoted by `ADR-V7-004`, `ADR-V7-006`, and `ADR-V7-005`,
+including interface/language, open Contribution Profile, typed-composition, and
+calculated-series projection boundaries; P0a/P0b/P1a later delivered through
+separate accepted contracts; P1b specification accepted separately; remaining
+product scope, execution sandbox, AI, remote distribution, Marketplace, and
+implementation decisions deferred
 
 Registry: `V7_NON_DECISION_MEMO_REGISTRY.md`
 
@@ -953,6 +954,23 @@ reference Profiles but not a closed enum. New Profiles require separately
 accepted host contracts and cannot be self-registered by packages.
 
 ADR-V7-006 acceptance authorizes no SDK/schema registry, runtime, Community
-execution, or implementation. ADR-V7-005 calculated-series projection remains
-under review. General-futures scope, complete Setup/AI design, remote registry,
+execution, or implementation. At that checkpoint ADR-V7-005 calculated-series
+projection remained under review and was later accepted as recorded below.
+General-futures scope, complete Setup/AI design, remote registry,
+commercialization, and paid Marketplace remain unresolved in this memo.
+
+### 2026-08-12 — Partial Promotion By ADR-V7-005
+
+After ADR-V7-006 acceptance, the product owner accepted all eight revised
+calculated-series projection decisions. Main and internal Chart Regions are
+user-owned placement targets rather than Indicator types; calculated-series
+Contributions use standard Plots and independently placeable Plot Groups;
+Scale compatibility is structural; exact snapshot/cutoff frames cannot show
+stale output; instance/layout/unresolved state remains host-owned; and Core and
+future Community Contributions claiming the same Profile share one semantic
+contract while trust changes execution and resource policy.
+
+ADR-V7-005 acceptance authorizes no Profile registration, SDK/runtime work,
+MA/SMA or other Indicator implementation, Community execution, P1b.4, or H117
+acceptance. General-futures scope, complete Setup/AI design, remote registry,
 commercialization, and paid Marketplace remain unresolved in this memo.

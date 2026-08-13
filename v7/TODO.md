@@ -60,7 +60,7 @@ Canonical registry: `docs/V7_NON_DECISION_MEMO_REGISTRY.md`.
 Accepted specification:
 `docs/V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md`.
 
-## ADR-V7-005 Candidate — Calculated-Series Projection And Chart Regions
+## ADR-V7-005 — Calculated-Series Projection And Chart Regions — Accepted 2026-08-12
 
 - [x] receive product-owner direction that internal calculated-series regions
   are one generic host capability for applicable Core and future Community
@@ -85,12 +85,12 @@ Accepted specification:
 - [x] subordinate the draft to ADR-V7-006 and exclude anchored studies,
   Drawings, Semantic Artifacts, detectors, workflows, and a universal visual
   ABI from its scope;
-- [x] revise the eight material decisions without accepting them or allocating
+- [x] revise the eight material decisions before acceptance without allocating
   a delivery id/Harness id;
 - [x] begin product-owner review of the revised eight decisions after
   ADR-V7-006 acceptance;
-- [ ] obtain explicit product-owner acceptance or amendment of the revised
-  eight decisions before writing an implementation specification;
+- [x] receive explicit product-owner acceptance of all eight revised material
+  decisions without amendment on 2026-08-12;
 - [ ] after acceptance, require separate authorization for each pure-contract,
   Chart-projection, trusted MA, generic multi-Plot/layout, and later Community
   integration slice;
@@ -98,7 +98,7 @@ Accepted specification:
   authorize Community execution/P3a, or add production/SDK/schema/test code
   through this draft.
 
-Candidate specification:
+Accepted specification:
 `docs/V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`.
 
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09

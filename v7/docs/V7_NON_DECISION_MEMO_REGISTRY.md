@@ -44,7 +44,7 @@ converted into a decision.
 
 | Memo id | Topic | First formed | Last substantive revision | Current status | File |
 | --- | --- | --- | --- | --- | --- |
-| `MEMO-V7-001` | General futures/plugin platform, semantic tools, Setup workflow, AI, distribution, marketplace | 2026-08-01 | 2026-08-12 | partially promoted by ADR-V7-004 and ADR-V7-006, including interface/language, Agent-authoring/Pine-migration, and open Contribution-Profile/composition boundaries; general-futures scope, Setup/AI, concrete runtime/sandbox/tooling, registry operations, commercialization, and Marketplace remain open | `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` |
+| `MEMO-V7-001` | General futures/plugin platform, semantic tools, Setup workflow, AI, distribution, marketplace | 2026-08-01 | 2026-08-12 | partially promoted by ADR-V7-004, ADR-V7-006, and ADR-V7-005, including interface/language, Agent-authoring/Pine-migration, open Contribution-Profile/composition, and calculated-series projection boundaries; general-futures scope, Setup/AI, concrete runtime/sandbox/tooling, registry operations, commercialization, and Marketplace remain open | `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` |
 | `MEMO-V7-002` | Second-level Replay and tick-sourced data | 2026-08-01 | 2026-08-06 | current deferral position recorded; future activation undecided | `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` |
 | `MEMO-V7-003` | AI-Agent-participatory Research, Training, and Trading Review system, using semantic Study Cases/Cohorts | 2026-08-07 | 2026-08-07 12:12 PDT | partially promoted by ADR-V7-003; system boundary, autonomy, workflow ownership, and business model remain undecided | `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` |
 | `MEMO-V7-004` | Semantic-dataset competitive landscape, commercialization, open-source/SaaS path, market-data economics, and open-model use | 2026-08-09 | 2026-08-09 PDT | core evidence-dataset product position promoted by ADR-V7-003; hosting, shared data, branding, pricing, and market entry remain open | `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md` |
@@ -53,7 +53,7 @@ converted into a decision.
 
 | Candidate id | Topic | Drafted | Current status | File |
 | --- | --- | --- | --- | --- |
-| `ADR-V7-005` candidate | Calculated-series projection, user-owned Main/internal-Chart-region placement, structural Scale compatibility, and one same-Profile Core/Community ABI | 2026-08-12 | revised beneath accepted ADR-V7-006; eight decisions now under review; no delivery or implementation authorized; P1b.4 remains paused | `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` |
+| _None_ | — | — | ADR-V7-005 and ADR-V7-006 are accepted and recorded in Decision History | — |
 
 Accepted decisions which promote or constrain memo content are recorded in
 Decision History.
@@ -123,7 +123,7 @@ delete it.
   `SemanticArtifact` and `ArtifactProjection` terms. Remaining memo work must
   use that vocabulary and ADR-V7-003's evidence-grade dataset constraints.
 
-### ADR-V7-006 And ADR-V7-005 Candidate Versus Remaining MEMO-V7-001 Scope
+### ADR-V7-006 And ADR-V7-005 Versus Remaining MEMO-V7-001 Scope
 
 - Accepted ADR-V7-006 promotes MEMO-V7-001's distinction among calculated
   Indicators, manual Semantic contributions, detectors, Drawings, and visual
@@ -134,22 +134,23 @@ delete it.
   Adding a future Profile requires an accepted versioned contract, host owner,
   capability/permission boundary, migration, resource policy, and conformance;
   package code cannot self-register one.
-- ADR-V7-005 is subordinate and proposes only the calculated-series Profile's
-  host-mediated standard Plots, native internal Chart Regions, structural Scale
-  compatibility, exact no-future frames, and same-Profile Core/Community ABI.
+- Accepted ADR-V7-005 is subordinate and promotes only the calculated-series
+  Profile's host-mediated standard Plots, native internal Chart Regions,
+  structural Scale compatibility, exact no-future frames, and same-Profile
+  Core/Community ABI.
   Main versus internal region remains user-owned instance placement, so an MA
   may move off the candle region without changing truth or formula.
 - Visual co-presence does not merge lifecycle or provenance. FVG/SMT Semantic
   Artifacts, Fibonacci anchored studies, Drawings, detectors, and calculated
   series retain Profile-correct owners even if one Chart adapter reuses native
   rendering helpers.
-- ADR-V7-006 does not promote general-futures scope, complete Setup/AI
-  ownership, Community execution, remote registry operation, privileged
-  renderers, commercialization, or Marketplace. Those positions remain open;
-  ADR-V7-005 cannot promote them through calculated-series projection.
+- ADR-V7-006 and ADR-V7-005 do not promote general-futures scope, complete
+  Setup/AI ownership, Community execution, remote registry operation,
+  privileged renderers, commercialization, or Marketplace. Those positions
+  remain open.
 - ADR-V7-006 acceptance changes no P1a/P1b availability, H117 state, Core
-  catalog, delivery plan, or implementation authority. ADR-V7-005 remains an
-  unaccepted candidate with the same non-authorization boundary.
+  catalog, delivery plan, or implementation authority. ADR-V7-005 acceptance
+  retains the same non-authorization boundary.
 
 ### MEMO-V7-004 Versus Broad Commercialization
 
@@ -235,6 +236,7 @@ A memo becomes a decision only through a separate ADR/specification which:
 | `ADR-V7-003` | 2026-08-09 | partially promotes MEMO-V7-003's evidence/case/cohort constraints and MEMO-V7-004's evidence-grade semantic dataset product position, user ownership, human-governed AI, and local-first initial boundary | complete learning-system ownership, commercial model, hosted service, public/shared datasets, branding, pricing, and implementation remain open | `V7_EVIDENCE_GRADE_SEMANTIC_DATASET_PRODUCT_DECISION.md` |
 | `ADR-V7-004` | 2026-08-10; amended 2026-08-11 | partially promotes MEMO-V7-001's Kernel/Core/Community taxonomy, FVG/MA/SMA/BSL/Fib Core classification, declared derived dependencies, Plugin Center experience, unified install/developer channels, host-rendered settings, strict TypeScript/ESM/JSON Schema model, Agent-native Developer Kit/Harness and MCP boundary, assisted Pine-to-TypeScript indicator migration, stricter trust tiers, and thin-platform/local/free-registry sequence | general-futures scope, Setup/AI system, concrete loader/sandbox/Developer-Kit/MCP/Pine implementation, remote registry operations, commercialization, and paid Marketplace remain open | `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` |
 | `ADR-V7-006` | 2026-08-12 | promotes MEMO-V7-001's contribution taxonomy into an open host-governed Profile registry; accepts Package/Contribution/Profile/Capability/Domain-Tag/Pack separation, five non-exhaustive initial Profiles, multi-Contribution packages, typed host composition, unresolved survival, and same-Profile Core/Community semantics | no production/SDK registry, Profile implementation, calculated-series projection, Community execution, general-futures scope, Setup/AI system, remote registry, commercialization, or Marketplace is authorized | `V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md` |
+| `ADR-V7-005` | 2026-08-12 | promotes MEMO-V7-001's calculated-series projection boundary; accepts user-owned Main/internal-Chart-region placement, Plot Groups and standard Plots, structural Scale compatibility, exact no-stale projection frames, host-owned instance/layout/unresolved state, sole Chart writing, and same-Profile Core/Community semantics | no production/SDK Profile registration, MA/SMA or other Indicator implementation, Community execution, delivery/Harness id, P1b.4, H117 acceptance, general-futures scope, Setup/AI system, remote registry, commercialization, or Marketplace is authorized | `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` |
 
 No registered memo has been fully promoted and closed. MEMO-V7-001,
 MEMO-V7-003, and MEMO-V7-004 are partially promoted; their explicitly

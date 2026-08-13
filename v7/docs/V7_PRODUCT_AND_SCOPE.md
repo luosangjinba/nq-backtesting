@@ -55,6 +55,17 @@ and any paid Marketplace remain separate later phases with no current delivery
 authorization. Core classification does not make a semantic variant consensus
 truth or move optional feature code into Kernel.
 
+Accepted ADR-V7-006 separates Package, typed Contribution, Contribution
+Profile, negotiated Capability, non-authoritative Domain Tag, and Pack. Its
+host-governed Profile registry is open to separately specified future Profiles;
+the five initial calculated-series, anchored-study, Drawing, Semantic Artifact,
+and detector Profiles are not a closed feature list. Accepted subordinate
+ADR-V7-005 binds generic calculated-series Main/internal-Chart-region
+projection, structural Scale compatibility, multi-Plot output, exact no-stale
+Replay frames, host-owned instance/layout state, and same-Profile Core/
+Community semantics. These decisions do not broaden V7 into a general
+technical-analysis product and authorize no Profile/Indicator implementation.
+
 The accepted plugin authoring model is one strict TypeScript SDK producing
 pinned ESM artifacts. Trusted Core output may enter the first-party build;
 external executable output may run only in an authorized isolated Worker tier.

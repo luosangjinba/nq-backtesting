@@ -1,12 +1,16 @@
-# V7 Calculated-Series Projection And Chart Regions — Candidate Specification
+# V7 Calculated-Series Projection And Chart Regions — Accepted Specification
 
-Decision id: `ADR-V7-005` candidate
+Decision id: `ADR-V7-005`
 
-Status: product-owner-directed draft prepared 2026-08-12; not accepted;
+Status: accepted binding product and architecture specification;
 implementation, delivery ids, Harness activation, P1b.4, and external
-calculated-series execution are not authorized
+calculated-series execution remain separately unauthorized
 
 Date drafted: 2026-08-12
+
+Decision date: 2026-08-12
+
+Decider: V7 product owner
 
 Revised: 2026-08-12 — scoped beneath accepted `ADR-V7-006` Contribution
 Profile/composition architecture; public “Indicator” usage in this document
@@ -29,26 +33,27 @@ anchored studies, Drawings, Semantic Artifacts, and detectors do not share one
 truth or lifecycle merely because all may produce Chart visuals. Accordingly,
 this document is now subordinate to that open Contribution Profile model. In
 this document only, **Indicator** is a user-facing shorthand for a Contribution
-claiming the candidate `analysis.calculated-series` Profile. It is not an
-umbrella term for FVG, SMT, Fibonacci, drawings, detectors, workflows, or all
-plugins.
+claiming the accepted architecture label `analysis.calculated-series`. It is
+not an umbrella term for FVG, SMT, Fibonacci, drawings, detectors, workflows,
+or all plugins.
 
-This document turns that direction into a reviewable candidate specification.
-It does not accept the candidate, change the current product, add an Indicator
-runtime, make a local package executable, alter the P1a/P1b catalogs, register
-a Harness, or begin the deliberately paused P1b.4 MCP slice. Every executable
-step remains subject to a later explicit product-owner authorization.
+The product owner accepted all eight revised material decisions in this
+document on 2026-08-12. Acceptance binds the calculated-series projection
+architecture but does not add an Indicator runtime, make a local package
+executable, alter the P1a/P1b catalogs, register a Harness, or begin the
+deliberately paused P1b.4 MCP slice. Every executable step remains subject to a
+later explicit product-owner authorization.
 
-## Candidate Decision Summary
+## Decision Summary
 
-V7 should add one vendor-neutral, host-owned calculated-series projection and
-internal Chart-region mechanism. Calculated-series Contributions receive
+V7 adopts one vendor-neutral, host-owned calculated-series projection and
+internal Chart-region architecture. Calculated-series Contributions receive
 immutable no-future inputs and return declarative numeric output. The host owns
 calculated-series instances, effective settings, placement, regions, scales,
 lifecycle, persistence, diagnostics, and conversion to Lightweight Charts
 resources.
 
-The proposed model has these defining properties:
+The accepted model has these defining properties:
 
 1. main chart and sub-pane are placement targets, not indicator types;
 2. a calculated-series definition supplies output semantics and a default
@@ -70,7 +75,7 @@ The proposed model has these defining properties:
 
 ## Relationship To Existing Decisions
 
-This candidate preserves the accepted V7 product and architecture:
+This decision preserves the accepted V7 product and architecture:
 
 - validation remains the product outcome and Replay remains the controlled
   observation environment;
@@ -83,19 +88,19 @@ This candidate preserves the accepted V7 product and architecture:
   authoring model, host-rendered settings, declared dependencies, least
   privilege, and later isolated Worker boundary remain binding;
 - accepted `ADR-V7-006` is the binding upstream open Contribution Profile/
-  composition model; this candidate uses its calculated-series boundary
+  composition model; this decision uses its calculated-series boundary
   without treating the initial five reference Profiles as a closed enum;
 - MA/SMA remains an already classified Core Plugin capability; RSI, ATR, MACD,
   Volume, Bollinger Bands, or any other example in this document is not thereby
   classified as Core or authorized for implementation;
 - anchored-study, Drawing Geometry, Semantic Artifact, and detector truth,
-  lifecycle, and projection remain outside this calculated-series candidate;
+  lifecycle, and projection remain outside this calculated-series decision;
   ADR-V7-001 continues to govern accepted Drawing and Semantic behavior;
 - current P1a/P1b Indicator contribution and `subpane.runtime` availability
   remains `unavailable`; P1b local packages remain installed-but-inactive and
   non-executing.
 
-The candidate proposes to promote only MEMO-V7-001's calculated-series,
+The decision promotes only MEMO-V7-001's calculated-series,
 host-mediated Chart-contribution, native-sub-pane, resource-budget, and
 same-Profile Core/Community compatibility positions. It does not establish the
 upstream Profile registry, another Profile's projection contract, general-
@@ -129,13 +134,13 @@ The existing community audit remains controlling: the reviewed
 `lightweight-charts-indicators` package is only a calculation-adapter candidate.
 No reviewed community library is adopted as a Chart controller, Indicator
 runtime, Pane owner, persistence owner, or production dependency through this
-candidate.
+decision.
 
 ## Calculated-Series Terminology
 
 Two earlier uses of Pane must no longer be overloaded in the public Indicator
-contract. These terms belong to the candidate calculated-series Profile; they
-do not classify another Contribution Profile.
+contract. These terms belong to the accepted calculated-series architecture;
+they do not classify another Contribution Profile.
 
 | Term | Meaning | Owner |
 | --- | --- | --- |
@@ -171,7 +176,7 @@ and UI code must never switch on `rsi`, `atr`, `macd`, `ma`, publisher, package
 id, Domain Tag, or another concrete calculated-series identity to select
 placement or rendering.
 
-The user-facing operations proposed by this candidate are generic:
+The accepted user-facing operations are generic:
 
 - add a calculated-series/Indicator instance to one Workspace Pane;
 - open host-rendered Inputs, Style, and Visibility settings;
@@ -242,8 +247,8 @@ identity.
 
 ## Standard Plot Contract
 The public contract should use a versioned catalog of host-rendered standard
-plots rather than executable renderer callbacks. The initial candidate catalog
-needs at least:
+plots rather than executable renderer callbacks. The accepted architecture
+catalog needs at least:
 
 - `line`;
 - `histogram`;
@@ -268,7 +273,7 @@ Lightweight Charts supports related APIs.
 ## Scale Intent And Compatibility
 
 Scale compatibility is determined by declared value semantics, not a concrete
-calculated-series name or Domain Tag. A candidate `ScaleIntentV1` needs at
+calculated-series name or Domain Tag. A future wire `ScaleIntentV1` needs at
 least:
 
 ```text
@@ -318,7 +323,7 @@ Contribution or its package.
 
 The host, not the plugin, should own one immutable versioned
 `CalculatedSeriesWorkspaceDocument` for calculated-series instances and Chart
-Regions. Its candidate shape includes:
+Regions. Its illustrative future wire shape includes:
 
 ```text
 CalculatedSeriesWorkspaceDocumentV1 {
@@ -510,7 +515,7 @@ ids, settings, fixtures, and visual semantics; only its admitted executor and
 provenance change.
 
 The current `local-declarative-package-v1` Package Contract Profile has no
-contributions and no execution target. This candidate does not add Contribution Profile or
+contributions and no execution target. This decision does not add Contribution Profile or
 calculated-series fields to Manifest V2, make Installed packages active, or
 alter P1b.4. When a future calculated-series runtime/SDK profile is authorized,
 SDK discovery must publish exact schemas, Plot/Scale catalogs, limits,
@@ -631,7 +636,7 @@ failures may quarantine the package through the existing package lifecycle,
 but the calculated-series runtime cannot invent trust, uninstall bytes, or
 enter Restricted Mode itself.
 
-## Candidate Conformance And Human Evidence
+## Required Future Conformance And Human Evidence
 
 No Harness id is registered by this document. A later accepted implementation
 contract should add independent evidence for at least:
@@ -664,17 +669,17 @@ The first Community reference must wait for an authorized Community
 calculated-series execution Contract Profile and Worker tier. It must then pass
 the same calculated-series and visual fixtures as the trusted reference plus
 isolation and resource negative controls. A Community-only simplified Profile
-ABI would violate this candidate.
+ABI would violate this decision.
 
 Human review should verify MA in Main and a separate region, a multi-Plot
 oscillator, incompatible placement feedback, region resize/reorder/collapse,
 multi-Workspace-Pane isolation, Replay truth, visible failure states, native
 interaction preservation, and understandable Core/Community provenance.
 
-## Proposed Delivery Decomposition After Acceptance
+## Required Future Delivery Decomposition
 
-Accepting this architecture candidate would still authorize no code. The
-recommended later sequence is:
+Acceptance of this architecture decision authorizes no code. The required
+later sequence is:
 
 1. **pure contract slice** — versioned Definition, Plot, Scale, Instance,
    ChartRegion, result, provenance, and migration values plus headless negative
@@ -702,7 +707,7 @@ folded into P1b.4, P2 registry, or one broad “Indicators” implementation.
 
 ## Explicitly Rejected Alternatives
 
-This candidate rejects:
+This decision rejects:
 
 - RSI-, ATR-, MACD-, Volume-, or MA-specific pane owners or Chart branches;
 - treating “overlay Indicator” and “sub-pane Indicator” as different
@@ -723,16 +728,15 @@ This candidate rejects:
   Core or to absorb another Contribution Profile;
 - treating all plugin visuals as Plots or all visually composable output as one
   truth/lifecycle ABI;
-- using the draft to start P1b.4, activate H117, authorize Community execution,
+- using this decision to start P1b.4, activate H117, authorize Community execution,
   or add a privileged custom renderer.
 
-## Material Decisions Awaiting Product-Owner Acceptance
+## Accepted Material Decisions
 
-With upstream `ADR-V7-006` accepted, this revised draft asks the product owner
-to accept, reject, or amend these eight decisions before any implementation
-specification is written:
+With upstream `ADR-V7-006` already accepted, the product owner accepted these
+eight revised decisions without amendment on 2026-08-12:
 
-1. this candidate applies only to Contributions claiming the proposed
+1. this decision applies only to Contributions claiming the accepted
    `analysis.calculated-series` Profile; `ChartRegion`, `PlotGroup`,
    `ScaleGroup`, and `CalculatedSeriesInstance` are its public concepts, while
    Workspace Pane and native pane remain distinct.
@@ -755,17 +759,29 @@ specification is written:
    Profile share its semantic SDK/projection/settings/lifecycle contract; trust
    tier changes only admitted executor, distribution, and resource policy.
 8. ADR-V7-006 is the accepted upstream decision; acceptance of this subordinate
-   candidate would authorize no implementation, the pure contract and Chart
+   decision authorizes no implementation, the pure contract and Chart
    projection must precede a trusted MA vertical slice, and Community execution
    waits for separate Worker/Contract-Profile authorization.
 
+## Acceptance Record
+
+The product owner stated:
+
+> ADR-V7-005 修订后的八项决策全部接受；不实施。
+
+This acceptance makes the calculated-series instance, Chart Region, Plot
+Group, Scale compatibility, exact visible-truth frame, host ownership, and
+same-Profile Core/Community contracts binding architecture. It does not
+register the Profile in the production SDK, allocate a delivery/Harness id, or
+authorize any implementation slice.
+
 ## Current Non-Authorization Boundary
 
-Until the product owner explicitly accepts or amends this candidate:
+Acceptance of `ADR-V7-005` does not cross these boundaries:
 
-- `ADR-V7-005` is not a binding architecture decision;
-- accepted `ADR-V7-006` does not itself register a Profile in production/SDK or
-  authorize this candidate's calculated-series contract;
+- neither accepted `ADR-V7-006` nor accepted `ADR-V7-005` registers
+  `analysis.calculated-series` in production/SDK or authorizes an
+  implementation of this calculated-series contract;
 - no delivery id or Harness id is allocated;
 - no production, SDK, schema, catalog, fixture, manifest, adapter, UI,
   persistence, or test code may be added for it;
@@ -774,7 +790,7 @@ Until the product owner explicitly accepts or amends this candidate:
 - MA/SMA classification does not authorize its implementation;
 - RSI, ATR, MACD, Volume, and other examples remain unclassified examples;
 - FVG, SMT, Fibonacci, Drawings, Semantic Artifacts, anchored studies, and
-  detectors remain outside this candidate even when visibly composable;
+  detectors remain outside this decision even when visibly composable;
 - P1b.4 remains deliberately paused and H117 remains executable but
   unaccepted;
 - P2 registry, P3a Worker, P3b Pine migration, privileged renderers,

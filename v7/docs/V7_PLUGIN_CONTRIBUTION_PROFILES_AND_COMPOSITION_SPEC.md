@@ -65,7 +65,7 @@ The defining accepted architecture rules are:
 9. Core and Community packages use the same base Contribution and same Profile
    contract when they claim the same Profile; trust changes execution and
    resource policy, not semantic meaning;
-10. `ADR-V7-005` is a subordinate calculated-series projection candidate, not
+10. `ADR-V7-005` is a subordinate calculated-series projection decision, not
     a universal plugin or visual-element ABI.
 
 ## Why One Plugin Taxonomy Is Insufficient
@@ -108,8 +108,8 @@ This decision preserves and connects existing accepted boundaries:
 - P0a's manifest and contribution metadata, P0b's Core Plugin Profile, P1a's
   Developer Kit Contract Profiles, and P1b's inert local package profile retain
   their accepted meanings and implementation status;
-- `ADR-V7-005` remains an unaccepted candidate and is narrowed by this decision to
-  the calculated-series Profile's standard Plot and Chart Region projection;
+- accepted `ADR-V7-005` is subordinate to this decision and binds only the
+  calculated-series Profile's standard Plot and Chart Region projection;
 - Session, Replay, Bar Data, Workspace, Chart, Annotation, persistence, and
   ModuleHost owners remain non-plugin Kernel infrastructure.
 
@@ -337,7 +337,7 @@ signal, histogram, and zero-reference output without becoming a hybrid
 Semantic Contribution. A separate crossover or divergence detector is another
 Contribution, even when distributed in the same package.
 
-`ADR-V7-005` defines the candidate standard-Plot, Scale, Chart Region,
+`ADR-V7-005` defines the accepted standard-Plot, Scale, Chart Region,
 placement, exact-frame, and Chart-writer behavior for this Profile.
 
 ### Anchored-Study Profile
@@ -727,7 +727,7 @@ human provenance, and recover an unavailable Profile without data loss.
 
 ## Relationship To ADR-V7-005
 
-`ADR-V7-005` should remain a focused candidate for the
+`ADR-V7-005` is the focused accepted decision for the
 `analysis.calculated-series` Profile and its standard Chart projection. Its
 generic properties remain valuable within that boundary:
 
@@ -750,10 +750,9 @@ ADR-V7-005 must not be read as:
 - classifying FVG, SMT, Fibonacci, RSI, ATR, MACD, or any combination merely
   because examples can be projected.
 
-The product owner accepted this upstream Profile/composition model first.
-ADR-V7-005's revised calculated-series projection decisions remain the next
-review. Acceptance of ADR-V7-006 authorized no implementation; future
-acceptance of ADR-V7-005 would likewise authorize no implementation.
+The product owner accepted this upstream Profile/composition model first and
+then accepted ADR-V7-005's revised calculated-series projection decisions.
+Acceptance of neither decision authorized implementation.
 
 ## Explicitly Rejected Alternatives
 
@@ -808,7 +807,7 @@ The product owner accepted these ten decisions without amendment on
    claiming the same Profile id/version, its exact semantics; trust tier
    changes admission/executor/resource policy, and current P1a/P1b availability
    remains unchanged.
-10. ADR-V7-005 becomes the subordinate calculated-series projection candidate;
+10. ADR-V7-005 becomes the subordinate calculated-series projection decision;
     accepting either decision authorizes no implementation, and P1b.4/H117/
     Community execution remain separately gated.
 
@@ -822,7 +821,7 @@ This acceptance makes the open host-governed Profile model, the non-exhaustive
 initial five Profiles, the Package/Contribution/Profile/Capability/Domain-Tag/
 Pack separation, typed host composition, unresolved survival, and same-Profile
 Core/Community semantics binding architecture. It explicitly leaves
-ADR-V7-005 under review and grants no implementation authority.
+ADR-V7-005 to a separate review and grants no implementation authority.
 
 ## Current Non-Authorization Boundary
 
@@ -836,7 +835,7 @@ Acceptance of `ADR-V7-006` does not cross these boundaries:
   persistence, test, archive, receipt, or dependency code may be added;
 - existing ADR-V7-001/003/004 decisions and P0a/P0b/P1a/P1b contracts retain
   their exact accepted meanings and states;
-- ADR-V7-005 remains unaccepted and authorizes no calculated-series work;
+- accepted ADR-V7-005 authorizes no calculated-series implementation work;
 - no example gains Core classification or implementation authority;
 - P1b.4 remains paused and H117 remains executable but unaccepted;
 - P2 registry, P3a Worker, P3b Pine migration, AI, strategy/execution,

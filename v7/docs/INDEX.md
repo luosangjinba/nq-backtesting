@@ -104,7 +104,7 @@ or implementation. Its draft and acceptance records are
 `../sessions/session_20260812_plugin_contribution_profile_composition_specification_draft.md`
 and
 `../sessions/session_20260812_plugin_contribution_profile_composition_specification_acceptance.md`.
-The revised subordinate `ADR-V7-005` candidate remains at
+Accepted subordinate `ADR-V7-005` is recorded at
 `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`. It now applies only
 to Contributions claiming the accepted architecture
 `analysis.calculated-series` Profile:
@@ -112,10 +112,12 @@ Main/new/existing-region placement belongs to the user-owned instance, Scale
 sharing is structural, multi-Plot/multi-group output is standard, and Core/
 future Community Contributions claiming that same Profile share its ABI while
 the Chart adapter remains sole native writer. It does not absorb FVG, SMT,
-Fibonacci, Drawings, Semantic Artifacts, or detectors. ADR-V7-005 remains
-unaccepted and under review; RSI/ATR/MACD remain unclassified examples, MA/SMA
-remains unimplemented, P1a/P1b availability is unchanged, and P1b.4 remains
-paused.
+Fibonacci, Drawings, Semantic Artifacts, or detectors. The product owner
+accepted all eight revised decisions on 2026-08-12 without authorizing
+implementation. RSI/ATR/MACD remain unclassified examples, MA/SMA remains
+unimplemented, P1a/P1b availability is unchanged, and P1b.4 remains paused.
+The acceptance record is
+`../sessions/session_20260812_calculated_series_projection_chart_region_specification_acceptance.md`.
 The seconds/tick memo additionally records the current decision that minute-
 sourced V7 remains valid without simulated-live training, defines the three-
 of-four investigation signals, and keeps every future seconds path behind the

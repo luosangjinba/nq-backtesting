@@ -976,6 +976,28 @@ capability contracts under stricter install, permission, isolation, budget,
 and failure controls. The full contract is
 `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`.
 
+Accepted ADR-V7-006 and ADR-V7-005 further constrain that extension boundary
+without adding an implementation. A Plugin Package is a lifecycle container;
+typed Contributions each use one primary truth/lifecycle Contribution Profile;
+capabilities and Domain Tags are orthogonal; and new Profiles enter only
+through an open, versioned, host-governed registry contract. Calculated series,
+anchored studies, Drawing geometry, Semantic Artifacts, and detectors are the
+initial reference Profiles, not a closed enum. Multi-Contribution packages and
+typed dependencies preserve separate ids, owners, provenance, and lifecycle.
+
+Within the accepted `analysis.calculated-series` architecture, Main and
+internal Chart Regions are user-owned placement targets rather than Indicator
+types. The host owns calculated-series instances, layout, unresolved state,
+exact snapshot/cutoff projection frames, and structural Scale compatibility.
+Definitions provide standard Plots/Plot Groups and defaults only. The Chart
+adapter remains the sole native pane/Series/Scale writer, and Core/future
+Community Contributions claiming the same Profile share semantic contracts
+while trust changes only admission, executor, isolation, and resources. Neither
+ADR registers a production/SDK Profile or authorizes calculated-series work.
+The full decisions are
+`V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md` and
+`V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`.
+
 FVG, MA/SMA, BSL/SSL, and Fibonacci are the accepted initial Core capability
 catalog. Core status freezes a maintained versioned baseline; it does not
 erase semantic variants. Higher-level plugins may declare `requires`,
