@@ -800,3 +800,19 @@ Acceptance of `ADR-V7-005` does not cross these boundaries:
   unaccepted;
 - P2 registry, P3a Worker, P3b Pine migration, privileged renderers,
   Marketplace, and product-scope expansion remain separately gated.
+
+## Later Dependency Status — 2026-08-13
+
+The first required dependency was separately specified, implemented as
+`P1c.1`, and accepted through H118 in
+`V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`. That step adds portable pure
+contracts only and does not itself authorize Chart projection.
+
+The second dependency now has a documentation-only candidate at
+`V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`. Its ten material
+decisions remain under product-owner review. The draft allocates neither
+`P1c.2` nor H119, changes no production or test code, and starts no Chart
+projection implementation, MA/SMA, live instance/persistence/UI,
+Community/Worker, or P1b.4 work. H117 remains unchanged. This status note does
+not revise the accepted ADR decisions or cross any current non-authorization
+boundary.

@@ -150,6 +150,34 @@ Accepted specification:
 Implementation record:
 `sessions/session_20260813_p1c_1_calculated_series_pure_contract_implementation.md`.
 
+## Calculated-Series Chart-Owned Projection Slice — Candidate; Not Accepted
+
+- [x] receive product-owner authorization to draft the second ADR-V7-005
+  dependency as a candidate specification only;
+- [x] re-check pinned Lightweight Charts 5.2.0 pane, Series, Scale, price-line,
+  and Primitive mechanics plus current awesome-tradingview ecosystem patterns;
+- [x] define a removable calculated-series projection transaction and a
+  bounded adapter-internal native surface while preserving the existing Chart
+  Snapshot Application as sole outer Chart participant;
+- [x] require one complete, branded Pane-surface candidate with exact candle,
+  Workspace, Replay-cutoff, document, Definition, and frame identity closure;
+- [x] define stable logical resources, same-chart Main/internal-region
+  materialization, structural Scale realization, standard Plot mapping, and
+  exact prepare/apply/rollback/finalize behavior;
+- [x] specify future deterministic and real-Chromium synthetic evidence without
+  registering a Harness record;
+- [x] record ten material decisions for product-owner review;
+- [x] allocate no `P1c.2` or H119 and add no implementation, MA/SMA, live
+  instance/persistence/UI, Community/Worker, P1b.4, or H117 state change;
+- [ ] receive product-owner review and accept, amend, or reject the ten
+  candidate decisions.
+
+Candidate specification:
+`docs/V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`.
+
+Draft record:
+`sessions/session_20260813_calculated_series_chart_owned_projection_candidate_specification.md`.
+
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09
 
 - [x] preserve validation as the user outcome and Replay as the controlled

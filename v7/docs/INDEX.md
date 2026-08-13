@@ -136,6 +136,17 @@ and
 `../sessions/session_20260812_calculated_series_pure_contract_specification_acceptance.md`,
 plus
 `../sessions/session_20260813_p1c_1_calculated_series_pure_contract_implementation.md`.
+The second ADR-V7-005 dependency now has a documentation-only candidate at
+`V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`. It proposes a
+removable complete-surface projection transaction beneath the existing sole
+Chart Snapshot Application, a bounded Lightweight Charts native bridge,
+stable same-chart Main/internal-region resources, structural Scale and
+standard Plot realization, exact rollback/finalize behavior, and future
+synthetic Chromium evidence. Its ten decisions remain under product-owner
+review. No implementation is authorized, no `P1c.2` or H119 exists, and no
+MA/SMA, live instance/persistence/UI, Community/Worker, P1b.4, or H117 state
+was changed. The draft record is
+`../sessions/session_20260813_calculated_series_chart_owned_projection_candidate_specification.md`.
 The seconds/tick memo additionally records the current decision that minute-
 sourced V7 remains valid without simulated-live training, defines the three-
 of-four investigation signals, and keeps every future seconds path behind the

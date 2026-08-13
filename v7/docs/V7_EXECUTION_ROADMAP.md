@@ -1284,9 +1284,35 @@ No calculation engine, live instance/persistence owner, Chart projection,
 native Series/Scale/region mutation, SDK execution availability, real
 Indicator, MA/SMA, Community/Worker tier, or P1b.4 work was added. H117 remains
 executable and unaccepted with its complete record unchanged. The immediate
-repository-changing next step is not authorized. Chart-owned projection remains
-separately specified and requires a later explicit instruction; H118 acceptance
-does not start it or any MA/SMA, Community/Worker, or P1b.4 work.
+repository-changing next step is not authorized. H118 acceptance does not start
+any Chart projection, MA/SMA, Community/Worker, or P1b.4 work.
+
+### Calculated-Series Chart-Owned Projection Slice — Candidate; Not Authorized
+
+The product owner authorized a specification draft, not implementation, for
+the second ADR-V7-005 dependency. Candidate
+`V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md` defines two nested
+boundaries: a removable, package-neutral complete-surface projection
+transaction and an adapter-internal native pane/Series/Scale/price-line/band
+bridge. The existing Chart Snapshot Application remains the sole outer Chart
+transaction participant, and the Lightweight Charts adapter remains the sole
+native writer.
+
+The candidate binds exact same-snapshot closure, stable logical resources,
+one-chart Main/internal-region realization, structural Scale compatibility,
+standard Plot mapping, non-ready stale-resource clearing, reversible staging,
+late same-snapshot settlement, bounded projection ceilings, diagnostics, and a
+future synthetic real-Chromium conformance fixture. It adopts only suitable
+official Lightweight Charts mechanics and host-owned renderer patterns; it
+does not adopt an ecosystem Indicator library, direct package Chart writes, or
+a second-chart subpane pattern.
+
+The immediate next gate is product-owner review of the ten candidate
+decisions. The draft allocates neither `P1c.2` nor H119 and authorizes no code,
+production route, MA/SMA, live instance/persistence/UI, Community/Worker,
+P1b.4, or H117 change. Even later acceptance of the decisions would bind only
+the specification; a separate instruction would still be required to allocate
+and implement a delivery.
 
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 

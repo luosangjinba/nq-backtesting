@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-12 after all ten Calculated-Series Pure Contract Slice
-decisions were accepted without implementation
+Last updated: 2026-08-13 after the Calculated-Series Chart-Owned Projection
+Slice candidate was drafted without implementation authorization
 
 ## Restart Resume Checkpoint
 
@@ -1227,11 +1227,19 @@ through separate `contribution-profile-contract` and
 contract/evidence review on 2026-08-13; H118 is accepted with the P1c.1
 implementation session as durable evidence, and P1c.1 is closed.
 
-Do not infer authority for Chart projection, a live instance/persistence owner,
-SDK execution availability, MA/SMA, Community/Worker execution, or P1b.4. The
-Chart-owned projection slice remains the separately specified second
-dependency and requires a later explicit instruction. No repository-changing
-next step is currently authorized.
+The separately requested documentation-only candidate for the second
+dependency is
+`V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`. It proposes a
+complete-surface Chart child transaction, bounded adapter-native bridge,
+same-chart Main/internal regions, structural Scale/standard Plot realization,
+exact rollback, and future synthetic Chromium evidence. Its ten decisions are
+not accepted. No `P1c.2` or H119 has been allocated.
+
+The exact next step is product-owner review of those ten candidate decisions.
+Review may accept, amend, or reject the specification; even acceptance alone
+does not authorize implementation. Do not infer authority for production Chart
+projection, a live instance/persistence owner, SDK execution availability,
+MA/SMA, Community/Worker execution, or P1b.4. H117 remains unchanged.
 
 R13.10e/H114, P0b/H115, and P1a/H116 are closed. P1b.1–P1b.3 implement the
 non-executing local package contract/archive, transaction/storage, and corrected
