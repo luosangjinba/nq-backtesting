@@ -1,9 +1,40 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-13 after P1c.2 Calculated-Series Chart-Owned Projection
-implementation and H119 registration; focused human review pending
+Last updated: 2026-08-13 before a planned server reboot; P1c.2 Calculated-Series
+Chart-Owned Projection is implemented at baseline `6672a23f`, while H119 remains
+executable and its focused human review is explicitly incomplete
 
 ## Restart Resume Checkpoint
+
+### 2026-08-13 Server-Reboot Hold
+
+The product owner explicitly requested a durable handoff before restarting the
+server and confirmed that the current human acceptance is not complete. This
+instruction does not accept H119 and grants no later implementation authority.
+The durable request record is
+`sessions/session_20260813_pre_server_reboot_h119_pending_handoff.md`.
+
+Resume with these facts unchanged:
+
+- branch: `feature/v7-drawing-semantic-annotation`;
+- P1c.2 implementation baseline: `6672a23f` (`Implement P1c.2 chart-owned
+  calculated-series projection`);
+- P1c.2 implementation: complete, but the delivery remains open at its focused
+  human gate;
+- H119: `executable`, `humanReviewRequired: true`, and
+  `acceptanceEvidence: null`;
+- H117: unchanged, `executable`, human-review-required, and unaccepted;
+- exact next action: run and inspect the H119 focused gate in
+  `docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`, then wait
+  for an explicit product-owner pass or rejection;
+- do not infer acceptance from implementation completion or any earlier tool
+  approval;
+- do not start Core MA/SMA, live calculated-series instances, persistence/UI,
+  Community/Worker execution, generic layout, P1b.4, or an H117 state change.
+
+Any development server or browser process is disposable runtime state and need
+not survive the reboot. No new implementation or acceptance-state mutation is
+required merely to restart the machine.
 
 Resume on branch `feature/v7-drawing-semantic-annotation`. The current branch
 contains separately committed accepted R13.10c and R13.10d checkpoints plus
@@ -48,6 +79,11 @@ git status --short
 ```
 
 Then read, in order:
+
+For this reboot, immediately after item 1 read
+`v7/sessions/session_20260813_pre_server_reboot_h119_pending_handoff.md` and
+`v7/docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md` before
+continuing through the historical context below.
 
 1. `v7/docs/V7_RESTART_HANDOFF.md`
 2. `v7/docs/V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md`
