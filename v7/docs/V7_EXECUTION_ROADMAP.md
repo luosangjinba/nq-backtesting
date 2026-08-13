@@ -1216,25 +1216,48 @@ owner or upstream-plugin state access.
 Core classification neither authorizes these steps nor weakens their focused
 semantic/no-future/human gates.
 
-### Generic Indicator Projection And Chart Regions — ADR-V7-005 Candidate
+### Plugin Contribution Profiles And Composition — ADR-V7-006 Candidate
+
+The product owner identified that Package/distribution, contribution truth,
+capabilities, visual projection, and trading-domain category must not be
+collapsed into one broad Plugin type. The candidate
+`V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md` proposes an open,
+namespaced, versioned, host-governed Contribution Profile Registry. Calculated
+series, anchored studies, Drawing geometry, Semantic Artifacts, and detectors
+are the initial reference Profiles, not a closed enum. Capabilities and Domain
+Tags remain orthogonal; one package may publish several separately identified
+Profiles; and visual co-presence, typed dependencies, derived analysis, and
+human promotion retain distinct host-owned semantics.
+
+The draft allocates no delivery or Harness id and changes no P0a/P0b/P1a/P1b
+contract or availability. Every future Profile addition requires its own
+accepted truth/owner/schema/capability/migration/resource/conformance contract;
+a package cannot self-register one. Product-owner review of the candidate's ten
+material decisions precedes ADR-V7-005 review and authorizes no code. P1b.4 and
+H117 acceptance remain separately gated.
+
+### Calculated-Series Projection And Chart Regions — ADR-V7-005 Candidate
 
 The product owner directed one generic internal Chart-region capability for
-Core and future Community Indicator Plugins. The candidate specification
+Core and future Community Contributions claiming the candidate
+`analysis.calculated-series` Profile. The revised subordinate specification
 `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` separates existing
 Workspace Panes from stable host-owned Chart Regions; makes Main/new/existing
-region placement an Indicator-instance value; defines Plot Groups, standard
-Plots, structural Scale compatibility, exact no-future projection frames,
-unresolved instance survival, reversible Chart-owned materialization, and one
-Core/Community semantic ABI. MA may default to Main and still be moved to an
-internal region. RSI, ATR, MACD, and Volume are illustrative rather than
-authorized product packages.
+region placement a calculated-series-instance value; defines Plot Groups,
+standard Plots, structural Scale compatibility, exact no-future projection
+frames, unresolved instance survival, reversible Chart-owned materialization,
+and one same-Profile Core/Community ABI. MA may default to Main and still be
+moved to an internal region. RSI, ATR, MACD, and Volume are illustrative rather
+than authorized product packages. Anchored studies, Drawings, Semantic
+Artifacts, detectors, and a universal visual ABI are explicitly outside its
+scope.
 
 This is a draft decision candidate only. It allocates no delivery or Harness
 id, changes no SDK/catalog/runtime availability, authorizes no MA or Community
-execution, and does not start P1b.4 or accept H117. After product-owner review,
-an accepted architecture decision would still require separately authorized
-pure-contract, Chart-projection, trusted vertical-slice, layout, and Community
-integration specifications.
+execution, and does not start P1b.4 or accept H117. ADR-V7-006 must be accepted
+before or together with it. Later acceptance would still require separately
+authorized pure-contract, Chart-projection, trusted vertical-slice, layout, and
+Community integration specifications.
 
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 

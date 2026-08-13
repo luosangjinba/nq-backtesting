@@ -209,24 +209,35 @@ entry logic, and outcome claims are separate contributions.
 Future Core candidates must pass the classification rule; “and so on” is not
 a wildcard authorizing every familiar indicator or semantic concept.
 
-## Adjacent Indicator Compatibility Candidate — Not Yet An Amendment
+## Adjacent Contribution-Profile And Calculated-Series Candidates — Not Yet Amendments
 
-The product-owner-directed `ADR-V7-005` candidate in
-`V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` proposes the common
-Indicator compatibility layer anticipated by this model. It treats Main and
-internal Chart Regions as user-owned placement targets rather than different
-Indicator/plugin categories; defines generic Plot Groups, standard Plots,
+The product-owner-directed `ADR-V7-006` candidate in
+`V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md` proposes the open
+Contribution Profile and composition layer anticipated by this model. A Plugin
+Package is a lifecycle container, each typed Contribution has one primary
+truth/lifecycle Profile, capabilities and Domain Tags remain orthogonal, and
+one package may publish several differently profiled Contributions. Calculated
+series, anchored studies, Drawings, Semantic Artifacts, and detectors are an
+initial reference set rather than a closed enum. New Profiles require a
+host-governed versioned registry entry, contract, owner, conformance, and
+separate authorization; packages cannot self-register authority.
+
+The revised `ADR-V7-005` candidate in
+`V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` is subordinate to
+that model. It applies only to Contributions claiming the candidate
+`analysis.calculated-series` Profile. It treats Main and internal Chart Regions
+as user-owned placement targets, defines Plot Groups, standard Plots,
 structural Scale compatibility, exact no-future projection frames, and
-host-owned instance/layout state; and requires Core and future Community
-Indicators to share one semantic SDK/result/settings/lifecycle ABI. Trust tier
-would change only the admitted executor, distribution, and resource policy;
-neither tier would receive native Chart ownership.
+host-owned instance/layout state. Core and future Community Contributions
+claiming the same calculated-series Profile would share its semantic ABI;
+trust changes only admitted executor, distribution, and resource policy.
 
-That document is a decision candidate, not an accepted amendment. It does not
+Both documents are decision candidates, not accepted amendments. They do not
 authorize MA/SMA implementation, classify RSI/ATR/MACD or another example as
-Core, enable Community Indicator execution, alter current P1a/P1b catalogs, or
-start P1b.4. This specification retains its existing binding state until the
-candidate receives explicit product-owner acceptance or amendment.
+Core, reduce FVG/SMT/Fibonacci to Indicator output, enable Community execution,
+alter current P1a/P1b catalogs, accept H117, or start P1b.4. This specification
+retains its existing binding state until each candidate receives explicit
+product-owner acceptance or amendment.
 
 ## Package, Contribution, And Pack
 

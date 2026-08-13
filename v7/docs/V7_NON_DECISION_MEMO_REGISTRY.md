@@ -53,7 +53,8 @@ converted into a decision.
 
 | Candidate id | Topic | Drafted | Current status | File |
 | --- | --- | --- | --- | --- |
-| `ADR-V7-005` candidate | Generic Indicator projection, user-owned Main/internal-Chart-region placement, structural Scale compatibility, and one Core/Community semantic ABI | 2026-08-12 | product-owner-directed draft awaiting review; no delivery or implementation authorized; P1b.4 remains paused | `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` |
+| `ADR-V7-005` candidate | Calculated-series projection, user-owned Main/internal-Chart-region placement, structural Scale compatibility, and one same-Profile Core/Community ABI | 2026-08-12 | revised beneath ADR-V7-006; awaiting review after the upstream candidate; no delivery or implementation authorized; P1b.4 remains paused | `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` |
+| `ADR-V7-006` candidate | Open host-governed Contribution Profile registry, orthogonal capabilities/Domain Tags, multi-Contribution packages, and typed composition | 2026-08-12 | product-owner-directed draft awaiting review; initial five Profiles are not a closed enum; no SDK/catalog/delivery/implementation authorized; P1b.4 remains paused | `V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md` |
 
 Accepted decisions which promote or constrain memo content are recorded in
 Decision History.
@@ -123,20 +124,32 @@ delete it.
   `SemanticArtifact` and `ArtifactProjection` terms. Remaining memo work must
   use that vocabulary and ADR-V7-003's evidence-grade dataset constraints.
 
-### ADR-V7-005 Candidate Versus Remaining MEMO-V7-001 Scope
+### ADR-V7-006/005 Candidates Versus Remaining MEMO-V7-001 Scope
 
-- The candidate proposes to promote MEMO-V7-001's generic calculated-Indicator,
-  host-mediated Chart-contribution, native-sub-pane, resource-budget, and
-  Core/Community compatibility positions.
-- It strengthens the earlier examples by making Main versus internal Chart
-  Region a user-owned Indicator-instance placement rather than a permanent
-  Indicator category; an MA may therefore move off the candle region.
-- It does not promote general-futures scope, Setup/AI ownership, Community
-  execution, registry operation, privileged renderers, commercialization, or
-  Marketplace. Those positions remain open and cannot be inferred from a
-  generic Chart-region substrate.
-- Until accepted, `ADR-V7-005` remains a decision candidate and changes no
-  P1a/P1b availability, H117 state, or implementation authority.
+- ADR-V7-006 proposes to promote MEMO-V7-001's distinction among calculated
+  Indicators, manual Semantic contributions, detectors, Drawings, and visual
+  capabilities into an open, host-governed Contribution Profile/composition
+  model. It adds anchored studies as a distinct initial truth model so
+  Fibonacci is not forced into Drawing, calculated-series, or Semantic state.
+- Its five current Profiles are an initial reference set, not a closed enum.
+  Adding a future Profile requires an accepted versioned contract, host owner,
+  capability/permission boundary, migration, resource policy, and conformance;
+  package code cannot self-register one.
+- ADR-V7-005 is subordinate and proposes only the calculated-series Profile's
+  host-mediated standard Plots, native internal Chart Regions, structural Scale
+  compatibility, exact no-future frames, and same-Profile Core/Community ABI.
+  Main versus internal region remains user-owned instance placement, so an MA
+  may move off the candle region without changing truth or formula.
+- Visual co-presence does not merge lifecycle or provenance. FVG/SMT Semantic
+  Artifacts, Fibonacci anchored studies, Drawings, detectors, and calculated
+  series retain Profile-correct owners even if one Chart adapter reuses native
+  rendering helpers.
+- Neither candidate promotes general-futures scope, complete Setup/AI
+  ownership, Community execution, remote registry operation, privileged
+  renderers, commercialization, or Marketplace. Those positions remain open.
+- Until separately accepted, ADR-V7-006 and ADR-V7-005 change no P1a/P1b
+  availability, H117 state, Core catalog, delivery plan, or implementation
+  authority.
 
 ### MEMO-V7-004 Versus Broad Commercialization
 
