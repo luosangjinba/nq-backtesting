@@ -141,16 +141,22 @@ The second ADR-V7-005 dependency now has an accepted binding specification at
 removable complete-surface projection transaction beneath the existing sole
 Chart Snapshot Application, a bounded Lightweight Charts native bridge,
 stable same-chart Main/internal-region resources, structural Scale and
-standard Plot realization, exact rollback/finalize behavior, and future
-synthetic Chromium evidence. On 2026-08-13 the product owner accepted decisions
+standard Plot realization, exact rollback/finalize behavior, and synthetic
+Chromium evidence. On 2026-08-13 the product owner accepted decisions
 1–6 and 9–10 as drafted and decisions 7–8 with stronger Chart-owner fault
-escalation and settlement-admission boundaries. No implementation is
-authorized, no `P1c.2` or H119 exists, and no MA/SMA, live
-instance/persistence/UI, Community/Worker, P1b.4, or H117 state was changed.
-Its draft and acceptance records are
+escalation and settlement-admission boundaries. A separate instruction then
+allocated P1c.2/H119 and implemented the removable transaction, Chart-owned
+local child admission, adapter-private same-chart Main/internal resources,
+standard Plot/Scale mappings, rollback/fault escalation, and real-Chromium
+evidence. H119 is `executable` with focused human review pending; the module is
+not wired into the product Workstation. No MA/SMA, live instance/persistence/
+UI, Community/Worker, P1b.4, or H117 field was changed. Its draft, acceptance,
+and implementation records are
 `../sessions/session_20260813_calculated_series_chart_owned_projection_candidate_specification.md`
 and
-`../sessions/session_20260813_calculated_series_chart_owned_projection_specification_acceptance.md`.
+`../sessions/session_20260813_calculated_series_chart_owned_projection_specification_acceptance.md`,
+plus
+`../sessions/session_20260813_p1c_2_calculated_series_chart_owned_projection_implementation.md`.
 The seconds/tick memo additionally records the current decision that minute-
 sourced V7 remains valid without simulated-live training, defines the three-
 of-four investigation signals, and keeps every future seconds path behind the

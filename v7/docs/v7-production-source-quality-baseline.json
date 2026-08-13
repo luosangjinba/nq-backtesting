@@ -3560,6 +3560,26 @@
       "forwardingOnly": true,
       "functions": [],
       "kind": "runtime",
+      "moduleId": "core.chart-snapshot-application",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": true,
+      "path": "src/chart-snapshot-application/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "0205e89992af7fe7cbb6ed8ce112c8b94fc633f5b4ede895c127fea947c23ca4"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 12,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "runtime",
       "moduleId": "optional.annotation-runtime",
       "owner": "annotation-runtime",
       "ownsContract": true,
@@ -3571,6 +3591,161 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "adf2006631850d29e2515ec04c747f560c2c14795af3c84e49d0df5aecf8bdfd"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 121,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "isBindingCurrent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "reportFault",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "reportFault",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "prepare",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "same",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 32,
+          "name": "createChartCalculatedSeriesProjectionOwner",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "isBindingCurrent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "canonical",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireChartCalculatedSeriesProjectionControls",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireCurrentBinding",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireFactory",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "core.chart-snapshot-application",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/chart-snapshot-application/calculated-series-projection-owner.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose the complete supported public contract for chart snapshot application.",
+            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
+            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
+            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.chart-snapshot-application",
+          "name": "createChartCalculatedSeriesProjectionOwner",
+          "semanticMatches": [
+            "chart",
+            "owner",
+            "snapshot"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "chart",
+            "owner",
+            "projection",
+            "series",
+            "snapshot"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "expose the complete supported public contract for chart snapshot application.",
+            "inputs": "validated commands, identities, configuration, and explicitly injected ports.",
+            "outputs": "owner handles, branded snapshots, receipts, or terminal results.",
+            "sideEffects": "stateful owners mutate only their own state and call explicitly injected ports.",
+            "lifecycle": "a created owner remains active until dispose when that operation is exposed.",
+            "errors": "invalid, stale, or disposed operations throw or reject with stable module errors.",
+            "concurrencyCancellation": "asynchronous work honors supplied cancellation and identity currency; stale results cannot commit."
+          },
+          "moduleId": "core.chart-snapshot-application",
+          "name": "requireChartCalculatedSeriesProjectionControls",
+          "semanticMatches": [
+            "chart",
+            "snapshot"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "chart",
+            "controls",
+            "projection",
+            "series",
+            "snapshot"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "bf4b43304b375f8f4bc10a55ad782da0cdee8c90ee59e7236b2f6dcbdf697734"
     },
     {
       "adaptsBoundary": false,
@@ -25553,26 +25728,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 8,
-      "forwardingOnly": true,
-      "functions": [],
-      "kind": "runtime",
-      "moduleId": "core.chart-snapshot-application",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": true,
-      "path": "src/chart-snapshot-application/public.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "75bc893811be5f4a9a747cd43b5675ea5caeb8a490aeb1832f30e22cce8ee61f"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 80,
       "forwardingOnly": false,
       "functions": [
@@ -29637,7 +29792,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "c79fd50c60015fe72949e312e4361d18898cc965ca7217976c78f1355125d918"
+      "sourceHash": "a665cf743a37b3dcf8de8499eafaecd0e1a1f46331b1c7acf806e13f8d754f66"
     },
     {
       "adaptsBoundary": true,
@@ -29752,6 +29907,65 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "d465863d25f800147128efaa5cf91a86fc1d55f97504a89edc8f8e92cbb7b80a"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 10,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 3,
+          "name": "failCalculatedSeriesChartProjection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.calculated-series-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/calculated-series-chart-projection/projection-error.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "validate complete calculated-series Pane surfaces and expose one removable Chart-owned child transaction factory.",
+            "inputs": "branded P1c.1 Definitions/documents/frames, host-created Chart bindings, and one bounded native surface port.",
+            "outputs": "branded candidates, preparations, receipts, deterministic limits, and an owner-bindable projection factory.",
+            "sideEffects": "only an injected adapter surface may mutate native resources after the Chart owner admits a preparation.",
+            "lifecycle": "one factory binds one Chart owner; preparations settle exactly and the bound surface disposes explicitly.",
+            "errors": "CalculatedSeriesChartProjectionError rejects stale, partial, forged, unsupported, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one complete Pane-surface transaction at a time; no package callback or asynchronous calculation runs inside apply."
+          },
+          "moduleId": "optional.calculated-series-chart-projection",
+          "name": "CalculatedSeriesChartProjectionError",
+          "semanticMatches": [
+            "calculated",
+            "chart",
+            "projection",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "chart",
+            "optional",
+            "projection",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "4f1fa541bc6d437dc602bd1915fedbc391c74dee5612767dc0b999f87980eb67"
     },
     {
       "adaptsBoundary": true,
@@ -31332,6 +31546,142 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 116,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "detached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "paneViews",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "renderer",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "zOrder",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "drawStroke",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "segments",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 28,
+          "name": "createCalculatedSeriesBandPrimitive",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "draw",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "dash",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "destroy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "attached",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "update",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "updateAllViews",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "autoscaleInfo",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/calculated-series-band-primitive.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "174aeb51f8dbcd30606bce1400b5a4f4d664f2ae04310e25a94e7801698e7227"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 118,
       "forwardingOnly": false,
       "functions": [
@@ -31770,6 +32120,87 @@
       ],
       "sizeException": null,
       "sourceHash": "a8c4fb21cbfa960f2427d4bb0e8980820336027823ab9dc9d0c40b78f5e94203"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 139,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "requirePlan",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "finalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 32,
+          "name": "apply",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 32,
+          "name": "createCalculatedSeriesChartSurface",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "preflight",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireActive",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/calculated-series-chart-surface.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "15d79f7f7b60da79bb401120f8509179784512e9abeaca4709829aa414739987"
     },
     {
       "adaptsBoundary": true,
@@ -33841,6 +34272,26 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 16,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "adapter",
+      "moduleId": "optional.calculated-series-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": true,
+      "path": "src/calculated-series-chart-projection/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "395e465e7b11b79a24ab01e378152cc3162e534286da8bbbbe93d2229ae06a20"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 166,
       "forwardingOnly": false,
       "functions": [
@@ -34704,6 +35155,117 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 174,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "nativePriceLineOptions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "nativeAnchorOptions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "nativePriceFormat",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "anchorScaleRange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "autoscaleInfoProvider",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "decimalFormatter",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "nativePlotDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "nativePlotOptions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 39,
+          "name": "scalarOptions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "nativePlotData",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "nativeScaleMode",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "nativeLineStyle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "volumeFormatter",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "anchorData",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "fixedScaleRange",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/calculated-series-native-options.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "1d8316e3486092a7caf01fea61025ebb9969d148aada2efbf835f1219c54e423"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 183,
       "forwardingOnly": false,
       "functions": [
@@ -35117,6 +35679,37 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 11,
+          "name": "requireCalculatedSeriesChartSurface",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "requireChartOwnerControls",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.calculated-series-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/calculated-series-chart-projection/surface-port.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "b90375961e01f0088357d6b9932692ffacdb113b5560680ffd6fcef7a0efd118"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 19,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 8,
           "name": "createProductionBuiltInPluginPlan",
           "reviewedDecompositionException": false
@@ -35154,6 +35747,239 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "36bf75563e0e1cd46c97f37548e6e4217b7998380e004a8b0104680e9cd737cb"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 190,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "readBrandedList",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "transactionWire",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "createCalculatedSeriesChartBinding",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "frameOrder",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "definitionOrder",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 44,
+          "name": "createCalculatedSeriesPaneSurfaceCandidate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "canonicalProjectionValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "digest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "opaqueId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "readCalculatedSeriesChartBinding",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "readCalculatedSeriesPaneSurfaceCandidate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "safeInteger",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.calculated-series-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/calculated-series-chart-projection/candidate-value.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "validate complete calculated-series Pane surfaces and expose one removable Chart-owned child transaction factory.",
+            "inputs": "branded P1c.1 Definitions/documents/frames, host-created Chart bindings, and one bounded native surface port.",
+            "outputs": "branded candidates, preparations, receipts, deterministic limits, and an owner-bindable projection factory.",
+            "sideEffects": "only an injected adapter surface may mutate native resources after the Chart owner admits a preparation.",
+            "lifecycle": "one factory binds one Chart owner; preparations settle exactly and the bound surface disposes explicitly.",
+            "errors": "CalculatedSeriesChartProjectionError rejects stale, partial, forged, unsupported, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one complete Pane-surface transaction at a time; no package callback or asynchronous calculation runs inside apply."
+          },
+          "moduleId": "optional.calculated-series-chart-projection",
+          "name": "createCalculatedSeriesChartBinding",
+          "semanticMatches": [
+            "calculated",
+            "chart",
+            "projection",
+            "series"
+          ],
+          "semanticTerms": [
+            "binding",
+            "calculated",
+            "chart",
+            "optional",
+            "projection",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "validate complete calculated-series Pane surfaces and expose one removable Chart-owned child transaction factory.",
+            "inputs": "branded P1c.1 Definitions/documents/frames, host-created Chart bindings, and one bounded native surface port.",
+            "outputs": "branded candidates, preparations, receipts, deterministic limits, and an owner-bindable projection factory.",
+            "sideEffects": "only an injected adapter surface may mutate native resources after the Chart owner admits a preparation.",
+            "lifecycle": "one factory binds one Chart owner; preparations settle exactly and the bound surface disposes explicitly.",
+            "errors": "CalculatedSeriesChartProjectionError rejects stale, partial, forged, unsupported, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one complete Pane-surface transaction at a time; no package callback or asynchronous calculation runs inside apply."
+          },
+          "moduleId": "optional.calculated-series-chart-projection",
+          "name": "createCalculatedSeriesPaneSurfaceCandidate",
+          "semanticMatches": [
+            "calculated",
+            "chart",
+            "pane",
+            "projection",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "candidate",
+            "chart",
+            "optional",
+            "pane",
+            "projection",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "validate complete calculated-series Pane surfaces and expose one removable Chart-owned child transaction factory.",
+            "inputs": "branded P1c.1 Definitions/documents/frames, host-created Chart bindings, and one bounded native surface port.",
+            "outputs": "branded candidates, preparations, receipts, deterministic limits, and an owner-bindable projection factory.",
+            "sideEffects": "only an injected adapter surface may mutate native resources after the Chart owner admits a preparation.",
+            "lifecycle": "one factory binds one Chart owner; preparations settle exactly and the bound surface disposes explicitly.",
+            "errors": "CalculatedSeriesChartProjectionError rejects stale, partial, forged, unsupported, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one complete Pane-surface transaction at a time; no package callback or asynchronous calculation runs inside apply."
+          },
+          "moduleId": "optional.calculated-series-chart-projection",
+          "name": "readCalculatedSeriesChartBinding",
+          "semanticMatches": [
+            "calculated",
+            "chart",
+            "projection",
+            "series"
+          ],
+          "semanticTerms": [
+            "binding",
+            "calculated",
+            "chart",
+            "optional",
+            "projection",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "validate complete calculated-series Pane surfaces and expose one removable Chart-owned child transaction factory.",
+            "inputs": "branded P1c.1 Definitions/documents/frames, host-created Chart bindings, and one bounded native surface port.",
+            "outputs": "branded candidates, preparations, receipts, deterministic limits, and an owner-bindable projection factory.",
+            "sideEffects": "only an injected adapter surface may mutate native resources after the Chart owner admits a preparation.",
+            "lifecycle": "one factory binds one Chart owner; preparations settle exactly and the bound surface disposes explicitly.",
+            "errors": "CalculatedSeriesChartProjectionError rejects stale, partial, forged, unsupported, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one complete Pane-surface transaction at a time; no package callback or asynchronous calculation runs inside apply."
+          },
+          "moduleId": "optional.calculated-series-chart-projection",
+          "name": "readCalculatedSeriesPaneSurfaceCandidate",
+          "semanticMatches": [
+            "calculated",
+            "chart",
+            "pane",
+            "projection",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "candidate",
+            "chart",
+            "optional",
+            "pane",
+            "projection",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "57941f5d77d244d793e9874d9eb75869549f65655b0c8d8f3a93ba29f87066f6"
     },
     {
       "adaptsBoundary": true,
@@ -39762,6 +40588,368 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 332,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-21>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-22>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-25>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-28>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-29>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-30>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-31>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-32>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-33>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-34>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-35>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-36>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-37>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-39>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-40>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-43>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-47>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "mainPrimaryCompatible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "requireSupportedPlotStyle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "enforceLimits",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "plotResource",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-44>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "ordered",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "referenceLineResource",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-24>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-38>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "definitionRef",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "fail",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "resourceId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "same",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "planCalculatedSeriesChartProjection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-46>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "styleFor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 41,
+          "name": "collectResources",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "definitionKey",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "scalarValues",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 67,
+          "name": "materializeScales",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 69,
+          "name": "requireCandidateClosure",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.calculated-series-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/calculated-series-chart-projection/projection-plan.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "validate complete calculated-series Pane surfaces and expose one removable Chart-owned child transaction factory.",
+            "inputs": "branded P1c.1 Definitions/documents/frames, host-created Chart bindings, and one bounded native surface port.",
+            "outputs": "branded candidates, preparations, receipts, deterministic limits, and an owner-bindable projection factory.",
+            "sideEffects": "only an injected adapter surface may mutate native resources after the Chart owner admits a preparation.",
+            "lifecycle": "one factory binds one Chart owner; preparations settle exactly and the bound surface disposes explicitly.",
+            "errors": "CalculatedSeriesChartProjectionError rejects stale, partial, forged, unsupported, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one complete Pane-surface transaction at a time; no package callback or asynchronous calculation runs inside apply."
+          },
+          "moduleId": "optional.calculated-series-chart-projection",
+          "name": "CALCULATED_SERIES_CHART_PROJECTION_LIMITS",
+          "semanticMatches": [
+            "calculated",
+            "chart",
+            "limits",
+            "projection",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "chart",
+            "limits",
+            "optional",
+            "projection",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "4e15b0a3aff094ab6188661b6ec8ffa374f10227fb206ea9f0a5df44af087c89"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 34,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "countCalculatedSeriesPaintedPixels",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "visit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "readCalculatedSeriesPaintedPixels",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "colorTargets",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/calculated-series-paint-readback.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "20323767dc17ca0b3c3a238c46ce197c3f805a07e8952ad03b68ed2ced31b05c"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 34,
       "forwardingOnly": false,
       "functions": [
@@ -41493,6 +42681,241 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 417,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "apply",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "finalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "prepare",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "record",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "requireOperable",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "exactApplyResult",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "defaultDigestCanonical",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "digestCandidate",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "poison",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "bindChartOwner",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "finalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "canonicalJson",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "settle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 53,
+          "name": "apply",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 76,
+          "name": "prepare",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireCurrent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "createCalculatedSeriesChartProjectionFactory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "requireCalculatedSeriesChartProjectionFactory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "settlementIdentity",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.calculated-series-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/calculated-series-chart-projection/projection-port.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "validate complete calculated-series Pane surfaces and expose one removable Chart-owned child transaction factory.",
+            "inputs": "branded P1c.1 Definitions/documents/frames, host-created Chart bindings, and one bounded native surface port.",
+            "outputs": "branded candidates, preparations, receipts, deterministic limits, and an owner-bindable projection factory.",
+            "sideEffects": "only an injected adapter surface may mutate native resources after the Chart owner admits a preparation.",
+            "lifecycle": "one factory binds one Chart owner; preparations settle exactly and the bound surface disposes explicitly.",
+            "errors": "CalculatedSeriesChartProjectionError rejects stale, partial, forged, unsupported, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one complete Pane-surface transaction at a time; no package callback or asynchronous calculation runs inside apply."
+          },
+          "moduleId": "optional.calculated-series-chart-projection",
+          "name": "createCalculatedSeriesChartProjectionFactory",
+          "semanticMatches": [
+            "calculated",
+            "chart",
+            "factory",
+            "projection",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "chart",
+            "factory",
+            "optional",
+            "projection",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "validate complete calculated-series Pane surfaces and expose one removable Chart-owned child transaction factory.",
+            "inputs": "branded P1c.1 Definitions/documents/frames, host-created Chart bindings, and one bounded native surface port.",
+            "outputs": "branded candidates, preparations, receipts, deterministic limits, and an owner-bindable projection factory.",
+            "sideEffects": "only an injected adapter surface may mutate native resources after the Chart owner admits a preparation.",
+            "lifecycle": "one factory binds one Chart owner; preparations settle exactly and the bound surface disposes explicitly.",
+            "errors": "CalculatedSeriesChartProjectionError rejects stale, partial, forged, unsupported, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one complete Pane-surface transaction at a time; no package callback or asynchronous calculation runs inside apply."
+          },
+          "moduleId": "optional.calculated-series-chart-projection",
+          "name": "requireCalculatedSeriesChartProjectionFactory",
+          "semanticMatches": [
+            "calculated",
+            "chart",
+            "factory",
+            "projection",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "chart",
+            "factory",
+            "optional",
+            "projection",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "ba52e95b7d03ab0078363671b9d51765de7abdb23d44e1e2c626433c73e163d7"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 42,
       "forwardingOnly": false,
       "functions": [
@@ -42701,7 +44124,7 @@
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "<anonymous-36>",
+          "name": "<anonymous-38>",
           "reviewedDecompositionException": false
         },
         {
@@ -42777,6 +44200,11 @@
         {
           "effectiveLines": 1,
           "name": "readInstrumentId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readPriceIncrement",
           "reviewedDecompositionException": false
         },
         {
@@ -42860,13 +44288,18 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 32,
+          "effectiveLines": 34,
           "name": "createPublicPort",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 4,
           "name": "annotationSurface",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "calculatedSeriesProjectionFactory",
           "reviewedDecompositionException": false
         },
         {
@@ -42885,6 +44318,11 @@
           "reviewedDecompositionException": false
         },
         {
+          "effectiveLines": 58,
+          "name": "createLightweightChartAdapter",
+          "reviewedDecompositionException": false
+        },
+        {
           "effectiveLines": 6,
           "name": "requireAdapterEnvironment",
           "reviewedDecompositionException": false
@@ -42892,11 +44330,6 @@
         {
           "effectiveLines": 6,
           "name": "resetView",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 62,
-          "name": "createLightweightChartAdapter",
           "reviewedDecompositionException": false
         },
         {
@@ -42957,7 +44390,422 @@
         }
       ],
       "sizeException": null,
-      "sourceHash": "013ce5f7d717b17d6683849fcc86469139bf6576ea0dfa8f256b20097682284a"
+      "sourceHash": "e225645e63159344040cde6cf2f0a9df59e0292ab34575d95aabfb066c0bf235"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 449,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-30>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-38>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-39>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-40>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-41>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-42>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-43>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-44>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-45>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-46>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-49>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-51>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-52>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-54>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-58>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-59>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-64>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "mapBy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "removeRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "createLine",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "retainedCounts",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "reconcileBands",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "reconcileLines",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "finalizeCalculatedSeriesResourceStage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "reconcilePlots",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "reconcileScales",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "createBand",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "orderSeries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "applyScale",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "hideObsolete",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "reconcileRegions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "createPlot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "rollbackCalculatedSeriesResourceStage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-61>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-62>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "clonedMaps",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "regionIndex",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "sameResource",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "unprovenNativeMutation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "createScale",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 36,
+          "name": "captureCalculatedSeriesNativeState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "count",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "updateLine",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 44,
+          "name": "applyCalculatedSeriesResourcePlan",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-31>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-55>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "createEmptyCalculatedSeriesResourceMaps",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "disposeCalculatedSeriesResources",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "nativeScaleId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "restorePaneState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "updatePlot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "assertCandleUnchanged",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "capturePriceScale",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "updateBand",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/calculated-series-chart-resources.js",
+      "publicExports": [],
+      "responsibilities": [
+        "visual-surface-mutation"
+      ],
+      "sideEffectConcerns": [
+        {
+          "concern": "visual-surface-mutation",
+          "evidence": [
+            "addSeries()",
+            "attachPrimitive()",
+            "createPriceLine()",
+            "detachPrimitive()",
+            "removeSeries()",
+            "setData()",
+            "setVisibleRange()"
+          ]
+        }
+      ],
+      "sizeException": null,
+      "sourceHash": "bfa3564e81f6c621e58f16705717d10d4038635137879b7f773edf4a4a65edf6"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 45,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "calculatedSeriesProjectionFactory",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "createChartOwnedSurfaceBindings",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "annotationSurface",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/chart-owned-surface-bindings.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "f4e6e95c638a70c5bb7392d83c04680cfbf5f8682939f02618c1a4fdc845a020"
     },
     {
       "adaptsBoundary": true,
@@ -44741,6 +46589,225 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "b591efd69c6fea9ebe86795db2c7863813f511cab0fb30bae9f81e26a2b1d538"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 61,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 37,
+          "name": "readCalculatedSeriesPaintedReadback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "safeCount",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "exactStringArray",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "fail",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.calculated-series-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/calculated-series-chart-projection/painted-readback.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "1ee43cc047dd806544fd0b7340fef69debdfd274748b928988e3cdff579b13c1"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 62,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "apply",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "finalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "matches",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requireMatchingCalculatedSeriesChartProjectionReceipt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "createPreparedCalculatedSeriesChartProjection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "createCalculatedSeriesChartProjectionReceipt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "readCalculatedSeriesChartProjectionReceipt",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "readPreparedCalculatedSeriesChartProjection",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.calculated-series-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/calculated-series-chart-projection/prepared-surface.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "validate complete calculated-series Pane surfaces and expose one removable Chart-owned child transaction factory.",
+            "inputs": "branded P1c.1 Definitions/documents/frames, host-created Chart bindings, and one bounded native surface port.",
+            "outputs": "branded candidates, preparations, receipts, deterministic limits, and an owner-bindable projection factory.",
+            "sideEffects": "only an injected adapter surface may mutate native resources after the Chart owner admits a preparation.",
+            "lifecycle": "one factory binds one Chart owner; preparations settle exactly and the bound surface disposes explicitly.",
+            "errors": "CalculatedSeriesChartProjectionError rejects stale, partial, forged, unsupported, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one complete Pane-surface transaction at a time; no package callback or asynchronous calculation runs inside apply."
+          },
+          "moduleId": "optional.calculated-series-chart-projection",
+          "name": "readCalculatedSeriesChartProjectionReceipt",
+          "semanticMatches": [
+            "calculated",
+            "chart",
+            "projection",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "chart",
+            "optional",
+            "projection",
+            "receipt",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "validate complete calculated-series Pane surfaces and expose one removable Chart-owned child transaction factory.",
+            "inputs": "branded P1c.1 Definitions/documents/frames, host-created Chart bindings, and one bounded native surface port.",
+            "outputs": "branded candidates, preparations, receipts, deterministic limits, and an owner-bindable projection factory.",
+            "sideEffects": "only an injected adapter surface may mutate native resources after the Chart owner admits a preparation.",
+            "lifecycle": "one factory binds one Chart owner; preparations settle exactly and the bound surface disposes explicitly.",
+            "errors": "CalculatedSeriesChartProjectionError rejects stale, partial, forged, unsupported, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one complete Pane-surface transaction at a time; no package callback or asynchronous calculation runs inside apply."
+          },
+          "moduleId": "optional.calculated-series-chart-projection",
+          "name": "readPreparedCalculatedSeriesChartProjection",
+          "semanticMatches": [
+            "calculated",
+            "chart",
+            "projection",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "chart",
+            "optional",
+            "prepared",
+            "projection",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "9069265af344ad0633df9af5280f66eccd1c5303fd13af803c9cb9277c1bcb03"
     },
     {
       "adaptsBoundary": true,
@@ -47873,11 +49940,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 46189,
-    "files": 516,
-    "functions": 4794,
-    "publicExports": 507
+    "effectiveLines": 48378,
+    "files": 531,
+    "functions": 5073,
+    "publicExports": 519
   },
-  "deliveryStep": "P1c.1",
-  "generatedFromCommit": "working-tree-p1c.1"
+  "deliveryStep": "P1c.2",
+  "generatedFromCommit": "working-tree-p1c.2"
 }

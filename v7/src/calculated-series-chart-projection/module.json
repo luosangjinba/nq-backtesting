@@ -1,0 +1,19 @@
+{
+  "id": "optional.calculated-series-chart-projection",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "chart-runtime-adapter",
+  "publicEntry": "src/calculated-series-chart-projection/public.js",
+  "requiredPorts": [
+    "core.activation-generation",
+    "core.calculated-series-contract",
+    "core.chart-snapshot-application",
+    "core.session-identity",
+    "core.transaction-identity",
+    "core.workspace-transaction-contract"
+  ],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/calculated-series-chart-projection-harness.js",
+  "removable": true
+}

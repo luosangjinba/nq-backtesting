@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "p1b-3-plugin-center-writer-closure",
+  "status": "p1c-2-calculated-series-chart-writer-closure",
   "writerPolicies": [
     {
       "surface": "annotationDocument",

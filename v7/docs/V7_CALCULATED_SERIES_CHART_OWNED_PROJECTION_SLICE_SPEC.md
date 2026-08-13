@@ -1,8 +1,8 @@
 # V7 Calculated-Series Chart-Owned Projection Slice — Accepted Specification
 
 Status: ten material decisions accepted on 2026-08-13 with decisions 7 and 8
-amended; no implementation, delivery id, Harness id, runtime availability, or
-product surface authorized
+amended; separately authorized P1c.2 implementation complete with H119
+`executable` and focused human review pending; no product/runtime availability
 
 Drafted: 2026-08-13
 
@@ -37,6 +37,19 @@ This acceptance makes the ten material decisions binding with decisions 7 and
 8 replaced by the amended text below. It authorizes no implementation and
 allocates neither `P1c.2` nor H119. Every exclusion and the H117/P1b.4 boundary
 remain unchanged.
+
+## Product-Owner Implementation Authorization
+
+The product owner subsequently directed:
+
+> 授权按已验收的 V7 Calculated-Series Chart-Owned Projection Slice 规格实现
+> P1c.2，并分配 H119；不启动 MA/SMA、实例/持久化/UI、Community/Worker 或
+> P1b.4，不变更 H117。
+
+That instruction allocated P1c.2 and H119 and authorized only the synthetic,
+Chart-owned projection slice specified here. It did not authorize product-route
+wiring, an executable Profile, a named Indicator, a live instance owner,
+persistence/UI, Community/Worker execution, P1b.4, or any H117 field change.
 
 ## Purpose
 
@@ -157,8 +170,8 @@ trusted-formula decision may separately audit individual calculations.
 
 ## Specified Module And Ownership Boundary
 
-A later implementation should add one removable projection transaction and one
-adapter-internal native bridge:
+P1c.2 adds one removable projection transaction and one adapter-internal native
+bridge:
 
 ```text
 optional.calculated-series-chart-projection
@@ -521,12 +534,10 @@ Messages may improve, but code, phase, logical identity, and deterministic
 ordering are machine meaning. Diagnostics contain no native id or stack-derived
 DOM/Canvas detail.
 
-## Required Future Conformance Evidence
+## H119 Conformance Evidence
 
-This accepted specification allocates no Harness id. A later implementation
-authorization may allocate the next available delivery and Harness ids only
-then. Its
-independent gate should cover at least:
+The separate implementation authorization allocated H119. Its independent
+gate covers:
 
 1. branded complete candidate closure, exact Chart binding, revision collision,
    and declarative negative fixtures;
@@ -556,8 +567,8 @@ independent gate should cover at least:
     transaction, architecture, source-quality, and complete existing Harness
     regressions.
 
-Because a later implementation would add real synthetic pixels, its human gate
-should review the focused browser evidence for Plot/Scale/region correctness.
+Because P1c.2 adds real synthetic pixels, its human gate reviews the focused
+browser evidence for Plot/Scale/region correctness.
 It would not be product UI or MA/SMA acceptance, and it would authorize no
 production Workstation wiring.
 
@@ -588,8 +599,8 @@ This accepted specification does not authorize or include:
   dependency, or a concrete Indicator registry;
 - SDK/Profile availability, Manifest fields, Installed activation, remote
   registry, signing, Marketplace, P2, P3a, or P3b;
-- `P1c.2`, H119, P1b.4, H117 acceptance/reclassification, or any H117 field
-  change.
+- H119 acceptance/reclassification, P1b.4, H117 acceptance/reclassification,
+  or any H117 field change.
 
 ## Accepted Material Decisions
 
@@ -634,7 +645,7 @@ decisions 7 and 8 with the technical-review amendments recorded here:
    not another global Workspace participant; no calculator, Contribution,
    package, or projector may bypass the Chart owner, and a newer candle/
    Workspace identity rejects stale settlement before any side effect;
-9. a future independently numbered gate must combine deterministic negative
+9. an independently numbered gate must combine deterministic negative
    controls with a real single-chart synthetic Main/internal-region browser
    fixture, failure rollback, native interaction, candle-owner invariance, and
    focused technical human review;
@@ -643,14 +654,27 @@ decisions 7 and 8 with the technical-review amendments recorded here:
     Community/Worker, P1b.4, or H117 change; each requires the separately
     accepted sequence and explicit later instruction.
 
-## Acceptance Record And Later Sequence
+## P1c.2 Implementation Record And Later Sequence
 
-The product-owner acceptance makes all ten decisions binding with the two
-recorded amendments. It still authorizes no repository implementation.
+The product-owner acceptance made all ten decisions binding with the two
+recorded amendments. The later implementation instruction allocated P1c.2 and
+H119. P1c.2 now provides:
 
-Only a separate implementation instruction may allocate the next delivery and
-Harness ids and activate this synthetic Chart-owned slice.
-Only after that implementation and its focused gate close may the trusted Core
-MA/SMA vertical-slice candidate be started by another explicit instruction.
+- removable `optional.calculated-series-chart-projection` complete-surface
+  candidate, plan, preparation, receipt, rollback/finalize, and disposal
+  contracts;
+- one Chart Snapshot Application-owned local admission/fault boundary, without
+  registering a second Workspace transaction participant;
+- one adapter-private Lightweight Charts resource bridge for one-chart Main
+  and internal regions, structural Scales, Line/Histogram/Area/Baseline Series,
+  host band Primitive, and reference lines;
+- deterministic fake-surface failure evidence plus a real Chromium one-chart
+  synthetic fixture and focused screenshot.
+
+The module is intentionally not constructed by the production Workstation
+route. H119 is `executable`, requires focused human review, and has
+`acceptanceEvidence: null`; therefore P1c.2 is implemented but not yet
+human-accepted. Only after H119 acceptance may a trusted Core MA/SMA
+vertical-slice candidate be started by another explicit instruction.
 Generic layout, Community/Worker integration, real Indicator catalog decisions,
 and P1b.4 remain independently gated.

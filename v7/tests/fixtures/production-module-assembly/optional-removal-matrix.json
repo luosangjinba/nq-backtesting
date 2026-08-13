@@ -6,6 +6,10 @@
       "omittedModuleId": "adapter.database-bootstrap-ui"
     },
     {
+      "consumerModuleId": "adapter.lightweight-chart",
+      "omittedModuleId": "optional.calculated-series-chart-projection"
+    },
+    {
       "consumerModuleId": "adapter.session-application",
       "omittedModuleId": "adapter.plugin-center-ui"
     },
@@ -156,6 +160,10 @@
     {
       "consumerModuleId": null,
       "omittedModuleId": "optional.annotation-semantic-registry"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.calculated-series-chart-projection"
     },
     {
       "consumerModuleId": null,

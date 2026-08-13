@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-13 after the Calculated-Series Chart-Owned Projection
-Slice specification was accepted without implementation authorization
+Last updated: 2026-08-13 after P1c.2 Calculated-Series Chart-Owned Projection
+implementation and H119 registration; focused human review pending
 
 ## Restart Resume Checkpoint
 
@@ -25,16 +25,17 @@ multi-Contribution packages, and typed host composition are binding. ADR-V7-005
 is now also accepted: calculated-series instances, Main/internal Chart Region
 placement, structural Scale compatibility, multi-Plot output, exact no-stale
 projection frames, host ownership, and same-Profile Core/Community semantics
-are binding architecture. Acceptance of both decisions authorized no code. The
-first required pure-contract dependency is implemented and accepted as
+are binding architecture. The first required pure-contract dependency is implemented and accepted as
 P1c.1/H118: its separate Profile-registry/calculated-series owners, exact P0a
 binding, portable values, limits, diagnostics, and migration contracts are
 binding. The second required Chart-owned projection specification is also now
 accepted: decisions 1–6 and 9–10 retain their drafted form, while decisions 7
 and 8 require Chart-owner escalation for unprovable recovery and Chart-owner-
-only admission of both projection modes. That acceptance authorized no code,
-delivery id, or Harness id. No Chart-projection implementation step is
-currently authorized; P1b.4 remains paused and H117 remains unaccepted.
+only admission of both projection modes. A later explicit instruction
+allocated and implemented P1c.2/H119. The removable projector and adapter-
+private synthetic Main/internal surface are not wired into the Workstation;
+H119 is executable with focused human review pending. P1b.4 remains paused and
+H117 remains unaccepted and unchanged.
 `git log` is the authoritative commit identity.
 
 After a machine or agent restart, run:
@@ -1234,20 +1235,23 @@ through separate `contribution-profile-contract` and
 contract/evidence review on 2026-08-13; H118 is accepted with the P1c.1
 implementation session as durable evidence, and P1c.1 is closed.
 
-The documentation-only second-dependency specification at
+The second-dependency specification at
 `V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md` is now accepted.
 It binds a complete-surface Chart child transaction, bounded adapter-native
 bridge, same-chart Main/internal regions, structural Scale/standard Plot
-realization, exact rollback, and future synthetic Chromium evidence. Decisions
+realization, exact rollback, and synthetic Chromium evidence. Decisions
 7 and 8 additionally require Chart-owner recovery escalation and Chart-owner-
 only admission/sequencing for both projection modes.
 
-Acceptance allocated no `P1c.2` or H119 and authorized no implementation. No
-repository-changing next step is currently authorized. A future
-Chart-projection implementation requires a separate explicit product-owner
-instruction that allocates the delivery and Harness ids. Do not infer
-authority for a live instance/persistence owner, SDK execution availability,
-MA/SMA, Community/Worker execution, or P1b.4. H117 remains unchanged.
+The separate implementation instruction allocated P1c.2 and H119. The
+complete-surface transaction, Chart-owned admission/fault seam, adapter-private
+native bridge, reversible failure behavior, and real Chromium evidence are
+implemented without product-route wiring. H119 is `executable`, human-review-
+required, and unaccepted. The exact next step is the focused review in
+`V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`; do not infer
+authority for MA/SMA, a live instance/persistence owner, SDK execution
+availability, Community/Worker execution, generic layout, or P1b.4. H117
+remains unchanged.
 
 R13.10e/H114, P0b/H115, and P1a/H116 are closed. P1b.1–P1b.3 implement the
 non-executing local package contract/archive, transaction/storage, and corrected

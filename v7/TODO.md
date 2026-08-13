@@ -150,7 +150,7 @@ Accepted specification:
 Implementation record:
 `sessions/session_20260813_p1c_1_calculated_series_pure_contract_implementation.md`.
 
-## Calculated-Series Chart-Owned Projection Slice — Accepted Specification; Not Implemented
+## P1c.2 Calculated-Series Chart-Owned Projection Slice — Implemented; H119 Review Pending
 
 - [x] receive product-owner authorization to draft the second ADR-V7-005
   dependency as a candidate specification only;
@@ -175,6 +175,24 @@ Implementation record:
 - [x] keep acceptance documentation-only: allocate no `P1c.2`/H119, implement
   no projection, and leave MA/SMA, live instance/persistence/UI,
   Community/Worker, P1b.4, and H117 unchanged.
+- [x] receive separate product-owner implementation authorization on
+  2026-08-13, allocate `P1c.2` and H119, and preserve every stated exclusion;
+- [x] implement the removable complete-surface candidate/plan/transaction
+  boundary plus Chart Snapshot Application-owned admission and fault
+  escalation;
+- [x] implement one adapter-private Lightweight Charts resource surface for
+  same-chart Main/internal regions, structural Scales, five standard Plot
+  kinds, host band Primitive, and reference lines;
+- [x] prove inert preparation, exact CAS/receipt/rollback/finalize, deferred
+  destruction, ready-to-non-ready clearing, same-snapshot settlement,
+  retained handles, same-point placement movement, poison, and disposal;
+- [x] add real Chromium one-chart Main/internal-region, candle invariance,
+  native interaction, responsive containment, and screenshot evidence;
+- [x] register H119 as `executable`, human-review-required, and unaccepted;
+- [ ] receive focused product-owner H119 visual/evidence acceptance and close
+  only P1c.2;
+- [x] add no MA/SMA, live instance/persistence/UI, Community/Worker, P1b.4,
+  production route wiring, or H117 field change.
 
 Accepted specification:
 `docs/V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`.
@@ -184,6 +202,12 @@ Draft record:
 
 Acceptance record:
 `sessions/session_20260813_calculated_series_chart_owned_projection_specification_acceptance.md`.
+
+Implementation record:
+`sessions/session_20260813_p1c_2_calculated_series_chart_owned_projection_implementation.md`.
+
+Focused human gate:
+`docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`.
 
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09
 
@@ -1790,8 +1814,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 516 files, 46,189 effective lines, 4,794 functions, and 507 public exports; the architecture baseline
-contains 70 modules, 155 edges, 133 construction sites, 27 writers, and zero
+The current production source baseline contains 531 files, 48,378 effective lines, 5,073 functions, and 519 public exports; the architecture baseline
+contains 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -1802,7 +1826,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 516 files, 46,189 effective lines, 4,794 functions, and 507 public exports, 70 modules, 155 edges, 133 construction sites, 27 writers, and zero
+currently at 531 files, 48,378 effective lines, 5,073 functions, and 519 public exports, 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
 ## Established Foundation Governance

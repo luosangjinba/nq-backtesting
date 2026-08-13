@@ -1287,7 +1287,7 @@ executable and unaccepted with its complete record unchanged. The immediate
 repository-changing next step is not authorized. H118 acceptance does not start
 any Chart projection, MA/SMA, Community/Worker, or P1b.4 work.
 
-### Calculated-Series Chart-Owned Projection Slice — Accepted Specification; Not Implemented
+### P1c.2 Calculated-Series Chart-Owned Projection Slice — Implemented; H119 Review Pending
 
 The product owner accepted the binding specification, not implementation, for
 the second ADR-V7-005 dependency.
@@ -1314,10 +1314,18 @@ activation poison, and both workspace-stage and same-snapshot settlement must
 be admitted and sequenced only by that Chart owner. Shared native uncertainty
 cannot masquerade as a local failure or a projector bypass.
 
-Acceptance allocates neither `P1c.2` nor H119 and authorizes no code,
-production route, MA/SMA, live instance/persistence/UI, Community/Worker,
-P1b.4, or H117 change. No repository-changing next step is authorized; a
-separate instruction is required to allocate and implement a delivery.
+The separate 2026-08-13 implementation instruction allocated P1c.2 and H119.
+The repository now contains the removable complete-surface projection
+transaction, Chart Snapshot Application-owned admission/fault seam,
+adapter-private same-chart Main/internal resource bridge, all five standard
+Plot mappings, host band Primitive, reference lines, rollback/finalize
+recovery, and deterministic plus real-Chromium evidence. It is not constructed
+by the production Workstation route.
+
+H119 is `executable`, requires focused human review, and remains unaccepted.
+The implementation adds no calculation engine, production route, MA/SMA, live
+instance/persistence/UI, Community/Worker, P1b.4, or H117 change. No later
+delivery is authorized by implementation alone.
 
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 

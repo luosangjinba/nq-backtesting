@@ -1,8 +1,8 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule; latest completed repository step P1c.1, H118
-accepted; Chart-owned projection specification accepted with no next delivery
-allocated or authorized (2026-08-13)
+Status: binding delivery rule; latest allocated repository step P1c.2
+implemented, H119 executable with focused human review pending; H117 unchanged
+(2026-08-13)
 
 ## Delivery IDs
 
@@ -26,14 +26,15 @@ The later Plugin Platform program uses `P<phase>` and `P<phase>.<slice>` ids
 under the same non-reuse, bounded-delivery, evidence, and human-gate rules.
 Those ids do not renumber or supersede the R-series history.
 
-The latest completed repository-changing delivery step is `P1c.1`,
-Calculated-Series Pure Contracts. Its focused human contract/evidence review
-accepted H118 while preserving H117 unchanged. P1c.1 adds no Chart/runtime/SDK
-execution authority, and no later delivery is authorized by that acceptance.
-The documentation-only Calculated-Series Chart-Owned Projection specification
-is accepted, but allocates neither `P1c.2` nor H119. Its product-owner review
-and acceptance are not a delivery step; a separate implementation instruction
-is still required before either id may be allocated.
+The latest allocated repository-changing delivery step is `P1c.2`,
+Calculated-Series Chart-Owned Projection. A separate 2026-08-13 product-owner
+instruction authorized its accepted specification and allocated H119. The
+synthetic removable projection transaction, Chart-owned admission seam,
+adapter-private one-chart Main/internal resource bridge, and real Chromium
+evidence are implemented. H119 remains `executable`, human-review-required,
+and unaccepted, so P1c.2 awaits its focused gate. It adds no Profile execution
+availability, named Indicator, live instance/persistence/UI, Community/Worker,
+P1b.4, product route wiring, or H117 change.
 
 `R13.5` was the Segment Interaction And Preview step. R13.2 remains the pure
 removable Geometry boundary, R13.3 remains

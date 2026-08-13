@@ -75,6 +75,14 @@ function parseImports(source) {
   for (const match of source.matchAll(sideEffectPattern)) {
     imports.push(Object.freeze({ names: [], specifier: match[2] }));
   }
+  const dynamicPattern = /^\s*(?:const\s+(\{[^}]+\}|[A-Za-z_$][\w$]*)\s*=\s*)?(?:await\s+)?import\s*\(\s*(['"])([^'"]+)\2\s*\)\s*;?/gm;
+  for (const match of source.matchAll(dynamicPattern)) {
+    const clause = match[1];
+    imports.push(Object.freeze({
+      names: clause?.startsWith('{') ? importedNames(clause) : (clause ? [clause] : []),
+      specifier: match[3],
+    }));
+  }
   return imports;
 }
 

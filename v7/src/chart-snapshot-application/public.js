@@ -17,3 +17,7 @@ export { ChartSnapshotApplicationError } from './application-error.js';
 export { createChartAdapterVisibleReceipt } from './adapter-receipt.js';
 export { requireProjectedPaneSetSnapshot } from './pane-set-snapshot-contract.js';
 export { requirePreparedChartApplication } from './prepared-chart-application.js';
+export {
+  createChartCalculatedSeriesProjectionOwner,
+  requireChartCalculatedSeriesProjectionControls,
+} from './calculated-series-projection-owner.js';

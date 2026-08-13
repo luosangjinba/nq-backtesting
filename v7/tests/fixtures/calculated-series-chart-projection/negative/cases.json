@@ -1,0 +1,23 @@
+[
+  { "name": "candidate-lookalike", "expectedCode": "CALCULATED_SERIES_CHART_CANDIDATE_REQUIRED" },
+  { "name": "binding-lookalike", "expectedCode": "CALCULATED_SERIES_CHART_BINDING_REQUIRED" },
+  { "name": "surface-port", "expectedCode": "CALCULATED_SERIES_CHART_SURFACE_INVALID" },
+  { "name": "preflight-failure", "expectedCode": "CALCULATED_SERIES_CHART_PREPARE_FAILED" },
+  { "name": "factory-rebind", "expectedCode": "CALCULATED_SERIES_CHART_FACTORY_BOUND" },
+  { "name": "owner-controls-lookalike", "expectedCode": "CHART_CALCULATED_SERIES_CONTROLS_REQUIRED" },
+  { "name": "stale-binding", "expectedCode": "CALCULATED_SERIES_CHART_BINDING_STALE" },
+  { "name": "stale-base", "expectedCode": "CALCULATED_SERIES_CHART_BASE_REVISION_STALE" },
+  { "name": "receipt-lookalike", "expectedCode": "CALCULATED_SERIES_CHART_RECEIPT_REQUIRED" },
+  { "name": "native-readback-lookalike", "expectedCode": "CALCULATED_SERIES_CHART_APPLY_FAILED" },
+  { "name": "binding-stale-after-paint", "expectedCode": "CALCULATED_SERIES_CHART_APPLY_FAILED" },
+  { "name": "prepared-lookalike", "expectedCode": "CALCULATED_SERIES_CHART_PREPARATION_REQUIRED" },
+  { "name": "active-preparation", "expectedCode": "CALCULATED_SERIES_CHART_PREPARATION_ACTIVE" },
+  { "name": "concurrent-preparation", "expectedCode": "CALCULATED_SERIES_CHART_PORT_BUSY" },
+  { "name": "revision-collision", "expectedCode": "CALCULATED_SERIES_CHART_REVISION_COLLISION" },
+  { "name": "settlement-identity-drift", "expectedCode": "CALCULATED_SERIES_CHART_SETTLEMENT_IDENTITY_MISMATCH" },
+  { "name": "baseline-stroke-unsupported", "expectedCode": "CALCULATED_SERIES_CHART_BASELINE_STROKE_UNSUPPORTED" },
+  { "name": "log-nonpositive", "expectedCode": "CALCULATED_SERIES_CHART_LOG_VALUE_INVALID" },
+  { "name": "collapsed-region", "expectedCode": "CALCULATED_SERIES_CHART_COLLAPSE_UNSUPPORTED" },
+  { "name": "fixed-overlay", "expectedCode": "CALCULATED_SERIES_CHART_FIXED_OVERLAY_UNSUPPORTED" },
+  { "name": "dispose-failure", "expectedCode": "CALCULATED_SERIES_CHART_DISPOSAL_UNPROVEN" }
+]

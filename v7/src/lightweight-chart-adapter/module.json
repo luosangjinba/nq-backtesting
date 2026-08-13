@@ -10,7 +10,7 @@
     "core.viewport-runtime",
     "core.workstation-settings"
   ],
-  "optionalPorts": [],
+  "optionalPorts": ["optional.calculated-series-chart-projection"],
   "lifecycle": ["dispose"],
   "independentHarness": "tests/lightweight-chart-adapter-browser-harness.js",
   "removable": false

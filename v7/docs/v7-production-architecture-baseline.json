@@ -168,7 +168,7 @@
       }
     ]
   },
-  "deliveryStep": "P1c.1",
+  "deliveryStep": "P1c.2",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -231,6 +231,13 @@
         "sourceFile": "src/annotation-manual-workflow/semantic-tool-catalog.js",
         "sourceModuleId": "optional.annotation-manual-workflow",
         "targetModuleId": "core.plugin-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCalculatedSeriesChartProjectionFactory",
+        "sourceFile": "src/lightweight-chart-adapter/chart-owned-surface-bindings.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "targetModuleId": "optional.calculated-series-chart-projection"
       },
       {
         "callCount": 1,
@@ -2419,6 +2426,97 @@
       {
         "actualDependencies": [
           "core.activation-generation",
+          "core.calculated-series-contract",
+          "core.chart-snapshot-application",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.workspace-transaction-contract"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.activation-generation",
+          "core.calculated-series-contract",
+          "core.chart-snapshot-application",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.workspace-transaction-contract"
+        ],
+        "descriptorPath": "src/calculated-series-chart-projection/module.json",
+        "id": "optional.calculated-series-chart-projection",
+        "importSites": [
+          {
+            "importedNames": [
+              "readCalculatedSeriesDefinition",
+              "readCalculatedSeriesProjectionFrame",
+              "readCalculatedSeriesWorkspaceDocument"
+            ],
+            "sourceFile": "src/calculated-series-chart-projection/candidate-value.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceTransactionIdentity"
+            ],
+            "sourceFile": "src/calculated-series-chart-projection/candidate-value.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireChartCalculatedSeriesProjectionControls"
+            ],
+            "sourceFile": "src/calculated-series-chart-projection/surface-port.js",
+            "targetFile": "src/chart-snapshot-application/public.js",
+            "targetModuleId": "core.chart-snapshot-application",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeActivationGeneration"
+            ],
+            "sourceFile": "src/calculated-series-chart-projection/candidate-value.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeSessionId"
+            ],
+            "sourceFile": "src/calculated-series-chart-projection/candidate-value.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeTransactionId"
+            ],
+            "sourceFile": "src/calculated-series-chart-projection/candidate-value.js",
+            "targetFile": "src/transaction-identity/public.js",
+            "targetModuleId": "core.transaction-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/calculated-series-chart-projection-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [
+          "src/calculated-series-chart-projection/prepared-surface.js",
+          "src/calculated-series-chart-projection/projection-port.js"
+        ],
+        "owner": "chart-runtime-adapter",
+        "publicEntry": "src/calculated-series-chart-projection/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.activation-generation",
           "core.contribution-profile-contract",
           "core.session-identity",
           "core.transaction-identity",
@@ -2993,6 +3091,7 @@
         "kind": "core",
         "observedDisposeSites": [
           "src/chart-snapshot-application/application-state.js",
+          "src/chart-snapshot-application/calculated-series-projection-owner.js",
           "src/chart-snapshot-application/chart-snapshot-application.js",
           "src/chart-snapshot-application/prepared-chart-application.js"
         ],
@@ -4131,12 +4230,15 @@
           "core.chart-snapshot-application",
           "core.pane-time-location-domain",
           "core.viewport-runtime",
-          "core.workstation-settings"
+          "core.workstation-settings",
+          "optional.calculated-series-chart-projection"
         ],
         "declaredLifecycle": [
           "dispose"
         ],
-        "declaredOptionalPorts": [],
+        "declaredOptionalPorts": [
+          "optional.calculated-series-chart-projection"
+        ],
         "declaredRequiredPorts": [
           "core.chart-snapshot-application",
           "core.pane-time-location-domain",
@@ -4146,6 +4248,16 @@
         "descriptorPath": "src/lightweight-chart-adapter/module.json",
         "id": "adapter.lightweight-chart",
         "importSites": [
+          {
+            "importedNames": [
+              "createCalculatedSeriesChartProjectionFactory",
+              "requireCalculatedSeriesChartProjectionFactory"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/chart-owned-surface-bindings.js",
+            "targetFile": "src/calculated-series-chart-projection/public.js",
+            "targetModuleId": "optional.calculated-series-chart-projection",
+            "throughPublicEntry": true
+          },
           {
             "importedNames": [
               "createChartAdapterVisibleReceipt"
@@ -4257,6 +4369,8 @@
         "observedDisposeSites": [
           "src/lightweight-chart-adapter/annotation-chart-surface.js",
           "src/lightweight-chart-adapter/annotation-surface-binding.js",
+          "src/lightweight-chart-adapter/calculated-series-chart-surface.js",
+          "src/lightweight-chart-adapter/chart-owned-surface-bindings.js",
           "src/lightweight-chart-adapter/crosshair-interaction.js",
           "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
           "src/lightweight-chart-adapter/native-viewport-interaction.js",
@@ -5543,6 +5657,12 @@
         "detectorId": "native-chart-series",
         "sourceFile": "src/annotation-chart-projection/lightweight-series-primitive-adapter.js",
         "sourceModuleId": "optional.annotation-chart-projection",
+        "surface": "chartSeries"
+      },
+      {
+        "detectorId": "native-chart-series",
+        "sourceFile": "src/lightweight-chart-adapter/calculated-series-chart-resources.js",
+        "sourceModuleId": "adapter.lightweight-chart",
         "surface": "chartSeries"
       },
       {

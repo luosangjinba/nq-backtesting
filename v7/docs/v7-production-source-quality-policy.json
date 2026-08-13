@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "P1c.1",
+  "deliveryStep": "P1c.2",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -84,7 +84,8 @@
       "adapter.lightweight-chart",
       "adapter.server-state-sync",
       "adapter.market-data-provider",
-      "optional.annotation-chart-projection"
+      "optional.annotation-chart-projection",
+      "optional.calculated-series-chart-projection"
     ],
     "persistence": [
       "adapter.annotation-persistence",
@@ -220,6 +221,10 @@
     },
     {
       "path": "sessions/session_20260813_p1c_1_calculated_series_pure_contract_implementation.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260813_p1c_2_calculated_series_chart_owned_projection_implementation.md",
       "expectedOccurrences": 1
     }
   ],

@@ -1,9 +1,9 @@
 import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/public.js';
 import { readViewportIntent } from '../viewport-runtime/public.js';
 import { createAdapterSnapshot } from './adapter-snapshot.js';
-import { createAnnotationSurfaceBinding } from './annotation-surface-binding.js';
 import { failLightweightAdapter } from './adapter-error.js';
 import { maximumDisplayGapMs } from './chart-data.js';
+import { createChartOwnedSurfaceBindings } from './chart-owned-surface-bindings.js';
 import { createChartStagePlanner } from './chart-stage-planner.js';
 import { createLightweightChartSurface } from './chart-surface.js';
 import { createAdapterCrosshairInteraction } from './crosshair-interaction.js';
@@ -68,13 +68,9 @@ export function createLightweightChartAdapter({
     readAccepted: () => Object.freeze({ bars: appliedBars, data: appliedData }),
     readPresentation: presentation.snapshot,
   });
-  const annotationSurface = createAnnotationSurfaceBinding({
-    chart,
-    eventTarget: window,
-    host,
-    interactionIndex,
-    readInstrumentId: () => appliedInstrumentId,
-    series,
+  const chartOwnedSurfaces = createChartOwnedSurfaceBindings({
+    annotationOptions: { chart, eventTarget: window, host, interactionIndex, readInstrumentId: () => appliedInstrumentId, series },
+    calculatedSeriesOptions: { candleSeries: series, chart, readPriceIncrement: () => presentation.snapshot().priceIncrement ?? 0.01, requestFrame },
   });
 
   function applyViewport() {
@@ -353,9 +349,13 @@ export function createLightweightChartAdapter({
 
   function createPublicPort() {
     return Object.freeze({
+      calculatedSeriesProjectionFactory() {
+        if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+        return chartOwnedSurfaces.calculatedSeriesProjectionFactory();
+      },
       annotationSurface(projectionApi, paneId) {
         if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
-        return annotationSurface.bind(projectionApi, paneId);
+        return chartOwnedSurfaces.annotationSurface(projectionApi, paneId);
       },
       applyEmpty: (context) => applyStaged(context, {
         commit: (_context, timing) => commitEmpty(timing), expectCandles: false, kind: 'empty',
@@ -380,17 +380,17 @@ export function createLightweightChartAdapter({
         if (disposed) return;
         disposed = true;
         visibleMutationToken += 1;
-        const annotationCleanup = annotationSurface.dispose();
+        const cleanup = chartOwnedSurfaces.dispose();
         nativeViewportInteraction.dispose();
         candleSeriesWriter.dispose();
         crosshairInteraction.dispose();
         truncationInteraction.dispose();
         series.detachPrimitive(currentPriceName.primitive);
-        if (annotationCleanup === null) {
+        if (cleanup === null) {
           chart.remove();
           return undefined;
         }
-        return Promise.resolve(annotationCleanup).finally(() => chart.remove());
+        return Promise.resolve(cleanup).finally(() => chart.remove());
       },
       resetView(latestOffsetBars) {
         viewport.reset(latestOffsetBars);
