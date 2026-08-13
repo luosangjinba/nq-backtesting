@@ -1,8 +1,8 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-12 after drafting the non-implementing ADR-V7-006 Plugin
-Contribution Profiles And Composition candidate and revising ADR-V7-005 as its
-calculated-series projection subordinate
+Last updated: 2026-08-12 after product-owner acceptance of all ten ADR-V7-006
+Plugin Contribution Profile/composition decisions and the start of revised
+ADR-V7-005 calculated-series decision review
 
 ## Restart Resume Checkpoint
 
@@ -19,14 +19,14 @@ transaction/storage, and P1b.3 two-surface Plugin Center correction are
 implemented. H117 is executable with 54 frozen negative groups and real-browser
 IndexedDB/product evidence. The corrected P1b.3 focused human review passed on
 2026-08-12, but H117 remains unaccepted because P1b.4 MCP/closure and all later
-phases remain separately gated. The current next review is the ten material
-decisions in `V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md`. It
-proposes an open host-governed Profile Registry, five non-exhaustive initial
-truth-model Profiles, orthogonal capabilities/Domain Tags, multi-Contribution
-packages, and typed host composition. Only after that review should the revised
-eight calculated-series projection decisions in
-`V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` be reviewed. Both
-documents remain unaccepted, authorize no code, and leave P1b.4 paused.
+phases remain separately gated. ADR-V7-006's ten material decisions are now
+accepted: the open host-governed Profile Registry architecture, five non-
+exhaustive initial truth-model Profiles, orthogonal capabilities/Domain Tags,
+multi-Contribution packages, and typed host composition are binding. Acceptance
+authorized no code. The current next review is the revised eight calculated-
+series projection decisions in
+`V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`; ADR-V7-005 remains
+unaccepted and P1b.4 remains paused.
 `git log` is the authoritative commit identity.
 
 After a machine or agent restart, run:
@@ -43,35 +43,36 @@ Then read, in order:
 1. `v7/docs/V7_RESTART_HANDOFF.md`
 2. `v7/docs/V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md`
 3. `v7/sessions/session_20260812_plugin_contribution_profile_composition_specification_draft.md`
-4. `v7/docs/V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`
-5. `v7/sessions/session_20260812_generic_indicator_projection_chart_region_specification_draft.md`
-6. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
-7. `v7/docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`
-8. `v7/docs/V7_REAL_PANE_WORKSPACE_R6_5.md`
-9. `v7/docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`
-10. `v7/docs/V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md`
-11. `v7/sessions/session_20260812_p1b_3_developer_mode_surface_removal.md`
-12. `v7/sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md`
-13. `v7/sessions/session_20260812_p1b_2_inventory_transaction_implementation.md`
-14. `v7/sessions/session_20260811_p1b_1_contract_archive_implementation.md`
-15. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_acceptance.md`
-16. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_draft.md`
-17. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md`
-18. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`
-19. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`
-20. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`
-21. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification.md`
-22. `v7/docs/V7_CORE_PLUGIN_CENTER_P0B.md`
-23. `v7/sessions/session_20260811_p0b_core_plugin_center_implementation.md`
-24. `v7/sessions/session_20260811_p0b_core_plugin_center_specification.md`
-25. `v7/docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`
-26. `v7/sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md`
-27. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
-28. `v7/sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
-29. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
-30. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
-31. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
-32. `v7/TODO.md`
+4. `v7/sessions/session_20260812_plugin_contribution_profile_composition_specification_acceptance.md`
+5. `v7/docs/V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`
+6. `v7/sessions/session_20260812_generic_indicator_projection_chart_region_specification_draft.md`
+7. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
+8. `v7/docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`
+9. `v7/docs/V7_REAL_PANE_WORKSPACE_R6_5.md`
+10. `v7/docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`
+11. `v7/docs/V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md`
+12. `v7/sessions/session_20260812_p1b_3_developer_mode_surface_removal.md`
+13. `v7/sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md`
+14. `v7/sessions/session_20260812_p1b_2_inventory_transaction_implementation.md`
+15. `v7/sessions/session_20260811_p1b_1_contract_archive_implementation.md`
+16. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_acceptance.md`
+17. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_draft.md`
+18. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md`
+19. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`
+20. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`
+21. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`
+22. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification.md`
+23. `v7/docs/V7_CORE_PLUGIN_CENTER_P0B.md`
+24. `v7/sessions/session_20260811_p0b_core_plugin_center_implementation.md`
+25. `v7/sessions/session_20260811_p0b_core_plugin_center_specification.md`
+26. `v7/docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`
+27. `v7/sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md`
+28. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
+29. `v7/sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
+30. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
+31. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
+32. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
+33. `v7/TODO.md`
 
 R13.10b/H110 and R13.10c/H111 are accepted. The focused FVG fixture contains
 no temporary diagnostic surface, and its acceptance server is stopped.

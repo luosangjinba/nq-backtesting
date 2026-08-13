@@ -89,7 +89,7 @@ records tensions that a later decision must resolve. The registered
 possible next product and business directions. Accepted ADRs may partially
 promote named portions, but the remaining memo content authorizes no
 implementation.
-The adjacent upstream `ADR-V7-006` candidate is drafted in
+Accepted upstream `ADR-V7-006` is recorded in
 `V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md`. It separates Plugin
 Package, typed Contribution, Contribution Profile, negotiated Capability,
 non-authoritative Domain Tag, and Pack; proposes an open, namespaced,
@@ -98,20 +98,24 @@ anchored studies, Drawings, Semantic Artifacts, and detectors as five initial
 reference Profiles rather than a closed enum. One package may contain several
 differently profiled Contributions, while typed dependencies, visual
 co-presence, derived analysis, and human promotion remain distinct composition
-operations. The draft is not accepted and adds no SDK/schema/catalog value,
-delivery/Harness id, execution target, or implementation authority. Its record
-is
-`../sessions/session_20260812_plugin_contribution_profile_composition_specification_draft.md`.
+operations. The product owner accepted all ten decisions on 2026-08-12 without
+authorizing any SDK/schema/catalog value, delivery/Harness id, execution target,
+or implementation. Its draft and acceptance records are
+`../sessions/session_20260812_plugin_contribution_profile_composition_specification_draft.md`
+and
+`../sessions/session_20260812_plugin_contribution_profile_composition_specification_acceptance.md`.
 The revised subordinate `ADR-V7-005` candidate remains at
 `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`. It now applies only
-to Contributions claiming the candidate `analysis.calculated-series` Profile:
+to Contributions claiming the accepted architecture
+`analysis.calculated-series` Profile:
 Main/new/existing-region placement belongs to the user-owned instance, Scale
 sharing is structural, multi-Plot/multi-group output is standard, and Core/
 future Community Contributions claiming that same Profile share its ABI while
 the Chart adapter remains sole native writer. It does not absorb FVG, SMT,
-Fibonacci, Drawings, Semantic Artifacts, or detectors. Neither candidate is
-accepted; RSI/ATR/MACD remain unclassified examples, MA/SMA remains
-unimplemented, P1a/P1b availability is unchanged, and P1b.4 remains paused.
+Fibonacci, Drawings, Semantic Artifacts, or detectors. ADR-V7-005 remains
+unaccepted and under review; RSI/ATR/MACD remain unclassified examples, MA/SMA
+remains unimplemented, P1a/P1b availability is unchanged, and P1b.4 remains
+paused.
 The seconds/tick memo additionally records the current decision that minute-
 sourced V7 remains valid without simulated-live training, defines the three-
 of-four investigation signals, and keeps every future seconds path behind the

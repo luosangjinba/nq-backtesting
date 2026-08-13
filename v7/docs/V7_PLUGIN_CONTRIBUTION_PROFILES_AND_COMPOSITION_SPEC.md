@@ -1,12 +1,16 @@
-# V7 Plugin Contribution Profiles And Composition — Candidate Specification
+# V7 Plugin Contribution Profiles And Composition — Accepted Specification
 
-Decision id: `ADR-V7-006` candidate
+Decision id: `ADR-V7-006`
 
-Status: product-owner-directed draft prepared 2026-08-12; not accepted;
-implementation, SDK/schema/catalog changes, delivery ids, Harness activation,
-P1b.4, and external plugin execution are not authorized
+Status: accepted binding product and architecture specification; implementation,
+SDK/schema/catalog changes, delivery ids, Harness activation, P1b.4, and
+external plugin execution remain separately unauthorized
 
 Date drafted: 2026-08-12
+
+Decision date: 2026-08-12
+
+Decider: V7 product owner
 
 ## Authority And Current Boundary
 
@@ -22,13 +26,14 @@ models currently visible in V7's product direction while treating them as an
 initial reference set, not a closed enum or permanent exhaustive taxonomy. New
 Profiles must remain possible through a versioned, host-governed registry.
 
-This document makes that direction reviewable. It does not accept an ADR,
+The product owner accepted all ten material decisions in this document on
+2026-08-12. Acceptance binds the architecture and terminology but does not
 change a production or Developer Kit contract, add a schema field, register a
 Profile, activate an unavailable contribution, change any Core classification,
 start P1b.4, or authorize implementation. Every executable consequence needs a
 later accepted specification and separate product-owner authorization.
 
-## Candidate Decision Summary
+## Decision Summary
 
 V7 should treat a plugin package as an installation and lifecycle container,
 not as a business-semantics type. Each package may publish one or more stable,
@@ -39,7 +44,7 @@ conformance obligations. Orthogonal **Capabilities** describe negotiated ways
 to calculate, interact, project, or integrate. Open **Domain Tags** support
 catalog discovery but grant no authority.
 
-The defining candidate rules are:
+The defining accepted architecture rules are:
 
 1. `PluginPackage`, `Contribution`, `ContributionProfile`, `Capability`,
    `DomainTag`, and `Pack` are different concepts;
@@ -90,7 +95,7 @@ V7 therefore needs orthogonal contracts instead of one broad plugin kind.
 
 ## Relationship To Existing Decisions
 
-This candidate preserves and connects existing accepted boundaries:
+This decision preserves and connects existing accepted boundaries:
 
 - `ADR-V7-004` remains authoritative for Kernel/Core/Community distribution,
   Package/Contribution/Pack separation, strict TypeScript authoring,
@@ -103,12 +108,12 @@ This candidate preserves and connects existing accepted boundaries:
 - P0a's manifest and contribution metadata, P0b's Core Plugin Profile, P1a's
   Developer Kit Contract Profiles, and P1b's inert local package profile retain
   their accepted meanings and implementation status;
-- `ADR-V7-005` remains an unaccepted candidate and is narrowed by this draft to
+- `ADR-V7-005` remains an unaccepted candidate and is narrowed by this decision to
   the calculated-series Profile's standard Plot and Chart Region projection;
 - Session, Replay, Bar Data, Workspace, Chart, Annotation, persistence, and
   ModuleHost owners remain non-plugin Kernel infrastructure.
 
-This candidate proposes to promote only the open Contribution taxonomy,
+This decision promotes only the open Contribution taxonomy,
 host-governed Profile registry, typed composition, and visual-capability
 separation anticipated by `MEMO-V7-001`. It does not promote that memo's
 general-futures scope, complete Setup/AI system, arbitrary renderer, remote
@@ -147,7 +152,7 @@ must explicitly decide how those descriptors relate to one or more Profile-
 governed Contribution definitions and negotiated construction capabilities.
 It must preserve stable ids and compatibility and cannot infer that every
 `tool` has one truth model, assign a dummy Profile, or silently merge the two
-records. Until that later decision, this candidate changes no P0a/P1a
+records. Until that later decision, ADR-V7-006 changes no P0a/P1a
 descriptor or catalog meaning.
 
 ## Core Terminology
@@ -300,10 +305,11 @@ resolved required Contribution graph is atomic.
 
 ## Initial Reference Profile Set — Open, Not Exhaustive
 
-The following five Profiles explain current V7 needs. Their ids are candidate
-names for review, not registered schema values or implementation authority.
+The following five Profiles explain current V7 needs. Their ids are accepted
+architecture labels for this decision, not registered SDK/schema values or
+implementation authority.
 
-| Candidate Profile id | Authoritative truth | Typical outputs | Examples |
+| Architecture Profile id | Authoritative truth | Typical outputs | Examples |
 | --- | --- | --- | --- |
 | `analysis.calculated-series` | exact definition/formula version, parameters, immutable input snapshot, and cutoff; points are reproducible derived output | time-indexed numeric plots, bands, histograms, reference values | MA, MACD, RSI, ATR, Bollinger Bands |
 | `analysis.anchored-study` | user/import-authored market anchors plus exact formula/parameter version; projected values are derived | levels, rays, bands, curves, labels | Fibonacci, Anchored VWAP |
@@ -629,11 +635,11 @@ This draft changes no current artifact:
   Schemas, catalogs, receipts, archives, storage records, or UI;
 - P1b.4 remains paused and H117 remains executable but unaccepted.
 
-If this candidate is later accepted, a separately authorized pure-contract
-slice must reconcile P0a's broad contribution `kind` metadata with the open
-Profile registry without silently reinterpreting accepted manifests. Exact
-schema versions, migrations, and compatibility reports belong to that later
-slice.
+Although this architecture decision is accepted, a separately authorized pure-
+contract slice must reconcile P0a's broad contribution `kind` metadata with the
+open Profile registry without silently reinterpreting accepted manifests.
+Exact schema versions, migrations, and compatibility reports belong to that
+later slice.
 
 ## Lifecycle, Migration, And Unresolved Survival
 
@@ -685,7 +691,7 @@ Profile, instance/input, dependency graph, and generation. Isolation does not
 permit partial truth: required downstream Contributions become explicit
 pending/unavailable/error, never ready on stale upstream output.
 
-## Candidate Conformance And Human Evidence
+## Required Future Conformance And Human Evidence
 
 No Harness id is registered by this draft. A later accepted implementation
 contract should prove at least:
@@ -744,13 +750,14 @@ ADR-V7-005 must not be read as:
 - classifying FVG, SMT, Fibonacci, RSI, ATR, MACD, or any combination merely
   because examples can be projected.
 
-The two candidates should be reviewed in dependency order: first this upstream
-Profile/composition model, then ADR-V7-005's revised calculated-series
-projection decisions. Acceptance of either still authorizes no implementation.
+The product owner accepted this upstream Profile/composition model first.
+ADR-V7-005's revised calculated-series projection decisions remain the next
+review. Acceptance of ADR-V7-006 authorized no implementation; future
+acceptance of ADR-V7-005 would likewise authorize no implementation.
 
 ## Explicitly Rejected Alternatives
 
-This candidate rejects:
+This decision rejects:
 
 - one `pluginKind` enum containing every current and future feature;
 - permanently freezing exactly five Contribution Profiles;
@@ -768,10 +775,10 @@ This candidate rejects:
 - using this draft to change P1a/P1b schemas, activate external packages, start
   P1b.4, accept H117, or authorize an implementation slice.
 
-## Material Decisions Awaiting Product-Owner Acceptance
+## Accepted Material Decisions
 
-The product owner must accept, reject, or amend these ten decisions before an
-implementation specification or ADR-V7-005 acceptance is written:
+The product owner accepted these ten decisions without amendment on
+2026-08-12:
 
 1. `PluginPackage`, `Contribution`, `ContributionProfile`, `Capability`,
    `DomainTag`, and `Pack` are independent concepts; “plugin” alone is not a
@@ -802,17 +809,28 @@ implementation specification or ADR-V7-005 acceptance is written:
    changes admission/executor/resource policy, and current P1a/P1b availability
    remains unchanged.
 10. ADR-V7-005 becomes the subordinate calculated-series projection candidate;
-    accepting either candidate authorizes no implementation, and P1b.4/H117/
+    accepting either decision authorizes no implementation, and P1b.4/H117/
     Community execution remain separately gated.
+
+## Acceptance Record
+
+The product owner stated:
+
+> ADR-V7-006 十项决策全部接受；继续审阅 ADR-V7-005 修订后的八项决策，不实施。
+
+This acceptance makes the open host-governed Profile model, the non-exhaustive
+initial five Profiles, the Package/Contribution/Profile/Capability/Domain-Tag/
+Pack separation, typed host composition, unresolved survival, and same-Profile
+Core/Community semantics binding architecture. It explicitly leaves
+ADR-V7-005 under review and grants no implementation authority.
 
 ## Current Non-Authorization Boundary
 
-Until the product owner explicitly accepts or amends this candidate:
+Acceptance of `ADR-V7-006` does not cross these boundaries:
 
-- `ADR-V7-006` is not a binding product or architecture decision;
 - no Contribution Profile Registry exists in production or the SDK;
-- the five reference Profiles are conceptual classifications, not registered
-  values or an exhaustive product commitment;
+- the five reference Profiles are accepted architecture classifications, not
+  registered values or an exhaustive product commitment;
 - no delivery id or Harness id is allocated;
 - no production, SDK, schema, catalog, manifest, fixture, adapter, UI,
   persistence, test, archive, receipt, or dependency code may be added;

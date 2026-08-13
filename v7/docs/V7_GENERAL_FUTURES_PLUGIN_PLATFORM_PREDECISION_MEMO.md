@@ -4,9 +4,10 @@ Memo id: `MEMO-V7-001`
 
 First formed: 2026-08-01
 
-Last substantive revision: 2026-08-11
+Last substantive revision: 2026-08-12
 
-Status: partially promoted by `ADR-V7-004` and its interface/language amendment;
+Status: partially promoted by `ADR-V7-004` and accepted `ADR-V7-006`, including
+interface/language, open Contribution Profile, and typed-composition boundaries;
 P0a/P0b/P1a later delivered through separate accepted contracts; P1b
 specification accepted separately; remaining product scope, execution sandbox,
 AI, remote distribution, Marketplace, and implementation decisions deferred
@@ -938,3 +939,20 @@ explicitly accepted. The specification defines non-executing local package
 admission and authoring-only MCP; it does not promote this memo's remaining
 registry, Worker, Pine-runtime, general-futures, or Marketplace questions and
 does not authorize P1b code.
+
+### 2026-08-12 — Partial Promotion By ADR-V7-006
+
+The product owner accepted all ten Plugin Contribution Profile and composition
+decisions. A Plugin Package is now a lifecycle container rather than a truth
+type; Profile-governed Contributions have one primary truth/lifecycle Profile;
+capabilities and Domain Tags remain orthogonal; multi-Contribution packages and
+typed host-resolved dependency composition are supported; and unknown Profiles
+fail closed while host-owned records survive unresolved. Calculated series,
+anchored studies, Drawings, Semantic Artifacts, and detectors are the initial
+reference Profiles but not a closed enum. New Profiles require separately
+accepted host contracts and cannot be self-registered by packages.
+
+ADR-V7-006 acceptance authorizes no SDK/schema registry, runtime, Community
+execution, or implementation. ADR-V7-005 calculated-series projection remains
+under review. General-futures scope, complete Setup/AI design, remote registry,
+commercialization, and paid Marketplace remain unresolved in this memo.

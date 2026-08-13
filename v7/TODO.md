@@ -19,7 +19,7 @@
 
 Canonical registry: `docs/V7_NON_DECISION_MEMO_REGISTRY.md`.
 
-## ADR-V7-006 Candidate — Plugin Contribution Profiles And Composition
+## ADR-V7-006 — Plugin Contribution Profiles And Composition — Accepted 2026-08-12
 
 - [x] identify that Plugin Package/distribution, Contribution truth model,
   capability, projection shape/location, and trading-domain category were being
@@ -48,15 +48,16 @@ Canonical registry: `docs/V7_NON_DECISION_MEMO_REGISTRY.md`.
   composite confluence examples without changing accepted Core classification;
 - [x] preserve unknown/incompatible Profile package metadata and host-owned
   durable records as unresolved while failing closed for activation;
-- [x] register the draft as adjacent `ADR-V7-006` without adding a production/
-  SDK/schema/catalog value, delivery id, Harness id, or execution target;
-- [ ] obtain explicit product-owner acceptance or amendment of the ten material
-  decisions before accepting ADR-V7-005 or writing implementation specs;
+- [x] register the draft as adjacent `ADR-V7-006` before acceptance without
+  adding a production/SDK/schema/catalog value, delivery id, Harness id, or
+  execution target;
+- [x] receive explicit product-owner acceptance of all ten material decisions
+  without amendment on 2026-08-12;
 - [x] do not implement, alter P0a/P0b/P1a/P1b availability, start P1b.4, accept
   H117, authorize Community execution, or add another Profile through this
-  draft.
+  acceptance.
 
-Candidate specification:
+Accepted specification:
 `docs/V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md`.
 
 ## ADR-V7-005 Candidate — Calculated-Series Projection And Chart Regions
@@ -86,9 +87,10 @@ Candidate specification:
   ABI from its scope;
 - [x] revise the eight material decisions without accepting them or allocating
   a delivery id/Harness id;
-- [ ] after ADR-V7-006 review, obtain explicit product-owner acceptance or
-  amendment of the revised eight decisions before writing an implementation
-  specification;
+- [x] begin product-owner review of the revised eight decisions after
+  ADR-V7-006 acceptance;
+- [ ] obtain explicit product-owner acceptance or amendment of the revised
+  eight decisions before writing an implementation specification;
 - [ ] after acceptance, require separate authorization for each pure-contract,
   Chart-projection, trusted MA, generic multi-Plot/layout, and later Community
   integration slice;

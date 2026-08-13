@@ -8,10 +8,10 @@ calculated-series execution are not authorized
 
 Date drafted: 2026-08-12
 
-Revised: 2026-08-12 — scoped beneath the separately drafted `ADR-V7-006`
-Contribution Profile/composition candidate; public “Indicator” usage in this
-document now means only a Contribution claiming the candidate
-`analysis.calculated-series` Profile
+Revised: 2026-08-12 — scoped beneath accepted `ADR-V7-006` Contribution
+Profile/composition architecture; public “Indicator” usage in this document
+now means only a Contribution claiming the accepted architecture label
+`analysis.calculated-series`
 
 ## Authority And Current Boundary
 
@@ -23,7 +23,7 @@ not a fixed calculated-series category: an MA normally defaults to the price
 chart but a user may choose to place that same instance in a separate Chart
 Region.
 
-The later product-owner clarification captured by the `ADR-V7-006` candidate
+The later product-owner clarification accepted as `ADR-V7-006`
 separates a Plugin Package from its typed Contributions. Calculated series,
 anchored studies, Drawings, Semantic Artifacts, and detectors do not share one
 truth or lifecycle merely because all may produce Chart visuals. Accordingly,
@@ -82,10 +82,9 @@ This candidate preserves the accepted V7 product and architecture:
 - ADR-V7-004's Core/Community package taxonomy, strict TypeScript/compiled ESM
   authoring model, host-rendered settings, declared dependencies, least
   privilege, and later isolated Worker boundary remain binding;
-- the separately drafted `ADR-V7-006` open Contribution Profile/composition
-  model is an upstream candidate, not yet a binding decision; this candidate
-  uses its proposed calculated-series boundary without treating the initial
-  five reference Profiles as a closed enum;
+- accepted `ADR-V7-006` is the binding upstream open Contribution Profile/
+  composition model; this candidate uses its calculated-series boundary
+  without treating the initial five reference Profiles as a closed enum;
 - MA/SMA remains an already classified Core Plugin capability; RSI, ATR, MACD,
   Volume, Bollinger Bands, or any other example in this document is not thereby
   classified as Core or authorized for implementation;
@@ -729,9 +728,9 @@ This candidate rejects:
 
 ## Material Decisions Awaiting Product-Owner Acceptance
 
-After the upstream `ADR-V7-006` candidate is reviewed, this revised draft asks
-the product owner to accept, reject, or amend these eight decisions before any
-implementation specification is written:
+With upstream `ADR-V7-006` accepted, this revised draft asks the product owner
+to accept, reject, or amend these eight decisions before any implementation
+specification is written:
 
 1. this candidate applies only to Contributions claiming the proposed
    `analysis.calculated-series` Profile; `ChartRegion`, `PlotGroup`,
@@ -755,18 +754,18 @@ implementation specification is written:
 7. Core and future Community Contributions claiming the same calculated-series
    Profile share its semantic SDK/projection/settings/lifecycle contract; trust
    tier changes only admitted executor, distribution, and resource policy.
-8. ADR-V7-006 must be accepted before or together with this subordinate
-   candidate; acceptance authorizes no implementation, the pure contract and
-   Chart projection must precede a trusted MA vertical slice, and Community
-   execution waits for separate Worker/Contract-Profile authorization.
+8. ADR-V7-006 is the accepted upstream decision; acceptance of this subordinate
+   candidate would authorize no implementation, the pure contract and Chart
+   projection must precede a trusted MA vertical slice, and Community execution
+   waits for separate Worker/Contract-Profile authorization.
 
 ## Current Non-Authorization Boundary
 
 Until the product owner explicitly accepts or amends this candidate:
 
 - `ADR-V7-005` is not a binding architecture decision;
-- `ADR-V7-006` is also unaccepted; this candidate cannot establish an open
-  Profile Registry by implication;
+- accepted `ADR-V7-006` does not itself register a Profile in production/SDK or
+  authorize this candidate's calculated-series contract;
 - no delivery id or Harness id is allocated;
 - no production, SDK, schema, catalog, fixture, manifest, adapter, UI,
   persistence, or test code may be added for it;

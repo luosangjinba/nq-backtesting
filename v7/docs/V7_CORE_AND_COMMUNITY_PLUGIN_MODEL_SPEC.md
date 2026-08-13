@@ -209,10 +209,10 @@ entry logic, and outcome claims are separate contributions.
 Future Core candidates must pass the classification rule; “and so on” is not
 a wildcard authorizing every familiar indicator or semantic concept.
 
-## Adjacent Contribution-Profile And Calculated-Series Candidates — Not Yet Amendments
+## Accepted Contribution-Profile Decision And Adjacent Calculated-Series Candidate
 
-The product-owner-directed `ADR-V7-006` candidate in
-`V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md` proposes the open
+Accepted `ADR-V7-006` in
+`V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md` binds the open
 Contribution Profile and composition layer anticipated by this model. A Plugin
 Package is a lifecycle container, each typed Contribution has one primary
 truth/lifecycle Profile, capabilities and Domain Tags remain orthogonal, and
@@ -224,7 +224,7 @@ separate authorization; packages cannot self-register authority.
 
 The revised `ADR-V7-005` candidate in
 `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` is subordinate to
-that model. It applies only to Contributions claiming the candidate
+that accepted model. It applies only to Contributions claiming the architecture
 `analysis.calculated-series` Profile. It treats Main and internal Chart Regions
 as user-owned placement targets, defines Plot Groups, standard Plots,
 structural Scale compatibility, exact no-future projection frames, and
@@ -232,11 +232,12 @@ host-owned instance/layout state. Core and future Community Contributions
 claiming the same calculated-series Profile would share its semantic ABI;
 trust changes only admitted executor, distribution, and resource policy.
 
-Both documents are decision candidates, not accepted amendments. They do not
-authorize MA/SMA implementation, classify RSI/ATR/MACD or another example as
-Core, reduce FVG/SMT/Fibonacci to Indicator output, enable Community execution,
-alter current P1a/P1b catalogs, accept H117, or start P1b.4. This specification
-retains its existing binding state until each candidate receives explicit
+ADR-V7-006 is a separate accepted decision; ADR-V7-005 remains a decision
+candidate under review. Acceptance of ADR-V7-006 did not authorize MA/SMA
+implementation, classify RSI/ATR/MACD or another example as Core, reduce FVG/
+SMT/Fibonacci to Indicator output, enable Community execution, alter current
+P1a/P1b catalogs, accept H117, or start P1b.4. This specification retains its
+existing binding implementation state while ADR-V7-005 awaits explicit
 product-owner acceptance or amendment.
 
 ## Package, Contribution, And Pack
