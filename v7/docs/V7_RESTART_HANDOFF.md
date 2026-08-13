@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-12 after product-owner acceptance of all eight revised
-ADR-V7-005 calculated-series projection decisions without implementation
+Last updated: 2026-08-12 after the documentation-only Calculated-Series Pure
+Contract Slice candidate was drafted without implementation
 
 ## Restart Resume Checkpoint
 
@@ -25,9 +25,12 @@ multi-Contribution packages, and typed host composition are binding. ADR-V7-005
 is now also accepted: calculated-series instances, Main/internal Chart Region
 placement, structural Scale compatibility, multi-Plot output, exact no-stale
 projection frames, host ownership, and same-Profile Core/Community semantics
-are binding architecture. Acceptance of both decisions authorized no code. No
-calculated-series implementation step is currently authorized; P1b.4 remains
-paused and H117 remains unaccepted.
+are binding architecture. Acceptance of both decisions authorized no code. The
+first required pure-contract dependency now has an unaccepted ten-decision
+candidate in `V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`; drafting it
+authorized no code, delivery id, or Harness id. No calculated-series
+implementation step is currently authorized; P1b.4 remains paused and H117
+remains unaccepted.
 `git log` is the authoritative commit identity.
 
 After a machine or agent restart, run:
@@ -47,34 +50,36 @@ Then read, in order:
 4. `v7/sessions/session_20260812_plugin_contribution_profile_composition_specification_acceptance.md`
 5. `v7/docs/V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`
 6. `v7/sessions/session_20260812_calculated_series_projection_chart_region_specification_acceptance.md`
-7. `v7/sessions/session_20260812_generic_indicator_projection_chart_region_specification_draft.md`
-8. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
-9. `v7/docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`
-10. `v7/docs/V7_REAL_PANE_WORKSPACE_R6_5.md`
-11. `v7/docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`
-12. `v7/docs/V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md`
-13. `v7/sessions/session_20260812_p1b_3_developer_mode_surface_removal.md`
-14. `v7/sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md`
-15. `v7/sessions/session_20260812_p1b_2_inventory_transaction_implementation.md`
-16. `v7/sessions/session_20260811_p1b_1_contract_archive_implementation.md`
-17. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_acceptance.md`
-18. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_draft.md`
-19. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md`
-20. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`
-21. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`
-22. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`
-23. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification.md`
-24. `v7/docs/V7_CORE_PLUGIN_CENTER_P0B.md`
-25. `v7/sessions/session_20260811_p0b_core_plugin_center_implementation.md`
-26. `v7/sessions/session_20260811_p0b_core_plugin_center_specification.md`
-27. `v7/docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`
-28. `v7/sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md`
-29. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
-30. `v7/sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
-31. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
-32. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
-33. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
-34. `v7/TODO.md`
+7. `v7/docs/V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`
+8. `v7/sessions/session_20260812_calculated_series_pure_contract_candidate_specification.md`
+9. `v7/sessions/session_20260812_generic_indicator_projection_chart_region_specification_draft.md`
+10. `v7/docs/V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md`
+11. `v7/docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`
+12. `v7/docs/V7_REAL_PANE_WORKSPACE_R6_5.md`
+13. `v7/docs/V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`
+14. `v7/docs/V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md`
+15. `v7/sessions/session_20260812_p1b_3_developer_mode_surface_removal.md`
+16. `v7/sessions/session_20260812_p1b_3_plugin_center_developer_mode_implementation.md`
+17. `v7/sessions/session_20260812_p1b_2_inventory_transaction_implementation.md`
+18. `v7/sessions/session_20260811_p1b_1_contract_archive_implementation.md`
+19. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_acceptance.md`
+20. `v7/sessions/session_20260811_p1b_local_packages_authoring_mcp_specification_draft.md`
+21. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md`
+22. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A.md`
+23. `v7/docs/V7_AGENT_NATIVE_PLUGIN_DEVELOPER_KIT_P1A_RATIONALE.zh-CN.md`
+24. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification_acceptance.md`
+25. `v7/sessions/session_20260811_p1a_agent_native_developer_kit_specification.md`
+26. `v7/docs/V7_CORE_PLUGIN_CENTER_P0B.md`
+27. `v7/sessions/session_20260811_p0b_core_plugin_center_implementation.md`
+28. `v7/sessions/session_20260811_p0b_core_plugin_center_specification.md`
+29. `v7/docs/V7_PRODUCTION_MANUAL_FVG_WORKFLOW_R13_10E.md`
+30. `v7/sessions/session_20260810_r13_10e_production_manual_fvg_workflow.md`
+31. `v7/docs/V7_BUILT_IN_PLUGIN_CONTRACT_SUBSTRATE_P0A.md`
+32. `v7/sessions/session_20260811_plugin_agent_authoring_pine_migration_amendment.md`
+33. `v7/sessions/session_20260810_plugin_platform_interface_language_amendment.md`
+34. `v7/docs/V7_FVG_EVIDENCE_INSPECTOR_VALIDATED_OVERRIDE_R13_10D.md`
+35. `v7/docs/V7_DETERMINISTIC_FVG_CONSTRUCTION_PROJECTION_R13_10C.md`
+36. `v7/TODO.md`
 
 R13.10b/H110 and R13.10c/H111 are accepted. The focused FVG fixture contains
 no temporary diagnostic surface, and its acceptance server is stopped.
@@ -1214,6 +1219,15 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
+The immediate next action is product-owner review of the ten unaccepted
+material decisions in
+`V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`. The candidate proposes the
+first Profile-registry seam, exact P0a Contribution binding, and pure
+Definition/Plot/Scale/instance/ChartRegion/result/provenance/migration
+contracts. Do not implement it, allocate a delivery/Harness id, expose an SDK
+capability, specify the Chart-owned projection slice, or begin MA/SMA unless a
+later explicit instruction grants the applicable authority.
+
 R13.10e/H114, P0b/H115, and P1a/H116 are closed. P1b.1–P1b.3 implement the
 non-executing local package contract/archive, transaction/storage, and corrected
 two-surface Plugin Center boundaries. Installed generations remain explicitly
@@ -1236,9 +1250,10 @@ remains tooling/security evidence without retained handles or mode state. The
 corrected focused human review in
 `V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md` passed on 2026-08-12. P1b.4 is
 deliberately paused and still requires a separate product-owner instruction.
-Do not create its MCP adapter or claim H117
-acceptance, P2 registry, P3a Worker runtime, P3b Pine migration, detector, MA/SMA,
-Fibonacci, Marketplace, or R13.11–R13.13 before the applicable authorization.
+The calculated-series candidate does not supersede that pause. Do not create
+the MCP adapter or claim H117 acceptance, P2 registry, P3a Worker runtime, P3b
+Pine migration, detector, MA/SMA, Fibonacci, Marketplace, or R13.11–R13.13
+before the applicable authorization.
 
 Older clean-host, physical cross-device, Data Acquisition admin, resource, and
 known H091 visual checks remain non-blocking operational follow-up for the

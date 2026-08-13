@@ -101,6 +101,36 @@ Accepted specification:
 Accepted specification:
 `docs/V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`.
 
+## Calculated-Series Pure Contract Slice — Candidate Draft 2026-08-12
+
+- [x] receive authorization to draft the first ADR-V7-005 pure-contract slice
+  without accepting or implementing it;
+- [x] re-check pinned Lightweight Charts 5.2.0 pane/Series/Scale capabilities
+  and awesome-tradingview references without adopting another dependency or
+  lifecycle owner;
+- [x] propose separate `contribution-profile-contract` and
+  `calculated-series-contract` pure ownership boundaries;
+- [x] reconcile P0a's broad `contributions[].kind` metadata through an exact
+  host-owned Contribution binding rather than treating `indicator` as a
+  Contribution Profile;
+- [x] draft exact Profile/Definition/Plot/Scale/Instance/ChartRegion/result/
+  provenance/migration values, limits, diagnostics, and future headless
+  evidence;
+- [x] record ten candidate material decisions and retain the required
+  pure-contract → Chart projection → trusted MA/SMA sequence;
+- [x] allocate no delivery id or Harness id and change no production, SDK,
+  schema, catalog, fixture, manifest, dependency, runtime, persistence, or UI
+  file through the draft;
+- [x] keep P1b.4 paused and leave H117 `executable`, human-review-required, and
+  unaccepted;
+- [ ] receive explicit product-owner acceptance or amendment of all ten
+  candidate decisions;
+- [ ] after acceptance, require another explicit instruction before allocating
+  a delivery/Harness id or implementing the pure-contract slice.
+
+Candidate specification:
+`docs/V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`.
+
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09
 
 - [x] preserve validation as the user outcome and Replay as the controlled
