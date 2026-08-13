@@ -1,0 +1,18 @@
+{
+  "id": "core.calculated-series-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "calculated-series-contract",
+  "publicEntry": "src/calculated-series-contract/public.js",
+  "requiredPorts": [
+    "core.activation-generation",
+    "core.contribution-profile-contract",
+    "core.session-identity",
+    "core.transaction-identity",
+    "core.workspace-transaction-contract"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/calculated-series-pure-contract-harness.js",
+  "removable": false
+}

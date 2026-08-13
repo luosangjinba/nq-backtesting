@@ -91,9 +91,9 @@ Accepted specification:
   ADR-V7-006 acceptance;
 - [x] receive explicit product-owner acceptance of all eight revised material
   decisions without amendment on 2026-08-12;
-- [ ] after acceptance, require separate authorization for each pure-contract,
-  Chart-projection, trusted MA, generic multi-Plot/layout, and later Community
-  integration slice;
+- [x] receive separate authorization for the pure-contract slice while
+  continuing to require new authorization for Chart projection, trusted MA,
+  generic multi-Plot/layout, and later Community integration slices;
 - [x] do not start P1b.4, accept H117, alter P1a/P1b Indicator availability,
   authorize Community execution/P3a, or add production/SDK/schema/test code
   through this draft.
@@ -101,7 +101,7 @@ Accepted specification:
 Accepted specification:
 `docs/V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`.
 
-## Calculated-Series Pure Contract Slice — Accepted 2026-08-12
+## P1c.1 Calculated-Series Pure Contract Slice — Implemented; Review Pending
 
 - [x] receive authorization to draft the first ADR-V7-005 pure-contract slice
   without accepting or implementing it;
@@ -129,11 +129,25 @@ Accepted specification:
   Harness id and authorizes no implementation, SDK/runtime availability,
   Chart/UI/persistence work, real Indicator, Community/Worker tier, P1b.4, or
   H117 state change;
-- [ ] after acceptance, require another explicit instruction before allocating
-  a delivery/Harness id or implementing the pure-contract slice.
+- [x] receive explicit implementation authorization on 2026-08-13 and allocate
+  delivery `P1c.1` plus headless gate `H118` without changing H117;
+- [x] implement separate `core.contribution-profile-contract` and
+  `core.calculated-series-contract` modules with pinned schemas/catalogs,
+  branded immutable values, exact identity closure, and no runtime authority;
+- [x] add synthetic multi-Plot/multi-PlotGroup, Main/internal-region,
+  result/frame, unresolved, migration, ceiling, and architecture evidence;
+- [x] keep P0a/P0b/P1a/P1b schemas/catalogs and executable availability
+  unchanged; add no SDK execution contract, calculation engine, Chart writer,
+  live instance/persistence owner, MA/SMA, Community/Worker, or P1b.4 work;
+- [x] register H118 as `executable`, human-review-required, and unaccepted;
+- [ ] perform the focused human contract/evidence review and accept or reject
+  P1c.1/H118; do not infer Chart-owned projection authorization from this step.
 
 Accepted specification:
 `docs/V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`.
+
+Implementation record:
+`sessions/session_20260813_p1c_1_calculated_series_pure_contract_implementation.md`.
 
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09
 
@@ -1740,8 +1754,8 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 497 files, 43,718 effective lines, 4,546 functions, and 461 public exports; the architecture baseline
-contains 68 modules, 150 edges, 133 construction sites, 27 writers, and zero
+The current production source baseline contains 516 files, 46,189 effective lines, 4,794 functions, and 507 public exports; the architecture baseline
+contains 70 modules, 155 edges, 133 construction sites, 27 writers, and zero
 findings.
 
 R8.14 binds 11 production axes to eight real browser/owner scenarios and four
@@ -1752,7 +1766,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 497 files, 43,718 effective lines, 4,546 functions, and 461 public exports, 68 modules, 150 edges, 133 construction sites, 27 writers, and zero
+currently at 516 files, 46,189 effective lines, 4,794 functions, and 507 public exports, 70 modules, 155 edges, 133 construction sites, 27 writers, and zero
 findings.
 
 ## Established Foundation Governance

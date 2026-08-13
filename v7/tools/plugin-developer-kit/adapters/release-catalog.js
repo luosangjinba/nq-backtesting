@@ -166,7 +166,9 @@ function conformanceIdentity() {
   const harnessRules = readJson(path.join(V7_ROOT, 'docs/v7-harness-rules.json'));
   const rule = harnessRules.rules.find(({ id }) => id === 'H116');
   const pendingRule = harnessRules.rules.find(({ id }) => id === 'H117');
-  if (harnessRules.currentStep !== 'P1b.3' || rule?.state !== 'accepted'
+  const currentStepIndex = harnessRules.stepOrder.indexOf(harnessRules.currentStep);
+  const p1b3StepIndex = harnessRules.stepOrder.indexOf('P1b.3');
+  if (currentStepIndex < p1b3StepIndex || p1b3StepIndex < 0 || rule?.state !== 'accepted'
     || rule.harness !== 'tests/plugin-developer-kit-harness.js'
     || rule.acceptanceEvidence
       !== 'sessions/session_20260811_p1a_agent_native_developer_kit_implementation.md'

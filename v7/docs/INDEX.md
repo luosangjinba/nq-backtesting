@@ -118,18 +118,23 @@ implementation. RSI/ATR/MACD remain unclassified examples, MA/SMA remains
 unimplemented, P1a/P1b availability is unchanged, and P1b.4 remains paused.
 The acceptance record is
 `../sessions/session_20260812_calculated_series_projection_chart_region_specification_acceptance.md`.
-The first required ADR-V7-005 delivery dependency now has an accepted binding
+The first required ADR-V7-005 delivery dependency has an accepted binding
 specification at `V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`. It defines
 separate pure Profile-registry and calculated-series contract owners, exact
 P0a Contribution binding without `kind` inference, and versioned Definition,
 Plot, Scale, instance/ChartRegion, result/frame, provenance, limit, diagnostic,
 and migration contracts. The product owner accepted all ten material decisions
-on 2026-08-12. Acceptance allocates no delivery/Harness id, changes no SDK/
-runtime availability, and does not start P1b.4 or change H117. Its draft and
-acceptance records are
+on 2026-08-12. A separately authorized implementation on 2026-08-13 allocated
+`P1c.1`/`H118` and added only the two pure modules, their pinned host
+schemas/catalogs, synthetic fixtures, and headless evidence. H118 is executable
+and awaits focused human contract review; SDK/runtime availability is still
+unchanged, P1b.4 remains paused, and the H117 record is unchanged. Its draft,
+acceptance, and implementation records are
 `../sessions/session_20260812_calculated_series_pure_contract_candidate_specification.md`
 and
-`../sessions/session_20260812_calculated_series_pure_contract_specification_acceptance.md`.
+`../sessions/session_20260812_calculated_series_pure_contract_specification_acceptance.md`,
+plus
+`../sessions/session_20260813_p1c_1_calculated_series_pure_contract_implementation.md`.
 The seconds/tick memo additionally records the current decision that minute-
 sourced V7 remains valid without simulated-live training, defines the three-
 of-four investigation signals, and keeps every future seconds path behind the

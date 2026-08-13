@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "dimensions": [
+    { "dimensionId": "market.instrument-price", "dimensionVersion": "1.0.0", "unitId": "market.instrument-price", "unitVersion": "1.0.0", "formatterIds": ["host.price@1.0.0"] },
+    { "dimensionId": "market.price-distance", "dimensionVersion": "1.0.0", "unitId": "market.price-distance", "unitVersion": "1.0.0", "formatterIds": ["host.decimal@1.0.0"] },
+    { "dimensionId": "market.volume", "dimensionVersion": "1.0.0", "unitId": "market.volume", "unitVersion": "1.0.0", "formatterIds": ["host.volume@1.0.0"] },
+    { "dimensionId": "ratio.percentage", "dimensionVersion": "1.0.0", "unitId": "ratio.percent", "unitVersion": "1.0.0", "formatterIds": ["host.percentage@1.0.0"] },
+    { "dimensionId": "ratio.value", "dimensionVersion": "1.0.0", "unitId": "ratio.decimal", "unitVersion": "1.0.0", "formatterIds": ["host.decimal@1.0.0"] },
+    { "dimensionId": "unitless.value", "dimensionVersion": "1.0.0", "unitId": "unitless.value", "unitVersion": "1.0.0", "formatterIds": ["host.decimal@1.0.0"] }
+  ],
+  "formatters": [
+    { "formatterId": "host.decimal", "formatterVersion": "1.0.0", "optionFields": ["decimals"] },
+    { "formatterId": "host.percentage", "formatterVersion": "1.0.0", "optionFields": ["decimals"] },
+    { "formatterId": "host.price", "formatterVersion": "1.0.0", "optionFields": ["decimals"] },
+    { "formatterId": "host.volume", "formatterVersion": "1.0.0", "optionFields": ["compact", "decimals"] }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "plotKinds": [
+    { "kind": "line", "styleFields": ["stroke"], "pointShape": "scalar" },
+    { "kind": "histogram", "styleFields": ["positiveColor", "negativeColor", "baseValue"], "pointShape": "scalar" },
+    { "kind": "area", "styleFields": ["stroke", "topFillColor", "bottomFillColor"], "pointShape": "scalar" },
+    { "kind": "baseline", "styleFields": ["baseValue", "topStroke", "bottomStroke", "topFillColor", "bottomFillColor"], "pointShape": "scalar" },
+    { "kind": "band", "styleFields": ["lowerStroke", "upperStroke", "fillColor"], "pointShape": "band" }
+  ],
+  "referenceLine": { "styleFields": ["stroke", "labelVisibility"] },
+  "stroke": { "fields": ["color", "width", "pattern"], "widths": [1, 2, 3, 4], "patterns": ["solid", "dashed", "dotted"] },
+  "colorFormat": "#RRGGBBAA"
+}

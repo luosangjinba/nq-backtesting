@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "sessionId": "session-contract-fixture",
+  "documentRevision": 3,
+  "workspacePanes": [
+    {
+      "workspacePaneId": "pane-contract-fixture",
+      "chartRegions": [
+        { "regionId": "region-main", "kind": "main", "order": 0, "heightWeight": 70, "collapsed": false },
+        { "regionId": "region-secondary", "kind": "calculated-series", "order": 1, "heightWeight": 30, "collapsed": false }
+      ],
+      "scaleGroups": [
+        {
+          "scaleGroupId": "scale-price", "regionId": "region-main", "axisIntent": "primary", "order": 0,
+          "scaleIntent": {
+            "schemaVersion": 1,
+            "dimension": { "dimensionId": "market.instrument-price", "dimensionVersion": "1.0.0" },
+            "unit": { "unitId": "market.instrument-price", "unitVersion": "1.0.0" },
+            "transform": "linear", "domain": { "kind": "auto" },
+            "formatter": { "formatterId": "host.price", "formatterVersion": "1.0.0", "options": { "decimals": 2 } },
+            "zeroPolicy": "not-required"
+          }
+        },
+        {
+          "scaleGroupId": "scale-ratio", "regionId": "region-secondary", "axisIntent": "primary", "order": 0,
+          "scaleIntent": {
+            "schemaVersion": 1,
+            "dimension": { "dimensionId": "ratio.value", "dimensionVersion": "1.0.0" },
+            "unit": { "unitId": "ratio.decimal", "unitVersion": "1.0.0" },
+            "transform": "linear", "domain": { "kind": "symmetric-around-zero", "magnitude": "auto" },
+            "formatter": { "formatterId": "host.decimal", "formatterVersion": "1.0.0", "options": { "decimals": 3 } },
+            "zeroPolicy": "include"
+          }
+        }
+      ],
+      "resolvedInstances": [
+        {
+          "instanceId": "instance-synthetic", "instanceRevision": 2,
+          "definitionRef": {
+            "packageId": "core.synthetic-contract-fixtures", "packageVersion": "1.0.0",
+            "contributionId": "synthetic.multi-plot", "contributionVersion": "1.0.0",
+            "definitionId": "synthetic.multi-plot.definition", "definitionVersion": "1.0.0",
+            "profile": { "profileId": "analysis.calculated-series", "profileContractVersion": "1.0.0" }
+          },
+          "parameterOverrides": { "fixtureLength": 2 },
+          "styleOverrides": [],
+          "visibility": "visible",
+          "plotGroupPlacements": [
+            { "plotGroupId": "price-group", "regionId": "region-main", "scaleGroupId": "scale-price", "order": 0 },
+            { "plotGroupId": "ratio-group", "regionId": "region-secondary", "scaleGroupId": "scale-ratio", "order": 0 }
+          ]
+        }
+      ],
+      "unresolvedInstances": [
+        {
+          "instanceId": "instance-unresolved",
+          "originalWire": { "schemaVersion": 99, "unknownPortableField": "retained" },
+          "originalDigest": "sha256:af7ec669c7fcd7a703f4743667c00aabed49e004334925f2924b4e1ea07a1566",
+          "lastKnownDefinitionRef": null,
+          "reasonCode": "CALCULATED_SERIES_DEFINITION_UNKNOWN",
+          "displayMetadata": { "displayName": "Unavailable synthetic", "packageDisplayName": "Synthetic fixtures" }
+        }
+      ]
+    }
+  ]
+}

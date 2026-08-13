@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/contribution-profile-registry-v1.json",
+  "title": "V7 Contribution Profile Registry V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "descriptors"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "descriptors": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/descriptor" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)+$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+    },
+    "range": {
+      "type": "string",
+      "pattern": "^\\^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profileId", "profileContractVersion"],
+      "properties": {
+        "profileId": { "$ref": "#/$defs/id" },
+        "profileContractVersion": { "$ref": "#/$defs/version" }
+      }
+    },
+    "capabilityRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "range"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "range": { "$ref": "#/$defs/range" }
+      }
+    },
+    "descriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion", "profileId", "profileContractVersion",
+        "compatibilityRange", "lifecycleStatus", "truthModel",
+        "ownerContract", "definitionSchemaId", "inputContractIds",
+        "outputContractIds", "permittedCapabilityRanges",
+        "persistenceContract", "invalidationContract", "provenanceContract",
+        "migrationContract", "conformanceSuiteId", "resourceClassContract"
+      ],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "profileId": { "$ref": "#/$defs/id" },
+        "profileContractVersion": { "$ref": "#/$defs/version" },
+        "compatibilityRange": { "$ref": "#/$defs/range" },
+        "lifecycleStatus": { "enum": ["active", "deprecated", "retired"] },
+        "truthModel": { "$ref": "#/$defs/id" },
+        "ownerContract": { "$ref": "#/$defs/id" },
+        "definitionSchemaId": { "type": "string", "minLength": 1, "maxLength": 320 },
+        "inputContractIds": { "type": "array", "maxItems": 64, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+        "outputContractIds": { "type": "array", "maxItems": 64, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+        "permittedCapabilityRanges": { "type": "array", "maxItems": 64, "uniqueItems": true, "items": { "$ref": "#/$defs/capabilityRange" } },
+        "persistenceContract": { "$ref": "#/$defs/id" },
+        "invalidationContract": { "$ref": "#/$defs/id" },
+        "provenanceContract": { "$ref": "#/$defs/id" },
+        "migrationContract": { "$ref": "#/$defs/id" },
+        "conformanceSuiteId": { "$ref": "#/$defs/id" },
+        "resourceClassContract": { "$ref": "#/$defs/id" }
+      }
+    }
+  }
+}

@@ -1,0 +1,507 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://replay-lab.local/schemas/calculated-series-contract-v1.json",
+  "title": "V7 Calculated-Series Pure Contracts V1",
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,127}$" },
+    "version": { "type": "string", "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$" },
+    "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "profileRef": {
+      "type": "object", "additionalProperties": false,
+      "required": ["profileId", "profileContractVersion"],
+      "properties": {
+        "profileId": { "const": "analysis.calculated-series" },
+        "profileContractVersion": { "const": "1.0.0" }
+      }
+    },
+    "definitionIdentity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["packageId", "packageVersion", "contributionId", "contributionVersion", "definitionId", "definitionVersion"],
+      "properties": {
+        "packageId": { "$ref": "#/$defs/id" }, "packageVersion": { "$ref": "#/$defs/version" },
+        "contributionId": { "$ref": "#/$defs/id" }, "contributionVersion": { "$ref": "#/$defs/version" },
+        "definitionId": { "$ref": "#/$defs/id" }, "definitionVersion": { "$ref": "#/$defs/version" }
+      }
+    },
+    "stroke": {
+      "type": "object", "additionalProperties": false, "required": ["color", "width", "pattern"],
+      "properties": {
+        "color": { "type": "string", "pattern": "^#[0-9A-F]{8}$" },
+        "width": { "enum": [1, 2, 3, 4] }, "pattern": { "enum": ["solid", "dashed", "dotted"] }
+      }
+    },
+    "lineStyle": {
+      "type": "object", "additionalProperties": false, "required": ["stroke"],
+      "properties": { "stroke": { "$ref": "#/$defs/stroke" } }
+    },
+    "histogramStyle": {
+      "type": "object", "additionalProperties": false,
+      "required": ["positiveColor", "negativeColor", "baseValue"],
+      "properties": { "positiveColor": { "type": "string", "pattern": "^#[0-9A-F]{8}$" }, "negativeColor": { "type": "string", "pattern": "^#[0-9A-F]{8}$" }, "baseValue": { "type": "number" } }
+    },
+    "areaStyle": {
+      "type": "object", "additionalProperties": false,
+      "required": ["stroke", "topFillColor", "bottomFillColor"],
+      "properties": { "stroke": { "$ref": "#/$defs/stroke" }, "topFillColor": { "type": "string", "pattern": "^#[0-9A-F]{8}$" }, "bottomFillColor": { "type": "string", "pattern": "^#[0-9A-F]{8}$" } }
+    },
+    "baselineStyle": {
+      "type": "object", "additionalProperties": false,
+      "required": ["baseValue", "topStroke", "bottomStroke", "topFillColor", "bottomFillColor"],
+      "properties": { "baseValue": { "type": "number" }, "topStroke": { "$ref": "#/$defs/stroke" }, "bottomStroke": { "$ref": "#/$defs/stroke" }, "topFillColor": { "type": "string", "pattern": "^#[0-9A-F]{8}$" }, "bottomFillColor": { "type": "string", "pattern": "^#[0-9A-F]{8}$" } }
+    },
+    "bandStyle": {
+      "type": "object", "additionalProperties": false,
+      "required": ["lowerStroke", "upperStroke", "fillColor"],
+      "properties": { "lowerStroke": { "$ref": "#/$defs/stroke" }, "upperStroke": { "$ref": "#/$defs/stroke" }, "fillColor": { "type": "string", "pattern": "^#[0-9A-F]{8}$" } }
+    },
+    "referenceLineStyle": {
+      "type": "object", "additionalProperties": false, "required": ["stroke", "labelVisibility"],
+      "properties": { "stroke": { "$ref": "#/$defs/stroke" }, "labelVisibility": { "enum": ["visible", "hidden"] } }
+    },
+    "formatter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["formatterId", "formatterVersion", "options"],
+      "properties": {
+        "formatterId": { "enum": ["host.decimal", "host.percentage", "host.price", "host.volume"] },
+        "formatterVersion": { "const": "1.0.0" },
+        "options": {
+          "type": "object", "additionalProperties": false, "maxProperties": 2,
+          "properties": {
+            "compact": { "type": "boolean" },
+            "decimals": { "type": "integer", "minimum": 0, "maximum": 12 }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "formatterId": { "enum": ["host.decimal", "host.percentage", "host.price"] } } },
+          "then": { "properties": { "options": { "not": { "required": ["compact"] } } } }
+        }
+      ]
+    },
+    "scaleIntent": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "dimension", "unit", "transform", "domain", "formatter", "zeroPolicy"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "dimension": { "type": "object", "additionalProperties": false, "required": ["dimensionId", "dimensionVersion"], "properties": { "dimensionId": { "$ref": "#/$defs/id" }, "dimensionVersion": { "$ref": "#/$defs/version" } } },
+        "unit": { "type": "object", "additionalProperties": false, "required": ["unitId", "unitVersion"], "properties": { "unitId": { "$ref": "#/$defs/id" }, "unitVersion": { "$ref": "#/$defs/version" } } },
+        "transform": { "enum": ["linear", "logarithmic"] },
+        "domain": { "oneOf": [
+          { "type": "object", "additionalProperties": false, "required": ["kind"], "properties": { "kind": { "const": "auto" } } },
+          { "type": "object", "additionalProperties": false, "required": ["kind", "minimum", "maximum"], "properties": { "kind": { "const": "fixed" }, "minimum": { "type": "number" }, "maximum": { "type": "number" } } },
+          { "type": "object", "additionalProperties": false, "required": ["kind", "magnitude"], "properties": { "kind": { "const": "symmetric-around-zero" }, "magnitude": { "oneOf": [{ "const": "auto" }, { "type": "number", "exclusiveMinimum": 0 }] } } }
+        ] },
+        "formatter": { "$ref": "#/$defs/formatter" },
+        "zeroPolicy": { "enum": ["not-required", "include", "forbid-nonpositive"] }
+      }
+    },
+    "plot": {
+      "type": "object", "additionalProperties": false,
+      "required": ["plotId", "displayName", "kind", "visibleByDefault", "legendIntent", "style"],
+      "properties": {
+        "plotId": { "$ref": "#/$defs/id" }, "displayName": { "type": "string", "minLength": 1, "maxLength": 96 },
+        "kind": { "enum": ["line", "histogram", "area", "baseline", "band"] },
+        "visibleByDefault": { "type": "boolean" }, "legendIntent": { "enum": ["value", "hidden"] },
+        "style": {}
+      },
+      "allOf": [
+        { "if": { "properties": { "kind": { "const": "line" } } }, "then": { "properties": { "style": { "$ref": "#/$defs/lineStyle" } } } },
+        { "if": { "properties": { "kind": { "const": "histogram" } } }, "then": { "properties": { "style": { "$ref": "#/$defs/histogramStyle" } } } },
+        { "if": { "properties": { "kind": { "const": "area" } } }, "then": { "properties": { "style": { "$ref": "#/$defs/areaStyle" } } } },
+        { "if": { "properties": { "kind": { "const": "baseline" } } }, "then": { "properties": { "style": { "$ref": "#/$defs/baselineStyle" } } } },
+        { "if": { "properties": { "kind": { "const": "band" } } }, "then": { "properties": { "style": { "$ref": "#/$defs/bandStyle" } } } }
+      ]
+    },
+    "referenceLine": {
+      "type": "object", "additionalProperties": false,
+      "required": ["referenceLineId", "displayName", "value", "visibleByDefault", "legendIntent", "style"],
+      "properties": {
+        "referenceLineId": { "$ref": "#/$defs/id" }, "displayName": { "type": "string", "minLength": 1, "maxLength": 96 },
+        "value": { "type": "number" }, "visibleByDefault": { "type": "boolean" },
+        "legendIntent": { "enum": ["value", "hidden"] }, "style": { "$ref": "#/$defs/referenceLineStyle" }
+      }
+    },
+    "plotGroup": {
+      "type": "object", "additionalProperties": false,
+      "required": ["plotGroupId", "displayName", "defaultPlacement", "scaleIntent", "plots", "referenceLines"],
+      "properties": {
+        "plotGroupId": { "$ref": "#/$defs/id" }, "displayName": { "type": "string", "minLength": 1, "maxLength": 96 },
+        "defaultPlacement": { "enum": ["main", "own-region"] }, "defaultRegionHeightWeight": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "scaleIntent": { "$ref": "#/$defs/scaleIntent" },
+        "plots": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/$defs/plot" } },
+        "referenceLines": { "type": "array", "maxItems": 16, "items": { "$ref": "#/$defs/referenceLine" } }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "defaultPlacement": { "const": "own-region" } } },
+          "then": { "required": ["defaultRegionHeightWeight"] },
+          "else": { "not": { "required": ["defaultRegionHeightWeight"] } }
+        }
+      ]
+    },
+    "definition": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "identity", "profile", "parameterContract", "executionSemantics", "inputRequirement", "plotGroups", "resourceDeclaration", "migrationRefs"],
+      "properties": {
+        "schemaVersion": { "const": 1 }, "identity": { "$ref": "#/$defs/definitionIdentity" }, "profile": { "$ref": "#/$defs/profileRef" },
+        "parameterContract": { "type": "object", "additionalProperties": false, "required": ["schemaId", "schemaVersion", "schemaDigest"], "properties": { "schemaId": { "type": "string", "minLength": 1, "maxLength": 320 }, "schemaVersion": { "type": "integer", "minimum": 1 }, "schemaDigest": { "$ref": "#/$defs/digest" } } },
+        "executionSemantics": { "type": "object", "additionalProperties": false, "required": ["deterministic", "noFuture", "incrementalMode"], "properties": { "deterministic": { "const": true }, "noFuture": { "const": true }, "incrementalMode": { "enum": ["none", "append-tail-replace"] } } },
+        "inputRequirement": { "type": "object", "additionalProperties": false, "required": ["source", "warmupBars", "insufficientWarmup", "additionalContexts"], "properties": { "source": { "const": "current-workspace-pane-bars" }, "warmupBars": { "type": "integer", "minimum": 0, "maximum": 100000 }, "insufficientWarmup": { "enum": ["whitespace", "unavailable"] }, "additionalContexts": { "type": "array", "maxItems": 0 } } },
+        "plotGroups": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/$defs/plotGroup" } },
+        "resourceDeclaration": { "type": "object", "additionalProperties": false, "required": ["maximumInputBars", "maximumOutputPoints", "maximumOutputBytes", "maximumIncrementalStateBytes"], "properties": { "maximumInputBars": { "type": "integer", "minimum": 1, "maximum": 100000 }, "maximumOutputPoints": { "type": "integer", "minimum": 1, "maximum": 100000 }, "maximumOutputBytes": { "type": "integer", "minimum": 1, "maximum": 16777216 }, "maximumIncrementalStateBytes": { "type": "integer", "minimum": 0, "maximum": 16777216 } } },
+        "migrationRefs": { "type": "array", "maxItems": 32, "items": { "$ref": "#/$defs/definitionMigrationRef" } }
+      }
+    },
+    "scalarPoint": {
+      "oneOf": [
+        { "type": "object", "additionalProperties": false, "required": ["state", "displayEpochMs", "value"], "properties": { "state": { "const": "value" }, "displayEpochMs": { "type": "integer", "minimum": 0 }, "value": { "type": "number" } } },
+        { "type": "object", "additionalProperties": false, "required": ["state", "displayEpochMs"], "properties": { "state": { "const": "whitespace" }, "displayEpochMs": { "type": "integer", "minimum": 0 } } }
+      ]
+    },
+    "bandPoint": {
+      "oneOf": [
+        { "type": "object", "additionalProperties": false, "required": ["state", "displayEpochMs", "lower", "upper"], "properties": { "state": { "const": "value" }, "displayEpochMs": { "type": "integer", "minimum": 0 }, "lower": { "type": "number" }, "upper": { "type": "number" } } },
+        { "type": "object", "additionalProperties": false, "required": ["state", "displayEpochMs"], "properties": { "state": { "const": "whitespace" }, "displayEpochMs": { "type": "integer", "minimum": 0 } } }
+      ]
+    },
+    "definitionRef": {
+      "type": "object", "additionalProperties": false,
+      "required": ["packageId", "packageVersion", "contributionId", "contributionVersion", "definitionId", "definitionVersion", "profile"],
+      "properties": {
+        "packageId": { "$ref": "#/$defs/id" }, "packageVersion": { "$ref": "#/$defs/version" },
+        "contributionId": { "$ref": "#/$defs/id" }, "contributionVersion": { "$ref": "#/$defs/version" },
+        "definitionId": { "$ref": "#/$defs/id" }, "definitionVersion": { "$ref": "#/$defs/version" },
+        "profile": { "$ref": "#/$defs/profileRef" }
+      }
+    },
+    "definitionMigrationRef": {
+      "type": "object", "additionalProperties": false,
+      "required": ["migrationId", "fromDefinitionVersion", "toDefinitionVersion", "planDigest"],
+      "properties": {
+        "migrationId": { "$ref": "#/$defs/id" },
+        "fromDefinitionVersion": { "$ref": "#/$defs/version" },
+        "toDefinitionVersion": { "$ref": "#/$defs/version" },
+        "planDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "contributionBinding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "packageId", "packageVersion", "contributionId", "contributionVersion", "declaredKind", "profile", "definitionId", "definitionVersion"],
+      "properties": {
+        "schemaVersion": { "const": 1 },
+        "packageId": { "$ref": "#/$defs/id" }, "packageVersion": { "$ref": "#/$defs/version" },
+        "contributionId": { "$ref": "#/$defs/id" }, "contributionVersion": { "$ref": "#/$defs/version" },
+        "declaredKind": { "const": "indicator" }, "profile": { "$ref": "#/$defs/profileRef" },
+        "definitionId": { "$ref": "#/$defs/id" }, "definitionVersion": { "$ref": "#/$defs/version" }
+      }
+    },
+    "portableValue": {
+      "oneOf": [
+        { "type": "null" }, { "type": "string" }, { "type": "boolean" }, { "type": "number" },
+        { "type": "array", "maxItems": 128, "items": { "$ref": "#/$defs/portableValue" } },
+        {
+          "type": "object", "maxProperties": 128,
+          "propertyNames": { "$ref": "#/$defs/id" },
+          "additionalProperties": { "$ref": "#/$defs/portableValue" }
+        }
+      ]
+    },
+    "portableRecord": {
+      "type": "object", "maxProperties": 128,
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "additionalProperties": { "$ref": "#/$defs/portableValue" }
+    },
+    "chartRegion": {
+      "type": "object", "additionalProperties": false,
+      "required": ["regionId", "kind", "order", "heightWeight", "collapsed"],
+      "properties": { "regionId": { "$ref": "#/$defs/id" }, "kind": { "enum": ["main", "calculated-series"] }, "order": { "type": "integer", "minimum": 0, "maximum": 7 }, "heightWeight": { "type": "integer", "minimum": 1, "maximum": 100 }, "collapsed": { "type": "boolean" } }
+    },
+    "scaleGroup": {
+      "type": "object", "additionalProperties": false,
+      "required": ["scaleGroupId", "regionId", "scaleIntent", "axisIntent", "order"],
+      "properties": { "scaleGroupId": { "$ref": "#/$defs/id" }, "regionId": { "$ref": "#/$defs/id" }, "scaleIntent": { "$ref": "#/$defs/scaleIntent" }, "axisIntent": { "enum": ["primary", "auxiliary"] }, "order": { "type": "integer", "minimum": 0, "maximum": 3 } }
+    },
+    "placement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["plotGroupId", "regionId", "scaleGroupId", "order"],
+      "properties": { "plotGroupId": { "$ref": "#/$defs/id" }, "regionId": { "$ref": "#/$defs/id" }, "scaleGroupId": { "$ref": "#/$defs/id" }, "order": { "type": "integer", "minimum": 0, "maximum": 31 } }
+    },
+    "styleOverride": {
+      "type": "object", "additionalProperties": false,
+      "required": ["plotGroupId", "targetKind", "targetId", "style"],
+      "properties": { "plotGroupId": { "$ref": "#/$defs/id" }, "targetKind": { "enum": ["plot", "reference-line"] }, "targetId": { "$ref": "#/$defs/id" }, "style": { "oneOf": [{ "$ref": "#/$defs/lineStyle" }, { "$ref": "#/$defs/histogramStyle" }, { "$ref": "#/$defs/areaStyle" }, { "$ref": "#/$defs/baselineStyle" }, { "$ref": "#/$defs/bandStyle" }, { "$ref": "#/$defs/referenceLineStyle" }] } }
+    },
+    "resolvedInstance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["instanceId", "instanceRevision", "definitionRef", "parameterOverrides", "styleOverrides", "visibility", "plotGroupPlacements"],
+      "properties": {
+        "instanceId": { "$ref": "#/$defs/id" }, "instanceRevision": { "type": "integer", "minimum": 1 },
+        "definitionRef": { "$ref": "#/$defs/definitionRef" }, "parameterOverrides": { "$ref": "#/$defs/portableRecord" },
+        "styleOverrides": { "type": "array", "maxItems": 128, "items": { "$ref": "#/$defs/styleOverride" } },
+        "visibility": { "enum": ["visible", "hidden"] }, "plotGroupPlacements": { "type": "array", "maxItems": 8, "items": { "$ref": "#/$defs/placement" } }
+      }
+    },
+    "unresolvedInstance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["instanceId", "originalWire", "originalDigest", "lastKnownDefinitionRef", "reasonCode", "displayMetadata"],
+      "properties": {
+        "instanceId": { "$ref": "#/$defs/id" }, "originalWire": { "$ref": "#/$defs/portableValue" }, "originalDigest": { "$ref": "#/$defs/digest" },
+        "lastKnownDefinitionRef": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/definitionRef" }] }, "reasonCode": { "$ref": "#/$defs/id" },
+        "displayMetadata": { "type": "object", "additionalProperties": false, "required": ["displayName", "packageDisplayName"], "properties": { "displayName": { "type": "string", "minLength": 1, "maxLength": 96 }, "packageDisplayName": { "type": "string", "minLength": 1, "maxLength": 96 } } }
+      }
+    },
+    "workspacePane": {
+      "type": "object", "additionalProperties": false,
+      "required": ["workspacePaneId", "chartRegions", "scaleGroups", "resolvedInstances", "unresolvedInstances"],
+      "properties": {
+        "workspacePaneId": { "$ref": "#/$defs/id" }, "chartRegions": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/$defs/chartRegion" } },
+        "scaleGroups": { "type": "array", "maxItems": 32, "items": { "$ref": "#/$defs/scaleGroup" } },
+        "resolvedInstances": { "type": "array", "maxItems": 32, "items": { "$ref": "#/$defs/resolvedInstance" } },
+        "unresolvedInstances": { "type": "array", "maxItems": 32, "items": { "$ref": "#/$defs/unresolvedInstance" } }
+      }
+    },
+    "workspaceDocument": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "sessionId", "documentRevision", "workspacePanes"],
+      "properties": { "schemaVersion": { "const": 1 }, "sessionId": { "$ref": "#/$defs/id" }, "documentRevision": { "type": "integer", "minimum": 1 }, "workspacePanes": { "type": "array", "maxItems": 8, "items": { "$ref": "#/$defs/workspacePane" } } }
+    },
+    "activationGeneration": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "version", "value"],
+      "properties": {
+        "schema": { "const": "v7.activation-generation" }, "version": { "const": 1 },
+        "value": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "sessionIdentity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "version", "value"],
+      "properties": {
+        "schema": { "const": "v7.session-id" }, "version": { "const": 1 },
+        "value": { "type": "string", "minLength": 1 }
+      }
+    },
+    "transactionIdentity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "version", "value"],
+      "properties": {
+        "schema": { "const": "v7.transaction-id" }, "version": { "const": 1 },
+        "value": { "type": "string", "minLength": 1 }
+      }
+    },
+    "workspaceTransaction": {
+      "type": "object", "additionalProperties": false,
+      "required": ["activationGeneration", "sessionId", "transactionId"],
+      "properties": {
+        "activationGeneration": { "$ref": "#/$defs/activationGeneration" },
+        "sessionId": { "$ref": "#/$defs/sessionIdentity" },
+        "transactionId": { "$ref": "#/$defs/transactionIdentity" }
+      }
+    },
+    "datasetProvenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["datasetDigest", "datasetId", "datasetRevision", "sourceId"],
+      "properties": {
+        "datasetDigest": { "$ref": "#/$defs/digest" },
+        "datasetId": { "$ref": "#/$defs/id" },
+        "datasetRevision": { "$ref": "#/$defs/id" },
+        "sourceId": { "$ref": "#/$defs/id" }
+      }
+    },
+    "executorIdentity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["executorId", "executorVersion"],
+      "properties": {
+        "executorId": { "$ref": "#/$defs/id" },
+        "executorVersion": { "$ref": "#/$defs/version" }
+      }
+    },
+    "apiIdentity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": { "id": { "$ref": "#/$defs/id" }, "version": { "$ref": "#/$defs/version" } }
+    },
+    "frameIdentity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["datasetProvenance", "definitionRef", "documentRevision", "effectiveParameterDigest", "executor", "hostApi", "inputDigest", "instanceId", "instanceRevision", "projectedPaneSnapshotDigest", "replayVisibleThroughEpochMs", "sdkContract", "workspacePaneId", "workspaceStateRevision", "workspaceTransaction"],
+      "properties": {
+        "datasetProvenance": { "$ref": "#/$defs/datasetProvenance" },
+        "definitionRef": { "$ref": "#/$defs/definitionRef" },
+        "documentRevision": { "type": "integer", "minimum": 1 },
+        "effectiveParameterDigest": { "$ref": "#/$defs/digest" },
+        "executor": { "$ref": "#/$defs/executorIdentity" },
+        "hostApi": { "$ref": "#/$defs/apiIdentity" },
+        "inputDigest": { "$ref": "#/$defs/digest" },
+        "instanceId": { "$ref": "#/$defs/id" },
+        "instanceRevision": { "type": "integer", "minimum": 1 },
+        "projectedPaneSnapshotDigest": { "$ref": "#/$defs/digest" },
+        "replayVisibleThroughEpochMs": { "type": "integer", "minimum": 0 },
+        "sdkContract": { "$ref": "#/$defs/apiIdentity" },
+        "workspacePaneId": { "$ref": "#/$defs/id" },
+        "workspaceStateRevision": { "type": "integer", "minimum": 1 },
+        "workspaceTransaction": { "$ref": "#/$defs/workspaceTransaction" }
+      }
+    },
+    "resultPlot": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "plotId", "points"],
+          "properties": {
+            "kind": { "enum": ["line", "histogram", "area", "baseline"] },
+            "plotId": { "$ref": "#/$defs/id" },
+            "points": { "type": "array", "maxItems": 20000, "items": { "$ref": "#/$defs/scalarPoint" } }
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "plotId", "points"],
+          "properties": {
+            "kind": { "const": "band" },
+            "plotId": { "$ref": "#/$defs/id" },
+            "points": { "type": "array", "maxItems": 20000, "items": { "$ref": "#/$defs/bandPoint" } }
+          }
+        }
+      ]
+    },
+    "resultPlotGroup": {
+      "type": "object", "additionalProperties": false,
+      "required": ["plotGroupId", "plots"],
+      "properties": {
+        "plotGroupId": { "$ref": "#/$defs/id" },
+        "plots": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/$defs/resultPlot" } }
+      }
+    },
+    "warmupCoverage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["providedBars", "requestedBars"],
+      "properties": {
+        "providedBars": { "type": "integer", "minimum": 0 },
+        "requestedBars": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "resultProvenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["calculationMode", "datasetDigest", "definitionDigest", "executor", "formulaDigest", "inputTimelineDigest", "packageDigest", "parameterDigest", "resultAncestry", "warmupCoverage"],
+      "properties": {
+        "calculationMode": { "enum": ["full", "incremental"] },
+        "datasetDigest": { "$ref": "#/$defs/digest" },
+        "definitionDigest": { "$ref": "#/$defs/digest" },
+        "executor": { "$ref": "#/$defs/executorIdentity" },
+        "formulaDigest": { "$ref": "#/$defs/digest" },
+        "inputTimelineDigest": { "$ref": "#/$defs/digest" },
+        "packageDigest": { "$ref": "#/$defs/digest" },
+        "parameterDigest": { "$ref": "#/$defs/digest" },
+        "resultAncestry": { "type": "array", "maxItems": 128, "items": { "$ref": "#/$defs/digest" } },
+        "warmupCoverage": { "$ref": "#/$defs/warmupCoverage" }
+      }
+    },
+    "resourceUsage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["actualInputBars", "admittedInputBars", "durationMs", "incrementalStateBytes", "outputBytes", "outputPoints"],
+      "properties": {
+        "actualInputBars": { "type": "integer", "minimum": 0 },
+        "admittedInputBars": { "type": "integer", "minimum": 0 },
+        "durationMs": { "type": "number", "minimum": 0 },
+        "incrementalStateBytes": { "type": "integer", "minimum": 0 },
+        "outputBytes": { "type": "integer", "minimum": 0 },
+        "outputPoints": { "type": "integer", "minimum": 0, "maximum": 100000 }
+      }
+    },
+    "diagnostic": {
+      "type": "object", "additionalProperties": false,
+      "required": ["code", "jsonPointer", "logicalIdentity", "message", "phase", "related", "severity"],
+      "properties": {
+        "code": { "$ref": "#/$defs/id" },
+        "jsonPointer": { "oneOf": [{ "type": "null" }, { "type": "string", "minLength": 1, "maxLength": 320 }] },
+        "logicalIdentity": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/id" }] },
+        "message": { "type": "string", "minLength": 1, "maxLength": 320 },
+        "phase": { "$ref": "#/$defs/id" },
+        "related": { "type": "array", "maxItems": 128, "items": { "$ref": "#/$defs/id" } },
+        "severity": { "enum": ["error", "warning", "info"] }
+      }
+    },
+    "result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "frameIdentity", "resultRevision", "state", "plotGroups", "provenance", "resourceUsage", "diagnostics"],
+      "properties": {
+        "schemaVersion": { "const": 1 }, "frameIdentity": { "$ref": "#/$defs/frameIdentity" },
+        "resultRevision": { "type": "integer", "minimum": 1 },
+        "state": { "enum": ["ready", "empty", "unavailable", "error"] },
+        "plotGroups": { "type": "array", "maxItems": 8, "items": { "$ref": "#/$defs/resultPlotGroup" } },
+        "provenance": { "$ref": "#/$defs/resultProvenance" },
+        "resourceUsage": { "$ref": "#/$defs/resourceUsage" },
+        "diagnostics": { "type": "array", "maxItems": 128, "items": { "$ref": "#/$defs/diagnostic" } }
+      },
+      "allOf": [{ "if": { "properties": { "state": { "const": "ready" } } }, "then": { "properties": { "plotGroups": { "minItems": 1 } } }, "else": { "properties": { "plotGroups": { "maxItems": 0 } } } }]
+    },
+    "projectionFrame": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "frameIdentity", "projectionRevision", "state", "plotGroups", "provenance", "resourceUsage", "diagnostics"],
+      "properties": {
+        "schemaVersion": { "const": 1 }, "frameIdentity": { "$ref": "#/$defs/frameIdentity" },
+        "projectionRevision": { "type": "integer", "minimum": 1 },
+        "state": { "enum": ["pending", "ready", "empty", "unavailable", "error"] },
+        "plotGroups": { "type": "array", "maxItems": 8, "items": { "$ref": "#/$defs/resultPlotGroup" } },
+        "provenance": { "$ref": "#/$defs/resultProvenance" },
+        "resourceUsage": { "$ref": "#/$defs/resourceUsage" },
+        "diagnostics": { "type": "array", "maxItems": 128, "items": { "$ref": "#/$defs/diagnostic" } }
+      },
+      "allOf": [{ "if": { "properties": { "state": { "const": "ready" } } }, "then": { "properties": { "plotGroups": { "minItems": 1 } } }, "else": { "properties": { "plotGroups": { "maxItems": 0 } } } }]
+    },
+    "migrationOperation": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "fromParameterId", "toParameterId"],
+          "properties": { "kind": { "const": "rename-parameter" }, "fromParameterId": { "$ref": "#/$defs/id" }, "toParameterId": { "$ref": "#/$defs/id" } }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "parameterId", "value"],
+          "properties": { "kind": { "const": "set-default-if-absent" }, "parameterId": { "$ref": "#/$defs/id" }, "value": { "$ref": "#/$defs/portableValue" } }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "parameterId", "quarantineId"],
+          "properties": { "kind": { "const": "quarantine-retired-parameter" }, "parameterId": { "$ref": "#/$defs/id" }, "quarantineId": { "$ref": "#/$defs/id" } }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "parameterId", "fromValue", "toValue"],
+          "properties": { "kind": { "const": "map-enum-value" }, "parameterId": { "$ref": "#/$defs/id" }, "fromValue": { "$ref": "#/$defs/portableValue" }, "toValue": { "$ref": "#/$defs/portableValue" } }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "fromPlotGroupId", "toPlotGroupId"],
+          "properties": { "kind": { "const": "rename-plot-group-id" }, "fromPlotGroupId": { "$ref": "#/$defs/id" }, "toPlotGroupId": { "$ref": "#/$defs/id" } }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "plotGroupId", "fromPlotId", "toPlotId"],
+          "properties": { "kind": { "const": "rename-plot-id" }, "plotGroupId": { "$ref": "#/$defs/id" }, "fromPlotId": { "$ref": "#/$defs/id" }, "toPlotId": { "$ref": "#/$defs/id" } }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["kind", "targetId", "fromToken", "toToken"],
+          "properties": { "kind": { "const": "map-style-token" }, "targetId": { "$ref": "#/$defs/id" }, "fromToken": { "$ref": "#/$defs/portableValue" }, "toToken": { "$ref": "#/$defs/portableValue" } }
+        }
+      ]
+    },
+    "migrationPlan": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schemaVersion", "migrationId", "fromProfile", "toProfile", "fromDefinitionRef", "toDefinitionRef", "fromDocumentSchemaVersion", "toDocumentSchemaVersion", "operations", "expectedPlanDigest", "expectedFixtureDigests"],
+      "properties": {
+        "schemaVersion": { "const": 1 }, "migrationId": { "$ref": "#/$defs/id" },
+        "fromProfile": { "$ref": "#/$defs/profileRef" }, "toProfile": { "$ref": "#/$defs/profileRef" },
+        "fromDefinitionRef": { "$ref": "#/$defs/definitionRef" }, "toDefinitionRef": { "$ref": "#/$defs/definitionRef" },
+        "fromDocumentSchemaVersion": { "type": "integer", "minimum": 1 },
+        "toDocumentSchemaVersion": { "type": "integer", "minimum": 1 },
+        "operations": { "type": "array", "maxItems": 32, "items": { "$ref": "#/$defs/migrationOperation" } },
+        "expectedPlanDigest": { "$ref": "#/$defs/digest" },
+        "expectedFixtureDigests": { "type": "array", "minItems": 1, "maxItems": 128, "uniqueItems": true, "items": { "$ref": "#/$defs/digest" } }
+      }
+    }
+  }
+}

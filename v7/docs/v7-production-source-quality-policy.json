@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "P1b.3",
+  "deliveryStep": "P1c.1",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -30,6 +30,8 @@
       "core.coverage-planning-contract",
       "core.prepared-commit-contract",
       "core.plugin-contract",
+      "core.contribution-profile-contract",
+      "core.calculated-series-contract",
       "core.projected-history-contract",
       "core.provider-policy-contract",
       "core.raw-coverage-lease-contract",
@@ -214,6 +216,10 @@
     },
     {
       "path": "sessions/session_20260812_p1b_3_developer_mode_surface_removal.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260813_p1c_1_calculated_series_pure_contract_implementation.md",
       "expectedOccurrences": 1
     }
   ],

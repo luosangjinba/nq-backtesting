@@ -477,6 +477,60 @@
       "functions": [
         {
           "effectiveLines": 3,
+          "name": "failContributionProfile",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.contribution-profile-contract",
+      "owner": "contribution-profile-contract",
+      "ownsContract": false,
+      "path": "src/contribution-profile-contract/profile-error.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "ContributionProfileContractError",
+          "semanticMatches": [
+            "contribution",
+            "profile"
+          ],
+          "semanticTerms": [
+            "contribution",
+            "profile"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "8425c1f31e6aad06de85d0173fb26e63727931540ebb57f619f215386e2253a0"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 10,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 3,
           "name": "failCorePluginProfile",
           "reviewedDecompositionException": false
         },
@@ -2708,6 +2762,60 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "ed6734a349fe0646f6c2bb884dc783ec38a8cd06bc4a137d39176972db2caca2"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 11,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 3,
+          "name": "failCalculatedSeries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.calculated-series-contract",
+      "owner": "calculated-series-contract",
+      "ownsContract": false,
+      "path": "src/calculated-series-contract/contract-error.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "CalculatedSeriesContractError",
+          "semanticMatches": [
+            "calculated",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "e9de164a50990361c81223b021ad2c2fade69c208574798a65e4c1bcf314bb1c"
     },
     {
       "adaptsBoundary": false,
@@ -6394,6 +6502,186 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 154,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 12,
+          "name": "baselineStyle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "definePlot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "defineReferenceLine",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 37,
+          "name": "definePlotGroup",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "lineStyle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "color",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "plotStyle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "referenceLineStyle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "areaStyle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "bandStyle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "histogramStyle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "stroke",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.calculated-series-contract",
+      "owner": "calculated-series-contract",
+      "ownsContract": false,
+      "path": "src/calculated-series-contract/plot-definition.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "CALCULATED_SERIES_PLOT_KINDS",
+          "semanticMatches": [
+            "calculated",
+            "plot",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "kinds",
+            "plot",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "definePlot",
+          "semanticMatches": [
+            "calculated",
+            "plot",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "plot",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "definePlotGroup",
+          "semanticMatches": [
+            "calculated",
+            "plot",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "group",
+            "plot",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "defineReferenceLine",
+          "semanticMatches": [
+            "calculated",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "line",
+            "reference",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "fe6ff6538f7f38caa31089e56faaeb7d667096ef23eaff8d5065637a7f50f3ad"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 156,
       "forwardingOnly": false,
       "functions": [
@@ -7074,6 +7362,271 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "ea4584ba685bf2038150a8a54d354d8f6e01821b0220c06f3a7dc6b19fe1c97a"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 163,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "descriptors",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "assessContributionProfileCompatibility",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "calculatedSeriesProfileRef",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "canonicalBytes",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 31,
+          "name": "resolveContributionProfile",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "createContributionProfileRegistry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 46,
+          "name": "normalizeRegistry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "createInitialContributionProfileRegistry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "readContributionProfileRegistry",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.contribution-profile-contract",
+      "owner": "contribution-profile-contract",
+      "ownsContract": false,
+      "path": "src/contribution-profile-contract/profile-registry.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "assessContributionProfileCompatibility",
+          "semanticMatches": [
+            "compatibility",
+            "contribution",
+            "profile"
+          ],
+          "semanticTerms": [
+            "assess",
+            "compatibility",
+            "contribution",
+            "profile"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "calculatedSeriesProfileRef",
+          "semanticMatches": [
+            "contribution",
+            "profile"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "contribution",
+            "profile",
+            "ref",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "CONTRIBUTION_PROFILE_LIMITS",
+          "semanticMatches": [
+            "contribution",
+            "profile"
+          ],
+          "semanticTerms": [
+            "contribution",
+            "limits",
+            "profile"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "createContributionProfileRegistry",
+          "semanticMatches": [
+            "contribution",
+            "profile",
+            "registry"
+          ],
+          "semanticTerms": [
+            "contribution",
+            "profile",
+            "registry"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "createInitialContributionProfileRegistry",
+          "semanticMatches": [
+            "contribution",
+            "profile",
+            "registry"
+          ],
+          "semanticTerms": [
+            "contribution",
+            "initial",
+            "profile",
+            "registry"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "readContributionProfileRegistry",
+          "semanticMatches": [
+            "contribution",
+            "profile",
+            "registry"
+          ],
+          "semanticTerms": [
+            "contribution",
+            "profile",
+            "registry"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "resolveContributionProfile",
+          "semanticMatches": [
+            "contribution",
+            "profile"
+          ],
+          "semanticTerms": [
+            "contribution",
+            "profile"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "256658e61820eca42db189b66f01c06c832ad48ced5fa3fa18f6c8b20c6f9f46"
     },
     {
       "adaptsBoundary": false,
@@ -7829,6 +8382,182 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "36db42a5ad22c5d605183eb24e465a9883e167613a3442ca6d157e8664036075"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 173,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "normalizeFormatter",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "assessScaleIntentCompatibility",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "enforceCatalogAndSemantics",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "normalizeDomain",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "formatterOptions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 26,
+          "name": "defineScaleIntent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "comparable",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "formatterKey",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "versionedKey",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-1>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "readCalculatedSeriesScaleCatalog",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "normalizeIdentity",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.calculated-series-contract",
+      "owner": "calculated-series-contract",
+      "ownsContract": false,
+      "path": "src/calculated-series-contract/scale-catalog.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "assessScaleIntentCompatibility",
+          "semanticMatches": [
+            "assess",
+            "calculated",
+            "compatibility",
+            "scale",
+            "series"
+          ],
+          "semanticTerms": [
+            "assess",
+            "calculated",
+            "compatibility",
+            "intent",
+            "scale",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "defineScaleIntent",
+          "semanticMatches": [
+            "calculated",
+            "scale",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "intent",
+            "scale",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "readCalculatedSeriesScaleCatalog",
+          "semanticMatches": [
+            "calculated",
+            "scale",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "catalog",
+            "scale",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "e08667e9b236e5e0bfa096ebd792e53f5704a6ac733ff24c15ab38f9f35364ee"
     },
     {
       "adaptsBoundary": false,
@@ -9744,6 +10473,172 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 200,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-24>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-25>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-26>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-29>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "optionalExactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "isAccessorFree",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "exactArray",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "dataPropertyKeys",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "canonicalBytes",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "enumValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 40,
+          "name": "clonePortable",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "assertByteCeiling",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "boundedText",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "contractId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "digest",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "opaqueId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "safeInteger",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "semver",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "displayLabel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "finiteNumber",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "uniqueIds",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "portableValue",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "assertRawByteCeiling",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.calculated-series-contract",
+      "owner": "calculated-series-contract",
+      "ownsContract": false,
+      "path": "src/calculated-series-contract/portable-value.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "1b7181e3f45fd21967adc010c2fbe2c793e51a2557419283d0e68dfef1c7160d"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 201,
       "forwardingOnly": false,
       "functions": [
@@ -10001,6 +10896,220 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "a4795a858e189e7d07bf89aae0c0ef97f9e04f9328204c46a8e49fb17c752b14"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 205,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "normalizeExecutionSemantics",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "normalizeProfile",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "normalizeResources",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "normalizeIdentity",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "normalizeMigrationRef",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "normalizeInputRequirement",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "compareCalculatedSeriesVersions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "defineCalculatedSeriesDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "calculatedSeriesDefinitionRef",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 47,
+          "name": "normalizeDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readCalculatedSeriesDefinition",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "compareVersions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "normalizeParameterContract",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "validateMigrationRefs",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.calculated-series-contract",
+      "owner": "calculated-series-contract",
+      "ownsContract": false,
+      "path": "src/calculated-series-contract/definition.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "calculatedSeriesDefinitionRef",
+          "semanticMatches": [
+            "calculated",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "ref",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "compareCalculatedSeriesVersions",
+          "semanticMatches": [
+            "calculated",
+            "compare",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "compare",
+            "series",
+            "versions"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "defineCalculatedSeriesDefinition",
+          "semanticMatches": [
+            "calculated",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "readCalculatedSeriesDefinition",
+          "semanticMatches": [
+            "calculated",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "9b28349e9c7ff304829aa76d08b378577f00f8839f5a47e1fccfbc94bcf8b93a"
     },
     {
       "adaptsBoundary": false,
@@ -11227,6 +12336,26 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 23,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "contract",
+      "moduleId": "core.contribution-profile-contract",
+      "owner": "contribution-profile-contract",
+      "ownsContract": true,
+      "path": "src/contribution-profile-contract/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "6a6ef7f5b2ae9317c50880a45663da9725f154e34c94132aa3e2527953952f03"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 232,
       "forwardingOnly": false,
       "functions": [
@@ -11917,6 +13046,50 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "0eecc7185c77a8b6f879b98aa94d1e72695c11dcb3ef4c097eeb660041f21b61"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 24,
+      "forwardingOnly": false,
+      "functions": [],
+      "kind": "contract",
+      "moduleId": "core.calculated-series-contract",
+      "owner": "calculated-series-contract",
+      "ownsContract": false,
+      "path": "src/calculated-series-contract/limits.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "CALCULATED_SERIES_LIMITS",
+          "semanticMatches": [
+            "calculated",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "limits",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "e356b037c85792587b68137f87d22d34d2af91658789a2fd6a090646b55ed4f5"
     },
     {
       "adaptsBoundary": false,
@@ -13430,6 +14603,77 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "f528c8b3b46cc3dd5d7e963c7d6bcd8eb3af8c860230b00eacf87d9f9c0e8fd6"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 26,
+      "forwardingOnly": false,
+      "functions": [],
+      "kind": "contract",
+      "moduleId": "core.contribution-profile-contract",
+      "owner": "contribution-profile-contract",
+      "ownsContract": false,
+      "path": "src/contribution-profile-contract/calculated-series-profile.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "CALCULATED_SERIES_PROFILE_DESCRIPTOR",
+          "semanticMatches": [
+            "contribution",
+            "profile"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "contribution",
+            "descriptor",
+            "profile",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "CALCULATED_SERIES_PROFILE_REF",
+          "semanticMatches": [
+            "contribution",
+            "profile"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "contribution",
+            "profile",
+            "ref",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "c8cdfbe5203ca0a725999b7649de9a94bb6247893f8042edabc4d84090279e4e"
     },
     {
       "adaptsBoundary": false,
@@ -15459,6 +16703,293 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 310,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-23>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-28>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "kind",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "normalizeDiagnostics",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "normalizeReadyGroups",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "normalizeBandPoint",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "normalizeScalarPoint",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "normalizeTimeline",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-27>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "normalizePoints",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "normalizeDiagnostic",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "normalizeResourceUsage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-25>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "defineCalculatedSeriesProjectionFrame",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "defineCalculatedSeriesResult",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 49,
+          "name": "createOutput",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 49,
+          "name": "normalizeProvenance",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "pointTime",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readCalculatedSeriesProjectionFrame",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readCalculatedSeriesResult",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "validateOutputFields",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.calculated-series-contract",
+      "owner": "calculated-series-contract",
+      "ownsContract": false,
+      "path": "src/calculated-series-contract/result-frame.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "defineCalculatedSeriesProjectionFrame",
+          "semanticMatches": [
+            "calculated",
+            "frame",
+            "projection",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "frame",
+            "projection",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "defineCalculatedSeriesResult",
+          "semanticMatches": [
+            "calculated",
+            "result",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "result",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "readCalculatedSeriesProjectionFrame",
+          "semanticMatches": [
+            "calculated",
+            "frame",
+            "projection",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "frame",
+            "projection",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "readCalculatedSeriesResult",
+          "semanticMatches": [
+            "calculated",
+            "result",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "result",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "4d08bf6e92d0e8650bd5e7cec2b6e4c1d42ec7a7a51d5a5bd0aa868556e36f2e"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 32,
       "forwardingOnly": false,
       "functions": [
@@ -17170,6 +18701,292 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 351,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-26>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "digestPayload",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "applyOperation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "normalizeProfile",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "normalizeDefinitionRef",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "applyIdentityOperation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "applyParameterOperation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-21>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-22>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "migrationNodeKey",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 31,
+          "name": "validateDirection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "requireProperty",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 41,
+          "name": "defineCalculatedSeriesMigrationPlan",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 44,
+          "name": "simulateCalculatedSeriesMigration",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 45,
+          "name": "validateCalculatedSeriesMigrationChain",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 48,
+          "name": "normalizeOperation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readCalculatedSeriesMigrationPlan",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "replaceStyleToken",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "visit",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.calculated-series-contract",
+      "owner": "calculated-series-contract",
+      "ownsContract": false,
+      "path": "src/calculated-series-contract/migration-plan.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "CALCULATED_SERIES_MIGRATION_OPERATION_KINDS",
+          "semanticMatches": [
+            "calculated",
+            "migration",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "kinds",
+            "migration",
+            "operation",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "defineCalculatedSeriesMigrationPlan",
+          "semanticMatches": [
+            "calculated",
+            "migration",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "migration",
+            "plan",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "readCalculatedSeriesMigrationPlan",
+          "semanticMatches": [
+            "calculated",
+            "migration",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "migration",
+            "plan",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "simulateCalculatedSeriesMigration",
+          "semanticMatches": [
+            "calculated",
+            "migration",
+            "series",
+            "simulate"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "migration",
+            "series",
+            "simulate"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "validateCalculatedSeriesMigrationChain",
+          "semanticMatches": [
+            "calculated",
+            "migration",
+            "series",
+            "validate"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "chain",
+            "migration",
+            "series",
+            "validate"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "e70dfc36c2956a652240d51b8fa638f798226bbdd3533c42c10e6f9cf2358593"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 365,
       "forwardingOnly": false,
       "functions": [
@@ -17559,6 +19376,128 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "normalizeRef",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "defineContributionProfileRef",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "contributionProfileRefsEqual",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "readContributionProfileRef",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.contribution-profile-contract",
+      "owner": "contribution-profile-contract",
+      "ownsContract": false,
+      "path": "src/contribution-profile-contract/profile-ref.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "contributionProfileRefsEqual",
+          "semanticMatches": [
+            "contribution",
+            "profile"
+          ],
+          "semanticTerms": [
+            "contribution",
+            "equal",
+            "profile",
+            "refs"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "defineContributionProfileRef",
+          "semanticMatches": [
+            "contribution",
+            "profile"
+          ],
+          "semanticTerms": [
+            "contribution",
+            "profile",
+            "ref"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "readContributionProfileRef",
+          "semanticMatches": [
+            "contribution",
+            "profile"
+          ],
+          "semanticTerms": [
+            "contribution",
+            "profile",
+            "ref"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "4d9416b6866f14f14da7a5b6deb2ffb8df3a110f84ee93939485f6b7e32ef4d3"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 37,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 12,
           "name": "visit",
           "reviewedDecompositionException": false
@@ -17793,6 +19732,351 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "2da33b8040c08530293aa112615e99d471b111fcd0505aa26efa44414e81c524"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 383,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-21>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-22>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-23>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-24>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-29>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-30>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-31>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-32>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-33>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-34>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-35>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-39>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-41>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-42>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-43>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-44>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-46>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-47>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "normalizePlacement",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "normalizeScaleGroup",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "definitionIndex",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "normalizeRegion",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-37>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "validatePaneTopology",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "normalizeUnresolved",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "normalizeStyleOverrides",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "verifyCalculatedSeriesUnresolvedIntegrity",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 24,
+          "name": "validatePlacements",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "defineCalculatedSeriesWorkspaceDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "normalizeDefinitionRef",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-38>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-40>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "normalizeResolved",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-26>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "replaceStyle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "definitionKey",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "scaleGroupRegionForCeiling",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readCalculatedSeriesWorkspaceDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 63,
+          "name": "normalizePane",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.calculated-series-contract",
+      "owner": "calculated-series-contract",
+      "ownsContract": false,
+      "path": "src/calculated-series-contract/workspace-document.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "defineCalculatedSeriesWorkspaceDocument",
+          "semanticMatches": [
+            "calculated",
+            "document",
+            "series",
+            "workspace"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "document",
+            "series",
+            "workspace"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "readCalculatedSeriesWorkspaceDocument",
+          "semanticMatches": [
+            "calculated",
+            "document",
+            "series",
+            "workspace"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "document",
+            "series",
+            "workspace"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "verifyCalculatedSeriesUnresolvedIntegrity",
+          "semanticMatches": [
+            "calculated",
+            "series",
+            "verify"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "integrity",
+            "series",
+            "unresolved",
+            "verify"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "7958ad60389770fb2848f2af25110db3490f30591b15a4ef6398606832def222"
     },
     {
       "adaptsBoundary": false,
@@ -22006,6 +24290,110 @@
       "functions": [
         {
           "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "assertIdentity",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "defineCalculatedSeriesContributionBinding",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readCalculatedSeriesContributionBinding",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.calculated-series-contract",
+      "owner": "calculated-series-contract",
+      "ownsContract": false,
+      "path": "src/calculated-series-contract/contribution-binding.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "defineCalculatedSeriesContributionBinding",
+          "semanticMatches": [
+            "binding",
+            "calculated",
+            "contribution",
+            "series"
+          ],
+          "semanticTerms": [
+            "binding",
+            "calculated",
+            "contribution",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "readCalculatedSeriesContributionBinding",
+          "semanticMatches": [
+            "binding",
+            "calculated",
+            "contribution",
+            "series"
+          ],
+          "semanticTerms": [
+            "binding",
+            "calculated",
+            "contribution",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "1f6089172803be60c7564e6babb08aecdfa8921f575ef36901f175eb4122561e"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 71,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
           "name": "snapshot",
           "reviewedDecompositionException": false
         },
@@ -24543,6 +26931,92 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 92,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "exactProfileRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "versionMatchesRange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "exactProfileArray",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "profileDataPropertyKeys",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "profileId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "profileText",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "profileVersion",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "profileStringList",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "profileRange",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.contribution-profile-contract",
+      "owner": "contribution-profile-contract",
+      "ownsContract": false,
+      "path": "src/contribution-profile-contract/profile-value.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "de57cfa0c3137aa6d3610c474e848bf55480c9e5bf2f0759bebc5361393f4348"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 93,
       "forwardingOnly": false,
       "functions": [
@@ -25119,6 +27593,297 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 95,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "capabilityRanges",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "defineContributionProfileDescriptor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "normalizeDescriptor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "capabilityRange",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "readContributionProfileDescriptor",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.contribution-profile-contract",
+      "owner": "contribution-profile-contract",
+      "ownsContract": false,
+      "path": "src/contribution-profile-contract/profile-descriptor.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "defineContributionProfileDescriptor",
+          "semanticMatches": [
+            "contribution",
+            "profile"
+          ],
+          "semanticTerms": [
+            "contribution",
+            "descriptor",
+            "profile"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "contribution-profile-contract.",
+            "purpose": "expose pinned host Contribution Profile references, descriptors, and pure resolution.",
+            "inputs": "closed portable Profile wires and explicit host-pinned registry authority.",
+            "outputs": "branded immutable Profile values, compatibility results, and canonical registry records.",
+            "sideEffects": "none; this module never reads packages, persists state, or executes contributions.",
+            "lifecycle": "static pure values have no activation, disposal, or registration mutation phase.",
+            "errors": "ContributionProfileContractError fails malformed, forged, unknown, incompatible, or retired values closed.",
+            "concurrencyCancellation": "all operations are synchronous, deterministic, and retain no handles."
+          },
+          "moduleId": "core.contribution-profile-contract",
+          "name": "readContributionProfileDescriptor",
+          "semanticMatches": [
+            "contribution",
+            "profile"
+          ],
+          "semanticTerms": [
+            "contribution",
+            "descriptor",
+            "profile"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "226c1c1d8e03a9c8cbfe6a39d0b1cd3c35ed2978e45b259d2614da646b69ae91"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 96,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "normalizeDataset",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "createCalculatedSeriesFrameIdentity",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "calculatedSeriesFrameIdentitiesEqual",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "normalizeApiIdentity",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readCalculatedSeriesFrameIdentity",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "assessCalculatedSeriesFrameCurrency",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "normalizeExecutor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "serializeWorkspaceTransaction",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "contract",
+      "moduleId": "core.calculated-series-contract",
+      "owner": "calculated-series-contract",
+      "ownsContract": false,
+      "path": "src/calculated-series-contract/frame-identity.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "assessCalculatedSeriesFrameCurrency",
+          "semanticMatches": [
+            "assess",
+            "calculated",
+            "currency",
+            "frame",
+            "series"
+          ],
+          "semanticTerms": [
+            "assess",
+            "calculated",
+            "currency",
+            "frame",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "calculatedSeriesFrameIdentitiesEqual",
+          "semanticMatches": [
+            "calculated",
+            "frame",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "equal",
+            "frame",
+            "identities",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "createCalculatedSeriesFrameIdentity",
+          "semanticMatches": [
+            "calculated",
+            "frame",
+            "identity",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "frame",
+            "identity",
+            "series"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "calculated-series-contract.",
+            "purpose": "define, read, compare, assess, validate, verify, and simulate exact Profile binding, Definition, Plot, Scale, Workspace document, frame identity, result, projection-frame, diagnostic, resource, and migration pure contracts.",
+            "inputs": "closed portable V1 wires, branded accepted identity values, a pinned Contribution Profile registry, definitions, timelines, and pure digest ports.",
+            "outputs": "branded deeply immutable values, canonical wire records, structural compatibility/currency decisions, catalogs, and migration simulation evidence.",
+            "sideEffects": "none; no calculation, Chart, Bar request, Replay mutation, persistence, package callback, Worker, timer, filesystem, network, DOM, or Canvas.",
+            "lifecycle": "stateless values and pure calls have no activation or disposal phase.",
+            "errors": "CalculatedSeriesContractError fails forged, inferred, partial, stale, future, incompatible, non-portable, unknown, ambiguous, or oversized input closed.",
+            "concurrencyCancellation": "synchronous except injected digest simulation; no handles are retained, and cancellation grants no publication authority."
+          },
+          "moduleId": "core.calculated-series-contract",
+          "name": "readCalculatedSeriesFrameIdentity",
+          "semanticMatches": [
+            "calculated",
+            "frame",
+            "identity",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "frame",
+            "identity",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "6b4bf37568819149ce22f2f051c7fd2839c616466355e7947b6964f95c1e0223"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 98,
       "forwardingOnly": false,
       "functions": [
@@ -25599,6 +28364,39 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "1cac993b8a5bbee7b89d48f28ffbe7ade8a3d57b4d054c1387333c478da3d9c0"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [
+        {
+          "id": "no-future",
+          "why": "result points must belong to the exact eligible input timeline and cannot exceed the Replay-visible cutoff."
+        },
+        {
+          "id": "projection-alignment",
+          "why": "ready output closes over the complete defined Plot/Plot Group set and exact projected-Pane snapshot."
+        },
+        {
+          "id": "stale-rejection",
+          "why": "only exact branded frame identity equality can produce a current publication decision."
+        }
+      ],
+      "debtComments": [],
+      "effectiveLines": 47,
+      "forwardingOnly": true,
+      "functions": [],
+      "kind": "contract",
+      "moduleId": "core.calculated-series-contract",
+      "owner": "calculated-series-contract",
+      "ownsContract": true,
+      "path": "src/calculated-series-contract/public.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "3a2b2f498ea92f9f90f3a10b6bd513af41771688990c2d0b2b8fff0cd00161d8"
     },
     {
       "adaptsBoundary": false,
@@ -26839,7 +29637,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "9a46a654c7647a4f28515779b4797368ace8a8580a2ea8ca0498ee9f10d74f6f"
+      "sourceHash": "4934f1795c81aab4d8d04423ad37e7204a208346a472c5e0bc8a6b7c6d180d73"
     },
     {
       "adaptsBoundary": true,
@@ -45075,11 +47873,11 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 43718,
-    "files": 497,
-    "functions": 4546,
-    "publicExports": 461
+    "effectiveLines": 46189,
+    "files": 516,
+    "functions": 4794,
+    "publicExports": 507
   },
-  "deliveryStep": "P1b.3",
-  "generatedFromCommit": "working-tree-p1b.3"
+  "deliveryStep": "P1c.1",
+  "generatedFromCommit": "working-tree-p1c.1"
 }

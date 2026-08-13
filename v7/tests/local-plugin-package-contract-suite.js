@@ -216,7 +216,7 @@ const discovered = discovery.artifacts[0].value;
 const rules = JSON.parse(fs.readFileSync(path.join(V7_ROOT, 'docs/v7-harness-rules.json'), 'utf8'));
 const h116 = rules.rules.find(({ id }) => id === 'H116');
 const h117 = rules.rules.find(({ id }) => id === 'H117');
-assert.equal(rules.currentStep, 'P1b.3');
+assert.ok(rules.stepOrder.indexOf(rules.currentStep) >= rules.stepOrder.indexOf('P1b.3'));
 assert.equal(h116.state, 'accepted');
 assert.equal(h117.state, 'executable');
 assert.equal(h117.humanReviewRequired, true);

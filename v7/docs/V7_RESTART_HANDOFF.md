@@ -1221,15 +1221,16 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
-The immediate next eligible work is implementation of the accepted
-`V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`, but it requires a new
-explicit product-owner instruction. Only that instruction may allocate one
-delivery id and the next available Harness id, add the two pure modules and
-their schemas/catalogs/synthetic fixtures, and run the focused contract review.
+P1c.1 now implements the accepted calculated-series pure-contract dependency
+through separate `contribution-profile-contract` and
+`calculated-series-contract` modules. H118 is executable and the immediate next
+gate is focused human review of its contracts and headless evidence. It is not
+a visual review and is not yet acceptance evidence.
+
 Do not infer authority for Chart projection, a live instance/persistence owner,
-SDK execution availability, MA/SMA, or Community/Worker execution. The Chart-
-owned projection slice remains the separately specified second dependency
-after pure-contract implementation acceptance.
+SDK execution availability, MA/SMA, Community/Worker execution, or P1b.4. The
+Chart-owned projection slice remains the separately specified second
+dependency and requires a later explicit instruction after P1c.1/H118 review.
 
 R13.10e/H114, P0b/H115, and P1a/H116 are closed. P1b.1–P1b.3 implement the
 non-executing local package contract/archive, transaction/storage, and corrected

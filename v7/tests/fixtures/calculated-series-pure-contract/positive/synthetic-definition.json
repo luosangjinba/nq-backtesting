@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "packageId": "core.synthetic-contract-fixtures",
+    "packageVersion": "1.0.0",
+    "contributionId": "synthetic.multi-plot",
+    "contributionVersion": "1.0.0",
+    "definitionId": "synthetic.multi-plot.definition",
+    "definitionVersion": "1.0.0"
+  },
+  "profile": {
+    "profileId": "analysis.calculated-series",
+    "profileContractVersion": "1.0.0"
+  },
+  "parameterContract": {
+    "schemaId": "https://replay-lab.local/schemas/synthetic-parameters-v1.json",
+    "schemaVersion": 1,
+    "schemaDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "executionSemantics": {
+    "deterministic": true,
+    "noFuture": true,
+    "incrementalMode": "none"
+  },
+  "inputRequirement": {
+    "source": "current-workspace-pane-bars",
+    "warmupBars": 2,
+    "insufficientWarmup": "whitespace",
+    "additionalContexts": []
+  },
+  "plotGroups": [
+    {
+      "plotGroupId": "price-group",
+      "displayName": "Synthetic price plots",
+      "defaultPlacement": "main",
+      "scaleIntent": {
+        "schemaVersion": 1,
+        "dimension": { "dimensionId": "market.instrument-price", "dimensionVersion": "1.0.0" },
+        "unit": { "unitId": "market.instrument-price", "unitVersion": "1.0.0" },
+        "transform": "linear",
+        "domain": { "kind": "auto" },
+        "formatter": { "formatterId": "host.price", "formatterVersion": "1.0.0", "options": { "decimals": 2 } },
+        "zeroPolicy": "not-required"
+      },
+      "plots": [
+        {
+          "plotId": "line-output", "displayName": "Line output", "kind": "line",
+          "visibleByDefault": true, "legendIntent": "value",
+          "style": { "stroke": { "color": "#33AABBFF", "width": 2, "pattern": "solid" } }
+        },
+        {
+          "plotId": "area-output", "displayName": "Area output", "kind": "area",
+          "visibleByDefault": true, "legendIntent": "value",
+          "style": {
+            "stroke": { "color": "#5599CCFF", "width": 1, "pattern": "solid" },
+            "topFillColor": "#5599CC66", "bottomFillColor": "#5599CC11"
+          }
+        },
+        {
+          "plotId": "baseline-output", "displayName": "Baseline output", "kind": "baseline",
+          "visibleByDefault": false, "legendIntent": "value",
+          "style": {
+            "baseValue": 100, "topStroke": { "color": "#00AA77FF", "width": 1, "pattern": "solid" },
+            "bottomStroke": { "color": "#DD3355FF", "width": 1, "pattern": "solid" },
+            "topFillColor": "#00AA7744", "bottomFillColor": "#DD335544"
+          }
+        },
+        {
+          "plotId": "band-output", "displayName": "Band output", "kind": "band",
+          "visibleByDefault": true, "legendIntent": "value",
+          "style": {
+            "lowerStroke": { "color": "#8866FFFF", "width": 1, "pattern": "dashed" },
+            "upperStroke": { "color": "#8866FFFF", "width": 1, "pattern": "dashed" },
+            "fillColor": "#8866FF33"
+          }
+        }
+      ],
+      "referenceLines": [
+        {
+          "referenceLineId": "price-reference", "displayName": "Price reference", "value": 100,
+          "visibleByDefault": true, "legendIntent": "hidden",
+          "style": { "stroke": { "color": "#AAAAAAFF", "width": 1, "pattern": "dotted" }, "labelVisibility": "visible" }
+        }
+      ]
+    },
+    {
+      "plotGroupId": "ratio-group",
+      "displayName": "Synthetic ratio plot",
+      "defaultPlacement": "own-region",
+      "defaultRegionHeightWeight": 30,
+      "scaleIntent": {
+        "schemaVersion": 1,
+        "dimension": { "dimensionId": "ratio.value", "dimensionVersion": "1.0.0" },
+        "unit": { "unitId": "ratio.decimal", "unitVersion": "1.0.0" },
+        "transform": "linear",
+        "domain": { "kind": "symmetric-around-zero", "magnitude": "auto" },
+        "formatter": { "formatterId": "host.decimal", "formatterVersion": "1.0.0", "options": { "decimals": 3 } },
+        "zeroPolicy": "include"
+      },
+      "plots": [
+        {
+          "plotId": "histogram-output", "displayName": "Histogram output", "kind": "histogram",
+          "visibleByDefault": true, "legendIntent": "value",
+          "style": { "positiveColor": "#11AA88FF", "negativeColor": "#DD4466FF", "baseValue": 0 }
+        }
+      ],
+      "referenceLines": []
+    }
+  ],
+  "resourceDeclaration": {
+    "maximumInputBars": 1000,
+    "maximumOutputPoints": 1000,
+    "maximumOutputBytes": 1048576,
+    "maximumIncrementalStateBytes": 0
+  },
+  "migrationRefs": []
+}

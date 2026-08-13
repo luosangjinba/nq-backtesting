@@ -1,0 +1,12 @@
+{
+  "id": "core.contribution-profile-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "contribution-profile-contract",
+  "publicEntry": "src/contribution-profile-contract/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/calculated-series-pure-contract-harness.js",
+  "removable": false
+}

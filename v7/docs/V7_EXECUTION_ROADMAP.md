@@ -1259,7 +1259,7 @@ not start P1b.4 or accept H117. Any delivery still requires separately
 authorized pure-contract, Chart-projection, trusted vertical-slice, layout, and
 Community integration specifications.
 
-### Calculated-Series Pure Contract Slice — Accepted 2026-08-12
+### P1c.1 Calculated-Series Pure Contract Slice — Implemented; Review Pending
 
 The product owner accepted all ten material decisions in the first ADR-V7-005
 dependency specification. `V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`
@@ -1270,13 +1270,20 @@ inferring a Profile from `kind`, and closed versioned Definition, standard
 Plot, structural Scale, host instance/ChartRegion, exact result/frame,
 provenance, migration, diagnostic, and limit contracts.
 
-Acceptance authorizes no implementation. No delivery id or Harness id is
-allocated; no production/SDK/schema/catalog/fixture/runtime/UI/persistence code
-is authorized; Indicator and `subpane.runtime` availability remains
-unavailable. P1b.4 remains paused and H117 remains executable but unaccepted.
-The next eligible work is the pure-contract implementation only after a new
-explicit instruction; the Chart-owned projection slice remains separately
-specified and gated after that implementation is accepted.
+The separate 2026-08-13 implementation instruction allocated `P1c.1` and H118.
+Two pure production-contract modules now expose the pinned
+`analysis.calculated-series@1.0.0` descriptor, exact P0a identity binding,
+closed standard Plot/Scale contracts, the host-owned portable placement
+document, exact no-future frame/result closure, unresolved integrity, and
+forward digest-bound migration simulation. H118 supplies synthetic headless
+evidence and is `executable`, human-review-required, and unaccepted.
+
+No calculation engine, live instance/persistence owner, Chart projection,
+native Series/Scale/region mutation, SDK execution availability, real
+Indicator, MA/SMA, Community/Worker tier, or P1b.4 work was added. H117 remains
+executable and unaccepted with its complete record unchanged. The immediate
+gate is focused P1c.1 contract/evidence review; Chart-owned projection remains
+separately specified and unauthorized until a later instruction.
 
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 

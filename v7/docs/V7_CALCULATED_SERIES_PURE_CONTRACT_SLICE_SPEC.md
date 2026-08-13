@@ -1,8 +1,8 @@
 # V7 Calculated-Series Pure Contract Slice — Accepted Specification
 
-Status: accepted binding pure-contract specification; implementation, delivery
-id, Harness id, SDK availability, and runtime authority remain separately
-unauthorized
+Status: accepted binding pure-contract specification; pure-contract delivery
+P1c.1 implemented on 2026-08-13 under executable H118; focused human review is
+pending; SDK availability and runtime/Chart authority remain unauthorized
 
 Drafted: 2026-08-12
 
@@ -12,8 +12,12 @@ Decider: V7 product owner
 
 Upstream decisions: accepted `ADR-V7-006` and accepted `ADR-V7-005`
 
-Accepted scope: the first required future delivery slice in ADR-V7-005;
-portable contracts and future headless evidence only; no implementation
+Accepted scope on 2026-08-12: the first required delivery slice in ADR-V7-005;
+portable contracts and headless evidence only; acceptance itself authorized no
+implementation
+
+Implementation authorization: separately granted 2026-08-13 for the pure
+contract slice only
 
 ## Product-Owner Direction
 
@@ -661,12 +665,11 @@ The catalog must distinguish at least:
 Diagnostics sort deterministically by phase, logical identity, location, and
 code. Error messages may improve without changing machine meaning.
 
-## Required Future Headless Conformance Gate
+## Required Headless Conformance Gate
 
-This decision allocates no Harness id and does not modify
-`v7-harness-rules.json`. If implementation is separately authorized, the next
-available Harness id must be assigned to one independent headless gate covering
-at least:
+The acceptance decision itself allocated no Harness id. The later implementation
+authorization assigned the next available id, H118, to one independent headless
+gate covering at least:
 
 1. exact Profile descriptor/ref validation, registry closure, and package-
    supplied descriptor rejection;
@@ -774,13 +777,22 @@ This acceptance makes the ten material decisions and their pure-contract
 boundaries binding. The accepted tenth decision explicitly withholds all
 implementation authority.
 
-## Current Non-Authorization And Later Sequence
+## P1c.1 Implementation Record And Later Sequence
 
-Only a later explicit implementation instruction may allocate a delivery id
-and Harness id and add the two pure modules, exact schemas/catalogs, synthetic
-fixtures, and headless evidence. After that implementation and acceptance, the
-next separately specified dependency remains the Chart-owned projection slice.
-The trusted Core MA/SMA vertical slice cannot begin before both are closed.
+The product owner separately authorized implementation on 2026-08-13. P1c.1
+therefore adds the two pure modules, pinned host schemas/catalogs, synthetic
+fixtures, and H118 headless evidence described by this specification. H118 is
+`executable`, `humanReviewRequired: true`, and `acceptanceEvidence: null`; its
+remaining gate is focused human contract/evidence review rather than visual
+review. The implementation record is
+`../sessions/session_20260813_p1c_1_calculated_series_pure_contract_implementation.md`.
 
-P1b.4 remains paused. H117 remains `executable`,
-`humanReviewRequired: true`, and `acceptanceEvidence: null`.
+That authorization did not extend to a calculation executor, SDK availability,
+live instance/persistence owner, Chart-owned projection, MA/SMA, generic layout
+UI, Community/Worker execution, or P1b.4. The Chart-owned projection slice
+remains the separately specified next dependency after P1c.1 acceptance, and
+the trusted Core MA/SMA vertical slice cannot begin before both dependencies
+are closed.
+
+P1b.4 remains paused. The complete H117 record remains unchanged at
+`executable`, `humanReviewRequired: true`, and `acceptanceEvidence: null`.

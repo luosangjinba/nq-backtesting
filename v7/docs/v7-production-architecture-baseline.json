@@ -168,7 +168,7 @@
       }
     ]
   },
-  "deliveryStep": "P1b.3",
+  "deliveryStep": "P1c.1",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -2415,6 +2415,92 @@
         ],
         "owner": "replay-workspace-composition",
         "publicEntry": "src/replay-workspace-composition/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.activation-generation",
+          "core.contribution-profile-contract",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.workspace-transaction-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.activation-generation",
+          "core.contribution-profile-contract",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.workspace-transaction-contract"
+        ],
+        "descriptorPath": "src/calculated-series-contract/module.json",
+        "id": "core.calculated-series-contract",
+        "importSites": [
+          {
+            "importedNames": [
+              "defineContributionProfileRef",
+              "readContributionProfileRef",
+              "resolveContributionProfile"
+            ],
+            "sourceFile": "src/calculated-series-contract/contribution-binding.js",
+            "targetFile": "src/contribution-profile-contract/public.js",
+            "targetModuleId": "core.contribution-profile-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineContributionProfileRef",
+              "readContributionProfileRef",
+              "resolveContributionProfile"
+            ],
+            "sourceFile": "src/calculated-series-contract/definition.js",
+            "targetFile": "src/contribution-profile-contract/public.js",
+            "targetModuleId": "core.contribution-profile-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readWorkspaceTransactionIdentity"
+            ],
+            "sourceFile": "src/calculated-series-contract/frame-identity.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeActivationGeneration"
+            ],
+            "sourceFile": "src/calculated-series-contract/frame-identity.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeSessionId"
+            ],
+            "sourceFile": "src/calculated-series-contract/frame-identity.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeTransactionId"
+            ],
+            "sourceFile": "src/calculated-series-contract/frame-identity.js",
+            "targetFile": "src/transaction-identity/public.js",
+            "targetModuleId": "core.transaction-identity",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/calculated-series-pure-contract-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "calculated-series-contract",
+        "publicEntry": "src/calculated-series-contract/public.js"
       },
       {
         "actualDependencies": [
@@ -5220,6 +5306,21 @@
         "observedDisposeSites": [],
         "owner": "module-registry",
         "publicEntry": "src/capability-contract/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
+        "descriptorPath": "src/contribution-profile-contract/module.json",
+        "id": "core.contribution-profile-contract",
+        "importSites": [],
+        "independentHarness": "tests/calculated-series-pure-contract-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "core",
+        "observedDisposeSites": [],
+        "owner": "contribution-profile-contract",
+        "publicEntry": "src/contribution-profile-contract/public.js"
       },
       {
         "actualDependencies": [],
