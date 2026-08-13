@@ -2675,7 +2675,7 @@
       "owner": "contribution-profile-contract/calculated-series-contract/conformance-harness",
       "v6FailurePrevented": "indicator kind inferred executable truth, package metadata registered host Profiles, Plot or Scale values carried native/vendor objects, Main and sub-region placement lost stable ownership, partial or future output reached newer candles, stale frames survived exact Workspace revisions, migration guessed meaning or mutated original bytes, or contract growth bypassed hard ceilings",
       "activationStep": "P1c.1",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/calculated-series-pure-contract-harness.js",
       "positiveEvidence": [
         "docs/V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md",
@@ -2698,7 +2698,7 @@
         "tests/fixtures/calculated-series-pure-contract/negative/cases.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260813_p1c_1_calculated_series_pure_contract_implementation.md"
     }
   ]
 }

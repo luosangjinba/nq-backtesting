@@ -1,7 +1,7 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule; current repository step P1c.1, H118 executable
-and awaiting review (2026-08-13)
+Status: binding delivery rule; latest completed repository step P1c.1, H118
+accepted; no next delivery authorized (2026-08-13)
 
 ## Delivery IDs
 
@@ -25,10 +25,10 @@ The later Plugin Platform program uses `P<phase>` and `P<phase>.<slice>` ids
 under the same non-reuse, bounded-delivery, evidence, and human-gate rules.
 Those ids do not renumber or supersede the R-series history.
 
-The current repository-changing delivery step is `P1c.1`, Calculated-Series
-Pure Contracts. It allocates H118 as executable and human-review-required while
-preserving H117 unchanged. P1c.1 adds no Chart/runtime/SDK execution authority;
-its human gate is focused contract/evidence review.
+The latest completed repository-changing delivery step is `P1c.1`,
+Calculated-Series Pure Contracts. Its focused human contract/evidence review
+accepted H118 while preserving H117 unchanged. P1c.1 adds no Chart/runtime/SDK
+execution authority, and no later delivery is authorized by that acceptance.
 
 `R13.5` was the Segment Interaction And Preview step. R13.2 remains the pure
 removable Geometry boundary, R13.3 remains

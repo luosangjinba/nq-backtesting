@@ -2,7 +2,7 @@
 
 Date: 2026-08-13
 
-Status: implemented; H118 executable and awaiting focused human contract/evidence review
+Status: accepted; H118 accepted after focused human contract/evidence review
 
 ## Authorization
 
@@ -80,14 +80,39 @@ returns HTTP 404 `Unknown endpoint` for `/v7/market-data/health`, rather than a
 V7 service backed by an acceptance DuckDB. The remaining nonzero result is the
 pre-existing `date-time-picker-open` visual baseline finding in
 `session-browser-browser-harness`; P1c.1 changes no UI pixels. No failing result
-touches either new pure module. These external/known follow-ups do not turn H118
-into acceptance evidence.
+touches either new pure module. At implementation time these external/known
+follow-ups did not themselves supply acceptance evidence; explicit human
+approval remained required.
 
-## Acceptance Boundary
+## Human Acceptance — 2026-08-13
 
-H118 remains `executable`, `humanReviewRequired: true`, and
-`acceptanceEvidence: null`. The required human gate is a focused review of the
-contract and headless evidence, not a visual review. P1c.1 is not accepted by
-this implementation record. Chart-owned projection remains the next separately
-specified dependency only after a new instruction; all explicitly withheld
-work remains unauthorized.
+After the focused contract/evidence checklist and a passing H118 rerun, the
+product owner stated:
+
+> H118 人工验收通过；授权记录 H118 acceptanceEvidence，并将 H118 从 executable
+> 更新为 accepted，仅关闭 P1c.1；不启动 Chart-owned projection、MA/SMA、
+> Community/Worker、P1b.4，不变更 H117。
+
+This session is therefore H118's durable `acceptanceEvidence`. H118 advances
+from `executable` to `accepted`, and P1c.1 is closed. The review accepts only
+the pure Profile-registry/calculated-series contracts and their headless
+evidence; it is not visual or Chart projection acceptance.
+
+H117 remains `executable`, `humanReviewRequired: true`, and
+`acceptanceEvidence: null`. Chart-owned projection, a calculation executor,
+live instance/persistence ownership, SDK execution availability, MA/SMA,
+Community/Worker execution, and P1b.4 remain unauthorized.
+
+## Closure Verification
+
+After recording the acceptance, H118 passes all seven contract round trips and
+54 negative controls while continuing to prove the complete H117 rule record
+unchanged. Architecture hardening, architecture boundary, production
+architecture, production module assembly, source quality, and H116 also pass.
+The complete H117 Harness passes with its 54 negative groups and existing
+visible-review requirement unchanged.
+
+Changing the Harness registry legitimately changed the content-addressed
+Developer Kit identity. Its deterministic refresh updated only the generated
+browser release identity and local lifecycle example's toolchain digest; it did
+not alter SDK availability or package behavior. `git diff --check` passes.

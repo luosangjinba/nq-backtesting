@@ -101,7 +101,7 @@ Accepted specification:
 Accepted specification:
 `docs/V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`.
 
-## P1c.1 Calculated-Series Pure Contract Slice — Implemented; Review Pending
+## P1c.1 Calculated-Series Pure Contract Slice — Accepted
 
 - [x] receive authorization to draft the first ADR-V7-005 pure-contract slice
   without accepting or implementing it;
@@ -140,8 +140,9 @@ Accepted specification:
   unchanged; add no SDK execution contract, calculation engine, Chart writer,
   live instance/persistence owner, MA/SMA, Community/Worker, or P1b.4 work;
 - [x] register H118 as `executable`, human-review-required, and unaccepted;
-- [ ] perform the focused human contract/evidence review and accept or reject
-  P1c.1/H118; do not infer Chart-owned projection authorization from this step.
+- [x] receive focused product-owner contract/evidence acceptance on 2026-08-13,
+  record H118 as `accepted`, and close P1c.1 without inferring Chart-owned
+  projection, MA/SMA, Community/Worker, P1b.4, or H117 authority.
 
 Accepted specification:
 `docs/V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`.

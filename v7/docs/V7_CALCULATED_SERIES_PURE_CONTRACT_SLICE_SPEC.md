@@ -1,8 +1,8 @@
 # V7 Calculated-Series Pure Contract Slice — Accepted Specification
 
 Status: accepted binding pure-contract specification; pure-contract delivery
-P1c.1 implemented on 2026-08-13 under executable H118; focused human review is
-pending; SDK availability and runtime/Chart authority remain unauthorized
+P1c.1 and H118 accepted on 2026-08-13 after focused human contract/evidence
+review; SDK availability and runtime/Chart authority remain unauthorized
 
 Drafted: 2026-08-12
 
@@ -782,9 +782,9 @@ implementation authority.
 The product owner separately authorized implementation on 2026-08-13. P1c.1
 therefore adds the two pure modules, pinned host schemas/catalogs, synthetic
 fixtures, and H118 headless evidence described by this specification. H118 is
-`executable`, `humanReviewRequired: true`, and `acceptanceEvidence: null`; its
-remaining gate is focused human contract/evidence review rather than visual
-review. The implementation record is
+`accepted`, `humanReviewRequired: true`, and carries the focused product-owner
+review in its durable `acceptanceEvidence`. The review was a contract/evidence
+review rather than visual review. The implementation and acceptance record is
 `../sessions/session_20260813_p1c_1_calculated_series_pure_contract_implementation.md`.
 
 That authorization did not extend to a calculation executor, SDK availability,
@@ -792,7 +792,7 @@ live instance/persistence owner, Chart-owned projection, MA/SMA, generic layout
 UI, Community/Worker execution, or P1b.4. The Chart-owned projection slice
 remains the separately specified next dependency after P1c.1 acceptance, and
 the trusted Core MA/SMA vertical slice cannot begin before both dependencies
-are closed.
+are closed. Neither dependency is authorized to start by the H118 acceptance.
 
 P1b.4 remains paused. The complete H117 record remains unchanged at
 `executable`, `humanReviewRequired: true`, and `acceptanceEvidence: null`.

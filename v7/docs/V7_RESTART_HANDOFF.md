@@ -1223,14 +1223,15 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 P1c.1 now implements the accepted calculated-series pure-contract dependency
 through separate `contribution-profile-contract` and
-`calculated-series-contract` modules. H118 is executable and the immediate next
-gate is focused human review of its contracts and headless evidence. It is not
-a visual review and is not yet acceptance evidence.
+`calculated-series-contract` modules. The product owner accepted the focused
+contract/evidence review on 2026-08-13; H118 is accepted with the P1c.1
+implementation session as durable evidence, and P1c.1 is closed.
 
 Do not infer authority for Chart projection, a live instance/persistence owner,
 SDK execution availability, MA/SMA, Community/Worker execution, or P1b.4. The
 Chart-owned projection slice remains the separately specified second
-dependency and requires a later explicit instruction after P1c.1/H118 review.
+dependency and requires a later explicit instruction. No repository-changing
+next step is currently authorized.
 
 R13.10e/H114, P0b/H115, and P1a/H116 are closed. P1b.1–P1b.3 implement the
 non-executing local package contract/archive, transaction/storage, and corrected

@@ -1259,7 +1259,7 @@ not start P1b.4 or accept H117. Any delivery still requires separately
 authorized pure-contract, Chart-projection, trusted vertical-slice, layout, and
 Community integration specifications.
 
-### P1c.1 Calculated-Series Pure Contract Slice — Implemented; Review Pending
+### P1c.1 Calculated-Series Pure Contract Slice — Accepted
 
 The product owner accepted all ten material decisions in the first ADR-V7-005
 dependency specification. `V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`
@@ -1276,14 +1276,17 @@ Two pure production-contract modules now expose the pinned
 closed standard Plot/Scale contracts, the host-owned portable placement
 document, exact no-future frame/result closure, unresolved integrity, and
 forward digest-bound migration simulation. H118 supplies synthetic headless
-evidence and is `executable`, human-review-required, and unaccepted.
+evidence. The product owner completed its focused contract/evidence review on
+2026-08-13; H118 is `accepted`, its implementation session is the durable
+acceptance evidence, and P1c.1 is closed.
 
 No calculation engine, live instance/persistence owner, Chart projection,
 native Series/Scale/region mutation, SDK execution availability, real
 Indicator, MA/SMA, Community/Worker tier, or P1b.4 work was added. H117 remains
 executable and unaccepted with its complete record unchanged. The immediate
-gate is focused P1c.1 contract/evidence review; Chart-owned projection remains
-separately specified and unauthorized until a later instruction.
+repository-changing next step is not authorized. Chart-owned projection remains
+separately specified and requires a later explicit instruction; H118 acceptance
+does not start it or any MA/SMA, Community/Worker, or P1b.4 work.
 
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 

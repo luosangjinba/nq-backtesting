@@ -126,10 +126,11 @@ Plot, Scale, instance/ChartRegion, result/frame, provenance, limit, diagnostic,
 and migration contracts. The product owner accepted all ten material decisions
 on 2026-08-12. A separately authorized implementation on 2026-08-13 allocated
 `P1c.1`/`H118` and added only the two pure modules, their pinned host
-schemas/catalogs, synthetic fixtures, and headless evidence. H118 is executable
-and awaits focused human contract review; SDK/runtime availability is still
-unchanged, P1b.4 remains paused, and the H117 record is unchanged. Its draft,
-acceptance, and implementation records are
+schemas/catalogs, synthetic fixtures, and headless evidence. The product owner
+accepted the focused contract/evidence review on 2026-08-13; H118 is accepted
+and P1c.1 is closed. SDK/runtime availability is still unchanged, P1b.4 remains
+paused, and the H117 record is unchanged. Its draft, specification-acceptance,
+and implementation/human-acceptance records are
 `../sessions/session_20260812_calculated_series_pure_contract_candidate_specification.md`
 and
 `../sessions/session_20260812_calculated_series_pure_contract_specification_acceptance.md`,
