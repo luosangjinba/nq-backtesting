@@ -1216,7 +1216,7 @@ owner or upstream-plugin state access.
 Core classification neither authorizes these steps nor weakens their focused
 semantic/no-future/human gates.
 
-### Plugin Platform Program — P1a Accepted, P1b.3 Implemented
+### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 
 Build the thin host contract before scaling plugin families, then validate each
 broader platform layer with real packages. Activate at most one separately
@@ -1258,8 +1258,9 @@ numbered phase at a time:
    removes the top-level Developer Mode, persistent preference, retained
    directory handles, and development generations; exact unpacked snapshots and
    their 18 additive security/product-absence groups remain tooling/H117
-   evidence. Its corrected human review is pending; P1b.4 MCP/H117 acceptance
-   remains separately gated. Binding specification:
+   evidence. Its corrected human review passed on 2026-08-12; P1b.4 MCP/H117
+   acceptance remains separately gated and deliberately paused. Binding
+   specification:
    `V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`;
 6. P2 signed free Community registry with discovery, review metadata, explicit
    updates, restricted mode, rollback, and incident response;
@@ -1278,8 +1279,9 @@ human visual/interaction gates; H116 passes its headless deterministic and
 isolation gates. The P1b specification and its five material decisions are
 accepted; P1b.1–P1b.3 are implemented and H117 is registered as an executable
 partial gate with 54 negative groups and real-browser storage/product evidence,
-but it is not accepted. The P1b.3 focused human review and separately
-authorized P1b.4 MCP/closure remain open. No activation, external execution,
+but it is not accepted. The P1b.3 focused human review passed on 2026-08-12;
+the separately authorized P1b.4 MCP/closure remains open and paused. No
+activation, external execution,
 or P2–P4 implementation is authorized. Plugin Center does not imply arbitrary code,
 local install does not imply network access, and a free registry does not imply
 payment. Strict TypeScript is the executable authoring language; JSON and JSON

@@ -1,9 +1,18 @@
 # P1b.3 Two-Surface Plugin Center Focused Human Review
 
-Status: corrected review prepared after the accepted Developer Mode removal;
-human result pending; this record does not accept H117 or authorize P1b.4
+Status: focused P1b.3 human review accepted on 2026-08-12 after the corrected
+Developer Mode removal; this record does not accept H117 or authorize P1b.4
 
 Date prepared: 2026-08-12
+
+Date accepted: 2026-08-12
+
+## Recorded Result
+
+The product owner reported `本轮验收通过` after reviewing the corrected
+two-surface Plugin Center. All eight focused checklist items are accepted.
+This closes only P1b.3's human-visible evidence. P1b.4 is deliberately paused,
+so H117 remains executable and unaccepted.
 
 ## Start The Bounded Review Surface
 
@@ -68,9 +77,8 @@ candidate inspection and path/receipt controls remain Developer Kit/security
 evidence without a production mode, persistent preference, retained directory
 handle, or development generation lifecycle.
 
-The reviewer should report either `P1b.3 人工验收通过` or the exact rejected
-item(s). Passing this checklist accepts only the focused P1b.3 visible
-interaction evidence. H117 remains unaccepted until separately authorized P1b.4
-Library/CLI/MCP equivalence and security controls also pass. This review does
-not authorize MCP, package execution, activation, Workers, Marketplace, or
-external lifecycle contributions.
+The product owner's pass accepts only the focused P1b.3 visible interaction
+evidence. H117 remains unaccepted until separately authorized P1b.4 Library/
+CLI/MCP equivalence and security controls also pass. This review does not
+authorize MCP, package execution, activation, Workers, Marketplace, or external
+lifecycle contributions.

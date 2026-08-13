@@ -3,7 +3,8 @@
 Status: accepted binding specification 2026-08-11, amended 2026-08-12 to remove
 the top-level production Developer Mode; P1b.1–P1b.3 separately authorized and
 implemented; H117 executable with 54 frozen negative groups and corrected
-two-surface product-browser evidence, focused human review pending, not accepted
+two-surface product-browser evidence; focused P1b.3 human review accepted
+2026-08-12; H117 not accepted because P1b.4 remains separately gated
 
 Date: 2026-08-11
 
@@ -924,7 +925,8 @@ Current state after the separately authorized P1b.3 implementation:
 - P2 registry, P3a Worker, P3b Pine migration, P4 Marketplace, and new business
   plugins remain separately gated.
 
-The exact immediate gate is the focused P1b.3 human review in
-`V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md`. Acceptance or rejection must be
-recorded explicitly. P1b.4 remains a later, separately authorized decision;
-until that instruction is given, no MCP adapter or H117 closure may begin.
+The focused P1b.3 human review in
+`V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md` was accepted on 2026-08-12.
+P1b.4 remains a later, separately authorized decision and is deliberately
+paused; until a new instruction is given, no MCP adapter or H117 closure may
+begin.

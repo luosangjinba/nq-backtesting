@@ -138,8 +138,8 @@ IndexedDB CAS, declarative settings migration/retention/recovery, explicit
 install review, a two-surface Included/Installed Center, archive-only production
 browser adapter, and tooling-only unpacked security inspection. H117 is
 executable with 54 frozen negative groups and corrected product-browser
-evidence; its focused human review and separately authorized P1b.4 MCP/closure
-remain open.
+evidence. The P1b.3 focused human review passed on 2026-08-12; separately
+authorized P1b.4 MCP/closure remains open and deliberately paused.
 `V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md` is the bounded review checklist.
 Its compact-tab correction and post-implementation recommendation not to keep
 Developer Mode as a top-level production surface are recorded in
@@ -280,7 +280,8 @@ IndexedDB, separate Included/Installed surfaces, an archive-only browser
 adapter, tooling-only unpacked security checks, and 54 negative groups. They add
 no MCP server, activation,
 external import/evaluation, or business contribution; H117 remains unaccepted
-pending focused P1b.3 human review and the complete P1b.4 gate.
+because the complete P1b.4 gate remains open, although the focused P1b.3 human
+review passed on 2026-08-12.
 The completed NQ historical-roll sequence is recorded in
 `V7_NQ_LEGACY_RED_DATABENTO_ROLL_AUDIT.md`,
 `V7_NQ_DATABENTO_FULL_CHAIN_DIFF.md`, and the binding execution record

@@ -720,8 +720,9 @@ Binding contract and rationale:
 - [x] register H117 as an executable P1b.1 subset and pass two-root archive
   determinism, prepared/archive byte equivalence, CLI/Library equivalence,
   P1a/H116 regression, and 18 synthetic negative groups;
-- [x] keep H117 unaccepted after P1b.3 pending focused-human review and the
-  separately authorized P1b.4 MCP/standing-evidence closure;
+- [x] keep H117 unaccepted despite the now-passed P1b.3 focused-human review
+  because the separately authorized P1b.4 MCP/standing-evidence closure remains
+  open;
 - [x] receive separate product-owner authorization for only P1b.2 package-
   store/storage, without inferring P1b.3 or P1b.4 authority;
 - [x] add pure change/migration contracts plus one
@@ -778,8 +779,8 @@ Binding contract and rationale:
 - [x] rebaseline H117's third 18 frozen groups and real-Chromium fixture to prove
   the two-tab Included/Installed surface, developer-surface absence, archive-only
   production adapter, and unpacked candidate path/receipt controls;
-- [ ] record the corrected focused P1b.3 human-review result before treating the
-  visible gate as closed;
+- [x] record the product owner's 2026-08-12 pass of the corrected focused P1b.3
+  human review and close only that visible gate;
 - [ ] require separate authorization before P1b.4 MCP or H117 acceptance work;
 - [x] keep P2 registry, P3a Worker, P3b Pine migration, P4 Marketplace, new
   business plugins, and R13.11–R13.13 outside P1b.
@@ -1505,8 +1506,8 @@ Binding ES full-chain repair:
   instructions, implement Plugin Center local-package review/inventory/recovery,
   then remove the no-unique-outcome Developer Mode and retain its strict
   prepared-candidate checks as tooling-only evidence; preserve 18 additive
-  negative groups, corrected product-browser automation, and a pending focused-
-  human review gate;
+  negative groups, corrected product-browser automation, and the accepted
+  focused-human review gate;
 - [ ] P1b.4: require a new product-owner instruction before the authoring MCP
   adapter or H117 acceptance;
 - [ ] P2/P3a: separately prove a signed free Community registry/restricted mode

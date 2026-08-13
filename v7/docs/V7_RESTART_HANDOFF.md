@@ -16,8 +16,9 @@ separately authorized headless implementation. P1b has an accepted binding
 specification and its separately authorized P1b.1 contract/archive, P1b.2
 transaction/storage, and P1b.3 two-surface Plugin Center correction are
 implemented. H117 is executable with 54 frozen negative groups and real-browser
-IndexedDB/product evidence but remains unaccepted; the corrected P1b.3 human
-review, P1b.4 MCP/H117 closure, and all later phases remain separately gated.
+IndexedDB/product evidence. The corrected P1b.3 focused human review passed on
+2026-08-12, but H117 remains unaccepted because P1b.4 MCP/closure and all later
+phases remain separately gated.
 `git log` is the authoritative commit identity.
 
 After a machine or agent restart, run:
@@ -1215,9 +1216,10 @@ admission, and P1b cannot execute or preview an external package. The product
 owner accepted its removal: production now has exactly Included and Installed,
 the browser adapter is archive-only, and strict unpacked-candidate inspection
 remains tooling/security evidence without retained handles or mode state. The
-exact immediate gate is the corrected focused human review in
-`V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md`. P1b.4 still requires a separate
-product-owner instruction. Do not create its MCP adapter or claim H117
+corrected focused human review in
+`V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md` passed on 2026-08-12. P1b.4 is
+deliberately paused and still requires a separate product-owner instruction.
+Do not create its MCP adapter or claim H117
 acceptance, P2 registry, P3a Worker runtime, P3b Pine migration, detector, MA/SMA,
 Fibonacci, Marketplace, or R13.11–R13.13 before the applicable authorization.
 

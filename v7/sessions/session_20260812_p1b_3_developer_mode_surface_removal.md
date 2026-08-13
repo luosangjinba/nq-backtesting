@@ -2,8 +2,8 @@
 
 Date: 2026-08-12
 
-Status: product correction implemented and automated evidence passed; corrected
-focused-human evidence remains pending before H117 acceptance
+Status: product correction implemented; automated evidence and corrected
+focused-human P1b.3 review passed; H117 remains unaccepted pending P1b.4
 
 ## Authority And Boundary
 
@@ -56,8 +56,12 @@ Plugin Center and production application-host browser regressions pass, includin
 two isolated application instances, reverse cleanup, and partial rollback.
 `git diff --check` passes before commit.
 
+## Human Review Result
+
+On 2026-08-12 the product owner reported `本轮验收通过` for the corrected
+Included/Installed surface. This closes P1b.3's focused visible gate only.
+
 ## Next Gate
 
-Run the corrected focused P1b.3 human review for Included/Installed. Record the
-product owner's pass or exact rejection. Do not begin P1b.4 or accept H117
-without a separate instruction.
+P1b.4 is deliberately paused. Do not begin its MCP work or accept H117 without
+a separate product-owner instruction.
