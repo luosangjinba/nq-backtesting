@@ -150,7 +150,7 @@ Accepted specification:
 Implementation record:
 `sessions/session_20260813_p1c_1_calculated_series_pure_contract_implementation.md`.
 
-## Calculated-Series Chart-Owned Projection Slice — Candidate; Not Accepted
+## Calculated-Series Chart-Owned Projection Slice — Accepted Specification; Not Implemented
 
 - [x] receive product-owner authorization to draft the second ADR-V7-005
   dependency as a candidate specification only;
@@ -169,14 +169,21 @@ Implementation record:
 - [x] record ten material decisions for product-owner review;
 - [x] allocate no `P1c.2` or H119 and add no implementation, MA/SMA, live
   instance/persistence/UI, Community/Worker, P1b.4, or H117 state change;
-- [ ] receive product-owner review and accept, amend, or reject the ten
-  candidate decisions.
+- [x] receive product-owner review on 2026-08-13, accept decisions 1–6 and
+  9–10 as drafted, and accept decisions 7–8 with exact Chart-owner
+  fault-escalation and settlement-admission amendments;
+- [x] keep acceptance documentation-only: allocate no `P1c.2`/H119, implement
+  no projection, and leave MA/SMA, live instance/persistence/UI,
+  Community/Worker, P1b.4, and H117 unchanged.
 
-Candidate specification:
+Accepted specification:
 `docs/V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`.
 
 Draft record:
 `sessions/session_20260813_calculated_series_chart_owned_projection_candidate_specification.md`.
+
+Acceptance record:
+`sessions/session_20260813_calculated_series_chart_owned_projection_specification_acceptance.md`.
 
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09
 

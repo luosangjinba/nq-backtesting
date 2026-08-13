@@ -1287,10 +1287,10 @@ executable and unaccepted with its complete record unchanged. The immediate
 repository-changing next step is not authorized. H118 acceptance does not start
 any Chart projection, MA/SMA, Community/Worker, or P1b.4 work.
 
-### Calculated-Series Chart-Owned Projection Slice — Candidate; Not Authorized
+### Calculated-Series Chart-Owned Projection Slice — Accepted Specification; Not Implemented
 
-The product owner authorized a specification draft, not implementation, for
-the second ADR-V7-005 dependency. Candidate
+The product owner accepted the binding specification, not implementation, for
+the second ADR-V7-005 dependency.
 `V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md` defines two nested
 boundaries: a removable, package-neutral complete-surface projection
 transaction and an adapter-internal native pane/Series/Scale/price-line/band
@@ -1298,21 +1298,26 @@ bridge. The existing Chart Snapshot Application remains the sole outer Chart
 transaction participant, and the Lightweight Charts adapter remains the sole
 native writer.
 
-The candidate binds exact same-snapshot closure, stable logical resources,
-one-chart Main/internal-region realization, structural Scale compatibility,
-standard Plot mapping, non-ready stale-resource clearing, reversible staging,
-late same-snapshot settlement, bounded projection ceilings, diagnostics, and a
-future synthetic real-Chromium conformance fixture. It adopts only suitable
-official Lightweight Charts mechanics and host-owned renderer patterns; it
-does not adopt an ecosystem Indicator library, direct package Chart writes, or
-a second-chart subpane pattern.
+The accepted specification binds exact same-snapshot closure, stable logical
+resources, one-chart Main/internal-region realization, structural Scale
+compatibility, standard Plot mapping, non-ready stale-resource clearing,
+reversible staging, late same-snapshot settlement, bounded projection
+ceilings, diagnostics, and a future synthetic real-Chromium conformance
+fixture. It adopts only suitable official Lightweight Charts mechanics and
+host-owned renderer patterns; it does not adopt an ecosystem Indicator
+library, direct package Chart writes, or a second-chart subpane pattern.
 
-The immediate next gate is product-owner review of the ten candidate
-decisions. The draft allocates neither `P1c.2` nor H119 and authorizes no code,
+The product owner accepted decisions 1–6 and 9–10 as drafted. Decisions 7 and
+8 are accepted with two stricter owner rules: an unprovable child restoration
+must escalate to the Chart Snapshot Application for teardown/remount or Chart-
+activation poison, and both workspace-stage and same-snapshot settlement must
+be admitted and sequenced only by that Chart owner. Shared native uncertainty
+cannot masquerade as a local failure or a projector bypass.
+
+Acceptance allocates neither `P1c.2` nor H119 and authorizes no code,
 production route, MA/SMA, live instance/persistence/UI, Community/Worker,
-P1b.4, or H117 change. Even later acceptance of the decisions would bind only
-the specification; a separate instruction would still be required to allocate
-and implement a delivery.
+P1b.4, or H117 change. No repository-changing next step is authorized; a
+separate instruction is required to allocate and implement a delivery.
 
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 

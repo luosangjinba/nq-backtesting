@@ -808,11 +808,12 @@ The first required dependency was separately specified, implemented as
 `V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`. That step adds portable pure
 contracts only and does not itself authorize Chart projection.
 
-The second dependency now has a documentation-only candidate at
-`V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`. Its ten material
-decisions remain under product-owner review. The draft allocates neither
-`P1c.2` nor H119, changes no production or test code, and starts no Chart
-projection implementation, MA/SMA, live instance/persistence/UI,
-Community/Worker, or P1b.4 work. H117 remains unchanged. This status note does
-not revise the accepted ADR decisions or cross any current non-authorization
-boundary.
+The second dependency now has an accepted documentation-only specification at
+`V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`. The product owner
+accepted decisions 1–6 and 9–10 as drafted and decisions 7–8 with stricter
+Chart-owner recovery escalation and settlement-admission rules. Acceptance
+allocates neither `P1c.2` nor H119, changes no production or test code, and
+starts no Chart projection implementation, MA/SMA, live
+instance/persistence/UI, Community/Worker, or P1b.4 work. H117 remains
+unchanged. This status note does not revise the accepted ADR decisions or
+cross any current non-authorization boundary.

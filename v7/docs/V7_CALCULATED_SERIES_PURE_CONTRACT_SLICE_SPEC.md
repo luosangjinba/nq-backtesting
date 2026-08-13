@@ -789,13 +789,14 @@ review rather than visual review. The implementation and acceptance record is
 
 That authorization did not extend to a calculation executor, SDK availability,
 live instance/persistence owner, Chart-owned projection, MA/SMA, generic layout
-UI, Community/Worker execution, or P1b.4. A documentation-only candidate for
-the next dependency now exists at
+UI, Community/Worker execution, or P1b.4. The accepted documentation-only
+specification for the next dependency now exists at
 `V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`; its ten decisions
-remain under review, it allocates no `P1c.2` or H119, and it authorizes no
-implementation. The trusted Core MA/SMA vertical slice cannot begin before
-both required dependencies are separately closed. Neither the H118 acceptance
-nor the candidate draft starts either later slice.
+are binding with decisions 7–8 amended, but it allocates no `P1c.2` or H119 and
+authorizes no implementation. The trusted Core MA/SMA vertical slice cannot
+begin before both required dependencies are separately closed. Neither the
+H118 acceptance nor the Chart-projection specification acceptance starts
+either later slice.
 
 P1b.4 remains paused. The complete H117 record remains unchanged at
 `executable`, `humanReviewRequired: true`, and `acceptanceEvidence: null`.

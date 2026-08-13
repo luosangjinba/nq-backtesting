@@ -1,14 +1,17 @@
-# V7 Calculated-Series Chart-Owned Projection Slice — Candidate Specification
+# V7 Calculated-Series Chart-Owned Projection Slice — Accepted Specification
 
-Status: candidate only; product-owner review pending; no implementation,
-delivery id, Harness id, runtime availability, or product surface authorized
+Status: ten material decisions accepted on 2026-08-13 with decisions 7 and 8
+amended; no implementation, delivery id, Harness id, runtime availability, or
+product surface authorized
 
 Drafted: 2026-08-13
+
+Accepted: 2026-08-13
 
 Upstream decisions: accepted `ADR-V7-006`, accepted `ADR-V7-005`, and accepted
 `P1c.1`/`H118`
 
-Candidate scope: the second required ADR-V7-005 dependency; synthetic,
+Accepted scope: the second required ADR-V7-005 dependency; synthetic,
 Chart-owned projection mechanics and evidence only
 
 ## Product-Owner Direction
@@ -19,10 +22,21 @@ The product owner directed:
 > 不分配 P1c.2/H119，不启动 MA/SMA、实例/持久化/UI、Community/Worker 或
 > P1b.4，不变更 H117。
 
-This instruction authorizes this candidate specification and its documentation
-record only. It does not accept the candidate, allocate `P1c.2` or H119, or
-authorize production, SDK, schema, catalog, fixture, test, runtime, adapter,
-persistence, or UI changes.
+That drafting instruction authorized the candidate specification and its
+documentation record only. It did not accept the candidate, allocate `P1c.2`
+or H119, or authorize production, SDK, schema, catalog, fixture, test, runtime,
+adapter, persistence, or UI changes.
+
+## Product-Owner Acceptance
+
+After technical review, the product owner directed:
+
+> 接受第 1–6、9–10 项，并按审阅建议修订第 7、8 项；不实施。
+
+This acceptance makes the ten material decisions binding with decisions 7 and
+8 replaced by the amended text below. It authorizes no implementation and
+allocates neither `P1c.2` nor H119. Every exclusion and the H117/P1b.4 boundary
+remain unchanged.
 
 ## Purpose
 
@@ -32,7 +46,7 @@ projection frame can be materialized through V7's existing sole Chart owner
 without giving a Contribution, package, future calculation executor, or UI a
 native handle.
 
-If this candidate is later accepted and separately authorized, the slice would
+A separately authorized implementation of this accepted specification would
 establish:
 
 - one removable, package-neutral calculated-series projection transaction;
@@ -51,7 +65,7 @@ product.
 
 ## Binding Baseline
 
-This candidate preserves the following accepted repository truth:
+This accepted specification preserves the following repository truth:
 
 - `analysis.calculated-series@1.0.0` is an active host contract descriptor but
   remains unavailable for SDK or production execution;
@@ -141,7 +155,7 @@ separation, and exact rollback boundary. The library is not adopted as a
 dependency, registry, projection owner, or runtime in this slice. A later
 trusted-formula decision may separately audit individual calculations.
 
-## Candidate Module And Ownership Boundary
+## Specified Module And Ownership Boundary
 
 A later implementation should add one removable projection transaction and one
 adapter-internal native bridge:
@@ -165,9 +179,9 @@ adapter.lightweight-chart / calculated-series-chart-surface
 
 The projection transaction is not a second global Workspace participant. A
 future production composition must nest its prepared state inside the existing
-Chart Snapshot Application's one outer Chart stage. The candidate slice itself
-would remain unwired from the Workstation route and would exercise that seam
-only through a synthetic test composition.
+Chart Snapshot Application's one outer Chart stage. A separately authorized
+implementation of this slice would remain unwired from the Workstation route
+and exercise that seam only through a synthetic test composition.
 
 This split follows the existing Annotation projection precedent while keeping
 calculated-series lifecycle distinct. Annotation primitives and calculated-
@@ -416,11 +430,15 @@ The lifecycle is exact:
   restores prior handles, data, options, order, height, preservation, ranges,
   and visible inventory, then removes candidate-only resources;
 - failed apply attempts reverse restoration. If exact restoration cannot be
-  proved, the removable projection surface is poisoned and refuses further
-  writes instead of claiming success;
+  proved, the calculated-series surface is poisoned, refuses further writes,
+  and reports the fault to the sole Chart Snapshot Application. Before another
+  Chart command, that owner must either complete adapter-owned teardown/remount
+  from its last accepted Chart snapshot or poison the current Chart activation;
+  uncertainty in shared native pane/Scale state cannot be reported as a merely
+  local failure;
 - `finalize` publishes the target surface revision before destroying obsolete
-  resources. Cleanup failure poisons this optional surface without changing
-  the already accepted candle owner;
+  resources. Cleanup failure follows the same escalation path without
+  rewriting accepted candle data, semantic ownership, or writer revision;
 - `dispose` rolls back unfinished work, then detaches/destroys every owned
   calculated-series resource exactly once. Disposal is idempotent.
 
@@ -443,6 +461,11 @@ Application and fold its receipt into the one outer Chart receipt. It must not
 register this surface as another Workspace transaction participant.
 
 ### `same-snapshot-settlement`
+
+A settlement is admitted and sequenced only by the Chart Snapshot Application
+through its owned local child transaction. It does not register another global
+Workspace participant, and no calculator, Contribution, package, or projection
+port caller may bypass that owner to invoke the native adapter.
 
 A later ready frame may replace pending/non-ready output only when the complete
 candidate repeats the exact currently accepted Chart binding, document and
@@ -500,8 +523,9 @@ DOM/Canvas detail.
 
 ## Required Future Conformance Evidence
 
-This candidate allocates no Harness id. A later implementation authorization
-may allocate the next available delivery and Harness ids only then. Its
+This accepted specification allocates no Harness id. A later implementation
+authorization may allocate the next available delivery and Harness ids only
+then. Its
 independent gate should cover at least:
 
 1. branded complete candidate closure, exact Chart binding, revision collision,
@@ -539,7 +563,7 @@ production Workstation wiring.
 
 ## Explicit Exclusions
 
-This candidate does not authorize or include:
+This accepted specification does not authorize or include:
 
 - a formula engine, calculation scheduler, incremental calculation state,
   trusted calculation adapter, Worker, or Community executor;
@@ -567,10 +591,10 @@ This candidate does not authorize or include:
 - `P1c.2`, H119, P1b.4, H117 acceptance/reclassification, or any H117 field
   change.
 
-## Candidate Material Decisions For Review
+## Accepted Material Decisions
 
-The product owner must accept, amend, or reject these ten decisions before any
-implementation may be proposed:
+The product owner accepted decisions 1–6 and 9–10 as drafted and accepted
+decisions 7 and 8 with the technical-review amendments recorded here:
 
 1. the slice establishes a removable package-neutral projection transaction
    plus an adapter-internal native bridge; the existing Chart Snapshot
@@ -597,29 +621,35 @@ implementation may be proposed:
    stale Plot resources; ready state uses complete `setData()` replacement and
    explicit whitespace, with incremental native updates deferred;
 7. prepare is inert, apply is complete and receipt-bound, rollback restores
-   exact prior resources and layout, finalize alone destroys obsolete accepted
-   resources, and unprovable restoration poisons only the removable surface;
+   exact prior resources and layout, and finalize alone destroys obsolete
+   accepted resources. Unprovable restoration poisons the calculated-series
+   surface and escalates to the sole Chart Snapshot Application, which must
+   complete adapter-owned teardown/remount from its last accepted snapshot or
+   poison the current Chart activation; shared native uncertainty cannot be
+   treated as a local failure, while accepted candle data, semantic ownership,
+   and writer revision remain unchanged;
 8. workspace-stage and exact same-snapshot settlement share one complete-
-   surface state machine; later production integration must nest it under the
-   sole Chart stage, and a newer candle/Workspace identity rejects stale
-   settlement before any side effect;
+   surface state machine and are admitted and sequenced only by the Chart
+   Snapshot Application. Settlement is a Chart-owned local child transaction,
+   not another global Workspace participant; no calculator, Contribution,
+   package, or projector may bypass the Chart owner, and a newer candle/
+   Workspace identity rejects stale settlement before any side effect;
 9. a future independently numbered gate must combine deterministic negative
    controls with a real single-chart synthetic Main/internal-region browser
    fixture, failure rollback, native interaction, candle-owner invariance, and
    focused technical human review;
-10. accepting this candidate would still authorize no implementation,
+10. specification acceptance authorizes no implementation,
     `P1c.2`/H119 allocation, product wiring, MA/SMA, live instance/persistence/UI,
     Community/Worker, P1b.4, or H117 change; each requires the separately
     accepted sequence and explicit later instruction.
 
-## Review And Later Sequence
+## Acceptance Record And Later Sequence
 
-The immediate next action after this drafting pass is product-owner review of
-the ten candidate decisions. Acceptance alone would make the specification
-binding but would still authorize no repository implementation.
+The product-owner acceptance makes all ten decisions binding with the two
+recorded amendments. It still authorizes no repository implementation.
 
-Only a separate post-acceptance implementation instruction could allocate the
-next delivery and Harness ids and activate this synthetic Chart-owned slice.
+Only a separate implementation instruction may allocate the next delivery and
+Harness ids and activate this synthetic Chart-owned slice.
 Only after that implementation and its focused gate close may the trusted Core
 MA/SMA vertical-slice candidate be started by another explicit instruction.
 Generic layout, Community/Worker integration, real Indicator catalog decisions,

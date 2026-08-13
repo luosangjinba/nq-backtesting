@@ -1,7 +1,7 @@
 # V7 Task And Requirement Numbering
 
 Status: binding delivery rule; latest completed repository step P1c.1, H118
-accepted; Chart-owned projection candidate under review with no next delivery
+accepted; Chart-owned projection specification accepted with no next delivery
 allocated or authorized (2026-08-13)
 
 ## Delivery IDs
@@ -30,10 +30,10 @@ The latest completed repository-changing delivery step is `P1c.1`,
 Calculated-Series Pure Contracts. Its focused human contract/evidence review
 accepted H118 while preserving H117 unchanged. P1c.1 adds no Chart/runtime/SDK
 execution authority, and no later delivery is authorized by that acceptance.
-The documentation-only Calculated-Series Chart-Owned Projection candidate
-allocates neither `P1c.2` nor H119. Product-owner review of its ten decisions is
-not a delivery step, and later specification acceptance would still require a
-separate instruction before either id could be allocated.
+The documentation-only Calculated-Series Chart-Owned Projection specification
+is accepted, but allocates neither `P1c.2` nor H119. Its product-owner review
+and acceptance are not a delivery step; a separate implementation instruction
+is still required before either id may be allocated.
 
 `R13.5` was the Segment Interaction And Preview step. R13.2 remains the pure
 removable Geometry boundary, R13.3 remains
