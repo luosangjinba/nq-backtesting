@@ -758,6 +758,16 @@ Binding contract and rationale:
 - [x] prepare the focused P1b.3 human-review fixture/checklist without claiming
   acceptance evidence; record the product owner's later pass or rejection
   before treating that visible gate as closed;
+- [x] correct the Included/Installed/Developer Mode tab strip after focused
+  review reproduced vertically stretched implicit grid rows; bind a 40 px tab
+  list, 30 px controls, bounded labels, and narrow-window evidence in Chromium;
+- [x] re-evaluate Developer Mode against actual product outcomes: P1a already
+  owns validate/build/test/preview/pack, Installed owns archive admission, and
+  P1b cannot execute or preview external packages, so a persistent top-level
+  mode has no unique current product value;
+- [ ] receive explicit product-owner direction to retain, relocate, or remove
+  the top-level Developer Mode surface before final P1b.3 visible acceptance;
+  preserve strict unpacked-candidate inspection/security evidence meanwhile;
 - [ ] require separate authorization before P1b.4 MCP or H117 acceptance work;
 - [x] keep P2 registry, P3a Worker, P3b Pine migration, P4 Marketplace, new
   business plugins, and R13.11–R13.13 outside P1b.

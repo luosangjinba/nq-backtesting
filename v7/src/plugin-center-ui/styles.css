@@ -24,12 +24,17 @@
 
 .plugin-center-workspace {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   min-height: 0;
   gap: 14px;
 }
 
 .plugin-center-surface-tabs {
   display: flex;
+  align-items: center;
+  justify-self: start;
+  width: fit-content;
+  max-width: 100%;
   gap: 6px;
   padding: 4px;
   border: 1px solid var(--ui-border, #263445);
@@ -39,14 +44,17 @@
 }
 
 .plugin-center-surface-tab {
-  min-height: 34px;
-  padding: 0 14px;
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 0 12px;
   border: 0;
   border-radius: 7px;
   color: #9eb0c4;
   background: transparent;
-  font: inherit;
+  font-family: inherit;
+  font-size: 11px;
   font-weight: 700;
+  line-height: 1;
   white-space: nowrap;
 }
 

@@ -1,7 +1,8 @@
 # P1b.3 Plugin Center And Developer Mode Focused Human Review
 
-Status: prepared and pending product-owner review; this record does not accept
-H117 or authorize P1b.4
+Status: compact-tab correction complete; Developer Mode product disposition
+pending product-owner direction; this record does not accept H117 or authorize
+P1b.4
 
 Date prepared: 2026-08-12
 
@@ -29,7 +30,8 @@ Record pass/reject for each item. A rejection keeps H117 executable and open.
 
 1. **Included remains Core-only.** The initial Included tab identifies the Core
    surface. Installed and Developer Mode are visibly separate; local packages
-   do not look built-in or trusted.
+   do not look built-in or trusted. All three labels form one compact,
+   ordinary-height tab strip rather than expanding vertically with the panel.
 2. **Install review is explicit.** In Installed, select `Queue install archive`
    and then `Install from file`. Before any write, the review visibly says
    `Unverified local source`, publisher trust is self-asserted, signatures are
@@ -69,6 +71,14 @@ Record pass/reject for each item. A rejection keeps H117 executable and open.
     be defeated by decorative motion.
 
 ## Acceptance Boundary
+
+The post-implementation product review recorded that Developer Mode currently
+adds no unique user outcome beyond P1a validate/build/test/preview/pack and the
+Installed archive-admission flow. The recommendation is to remove it as a
+top-level production mode while preserving strict unpacked-candidate inspection
+as developer tooling/security evidence. Do not treat this checklist as final
+visible acceptance until the product owner explicitly retains, relocates, or
+removes that surface.
 
 The reviewer should report either `P1b.3 人工验收通过` or the exact rejected
 item(s). Passing this checklist accepts the focused P1b.3 visible interaction

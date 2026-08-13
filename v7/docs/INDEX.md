@@ -139,6 +139,10 @@ install review, and prepared-directory load/reload/validate-pack. H117 is
 executable with 54 frozen negative groups and product-browser evidence; its
 focused human review and separately authorized P1b.4 MCP/closure remain open.
 `V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md` is the bounded review checklist.
+Its compact-tab correction and post-implementation recommendation not to keep
+Developer Mode as a top-level production surface are recorded in
+`../sessions/session_20260812_p1b_3_tab_layout_and_developer_mode_review.md`;
+surface removal or relocation still requires explicit product-owner direction.
 The accepted post-milestone foundation is
 `V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md`. ADR-V7-001 separates
 market-coordinate geometry, generic drawings, typed semantic artifacts,

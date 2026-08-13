@@ -69,6 +69,21 @@ export async function runLocalPluginPackageProductBrowserSuite() {
     })`);
     assert.equal(startup.status, 'ready', startup.error);
     assert.equal(await evaluate(cdp, `document.querySelector('.plugin-center-workspace').dataset.pluginCenterSurface`), 'core');
+    const tabLayout = await evaluate(cdp, `(() => {
+      const list = document.querySelector('.plugin-center-surface-tabs').getBoundingClientRect();
+      const tabs = [...document.querySelectorAll('.plugin-center-surface-tab')]
+        .map((tab) => tab.getBoundingClientRect());
+      return {
+        listHeight: list.height,
+        maxTabHeight: Math.max(...tabs.map(({ height }) => height)),
+        maxTabWidth: Math.max(...tabs.map(({ width }) => width), 0),
+        workspaceWidth: document.querySelector('.plugin-center-workspace').getBoundingClientRect().width,
+      };
+    })()`);
+    assert.ok(tabLayout.listHeight >= 36 && tabLayout.listHeight <= 42, tabLayout);
+    assert.ok(tabLayout.maxTabHeight >= 30 && tabLayout.maxTabHeight <= 34, tabLayout);
+    assert.ok(tabLayout.maxTabWidth < 150, tabLayout);
+    assert.ok(tabLayout.maxTabWidth < tabLayout.workspaceWidth / 2, tabLayout);
 
     await click(cdp, '.plugin-center-surface-tab:nth-child(2)');
     assert.equal(await evaluate(cdp, `document.querySelector('.plugin-center-workspace').dataset.pluginCenterSurface`), 'installed');
@@ -234,6 +249,7 @@ export async function runLocalPluginPackageProductBrowserSuite() {
       saveCancellationNoWrite: true,
       settingsApplyReset: true,
       screenshotBytes: Buffer.from(screenshot.data, 'base64').length,
+      tabLayout,
     });
   } finally {
     fixture.dispose();

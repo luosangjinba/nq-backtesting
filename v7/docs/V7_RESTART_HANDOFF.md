@@ -1205,7 +1205,15 @@ executable with 54 groups but remains unaccepted. Its five binding decisions are
 installation is not activation; `.v7plugin` is distinct from `.v7dk.tar`; one
 device-local package store owns inventory transactions; Developer Mode loads
 prepared candidates rather than executing source; and local `stdio` MCP is
-authoring-only. The exact immediate gate is the focused P1b.3 human review in
+authoring-only. Focused review corrected a vertically stretched three-tab
+layout and bound a compact 40 px strip with 30 px controls in real Chromium.
+The accompanying role review found that current Developer Mode has no unique
+product outcome: P1a owns validate/build/test/preview/pack, Installed owns
+admission, and P1b cannot execute or preview an external package. The
+recommendation is to remove it as a top-level production mode while preserving
+strict unpacked-candidate inspection as developer tooling/security evidence.
+The exact immediate gate is explicit product-owner direction to retain,
+relocate, or remove that surface before completing
 `V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md`. P1b.4 still requires a separate
 product-owner instruction. Do not create its MCP adapter or claim H117
 acceptance, P2 registry, P3a Worker runtime, P3b Pine migration, detector, MA/SMA,
