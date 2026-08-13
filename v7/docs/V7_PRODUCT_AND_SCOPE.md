@@ -65,6 +65,11 @@ projection, structural Scale compatibility, multi-Plot output, exact no-stale
 Replay frames, host-owned instance/layout state, and same-Profile Core/
 Community semantics. These decisions do not broaden V7 into a general
 technical-analysis product and authorize no Profile/Indicator implementation.
+The accepted first calculated-series pure-contract specification now binds the
+future host Profile-registry seam, exact P0a Contribution binding, portable
+Definition/Plot/Scale/instance/result/migration contracts, and structural
+ceilings. It still exposes no Indicator, execution tier, Chart behavior, or
+product surface and therefore does not expand current product scope.
 
 The accepted plugin authoring model is one strict TypeScript SDK producing
 pinned ESM artifacts. Trusted Core output may enter the first-party build;

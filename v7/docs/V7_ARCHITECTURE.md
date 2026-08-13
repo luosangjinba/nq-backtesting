@@ -998,6 +998,20 @@ The full decisions are
 `V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md` and
 `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`.
 
+The accepted first pure-contract dependency further fixes the future module
+seams without implementing them. `contribution-profile-contract` owns pinned
+host descriptor/reference resolution; `calculated-series-contract` owns
+portable Definition, Plot/Scale, instance/ChartRegion document, exact result/
+frame, provenance, limits, diagnostics, and declarative migration values. P0a
+`contributions[].kind` remains coarse manifest metadata, so only an exact
+host-owned Contribution binding may associate one identity with
+`analysis.calculated-series@1.0.0`. Contract recognition remains separate from
+SDK/runtime execution availability. These pure owners import no Chart, Bar
+Data, Replay, Workspace runtime, ModuleHost, persistence, UI, Worker,
+filesystem, network, or package callback. The binding specification is
+`V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`; it allocates no delivery or
+Harness id and authorizes no code.
+
 FVG, MA/SMA, BSL/SSL, and Fibonacci are the accepted initial Core capability
 catalog. Core status freezes a maintained versioned baseline; it does not
 erase semantic variants. Higher-level plugins may declare `requires`,

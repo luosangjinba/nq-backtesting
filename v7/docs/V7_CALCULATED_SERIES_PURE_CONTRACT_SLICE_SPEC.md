@@ -1,15 +1,19 @@
-# V7 Calculated-Series Pure Contract Slice — Candidate Specification
+# V7 Calculated-Series Pure Contract Slice — Accepted Specification
 
-Status: product-owner-authorized candidate draft; not accepted; no
-implementation, delivery id, Harness id, SDK availability, or runtime
-authority is authorized
+Status: accepted binding pure-contract specification; implementation, delivery
+id, Harness id, SDK availability, and runtime authority remain separately
+unauthorized
 
 Drafted: 2026-08-12
 
+Decision date: 2026-08-12
+
+Decider: V7 product owner
+
 Upstream decisions: accepted `ADR-V7-006` and accepted `ADR-V7-005`
 
-Candidate scope: the first required future delivery slice in ADR-V7-005;
-portable contracts and future headless evidence only
+Accepted scope: the first required future delivery slice in ADR-V7-005;
+portable contracts and future headless evidence only; no implementation
 
 ## Product-Owner Direction
 
@@ -17,17 +21,17 @@ The product owner directed:
 
 > 起草 V7 Calculated-Series Pure Contract Slice 候选规格；不实施，不启动P1b.4，不变更 H117 状态。
 
-This instruction authorizes this reviewable specification and its documentation
-records only. It does not accept any candidate decision below and does not
-authorize production, SDK, schema, catalog, fixture, migration, Harness, UI,
-Chart, persistence, or runtime changes.
+That instruction authorized the reviewable draft and its documentation records
+only. The later acceptance recorded below makes its ten material decisions
+binding, while authorizing no production, SDK, schema, catalog, fixture,
+migration, Harness, UI, Chart, persistence, or runtime changes.
 
 ## Purpose
 
 ADR-V7-005 requires a pure-contract slice before Chart projection, a trusted
 MA/SMA vertical slice, generic multi-Plot/layout work, or Community execution.
-This candidate defines what that first slice would freeze if it is later
-accepted and separately authorized for implementation:
+This specification freezes what that first slice must implement if it is later
+separately authorized:
 
 - the first host-governed Contribution Profile registry seam;
 - an exact `analysis.calculated-series` Profile reference and descriptor;
@@ -45,7 +49,7 @@ share, not an Indicator feature visible to users.
 
 ## Binding Upstream Constraints
 
-This candidate must preserve all accepted boundaries:
+This specification preserves all accepted boundaries:
 
 - a Plugin Package is not a Contribution, and a Contribution is not a
   Contribution Profile;
@@ -74,7 +78,7 @@ The accepted source decisions are
 The current repository already has several similarly named but different
 contracts:
 
-| Existing concept | Current meaning | This candidate must not reinterpret it |
+| Existing concept | Current meaning | This specification must not reinterpret it |
 | --- | --- | --- |
 | P0a `contributions[].kind` | coarse built-in manifest metadata: `drawing`, `indicator`, `semantic-type`, `tool`, or `workflow` | it is not a Profile id and grants no runtime authority |
 | `trusted-built-in-core-v1` | P1a Developer Kit Contract Profile | it describes available tooling/conformance, not contribution truth |
@@ -84,7 +88,7 @@ contracts:
 | Projected Pane snapshot | accepted candle/provenance input owned by existing projection and Chart-application contracts | it is not an Indicator result and must not be copied into plugin state |
 
 P1a currently reports Indicator calculation, sub-pane projection, external
-execution, and Worker lifecycle as unavailable. This candidate preserves that
+execution, and Worker lifecycle as unavailable. This specification preserves that
 honesty. A later pure-contract implementation may make schemas inspectable as
 contract artifacts, but it must not report an executable or trusted-build
 calculated-series capability.
@@ -104,14 +108,14 @@ move/resize panes, inspect pane Series/price scales, preserve an empty pane, and
 remove a pane. An empty native pane may otherwise disappear when its last
 Series moves away. The API also exposes custom Series and Pane Primitives.
 
-Those are projection mechanics, not portable product truth. This candidate
+Those are projection mechanics, not portable product truth. This specification
 therefore stores stable V7 ids and declarative intent only. Numeric pane
 indices, native pane/Series/PriceScale handles, `HTMLElement`, custom renderers,
 Primitive callbacks, and vendor option objects are forbidden. The ecosystem
 inventory supplies patterns and calculation-adapter candidates only; this
-candidate adopts no external dependency or third-party lifecycle owner.
+specification adopts no external dependency or third-party lifecycle owner.
 
-## Proposed Module And Ownership Boundary
+## Accepted Module And Ownership Boundary
 
 A later implementation should establish two focused pure modules rather than
 adding another responsibility to the existing package-oriented
@@ -145,7 +149,7 @@ preserves ordered semantic collections such as Plot output.
 
 ## Contribution Profile Registry Seam
 
-The candidate proposes a generic host artifact, not a package-supplied
+The accepted design uses a generic host artifact, not a package-supplied
 extension point. This local pinned contract registry is distinct from the
 future P2 remote package/distribution registry:
 
@@ -176,7 +180,7 @@ ContributionProfileDescriptorV1 {
 }
 ```
 
-The first descriptor proposed by this slice is exactly
+The first descriptor defined by this slice is exactly
 `analysis.calculated-series@1.0.0`. `active` means that the host recognizes the
 contract version; it does **not** mean that any executor, SDK Contract Profile,
 package, or user-visible feature is available. Execution availability remains
@@ -220,14 +224,14 @@ definition. The host must reject:
 - a definition claiming another package/contribution identity;
 - mutation of Manifest V1/V2 to smuggle a Profile field into this slice.
 
-Existing FVG semantic/tool records remain exactly as accepted. This candidate
+Existing FVG semantic/tool records remain exactly as accepted. This specification
 does not assign them a calculated-series Profile, dummy Profile, or migration.
 The P1b local declarative manifest remains empty of contributions and execution
 authority.
 
 ## Calculated-Series Definition V1
 
-The proposed wire is declarative and exact:
+The accepted wire design is declarative and exact:
 
 ```text
 CalculatedSeriesDefinitionV1 {
@@ -382,7 +386,7 @@ Canvas, and executable formatting remain outside this Profile contract.
 
 ## Scale Intent And Compatibility V1
 
-The proposed Scale wire is structural:
+The accepted Scale wire design is structural:
 
 ```text
 ScaleIntentV1 {
@@ -588,12 +592,12 @@ The owning persistence transaction must retain original bytes until a future
 implementation commits the complete migrated generation. This pure slice may
 validate and simulate a migration against fixtures; it writes no durable state.
 
-## Proposed Contract Ceilings
+## Accepted Contract Ceilings
 
 The first contract needs hard structural ceilings even though later executors
 and projectors may advertise lower resource budgets:
 
-| Value | Proposed V1 ceiling |
+| Value | Accepted V1 ceiling |
 | --- | ---: |
 | host Profile descriptors per registry snapshot | 64 |
 | Plot Groups per definition | 8 |
@@ -657,12 +661,12 @@ The catalog must distinguish at least:
 Diagnostics sort deterministically by phase, logical identity, location, and
 code. Error messages may improve without changing machine meaning.
 
-## Candidate Headless Conformance Gate
+## Required Future Headless Conformance Gate
 
-This draft allocates no Harness id and does not modify
-`v7-harness-rules.json`. If the candidate is accepted and implementation is
-separately authorized, the next available Harness id must be assigned to one
-independent headless gate covering at least:
+This decision allocates no Harness id and does not modify
+`v7-harness-rules.json`. If implementation is separately authorized, the next
+available Harness id must be assigned to one independent headless gate covering
+at least:
 
 1. exact Profile descriptor/ref validation, registry closure, and package-
    supplied descriptor rejection;
@@ -681,7 +685,7 @@ independent headless gate covering at least:
    complete Plot coverage, no-future points, and stale rejection;
 8. forward migration simulation, original preservation, deterministic digests,
    and fail-closed gaps/downgrades/ambiguity;
-9. every proposed structural and byte ceiling with boundary-positive and
+9. every accepted structural and byte ceiling with boundary-positive and
    boundary-negative fixtures;
 10. negative architecture controls proving no Chart, DOM, Canvas, Bar Data,
     Replay, Workspace runtime, ModuleHost, storage, filesystem, network,
@@ -698,7 +702,7 @@ Chart-owned projection slice.
 
 ## Explicit Exclusions
 
-This candidate does not authorize or include implementation of:
+This specification does not authorize or include implementation of:
 
 - a formula engine, calculation scheduler, incremental state owner, Worker, or
   trusted calculation adapter;
@@ -715,10 +719,10 @@ This candidate does not authorize or include implementation of:
   external dependency;
 - P1b.4 MCP work or H117 acceptance/reclassification.
 
-## Ten Candidate Material Decisions
+## Accepted Material Decisions
 
-The product owner must accept or amend these ten decisions before any
-implementation specification can become binding:
+The product owner accepted these ten decisions without amendment on
+2026-08-12:
 
 1. the first slice establishes separate pure `contribution-profile-contract`
    and `calculated-series-contract` ownership boundaries; it does not add
@@ -752,19 +756,25 @@ implementation specification can become binding:
    original record as inert unresolved state rather than guessing or dropping
    meaning;
 9. all values are closed, bounded, deeply immutable, canonically serialized,
-   deterministically diagnosed, and protected by the proposed V1 ceilings plus
+   deterministically diagnosed, and protected by the accepted V1 ceilings plus
    a new independent headless gate whose id is allocated only after separate
    implementation authorization;
-10. accepting this candidate would still authorize no implementation, SDK
+10. accepting this specification authorizes no implementation, SDK
     execution availability, Chart/UI/persistence work, real Indicator,
     Community/Worker tier, P1b.4, or H117 state change; the Chart-owned
     projection slice remains the separately specified second dependency.
 
-## Review And Later Sequence
+## Acceptance Record
 
-The immediate next action after this draft is product-owner review of the ten
-candidate decisions. Acceptance of the candidate would make the contract plan
-binding but would still authorize no code.
+The product owner stated:
+
+> 接受十项决策，下一步计划做什么？
+
+This acceptance makes the ten material decisions and their pure-contract
+boundaries binding. The accepted tenth decision explicitly withholds all
+implementation authority.
+
+## Current Non-Authorization And Later Sequence
 
 Only a later explicit implementation instruction may allocate a delivery id
 and Harness id and add the two pure modules, exact schemas/catalogs, synthetic

@@ -118,15 +118,18 @@ implementation. RSI/ATR/MACD remain unclassified examples, MA/SMA remains
 unimplemented, P1a/P1b availability is unchanged, and P1b.4 remains paused.
 The acceptance record is
 `../sessions/session_20260812_calculated_series_projection_chart_region_specification_acceptance.md`.
-The first required ADR-V7-005 delivery dependency now has a documentation-only
-candidate at `V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`. It proposes
+The first required ADR-V7-005 delivery dependency now has an accepted binding
+specification at `V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`. It defines
 separate pure Profile-registry and calculated-series contract owners, exact
 P0a Contribution binding without `kind` inference, and versioned Definition,
 Plot, Scale, instance/ChartRegion, result/frame, provenance, limit, diagnostic,
-and migration contracts. Its ten material decisions are unaccepted; it
-allocates no delivery/Harness id, changes no SDK/runtime availability, and does
-not start P1b.4 or change H117. The draft record is
-`../sessions/session_20260812_calculated_series_pure_contract_candidate_specification.md`.
+and migration contracts. The product owner accepted all ten material decisions
+on 2026-08-12. Acceptance allocates no delivery/Harness id, changes no SDK/
+runtime availability, and does not start P1b.4 or change H117. Its draft and
+acceptance records are
+`../sessions/session_20260812_calculated_series_pure_contract_candidate_specification.md`
+and
+`../sessions/session_20260812_calculated_series_pure_contract_specification_acceptance.md`.
 The seconds/tick memo additionally records the current decision that minute-
 sourced V7 remains valid without simulated-live training, defines the three-
 of-four investigation signals, and keeps every future seconds path behind the

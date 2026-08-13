@@ -101,7 +101,7 @@ Accepted specification:
 Accepted specification:
 `docs/V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`.
 
-## Calculated-Series Pure Contract Slice — Candidate Draft 2026-08-12
+## Calculated-Series Pure Contract Slice — Accepted 2026-08-12
 
 - [x] receive authorization to draft the first ADR-V7-005 pure-contract slice
   without accepting or implementing it;
@@ -116,19 +116,23 @@ Accepted specification:
 - [x] draft exact Profile/Definition/Plot/Scale/Instance/ChartRegion/result/
   provenance/migration values, limits, diagnostics, and future headless
   evidence;
-- [x] record ten candidate material decisions and retain the required
+- [x] record ten material decisions and retain the required
   pure-contract → Chart projection → trusted MA/SMA sequence;
 - [x] allocate no delivery id or Harness id and change no production, SDK,
   schema, catalog, fixture, manifest, dependency, runtime, persistence, or UI
   file through the draft;
 - [x] keep P1b.4 paused and leave H117 `executable`, human-review-required, and
   unaccepted;
-- [ ] receive explicit product-owner acceptance or amendment of all ten
-  candidate decisions;
+- [x] receive explicit product-owner acceptance of all ten material decisions
+  without amendment on 2026-08-12;
+- [x] preserve the decision that acceptance alone allocates no delivery/
+  Harness id and authorizes no implementation, SDK/runtime availability,
+  Chart/UI/persistence work, real Indicator, Community/Worker tier, P1b.4, or
+  H117 state change;
 - [ ] after acceptance, require another explicit instruction before allocating
   a delivery/Harness id or implementing the pure-contract slice.
 
-Candidate specification:
+Accepted specification:
 `docs/V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`.
 
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09

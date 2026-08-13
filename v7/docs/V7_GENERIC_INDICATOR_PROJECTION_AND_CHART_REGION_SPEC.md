@@ -705,10 +705,10 @@ Each slice requires its own bounded specification, delivery id, repository
 commit, automated evidence, and applicable human gate. The sequence must not be
 folded into P1b.4, P2 registry, or one broad “Indicators” implementation.
 
-The documentation-only candidate for the first slice is
+The accepted specification for the first slice is
 `V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`. Its ten material decisions
-remain unaccepted and allocate no delivery/Harness id or implementation
-authority.
+bind the pure-contract boundary while allocating no delivery/Harness id or
+implementation authority.
 
 ## Explicitly Rejected Alternatives
 

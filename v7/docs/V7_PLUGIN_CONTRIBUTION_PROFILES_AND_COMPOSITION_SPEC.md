@@ -639,9 +639,9 @@ Although this architecture decision is accepted, a separately authorized pure-
 contract slice must reconcile P0a's broad contribution `kind` metadata with the
 open Profile registry without silently reinterpreting accepted manifests.
 Exact schema versions, migrations, and compatibility reports belong to that
-later slice. Its current documentation-only candidate is
-`V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`; the ten candidate decisions
-remain unaccepted and authorize no implementation.
+later slice. Its accepted binding specification is
+`V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`; all ten material decisions
+are accepted and authorize no implementation.
 
 ## Lifecycle, Migration, And Unresolved Survival
 

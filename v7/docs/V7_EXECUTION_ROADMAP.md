@@ -1259,24 +1259,24 @@ not start P1b.4 or accept H117. Any delivery still requires separately
 authorized pure-contract, Chart-projection, trusted vertical-slice, layout, and
 Community integration specifications.
 
-### Calculated-Series Pure Contract Slice — Candidate 2026-08-12
+### Calculated-Series Pure Contract Slice — Accepted 2026-08-12
 
-The product owner authorized a candidate specification, not implementation, for
-the first ADR-V7-005 dependency. The candidate
-`V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md` proposes separate pure
+The product owner accepted all ten material decisions in the first ADR-V7-005
+dependency specification. `V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`
+binds separate pure
 Contribution-Profile-registry and calculated-series contract boundaries, an
 exact host-owned bridge from existing P0a Contribution identity without
 inferring a Profile from `kind`, and closed versioned Definition, standard
 Plot, structural Scale, host instance/ChartRegion, exact result/frame,
 provenance, migration, diagnostic, and limit contracts.
 
-The ten material decisions remain under product-owner review. No delivery id
-or Harness id is allocated; no production/SDK/schema/catalog/fixture/runtime/
-UI/persistence code is authorized; Indicator and `subpane.runtime`
-availability remains unavailable. P1b.4 remains paused and H117 remains
-executable but unaccepted. Even later acceptance of this candidate would still
-require separate implementation authorization before the Chart-owned
-projection slice could be specified or started.
+Acceptance authorizes no implementation. No delivery id or Harness id is
+allocated; no production/SDK/schema/catalog/fixture/runtime/UI/persistence code
+is authorized; Indicator and `subpane.runtime` availability remains
+unavailable. P1b.4 remains paused and H117 remains executable but unaccepted.
+The next eligible work is the pure-contract implementation only after a new
+explicit instruction; the Chart-owned projection slice remains separately
+specified and gated after that implementation is accepted.
 
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 

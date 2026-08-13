@@ -239,6 +239,14 @@ enabled Community execution, altered current P1a/P1b catalogs, accepted H117,
 or started P1b.4. This specification retains its existing binding
 implementation state.
 
+The accepted first pure-contract dependency is
+`V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`. It binds separate future
+Profile-registry and calculated-series pure owners, exact P0a Contribution
+identity binding without inferring a Profile from `kind`, and one common
+portable Definition/Plot/Scale/instance/result/migration contract. Its contract
+recognition does not change P1a/P1b execution availability, and acceptance
+allocated no delivery/Harness id or implementation authority.
+
 ## Package, Contribution, And Pack
 
 These terms name different things:
