@@ -1,36 +1,50 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-17 after H119 acceptance and the documentation-only
-P1c.3/H120 Core SMA single-plugin candidate draft; P1c.2 is closed and no later
+Last updated: 2026-08-17 after acceptance of all ten documentation-only Core
+SMA single-plugin decisions; P1c.3/H120 remain unallocated/unregistered and no
 implementation is authorized
 
 ## Restart Resume Checkpoint
 
-### 2026-08-17 P1c.3/H120 Core SMA Candidate Draft
+### 2026-08-17 P1c.3/H120 Core SMA Accepted Specification
 
 The product owner directed V7 to complete one plugin before expanding to other
 plugins and authorized a candidate specification only:
 
 > 授权起草 P1c.3/H120 Core SMA 单插件完整垂直切片候选规格；先完整闭环一个插件，不实施其他插件。
 
+After reviewing the ten-item checklist, the product owner stated:
+
+> 1–10 全部接受。
+
 Resume first with
 `docs/V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md` and
+`sessions/session_20260817_core_sma_single_plugin_vertical_slice_specification_acceptance.md`,
+with the earlier draft record at
 `sessions/session_20260817_core_sma_single_plugin_vertical_slice_candidate_specification.md`.
-The candidate proposes one user-facing Moving Averages Core package containing
-exactly one canonical `SMA(close)` Definition and a complete Add → Settings →
-Main/new-region → Replay → durable reload/state-sync → disable/unresolved →
-re-enable → Remove loop.
+The accepted specification binds one user-facing Moving Averages Core package
+containing exactly one canonical `SMA(close)` Definition and a complete Add →
+Settings → Main/new-region → Replay → durable reload/state-sync → disable/
+unresolved → re-enable → Remove loop.
 
-Its ten material decisions are awaiting explicit product-owner review.
-`P1c.3` and H120 are proposed labels only: no delivery or Harness record is
-allocated, no implementation or production availability is authorized, and no
-other plugin/algorithm may start. The exact next action is to accept, amend, or
-reject those ten decisions. Acceptance alone would remain documentation-only;
-a later explicit implementation instruction would still be required.
+All ten material decisions are accepted without amendment. `P1c.3` and H120
+remain proposed labels only: no delivery or Harness record is allocated, no
+implementation or production availability is authorized, and no other plugin/
+algorithm may start. If implementation is desired, the exact next authority is
+a separate instruction allocating only this P1c.3/H120 slice.
 
 H119 remains accepted and P1c.2 remains closed. H117 remains `executable`,
 human-review-required, unaccepted, and otherwise unchanged; P1b.4 remains
 paused.
+
+The direct H117 regression currently stops during initial baseline preparation,
+before its 54 frozen negative groups, because the checked-in local-lifecycle
+fixture records an older Developer Kit toolchain digest than the current
+checked-in catalog derives. That pre-existing stale-output baseline was neither
+refreshed nor hidden by the draft or acceptance. It does not block
+documentation acceptance, but it must be resolved under separate authority
+before a future H120 can honestly close its complete existing-regression
+requirement.
 
 ### 2026-08-17 H119 Rejection, Correction, And Acceptance
 
@@ -63,11 +77,11 @@ P1c.2 is now closed. The correction evidence remains at
 `sessions/session_20260817_p1c_2_h119_whitespace_rejection_and_correction.md`
 and
 `docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`. The later
-product-owner instruction authorized only the P1c.3/H120 candidate described in
-the newer checkpoint above. H117 and P1b.4 remain unchanged; do not implement
-SMA, live instances, persistence/UI, Community/Worker execution, generic
-layout, production route wiring, or any later slice from H119 acceptance or the
-candidate draft alone.
+product-owner decisions drafted and accepted only the P1c.3/H120 specification
+described in the newer checkpoint above. H117 and P1b.4 remain unchanged; do
+not implement SMA, live instances, persistence/UI, Community/Worker execution,
+generic layout, production route wiring, or any later slice from H119
+acceptance or specification acceptance alone.
 
 ### 2026-08-13 Server-Reboot Hold
 

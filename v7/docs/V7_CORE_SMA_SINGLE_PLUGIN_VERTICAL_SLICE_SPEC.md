@@ -1,15 +1,17 @@
-# V7 Core Moving Averages / SMA Single-Plugin Vertical Slice — Candidate Specification
+# V7 Core Moving Averages / SMA Single-Plugin Vertical Slice — Accepted Specification
 
-Status: documentation-only candidate awaiting product-owner review; proposed
-delivery `P1c.3` and gate `H120` are not allocated or registered; no
-implementation is authorized
+Status: all ten material decisions accepted without amendment on 2026-08-17;
+proposed delivery `P1c.3` and gate `H120` remain unallocated and unregistered;
+no implementation is authorized
 
 Drafted: 2026-08-17
+
+Accepted: 2026-08-17
 
 Upstream decisions: accepted `ADR-V7-004`, accepted `ADR-V7-006`, accepted
 `ADR-V7-005`, accepted `P1c.1`/H118, and accepted `P1c.2`/H119
 
-Candidate scope: one complete trusted-build Core Plugin product loop for the
+Accepted scope: one complete trusted-build Core Plugin product loop for the
 Moving Averages package containing exactly one SMA definition
 
 ## Product-Owner Direction
@@ -30,6 +32,23 @@ Plugin with one canonical SMA definition. It does not create a separate SMA
 package lifecycle. No EMA, WMA, crossover, ribbon, oscillator, or other plugin
 is included.
 
+## Product-Owner Acceptance
+
+After reviewing the ten candidate decisions through the focused checklist, the
+product owner stated:
+
+> 1–10 全部接受。
+
+This accepts all ten material decisions without amendment and makes this the
+binding specification for the proposed first complete Core calculated-series
+plugin slice. Decision 10 remains controlling: specification acceptance does
+not allocate `P1c.3`, register H120, authorize implementation, resume P1b.4,
+change H117, or permit another plugin or algorithm to start. Each such
+repository-changing step still requires a separate explicit instruction.
+
+Acceptance record:
+`../sessions/session_20260817_core_sma_single_plugin_vertical_slice_specification_acceptance.md`.
+
 ## Purpose
 
 P1c.1 established the portable calculated-series truth contracts. P1c.2 proved
@@ -37,8 +56,8 @@ that complete calculated-series frames can be materialized through the sole
 Chart owner and corrected the pinned renderer's whitespace-bridging behavior.
 Neither slice created a usable Indicator.
 
-This candidate defines the first product-complete calculated-series vertical
-slice. A separately authorized implementation would let a user:
+This accepted specification defines the first product-complete calculated-
+series vertical slice. A separately authorized implementation would let a user:
 
 - find the built-in Moving Averages package in Core Plugins;
 - add one or more Simple Moving Average instances to an exact Workspace Pane;
@@ -61,7 +80,7 @@ not pre-build a broad Indicator platform or populate another catalog.
 
 ## Binding Baseline
 
-The candidate preserves these accepted facts:
+The accepted specification preserves these accepted facts:
 
 - the user-facing package is **Moving Averages**, and SMA is one versioned
   definition within it;
@@ -94,7 +113,7 @@ The binding upstream sources are
 
 ## Existing-Capability And Ecosystem Check
 
-The 2026-08-17 candidate review checked the pinned
+The 2026-08-17 drafting review checked the pinned
 `lightweight-charts@5.2.0` behavior and these current upstream references:
 
 - <https://tradingview.github.io/lightweight-charts/tutorials/analysis-indicators>
@@ -140,7 +159,7 @@ persistence, or plugin owner.
 
 ## Complete-Loop Scope Freeze
 
-| In this candidate | Explicitly later or excluded |
+| In this accepted slice | Explicitly later or excluded |
 | --- | --- |
 | one built-in Core Moving Averages package | another package or plugin family |
 | one `SMA(close)` definition | EMA, WMA, RMA, VWMA, source selection, offset, or secondary smoothing |
@@ -158,7 +177,7 @@ but they must not become visible product plugins.
 
 ## Canonical Package, Contribution, And Definition Identity
 
-The candidate freezes one identity chain:
+The accepted specification freezes one identity chain:
 
 | Layer | V1 identity |
 | --- | --- |
@@ -501,7 +520,7 @@ compatibility and Plot Group placement, never an `SMA` or overlay branch.
 
 ## Durable Restore, State Sync, And Unresolved Lifecycle
 
-The candidate chooses a focused removable sidecar rather than adding
+The accepted specification chooses a focused removable sidecar rather than adding
 calculated-series meaning to Session Store:
 
 ```text
@@ -680,9 +699,10 @@ may set H120 to `accepted` and attach a durable acceptance record.
 
 ## Explicit Exclusions
 
-This candidate does not authorize or include:
+This accepted specification does not authorize or include:
 
-- implementation or registration of proposed P1c.3/H120 through this draft;
+- implementation or registration of proposed P1c.3/H120 through specification
+  acceptance alone;
 - EMA, WMA, RMA, VWMA, HMA, DEMA, TEMA, another SMA source, offset, smoothing,
   crossover, ribbon, regime, signal, alert, scanner, strategy, optimizer, or
   private formula;
@@ -703,9 +723,9 @@ This candidate does not authorize or include:
 - starting another plugin or algorithm before a separately implemented and
   human-accepted H120 closes this one-plugin loop.
 
-## Candidate Material Decisions For Review
+## Accepted Material Decisions
 
-The product owner must accept, amend, or reject these ten decisions:
+The product owner accepted these ten decisions without amendment on 2026-08-17:
 
 1. **One package, one definition:** P1c.3 is a complete Moving Averages Core
    Plugin loop containing exactly one `SMA(close)@1.0.0` Definition; SMA is not
@@ -751,12 +771,12 @@ The product owner must accept, amend, or reject these ten decisions:
     another plugin/layout/Community slice, resume P1b.4, or change H117; each
     repository-changing step requires a later explicit instruction.
 
-## Candidate Review And Later Sequence
+## Accepted Boundary And Later Sequence
 
-The exact next action is product-owner review of the ten material decisions.
-Acceptance alone remains documentation-only. A later explicit implementation
-instruction would allocate P1c.3, register H120, and authorize only the one
-Moving Averages/SMA vertical slice defined here.
+The ten material decisions are accepted. No implementation is currently
+authorized. A later explicit implementation instruction would allocate P1c.3,
+register H120, and authorize only the one Moving Averages/SMA vertical slice
+defined here.
 
 No second plugin, second Moving Average definition, or generic real-Indicator
 catalog work may begin until that implementation passes automation and the

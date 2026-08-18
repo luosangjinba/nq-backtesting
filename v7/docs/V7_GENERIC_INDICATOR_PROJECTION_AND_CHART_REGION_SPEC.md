@@ -815,10 +815,10 @@ Series correction passed automated pixel evidence and focused re-review on
 2026-08-17. H119 is accepted and P1c.2 is closed.
 
 The product owner then authorized a documentation-only candidate for the third
-dependency at `V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md`. It proposes
-one complete Moving Averages Core package with exactly one canonical SMA
-Definition before any other plugin or algorithm. Its ten decisions await
-review. `P1c.3`/H120 are proposed labels only: no delivery/Harness record or
-implementation is allocated, and H117/P1b.4 remain unchanged. This status note
-does not revise the accepted ADR decisions or cross that non-authorization
-boundary.
+dependency at `V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md` and accepted
+all ten material decisions without amendment on 2026-08-17. It binds one
+complete Moving Averages Core package with exactly one canonical SMA Definition
+before any other plugin or algorithm. `P1c.3`/H120 remain proposed labels only:
+no delivery/Harness record or implementation is allocated, and H117/P1b.4
+remain unchanged. This status note does not revise the accepted ADR decisions
+or cross that non-authorization boundary.

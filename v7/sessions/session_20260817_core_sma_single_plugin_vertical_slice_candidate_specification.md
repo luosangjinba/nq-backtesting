@@ -4,12 +4,21 @@ Date: 2026-08-17
 
 Branch: `feature/v7-drawing-semantic-annotation`
 
-Status: documentation-only candidate awaiting product-owner review; proposed
-P1c.3/H120 are unallocated and unregistered; no implementation authorized
+Status: documentation-only candidate completed; all ten decisions subsequently
+accepted without amendment; proposed P1c.3/H120 remain unallocated and
+unregistered; no implementation authorized
 
 ## Product-Owner Direction
 
 > 授权起草 P1c.3/H120 Core SMA 单插件完整垂直切片候选规格；先完整闭环一个插件，不实施其他插件。
+
+## Subsequent Acceptance
+
+The product owner later stated `1–10 全部接受。`. The durable specification-
+acceptance record is
+`session_20260817_core_sma_single_plugin_vertical_slice_specification_acceptance.md`.
+That acceptance binds the ten decisions but, by accepted decision 10, still
+allocates no P1c.3 delivery or H120 Harness and authorizes no implementation.
 
 ## Inputs Reviewed
 
@@ -141,10 +150,12 @@ record remains `executable`, human-review-required, unaccepted, with
 `git diff --check` passed. No Harness registry or architecture baseline was
 refreshed.
 
-## Exact Next Step
+## Draft-Time Next Step — Completed
 
 Review the ten candidate material decisions and accept, amend, or reject them.
 Acceptance alone would bind the candidate but still would not allocate or
 implement P1c.3/H120. Only a later explicit implementation instruction may
 register H120 and build this one Moving Averages/SMA loop; no other plugin or
-algorithm starts first.
+algorithm starts first. The product owner completed this review without
+amendment on 2026-08-17; the remaining boundary is a separate implementation
+decision.

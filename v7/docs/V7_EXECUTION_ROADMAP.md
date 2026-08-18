@@ -1338,7 +1338,7 @@ The implementation adds no calculation engine, production route, MA/SMA, live
 instance/persistence/UI, Community/Worker, P1b.4, or H117 change. No later
 delivery is authorized by implementation alone.
 
-### P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Candidate 2026-08-17
+### P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Accepted Specification 2026-08-17
 
 After H119 acceptance, the product owner directed V7 to complete one plugin
 before expanding to others and authorized a documentation-only candidate at
@@ -1364,11 +1364,12 @@ awesome-tradingview-listed Indicator library is also not adopted: it introduces
 hundreds of definitions, an additional runtime dependency, direct Series
 writes, and second-chart patterns outside this bounded slice.
 
-The ten candidate material decisions are awaiting product-owner review.
-`P1c.3` and H120 are proposed labels only: no delivery/Harness record is
-allocated, no code or production availability is changed, and acceptance alone
-would still authorize no implementation. H117 remains executable and
-unaccepted, and P1b.4 remains paused. No other plugin may start from this draft.
+The product owner accepted all ten material decisions without amendment on
+2026-08-17. `P1c.3` and H120 remain proposed labels only: no delivery/Harness
+record is allocated, no code or production availability is changed, and the
+accepted specification authorizes no implementation. H117 remains executable
+and unaccepted, and P1b.4 remains paused. Only a later explicit implementation
+instruction may allocate this one-plugin slice; no other plugin may start.
 
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 

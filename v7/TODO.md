@@ -224,7 +224,7 @@ Rejection and correction record:
 Focused human gate:
 `docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`.
 
-## P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Candidate Awaiting Review
+## P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Accepted Specification; Implementation Not Authorized
 
 - [x] receive product-owner authorization to draft one complete trusted Core
   SMA vertical-slice candidate while implementing no other plugin;
@@ -246,8 +246,11 @@ Focused human gate:
   H117 state change;
 - [x] keep `P1c.3`/H120 as proposed candidate labels only: register no Harness
   record and change no production/schema/catalog/fixture/test/runtime/UI file;
-- [ ] receive product-owner acceptance, amendment, or rejection of the ten
-  candidate material decisions;
+- [x] receive product-owner acceptance of all ten material decisions without
+  amendment on 2026-08-17;
+- [x] keep specification acceptance documentation-only: allocate no P1c.3,
+  register no H120, implement no SMA/product path, start no other plugin, and
+  leave H117/P1b.4 unchanged;
 - [ ] only after a separate implementation instruction, allocate P1c.3,
   register H120, and implement this one plugin without starting another.
 
@@ -256,6 +259,9 @@ Candidate specification:
 
 Draft record:
 `sessions/session_20260817_core_sma_single_plugin_vertical_slice_candidate_specification.md`.
+
+Acceptance record:
+`sessions/session_20260817_core_sma_single_plugin_vertical_slice_specification_acceptance.md`.
 
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09
 

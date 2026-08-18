@@ -794,11 +794,12 @@ separately implemented and accepted as P1c.2/H119 at
 `V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`; both prerequisites
 for a trusted Core vertical-slice candidate are therefore closed.
 
-The product owner has now authorized only the documentation candidate at
-`V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md`. It proposes one complete
-Moving Averages/SMA product loop and no other plugin. Its ten decisions await
-review, proposed `P1c.3`/H120 remain unallocated, and no implementation follows
-from H118/H119 acceptance or candidate drafting alone.
+The product owner authorized the documentation candidate at
+`V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md` and accepted all ten material
+decisions without amendment on 2026-08-17. It binds one complete Moving
+Averages/SMA product loop and no other plugin. Proposed `P1c.3`/H120 remain
+unallocated, and no implementation follows from H118/H119 or specification
+acceptance alone.
 
 P1b.4 remains paused. The complete H117 record remains unchanged at
 `executable`, `humanReviewRequired: true`, and `acceptanceEvidence: null`.

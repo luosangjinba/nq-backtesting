@@ -165,17 +165,21 @@ plus
 `../sessions/session_20260813_p1c_2_calculated_series_chart_owned_projection_implementation.md`
 and
 `../sessions/session_20260817_p1c_2_h119_whitespace_rejection_and_correction.md`.
-The proposed third dependency now has a documentation-only candidate at
+The proposed third dependency now has an accepted documentation-only
+specification at
 `V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md`. It follows the product
 owner's direction to close one real plugin before expanding: one built-in Core
 Moving Averages package contains exactly one canonical `SMA(close)` Definition
 and one complete Add/settings/Main-to-new-region/Replay/persistence/unresolved/
 reload/remove product loop. It adopts no auto-attached Lightweight Charts
 Indicator helper, external Indicator library, second algorithm, or other
-plugin. Its ten material decisions are awaiting review. `P1c.3`/H120 are only
-proposed labels, no Harness record or implementation is allocated, H117 is
-unchanged, and P1b.4 remains paused. The draft record is
-`../sessions/session_20260817_core_sma_single_plugin_vertical_slice_candidate_specification.md`.
+plugin. The product owner accepted all ten material decisions without amendment
+on 2026-08-17. `P1c.3`/H120 remain proposed labels, no Harness record or
+implementation is allocated, H117 is unchanged, and P1b.4 remains paused. The
+draft and acceptance records are
+`../sessions/session_20260817_core_sma_single_plugin_vertical_slice_candidate_specification.md`
+and
+`../sessions/session_20260817_core_sma_single_plugin_vertical_slice_specification_acceptance.md`.
 The seconds/tick memo additionally records the current decision that minute-
 sourced V7 remains valid without simulated-live training, defines the three-
 of-four investigation signals, and keeps every future seconds path behind the
