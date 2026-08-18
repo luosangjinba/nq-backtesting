@@ -1,9 +1,8 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule; latest allocated repository step P1c.2
-implemented and whitespace-corrected after its first H119 review rejection;
-H119 accepted and P1c.2 closed; H117 unchanged
-(2026-08-17)
+Status: binding delivery rule; latest allocated repository step P1c.2 is
+accepted and closed; P1c.3/H120 are proposed candidate labels only and remain
+unallocated/unregistered; H117 unchanged (2026-08-17)
 
 ## Delivery IDs
 
@@ -39,6 +38,14 @@ evidence. The product owner accepted the corrected focused gate on 2026-08-17;
 H119 is accepted and P1c.2 is closed. It adds no Profile execution
 availability, named Indicator, live instance/persistence/UI, Community/Worker,
 P1b.4, product route wiring, or H117 change.
+
+The product owner subsequently authorized only a documentation candidate for
+one complete Core Moving Averages/SMA vertical slice. `P1c.3` and H120 identify
+that proposal during review but are not allocated delivery/Harness records.
+They may become allocated only through a later explicit implementation
+instruction after the candidate decisions are accepted. Drafting or accepting
+the specification does not advance the latest allocated step beyond P1c.2 and
+does not authorize another plugin.
 
 `R13.5` was the Segment Interaction And Preview step. R13.2 remains the pure
 removable Geometry boundary, R13.3 remains

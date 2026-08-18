@@ -1,10 +1,36 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-17 after the first H119 review rejected whitespace,
-the authorized correction was implemented, and the corrected focused re-review
-accepted H119; P1c.2 is closed
+Last updated: 2026-08-17 after H119 acceptance and the documentation-only
+P1c.3/H120 Core SMA single-plugin candidate draft; P1c.2 is closed and no later
+implementation is authorized
 
 ## Restart Resume Checkpoint
+
+### 2026-08-17 P1c.3/H120 Core SMA Candidate Draft
+
+The product owner directed V7 to complete one plugin before expanding to other
+plugins and authorized a candidate specification only:
+
+> 授权起草 P1c.3/H120 Core SMA 单插件完整垂直切片候选规格；先完整闭环一个插件，不实施其他插件。
+
+Resume first with
+`docs/V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md` and
+`sessions/session_20260817_core_sma_single_plugin_vertical_slice_candidate_specification.md`.
+The candidate proposes one user-facing Moving Averages Core package containing
+exactly one canonical `SMA(close)` Definition and a complete Add → Settings →
+Main/new-region → Replay → durable reload/state-sync → disable/unresolved →
+re-enable → Remove loop.
+
+Its ten material decisions are awaiting explicit product-owner review.
+`P1c.3` and H120 are proposed labels only: no delivery or Harness record is
+allocated, no implementation or production availability is authorized, and no
+other plugin/algorithm may start. The exact next action is to accept, amend, or
+reject those ten decisions. Acceptance alone would remain documentation-only;
+a later explicit implementation instruction would still be required.
+
+H119 remains accepted and P1c.2 remains closed. H117 remains `executable`,
+human-review-required, unaccepted, and otherwise unchanged; P1b.4 remains
+paused.
 
 ### 2026-08-17 H119 Rejection, Correction, And Acceptance
 
@@ -33,16 +59,15 @@ assertion. After reviewing the corrected evidence, the product owner stated
 - refreshes the focused screenshot while retaining one same-chart Main/internal
   surface and unchanged candle ownership.
 
-P1c.2 is now closed. Resume by reading
+P1c.2 is now closed. The correction evidence remains at
 `sessions/session_20260817_p1c_2_h119_whitespace_rejection_and_correction.md`
 and
-`docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`. The next
-candidate in the accepted dependency sequence is a trusted Core MA/SMA vertical
-slice, but no delivery id, Harness id, specification, or implementation is yet
-allocated. It requires a separate product-owner instruction. H117 and P1b.4
-remain unchanged; do not start MA/SMA, live instances, persistence/UI,
-Community/Worker execution, generic layout, production route wiring, or any
-later slice from H119 acceptance alone.
+`docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`. The later
+product-owner instruction authorized only the P1c.3/H120 candidate described in
+the newer checkpoint above. H117 and P1b.4 remain unchanged; do not implement
+SMA, live instances, persistence/UI, Community/Worker execution, generic
+layout, production route wiring, or any later slice from H119 acceptance or the
+candidate draft alone.
 
 ### 2026-08-13 Server-Reboot Hold
 
@@ -120,10 +145,10 @@ git status --short
 
 Then read, in order:
 
-For this reboot, immediately after item 1 read
-`v7/sessions/session_20260813_pre_server_reboot_h119_pending_handoff.md` and
-`v7/docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md` before
-continuing through the historical context below.
+For the current resume, immediately after item 1 read
+`v7/docs/V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md` and
+`v7/sessions/session_20260817_core_sma_single_plugin_vertical_slice_candidate_specification.md`.
+The older pre-server-reboot H119 handoff is retained as historical context.
 
 1. `v7/docs/V7_RESTART_HANDOFF.md`
 2. `v7/docs/V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md`

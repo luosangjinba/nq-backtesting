@@ -801,19 +801,24 @@ Acceptance of `ADR-V7-005` does not cross these boundaries:
 - P2 registry, P3a Worker, P3b Pine migration, privileged renderers,
   Marketplace, and product-scope expansion remain separately gated.
 
-## Later Dependency Status — 2026-08-13
+## Later Dependency Status — 2026-08-17
 
 The first required dependency was separately specified, implemented as
 `P1c.1`, and accepted through H118 in
 `V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md`. That step adds portable pure
-contracts only and does not itself authorize Chart projection.
+contracts only.
 
-The second dependency now has an accepted documentation-only specification at
-`V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`. The product owner
-accepted decisions 1–6 and 9–10 as drafted and decisions 7–8 with stricter
-Chart-owner recovery escalation and settlement-admission rules. Acceptance
-allocates neither `P1c.2` nor H119, changes no production or test code, and
-starts no Chart projection implementation, MA/SMA, live
-instance/persistence/UI, Community/Worker, or P1b.4 work. H117 remains
-unchanged. This status note does not revise the accepted ADR decisions or
-cross any current non-authorization boundary.
+The second dependency was separately specified and implemented as P1c.2/H119
+at `V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`. Its first
+focused review rejected middle-whitespace bridging; the authorized segmented-
+Series correction passed automated pixel evidence and focused re-review on
+2026-08-17. H119 is accepted and P1c.2 is closed.
+
+The product owner then authorized a documentation-only candidate for the third
+dependency at `V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md`. It proposes
+one complete Moving Averages Core package with exactly one canonical SMA
+Definition before any other plugin or algorithm. Its ten decisions await
+review. `P1c.3`/H120 are proposed labels only: no delivery/Harness record or
+implementation is allocated, and H117/P1b.4 remain unchanged. This status note
+does not revise the accepted ADR decisions or cross that non-authorization
+boundary.

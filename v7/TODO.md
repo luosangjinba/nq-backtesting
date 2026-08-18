@@ -224,6 +224,39 @@ Rejection and correction record:
 Focused human gate:
 `docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`.
 
+## P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Candidate Awaiting Review
+
+- [x] receive product-owner authorization to draft one complete trusted Core
+  SMA vertical-slice candidate while implementing no other plugin;
+- [x] re-check current official Lightweight Charts analysis-Indicator/SMA
+  examples and the awesome-tradingview Indicator inventory;
+- [x] retain the user-facing Moving Averages package with exactly one
+  `SMA(close)` Definition instead of creating a second SMA package lifecycle;
+- [x] freeze the candidate formula, warmup, parameter, Plot/Scale, resource,
+  trusted-execution, and exact Profile-binding boundaries;
+- [x] define the minimum package-neutral instance/runtime, Chart-owner,
+  reversible persistence/state-sync, host UI, and unresolved lifecycle needed
+  for Add → Settings → Move → Replay → Reload → Disable/Re-enable → Remove;
+- [x] bound placement to Main ↔ one new dedicated internal region and defer the
+  generic sharing/reorder/resize/collapse layout slice;
+- [x] propose deterministic, transactional, no-future, real-Chromium pixel,
+  one/four-Pane, removal, regression, and focused-human H120 evidence;
+- [x] adopt no official/community lifecycle helper, external Indicator
+  dependency, second real Definition, Community/Worker execution, P1b.4, or
+  H117 state change;
+- [x] keep `P1c.3`/H120 as proposed candidate labels only: register no Harness
+  record and change no production/schema/catalog/fixture/test/runtime/UI file;
+- [ ] receive product-owner acceptance, amendment, or rejection of the ten
+  candidate material decisions;
+- [ ] only after a separate implementation instruction, allocate P1c.3,
+  register H120, and implement this one plugin without starting another.
+
+Candidate specification:
+`docs/V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md`.
+
+Draft record:
+`sessions/session_20260817_core_sma_single_plugin_vertical_slice_candidate_specification.md`.
+
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09
 
 - [x] preserve validation as the user outcome and Replay as the controlled

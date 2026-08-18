@@ -711,8 +711,10 @@ The module is intentionally not constructed by the production Workstation
 route. The product owner accepted the corrected focused evidence on 2026-08-17;
 H119 is `accepted`, its correction session is the durable acceptance evidence,
 and P1c.2 is closed. The prerequisite for a trusted Core MA/SMA vertical-slice
-candidate is now satisfied, but that candidate still requires another explicit
-instruction and its own bounded specification, delivery id, implementation,
-automated evidence, and human gate.
-Generic layout, Community/Worker integration, real Indicator catalog decisions,
-and P1b.4 remain independently gated.
+candidate is satisfied. The product owner later authorized only that candidate
+draft, now recorded in `V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md`: one
+Moving Averages package, one SMA Definition, and no other plugin. Its proposed
+`P1c.3`/H120 labels are unallocated, its ten decisions await review, and it
+authorizes no implementation. Generic layout, another algorithm/plugin,
+Community/Worker integration, real Indicator catalog decisions, and P1b.4
+remain independently gated.

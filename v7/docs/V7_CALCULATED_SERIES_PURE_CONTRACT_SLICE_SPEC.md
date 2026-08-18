@@ -789,14 +789,16 @@ review rather than visual review. The implementation and acceptance record is
 
 That authorization did not extend to a calculation executor, SDK availability,
 live instance/persistence owner, Chart-owned projection, MA/SMA, generic layout
-UI, Community/Worker execution, or P1b.4. The accepted documentation-only
-specification for the next dependency now exists at
-`V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`; its ten decisions
-are binding with decisions 7–8 amended, but it allocates no `P1c.2` or H119 and
-authorizes no implementation. The trusted Core MA/SMA vertical slice cannot
-begin before both required dependencies are separately closed. Neither the
-H118 acceptance nor the Chart-projection specification acceptance starts
-either later slice.
+UI, Community/Worker execution, or P1b.4. The next dependency was later
+separately implemented and accepted as P1c.2/H119 at
+`V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md`; both prerequisites
+for a trusted Core vertical-slice candidate are therefore closed.
+
+The product owner has now authorized only the documentation candidate at
+`V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md`. It proposes one complete
+Moving Averages/SMA product loop and no other plugin. Its ten decisions await
+review, proposed `P1c.3`/H120 remain unallocated, and no implementation follows
+from H118/H119 acceptance or candidate drafting alone.
 
 P1b.4 remains paused. The complete H117 record remains unchanged at
 `executable`, `humanReviewRequired: true`, and `acceptanceEvidence: null`.

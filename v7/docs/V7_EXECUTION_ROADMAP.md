@@ -1338,6 +1338,38 @@ The implementation adds no calculation engine, production route, MA/SMA, live
 instance/persistence/UI, Community/Worker, P1b.4, or H117 change. No later
 delivery is authorized by implementation alone.
 
+### P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Candidate 2026-08-17
+
+After H119 acceptance, the product owner directed V7 to complete one plugin
+before expanding to others and authorized a documentation-only candidate at
+`V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md`. The candidate keeps one
+user-facing `first-party.moving-averages` Core package and places exactly one
+canonical `SMA(close)` Definition inside it; it does not create a separate SMA
+package or include EMA, WMA, RSI, MACD, Volume, or another real plugin.
+
+The proposed slice closes one real product path through the already accepted
+substrate: exact trusted Profile/Definition binding, deterministic current-Pane
+SMA calculation, host-owned instance/settings commands, Main ↔ one new
+dedicated internal-region placement, P1c.2 Chart-owned projection, region
+legend and Add/Settings/Hide/Remove UI, reversible Session-keyed persistence,
+existing state-sync inclusion, Replay no-future truth, package-disable
+unresolved survival, hard-reload/re-enable recovery, and focused real-browser
+review. Only package-neutral seams required by SMA may be added; generic
+multi-Plot/layout work remains later.
+
+Official Lightweight Charts pure calculation/whitespace examples are useful
+references, but its auto-attached helper is rejected because it subscribes to
+source Series and writes Indicator Series outside V7 owners. The current
+awesome-tradingview-listed Indicator library is also not adopted: it introduces
+hundreds of definitions, an additional runtime dependency, direct Series
+writes, and second-chart patterns outside this bounded slice.
+
+The ten candidate material decisions are awaiting product-owner review.
+`P1c.3` and H120 are proposed labels only: no delivery/Harness record is
+allocated, no code or production availability is changed, and acceptance alone
+would still authorize no implementation. H117 remains executable and
+unaccepted, and P1b.4 remains paused. No other plugin may start from this draft.
+
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 
 Build the thin host contract before scaling plugin families, then validate each
