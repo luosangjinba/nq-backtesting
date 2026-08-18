@@ -224,6 +224,28 @@ Rejection and correction record:
 Focused human gate:
 `docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`.
 
+## H117 Developer Kit Toolchain Fingerprint Repair — Completed 2026-08-17
+
+- [x] receive explicit authorization for root-cause confirmation and the
+  minimum generated-baseline repair only;
+- [x] prove compiler, SDK, Schema, catalog, operation, and simulator identities
+  unchanged while the conformance digest alone advanced after H119 correction;
+- [x] trace the legitimate conformance change to commit `2951a20f` updating
+  H119 acceptance evidence plus three already-audited source-total records;
+- [x] run the existing deterministic browser-release refresh instead of
+  manually editing either digest;
+- [x] update only the generated browser release identity, local-lifecycle
+  example manifest digest, and the consequent production source-hash snapshot;
+- [x] pass H116 and the complete H117 Harness with all 54 frozen negative
+  groups plus browser, IndexedDB/storage, transaction, and unpacked-security
+  evidence;
+- [x] leave H117 `executable`, human-review-required, unaccepted, and with
+  `acceptanceEvidence: null`; leave P1b.4 paused;
+- [x] implement no SMA or other plugin and allocate/register no P1c.3/H120.
+
+Repair record:
+`sessions/session_20260817_h117_developer_kit_toolchain_fingerprint_repair.md`.
+
 ## P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Accepted Specification; Implementation Not Authorized
 
 - [x] receive product-owner authorization to draft one complete trusted Core

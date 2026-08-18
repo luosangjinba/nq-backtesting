@@ -1,10 +1,36 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-17 after acceptance of all ten documentation-only Core
-SMA single-plugin decisions; P1c.3/H120 remain unallocated/unregistered and no
-implementation is authorized
+Last updated: 2026-08-17 after the separately authorized H117 Developer Kit
+toolchain fingerprint repair; H117 remains executable/unaccepted, P1c.3/H120
+remain unallocated/unregistered, and no plugin implementation is authorized
 
 ## Restart Resume Checkpoint
+
+### 2026-08-17 H117 Developer Kit Toolchain Fingerprint Repair
+
+The product owner directed:
+
+> 授权先修复 H117 Developer Kit fixture 工具链指纹过期；仅做根因确认和最小基线修复，不启动 P1b.4，不验收或改变 H117 状态，不实施其他插件。
+
+Root-cause comparison proved that compiler, SDK, Schema, catalog, operation,
+and simulator identities were byte-stable. Only conformance changed: H119's
+accepted whitespace correction commit `2951a20f` legitimately updated
+`docs/v7-harness-rules.json` and synchronized current source totals in three
+existing P1b implementation records, but omitted the existing deterministic
+Developer Kit generated-output refresh.
+
+The canonical refresh script updated exactly the static browser release
+identity and local-lifecycle example from toolchain digest `cff096…` to
+`a6c653…`. The production source-quality refresh then changed only that
+generated file's source hash. H116 and the complete H117 Harness pass; H117
+retains all 54 frozen negative groups, its visible-review requirement,
+`state: executable`, and `acceptanceEvidence: null`. P1b.4 remains paused, no
+P1c.3/H120 record is allocated, and no plugin was implemented.
+
+Durable evidence is
+`sessions/session_20260817_h117_developer_kit_toolchain_fingerprint_repair.md`.
+The next product decision, if desired, is a separate instruction to allocate
+and implement only the accepted P1c.3/H120 Moving Averages/SMA slice.
 
 ### 2026-08-17 P1c.3/H120 Core SMA Accepted Specification
 
@@ -37,14 +63,11 @@ H119 remains accepted and P1c.2 remains closed. H117 remains `executable`,
 human-review-required, unaccepted, and otherwise unchanged; P1b.4 remains
 paused.
 
-The direct H117 regression currently stops during initial baseline preparation,
-before its 54 frozen negative groups, because the checked-in local-lifecycle
-fixture records an older Developer Kit toolchain digest than the current
-checked-in catalog derives. That pre-existing stale-output baseline was neither
-refreshed nor hidden by the draft or acceptance. It does not block
-documentation acceptance, but it must be resolved under separate authority
-before a future H120 can honestly close its complete existing-regression
-requirement.
+At specification-acceptance time, the direct H117 regression stopped during
+initial baseline preparation because the local-lifecycle fixture retained an
+older Developer Kit toolchain digest. The separately authorized repair in the
+newer checkpoint above resolved that generated-evidence mismatch and restored
+the complete H117 run without changing its governance state.
 
 ### 2026-08-17 H119 Rejection, Correction, And Acceptance
 
