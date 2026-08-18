@@ -1,0 +1,12 @@
+{
+  "id": "adapter.calculated-series-persistence",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "calculated-series-persistence",
+  "publicEntry": "src/calculated-series-persistence/public.js",
+  "requiredPorts": ["adapter.session-persistence", "core.calculated-series-contract"],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/core-moving-averages-harness.js",
+  "removable": true
+}

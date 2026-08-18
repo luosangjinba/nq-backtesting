@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    { "name": "plain-registration", "expectedCode": "CALCULATED_SERIES_RUNTIME_REGISTRATION_REJECTED" },
+    { "name": "duplicate-registration", "expectedCode": "CALCULATED_SERIES_RUNTIME_REGISTRATION_DUPLICATE" },
+    { "name": "fractional-length", "expectedCode": "PLUGIN_SETTINGS_INVALID" },
+    { "name": "length-below-minimum", "expectedCode": "PLUGIN_SETTINGS_INVALID" },
+    { "name": "length-above-maximum", "expectedCode": "PLUGIN_SETTINGS_INVALID" },
+    { "name": "nonfinite-close", "expectedCode": "MOVING_AVERAGES_BAR_INVALID" },
+    { "name": "unordered-bars", "expectedCode": "MOVING_AVERAGES_BAR_INVALID" },
+    { "name": "foreign-bar-field", "expectedCode": "MOVING_AVERAGES_BAR_INVALID" },
+    { "name": "cancelled-execution", "expectedCode": "TRUSTED_CALCULATED_SERIES_CANCELLED" },
+    { "name": "oversized-input", "expectedCode": "TRUSTED_CALCULATED_SERIES_RESOURCE_LIMIT" },
+    { "name": "formula-failure", "expectedCode": "TRUSTED_CALCULATED_SERIES_FORMULA_FAILED" },
+    { "name": "stale-persistence-cas", "expectedCode": "CALCULATED_SERIES_PERSISTENCE_CAS_STALE" },
+    { "name": "noncanonical-persistence", "expectedCode": "CALCULATED_SERIES_PERSISTENCE_NON_CANONICAL" },
+    { "name": "foreign-session-persistence", "expectedCode": "CALCULATED_SERIES_PERSISTENCE_SESSION_MISMATCH" },
+    { "name": "stale-document-command", "expectedCode": "CALCULATED_SERIES_RUNTIME_DOCUMENT_STALE" },
+    { "name": "stale-instance-command", "expectedCode": "CALCULATED_SERIES_RUNTIME_INSTANCE_STALE" },
+    { "name": "chart-apply-rollback", "expectedCode": "H120_INJECTED_CHART_APPLY" },
+    { "name": "unresolved-digest-mismatch", "expectedCode": "CALCULATED_SERIES_UNRESOLVED_DIGEST_MISMATCH" }
+  ]
+}

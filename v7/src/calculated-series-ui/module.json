@@ -1,0 +1,12 @@
+{
+  "id": "optional.calculated-series-ui",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "calculated-series-ui",
+  "publicEntry": "src/calculated-series-ui/public.js",
+  "requiredPorts": ["optional.calculated-series-runtime"],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/calculated-series-ui-independent-harness.js",
+  "removable": true
+}

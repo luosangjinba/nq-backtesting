@@ -4,6 +4,8 @@ import { createAdapterSnapshot } from './adapter-snapshot.js';
 import { failLightweightAdapter } from './adapter-error.js';
 import { maximumDisplayGapMs } from './chart-data.js';
 import { createChartOwnedSurfaceBindings } from './chart-owned-surface-bindings.js';
+import { createCalculatedSeriesStageController } from './calculated-series-stage-controller.js';
+import { createCalculatedSeriesWorkspaceStagePort } from './calculated-series-workspace-stage.js';
 import { createChartStagePlanner } from './chart-stage-planner.js';
 import { createLightweightChartSurface } from './chart-surface.js';
 import { createAdapterCrosshairInteraction } from './crosshair-interaction.js';
@@ -40,6 +42,7 @@ export function createLightweightChartAdapter({
   onTruncationSelect = () => {},
   onViewportIntent = () => {},
   requestFrame = window.requestAnimationFrame.bind(window),
+  calculatedSeriesPort = null,
   viewportPort,
 }) {
   const viewport = requireAdapterEnvironment(host, viewportPort);
@@ -71,6 +74,11 @@ export function createLightweightChartAdapter({
   const chartOwnedSurfaces = createChartOwnedSurfaceBindings({
     annotationOptions: { chart, eventTarget: window, host, interactionIndex, readInstrumentId: () => appliedInstrumentId, series },
     calculatedSeriesOptions: { candleSeries: series, chart, readPriceIncrement: () => presentation.snapshot().priceIncrement ?? 0.01, requestFrame },
+  });
+  const calculatedSeriesStages = createCalculatedSeriesStageController({
+    chartOwnedSurfaces,
+    port: calculatedSeriesPort,
+    readAdapterRevision: () => adapterRevision,
   });
 
   function applyViewport() {
@@ -152,6 +160,7 @@ export function createLightweightChartAdapter({
         'A finalized Chart stage cannot roll back.',
       );
     }
+    await calculatedSeriesStages.rollbackWorkspace(staged.calculatedSeriesStage);
     if (record.state === 'staged') {
       record.state = 'rolled-back';
       return;
@@ -337,6 +346,7 @@ export function createLightweightChartAdapter({
         context.staged.mutation, record, expectCandles);
       if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
       const result = commit(context, timing);
+      await calculatedSeriesStages.apply(context.staged.calculatedSeriesStage);
       record.state = 'applied';
       delete host.dataset.lastApplyError;
       return result;
@@ -348,11 +358,21 @@ export function createLightweightChartAdapter({
   }
 
   function createPublicPort() {
+    const workspaceStage = createCalculatedSeriesWorkspaceStagePort({
+      assertLive() {
+        if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+      },
+      calculatedSeriesStages,
+      registerStage,
+      stagePlanner,
+    });
     return Object.freeze({
       calculatedSeriesProjectionFactory() {
         if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
         return chartOwnedSurfaces.calculatedSeriesProjectionFactory();
       },
+      calculatedSeriesSnapshot: calculatedSeriesStages.snapshot,
+      prepareCalculatedSeries: calculatedSeriesStages.prepareExternal,
       annotationSurface(projectionApi, paneId) {
         if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
         return chartOwnedSurfaces.annotationSurface(projectionApi, paneId);
@@ -371,6 +391,7 @@ export function createLightweightChartAdapter({
             'Only an applied Chart stage can finalize.',
           );
         }
+        calculatedSeriesStages.finalizeWorkspace(staged.calculatedSeriesStage);
         candleSeriesWriter.finalize(record.writerMutation);
         record.state = 'finalized';
         record.previous = null;
@@ -380,16 +401,13 @@ export function createLightweightChartAdapter({
         if (disposed) return;
         disposed = true;
         visibleMutationToken += 1;
-        const cleanup = chartOwnedSurfaces.dispose();
+        const cleanup = Promise.resolve(calculatedSeriesStages.dispose())
+          .then(() => chartOwnedSurfaces.dispose());
         nativeViewportInteraction.dispose();
         candleSeriesWriter.dispose();
         crosshairInteraction.dispose();
         truncationInteraction.dispose();
         series.detachPrimitive(currentPriceName.primitive);
-        if (cleanup === null) {
-          chart.remove();
-          return undefined;
-        }
         return Promise.resolve(cleanup).finally(() => chart.remove());
       },
       resetView(latestOffsetBars) {
@@ -431,37 +449,8 @@ export function createLightweightChartAdapter({
         seriesWriterSnapshot: candleSeriesWriter.snapshot(),
         viewport,
       }),
-      async stage({
-        chartDataCache = null,
-        futureTimeAxisDataCache = null,
-        identity,
-        instrumentLabel,
-        priceIncrement,
-        signal,
-        seriesMutationPlanMemo = null,
-        workspaceSnapshot,
-      }) {
-        if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
-        return registerStage(stagePlanner.ready({
-          chartDataCache,
-          futureTimeAxisDataCache,
-          identity,
-          instrumentLabel,
-          priceIncrement,
-          seriesMutationPlanMemo,
-          signal,
-          workspaceSnapshot,
-        }));
-      },
-      async stageEmpty({
-        identity,
-        instrumentLabel,
-        priceIncrement,
-        signal,
-      }) {
-        if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
-        return registerStage(stagePlanner.empty({ identity, instrumentLabel, priceIncrement, signal }));
-      },
+      stage: workspaceStage.stage,
+      stageEmpty: workspaceStage.stageEmpty,
     });
   }
 

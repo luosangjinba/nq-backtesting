@@ -137,6 +137,7 @@ export function createReplayWorkspaceView(options) {
     openExactGoto: exactGoto.open,
     openPaneTimeLocationMenu: paneTimeLocationMenu.open,
     root,
+    paneAddonPort: paneGrid.paneAddonPort,
     setCursor(epochMs) {
       cursorEpochMs = epochMs;
       root.dataset.cursorEpochMs = epochMs === null ? '' : String(epochMs);

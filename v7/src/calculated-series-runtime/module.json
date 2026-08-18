@@ -1,0 +1,23 @@
+{
+  "id": "optional.calculated-series-runtime",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "calculated-series-runtime",
+  "publicEntry": "src/calculated-series-runtime/public.js",
+  "requiredPorts": [
+    "adapter.calculated-series-persistence",
+    "adapter.trusted-calculated-series-execution",
+    "core.activation-generation",
+    "core.calculated-series-contract",
+    "core.plugin-contract",
+    "core.replay-contract",
+    "optional.calculated-series-chart-projection",
+    "core.session-identity",
+    "core.transaction-identity",
+    "core.workspace-transaction-contract"
+  ],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/core-moving-averages-harness.js",
+  "removable": true
+}

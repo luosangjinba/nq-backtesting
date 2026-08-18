@@ -57,6 +57,23 @@ function requireImmutableProjection(workspaceSnapshot) {
   return workspaceSnapshot;
 }
 
+async function prepareAuxiliaryParticipants({
+  description, ports, prepared, record, state, workspaceSnapshot,
+}) {
+  for (const port of ports.auxiliaryPorts) {
+    const participant = requirePreparedParticipant(await port.prepare(Object.freeze({
+      identity: description.identity,
+      operation: description.operation,
+      signal: record.controller.signal,
+      workspaceSnapshot,
+    })), port.id, description.identity);
+    prepared.participants.push(Object.seal({
+      handle: participant, participant: port.id, receipt: null,
+    }));
+    assertCurrent(state, description.identity);
+  }
+}
+
 async function prepareTransaction({ description, immutableInput, ports, prepared, record, semantic, state }) {
   const proposal = await ports.replayPort.propose(Object.freeze({
     identity: description.identity,
@@ -83,6 +100,9 @@ async function prepareTransaction({ description, immutableInput, ports, prepared
     signal: record.controller.signal,
   })));
   assertCurrent(state, description.identity);
+  await prepareAuxiliaryParticipants({
+    description, ports, prepared, record, state, workspaceSnapshot,
+  });
   const chart = requirePreparedParticipant(await ports.chartPort.prepare(Object.freeze({
     identity: description.identity,
     operation: description.operation,
@@ -135,10 +155,17 @@ async function prepareTransaction({ description, immutableInput, ports, prepared
 
 async function applyPreparedTransaction({ description, prepared, state }) {
   assertCurrent(state, description.identity);
-  const chart = prepared.participants[0];
+  const chart = prepared.participants.find(({ participant }) => participant === 'chart');
+  const builtIn = new Set(['chart', 'publication', 'replay', 'workspace-state']);
+  for (const entry of prepared.participants.filter(({ participant }) => !builtIn.has(participant))) {
+    entry.receipt = requireSynchronous(entry.handle.apply(), entry.participant, 'apply');
+    assertCurrent(state, description.identity);
+  }
   chart.receipt = await chart.handle.apply();
   assertCurrent(state, description.identity);
-  for (const entry of prepared.participants.slice(1)) {
+  for (const entry of prepared.participants.filter(({ participant }) => (
+    participant !== 'chart' && builtIn.has(participant)
+  ))) {
     entry.receipt = requireSynchronous(entry.handle.apply(), entry.participant, 'apply');
   }
 }

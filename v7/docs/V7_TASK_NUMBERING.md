@@ -1,8 +1,8 @@
 # V7 Task And Requirement Numbering
 
-Status: binding delivery rule; latest allocated repository step P1c.2 is
-accepted and closed; the P1c.3/H120 specification is accepted but its proposed
-labels remain unallocated/unregistered; H117 unchanged (2026-08-17)
+Status: binding delivery rule; latest allocated repository step is P1c.3;
+implementation and automated H120 are complete, focused human review remains
+open, and H117 is unchanged (2026-08-18)
 
 ## Delivery IDs
 
@@ -26,8 +26,8 @@ The later Plugin Platform program uses `P<phase>` and `P<phase>.<slice>` ids
 under the same non-reuse, bounded-delivery, evidence, and human-gate rules.
 Those ids do not renumber or supersede the R-series history.
 
-The latest allocated repository-changing delivery step is `P1c.2`,
-Calculated-Series Chart-Owned Projection. A separate 2026-08-13 product-owner
+The preceding repository-changing delivery step was `P1c.2`, Calculated-Series
+Chart-Owned Projection. A separate 2026-08-13 product-owner
 instruction authorized its accepted specification and allocated H119. The
 synthetic removable projection transaction, Chart-owned admission seam,
 adapter-private one-chart Main/internal resource bridge, and real Chromium
@@ -35,17 +35,18 @@ evidence are implemented. The first H119 review on 2026-08-17 rejected native
 line/area/baseline whitespace bridging; the expressly authorized bounded
 correction now segments contiguous value runs and adds real-pixel no-bridge
 evidence. The product owner accepted the corrected focused gate on 2026-08-17;
-H119 is accepted and P1c.2 is closed. It adds no Profile execution
-availability, named Indicator, live instance/persistence/UI, Community/Worker,
-P1b.4, product route wiring, or H117 change.
+H119 is accepted and P1c.2 is closed. At that closure it added no Profile
+execution availability, named Indicator, live instance/persistence/UI,
+Community/Worker, P1b.4, product route wiring, or H117 change.
 
 The product owner subsequently authorized a documentation candidate for one
-complete Core Moving Averages/SMA vertical slice and accepted all ten material
-decisions without amendment on 2026-08-17. `P1c.3` and H120 identify that
-accepted proposal but are not allocated delivery/Harness records. They may
-become allocated only through a later explicit implementation instruction.
-Drafting or accepting the specification does not advance the latest allocated
-step beyond P1c.2 and does not authorize another plugin.
+complete Core Moving Averages/SMA vertical slice, accepted all ten material
+decisions without amendment, and issued a separate implementation instruction.
+`P1c.3` and H120 are now allocated. The exact one-definition slice is
+implemented and automated H120 passes; H120 remains `executable`,
+human-review-required, and unaccepted. The latest allocated step is therefore
+P1c.3. No other plugin, P1b.4, Community/Worker, business-layer work, or H117
+change is authorized by this allocation.
 
 `R13.5` was the Segment Interaction And Preview step. R13.2 remains the pure
 removable Geometry boundary, R13.3 remains

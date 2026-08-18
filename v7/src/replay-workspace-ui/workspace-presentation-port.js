@@ -26,7 +26,7 @@ const PRESENTATION_METHODS = Object.freeze([
  */
 export function createWorkspacePresentationPort(view) {
   if (!view?.surfacePort) throw new TypeError('Workspace presentation requires a chart surface port.');
-  const port = { surfacePort: view.surfacePort };
+  const port = { paneAddonPort: view.paneAddonPort, surfacePort: view.surfacePort };
   for (const method of PRESENTATION_METHODS) {
     if (typeof view[method] !== 'function') {
       throw new TypeError(`Workspace presentation requires ${method}().`);

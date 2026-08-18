@@ -246,35 +246,37 @@ Focused human gate:
 Repair record:
 `sessions/session_20260817_h117_developer_kit_toolchain_fingerprint_repair.md`.
 
-## P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Accepted Specification; Implementation Not Authorized
+## P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Implemented; Human Review Pending
 
-- [x] receive product-owner authorization to draft one complete trusted Core
-  SMA vertical-slice candidate while implementing no other plugin;
-- [x] re-check current official Lightweight Charts analysis-Indicator/SMA
-  examples and the awesome-tradingview Indicator inventory;
-- [x] retain the user-facing Moving Averages package with exactly one
-  `SMA(close)` Definition instead of creating a second SMA package lifecycle;
-- [x] freeze the candidate formula, warmup, parameter, Plot/Scale, resource,
-  trusted-execution, and exact Profile-binding boundaries;
-- [x] define the minimum package-neutral instance/runtime, Chart-owner,
-  reversible persistence/state-sync, host UI, and unresolved lifecycle needed
-  for Add → Settings → Move → Replay → Reload → Disable/Re-enable → Remove;
-- [x] bound placement to Main ↔ one new dedicated internal region and defer the
-  generic sharing/reorder/resize/collapse layout slice;
-- [x] propose deterministic, transactional, no-future, real-Chromium pixel,
-  one/four-Pane, removal, regression, and focused-human H120 evidence;
-- [x] adopt no official/community lifecycle helper, external Indicator
-  dependency, second real Definition, Community/Worker execution, P1b.4, or
-  H117 state change;
-- [x] keep `P1c.3`/H120 as proposed candidate labels only: register no Harness
-  record and change no production/schema/catalog/fixture/test/runtime/UI file;
-- [x] receive product-owner acceptance of all ten material decisions without
-  amendment on 2026-08-17;
-- [x] keep specification acceptance documentation-only: allocate no P1c.3,
-  register no H120, implement no SMA/product path, start no other plugin, and
-  leave H117/P1b.4 unchanged;
-- [ ] only after a separate implementation instruction, allocate P1c.3,
-  register H120, and implement this one plugin without starting another.
+- [x] accept all ten binding product decisions on 2026-08-17, then receive the
+  separate instruction authorizing only P1c.3/H120 implementation;
+- [x] allocate P1c.3 and register H120 as `executable`, human-review-required,
+  with `acceptanceEvidence: null`;
+- [x] ship exactly `first-party.moving-averages@1.0.0` with one trusted
+  `SMA(close)` Definition, integer length `2..500`, and no second algorithm;
+- [x] implement package-neutral trusted execution, revisioned instance/runtime,
+  reversible Session sidecar/state-sync, unresolved disable/re-enable survival,
+  and host-owned Add/settings/legend/visibility/placement/removal UI;
+- [x] preserve Bar Data, Replay, Workspace, and sole Chart-writer ownership;
+  Main ↔ one dedicated same-chart Region is the only new placement path;
+- [x] prove default SMA 20, exact L-th-Bar whitespace, length 2/20/500 golden
+  results, settings precedence/Reset, no-future/stale rejection, rollback, CAS,
+  persistence, hard reload, disable/re-enable, and removal;
+- [x] pass real production-route Chromium pixel evidence, one/four-Pane
+  isolation and timing, responsive containment, keyboard/focus, native Chart
+  interactions, H118/H119, state sync, module removal, architecture/writer/
+  source-quality, and the nine-scenario production regression matrix;
+- [x] retain the two pre-existing production-matrix visual known failures by
+  exact fingerprint; introduce no new known failure;
+- [x] keep H117 `executable` and unaccepted without changing any H117 field;
+  rerun its complete Developer Kit regression without a fingerprint refresh;
+  keep P1b.4, Community/Worker, business-layer work, and every other plugin
+  paused;
+- [x] record the requested Segment/Ray/Infinite Line plus screen-space Circle/
+  Arc model as a future documentation-only primitive requirement;
+- [ ] complete focused product-owner review of the real production route;
+- [ ] only after explicit product-owner acceptance, set H120 to `accepted` and
+  attach the durable acceptance record. Do not start another plugin beforehand.
 
 Candidate specification:
 `docs/V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md`.
@@ -284,6 +286,15 @@ Draft record:
 
 Acceptance record:
 `sessions/session_20260817_core_sma_single_plugin_vertical_slice_specification_acceptance.md`.
+
+Implementation record:
+`sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`.
+
+Focused human gate:
+`docs/V7_CORE_SMA_P1C3_HUMAN_REVIEW.md`.
+
+Future primitive requirement:
+`docs/V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md`.
 
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09
 
@@ -1890,7 +1901,7 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 534 files, 48,655 effective lines, 5,109 functions, and 519 public exports; the architecture baseline
+The current production source baseline contains 582 files, 52,593 effective lines, 5,470 functions, and 558 public exports; the architecture baseline
 contains 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
@@ -1902,7 +1913,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 534 files, 48,655 effective lines, 5,109 functions, and 519 public exports, 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
+currently at 582 files, 52,593 effective lines, 5,470 functions, and 558 public exports, 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
 ## Established Foundation Governance

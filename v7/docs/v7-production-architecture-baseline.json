@@ -26,6 +26,27 @@
         ]
       },
       {
+        "surface": "calculatedSeriesDocument",
+        "detectorId": "calculated-series-document-accepted-state",
+        "allowedModuleIds": [
+          "optional.calculated-series-runtime"
+        ]
+      },
+      {
+        "surface": "calculatedSeriesDocumentStorage",
+        "detectorId": "calculated-series-document-bytes-commit",
+        "allowedModuleIds": [
+          "adapter.calculated-series-persistence"
+        ]
+      },
+      {
+        "surface": "calculatedSeriesDom",
+        "detectorId": "calculated-series-dom-commit",
+        "allowedModuleIds": [
+          "optional.calculated-series-ui"
+        ]
+      },
+      {
         "surface": "calendarSurfaceDom",
         "detectorId": "calendar-surface-dom-commit",
         "allowedModuleIds": [
@@ -168,7 +189,7 @@
       }
     ]
   },
-  "deliveryStep": "P1c.2",
+  "deliveryStep": "P1c.3",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -197,6 +218,13 @@
       }
     ],
     "constructionSites": [
+      {
+        "callCount": 1,
+        "factory": "createActivationGeneration",
+        "sourceFile": "src/calculated-series-runtime/runtime-state.js",
+        "sourceModuleId": "optional.calculated-series-runtime",
+        "targetModuleId": "core.activation-generation"
+      },
       {
         "callCount": 1,
         "factory": "createActivationGeneration",
@@ -234,9 +262,30 @@
       },
       {
         "callCount": 1,
+        "factory": "createCalculatedSeriesChartBinding",
+        "sourceFile": "src/calculated-series-runtime/surface-candidate.js",
+        "sourceModuleId": "optional.calculated-series-runtime",
+        "targetModuleId": "optional.calculated-series-chart-projection"
+      },
+      {
+        "callCount": 1,
         "factory": "createCalculatedSeriesChartProjectionFactory",
         "sourceFile": "src/lightweight-chart-adapter/chart-owned-surface-bindings.js",
         "sourceModuleId": "adapter.lightweight-chart",
+        "targetModuleId": "optional.calculated-series-chart-projection"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCalculatedSeriesFrameIdentity",
+        "sourceFile": "src/calculated-series-runtime/frame-planner.js",
+        "sourceModuleId": "optional.calculated-series-runtime",
+        "targetModuleId": "core.calculated-series-contract"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCalculatedSeriesPaneSurfaceCandidate",
+        "sourceFile": "src/calculated-series-runtime/surface-candidate.js",
+        "sourceModuleId": "optional.calculated-series-runtime",
         "targetModuleId": "optional.calculated-series-chart-projection"
       },
       {
@@ -257,6 +306,13 @@
         "callCount": 1,
         "factory": "createChartAdapterVisibleReceipt",
         "sourceFile": "src/lightweight-chart-adapter/pane-set-adapter.js",
+        "sourceModuleId": "adapter.lightweight-chart",
+        "targetModuleId": "core.chart-snapshot-application"
+      },
+      {
+        "callCount": 1,
+        "factory": "createChartCalculatedSeriesProjectionOwner",
+        "sourceFile": "src/lightweight-chart-adapter/calculated-series-stage-controller.js",
         "sourceModuleId": "adapter.lightweight-chart",
         "targetModuleId": "core.chart-snapshot-application"
       },
@@ -350,6 +406,13 @@
         "sourceFile": "src/replay-workspace-ui/replay-workspace-mount.js",
         "sourceModuleId": "adapter.replay-workspace-ui",
         "targetModuleId": "core.replay-workspace-composition"
+      },
+      {
+        "callCount": 1,
+        "factory": "createInitialContributionProfileRegistry",
+        "sourceFile": "src/core-moving-averages/sma-definition.js",
+        "sourceModuleId": "optional.core-moving-averages",
+        "targetModuleId": "core.contribution-profile-contract"
       },
       {
         "callCount": 1,
@@ -843,6 +906,13 @@
       },
       {
         "callCount": 1,
+        "factory": "createSessionId",
+        "sourceFile": "src/calculated-series-runtime/runtime-state.js",
+        "sourceModuleId": "optional.calculated-series-runtime",
+        "targetModuleId": "core.session-identity"
+      },
+      {
+        "callCount": 1,
         "factory": "createTimePresentation",
         "sourceFile": "src/lightweight-chart-adapter/chart-options.js",
         "sourceModuleId": "adapter.lightweight-chart",
@@ -875,6 +945,13 @@
         "sourceFile": "src/session-browser-ui/dom-primitives.js",
         "sourceModuleId": "adapter.session-browser-ui",
         "targetModuleId": "core.workstation-settings"
+      },
+      {
+        "callCount": 1,
+        "factory": "createTransactionId",
+        "sourceFile": "src/calculated-series-runtime/runtime-state.js",
+        "sourceModuleId": "optional.calculated-series-runtime",
+        "targetModuleId": "core.transaction-identity"
       },
       {
         "callCount": 1,
@@ -924,6 +1001,13 @@
         "sourceFile": "src/replay-workspace-composition/workspace-session-state.js",
         "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.workspace-state-runtime"
+      },
+      {
+        "callCount": 1,
+        "factory": "createWorkspaceTransactionIdentity",
+        "sourceFile": "src/calculated-series-runtime/runtime-state.js",
+        "sourceModuleId": "optional.calculated-series-runtime",
+        "targetModuleId": "core.workspace-transaction-contract"
       },
       {
         "callCount": 1,
@@ -1145,6 +1229,12 @@
       },
       {
         "moduleIds": [
+          "adapter.calculated-series-persistence"
+        ],
+        "surface": "calculatedSeriesDocumentStorage"
+      },
+      {
+        "moduleIds": [
           "adapter.calendar-surface"
         ],
         "surface": "calendarSurfaceDom"
@@ -1269,6 +1359,18 @@
           "optional.annotation-runtime"
         ],
         "surface": "annotationDocument"
+      },
+      {
+        "moduleIds": [
+          "optional.calculated-series-runtime"
+        ],
+        "surface": "calculatedSeriesDocument"
+      },
+      {
+        "moduleIds": [
+          "optional.calculated-series-ui"
+        ],
+        "surface": "calculatedSeriesDom"
       }
     ],
     "modules": [
@@ -1717,6 +1819,7 @@
           "src/replay-workspace-ui/exact-goto-dialog.js",
           "src/replay-workspace-ui/goto-controls.js",
           "src/replay-workspace-ui/goto-settings-dialog.js",
+          "src/replay-workspace-ui/pane-addon-registry.js",
           "src/replay-workspace-ui/pane-grid-view.js",
           "src/replay-workspace-ui/pane-layout-menu.js",
           "src/replay-workspace-ui/pane-time-location-menu.js",
@@ -2417,6 +2520,7 @@
           "src/replay-workspace-composition/foundation-market.js",
           "src/replay-workspace-composition/pane-time-location-controller.js",
           "src/replay-workspace-composition/refresh-feedback.js",
+          "src/replay-workspace-composition/workspace-calculated-series-workflow.js",
           "src/replay-workspace-composition/workspace-command-port.js",
           "src/replay-workspace-composition/workspace-execution.js"
         ],
@@ -2513,6 +2617,210 @@
         ],
         "owner": "chart-runtime-adapter",
         "publicEntry": "src/calculated-series-chart-projection/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.activation-generation",
+          "core.calculated-series-contract",
+          "core.plugin-contract",
+          "core.replay-contract",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.workspace-transaction-contract",
+          "optional.calculated-series-chart-projection"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "adapter.calculated-series-persistence",
+          "adapter.trusted-calculated-series-execution",
+          "core.activation-generation",
+          "core.calculated-series-contract",
+          "core.plugin-contract",
+          "core.replay-contract",
+          "core.session-identity",
+          "core.transaction-identity",
+          "core.workspace-transaction-contract",
+          "optional.calculated-series-chart-projection"
+        ],
+        "descriptorPath": "src/calculated-series-runtime/module.json",
+        "id": "optional.calculated-series-runtime",
+        "importSites": [
+          {
+            "importedNames": [
+              "calculatedSeriesDefinitionRef",
+              "readCalculatedSeriesDefinition"
+            ],
+            "sourceFile": "src/calculated-series-runtime/instance-mutations.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createActivationGeneration",
+              "requireActivationGeneration"
+            ],
+            "sourceFile": "src/calculated-series-runtime/runtime-state.js",
+            "targetFile": "src/activation-generation/public.js",
+            "targetModuleId": "core.activation-generation",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createCalculatedSeriesChartBinding",
+              "createCalculatedSeriesPaneSurfaceCandidate"
+            ],
+            "sourceFile": "src/calculated-series-runtime/surface-candidate.js",
+            "targetFile": "src/calculated-series-chart-projection/public.js",
+            "targetModuleId": "optional.calculated-series-chart-projection",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createCalculatedSeriesFrameIdentity",
+              "defineCalculatedSeriesProjectionFrame",
+              "readCalculatedSeriesDefinition",
+              "readCalculatedSeriesResult"
+            ],
+            "sourceFile": "src/calculated-series-runtime/frame-planner.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createSessionId",
+              "requireSessionId",
+              "serializeSessionId"
+            ],
+            "sourceFile": "src/calculated-series-runtime/runtime-state.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createTransactionId"
+            ],
+            "sourceFile": "src/calculated-series-runtime/runtime-state.js",
+            "targetFile": "src/transaction-identity/public.js",
+            "targetModuleId": "core.transaction-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createWorkspaceTransactionIdentity"
+            ],
+            "sourceFile": "src/calculated-series-runtime/runtime-state.js",
+            "targetFile": "src/workspace-transaction-contract/public.js",
+            "targetModuleId": "core.workspace-transaction-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineCalculatedSeriesWorkspaceDocument",
+              "readCalculatedSeriesWorkspaceDocument"
+            ],
+            "sourceFile": "src/calculated-series-runtime/document-topology.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineCalculatedSeriesWorkspaceDocument"
+            ],
+            "sourceFile": "src/calculated-series-runtime/document-restore.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readBuiltInPluginManifest"
+            ],
+            "sourceFile": "src/calculated-series-runtime/registration-catalog.js",
+            "targetFile": "src/plugin-contract/public.js",
+            "targetModuleId": "core.plugin-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readCalculatedSeriesContributionBinding",
+              "readCalculatedSeriesDefinition"
+            ],
+            "sourceFile": "src/calculated-series-runtime/registration-catalog.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readCalculatedSeriesWorkspaceDocument"
+            ],
+            "sourceFile": "src/calculated-series-runtime/calculated-series-runtime.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readCalculatedSeriesWorkspaceDocument"
+            ],
+            "sourceFile": "src/calculated-series-runtime/command-controller.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readCalculatedSeriesWorkspaceDocument"
+            ],
+            "sourceFile": "src/calculated-series-runtime/runtime-snapshot.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readCalculatedSeriesWorkspaceDocument"
+            ],
+            "sourceFile": "src/calculated-series-runtime/surface-candidate.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readCalculatedSeriesWorkspaceDocument"
+            ],
+            "sourceFile": "src/calculated-series-runtime/workspace-controller.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readReplayCursorProposal"
+            ],
+            "sourceFile": "src/calculated-series-runtime/frame-planner.js",
+            "targetFile": "src/replay-contract/public.js",
+            "targetModuleId": "core.replay-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/core-moving-averages-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [
+          "src/calculated-series-runtime/calculated-series-runtime.js",
+          "src/calculated-series-runtime/workspace-document-preparation.js"
+        ],
+        "owner": "calculated-series-runtime",
+        "publicEntry": "src/calculated-series-runtime/public.js"
       },
       {
         "actualDependencies": [
@@ -4073,6 +4381,137 @@
       },
       {
         "actualDependencies": [
+          "core.calculated-series-contract",
+          "core.contribution-profile-contract",
+          "core.plugin-contract"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.calculated-series-contract",
+          "core.contribution-profile-contract",
+          "core.plugin-contract"
+        ],
+        "descriptorPath": "src/core-moving-averages/module.json",
+        "id": "optional.core-moving-averages",
+        "importSites": [
+          {
+            "importedNames": [
+              "calculatedSeriesProfileRef",
+              "createInitialContributionProfileRegistry"
+            ],
+            "sourceFile": "src/core-moving-averages/sma-definition.js",
+            "targetFile": "src/contribution-profile-contract/public.js",
+            "targetModuleId": "core.contribution-profile-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineBuiltInPluginManifest"
+            ],
+            "sourceFile": "src/core-moving-averages/plugin-manifest.js",
+            "targetFile": "src/plugin-contract/public.js",
+            "targetModuleId": "core.plugin-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "defineCalculatedSeriesContributionBinding",
+              "defineCalculatedSeriesDefinition"
+            ],
+            "sourceFile": "src/core-moving-averages/sma-definition.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "definePluginParameterSchema"
+            ],
+            "sourceFile": "src/core-moving-averages/parameter-schema.js",
+            "targetFile": "src/plugin-contract/public.js",
+            "targetModuleId": "core.plugin-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readBuiltInPluginManifest"
+            ],
+            "sourceFile": "src/core-moving-averages/registration.js",
+            "targetFile": "src/plugin-contract/public.js",
+            "targetModuleId": "core.plugin-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readCalculatedSeriesContributionBinding",
+              "readCalculatedSeriesDefinition"
+            ],
+            "sourceFile": "src/core-moving-averages/registration.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "resolvePluginSettings"
+            ],
+            "sourceFile": "src/core-moving-averages/settings-normalizer.js",
+            "targetFile": "src/plugin-contract/public.js",
+            "targetModuleId": "core.plugin-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/core-moving-averages-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [],
+        "owner": "core-moving-averages",
+        "publicEntry": "src/core-moving-averages/public.js"
+      },
+      {
+        "actualDependencies": [
+          "core.calculated-series-contract"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.calculated-series-contract"
+        ],
+        "descriptorPath": "src/trusted-calculated-series-execution/module.json",
+        "id": "adapter.trusted-calculated-series-execution",
+        "importSites": [
+          {
+            "importedNames": [
+              "defineCalculatedSeriesResult"
+            ],
+            "sourceFile": "src/trusted-calculated-series-execution/execution-adapter.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "readCalculatedSeriesDefinition",
+              "readCalculatedSeriesFrameIdentity"
+            ],
+            "sourceFile": "src/trusted-calculated-series-execution/execution-envelope.js",
+            "targetFile": "src/calculated-series-contract/public.js",
+            "targetModuleId": "core.calculated-series-contract",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/core-moving-averages-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [],
+        "owner": "trusted-calculated-series-execution",
+        "publicEntry": "src/trusted-calculated-series-execution/public.js"
+      },
+      {
+        "actualDependencies": [
           "core.chart-snapshot-application",
           "core.pane-set-materialization",
           "core.replay-contract",
@@ -4278,6 +4717,15 @@
           },
           {
             "importedNames": [
+              "createChartCalculatedSeriesProjectionOwner"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/calculated-series-stage-controller.js",
+            "targetFile": "src/chart-snapshot-application/public.js",
+            "targetModuleId": "core.chart-snapshot-application",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
               "createPricePresentation",
               "readWorkstationSettings"
             ],
@@ -4337,6 +4785,15 @@
           },
           {
             "importedNames": [
+              "readCalculatedSeriesPaneSurfaceCandidate"
+            ],
+            "sourceFile": "src/lightweight-chart-adapter/calculated-series-stage-controller.js",
+            "targetFile": "src/calculated-series-chart-projection/public.js",
+            "targetModuleId": "optional.calculated-series-chart-projection",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
               "readViewportIntent"
             ],
             "sourceFile": "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
@@ -4370,6 +4827,7 @@
           "src/lightweight-chart-adapter/annotation-chart-surface.js",
           "src/lightweight-chart-adapter/annotation-surface-binding.js",
           "src/lightweight-chart-adapter/calculated-series-chart-surface.js",
+          "src/lightweight-chart-adapter/calculated-series-stage-controller.js",
           "src/lightweight-chart-adapter/chart-owned-surface-bindings.js",
           "src/lightweight-chart-adapter/crosshair-interaction.js",
           "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
@@ -5132,35 +5590,15 @@
           "stop"
         ],
         "declaredOptionalPorts": [
-          "adapter.database-bootstrap-ui"
-        ],
-        "declaredRequiredPorts": [
-          "adapter.data-acquisition-ui"
-        ],
-        "descriptorPath": "src/data-acquisition-application/module.json",
-        "id": "adapter.data-acquisition-application",
-        "importSites": [],
-        "independentHarness": "tests/production-application-host-browser-harness.js",
-        "independentHarnessMode": "public-entry-direct",
-        "kind": "adapter",
-        "observedDisposeSites": [
-          "src/data-acquisition-application/application-definition.js"
-        ],
-        "owner": "application-composition",
-        "publicEntry": "src/data-acquisition-application/public.js"
-      },
-      {
-        "actualDependencies": [],
-        "declaredLifecycle": [
-          "dispose",
-          "start",
-          "stop"
-        ],
-        "declaredOptionalPorts": [
+          "adapter.calculated-series-persistence",
           "adapter.plugin-center-ui",
           "adapter.replay-workspace-ui",
           "adapter.server-state-sync",
-          "optional.annotation-manual-workflow"
+          "adapter.trusted-calculated-series-execution",
+          "optional.annotation-manual-workflow",
+          "optional.calculated-series-runtime",
+          "optional.calculated-series-ui",
+          "optional.core-moving-averages"
         ],
         "declaredRequiredPorts": [
           "adapter.market-data-provider",
@@ -5185,6 +5623,31 @@
         ],
         "owner": "application-composition",
         "publicEntry": "src/session-application/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [
+          "dispose",
+          "start",
+          "stop"
+        ],
+        "declaredOptionalPorts": [
+          "adapter.database-bootstrap-ui"
+        ],
+        "declaredRequiredPorts": [
+          "adapter.data-acquisition-ui"
+        ],
+        "descriptorPath": "src/data-acquisition-application/module.json",
+        "id": "adapter.data-acquisition-application",
+        "importSites": [],
+        "independentHarness": "tests/production-application-host-browser-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/data-acquisition-application/application-definition.js"
+        ],
+        "owner": "application-composition",
+        "publicEntry": "src/data-acquisition-application/public.js"
       },
       {
         "actualDependencies": [],
@@ -5233,6 +5696,30 @@
         ],
         "owner": "annotation-interaction-controller",
         "publicEntry": "src/annotation-bar-picker/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "optional.calculated-series-runtime"
+        ],
+        "descriptorPath": "src/calculated-series-ui/module.json",
+        "id": "optional.calculated-series-ui",
+        "importSites": [],
+        "independentHarness": "tests/calculated-series-ui-independent-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [
+          "src/calculated-series-ui/add-dialog.js",
+          "src/calculated-series-ui/calculated-series-ui.js",
+          "src/calculated-series-ui/pane-indicator-view.js",
+          "src/calculated-series-ui/settings-dialog.js"
+        ],
+        "owner": "calculated-series-ui",
+        "publicEntry": "src/calculated-series-ui/public.js"
       },
       {
         "actualDependencies": [],
@@ -5293,6 +5780,24 @@
         ],
         "owner": "session-state-replication",
         "publicEntry": "src/server-state-sync/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "adapter.session-persistence",
+          "core.calculated-series-contract"
+        ],
+        "descriptorPath": "src/calculated-series-persistence/module.json",
+        "id": "adapter.calculated-series-persistence",
+        "importSites": [],
+        "independentHarness": "tests/core-moving-averages-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [],
+        "owner": "calculated-series-persistence",
+        "publicEntry": "src/calculated-series-persistence/public.js"
       },
       {
         "actualDependencies": [],
@@ -5616,6 +6121,24 @@
         "sourceFile": "src/annotation-persistence/reversible-annotation-write.js",
         "sourceModuleId": "adapter.annotation-persistence",
         "surface": "annotationDocumentStorage"
+      },
+      {
+        "detectorId": "calculated-series-document-accepted-state",
+        "sourceFile": "src/calculated-series-runtime/workspace-controller.js",
+        "sourceModuleId": "optional.calculated-series-runtime",
+        "surface": "calculatedSeriesDocument"
+      },
+      {
+        "detectorId": "calculated-series-document-bytes-commit",
+        "sourceFile": "src/calculated-series-persistence/persistence-adapter.js",
+        "sourceModuleId": "adapter.calculated-series-persistence",
+        "surface": "calculatedSeriesDocumentStorage"
+      },
+      {
+        "detectorId": "calculated-series-dom-commit",
+        "sourceFile": "src/calculated-series-ui/pane-indicator-view.js",
+        "sourceModuleId": "optional.calculated-series-ui",
+        "surface": "calculatedSeriesDom"
       },
       {
         "detectorId": "calendar-surface-dom-commit",

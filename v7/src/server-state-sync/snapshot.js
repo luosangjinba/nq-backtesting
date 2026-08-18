@@ -19,6 +19,7 @@ export function isStateSnapshotRollbackError(error) {
 
 export const STATE_SYNC_METADATA_KEY = 'v7.state-sync:metadata';
 export const STATE_SYNC_BACKUP_PREFIX = 'v7.state-sync:backup:';
+export const CALCULATED_SERIES_STATE_PREFIX = 'v7.calculated-series:document:';
 
 const EXACT_KEYS = new Set([
   'v7.session-browser:index',
@@ -33,6 +34,8 @@ export function isReplicatedStateKey(key) {
     EXACT_KEYS.has(key)
       || (key.startsWith('v7.session-browser:record:')
         && key.length > 'v7.session-browser:record:'.length)
+      || (key.startsWith(CALCULATED_SERIES_STATE_PREFIX)
+        && key.length > CALCULATED_SERIES_STATE_PREFIX.length)
   );
 }
 

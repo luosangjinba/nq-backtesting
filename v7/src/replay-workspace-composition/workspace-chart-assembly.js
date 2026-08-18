@@ -5,6 +5,7 @@ import { createViewportSettingsConsumer } from './viewport-settings-consumer.js'
 
 /** Construct the Chart adapter/application and Settings presentation consumers. */
 export function createWorkspaceChartAssembly({
+  calculatedSeriesPort,
   checkpointPersistence,
   getExecution,
   handleTruncationSelect,
@@ -17,6 +18,7 @@ export function createWorkspaceChartAssembly({
 }) {
   const { market, workspaceState } = session;
   const adapter = createLightweightPaneSetAdapter({
+    calculatedSeriesPort,
     onCrosshairChange: ({ panes }) => presentation.setPaneOhlc(panes),
     onHistoryBoundary: (paneId, logicalRange) => {
       if (logicalRange.from < 24) void getExecution()?.requestHistory(paneId);

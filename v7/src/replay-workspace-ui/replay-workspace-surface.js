@@ -28,6 +28,7 @@ export function createReplayWorkspaceSurface(configuration = {}) {
       unmount();
       active = mountReplayWorkspace({
         annotationWorkflow: configuration.annotationWorkflow ?? null,
+        calculatedSeries: configuration.calculatedSeries ?? null,
         pluginCenter: configuration.pluginCenter ?? null,
         colorHistory,
         initialNavigationSettings,

@@ -161,9 +161,11 @@ export function mountReplayWorkspace(options) {
   const commands = createReplayWorkspaceComposition({
     ...state,
     annotationWorkflow: options.annotationWorkflow,
+    calculatedSeries: options.calculatedSeries,
     initialNavigationSettings: options.initialNavigationSettings,
     persistWorkspaceCheckpoint: options.onPersistWorkspaceCheckpoint,
     persistReplayNavigationSettings: options.onPersistReplayNavigationSettings,
+    paneAddonPort: view.paneAddonPort,
     record: options.record,
     presentation: createWorkspacePresentationPort(view),
     workstationSettings: options.workstationSettings,

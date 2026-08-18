@@ -19,7 +19,12 @@
     "adapter.plugin-center-ui",
     "adapter.replay-workspace-ui",
     "adapter.server-state-sync",
-    "optional.annotation-manual-workflow"
+    "optional.annotation-manual-workflow",
+    "adapter.calculated-series-persistence",
+    "adapter.trusted-calculated-series-execution",
+    "optional.calculated-series-runtime",
+    "optional.calculated-series-ui",
+    "optional.core-moving-averages"
   ],
   "lifecycle": ["start", "stop", "dispose"],
   "independentHarness": "tests/production-application-host-browser-harness.js",

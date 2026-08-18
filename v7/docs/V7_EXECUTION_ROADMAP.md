@@ -1334,11 +1334,11 @@ Line Series must produce a positive bridge count as the sensitivity control.
 The product owner accepted the corrected focused evidence on 2026-08-17. H119
 is `accepted`, the correction session is its durable `acceptanceEvidence`, and
 P1c.2 is closed.
-The implementation adds no calculation engine, production route, MA/SMA, live
+The P1c.2 implementation added no calculation engine, production route, MA/SMA, live
 instance/persistence/UI, Community/Worker, P1b.4, or H117 change. No later
 delivery is authorized by implementation alone.
 
-### P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Accepted Specification 2026-08-17
+### P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Implemented; Human Review Pending
 
 After H119 acceptance, the product owner directed V7 to complete one plugin
 before expanding to others and authorized a documentation-only candidate at
@@ -1365,11 +1365,17 @@ hundreds of definitions, an additional runtime dependency, direct Series
 writes, and second-chart patterns outside this bounded slice.
 
 The product owner accepted all ten material decisions without amendment on
-2026-08-17. `P1c.3` and H120 remain proposed labels only: no delivery/Harness
-record is allocated, no code or production availability is changed, and the
-accepted specification authorizes no implementation. H117 remains executable
-and unaccepted, and P1b.4 remains paused. Only a later explicit implementation
-instruction may allocate this one-plugin slice; no other plugin may start.
+2026-08-17 and then separately authorized implementation of only
+`first-party.moving-averages@1.0.0` / `SMA(close)`. P1c.3 and H120 are allocated;
+the package-neutral runtime, trusted execution, reversible sidecar/state sync,
+host UI, sole-Chart-owner projection, and production route are implemented.
+Automated H120 passes formula, transaction, persistence, pixel, interaction,
+one/four-Pane timing, optional-removal, and full production-regression evidence.
+H120 remains `executable`, human-review-required, and unaccepted pending
+`V7_CORE_SMA_P1C3_HUMAN_REVIEW.md`. H117 remains executable and unaccepted;
+P1b.4, every other plugin, Community/Worker, and business-layer work remain
+paused. Implementation evidence is
+`../sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`.
 
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 

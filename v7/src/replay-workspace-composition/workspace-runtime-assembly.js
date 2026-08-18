@@ -29,6 +29,7 @@ function createAutoplayScheduler({ execution, presentation, replay }) {
 
 /** Construct transaction, navigation, execution, Pane-location, and autoplay orchestration. */
 export function createWorkspaceRuntimeAssembly({
+  auxiliaryTransactionPorts = [],
   chart,
   data,
   presentation,
@@ -41,6 +42,7 @@ export function createWorkspaceRuntimeAssembly({
   const runtime = createWorkspaceTransactionRuntime({
     activationGeneration: record.activationGeneration,
     acquisitionPort: data.materialization.acquisitionPort,
+    auxiliaryPorts: auxiliaryTransactionPorts,
     chartPort: chart.chartApplication,
     publicationPort: publication.publicationPort,
     projectionPort: data.materialization.projectionPort,

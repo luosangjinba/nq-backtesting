@@ -154,10 +154,10 @@ correction now uses adapter-private contiguous value-run Series, bounds those
 native segments, and proves three gaps/six probes/zero bridge pixels against a
 positive raw-native sensitivity control. The product owner accepted the
 corrected focused evidence on 2026-08-17; H119 is `accepted`, the correction
-session is its durable acceptance evidence, and P1c.2 is closed. The module is
-not wired into the product Workstation. No MA/SMA, live instance/persistence/
-UI, Community/Worker, P1b.4, or H117 field was changed. Its draft, acceptance,
-and implementation records are
+session is its durable acceptance evidence, and P1c.2 is closed. At P1c.2
+closure the module was not yet wired into the product Workstation and no
+MA/SMA or live instance loop existed. Its draft, acceptance, and implementation
+records are
 `../sessions/session_20260813_calculated_series_chart_owned_projection_candidate_specification.md`
 and
 `../sessions/session_20260813_calculated_series_chart_owned_projection_specification_acceptance.md`,
@@ -165,8 +165,7 @@ plus
 `../sessions/session_20260813_p1c_2_calculated_series_chart_owned_projection_implementation.md`
 and
 `../sessions/session_20260817_p1c_2_h119_whitespace_rejection_and_correction.md`.
-The proposed third dependency now has an accepted documentation-only
-specification at
+The third dependency has its binding specification at
 `V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md`. It follows the product
 owner's direction to close one real plugin before expanding: one built-in Core
 Moving Averages package contains exactly one canonical `SMA(close)` Definition
@@ -174,12 +173,19 @@ and one complete Add/settings/Main-to-new-region/Replay/persistence/unresolved/
 reload/remove product loop. It adopts no auto-attached Lightweight Charts
 Indicator helper, external Indicator library, second algorithm, or other
 plugin. The product owner accepted all ten material decisions without amendment
-on 2026-08-17. `P1c.3`/H120 remain proposed labels, no Harness record or
-implementation is allocated, H117 is unchanged, and P1b.4 remains paused. The
-draft and acceptance records are
+on 2026-08-17 and separately authorized only this implementation. P1c.3 is now
+implemented; H120 automated evidence passes and remains `executable`,
+human-review-required, with `acceptanceEvidence: null`. H117 is unchanged and
+P1b.4, every other plugin, Community/Worker, and business-layer work remain
+paused. The draft and acceptance records are
 `../sessions/session_20260817_core_sma_single_plugin_vertical_slice_candidate_specification.md`
 and
-`../sessions/session_20260817_core_sma_single_plugin_vertical_slice_specification_acceptance.md`.
+`../sessions/session_20260817_core_sma_single_plugin_vertical_slice_specification_acceptance.md`;
+implementation and focused-review records are
+`../sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`
+and `V7_CORE_SMA_P1C3_HUMAN_REVIEW.md`. The later line-family/Circle/Arc
+requirements are recorded without implementation at
+`V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md`.
 The seconds/tick memo additionally records the current decision that minute-
 sourced V7 remains valid without simulated-live training, defines the three-
 of-four investigation signals, and keeps every future seconds path behind the
@@ -506,6 +512,17 @@ Read in this order before V7 implementation work:
      inspection, and a bounded
      authoring MCP adapter; do not treat specification acceptance as
      implementation authorization
+98f. `V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md` and
+     `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` as the binding
+     calculated-series architecture decisions
+98g. `V7_CALCULATED_SERIES_PURE_CONTRACT_SLICE_SPEC.md` and
+     `V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md` as accepted
+     H118/H119 dependencies
+98h. `V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md` as the implemented
+     one-package/one-definition P1c.3 scope, followed by
+     `V7_CORE_SMA_P1C3_HUMAN_REVIEW.md` while H120 remains executable
+98i. `V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md` as
+     documentation-only future primitive input; it authorizes no implementation
 99. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
 100. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,

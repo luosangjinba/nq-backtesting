@@ -18,12 +18,34 @@ function annotationSurfaces(adapters, acceptedPaneSet, projectionApi) {
     .filter(Boolean));
 }
 
+function calculatedSeriesMethods(adapters) {
+  function adapterFor(paneId, operation) {
+    const adapter = adapters.get(paneId);
+    if (!adapter || typeof adapter[operation] !== 'function') {
+      failLightweightAdapter(
+        'CHART_CALCULATED_SERIES_PANE_UNAVAILABLE',
+        'Calculated-series Chart operation requires an accepted Pane adapter.',
+      );
+    }
+    return adapter;
+  }
+  return Object.freeze({
+    calculatedSeriesSnapshot(paneId) {
+      return adapterFor(paneId, 'calculatedSeriesSnapshot').calculatedSeriesSnapshot();
+    },
+    prepareCalculatedSeries(paneId, candidate) {
+      return adapterFor(paneId, 'prepareCalculatedSeries').prepareCalculatedSeries(candidate);
+    },
+  });
+}
+
 /**
  * Own one real chart adapter per product Pane behind one complete Pane-set
  * chart-writer port. Child charts never receive transaction or Replay intent;
  * they only stage/apply the Pane snapshots supplied by the sole application.
  */
 export function createLightweightPaneSetAdapter({
+  calculatedSeriesPort = null,
   createPaneAdapter = createLightweightChartAdapter,
   onCrosshairChange = () => {},
   onHistoryBoundary = () => {},
@@ -119,6 +141,7 @@ export function createLightweightPaneSetAdapter({
     if (adapters.has(paneId)) return adapters.get(paneId);
     const host = preparePane(paneId);
     const adapter = createPaneAdapter({
+      calculatedSeriesPort,
       host,
       onCrosshairMove: (observation) => acceptLocalCrosshair(paneId, observation),
       onHistoryBoundary: (range) => onHistoryBoundary(paneId, range),
@@ -259,6 +282,7 @@ export function createLightweightPaneSetAdapter({
   });
 
   return Object.freeze({
+    ...calculatedSeriesMethods(adapters),
     annotationSurfaces(projectionApi) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Pane-set adapter is disposed.');
       return annotationSurfaces(adapters, acceptedPaneSet, projectionApi);
@@ -398,6 +422,7 @@ export function createLightweightPaneSetAdapter({
           const adapter = ensureAdapter(result.paneId, instrumentId, instrumentLabel);
           const staged = await adapter.stageEmpty({
             identity, instrumentLabel, priceIncrement, signal,
+            workspacePaneId: result.paneId,
           });
           return Object.freeze({
             adapter,

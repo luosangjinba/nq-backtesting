@@ -387,6 +387,7 @@ export async function runCorePluginCenterHeadlessHarness() {
   const productionPlan = readBuiltInPluginPlan(createProductionBuiltInPluginPlan(productionDescriptors));
   assert.deepEqual(productionPlan.packages.map(({ manifest: value }) => value.packageId), [
     'first-party.fair-value-gap',
+    'first-party.moving-averages',
   ]);
   const uiSource = fs.readFileSync(path.join(
     V7_ROOT, 'src/plugin-center-ui/plugin-center-control.js',

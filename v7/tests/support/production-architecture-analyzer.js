@@ -5,6 +5,9 @@ import { validateProductionArchitectureSnapshot } from './production-architectur
 const WRITER_DETECTORS = Object.freeze({
   'annotation-document-accepted-state': /\bthis\.#document\s*=\s*candidate\.document\b/,
   'annotation-document-bytes-commit': /\bstorage\.write\s*\(\s*annotationKey\s*,\s*candidateRaw\s*\)/,
+  'calculated-series-document-accepted-state': /\bstate\.acceptedDocument\s*=\s*candidate\.document\b/,
+  'calculated-series-document-bytes-commit': /\bport\.write\s*\(\s*record\.key\s*,\s*record\.candidateRaw\s*\)/,
+  'calculated-series-dom-commit': /\bshell\.append\s*\(\s*root\s*\)/,
   'calendar-surface-dom-commit': /\breplaceChildren\s*\(\s*this\.nodes\.body\s*,/,
   'core-plugin-profile-commit': /\bport\.write\s*\(\s*storageKey\s*,\s*raw\s*\)/,
   'layout-sync-policy-commit': /\bsaveLayoutSync\s*\([^)]*\)\s*\{[\s\S]*?configuredWorkspace\s*\(\s*current\s*,\s*\{\s*layoutSync:/,

@@ -11,6 +11,10 @@
     },
     {
       "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "adapter.calculated-series-persistence"
+    },
+    {
+      "consumerModuleId": "adapter.session-application",
       "omittedModuleId": "adapter.plugin-center-ui"
     },
     {
@@ -23,7 +27,23 @@
     },
     {
       "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "adapter.trusted-calculated-series-execution"
+    },
+    {
+      "consumerModuleId": "adapter.session-application",
       "omittedModuleId": "optional.annotation-manual-workflow"
+    },
+    {
+      "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "optional.calculated-series-runtime"
+    },
+    {
+      "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "optional.calculated-series-ui"
+    },
+    {
+      "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "optional.core-moving-averages"
     },
     {
       "consumerModuleId": "adapter.session-browser-ui",
@@ -106,6 +126,14 @@
       "omittedModuleId": "optional.annotation-semantic-registry"
     },
     {
+      "consumerModuleId": "optional.calculated-series-runtime",
+      "omittedModuleId": "optional.calculated-series-chart-projection"
+    },
+    {
+      "consumerModuleId": "optional.calculated-series-ui",
+      "omittedModuleId": "optional.calculated-series-runtime"
+    },
+    {
       "consumerModuleId": "optional.semantic-fair-value-gap",
       "omittedModuleId": "optional.annotation-evidence-resolver"
     },
@@ -164,6 +192,18 @@
     {
       "consumerModuleId": null,
       "omittedModuleId": "optional.calculated-series-chart-projection"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.calculated-series-runtime"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.calculated-series-ui"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.core-moving-averages"
     },
     {
       "consumerModuleId": null,

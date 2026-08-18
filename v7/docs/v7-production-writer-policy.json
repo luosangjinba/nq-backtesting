@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "p1c-2-calculated-series-chart-writer-closure",
+  "status": "p1c-3-core-sma-writer-closure",
   "writerPolicies": [
     {
       "surface": "annotationDocument",
@@ -11,6 +11,21 @@
       "surface": "annotationDocumentStorage",
       "detectorId": "annotation-document-bytes-commit",
       "allowedModuleIds": ["adapter.annotation-persistence"]
+    },
+    {
+      "surface": "calculatedSeriesDocument",
+      "detectorId": "calculated-series-document-accepted-state",
+      "allowedModuleIds": ["optional.calculated-series-runtime"]
+    },
+    {
+      "surface": "calculatedSeriesDocumentStorage",
+      "detectorId": "calculated-series-document-bytes-commit",
+      "allowedModuleIds": ["adapter.calculated-series-persistence"]
+    },
+    {
+      "surface": "calculatedSeriesDom",
+      "detectorId": "calculated-series-dom-commit",
+      "allowedModuleIds": ["optional.calculated-series-ui"]
     },
     {
       "surface": "calendarSurfaceDom",

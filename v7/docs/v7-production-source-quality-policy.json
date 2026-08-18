@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "P1c.2",
+  "deliveryStep": "P1c.3",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -51,6 +51,7 @@
       "core.pane-time-location-domain",
       "core.pane-workspace-domain",
       "core.projection-domain",
+      "optional.core-moving-averages",
       "core.session-hours-domain",
       "core.workspace-checkpoint-domain",
       "optional.annotation-evidence-resolver",
@@ -74,6 +75,8 @@
       "core.workspace-state-runtime",
       "core.workspace-transaction-runtime",
       "core.workstation-settings",
+      "optional.calculated-series-runtime",
+      "adapter.trusted-calculated-series-execution",
       "optional.annotation-context-projection",
       "optional.annotation-bar-picker",
       "optional.annotation-semantic-registry",
@@ -91,6 +94,7 @@
       "adapter.annotation-persistence",
       "adapter.plugin-package-storage",
       "adapter.session-persistence",
+      "adapter.calculated-series-persistence",
       "core.replay-navigation-preference-store"
     ],
     "ui": [
@@ -99,6 +103,7 @@
       "adapter.database-bootstrap-ui",
       "adapter.plugin-center-ui",
       "adapter.replay-workspace-ui",
+      "optional.calculated-series-ui",
       "adapter.session-browser-ui"
     ]
   },

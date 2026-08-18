@@ -1,12 +1,14 @@
 # V7 Core Moving Averages / SMA Single-Plugin Vertical Slice — Accepted Specification
 
 Status: all ten material decisions accepted without amendment on 2026-08-17;
-proposed delivery `P1c.3` and gate `H120` remain unallocated and unregistered;
-no implementation is authorized
+separate P1c.3 implementation authorized; automated H120 passed on 2026-08-18;
+focused human review remains open, so H120 is executable and unaccepted
 
 Drafted: 2026-08-17
 
 Accepted: 2026-08-17
+
+Implemented: 2026-08-18; human acceptance pending
 
 Upstream decisions: accepted `ADR-V7-004`, accepted `ADR-V7-006`, accepted
 `ADR-V7-005`, accepted `P1c.1`/H118, and accepted `P1c.2`/H119
@@ -20,12 +22,11 @@ The product owner directed:
 
 > 授权起草 P1c.3/H120 Core SMA 单插件完整垂直切片候选规格；先完整闭环一个插件，不实施其他插件。
 
-This instruction authorizes this candidate specification and its documentation
-record only. `P1c.3` and H120 are proposed review labels in this document; they
-do not become an allocated repository delivery or executable Harness record
-until a later explicit implementation instruction. No production, SDK,
-manifest, schema, catalog, fixture, test, runtime, adapter, persistence, route,
-UI, or dependency change is authorized by this draft.
+This quoted instruction governed the candidate phase and authorized its
+documentation record only. At that point `P1c.3` and H120 were proposed review
+labels and no production change was authorized by the draft. The later
+implementation authority below supersedes only that allocation hold; it does
+not amend any accepted material decision.
 
 “Core SMA” is shorthand for the already classified **Moving Averages** Core
 Plugin with one canonical SMA definition. It does not create a separate SMA
@@ -49,6 +50,19 @@ repository-changing step still requires a separate explicit instruction.
 Acceptance record:
 `../sessions/session_20260817_core_sma_single_plugin_vertical_slice_specification_acceptance.md`.
 
+## Separate Implementation Authorization And Current Disposition
+
+The product owner later directed:
+
+> 授权实施 P1c.3/H120 Core Moving Averages/SMA 单插件完整垂直切片；严格遵循已接受规格，仅实现 first-party.moving-averages@1.0.0 下的 SMA(close)。H120 自动与人工验收通过前，不启动其他插件、P1b.4、Community/Worker 或业务层实现，不改变 H117 状态。
+
+That instruction allocated P1c.3, registered H120 as executable and
+human-review-required, and authorized only this vertical slice. Automated H120
+now passes. H120 remains unaccepted with `acceptanceEvidence: null` until the
+focused product-owner review in `V7_CORE_SMA_P1C3_HUMAN_REVIEW.md` passes.
+Implementation evidence is
+`../sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`.
+
 ## Purpose
 
 P1c.1 established the portable calculated-series truth contracts. P1c.2 proved
@@ -57,7 +71,7 @@ Chart owner and corrected the pinned renderer's whitespace-bridging behavior.
 Neither slice created a usable Indicator.
 
 This accepted specification defines the first product-complete calculated-
-series vertical slice. A separately authorized implementation would let a user:
+series vertical slice. The separately authorized implementation lets a user:
 
 - find the built-in Moving Averages package in Core Plugins;
 - add one or more Simple Moving Average instances to an exact Workspace Pane;
@@ -614,11 +628,10 @@ identity, warmup coverage, resource use, and last stable diagnostic. They expose
 no Bars cache, Replay mutator, native resource, package function, storage
 handle, filesystem path, network client, DOM node, or Canvas detail.
 
-## Proposed H120 Automated Evidence
+## H120 Automated Evidence
 
-Only a later implementation authorization may register H120. When registered,
-it must begin as `executable`, retain `humanReviewRequired: true`, and keep
-`acceptanceEvidence: null` until a focused product-owner review passes.
+The separate implementation authorization registered H120 as `executable`,
+retained `humanReviewRequired: true`, and kept `acceptanceEvidence: null`.
 
 The independent automated gate must prove:
 
@@ -701,8 +714,8 @@ may set H120 to `accepted` and attach a durable acceptance record.
 
 This accepted specification does not authorize or include:
 
-- implementation or registration of proposed P1c.3/H120 through specification
-  acceptance alone;
+- implementation beyond the separately authorized P1c.3/H120 slice, or any
+  claim that specification acceptance alone granted implementation authority;
 - EMA, WMA, RMA, VWMA, HMA, DEMA, TEMA, another SMA source, offset, smoothing,
   crossover, ribbon, regime, signal, alert, scanner, strategy, optimizer, or
   private formula;
@@ -773,13 +786,11 @@ The product owner accepted these ten decisions without amendment on 2026-08-17:
 
 ## Accepted Boundary And Later Sequence
 
-The ten material decisions are accepted. No implementation is currently
-authorized. A later explicit implementation instruction would allocate P1c.3,
-register H120, and authorize only the one Moving Averages/SMA vertical slice
-defined here.
+The ten material decisions are accepted and the bounded implementation is
+complete. Automated H120 passes; focused human acceptance remains open.
 
 No second plugin, second Moving Average definition, or generic real-Indicator
-catalog work may begin until that implementation passes automation and the
-product owner accepts H120. H120 acceptance would close only P1c.3; every later
-layout, algorithm, plugin, SDK, Community/Worker, or P1b.4 step would still
-require a separate product decision and authorization.
+catalog work may begin until the product owner accepts H120. H120 acceptance
+would close only P1c.3; every later layout, algorithm, plugin, SDK,
+Community/Worker, or P1b.4 step would still require a separate product decision
+and authorization.

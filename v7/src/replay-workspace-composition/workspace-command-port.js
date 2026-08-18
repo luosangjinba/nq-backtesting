@@ -22,6 +22,7 @@ export function createReplayWorkspaceCommandPort(context) {
     dispose: context.disposeComposition,
     snapshot: context.snapshotComposition,
     async start() {
+      await context.beforeStart?.();
       if (context.annotationWorkflow !== null) await context.annotationWorkflow.start();
       return startReplay();
     },

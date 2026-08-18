@@ -6,6 +6,7 @@ import {
 import { createPricePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
 import { readWorkspacePaneIdentity } from '../replay-workspace-composition/public.js';
 import { createPaneOverlayView } from './pane-overlay-view.js';
+import { createPaneAddonRegistry } from './pane-addon-registry.js';
 
 function element(tag, options = {}, children = []) {
   const node = document.createElement(tag);
@@ -28,6 +29,7 @@ export function createPaneGridView({
   resolvePriceIncrement,
 }) {
   const root = element('div', { className: 'workspace-pane-grid' });
+  const paneAddons = createPaneAddonRegistry();
   const records = new Map();
   const splitRecords = new Map();
   let layout = initialLayout ?? createPaneLayout();
@@ -239,6 +241,7 @@ export function createPaneGridView({
     });
     const record = { empty, host, instrumentId: null, overlay, shell };
     records.set(paneId, record);
+    paneAddons.attachPane({ chartHost: host, paneId, shell });
     updatePresentation(record);
     updateOverlayControls();
     renderLayout();
@@ -310,6 +313,7 @@ export function createPaneGridView({
       }
     },
     dispose() {
+      paneAddons.dispose();
       records.clear();
       splitRecords.clear();
       root.remove();
@@ -328,6 +332,7 @@ export function createPaneGridView({
       }
       const record = records.get(paneId);
       if (!record) return;
+      paneAddons.detachPane(paneId);
       record.shell.remove();
       records.delete(paneId);
       updateOverlayControls();
@@ -342,6 +347,7 @@ export function createPaneGridView({
       record.state = 'rolled-back';
     },
     root,
+    paneAddonPort: Object.freeze({ register: paneAddons.register }),
     setLayout(nextLayout, nextPaneIds = paneIds) {
       const value = readPaneLayout(nextLayout);
       if (value.paneCount !== nextPaneIds.length) {
@@ -357,6 +363,7 @@ export function createPaneGridView({
     },
     setPending(disabled) {
       pending = disabled === true;
+      paneAddons.setWorkspaceDisabled(pending);
       updateOverlayControls();
       for (const { divider } of splitRecords.values()) {
         divider.setAttribute('aria-disabled', String(pending));
@@ -369,6 +376,7 @@ export function createPaneGridView({
         if (!record) continue;
         record.overlay.setOhlc(pane);
         record.shell.dataset.ohlcState = pane.state;
+        paneAddons.publishCrosshair(pane.paneId, pane);
       }
     },
     setTruncationSelection(active) {

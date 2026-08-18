@@ -12,12 +12,22 @@ function requireMethod(port, method, code) {
 /** Validate only the public operations the headless coordinator is allowed to invoke. */
 export function requireWorkspaceTransactionPorts({
   acquisitionPort,
+  auxiliaryPorts = [],
   chartPort,
   publicationPort,
   projectionPort,
   replayPort,
   workspaceStatePort,
 }) {
+  if (!Array.isArray(auxiliaryPorts) || auxiliaryPorts.some((port) => (
+    !port || typeof port.id !== 'string' || port.id.length === 0
+      || typeof port.prepare !== 'function'
+  )) || new Set(auxiliaryPorts.map(({ id }) => id)).size !== auxiliaryPorts.length) {
+    throw new WorkspaceTransactionRuntimeError(
+      'WORKSPACE_AUXILIARY_PORT',
+      'Workspace auxiliary participants require unique ids and prepare().',
+    );
+  }
   for (const method of REQUIRED_REPLAY_METHODS) {
     requireMethod(replayPort, method, 'WORKSPACE_REPLAY_PORT');
   }
@@ -32,6 +42,7 @@ export function requireWorkspaceTransactionPorts({
   }
   return Object.freeze({
     acquisitionPort,
+    auxiliaryPorts: Object.freeze([...auxiliaryPorts]),
     chartPort,
     projectionPort,
     publicationPort,

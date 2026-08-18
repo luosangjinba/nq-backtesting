@@ -2,6 +2,10 @@ import { SESSION_BROWSER_CONFIG } from './config.js';
 import { createHashNavigation } from './hash-navigation.js';
 import { requireApplicationPort, SESSION_APPLICATION_MODULE_ID } from './application-ports.js';
 import { composeSessionApplicationStores } from './application-stores.js';
+import {
+  createCalculatedSeriesSurfaceConfiguration,
+  validateCalculatedSeriesOptionalPorts,
+} from './calculated-series-optional-ports.js';
 
 async function releaseResources({
   browser, packageBrowser, packageStore, pluginProfile, replayWorkspace, stateSync,
@@ -36,7 +40,13 @@ function validateOptionalPorts(optionalPorts) {
     && typeof annotationWorkflowApi.createProductionManualAnnotationWorkflow !== 'function') {
     throw new TypeError(`${SESSION_APPLICATION_MODULE_ID} received an invalid Annotation Workflow port.`);
   }
-  return Object.freeze({ annotationWorkflowApi, pluginCenterApi, replayApi, stateSyncApi });
+  return Object.freeze({
+    annotationWorkflowApi,
+    ...validateCalculatedSeriesOptionalPorts(optionalPorts),
+    pluginCenterApi,
+    replayApi,
+    stateSyncApi,
+  });
 }
 
 /** Own all browser resources acquired by one hosted Session application instance. */
@@ -179,6 +189,9 @@ export function createSessionApplicationResources({
         readModuleHostSnapshot: environment.readModuleHostSnapshot,
         storage: composed.storage,
       }) : null,
+      calculatedSeries: createCalculatedSeriesSurfaceConfiguration({
+        composed, environment, optional, pluginProfile,
+      }),
       pluginCenter: createPluginCenterFactory(),
     });
   }

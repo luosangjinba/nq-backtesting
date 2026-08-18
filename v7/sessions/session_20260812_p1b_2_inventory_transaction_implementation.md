@@ -82,8 +82,7 @@ database key is absent from Server State Sync.
 
 ## Machine Closure
 
-The refreshed production source baseline contains 534 files, 48,655 effective
-lines, 5,109 functions, and 519 public exports, with no source-size/function
+The refreshed production source baseline contains 582 files, 52,593 effective lines, 5,470 functions, and 558 public exports, with no source-size/function
 exception or finding. The production architecture contains 68 modules, 149
 actual dependency edges, 133 construction sites, 27 writer sites, and zero
 findings. The two new writer surfaces close exactly over

@@ -1,0 +1,12 @@
+{
+  "id": "adapter.trusted-calculated-series-execution",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "trusted-calculated-series-execution",
+  "publicEntry": "src/trusted-calculated-series-execution/public.js",
+  "requiredPorts": ["core.calculated-series-contract"],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/core-moving-averages-harness.js",
+  "removable": true
+}

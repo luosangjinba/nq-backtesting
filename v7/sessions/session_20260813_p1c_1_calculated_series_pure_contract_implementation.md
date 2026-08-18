@@ -63,8 +63,7 @@ eligible-timeline/whitespace closure, exact frame currency, 54 declarative
 negative controls, structural/byte ceiling evidence, executable-value rejection,
 forbidden-owner scans, and legacy contract/H117 hashes.
 
-The refreshed production source baseline contains 534 files, 48,655 effective
-lines, 5,109 functions, and 519 public exports with no source-size/function or
+The refreshed production source baseline contains 582 files, 52,593 effective lines, 5,470 functions, and 558 public exports with no source-size/function or
 documentation exception. The architecture baseline contains 70 modules, 155
 dependency edges, 133 construction sites, 27 writer sites, and zero findings.
 

@@ -1,0 +1,16 @@
+{
+  "id": "optional.core-moving-averages",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "core-moving-averages",
+  "publicEntry": "src/core-moving-averages/public.js",
+  "requiredPorts": [
+    "core.calculated-series-contract",
+    "core.contribution-profile-contract",
+    "core.plugin-contract"
+  ],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/core-moving-averages-harness.js",
+  "removable": true
+}
