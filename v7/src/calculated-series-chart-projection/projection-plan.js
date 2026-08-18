@@ -125,6 +125,20 @@ function requireSupportedPlotStyle(kind, style) {
   return style;
 }
 
+function nativeSeriesCount(kind, points) {
+  if (!['area', 'baseline', 'line'].includes(kind)) return 1;
+  let count = 0;
+  let insideValueRun = false;
+  for (const point of points) {
+    if (point.state === 'whitespace') insideValueRun = false;
+    else if (!insideValueRun) {
+      count += 1;
+      insideValueRun = true;
+    }
+  }
+  return count;
+}
+
 function plotResource(instance, group, placement, plot, output) {
   const style = requireSupportedPlotStyle(
     plot.kind,
@@ -133,6 +147,7 @@ function plotResource(instance, group, placement, plot, output) {
   return Object.freeze({
     instanceId: instance.instanceId,
     kind: plot.kind,
+    nativeSeriesCount: nativeSeriesCount(plot.kind, output.points),
     order: placement.order,
     plotGroupId: group.plotGroupId,
     plotId: plot.plotId,
@@ -306,7 +321,8 @@ function enforceLimits(regions, scales, resources) {
   const totalResources = Math.max(0, regions.length - 1) + scales.length
     + resources.plots.length + resources.bands.length + resources.referenceLines.length;
   if (regions.length > LIMITS.regions || scales.length > LIMITS.scales
-    || resources.plots.length + resources.bands.length > LIMITS.bandsAndSeries
+    || resources.plots.reduce((count, plot) => count + plot.nativeSeriesCount, 0)
+      + resources.bands.length > LIMITS.bandsAndSeries
     || resources.referenceLines.length > LIMITS.referenceLines
     || resources.pointRecords > LIMITS.pointRecords
     || totalResources > LIMITS.logicalResources) {

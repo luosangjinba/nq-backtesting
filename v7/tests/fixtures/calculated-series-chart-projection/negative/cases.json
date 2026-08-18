@@ -19,5 +19,6 @@
   { "name": "log-nonpositive", "expectedCode": "CALCULATED_SERIES_CHART_LOG_VALUE_INVALID" },
   { "name": "collapsed-region", "expectedCode": "CALCULATED_SERIES_CHART_COLLAPSE_UNSUPPORTED" },
   { "name": "fixed-overlay", "expectedCode": "CALCULATED_SERIES_CHART_FIXED_OVERLAY_UNSUPPORTED" },
+  { "name": "native-segment-limit", "expectedCode": "CALCULATED_SERIES_CHART_RESOURCE_LIMIT" },
   { "name": "dispose-failure", "expectedCode": "CALCULATED_SERIES_CHART_DISPOSAL_UNPROVEN" }
 ]

@@ -1,8 +1,9 @@
 # V7 Calculated-Series Chart-Owned Projection Slice — Accepted Specification
 
 Status: ten material decisions accepted on 2026-08-13 with decisions 7 and 8
-amended; separately authorized P1c.2 implementation complete with H119
-`executable` and focused human review pending; no product/runtime availability
+amended; separately authorized P1c.2 implementation complete; H119 first review
+rejected and whitespace-corrected on 2026-08-17, then accepted on corrected
+focused human re-review; P1c.2 closed; no product/runtime availability
 
 Drafted: 2026-08-13
 
@@ -168,6 +169,16 @@ separation, and exact rollback boundary. The library is not adopted as a
 dependency, registry, projection owner, or runtime in this slice. A later
 trusted-formula decision may separately audit individual calculations.
 
+The 2026-08-17 whitespace correction re-checked the official `WhitespaceData`
+contract, the pinned 5.2.0 Line/Area/Baseline render path, and the current
+awesome-tradingview inventory. `WhitespaceData` represents a time point without
+a value, but the pinned connecting renderers operate on value rows and connect
+the remaining adjacent points; the API does not promise a visible path break.
+No ecosystem implementation found in that check preserved V7's sole-writer,
+same-chart-region, reversible-resource, and package-neutral ownership rules.
+The correction therefore uses only adapter-private built-in Series segmentation
+and adds no dependency or writer.
+
 ## Specified Module And Ownership Boundary
 
 P1c.2 adds one removable projection transaction and one adapter-internal native
@@ -296,10 +307,19 @@ mounted chart lifetime. Numeric pane indices, native Scale ids, handle object
 identity, pixel height, Canvas coordinates, and DOM nodes never enter the
 candidate, receipt, snapshot, persistence, SDK, or diagnostic payload.
 
-Retaining the same logical Plot identity with the same native kind and Scale
-Group updates the same native handle. A changed kind, incompatible Scale Group,
-or generation requiring replacement creates a candidate-only handle, hides the
-prior handle during apply, and destroys the prior handle only after finalize.
+One logical line, area, or baseline Plot may map to an ordered private set of
+built-in Series handles, one per contiguous value run. That segment topology is
+an adapter realization detail: candidates, receipts, snapshots, diagnostics,
+and packages still expose exactly one logical Plot and no native handle. Only
+the final segment carries the logical title so one Plot does not duplicate its
+visible axis label.
+
+Retaining the same logical Plot identity with the same native kind, Scale
+Group, and segment count updates the same native handle set. A changed kind,
+incompatible Scale Group, changed segment count, or generation requiring
+replacement creates candidate-only handles, hides the prior handles during
+apply, and destroys them only after finalize. Every private segment counts
+toward the existing native Series/band ceiling before mutation.
 
 ## Native Chart Region Mapping
 
@@ -384,20 +404,23 @@ V1 maps the P1c.1 catalog without a product-Indicator branch:
 
 | Standard Plot | Native materialization |
 | --- | --- |
-| `line` | built-in Line Series |
+| `line` | one built-in Line Series per contiguous value run |
 | `histogram` | built-in Histogram Series with point color chosen against the declared base value |
-| `area` | built-in Area Series |
-| `baseline` | built-in Baseline Series |
+| `area` | one built-in Area Series per contiguous value run |
+| `baseline` | one built-in Baseline Series per contiguous value run |
 | `band` | host-owned Series Primitive attached to the Scale anchor |
 | reference line | price line attached to the Scale anchor |
 
 All scalar points map `displayEpochMs / 1000` to the same Lightweight Charts
-time used by candles. Explicit whitespace maps to native whitespace and must
-break a line, area, baseline, histogram, or band segment; the adapter never
-bridges a missing value. The band Primitive receives validated upper/lower
-points, performs coordinate conversion and segmented fill/stroke only, and
-reports adapter-derived autoscale bounds. It contains no formula, candle-data
-subscription, hit testing, package callback, or business identity.
+time used by candles. Explicit whitespace must break a line, area, baseline,
+histogram, or band segment; the adapter never bridges a missing value. Because
+the pinned connecting built-ins do bridge across `WhitespaceData`, line, area,
+and baseline omit whitespace from native data and materialize each contiguous
+value run as a separate adapter-private Series. Histogram retains native
+whitespace data, while the band Primitive performs its own segmented fill and
+stroke over validated upper/lower points. The Primitive reports adapter-derived
+autoscale bounds and contains no formula, candle-data subscription, hit testing,
+package callback, or business identity.
 
 Colors, stroke widths, solid/dashed/dotted patterns, base values, fills, and
 reference-line label visibility map from the closed P1c.1 styles. Native style
@@ -544,7 +567,8 @@ gate covers:
 2. stable logical resource planning with no native value escaping receipts or
    snapshots;
 3. all five standard Plot kinds, reference lines, style overrides, explicit
-   whitespace, and deterministic z-order;
+   whitespace, bounded private segment-Series topology, and deterministic
+   z-order;
 4. Main candle-Scale sharing, internal primary Scale, auxiliary Scale,
    fixed/auto/symmetric/logarithmic behavior, host formatters, and rejected
    unsupported overlay domains;
@@ -561,9 +585,12 @@ gate covers:
    owners;
 10. native wheel/drag/zoom/Crosshair behavior, shared time alignment, responsive
     pane containment, and screenshot evidence in real Chromium;
-11. projector absence/removal leaves the existing chart path behaviorally and
+11. pixel readback at two probes across every synthetic line/area/baseline gap,
+    requiring zero bridge-colored pixels, plus a raw pinned-native Line Series
+    sensitivity control that must detect its known bridge;
+12. projector absence/removal leaves the existing chart path behaviorally and
     visually unchanged under the same synthetic input;
-12. H118, H116, H117, Chart adapter, Chart Snapshot Application, global
+13. H118, H116, H117, Chart adapter, Chart Snapshot Application, global
     transaction, architecture, source-quality, and complete existing Harness
     regressions.
 
@@ -666,15 +693,26 @@ H119. P1c.2 now provides:
 - one Chart Snapshot Application-owned local admission/fault boundary, without
   registering a second Workspace transaction participant;
 - one adapter-private Lightweight Charts resource bridge for one-chart Main
-  and internal regions, structural Scales, Line/Histogram/Area/Baseline Series,
-  host band Primitive, and reference lines;
+  and internal regions, structural Scales, segmented Line/Area/Baseline and
+  native Histogram Series, host band Primitive, and reference lines;
 - deterministic fake-surface failure evidence plus a real Chromium one-chart
   synthetic fixture and focused screenshot.
 
+The first H119 review on 2026-08-17 rejected the fixture because the pinned
+Line/Area/Baseline built-ins connected value rows across the middle whitespace
+point. The authorized correction maps their contiguous value runs to private
+Series handles, extends preflight ceilings and reversible lifecycle coverage to
+every handle, and adds real-pixel no-bridge evidence with a native sensitivity
+control. This corrects the implementation of the already binding explicit-
+whitespace requirement; it does not amend the ten accepted material decisions
+or broaden delivery authority.
+
 The module is intentionally not constructed by the production Workstation
-route. H119 is `executable`, requires focused human review, and has
-`acceptanceEvidence: null`; therefore P1c.2 is implemented but not yet
-human-accepted. Only after H119 acceptance may a trusted Core MA/SMA
-vertical-slice candidate be started by another explicit instruction.
+route. The product owner accepted the corrected focused evidence on 2026-08-17;
+H119 is `accepted`, its correction session is the durable acceptance evidence,
+and P1c.2 is closed. The prerequisite for a trusted Core MA/SMA vertical-slice
+candidate is now satisfied, but that candidate still requires another explicit
+instruction and its own bounded specification, delivery id, implementation,
+automated evidence, and human gate.
 Generic layout, Community/Worker integration, real Indicator catalog decisions,
 and P1b.4 remain independently gated.

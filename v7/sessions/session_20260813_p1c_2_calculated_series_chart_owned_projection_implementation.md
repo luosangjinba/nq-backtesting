@@ -5,6 +5,12 @@ Date: 2026-08-13
 Status: implementation complete; H119 executable; focused human acceptance
 pending
 
+Correction note: the first focused review on 2026-08-17 rejected the whitespace
+evidence described below. The authorized correction and current re-review state
+are recorded in
+`session_20260817_p1c_2_h119_whitespace_rejection_and_correction.md`; this file
+otherwise preserves the original implementation checkpoint.
+
 ## Authorization
 
 The product owner authorized implementation of the accepted
@@ -54,8 +60,8 @@ H119 is registered as `executable`, `humanReviewRequired: true`, and
 `acceptanceEvidence: null`. The focused checklist is
 `docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`.
 
-The refreshed production source baseline contains 531 files, 48,378 effective
-lines, 5,073 functions, and 519 public exports with no source-size/function,
+The refreshed production source baseline contains 534 files, 48,655 effective
+lines, 5,109 functions, and 519 public exports with no source-size/function,
 documentation, or accepted-exception finding. The architecture baseline
 contains 71 modules, 162 dependency edges, 134 construction sites, 28 writer
 sites, and zero violations.

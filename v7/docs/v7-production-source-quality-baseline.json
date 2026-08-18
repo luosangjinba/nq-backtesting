@@ -30303,6 +30303,126 @@
       "forwardingOnly": false,
       "functions": [
         {
+          "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "updateCalculatedSeriesPlot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "reconcileCalculatedSeriesPlots",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "createPlot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "createPlotSeries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "calculatedSeriesNativePlotCount",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "calculatedSeriesPlotHandles",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "regionIndex",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "removeCalculatedSeriesPlot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "removePlotSeries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "unprovenNativeMutation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "hideObsoleteCalculatedSeriesPlots",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/calculated-series-plot-resources.js",
+      "publicExports": [],
+      "responsibilities": [
+        "visual-surface-mutation"
+      ],
+      "sideEffectConcerns": [
+        {
+          "concern": "visual-surface-mutation",
+          "evidence": [
+            "addSeries()",
+            "removeSeries()",
+            "setData()"
+          ]
+        }
+      ],
+      "sizeException": null,
+      "sourceHash": "5e5f3784eeaacc432a03af4a81d3f227457fcf0a530c3505047457ed44825078"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 103,
+      "forwardingOnly": false,
+      "functions": [
+        {
           "effectiveLines": 10,
           "name": "timeLabel",
           "reviewedDecompositionException": false
@@ -31964,6 +32084,97 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 119,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "pixelsNear",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 21,
+          "name": "calculatedSeriesWhitespaceGaps",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "rgb",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "valuePoint",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "calculatedSeriesWhitespaceGapCount",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "matchesColor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "nativeSeries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 40,
+          "name": "readCalculatedSeriesWhitespaceEvidence",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "strokeColors",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "strokeWidth",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "finiteCoordinates",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/calculated-series-whitespace-evidence.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "101cbf2a721d5252edaaf4d93c536e14f853835bbaab7ba4bed64c4d9cb69bac"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 136,
       "forwardingOnly": false,
       "functions": [
@@ -32120,87 +32331,6 @@
       ],
       "sizeException": null,
       "sourceHash": "a8c4fb21cbfa960f2427d4bb0e8980820336027823ab9dc9d0c40b78f5e94203"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 139,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "rollback",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "requirePlan",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "finalize",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 32,
-          "name": "apply",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 32,
-          "name": "createCalculatedSeriesChartSurface",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "preflight",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "requireActive",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/calculated-series-chart-surface.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "15d79f7f7b60da79bb401120f8509179784512e9abeaca4709829aa414739987"
     },
     {
       "adaptsBoundary": true,
@@ -33064,6 +33194,92 @@
       ],
       "sizeException": null,
       "sourceHash": "7414c0ce272143d9879c5b9f4d6f97dc2d171e7ae3fd9513f0293690edfe9952"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 146,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "rollback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "finalize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "requirePlan",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 32,
+          "name": "apply",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 32,
+          "name": "createCalculatedSeriesChartSurface",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "preflight",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireActive",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/calculated-series-chart-surface.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "ede9c2f50c8b5fe9a31bc1d47627b4890cc27f9652b649c326efd61f548f7058"
     },
     {
       "adaptsBoundary": true,
@@ -35260,7 +35476,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "1d8316e3486092a7caf01fea61025ebb9969d148aada2efbf835f1219c54e423"
+      "sourceHash": "7e8348b4b80470d77a77205bad7d63cecb732713a15f32e1b5cbdda73ce4de9b"
     },
     {
       "adaptsBoundary": true,
@@ -37059,6 +37275,37 @@
       ],
       "sizeException": null,
       "sourceHash": "bc4ec6f9b1575464b9153e0ef07678fb6eb74c79b8352bea693a228729fd3c17"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 21,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 17,
+          "name": "nativePlotPointSegments",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "nativePlotSeriesCount",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/calculated-series-native-plot-segments.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "df560c2fe68ea01aa4cfb58a01edaae5efd9e32dfa744d1417f2a8e226fb92ad"
     },
     {
       "adaptsBoundary": true,
@@ -40588,368 +40835,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 332,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-11>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-19>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-20>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-21>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-22>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-25>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-28>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-29>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-30>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-31>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-32>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-33>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-34>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-35>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-36>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-37>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-39>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-40>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-43>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-47>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "mainPrimaryCompatible",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "requireSupportedPlotStyle",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "enforceLimits",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "plotResource",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 2,
-          "name": "<anonymous-44>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 2,
-          "name": "ordered",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 25,
-          "name": "referenceLineResource",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-24>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-38>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "definitionRef",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "fail",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "resourceId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "same",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 33,
-          "name": "planCalculatedSeriesChartProjection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-46>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "styleFor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 41,
-          "name": "collectResources",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-13>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "definitionKey",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "scalarValues",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 67,
-          "name": "materializeScales",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 69,
-          "name": "requireCandidateClosure",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "optional.calculated-series-chart-projection",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/calculated-series-chart-projection/projection-plan.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "chart-runtime-adapter.",
-            "purpose": "validate complete calculated-series Pane surfaces and expose one removable Chart-owned child transaction factory.",
-            "inputs": "branded P1c.1 Definitions/documents/frames, host-created Chart bindings, and one bounded native surface port.",
-            "outputs": "branded candidates, preparations, receipts, deterministic limits, and an owner-bindable projection factory.",
-            "sideEffects": "only an injected adapter surface may mutate native resources after the Chart owner admits a preparation.",
-            "lifecycle": "one factory binds one Chart owner; preparations settle exactly and the bound surface disposes explicitly.",
-            "errors": "CalculatedSeriesChartProjectionError rejects stale, partial, forged, unsupported, failed, or out-of-phase work.",
-            "concurrencyCancellation": "one complete Pane-surface transaction at a time; no package callback or asynchronous calculation runs inside apply."
-          },
-          "moduleId": "optional.calculated-series-chart-projection",
-          "name": "CALCULATED_SERIES_CHART_PROJECTION_LIMITS",
-          "semanticMatches": [
-            "calculated",
-            "chart",
-            "limits",
-            "projection",
-            "series"
-          ],
-          "semanticTerms": [
-            "calculated",
-            "chart",
-            "limits",
-            "optional",
-            "projection",
-            "series"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "4e15b0a3aff094ab6188661b6ec8ffa374f10227fb206ea9f0a5df44af087c89"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 34,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-11>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "countCalculatedSeriesPaintedPixels",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "visit",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "readCalculatedSeriesPaintedPixels",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "colorTargets",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/calculated-series-paint-readback.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "20323767dc17ca0b3c3a238c46ce197c3f805a07e8952ad03b68ed2ced31b05c"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 34,
       "forwardingOnly": false,
       "functions": [
@@ -41098,6 +40983,302 @@
       ],
       "sizeException": null,
       "sourceHash": "eae9dc788a56a21097ad429ef6cbebeec7ecf19ae4efcee6138d4450ce6567a2"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 347,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-21>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-22>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-23>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-26>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-29>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-30>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-31>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-32>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-33>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-34>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-35>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-36>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-37>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-38>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-40>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-41>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-43>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-45>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-49>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "mainPrimaryCompatible",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "requireSupportedPlotStyle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "enforceLimits",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "nativeSeriesCount",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-46>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "ordered",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "plotResource",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "referenceLineResource",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-25>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-39>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "definitionRef",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "fail",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "resourceId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "same",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "planCalculatedSeriesChartProjection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-48>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "styleFor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 41,
+          "name": "collectResources",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "definitionKey",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "scalarValues",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 67,
+          "name": "materializeScales",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 69,
+          "name": "requireCandidateClosure",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.calculated-series-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/calculated-series-chart-projection/projection-plan.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "chart-runtime-adapter.",
+            "purpose": "validate complete calculated-series Pane surfaces and expose one removable Chart-owned child transaction factory.",
+            "inputs": "branded P1c.1 Definitions/documents/frames, host-created Chart bindings, and one bounded native surface port.",
+            "outputs": "branded candidates, preparations, receipts, deterministic limits, and an owner-bindable projection factory.",
+            "sideEffects": "only an injected adapter surface may mutate native resources after the Chart owner admits a preparation.",
+            "lifecycle": "one factory binds one Chart owner; preparations settle exactly and the bound surface disposes explicitly.",
+            "errors": "CalculatedSeriesChartProjectionError rejects stale, partial, forged, unsupported, failed, or out-of-phase work.",
+            "concurrencyCancellation": "one complete Pane-surface transaction at a time; no package callback or asynchronous calculation runs inside apply."
+          },
+          "moduleId": "optional.calculated-series-chart-projection",
+          "name": "CALCULATED_SERIES_CHART_PROJECTION_LIMITS",
+          "semanticMatches": [
+            "calculated",
+            "chart",
+            "limits",
+            "projection",
+            "series"
+          ],
+          "semanticTerms": [
+            "calculated",
+            "chart",
+            "limits",
+            "optional",
+            "projection",
+            "series"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "8474c6a73dd3c02518d16a05796ec644a23fb1819f0c61a796f9f6f0a5ac5956"
     },
     {
       "adaptsBoundary": true,
@@ -42529,6 +42710,82 @@
       "functions": [
         {
           "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "readCalculatedSeriesPaintEvidence",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "countCalculatedSeriesPaintedPixels",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "visit",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "colorTargets",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/calculated-series-paint-readback.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "96654888f57bf45edd1bfe6a4d13bca90660c34704ad5531e0ead74e0849103e"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 41,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
           "name": "commit",
           "reviewedDecompositionException": false
         },
@@ -42911,6 +43168,340 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "ba52e95b7d03ab0078363671b9d51765de7abdb23d44e1e2c626433c73e163d7"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 418,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-18>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-28>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-35>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-36>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-37>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-38>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-39>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-40>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-42>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-45>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-47>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-48>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-50>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-54>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-55>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-60>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "mapBy",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "removeRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "createLine",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "retainedCounts",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "reconcileBands",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "reconcileLines",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "finalizeCalculatedSeriesResourceStage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "reconcileScales",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "createBand",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "applyScale",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "hideObsolete",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-41>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "orderSeries",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "reconcileRegions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "rollbackCalculatedSeriesResourceStage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-57>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-58>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "clonedMaps",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "regionIndex",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "sameResource",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "unprovenNativeMutation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "createScale",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 37,
+          "name": "captureCalculatedSeriesNativeState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "count",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "updateLine",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-29>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-51>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "createEmptyCalculatedSeriesResourceMaps",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "disposeCalculatedSeriesResources",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "nativeScaleId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "restorePaneState",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 51,
+          "name": "applyCalculatedSeriesResourcePlan",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "assertCandleUnchanged",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "capturePriceScale",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "updateBand",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.lightweight-chart",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/lightweight-chart-adapter/calculated-series-chart-resources.js",
+      "publicExports": [],
+      "responsibilities": [
+        "visual-surface-mutation"
+      ],
+      "sideEffectConcerns": [
+        {
+          "concern": "visual-surface-mutation",
+          "evidence": [
+            "addSeries()",
+            "attachPrimitive()",
+            "createPriceLine()",
+            "detachPrimitive()",
+            "removeSeries()",
+            "setData()",
+            "setVisibleRange()"
+          ]
+        }
+      ],
+      "sizeException": null,
+      "sourceHash": "8e44a0b8a3ed938315ae1d93f03cc793436b72caa25d51172a3a928ecb543cad"
     },
     {
       "adaptsBoundary": true,
@@ -44391,360 +44982,6 @@
       ],
       "sizeException": null,
       "sourceHash": "e225645e63159344040cde6cf2f0a9df59e0292ab34575d95aabfb066c0bf235"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 449,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-13>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-16>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-17>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-18>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-30>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-38>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-39>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-40>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-41>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-42>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-43>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-44>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-45>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-46>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-49>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-51>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-52>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-54>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-58>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-59>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-64>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "mapBy",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "removeRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "createLine",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "retainedCounts",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "reconcileBands",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "reconcileLines",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "finalizeCalculatedSeriesResourceStage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "reconcilePlots",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "reconcileScales",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "createBand",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "orderSeries",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "applyScale",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 21,
-          "name": "hideObsolete",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "reconcileRegions",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 27,
-          "name": "createPlot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 27,
-          "name": "rollbackCalculatedSeriesResourceStage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-14>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-61>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-62>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "clonedMaps",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "regionIndex",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "sameResource",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "unprovenNativeMutation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 35,
-          "name": "createScale",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 36,
-          "name": "captureCalculatedSeriesNativeState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-15>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "count",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "updateLine",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 44,
-          "name": "applyCalculatedSeriesResourcePlan",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-31>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-55>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "createEmptyCalculatedSeriesResourceMaps",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "disposeCalculatedSeriesResources",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "nativeScaleId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "restorePaneState",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "updatePlot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "assertCandleUnchanged",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "capturePriceScale",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "updateBand",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.lightweight-chart",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/lightweight-chart-adapter/calculated-series-chart-resources.js",
-      "publicExports": [],
-      "responsibilities": [
-        "visual-surface-mutation"
-      ],
-      "sideEffectConcerns": [
-        {
-          "concern": "visual-surface-mutation",
-          "evidence": [
-            "addSeries()",
-            "attachPrimitive()",
-            "createPriceLine()",
-            "detachPrimitive()",
-            "removeSeries()",
-            "setData()",
-            "setVisibleRange()"
-          ]
-        }
-      ],
-      "sizeException": null,
-      "sourceHash": "bfa3564e81f6c621e58f16705717d10d4038635137879b7f773edf4a4a65edf6"
     },
     {
       "adaptsBoundary": true,
@@ -46589,72 +46826,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "b591efd69c6fea9ebe86795db2c7863813f511cab0fb30bae9f81e26a2b1d538"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 61,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 37,
-          "name": "readCalculatedSeriesPaintedReadback",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "safeCount",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "exactRecord",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "exactStringArray",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "fail",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "optional.calculated-series-chart-projection",
-      "owner": "chart-runtime-adapter",
-      "ownsContract": false,
-      "path": "src/calculated-series-chart-projection/painted-readback.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "1ee43cc047dd806544fd0b7340fef69debdfd274748b928988e3cdff579b13c1"
     },
     {
       "adaptsBoundary": true,
@@ -49623,6 +49794,87 @@
       "functions": [
         {
           "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "safeCount",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "exactStringArray",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "expectedWhitespaceGapCount",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 52,
+          "name": "readCalculatedSeriesPaintedReadback",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "fail",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "optional.calculated-series-chart-projection",
+      "owner": "chart-runtime-adapter",
+      "ownsContract": false,
+      "path": "src/calculated-series-chart-projection/painted-readback.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "f73cf1190acb8ad92022f9e2a816b2238777728e4c3c1b0be2d27677a0a6f248"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 97,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
           "name": "capture",
           "reviewedDecompositionException": false
         },
@@ -49940,9 +50192,9 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 48378,
-    "files": 531,
-    "functions": 5073,
+    "effectiveLines": 48655,
+    "files": 534,
+    "functions": 5109,
     "publicExports": 519
   },
   "deliveryStep": "P1c.2",

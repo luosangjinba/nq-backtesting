@@ -21,6 +21,7 @@ import { createFakeCalculatedSeriesChartSurface } from './support/fake-calculate
 import {
   fixedScaleRange,
   nativeAnchorOptions,
+  nativePlotOptions,
   nativePriceFormat,
   nativeScaleMode,
 } from '../src/lightweight-chart-adapter/calculated-series-native-options.js';
@@ -88,6 +89,7 @@ assert.equal(first.surface.snapshot().mutationCount, 0, 'prepare may preflight b
 const receipt = await prepared.apply();
 const receiptWire = readCalculatedSeriesChartProjectionReceipt(receipt);
 assert.equal(receiptWire.paintedReadback.logicalResourceCount, 9);
+assert.equal(receiptWire.paintedReadback.nativePlotSeries, 7);
 assert.deepEqual(receiptWire.paintedReadback.resourceIds, [
   'instance-synthetic:price-group:plot:area-output',
   'instance-synthetic:price-group:plot:band-output',
@@ -96,6 +98,11 @@ assert.deepEqual(receiptWire.paintedReadback.resourceIds, [
   'instance-synthetic:price-group:reference-line:price-reference',
   'instance-synthetic:ratio-group:plot:histogram-output',
 ]);
+assert.deepEqual(receiptWire.paintedReadback.whitespaceGaps, {
+  bridgePixelCount: 0,
+  checkedProbeCount: 6,
+  gapCount: 3,
+});
 assertNoNativeValue(receiptWire);
 await prepared.dispose();
 assert.equal(first.owner.snapshot().child.acceptedSurfaceRevision, 0);
@@ -112,6 +119,9 @@ assert.deepEqual(fixedScaleRange({ domain: { kind: 'fixed', minimum: -4, maximum
 assert.deepEqual(fixedScaleRange({
   domain: { kind: 'symmetric-around-zero', magnitude: 3 },
 }), { from: -3, to: 3 });
+assert.equal(nativePlotOptions({
+  kind: 'line', style: { stroke: { color: '#000000FF', pattern: 'solid', width: 1 } }, title: 'Logical title',
+}, 'right', { title: '' }).title, '');
 assert.equal(nativePriceFormat({
   formatter: {
     formatterId: 'host.percentage',
@@ -394,6 +404,29 @@ const operations = {
     const fixture = createCalculatedSeriesProjectionFixture({ definitionWire: definition, documentWire: document });
     return ownerFor(fixture).owner.prepare(fixture.candidate);
   },
+  'native-segment-limit': async () => {
+    const linePoints = [];
+    for (let index = 0; index < 65; index += 1) {
+      linePoints.push({
+        displayEpochMs: (index * 2 + 1) * 1_000,
+        state: 'value',
+        value: 99 + (index % 3),
+      });
+      if (index < 64) {
+        linePoints.push({
+          displayEpochMs: (index * 2 + 2) * 1_000,
+          state: 'whitespace',
+        });
+      }
+    }
+    const fixture = createCalculatedSeriesProjectionFixture({
+      definitionWire,
+      documentWire,
+      linePoints,
+      replayVisibleThroughEpochMs: 130_000,
+    });
+    return ownerFor(fixture).owner.prepare(fixture.candidate);
+  },
   'dispose-failure': async () => {
     const surface = createFakeCalculatedSeriesChartSurface();
     const configured = ownerFor(initial, surface);
@@ -505,11 +538,21 @@ try {
   assert.deepEqual(result.before, result.after, 'projection settlement must not mutate candle writer state');
   assert.equal(result.ready.paneCount, 2);
   assert.ok(result.ready.matchedColorPixels > 0, 'real calculated-series colors must paint');
+  assert.equal(result.ready.nativePlotSeries, 7);
+  assert.equal(result.nativeWhitespaceControl.gapCount, 1);
+  assert.equal(result.nativeWhitespaceControl.checkedProbeCount, 2);
+  assert.ok(result.nativeWhitespaceControl.bridgePixelCount > 0,
+    'the visual probe must detect pinned Lightweight Charts native whitespace bridging');
+  assert.deepEqual(result.ready.whitespaceGaps, {
+    bridgePixelCount: 0,
+    checkedProbeCount: 6,
+    gapCount: 3,
+  }, 'every explicit line/area/baseline whitespace gap must be pixel-proven unbridged');
   assert.deepEqual(result.readySurface.nativeInventory, {
-    bands: 1, plots: 4, referenceLines: 1, regions: 2, scales: 2,
+    bands: 1, nativePlotSeries: 7, plots: 4, referenceLines: 1, regions: 2, scales: 2,
   });
   assert.deepEqual(result.pendingSurface.nativeInventory, {
-    bands: 0, plots: 0, referenceLines: 0, regions: 2, scales: 0,
+    bands: 0, nativePlotSeries: 0, plots: 0, referenceLines: 0, regions: 2, scales: 0,
   });
   assert.deepEqual(result.retained.retainedHandles, {
     bands: 1, plots: 4, referenceLines: 1, regions: 2, scales: 2,

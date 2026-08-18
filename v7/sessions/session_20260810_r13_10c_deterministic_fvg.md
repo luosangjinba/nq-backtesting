@@ -44,7 +44,7 @@ Workspace writer, accepted Annotation writer, persistence, storage, or network
 surface. Final architecture evidence is 62 modules, 134 dependency edges, 115
 construction sites, 23 writer sites, and zero blocking findings. Module
 assembly is 62 public entries, 26 lifecycle modules, and 29 optional-removal
-cases. Current source quality is 531 files, 48,378 effective lines, 5,073 functions, and 519 public exports, with no accepted exception. Architecture,
+cases. Current source quality is 534 files, 48,655 effective lines, 5,109 functions, and 519 public exports, with no accepted exception. Architecture,
 writer, source-quality, standalone, JSON, and patch-format gates pass.
 
 ## Human Gate — Accepted 2026-08-10

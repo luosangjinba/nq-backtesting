@@ -11,7 +11,7 @@ production source or browser behavior and does not reactivate recovery mode.
 
 ## Finding
 
-The canonical production source baseline now contains 531 files, 48,378 effective lines, 5,073 functions, and 519 public exports. R8.16 originally
+The canonical production source baseline now contains 534 files, 48,655 effective lines, 5,109 functions, and 519 public exports. R8.16 originally
 found six current prose occurrences reporting an older line count. Existing source
 analysis still passed because it compared production AST output with the exact
 JSON baseline but did not reconcile human-readable summaries.

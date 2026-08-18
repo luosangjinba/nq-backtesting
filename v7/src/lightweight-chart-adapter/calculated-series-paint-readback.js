@@ -1,3 +1,7 @@
+import {
+  readCalculatedSeriesWhitespaceEvidence,
+} from './calculated-series-whitespace-evidence.js';
+
 function colorTargets(plan) {
   const values = [];
   const visit = (value) => {
@@ -13,10 +17,9 @@ function colorTargets(plan) {
 }
 
 /** Count pixels matching declared calculated-series colors in adapter-owned screenshot evidence. */
-function countCalculatedSeriesPaintedPixels(chart, plan) {
+function countCalculatedSeriesPaintedPixels(context, plan) {
   const targets = colorTargets(plan);
   if (targets.length === 0) return 0;
-  const context = chart.takeScreenshot(true, false).getContext('2d', { willReadFrequently: true });
   if (context === null) return 0;
   const data = context.getImageData(0, 0, context.canvas.width, context.canvas.height).data;
   let count = 0;
@@ -31,8 +34,13 @@ function countCalculatedSeriesPaintedPixels(chart, plan) {
 }
 
 /** Cross the bounded two-frame paint gate and return adapter-owned pixel evidence. */
-export async function readCalculatedSeriesPaintedPixels(chart, plan, requestFrame) {
+export async function readCalculatedSeriesPaintEvidence(chart, maps, plan, requestFrame) {
   await new Promise((resolve) => requestFrame(() => resolve()));
   await new Promise((resolve) => requestFrame(() => resolve()));
-  return countCalculatedSeriesPaintedPixels(chart, plan);
+  const canvas = chart.takeScreenshot(true, false);
+  const context = canvas.getContext('2d', { willReadFrequently: true });
+  return Object.freeze({
+    matchedColorPixels: countCalculatedSeriesPaintedPixels(context, plan),
+    whitespaceGaps: readCalculatedSeriesWhitespaceEvidence(chart, maps, canvas),
+  });
 }

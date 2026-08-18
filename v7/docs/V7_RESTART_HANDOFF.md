@@ -1,10 +1,48 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-13 before a planned server reboot; P1c.2 Calculated-Series
-Chart-Owned Projection is implemented at baseline `6672a23f`, while H119 remains
-executable and its focused human review is explicitly incomplete
+Last updated: 2026-08-17 after the first H119 review rejected whitespace,
+the authorized correction was implemented, and the corrected focused re-review
+accepted H119; P1c.2 is closed
 
 ## Restart Resume Checkpoint
+
+### 2026-08-17 H119 Rejection, Correction, And Acceptance
+
+The product owner explicitly rejected H119 item 3 on 2026-08-17: the focused
+fixture's line, area, and baseline were still continuously painted through the
+middle whitespace point. This was the first focused acceptance conclusion;
+H119 had only been made executable on 2026-08-13 and had not been accepted
+before this review.
+
+The product owner then authorized the bounded correction and automated visual
+assertion. After reviewing the corrected evidence, the product owner stated
+`H119 验收通过，下一步计划做什么？`. The current working tree:
+
+- records H119 as `accepted`, retains `humanReviewRequired: true`, and binds its
+  `acceptanceEvidence` to the 2026-08-17 correction session;
+- maps each logical line/area/baseline Plot to adapter-private built-in Series
+  per contiguous value run, without exposing handles or adding a writer;
+- preserves one logical Plot/title while including all seven native scalar
+  Series in limits, staging, ordering, rollback, finalize, and disposal;
+- proves the three fixture gaps with six real-pixel probes and zero matching
+  bridge pixels;
+- proves sensor sensitivity with a raw pinned-Lightweight-Charts
+  value/whitespace/value Line Series that must report a positive bridge count;
+- rejects a synthetic 65-segment candidate before native mutation and now runs
+  22 H119 negative controls;
+- refreshes the focused screenshot while retaining one same-chart Main/internal
+  surface and unchanged candle ownership.
+
+P1c.2 is now closed. Resume by reading
+`sessions/session_20260817_p1c_2_h119_whitespace_rejection_and_correction.md`
+and
+`docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`. The next
+candidate in the accepted dependency sequence is a trusted Core MA/SMA vertical
+slice, but no delivery id, Harness id, specification, or implementation is yet
+allocated. It requires a separate product-owner instruction. H117 and P1b.4
+remain unchanged; do not start MA/SMA, live instances, persistence/UI,
+Community/Worker execution, generic layout, production route wiring, or any
+later slice from H119 acceptance alone.
 
 ### 2026-08-13 Server-Reboot Hold
 
@@ -65,8 +103,10 @@ and 8 require Chart-owner escalation for unprovable recovery and Chart-owner-
 only admission of both projection modes. A later explicit instruction
 allocated and implemented P1c.2/H119. The removable projector and adapter-
 private synthetic Main/internal surface are not wired into the Workstation;
-H119 is executable with focused human review pending. P1b.4 remains paused and
-H117 remains unaccepted and unchanged.
+the first H119 review rejected whitespace bridging on 2026-08-17, its bounded
+correction is implemented, and the corrected focused human re-review accepted
+H119 on the same date. P1c.2 is closed. P1b.4 remains paused and H117 remains
+unaccepted and unchanged.
 `git log` is the authoritative commit identity.
 
 After a machine or agent restart, run:
@@ -1282,12 +1322,15 @@ only admission/sequencing for both projection modes.
 The separate implementation instruction allocated P1c.2 and H119. The
 complete-surface transaction, Chart-owned admission/fault seam, adapter-private
 native bridge, reversible failure behavior, and real Chromium evidence are
-implemented without product-route wiring. H119 is `executable`, human-review-
-required, and unaccepted. The exact next step is the focused review in
-`V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`; do not infer
-authority for MA/SMA, a live instance/persistence owner, SDK execution
-availability, Community/Worker execution, generic layout, or P1b.4. H117
-remains unchanged.
+implemented without product-route wiring. The first review rejected continuous
+line/area/baseline whitespace rendering; the authorized adapter-private
+segmentation and pixel-sensitivity correction is now implemented. The product
+owner accepted the corrected focused gate on 2026-08-17; H119 is accepted and
+P1c.2 is closed. The next candidate in the accepted sequence is a trusted Core
+MA/SMA vertical slice, but it has no allocated delivery/Harness id and requires
+a separate specification/implementation instruction. Do not infer authority
+for MA/SMA, a live instance/persistence owner, SDK execution availability,
+Community/Worker execution, generic layout, or P1b.4. H117 remains unchanged.
 
 R13.10e/H114, P0b/H115, and P1a/H116 are closed. P1b.1–P1b.3 implement the
 non-executing local package contract/archive, transaction/storage, and corrected

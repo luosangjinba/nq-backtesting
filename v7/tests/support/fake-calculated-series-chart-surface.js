@@ -1,5 +1,23 @@
 const clone = (value) => structuredClone(value);
 
+function whitespaceGapCount(plan) {
+  const connecting = new Set(['area', 'baseline', 'line']);
+  return plan.plots.reduce((total, resource) => {
+    if (!connecting.has(resource.kind)) return total;
+    let count = 0;
+    for (let index = 1; index < resource.points.length - 1; index += 1) {
+      if (resource.points[index].state === 'whitespace'
+        && resource.points[index - 1].state === 'value') {
+        while (index < resource.points.length && resource.points[index].state === 'whitespace') {
+          index += 1;
+        }
+        if (index < resource.points.length && resource.points[index].state === 'value') count += 1;
+      }
+    }
+    return total + count;
+  }, 0);
+}
+
 function retainedCounts(previous, candidate) {
   const intersection = (prior, next, key) => {
     const priorIds = new Set((prior?.[key] ?? []).map((value) => value[key === 'regions'
@@ -43,17 +61,26 @@ export function createFakeCalculatedSeriesChartSurface() {
         active = stage;
         maybeFail('apply:readback');
         events.push('apply:painted');
+        const gapCount = whitespaceGapCount(plan);
         return Object.freeze({
           readback: Object.freeze({
             candleInvariant: true,
             logicalResourceCount: plan.resourceCount,
             matchedColorPixels: plan.resourceCount === 0 ? 0 : 1,
+            nativePlotSeries: plan.plots.reduce((count, plot) => (
+              count + plot.nativeSeriesCount
+            ), 0),
             paneCount: plan.regions.length,
             regions: Object.freeze(plan.regions.map(({ regionId }) => regionId)),
             retainedHandles: retainedCounts(previous, plan),
             resourceIds: Object.freeze([
               ...plan.plots, ...plan.bands, ...plan.referenceLines,
             ].map(({ resourceId }) => resourceId).sort()),
+            whitespaceGaps: Object.freeze({
+              bridgePixelCount: 0,
+              checkedProbeCount: gapCount * 2,
+              gapCount,
+            }),
           }),
           stage,
         });

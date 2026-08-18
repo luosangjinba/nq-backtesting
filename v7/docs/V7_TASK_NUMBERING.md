@@ -1,8 +1,9 @@
 # V7 Task And Requirement Numbering
 
 Status: binding delivery rule; latest allocated repository step P1c.2
-implemented, H119 executable with focused human review pending; H117 unchanged
-(2026-08-13)
+implemented and whitespace-corrected after its first H119 review rejection;
+H119 accepted and P1c.2 closed; H117 unchanged
+(2026-08-17)
 
 ## Delivery IDs
 
@@ -31,8 +32,11 @@ Calculated-Series Chart-Owned Projection. A separate 2026-08-13 product-owner
 instruction authorized its accepted specification and allocated H119. The
 synthetic removable projection transaction, Chart-owned admission seam,
 adapter-private one-chart Main/internal resource bridge, and real Chromium
-evidence are implemented. H119 remains `executable`, human-review-required,
-and unaccepted, so P1c.2 awaits its focused gate. It adds no Profile execution
+evidence are implemented. The first H119 review on 2026-08-17 rejected native
+line/area/baseline whitespace bridging; the expressly authorized bounded
+correction now segments contiguous value runs and adds real-pixel no-bridge
+evidence. The product owner accepted the corrected focused gate on 2026-08-17;
+H119 is accepted and P1c.2 is closed. It adds no Profile execution
 availability, named Indicator, live instance/persistence/UI, Community/Worker,
 P1b.4, product route wiring, or H117 change.
 

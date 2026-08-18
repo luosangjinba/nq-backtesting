@@ -2704,9 +2704,9 @@
       "id": "H119",
       "name": "calculated-series-chart-owned-complete-surface-main-internal-projection",
       "owner": "chart-snapshot-application/calculated-series-chart-projection/lightweight-chart-adapter/conformance-harness",
-      "v6FailurePrevented": "an Indicator or package became a second Chart writer, Main and subpane output used separate synchronized charts, pending output left stale pixels, Plot movement recalculated values, native handles escaped portable state, projection settlement mutated candles or Workspace owners, destructive cleanup preceded finalize, or failed restoration remained a local uncertainty instead of poisoning the Chart activation",
+      "v6FailurePrevented": "an Indicator or package became a second Chart writer, Main and subpane output used separate synchronized charts, a line/area/baseline bridged explicit whitespace, pending output left stale pixels, Plot movement recalculated values, native handles escaped portable state, projection settlement mutated candles or Workspace owners, destructive cleanup preceded finalize, or failed restoration remained a local uncertainty instead of poisoning the Chart activation",
       "activationStep": "P1c.2",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/calculated-series-chart-projection-harness.js",
       "positiveEvidence": [
         "docs/V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md",
@@ -2717,20 +2717,25 @@
         "src/chart-snapshot-application/calculated-series-projection-owner.js",
         "src/lightweight-chart-adapter/calculated-series-chart-surface.js",
         "src/lightweight-chart-adapter/calculated-series-chart-resources.js",
+        "src/lightweight-chart-adapter/calculated-series-plot-resources.js",
+        "src/lightweight-chart-adapter/calculated-series-native-plot-segments.js",
         "src/lightweight-chart-adapter/calculated-series-band-primitive.js",
         "src/lightweight-chart-adapter/calculated-series-native-options.js",
+        "src/lightweight-chart-adapter/calculated-series-paint-readback.js",
+        "src/lightweight-chart-adapter/calculated-series-whitespace-evidence.js",
         "src/lightweight-chart-adapter/chart-owned-surface-bindings.js",
         "tests/calculated-series-chart-projection-harness.js",
         "tests/fixtures/calculated-series-chart-projection/index.html",
         "tests/fixtures/calculated-series-chart-projection/scenario.js",
         "tests/fixtures/calculated-series-chart-projection/main-internal-1000x700.png",
-        "sessions/session_20260813_p1c_2_calculated_series_chart_owned_projection_implementation.md"
+        "sessions/session_20260813_p1c_2_calculated_series_chart_owned_projection_implementation.md",
+        "sessions/session_20260817_p1c_2_h119_whitespace_rejection_and_correction.md"
       ],
       "negativeFixtures": [
         "tests/fixtures/calculated-series-chart-projection/negative/cases.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260817_p1c_2_h119_whitespace_rejection_and_correction.md"
     }
   ]
 }

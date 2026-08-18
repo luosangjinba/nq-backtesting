@@ -1287,7 +1287,7 @@ executable and unaccepted with its complete record unchanged. The immediate
 repository-changing next step is not authorized. H118 acceptance does not start
 any Chart projection, MA/SMA, Community/Worker, or P1b.4 work.
 
-### P1c.2 Calculated-Series Chart-Owned Projection Slice — Implemented; H119 Review Pending
+### P1c.2 Calculated-Series Chart-Owned Projection Slice — Accepted 2026-08-17
 
 The product owner accepted the binding specification, not implementation, for
 the second ADR-V7-005 dependency.
@@ -1322,7 +1322,18 @@ Plot mappings, host band Primitive, reference lines, rollback/finalize
 recovery, and deterministic plus real-Chromium evidence. It is not constructed
 by the production Workstation route.
 
-H119 is `executable`, requires focused human review, and remains unaccepted.
+The product owner's first focused review on 2026-08-17 rejected H119 item 3:
+the fixture's line, area, and baseline still connected across their middle
+whitespace point. The authorized correction now realizes each such logical Plot
+as an adapter-private set of contiguous value-run built-in Series, keeps one
+logical title, accounts for every native segment before mutation, and preserves
+the same reversible lifecycle. Real-browser evidence requires three detected
+gaps, six checked probes, and zero bridge-colored pixels; a raw pinned-native
+Line Series must produce a positive bridge count as the sensitivity control.
+
+The product owner accepted the corrected focused evidence on 2026-08-17. H119
+is `accepted`, the correction session is its durable `acceptanceEvidence`, and
+P1c.2 is closed.
 The implementation adds no calculation engine, production route, MA/SMA, live
 instance/persistence/UI, Community/Worker, P1b.4, or H117 change. No later
 delivery is authorized by implementation alone.

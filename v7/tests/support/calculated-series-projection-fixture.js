@@ -25,11 +25,11 @@ function transactionIdentity() {
   });
 }
 
-function readyGroups() {
-  return [{
+function readyGroups(linePoints = null) {
+  const groups = [{
     plotGroupId: 'price-group',
     plots: [
-      { plotId: 'line-output', kind: 'line', points: [
+      { plotId: 'line-output', kind: 'line', points: linePoints ?? [
         { state: 'value', displayEpochMs: 1_000, value: 99 },
         { state: 'whitespace', displayEpochMs: 2_000 },
         { state: 'value', displayEpochMs: 3_000, value: 101 },
@@ -58,10 +58,23 @@ function readyGroups() {
       { state: 'value', displayEpochMs: 3_000, value: 1 },
     ] }],
   }];
+  if (linePoints !== null) {
+    const timeline = linePoints.map(({ displayEpochMs }) => displayEpochMs);
+    for (const group of groups) {
+      for (const plot of group.plots) {
+        if (plot.plotId === 'line-output') continue;
+        const existing = new Map(plot.points.map((point) => [point.displayEpochMs, point]));
+        plot.points = timeline.map((displayEpochMs) => existing.get(displayEpochMs) ?? {
+          displayEpochMs,
+          state: 'whitespace',
+        });
+      }
+    }
+  }
+  return groups;
 }
 
-function projectionWire(frameIdentity, state, projectionRevision) {
-  const groups = state === 'ready' ? readyGroups() : [];
+function projectionWire(frameIdentity, state, projectionRevision, groups, eligibleTimeline) {
   const pointCount = groups.reduce((sum, group) => sum
     + group.plots.reduce((inner, plot) => inner + plot.points.length, 0), 0);
   return {
@@ -83,8 +96,8 @@ function projectionWire(frameIdentity, state, projectionRevision) {
       warmupCoverage: { providedBars: 2, requestedBars: 2 },
     },
     resourceUsage: {
-      admittedInputBars: 3,
-      actualInputBars: 3,
+      admittedInputBars: eligibleTimeline.length,
+      actualInputBars: eligibleTimeline.length,
       outputPoints: pointCount,
       outputBytes: new TextEncoder().encode(JSON.stringify(groups)).byteLength,
       durationMs: 0.25,
@@ -125,9 +138,11 @@ export function createCalculatedSeriesProjectionFixture({
   baseSurfaceRevision = 0,
   definitionWire,
   documentWire,
+  linePoints = null,
   mode = 'workspace-stage',
   movePriceToInternal = false,
   projectionRevision = 1,
+  replayVisibleThroughEpochMs = 3_000,
   state = 'ready',
   targetSurfaceRevision = baseSurfaceRevision + 1,
 } = {}) {
@@ -155,15 +170,18 @@ export function createCalculatedSeriesProjectionFixture({
     instanceId: instance.instanceId,
     instanceRevision: instance.instanceRevision,
     projectedPaneSnapshotDigest: fixedDigest('5'),
-    replayVisibleThroughEpochMs: 3_000,
+    replayVisibleThroughEpochMs,
     sdkContract: { id: 'sdk.calculated-series-contract', version: '1.0.0' },
     workspacePaneId: projectedDocument.workspacePanes[0].workspacePaneId,
     workspaceStateRevision: 9,
     workspaceTransactionIdentity: transaction,
   });
-  const eligibleTimeline = state === 'empty' ? [] : [1_000, 2_000, 3_000];
+  const groups = state === 'ready' ? readyGroups(linePoints) : [];
+  const eligibleTimeline = state === 'empty' ? [] : [...new Set(groups.flatMap(({ plots }) => (
+    plots.flatMap(({ points }) => points.map(({ displayEpochMs }) => displayEpochMs))
+  )))].sort((left, right) => left - right);
   const frame = defineCalculatedSeriesProjectionFrame(
-    projectionWire(frameIdentity, state, projectionRevision), {
+    projectionWire(frameIdentity, state, projectionRevision, groups, eligibleTimeline), {
       definition,
       eligibleTimeline,
     },
@@ -171,7 +189,7 @@ export function createCalculatedSeriesProjectionFixture({
   const binding = createCalculatedSeriesChartBinding({
     acceptedChartRevision: 1,
     projectedPaneSnapshotDigest: fixedDigest('5'),
-    replayVisibleThroughEpochMs: 3_000,
+    replayVisibleThroughEpochMs,
     workspacePaneId: projectedDocument.workspacePanes[0].workspacePaneId,
     workspaceStateRevision: 9,
     workspaceTransactionIdentity: transaction,

@@ -150,7 +150,7 @@ Accepted specification:
 Implementation record:
 `sessions/session_20260813_p1c_1_calculated_series_pure_contract_implementation.md`.
 
-## P1c.2 Calculated-Series Chart-Owned Projection Slice — Implemented; H119 Review Pending
+## P1c.2 Calculated-Series Chart-Owned Projection Slice — Accepted 2026-08-17
 
 - [x] receive product-owner authorization to draft the second ADR-V7-005
   dependency as a candidate specification only;
@@ -189,8 +189,20 @@ Implementation record:
 - [x] add real Chromium one-chart Main/internal-region, candle invariance,
   native interaction, responsive containment, and screenshot evidence;
 - [x] register H119 as `executable`, human-review-required, and unaccepted;
-- [ ] receive focused product-owner H119 visual/evidence acceptance and close
-  only P1c.2;
+- [x] record the 2026-08-17 focused H119 rejection: fixture line, area, and
+  baseline paths still bridged the middle whitespace point; H119 never became
+  accepted;
+- [x] re-check official Lightweight Charts whitespace/render behavior and the
+  awesome-tradingview ecosystem; adopt no incompatible dependency or writer;
+- [x] split each logical line/area/baseline Plot into adapter-private contiguous
+  value-run Series, retain one logical title, and include every native segment
+  in preflight resource ceilings and reversible lifecycle handling;
+- [x] add a real-browser pixel assertion for three gaps/six probes/zero bridge
+  pixels, a raw pinned-native bridge sensitivity control, a 65-segment ceiling
+  rejection, and refresh the focused screenshot;
+- [x] receive focused product-owner H119 corrected visual/evidence acceptance
+  on 2026-08-17, record the correction session as acceptance evidence, and
+  close only P1c.2;
 - [x] add no MA/SMA, live instance/persistence/UI, Community/Worker, P1b.4,
   production route wiring, or H117 field change.
 
@@ -205,6 +217,9 @@ Acceptance record:
 
 Implementation record:
 `sessions/session_20260813_p1c_2_calculated_series_chart_owned_projection_implementation.md`.
+
+Rejection and correction record:
+`sessions/session_20260817_p1c_2_h119_whitespace_rejection_and_correction.md`.
 
 Focused human gate:
 `docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`.
@@ -1814,7 +1829,7 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 531 files, 48,378 effective lines, 5,073 functions, and 519 public exports; the architecture baseline
+The current production source baseline contains 534 files, 48,655 effective lines, 5,109 functions, and 519 public exports; the architecture baseline
 contains 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
@@ -1826,7 +1841,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 531 files, 48,378 effective lines, 5,073 functions, and 519 public exports, 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
+currently at 534 files, 48,655 effective lines, 5,109 functions, and 519 public exports, 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
 ## Established Foundation Governance

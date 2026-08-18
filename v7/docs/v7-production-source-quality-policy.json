@@ -226,6 +226,10 @@
     {
       "path": "sessions/session_20260813_p1c_2_calculated_series_chart_owned_projection_implementation.md",
       "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260817_p1c_2_h119_whitespace_rejection_and_correction.md",
+      "expectedOccurrences": 1
     }
   ],
   "sizeExceptions": [],

@@ -117,12 +117,12 @@ export function nativePlotDefinition(kind) {
   return SERIES_DEFINITIONS[kind];
 }
 
-export function nativePlotOptions(resource, nativeScaleId) {
-  return scalarOptions(resource, nativeScaleId);
+export function nativePlotOptions(resource, nativeScaleId, { title = resource.title } = {}) {
+  return scalarOptions({ ...resource, title }, nativeScaleId);
 }
 
-export function nativePlotData(resource) {
-  return Object.freeze(resource.points.map((point) => {
+export function nativePlotData(resource, points = resource.points) {
+  return Object.freeze(points.map((point) => {
     const time = point.displayEpochMs / 1_000;
     if (point.state === 'whitespace') return Object.freeze({ time });
     if (resource.kind !== 'histogram') return Object.freeze({ time, value: point.value });

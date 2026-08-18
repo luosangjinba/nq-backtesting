@@ -47,8 +47,8 @@ surface, a 40 px tab list with 30 px controls, and no 620 px overflow. The
 tooling set proves archive-only production API, no preference/handle retention,
 exact pack bytes, and all unpacked path/snapshot/receipt controls.
 
-The refreshed production source baseline contains 531 files, 48,378 effective
-lines, 5,073 functions, and 519 public exports with no exception or finding.
+The refreshed production source baseline contains 534 files, 48,655 effective
+lines, 5,109 functions, and 519 public exports with no exception or finding.
 The architecture baseline contains 68 modules, 150 actual dependency edges, 133
 construction sites, 27 writer sites, and zero findings. Independent P1a/H116
 passes all 20 negative controls and both trusted-package Harnesses. The Core

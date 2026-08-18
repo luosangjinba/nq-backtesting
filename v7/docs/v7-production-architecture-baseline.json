@@ -5661,7 +5661,7 @@
       },
       {
         "detectorId": "native-chart-series",
-        "sourceFile": "src/lightweight-chart-adapter/calculated-series-chart-resources.js",
+        "sourceFile": "src/lightweight-chart-adapter/calculated-series-plot-resources.js",
         "sourceModuleId": "adapter.lightweight-chart",
         "surface": "chartSeries"
       },

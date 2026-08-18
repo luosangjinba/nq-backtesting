@@ -14,7 +14,11 @@ function requirePlan(plan) {
     }
   }
   if (plan.regions.filter(({ kind }) => kind === 'main').length !== 1
-    || plan.plots.some(({ kind }) => !['area', 'baseline', 'histogram', 'line'].includes(kind))) {
+    || plan.plots.some(({ kind, nativeSeriesCount }) => (
+      !['area', 'baseline', 'histogram', 'line'].includes(kind)
+      || !Number.isSafeInteger(nativeSeriesCount)
+      || nativeSeriesCount < 0
+    ))) {
     failLightweightAdapter('CALCULATED_SERIES_CHART_NATIVE_PLAN_INVALID', 'Native plan topology is invalid.');
   }
   return plan;
@@ -134,6 +138,9 @@ export function createCalculatedSeriesChartSurface({
         disposed,
         nativeInventory: Object.freeze({
           bands: visible.bands.size,
+          nativePlotSeries: [...visible.plots.values()].reduce((count, record) => (
+            count + record.series.length
+          ), 0),
           plots: visible.plots.size,
           referenceLines: visible.lines.size,
           regions: visible.regions.size,

@@ -1,13 +1,18 @@
 import { LineSeries } from '../../node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.mjs';
 import { createCalculatedSeriesBandPrimitive } from './calculated-series-band-primitive.js';
-import { readCalculatedSeriesPaintedPixels } from './calculated-series-paint-readback.js';
+import {
+  calculatedSeriesNativePlotCount,
+  calculatedSeriesPlotHandles,
+  hideObsoleteCalculatedSeriesPlots,
+  reconcileCalculatedSeriesPlots,
+  removeCalculatedSeriesPlot,
+  updateCalculatedSeriesPlot,
+} from './calculated-series-plot-resources.js';
+import { readCalculatedSeriesPaintEvidence } from './calculated-series-paint-readback.js';
 import {
   anchorData,
   fixedScaleRange,
   nativeAnchorOptions,
-  nativePlotData,
-  nativePlotDefinition,
-  nativePlotOptions,
   nativePriceLineOptions,
   nativeScaleMode,
 } from './calculated-series-native-options.js';
@@ -79,7 +84,8 @@ export function captureCalculatedSeriesNativeState(chart, candleSeries, maps, pl
     scaleState,
     seriesOrder: new Map([
       ...[...maps.scales.values()].map(({ anchor }) => [anchor, anchor.seriesOrder()]),
-      ...[...maps.plots.values()].map(({ series }) => [series, series.seriesOrder()]),
+      ...calculatedSeriesPlotHandles(maps.plots.values())
+        .map((series) => [series, series.seriesOrder()]),
     ]),
   });
 }
@@ -147,40 +153,6 @@ function createScale(chart, region, plan, counter, priceIncrement) {
     } catch (cleanupCause) {
       throw unprovenNativeMutation(
         'Native Scale anchor cleanup is unprovable.',
-        new AggregateError([cause, cleanupCause]),
-      );
-    }
-    throw cause;
-  }
-}
-
-function updatePlot(record, plan, scale) {
-  record.series.applyOptions(nativePlotOptions(plan, scale.nativeScaleId));
-  record.series.setData(nativePlotData(plan));
-  record.plan = plan;
-}
-
-function createPlot(chart, plan, region, scale) {
-  let series;
-  try {
-    series = chart.addSeries(
-      nativePlotDefinition(plan.kind),
-      nativePlotOptions(plan, scale.nativeScaleId),
-      regionIndex(chart, region),
-    );
-  } catch (cause) {
-    throw unprovenNativeMutation('Native Plot creation is unprovable.', cause);
-  }
-  try {
-    const record = { plan, series };
-    updatePlot(record, plan, scale);
-    return record;
-  } catch (cause) {
-    try {
-      chart.removeSeries(series);
-    } catch (cleanupCause) {
-      throw unprovenNativeMutation(
-        'Native Plot cleanup is unprovable.',
         new AggregateError([cause, cleanupCause]),
       );
     }
@@ -270,20 +242,6 @@ function reconcileScales(chart, plan, previous, candidate, created, counter, pri
   }
 }
 
-function reconcilePlots(chart, plan, previous, candidate, created) {
-  for (const value of plan.plots) {
-    const scale = candidate.scales.get(value.scaleGroupId);
-    const region = candidate.regions.get(value.regionId);
-    const prior = previous.plots.get(value.resourceId);
-    const retained = sameResource(prior, value, ['kind', 'regionId', 'scaleGroupId'])
-      && previous.scales.get(value.scaleGroupId) === scale;
-    const record = retained ? prior : createPlot(chart, value, region, scale);
-    if (!retained) created.plots.add(record);
-    else updatePlot(record, value, scale);
-    candidate.plots.set(value.resourceId, record);
-  }
-}
-
 function reconcileBands(plan, previous, candidate, created) {
   for (const value of plan.bands) {
     const scale = candidate.scales.get(value.scaleGroupId);
@@ -311,9 +269,7 @@ function reconcileLines(plan, previous, candidate, created) {
 }
 
 function hideObsolete(previous, candidate) {
-  for (const record of previous.plots.values()) {
-    if (![...candidate.plots.values()].includes(record)) record.series.applyOptions({ visible: false });
-  }
+  hideObsoleteCalculatedSeriesPlots(previous, candidate);
   for (const record of previous.bands.values()) {
     if (![...candidate.bands.values()].includes(record) && record.attached) {
       try {
@@ -334,17 +290,20 @@ function hideObsolete(previous, candidate) {
 
 function orderSeries(chart, previous, candidate) {
   const owned = new Set([
-    ...previous.scales.values(), ...candidate.scales.values(),
-    ...previous.plots.values(), ...candidate.plots.values(),
-  ].map((record) => record.anchor ?? record.series));
+    ...[...previous.scales.values(), ...candidate.scales.values()].map(({ anchor }) => anchor),
+    ...calculatedSeriesPlotHandles([
+      ...previous.plots.values(), ...candidate.plots.values(),
+    ]),
+  ]);
   for (const region of candidate.regions.values()) {
     const fixed = region.pane.getSeries().filter((series) => !owned.has(series)).length;
     const ordered = [
       ...[...candidate.scales.values()].filter(({ plan }) => plan.regionId === region.plan.regionId)
         .sort((a, b) => a.plan.order - b.plan.order).map(({ anchor }) => anchor),
-      ...[...candidate.plots.values()].filter(({ plan }) => plan.regionId === region.plan.regionId)
-        .sort((a, b) => a.plan.order - b.plan.order || a.plan.resourceId.localeCompare(b.plan.resourceId))
-        .map(({ series }) => series),
+      ...calculatedSeriesPlotHandles([...candidate.plots.values()]
+        .filter(({ plan }) => plan.regionId === region.plan.regionId)
+        .sort((a, b) => a.plan.order - b.plan.order
+          || a.plan.resourceId.localeCompare(b.plan.resourceId))),
     ];
     ordered.forEach((series, index) => series.setSeriesOrder(fixed + index));
   }
@@ -377,25 +336,32 @@ export async function applyCalculatedSeriesResourcePlan({
   try {
     reconcileRegions(chart, plan, previous, candidate, created);
     reconcileScales(chart, plan, previous, candidate, created, overlayCounter, priceIncrement);
-    reconcilePlots(chart, plan, previous, candidate, created);
+    reconcileCalculatedSeriesPlots(chart, plan, previous, candidate, created);
     reconcileBands(plan, previous, candidate, created);
     reconcileLines(plan, previous, candidate, created);
     hideObsolete(previous, candidate);
     orderSeries(chart, previous, candidate);
-    const matchedColorPixels = await readCalculatedSeriesPaintedPixels(chart, plan, requestFrame);
+    const paintEvidence = await readCalculatedSeriesPaintEvidence(
+      chart,
+      candidate,
+      plan,
+      requestFrame,
+    );
     assertCandleUnchanged(candleSeries, nativeState);
     stage.state = 'applied';
     return Object.freeze({
       readback: Object.freeze({
         candleInvariant: true,
         logicalResourceCount: plan.resourceCount,
-        matchedColorPixels,
+        matchedColorPixels: paintEvidence.matchedColorPixels,
+        nativePlotSeries: calculatedSeriesNativePlotCount(candidate.plots.values()),
         paneCount: chart.panes().length,
         regions: Object.freeze(plan.regions.map(({ regionId }) => regionId)),
         retainedHandles: retainedCounts(previous, candidate),
         resourceIds: Object.freeze([
           ...plan.plots, ...plan.bands, ...plan.referenceLines,
         ].map(({ resourceId }) => resourceId).sort()),
+        whitespaceGaps: paintEvidence.whitespaceGaps,
       }),
       stage,
     });
@@ -424,7 +390,7 @@ function removeRecord(chart, kind, record) {
     if (record.attached) record.anchor.detachPrimitive(record.handle.primitive);
     record.attached = false;
     record.handle.destroy();
-  } else if (kind === 'plots') chart.removeSeries(record.series);
+  } else if (kind === 'plots') removeCalculatedSeriesPlot(chart, record);
   else if (kind === 'scales') chart.removeSeries(record.anchor);
   else if (kind === 'regions' && record.internal) chart.removePane(record.pane.paneIndex());
 }
@@ -442,7 +408,7 @@ export function rollbackCalculatedSeriesResourceStage(chart, candleSeries, stage
   }
   for (const [id, record] of previous.plots) {
     const priorPlan = nativeState.plans.plots.get(id);
-    updatePlot(record, priorPlan, previous.scales.get(priorPlan.scaleGroupId));
+    updateCalculatedSeriesPlot(record, priorPlan, previous.scales.get(priorPlan.scaleGroupId));
   }
   for (const [id, record] of previous.bands) updateBand(record, nativeState.plans.bands.get(id));
   for (const [id, record] of previous.lines) updateLine(record, nativeState.plans.lines.get(id));
