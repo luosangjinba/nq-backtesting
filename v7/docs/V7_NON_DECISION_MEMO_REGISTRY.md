@@ -4,7 +4,7 @@ Status: binding documentation-governance index
 
 Created: 2026-08-07
 
-Last updated: 2026-08-12
+Last updated: 2026-08-18 23:38 PDT
 
 ## Purpose
 
@@ -48,12 +48,13 @@ converted into a decision.
 | `MEMO-V7-002` | Second-level Replay and tick-sourced data | 2026-08-01 | 2026-08-06 | current deferral position recorded; future activation undecided | `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` |
 | `MEMO-V7-003` | AI-Agent-participatory Research, Training, and Trading Review system, using semantic Study Cases/Cohorts | 2026-08-07 | 2026-08-07 12:12 PDT | partially promoted by ADR-V7-003; system boundary, autonomy, workflow ownership, and business model remain undecided | `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` |
 | `MEMO-V7-004` | Semantic-dataset competitive landscape, commercialization, open-source/SaaS path, market-data economics, and open-model use | 2026-08-09 | 2026-08-09 PDT | core evidence-dataset product position promoted by ADR-V7-003; hosting, shared data, branding, pricing, and market entry remain open | `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md` |
+| `MEMO-V7-005` | Evidence Collection Dashboards, explicit multi-dataset Chart application, Setup-free Phenomenon Studies, and a uniform Entry/Stop/respect/text visual grammar | 2026-08-18 | 2026-08-18 23:38 PDT | initial position captured; all fifteen product decisions and every implementation boundary remain open | `V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md` |
 
 ## Adjacent Decision Candidates
 
 | Candidate id | Topic | Drafted | Current status | File |
 | --- | --- | --- | --- | --- |
-| _None_ | — | — | ADR-V7-005 and ADR-V7-006 are accepted and recorded in Decision History | — |
+| _Unallocated_ | FVG + SMA Validation Campaign / Study Case business Demo | 2026-08-18 | product-owner-authorized candidate draft; ten material decisions await review; no delivery/Harness id or implementation | `V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` |
 
 Accepted decisions which promote or constrain memo content are recorded in
 Decision History.
@@ -93,6 +94,48 @@ delete it.
 - If second-level data is later activated, Study Cases and Cohorts need explicit
   source-resolution provenance and materially larger evidence/resource budgets.
 - Neither memo silently activates the other.
+
+### MEMO-V7-005 Versus MEMO-V7-003 And The FVG + SMA Candidate
+
+- MEMO-V7-003 proposes the broader Research → Training → Trading Review
+  learning system. MEMO-V7-005 narrows one independently decidable product
+  surface: heterogeneous Collection Dashboards, explicit Chart application,
+  Setup-free phenomenon observations, and consistent Chart element semantics.
+- The pending FVG + SMA candidate remains the smaller first Setup-validation
+  tracer bullet. MEMO-V7-005 does not amend its ten decisions or add Dashboard,
+  Journal, multi-dataset visualization, phenomenon probability, text, or
+  visual-grammar implementation to that candidate.
+- A future promotion must choose whether the Campaign's frozen Cohorts become
+  one native provider to the proposed Evidence Collection layer or whether the
+  first Collection type is owned directly by Campaign. It cannot copy Campaign
+  records into a second source of truth.
+- Setup-free `PhenomenonStudy` shares evidence, Cohort, Analysis, Dashboard,
+  drill-down, and application infrastructure but intentionally has no
+  `SetupDefinition`, Entry/Stop, trade qualification, win rate, or capital path
+  unless a separate trade policy exists.
+- Applying several Collections to a Chart remains presentation/application
+  state. It does not merge native business records, Plugin lifecycles, or
+  accepted source provenance.
+
+### MEMO-V7-005 Versus ADR-V7-001, ADR-V7-003, ADR-V7-005, And ADR-V7-006
+
+- ADR-V7-001 keeps Drawing Geometry, Semantic Artifacts, declarative
+  projections, and adapter-native Render Primitives distinct. MEMO-V7-005's
+  Entry/Stop/respect/text roles must compose portable projections rather than
+  become native business-owned Chart objects or aliases for geometry.
+- ADR-V7-003 requires evidence-grade, no-future, versioned, user-owned data and
+  raw-context drill-down. Dashboard metrics and Chart application cannot
+  weaken those provenance and denominator constraints.
+- ADR-V7-005 governs calculated-series Plots/Regions only. The proposed
+  business Chart elements are not calculated-series Definitions and cannot
+  enter through that Profile merely because both appear on one Pane.
+- ADR-V7-006 keeps source contributions and their lifecycles distinct despite
+  visual co-presence. MEMO-V7-005 proposes no new public Profile; a future
+  first-party Chart-element compiler/projection requires a separate decision.
+- Missing FVG/SMA providers remove their live native projections under accepted
+  lifecycle rules. Study-owned markers/text may remain only with explicit
+  source-unavailable state and may not reconstruct missing plugin geometry or
+  calculated series from citations.
 
 ### ADR-V7-001 Versus MEMO-V7-001 Terminology
 

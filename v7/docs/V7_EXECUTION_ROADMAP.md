@@ -1415,6 +1415,39 @@ Dataset Builder, AI, and H117 changes remain outside authority. Acceptance of
 the ten decisions would still require a separately authorized implementation-
 slice specification before production work.
 
+### MEMO-V7-005 Evidence Collections, Dashboard, Chart Application, And Visual Grammar — Non-Binding
+
+The product owner subsequently contributed a broader future product direction,
+captured at
+`V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md`.
+It proposes Dashboard-first Evidence Collections for Setup research, public
+trader Setups, actual trades, hindsight/counterfactual review, and Setup-free
+market phenomena. Collections are not Chart-visible by default; an explicit
+Workspace binding applies one exact snapshot, and several snapshots may remain
+independently visible for comparisons such as actual versus hindsight trades.
+
+The Memo also proposes one host-governed semantic Chart-element language:
+Entry, Stop Loss, Target, Exit, EQL/EQH sweep, FVG respect/invalidation,
+observation windows, and explanatory text compose portable primitives through
+the sole Chart owner. Semantic role, actual/planned/counterfactual/public-claim
+evidence mode, Collection identity, and unavailable state remain visually and
+semantically distinct. A `4h FVG respected` observation adds a Study-owned
+event marker/connector/explanation beside the source owner's FVG projection; it
+never creates a second FVG Rectangle and cannot reconstruct one when the source
+plugin is absent.
+
+Setup-free `PhenomenonStudy` remains distinct from Setup/trade truth and requires
+an exact universe, event/outcome definitions, context dimensions, sampling
+method, completeness/censoring, and honest denominators before probability
+claims. Official Lightweight Charts 5.2 Markers, Price Lines, Primitives,
+Anchored Text, and Partial Price Line examples are implementation references
+only; no external owner/dependency is adopted.
+
+MEMO-V7-005 has fifteen open decisions and is not a roadmap allocation. It does
+not amend the ten pending FVG + SMA Demo decisions, authorize implementation,
+or change P1c.4/H121, P1b.4, H117, another plugin, Community/Worker, Journal,
+Dataset Builder, detector, or AI state.
+
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 
 Build the thin host contract before scaling plugin families, then validate each

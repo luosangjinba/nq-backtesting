@@ -339,6 +339,39 @@ Candidate specification:
 Draft record:
 `sessions/session_20260818_fvg_sma_validation_campaign_study_case_demo_candidate_specification.md`.
 
+## MEMO-V7-005 Study Collection Dashboard / Chart Application / Visual Grammar — Captured 2026-08-18
+
+- [x] register one non-decision Memo without amending or accepting the pending
+  FVG + SMA Demo candidate;
+- [x] preserve native-owner-referencing Evidence Collections and capability-
+  aware Dashboard metrics for Setup validation, public Setup research, actual
+  trades, counterfactual review, and Setup-free phenomena;
+- [x] record the default-off explicit Apply-to-chart invariant, exact pinned
+  snapshot binding, independent simultaneous datasets, and actual-versus-
+  hindsight comparison;
+- [x] propose one portable semantic Chart-element grammar separating semantic
+  role, evidence mode, Collection identity, and availability state;
+- [x] describe candidate Entry, planned/actual Stop, Target, Exit, EQL/EQH
+  sweep, 4h FVG respect/invalidation, observation window, and explanation
+  compositions without selecting final glyphs/styles;
+- [x] separate evidence-linked business explanations from a future free-form
+  `geometry.text` Drawing while retaining one possible Chart-owned renderer;
+- [x] model Setup-free `PhenomenonStudy` with universe/event/outcome/context/
+  sampling definitions, complete denominators, censoring, and bias disclosure;
+- [x] review Lightweight Charts 5.2 official Markers, Price Lines, Primitives,
+  Anchored Text/Partial Price Line examples, and awesome-tradingview; adopt no
+  dependency or external owner;
+- [x] allocate no delivery/Harness id and implement no Dashboard, Collection,
+  Chart projection, visual element, text, Journal, detector, or state-sync path;
+- [ ] decide or amend the Memo's fifteen open product questions before any ADR
+  or implementation-slice specification.
+
+Non-decision Memo:
+`docs/V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md`.
+
+Capture record:
+`sessions/session_20260818_study_collection_dashboard_chart_application_visual_grammar_predecision_memo.md`.
+
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09
 
 - [x] preserve validation as the user outcome and Replay as the controlled

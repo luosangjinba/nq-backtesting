@@ -1,10 +1,37 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-18 after the FVG + SMA Validation Campaign / Study Case
-business Demo candidate draft; it is unaccepted and unallocated, H117 remains
-executable/unaccepted, and no implementation slice is allocated
+Last updated: 2026-08-18 after MEMO-V7-005 captured Evidence Collection
+Dashboards, explicit multi-dataset Chart application, Setup-free Phenomenon
+Studies, and a unified Chart-element/text grammar; the FVG + SMA Demo remains
+an unaccepted/unallocated candidate, H117 remains executable/unaccepted, and no
+implementation slice is allocated
 
 ## Restart Resume Checkpoint
+
+### 2026-08-18 MEMO-V7-005 Dashboard / Chart Application / Visual Grammar Captured
+
+The product owner requested a future Dashboard for each Setup-research, public-
+Setup, actual-trade, counterfactual-review, or phenomenon dataset; datasets must
+remain absent from Charts by default and require explicit application, while
+several may coexist for comparisons such as actual versus hindsight trades.
+The product owner additionally required a uniform explicit visual standard for
+Entry, Stop Loss, Target/Exit, `4h FVG respected`, and explanatory text.
+
+The non-decision position is recorded at
+`docs/V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md`
+and registered as MEMO-V7-005. It proposes native-owner-referencing Evidence
+Collections, capability-aware Dashboard metrics, exact pinned Workspace
+applications, Setup-free Phenomenon Studies, and one accessible semantic Chart-
+element grammar separating role, evidence mode, Collection identity, and
+availability. Official Lightweight Charts 5.2 Markers, Price Lines, Primitives,
+Anchored Text, and Partial Price Line examples are retained only as adapter-
+private implementation references.
+
+The Memo is not accepted, does not amend the pending FVG + SMA Demo candidate,
+and allocates no delivery/Harness id. Do not implement a Dashboard, Collection
+store, Chart application/projection, visual element, text tool, Journal,
+Phenomenon detector, state-sync path, or new plugin from this record. Its
+fifteen open decisions require a later explicit product-decision instruction.
 
 ### 2026-08-18 FVG + SMA Business Demo Candidate Drafted
 
@@ -255,6 +282,10 @@ Then read, in order:
 For the current resume, immediately after item 1 read
 `v7/docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` and
 `v7/sessions/session_20260818_fvg_sma_validation_campaign_study_case_demo_candidate_specification.md`.
+Read
+`v7/docs/V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md`
+only as non-binding future context; it does not alter the candidate's ten-item
+review.
 Then use
 `v7/sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md` and
 `v7/docs/V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md` only as the direct
@@ -368,6 +399,11 @@ allocates no business delivery. Its dependency rule preserves plugin operation
 without the business module and preserves frozen business history without live
 source plugins; only affected new evidence capture and current verification
 become unavailable.
+
+MEMO-V7-005 separately preserves future Collection Dashboard, multi-dataset
+Chart application, semantic visual grammar/text, and Setup-free phenomenon
+research ideas. It is non-binding and changes neither the current frontier nor
+the candidate's implementation boundary.
 
 Post-milestone development now follows accepted ADR-V7-001. R13.2 provides
 `optional.annotation-geometry-domain`; R13.3 provides
@@ -1455,6 +1491,11 @@ reject the candidate; do not implement it during review. In particular, review
 the selected business records, one SMA(close,20) + manual FVG Setup, immutable
 evidence citations, separate first-touch Outcome, frozen Cohort/statistics,
 raw-context drill-down, audit export, and no-loss provider-removal semantics.
+
+MEMO-V7-005 is not silently included in that review. Its fifteen Dashboard,
+application, visual-grammar, text, and Phenomenon Study questions remain a
+separate non-decision backlog until the product owner explicitly asks to
+promote or review them.
 
 Even complete acceptance allocates no delivery/Harness id. A later separate
 instruction must authorize an implementation-slice specification before any

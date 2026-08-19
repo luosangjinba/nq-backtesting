@@ -197,6 +197,16 @@ disable, uninstall, or incompatibility. It allocates no delivery/Harness id and
 authorizes no implementation, other plugin, P1c.4, P1b.4, Community/Worker,
 Journal, Dataset Builder, or AI work. Its durable draft record is
 `../sessions/session_20260818_fvg_sma_validation_campaign_study_case_demo_candidate_specification.md`.
+The later, independently decidable Dashboard/application/visual-language ideas
+are preserved without decision at
+`V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md`.
+MEMO-V7-005 proposes native-owner-referencing Evidence Collections, capability-
+aware Calendar/statistics/capital Dashboards, default-off explicit application
+of one or several exact snapshots to a Chart, actual-versus-counterfactual
+comparison, Setup-free EQL/EQH/FVG Phenomenon Studies, and one accessible
+semantic Chart-element grammar for Entry/Stop/Target/Exit/sweep/respect/
+invalidation/text. It neither amends the FVG + SMA candidate nor authorizes a
+Dashboard, Chart projection, text tool, detector, Journal, or implementation.
 The later line-family/Circle/Arc
 requirements are recorded without implementation at
 `V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md`.
@@ -545,6 +555,10 @@ Read in this order before V7 implementation work:
 100. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,
     non-binding AI-Agent-participatory Research, Training, and Trading Review
     context only
+100a. `V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md`
+      as non-binding context for Evidence Collection Dashboards, explicit
+      multi-dataset Chart application, Setup-free Phenomenon Studies, unified
+      trade/research event visuals, and anchored explanatory text
 101. `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md` as
     the partially promoted market, competitor, data-rights, commercialization,
     branding, and open-model discussion; its remaining questions are non-binding

@@ -2,8 +2,8 @@
 
 Status: binding delivery rule; latest allocated repository step is P1c.3;
 H120 is accepted, P1c.3 is closed, the FVG + SMA business Demo remains an
-unaccepted documentation candidate with no id, and H117 is unchanged
-(2026-08-18)
+unaccepted documentation candidate with no id, MEMO-V7-005 is non-binding with
+no id, and H117 is unchanged (2026-08-18)
 
 ## Delivery IDs
 
@@ -57,6 +57,12 @@ implementation authority, or acceptance state. Drafting that candidate does
 not allocate P1c.4/H121 or supersede the rule that any repository-changing
 business slice requires a separately accepted specification and explicit
 implementation instruction.
+
+The later MEMO-V7-005 Evidence Collection Dashboard / explicit multi-dataset
+Chart application / Setup-free Phenomenon Study / semantic visual grammar
+record is a registered non-decision memo, not a delivery candidate. Its fifteen
+open questions allocate no `R`, `P`, or `H` id, do not amend the FVG + SMA
+candidate, and cannot authorize implementation.
 
 `R13.5` was the Segment Interaction And Preview step. R13.2 remains the pure
 removable Geometry boundary, R13.3 remains
