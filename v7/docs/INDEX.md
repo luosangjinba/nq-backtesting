@@ -177,16 +177,27 @@ on 2026-08-17 and separately authorized only this implementation. P1c.3 is now
 implemented; H120 automated evidence and the focused production-route review
 pass. The product owner accepted H120 on 2026-08-18, so H120 is `accepted`,
 remains human-review-required, and P1c.3 is closed. H117 is unchanged and
-P1b.4, every other plugin, Community/Worker, and business-layer work remain
-paused. The draft and specification-acceptance records are
+P1b.4, every other plugin, Community/Worker, and business-layer implementation
+remained paused at that acceptance checkpoint. The draft and specification-
+acceptance records are
 `../sessions/session_20260817_core_sma_single_plugin_vertical_slice_candidate_specification.md`
 and
 `../sessions/session_20260817_core_sma_single_plugin_vertical_slice_specification_acceptance.md`;
 implementation and focused-review records are
 `../sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`
 and `V7_CORE_SMA_P1C3_HUMAN_REVIEW.md`; durable H120 acceptance is
-`../sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md`. The
-later line-family/Circle/Arc
+`../sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md`.
+The product owner then authorized only a documentation candidate for one FVG +
+SMA Validation Campaign / Study Case business tracer bullet. The unaccepted
+candidate at `V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` defines
+asymmetric, degradable independence: source plugins never depend on the
+business module; new Setup capture may require exact public evidence from them;
+frozen Cases, Outcomes, Cohorts, statistics, and audit history survive source
+disable, uninstall, or incompatibility. It allocates no delivery/Harness id and
+authorizes no implementation, other plugin, P1c.4, P1b.4, Community/Worker,
+Journal, Dataset Builder, or AI work. Its durable draft record is
+`../sessions/session_20260818_fvg_sma_validation_campaign_study_case_demo_candidate_specification.md`.
+The later line-family/Circle/Arc
 requirements are recorded without implementation at
 `V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md`.
 The seconds/tick memo additionally records the current decision that minute-
@@ -526,6 +537,9 @@ Read in this order before V7 implementation work:
      `V7_CORE_SMA_P1C3_HUMAN_REVIEW.md` as the passed focused gate
 98i. `V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md` as
      documentation-only future primitive input; it authorizes no implementation
+98j. `V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` as the
+     documentation-only, unaccepted business tracer-bullet candidate using
+     existing FVG and SMA; it allocates no delivery/Harness id or implementation
 99. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
 100. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,

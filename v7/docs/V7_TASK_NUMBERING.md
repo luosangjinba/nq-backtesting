@@ -1,7 +1,9 @@
 # V7 Task And Requirement Numbering
 
 Status: binding delivery rule; latest allocated repository step is P1c.3;
-H120 is accepted, P1c.3 is closed, and H117 is unchanged (2026-08-18)
+H120 is accepted, P1c.3 is closed, the FVG + SMA business Demo remains an
+unaccepted documentation candidate with no id, and H117 is unchanged
+(2026-08-18)
 
 ## Delivery IDs
 
@@ -46,8 +48,15 @@ implemented, automated H120 passes, and the product owner accepted the focused
 production-route review on 2026-08-18. H120 is `accepted`, remains
 human-review-required, and P1c.3 is closed. The latest allocated step remains
 P1c.3: a recommended P1c.4/H121 candidate has not been allocated. No other
-plugin, generic layout slice, P1b.4, Community/Worker, business-layer work, or
-H117 change is authorized by this acceptance.
+plugin, generic layout slice, P1b.4, Community/Worker, business implementation,
+or H117 change is authorized by this acceptance.
+
+The product owner then authorized a documentation-only FVG + SMA Validation
+Campaign / Study Case Demo candidate. It has no delivery id, Harness id,
+implementation authority, or acceptance state. Drafting that candidate does
+not allocate P1c.4/H121 or supersede the rule that any repository-changing
+business slice requires a separately accepted specification and explicit
+implementation instruction.
 
 `R13.5` was the Segment Interaction And Preview step. R13.2 remains the pure
 removable Geometry boundary, R13.3 remains

@@ -1374,7 +1374,8 @@ one/four-Pane timing, optional-removal, and full production-regression evidence.
 The product owner accepted all ten focused production-route checks on
 2026-08-18. H120 is `accepted`, remains human-review-required, and P1c.3 is
 closed. H117 remains executable and unaccepted; P1b.4, every other plugin,
-Community/Worker, and business-layer work remain paused. Implementation and
+Community/Worker, and business-layer implementation remained paused at that
+acceptance checkpoint. Implementation and
 acceptance evidence are
 `../sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`
 and
@@ -1384,6 +1385,35 @@ The next required ADR-V7-005 dependency is a separately specified generic
 multi-Plot/layout slice using only synthetic oscillator and multi-region
 references. A possible P1c.4/H121 label remains unallocated until explicit
 product-owner authorization; H120 acceptance itself starts no new work.
+
+### FVG + SMA Validation Campaign / Study Case Demo Candidate — Awaiting Review
+
+After H120 closure, the product owner authorized only a documentation
+candidate at
+`V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md`. It uses the already
+accepted manual FVG Artifact and SMA(close) paths to specify one optional
+Validation Campaign → Study Case → later Outcome → frozen Cohort →
+deterministic statistics → raw-chart drill-down → local audit-export loop. It
+adds no plugin, calculation, detector, signal, or chart capability.
+
+The candidate makes plugin/business independence asymmetric and degradable.
+FVG and SMA never import, call, or depend on the Campaign module. The Campaign
+may require exact immutable public evidence from both providers when accepting
+a new Case, but it cannot control their lifecycle or private state. Once
+captured, citations and finalized business records are Campaign-owned frozen
+history: source disable/uninstall/incompatibility removes live tools,
+calculation, projection, and current verification, but never deletes or
+silently reclassifies Cases, Outcomes, Cohorts, Analysis Runs, or statistics.
+New affected capture fails closed; raw-Bar context remains available through
+the existing Session/Workspace/Replay owners.
+
+This is an unaccepted candidate with ten material decisions awaiting explicit
+product-owner review. It allocates no delivery or Harness id and authorizes no
+schema, runtime, persistence, state-sync, UI, or export implementation. P1c.4/
+H121 remains unallocated; P1b.4, another plugin, Community/Worker, Journal,
+Dataset Builder, AI, and H117 changes remain outside authority. Acceptance of
+the ten decisions would still require a separately authorized implementation-
+slice specification before production work.
 
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 

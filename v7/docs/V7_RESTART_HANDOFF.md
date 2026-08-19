@@ -1,9 +1,40 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-18 after focused H120 acceptance and P1c.3 closure;
-H117 remains executable/unaccepted and no next slice is allocated
+Last updated: 2026-08-18 after the FVG + SMA Validation Campaign / Study Case
+business Demo candidate draft; it is unaccepted and unallocated, H117 remains
+executable/unaccepted, and no implementation slice is allocated
 
 ## Restart Resume Checkpoint
+
+### 2026-08-18 FVG + SMA Business Demo Candidate Drafted
+
+After H120 acceptance, the product owner authorized only a documentation
+candidate for one FVG + SMA Validation Campaign / Study Case business vertical
+Demo. Resume first with
+`docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` and
+`sessions/session_20260818_fvg_sma_validation_campaign_study_case_demo_candidate_specification.md`.
+
+The candidate uses only the accepted manual FVG and SMA(close) production paths
+to define one Setup → Study Case → later Outcome → frozen Cohort →
+deterministic statistics → raw-chart drill-down → local audit-export loop. Its
+ten material decisions await explicit product-owner review. It has no delivery
+or Harness id, is not accepted, and authorizes no implementation.
+
+The binding dependency answer is asymmetric and degradable. FVG and SMA never
+depend on, import, or receive commands from the Campaign module. A Setup may
+require exact immutable public evidence from both plugins for a new qualified
+Case, but the Campaign cannot control their lifecycle or private state. Once
+captured, citations and finalized business records are frozen. Disabling,
+uninstalling, or incompatibly upgrading a source removes its live tool,
+calculation/projection, and current verification; it does not delete or
+silently reclassify Cases, Outcomes, Cohorts, Analysis Runs, statistics, or
+exports. Affected new capture fails closed, while raw-Bar drill-down continues
+through existing Session/Workspace/Replay owners.
+
+Do not allocate or implement this candidate unless its decisions are accepted
+and a later implementation-slice specification is separately authorized. Do
+not start P1c.4/H121, P1b.4, another plugin, Community/Worker, Journal, Dataset
+Builder, AI, or change H117.
 
 ### 2026-08-18 P1c.3/H120 Core SMA Accepted
 
@@ -222,10 +253,13 @@ git status --short
 Then read, in order:
 
 For the current resume, immediately after item 1 read
-`v7/sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md`,
-`v7/docs/V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md`, and
-`v7/docs/V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`. The older
-pre-server-reboot H119 handoff is retained as historical context.
+`v7/docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` and
+`v7/sessions/session_20260818_fvg_sma_validation_campaign_study_case_demo_candidate_specification.md`.
+Then use
+`v7/sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md` and
+`v7/docs/V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md` only as the direct
+accepted SMA dependency. The older pre-server-reboot H119 handoff is retained
+as historical context.
 
 1. `v7/docs/V7_RESTART_HANDOFF.md`
 2. `v7/docs/V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md`
@@ -326,6 +360,14 @@ the second round is corrected by R12.8. Its focused cloud redeploy check, clean-
 host bootstrap permutations, and multi-mode deployment matrix remain useful
 non-blocking operational evidence rather than open milestone gates. Binding
 closure: `V7_FOUNDATION_MILESTONE_V7_0_0.md`.
+
+The current product-decision frontier is the unaccepted, documentation-only
+FVG + SMA Validation Campaign / Study Case Demo candidate described in the
+latest checkpoint above. It changes no accepted foundation/plugin behavior and
+allocates no business delivery. Its dependency rule preserves plugin operation
+without the business module and preserves frozen business history without live
+source plugins; only affected new evidence capture and current verification
+become unavailable.
 
 Post-milestone development now follows accepted ADR-V7-001. R13.2 provides
 `optional.annotation-geometry-domain`; R13.3 provides
@@ -1407,32 +1449,20 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
-P1c.1 now implements the accepted calculated-series pure-contract dependency
-through separate `contribution-profile-contract` and
-`calculated-series-contract` modules. The product owner accepted the focused
-contract/evidence review on 2026-08-13; H118 is accepted with the P1c.1
-implementation session as durable evidence, and P1c.1 is closed.
+The next exact action is product-owner review of decisions 1–10 in
+`V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md`. Accept, amend, or
+reject the candidate; do not implement it during review. In particular, review
+the selected business records, one SMA(close,20) + manual FVG Setup, immutable
+evidence citations, separate first-touch Outcome, frozen Cohort/statistics,
+raw-context drill-down, audit export, and no-loss provider-removal semantics.
 
-The second-dependency specification at
-`V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md` is now accepted.
-It binds a complete-surface Chart child transaction, bounded adapter-native
-bridge, same-chart Main/internal regions, structural Scale/standard Plot
-realization, exact rollback, and synthetic Chromium evidence. Decisions
-7 and 8 additionally require Chart-owner recovery escalation and Chart-owner-
-only admission/sequencing for both projection modes.
-
-The separate implementation instruction allocated P1c.2 and H119. The
-complete-surface transaction, Chart-owned admission/fault seam, adapter-private
-native bridge, reversible failure behavior, and real Chromium evidence are
-implemented without product-route wiring. The first review rejected continuous
-line/area/baseline whitespace rendering; the authorized adapter-private
-segmentation and pixel-sensitivity correction is now implemented. The product
-owner accepted the corrected focused gate on 2026-08-17; H119 is accepted and
-P1c.2 is closed. The next candidate in the accepted sequence is a trusted Core
-MA/SMA vertical slice, but it has no allocated delivery/Harness id and requires
-a separate specification/implementation instruction. Do not infer authority
-for MA/SMA, a live instance/persistence owner, SDK execution availability,
-Community/Worker execution, generic layout, or P1b.4. H117 remains unchanged.
+Even complete acceptance allocates no delivery/Harness id. A later separate
+instruction must authorize an implementation-slice specification before any
+Campaign schema/runtime/persistence/state-sync/UI/export code changes. P1c.4/
+H121 remains only the separately recommended next dependency inside the
+calculated-series expansion sequence and is not authorized by this business
+candidate. H117 remains executable/unaccepted; P1b.4, another plugin,
+Community/Worker, Journal, Dataset Builder, and AI remain paused.
 
 R13.10e/H114, P0b/H115, and P1a/H116 are closed. P1b.1–P1b.3 implement the
 non-executing local package contract/archive, transaction/storage, and corrected
@@ -1456,10 +1486,10 @@ remains tooling/security evidence without retained handles or mode state. The
 corrected focused human review in
 `V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md` passed on 2026-08-12. P1b.4 is
 deliberately paused and still requires a separate product-owner instruction.
-The calculated-series candidate does not supersede that pause. Do not create
+The business Demo candidate does not supersede that pause. Do not create
 the MCP adapter or claim H117 acceptance, P2 registry, P3a Worker runtime, P3b
-Pine migration, detector, MA/SMA, Fibonacci, Marketplace, or R13.11–R13.13
-before the applicable authorization.
+Pine migration, detector, another Indicator/algorithm, Fibonacci, Marketplace,
+or R13.11–R13.13 before the applicable authorization.
 
 Older clean-host, physical cross-device, Data Acquisition admin, resource, and
 known H091 visual checks remain non-blocking operational follow-up for the

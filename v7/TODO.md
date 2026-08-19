@@ -309,6 +309,36 @@ Human acceptance record:
 Future primitive requirement:
 `docs/V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md`.
 
+## FVG + SMA Validation Campaign / Study Case Business Demo — Candidate Draft 2026-08-18
+
+- [x] receive product-owner authority to draft only one business vertical Demo
+  candidate using the existing accepted FVG and SMA capabilities;
+- [x] define one Setup → Study Case → Outcome → frozen Cohort → deterministic
+  statistics → raw-context drill-down → audit-export tracer bullet;
+- [x] bind asymmetric, degradable independence: plugins never depend on or
+  receive commands from the business module; a Setup may require exact plugin
+  evidence for new capture; frozen historical records require no live plugin;
+- [x] specify no-loss disable/uninstall/version behavior: live tool/calculation/
+  projection becomes unavailable, new affected capture fails closed, and
+  existing Cases, Outcomes, Cohorts, Analysis Runs, statistics, and citations
+  remain readable without silent rewrite or deletion;
+- [x] retain separate source ownership through immutable portable evidence
+  citations rather than copying plugin payloads or reconstructing missing
+  plugin pixels;
+- [x] allocate no delivery or Harness id, implement no schema/runtime/storage/
+  state-sync/UI/export path, add no plugin or algorithm, and leave H117 and
+  P1b.4 unchanged;
+- [ ] obtain explicit product-owner review of the ten material candidate
+  decisions;
+- [ ] require a later separate implementation-slice specification and explicit
+  authority before allocating or changing production code.
+
+Candidate specification:
+`docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md`.
+
+Draft record:
+`sessions/session_20260818_fvg_sma_validation_campaign_study_case_demo_candidate_specification.md`.
+
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09
 
 - [x] preserve validation as the user outcome and Replay as the controlled
