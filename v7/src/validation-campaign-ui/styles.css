@@ -100,12 +100,97 @@
   padding: 20px;
 }
 
+.validation-runtime-notice {
+  background: #102133;
+  border: 1px solid #28537b;
+  border-radius: 10px;
+  margin: 12px auto;
+  max-width: 1138px;
+  padding: 10px 14px;
+}
+
+.validation-runtime-notice-error { background: #2e151b; border-color: #6a2e39; color: #ff9ba5; }
+.validation-runtime-notice-warn { background: #2c2315; border-color: #67502a; color: #f2bd5b; }
+
 .validation-case-list,
 .validation-outcome-list {
   display: grid;
   gap: 10px;
   margin-top: 16px;
 }
+
+.validation-case-history {
+  background: #080d13;
+  border: 1px solid #202d3c;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.validation-case-history > summary {
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+  list-style-position: inside;
+  padding: 14px 16px;
+}
+
+.validation-case-history > summary span,
+.validation-case-revision p,
+.validation-cohort-summary span,
+.validation-drilldown-member span,
+.validation-drilldown-member small { color: #8193ab; font-size: 12px; }
+
+.validation-case-revision {
+  border-top: 1px solid #202d3c;
+  padding: 16px;
+}
+
+.validation-citation-grid,
+.validation-preview-grid,
+.validation-drilldown-members,
+.validation-cohort-members {
+  display: grid;
+  gap: 12px;
+}
+
+.validation-citation-grid,
+.validation-preview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.validation-citation,
+.validation-cohort-summary,
+.validation-cohort-member,
+.validation-drilldown-member {
+  background: #080d13;
+  border: 1px solid #202d3c;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.validation-evidence-details {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.validation-evidence-details div { min-width: 0; }
+.validation-evidence-details dt { color: #6f829a; font-size: 10px; text-transform: uppercase; }
+.validation-evidence-details dd { margin: 3px 0 0; overflow-wrap: anywhere; }
+
+.validation-verification-history { display: grid; gap: 8px; padding-left: 20px; }
+.validation-verification-history li { display: grid; gap: 4px; }
+.validation-cohort-summary { margin: 16px 0; }
+.validation-cohort-summary > div:first-child { display: grid; gap: 4px; }
+.validation-cohort-member > div:first-child { display: grid; gap: 4px; }
+.validation-drilldown-member { align-items: center; display: flex; gap: 12px; justify-content: space-between; }
+.validation-drilldown-member > div { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.validation-statistics-wrap { overflow-x: auto; }
+.validation-statistics { border-collapse: collapse; min-width: 680px; width: 100%; }
+.validation-statistics caption { color: #8193ab; padding: 10px 0; text-align: left; }
+.validation-statistics th,
+.validation-statistics td { border-top: 1px solid #202d3c; padding: 10px; text-align: left; }
+.validation-statistics td:nth-child(2) { display: grid; gap: 3px; }
+.validation-statistics small { color: #8193ab; }
 
 .validation-case-row {
   align-items: center;
@@ -199,7 +284,14 @@
 
 .validation-dialog-error { color: #ff7885; min-height: 20px; }
 .validation-preview { border-top: 1px solid #202d3c; margin-top: 16px; padding-top: 16px; }
-.validation-preview-card { align-items: center; display: flex; gap: 12px; margin-top: 8px; padding: 12px; }
+.validation-preview-card { display: block; margin-top: 8px; padding: 12px; }
+.validation-preview-card-unavailable { border-color: #62471f; }
+.validation-preview-cutoff { color: #a8b7c9; }
+.validation-dialog-content { padding: 22px; }
+.validation-checkbox-field { align-items: start; grid-template-columns: auto 1fr; }
+.validation-checkbox-field > span { grid-column: 1 / -1; }
+.validation-checkbox-field input { height: 18px; width: 18px; }
+.validation-checkbox-field small { color: #8193ab; }
 
 .validation-pane-actions {
   display: flex;
@@ -228,6 +320,9 @@
   .validation-case-row { align-items: stretch; flex-direction: column; }
   .validation-definition-grid,
   .validation-metric-grid,
+  .validation-citation-grid,
+  .validation-preview-grid,
+  .validation-evidence-details,
   .validation-form-grid,
   .validation-form-grid-four { grid-template-columns: 1fr; }
   .validation-pane-actions { flex-direction: column; right: 6px; top: 68px; }

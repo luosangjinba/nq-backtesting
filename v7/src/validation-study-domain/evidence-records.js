@@ -252,8 +252,21 @@ export async function readEvidenceCitation(value, crypto = globalThis.crypto) {
 }
 
 export function citationRef(value) {
+  return readCitationRef({
+    citationContentDigest: value.contentDigest,
+    citationId: value.citationId,
+    citationRevision: value.citationRevision,
+  });
+}
+
+export function readCitationRef(value) {
+  exactRecord(
+    value,
+    ['citationContentDigest', 'citationId', 'citationRevision'],
+    'Evidence citation reference',
+  );
   return strictPortableValue({
-    citationContentDigest: requireDigest(value.contentDigest, 'Citation content digest'),
+    citationContentDigest: requireDigest(value.citationContentDigest, 'Citation content digest'),
     citationId: requireUuid(value.citationId, 'Citation id'),
     citationRevision: requireRevision(value.citationRevision, 'Citation revision'),
   });

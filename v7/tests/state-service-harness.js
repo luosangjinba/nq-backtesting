@@ -73,7 +73,7 @@ try {
       },
       { key: 'v7.validation-campaign:index', value: '{"campaignIds":["alpha"]}' },
       {
-        key: 'v7.validation-campaign:document:alpha',
+        key: 'v7.validation-campaign:document:00000000-0000-4000-8000-000000000099',
         value: '{"schema":"v7.validation-campaign-document","version":1}',
       },
     ],
@@ -153,6 +153,16 @@ try {
     method: 'PUT',
   });
   assert.equal(emptyCampaignDocumentKeyResponse.status, 400);
+  const invalidCampaignDocumentIdResponse = await request(port, 'reviewer', {
+    body: JSON.stringify({
+      ...replacement,
+      entries: [{ key: 'v7.validation-campaign:document:alpha', value: 'forbidden' }],
+      expectedRevision: 1,
+    }),
+    headers: { 'Content-Type': 'application/json' },
+    method: 'PUT',
+  });
+  assert.equal(invalidCampaignDocumentIdResponse.status, 400);
   const forgedCampaignDocumentKeyResponse = await request(port, 'reviewer', {
     body: JSON.stringify({
       ...replacement,
@@ -193,7 +203,7 @@ try {
     ({ key }) => key === 'v7.calculated-series:document:alpha'
   ), true, 'calculated-series sidecars must remain readable after restart');
   assert.equal(restored.entries.some(
-    ({ key }) => key === 'v7.validation-campaign:document:alpha'
+    ({ key }) => key === 'v7.validation-campaign:document:00000000-0000-4000-8000-000000000099'
   ), true, 'Campaign documents must remain readable after restart');
 } finally {
   await stopService(service);

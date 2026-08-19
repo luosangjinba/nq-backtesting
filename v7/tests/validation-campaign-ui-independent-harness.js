@@ -9,6 +9,7 @@ const runtime = Object.freeze({
   prepareCaseObservation() {},
   prepareRawContextIntent() {},
   readAnalysisDrilldown() {},
+  readCase() {},
   snapshot() { return Object.freeze({ status: 'ready' }); },
   subscribe() { return Object.freeze({ unsubscribe() {} }); },
 });

@@ -22,6 +22,7 @@ async function evidenceDigests({ artifact, pane, predicate, replay, session, wor
       direction: artifact.direction,
       evidenceBarStartEpochMs: artifact.evidenceBarStartEpochMs,
       lowerPrice: artifact.lowerPrice,
+      observedAtReplayCutoffEpochMs: artifact.observedAtReplayCutoffEpochMs,
       revision: artifact.revision,
       status: artifact.status,
       upperPrice: artifact.upperPrice,
@@ -35,27 +36,30 @@ async function evidenceDigests({ artifact, pane, predicate, replay, session, wor
   });
 }
 
-function isEligible({ artifact, packageState, pane, predicate, replay, request }) {
-  const expectedDirection = request.campaign.direction === 'long'
-    ? predicate.longDirection : predicate.shortDirection;
-  return artifact.id === request.sourceRecordId
+function requireEligibleSource({ artifact, packageState, pane, predicate, replay, request }) {
+  const eligible = artifact.id === request.sourceRecordId
     && artifact.typeId === predicate.semanticTypeId
     && artifact.typeVersion === predicate.semanticTypeVersion
     && artifact.status === 'active'
     && artifact.acceptance === 'accepted'
     && packageState.state === 'active'
-    && artifact.direction === expectedDirection
+    && Number.isSafeInteger(artifact.observedAtReplayCutoffEpochMs)
+    && artifact.observedAtReplayCutoffEpochMs <= replay.exclusiveCutoffEpochMs
     && artifact.evidenceBarStartEpochMs.length === 3
     && artifact.evidenceBarStartEpochMs.every((start) => start < replay.exclusiveCutoffEpochMs)
     && pane.instrumentId === request.campaign.instrumentId
+    && pane.paneId === request.paneId
     && pane.displayTimeframeId === request.campaign.executionTimeframeId
     && pane.sessionHoursPolicyId === request.campaign.sessionHoursId;
+  if (!eligible) throw new TypeError('FVG evidence source is unavailable or ineligible.');
 }
 
 function candidateInput({ digests, evidenceRole, observation, providerId, providerVersion, request }) {
   const { artifact, document, package: packageState, pane, replay, session, workspace } = observation;
   const predicate = request.setupDefinition.fvgPredicate;
-  const eligible = isEligible({ artifact, packageState, pane, predicate, replay, request });
+  requireEligibleSource({ artifact, packageState, pane, predicate, replay, request });
+  const expectedDirection = request.campaign.direction === 'long'
+    ? predicate.longDirection : predicate.shortDirection;
   return {
     boundedClaim: {
       acceptance: artifact.acceptance,
@@ -64,7 +68,7 @@ function candidateInput({ digests, evidenceRole, observation, providerId, provid
       evidenceBarStartEpochMs: artifact.evidenceBarStartEpochMs,
       lifecycle: artifact.status,
       lowerPrice: artifact.lowerPrice,
-      predicatePassed: eligible,
+      predicatePassed: artifact.direction === expectedDirection,
       upperPrice: artifact.upperPrice,
     },
     currencyFence: {

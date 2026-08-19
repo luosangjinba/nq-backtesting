@@ -1,4 +1,5 @@
 import { resolveReplayTruncationTarget } from './replay-truncation.js';
+import { serializeSessionId } from '../session-identity/public.js';
 import { createReplayWorkspaceCommandPort } from './workspace-command-port.js';
 import { createWorkspaceCompositionOwners } from './workspace-composition-owners.js';
 import { createWorkspaceValidationCampaign } from './workspace-validation-campaign.js';
@@ -42,7 +43,20 @@ function createCompositionCommandPort(options, owners) {
     async start() {
       const result = await commands.start();
       const intent = owners.validationCampaign?.takeRawContextIntent() ?? null;
-      if (intent !== null) await applyValidationRawContextIntent(commands, intent);
+      if (intent !== null) await applyValidationRawContextIntent(commands, intent, {
+        readActiveContext(candidate) {
+          const request = session.market.requestWindow({
+            instrumentId: candidate.instrumentId,
+            windowEndEpochMs: session.range.endEpochMs,
+            windowStartEpochMs: session.range.startEpochMs,
+          });
+          return Object.freeze({
+            datasetRevision: request.datasetRevision,
+            sessionId: serializeSessionId(options.record.sessionId).value,
+            sessionRevision: options.record.revision,
+          });
+        },
+      });
       return result;
     },
   });

@@ -1,16 +1,12 @@
 import {
   exactRecord,
   requireBoundedText,
-  requireDigest,
   requireEnum,
   requireEpoch,
-  requireFinite,
-  requireRevision,
   requireSemver,
   requireUuid,
   sha256Canonical,
   strictPortableValue,
-  verifyContentDigest,
   withContentDigest,
 } from './canonical-value.js';
 import {
@@ -23,18 +19,6 @@ import {
 } from './constants.js';
 import { caseRef } from './case-records.js';
 import { cohortRef, readCaseRef } from './cohort-records.js';
-
-const ANALYSIS_FIELDS = Object.freeze([
-  'analysisRunId', 'analysisRunRevision', 'authorLabel', 'campaignId', 'cohortRef',
-  'contentDigest', 'counts', 'createdAtEpochMs', 'drilldownIndex', 'medians',
-  'metricLineage', 'metricSetId', 'metricSetVersion', 'rates', 'schema',
-  'sourceAvailabilitySnapshot', 'version',
-]);
-const COUNT_KEYS = Object.freeze([
-  'ambiguous', 'horizonExpired', 'incomplete', 'incompleteData', 'invalidationFirst',
-  'qualified', 'rejected', 'resolvedFirstTouchCount', 'sameBarAmbiguous',
-  'sourceUnavailableCount', 'targetFirst', 'total',
-]);
 
 function median(values) {
   if (values.length === 0) return null;
@@ -62,6 +46,7 @@ function availabilityEntries(values) {
     });
   }).sort((left, right) => (
     left.caseRef.caseId.localeCompare(right.caseRef.caseId)
+      || left.caseRef.caseRevision - right.caseRef.caseRevision
       || left.citationId.localeCompare(right.citationId)
   )));
 }
@@ -77,8 +62,12 @@ export async function calculateValidationMetrics({
   sourceAvailabilitySnapshot,
 }) {
   const availability = availabilityEntries(sourceAvailabilitySnapshot);
-  const unavailableCaseIds = new Set(availability
-    .filter(({ status }) => status !== 'available').map(({ caseRef: ref }) => ref.caseId));
+  const unavailableCaseKeys = new Set(availability
+    .filter(({ status }) => status !== 'available')
+    .map(({ caseRef: ref }) => `${ref.caseId}:${ref.caseRevision}`));
+  const unavailableCases = cases.filter(({ caseId, caseRevision }) => (
+    unavailableCaseKeys.has(`${caseId}:${caseRevision}`)
+  ));
   const qualificationGroups = Object.fromEntries(QUALIFICATION_CLASSES.map((name) => [
     name, cases.filter(({ qualificationClass }) => qualificationClass === name),
   ]));
@@ -96,7 +85,7 @@ export async function calculateValidationMetrics({
     rejected: qualificationGroups.rejected.length,
     resolvedFirstTouchCount: resolved.length,
     sameBarAmbiguous: outcomeGroups['same-bar-ambiguous'].length,
-    sourceUnavailableCount: cases.filter(({ caseId }) => unavailableCaseIds.has(caseId)).length,
+    sourceUnavailableCount: unavailableCases.length,
     targetFirst: outcomeGroups['target-first'].length,
     total: cases.length,
   });
@@ -128,6 +117,7 @@ export async function calculateValidationMetrics({
     ...QUALIFICATION_CLASSES.map((name) => drilldown(`count.qualification.${name}`, qualificationGroups[name])),
     ...OUTCOME_CLASSES.map((name) => drilldown(`count.outcome.${name}`, outcomeGroups[name])),
     drilldown('count.resolved-first-touch', resolved),
+    drilldown('count.source-unavailable', unavailableCases),
     drilldown('rate.target-first', resolved),
     ...Object.entries({
       'median.mae-points': eligible('maePoints'),
@@ -184,26 +174,4 @@ export async function createAnalysisRun({
     sourceAvailabilitySnapshot: metrics.sourceAvailabilitySnapshot,
     version: 1,
   }, crypto);
-}
-
-export async function readAnalysisRun(value, crypto = globalThis.crypto) {
-  exactRecord(value, ANALYSIS_FIELDS, 'Analysis Run');
-  if (value.schema !== VALIDATION_SCHEMAS.analysisRun || value.version !== 1
-    || value.metricSetId !== METRIC_SET_ID || value.metricSetVersion !== METRIC_SET_VERSION
-    || !Array.isArray(value.metricLineage) || !Array.isArray(value.drilldownIndex)) {
-    throw new TypeError('Analysis Run schema is invalid.');
-  }
-  requireUuid(value.analysisRunId, 'Analysis Run id');
-  requireRevision(value.analysisRunRevision, 'Analysis Run revision');
-  requireUuid(value.campaignId, 'Analysis Campaign id');
-  exactRecord(value.counts, COUNT_KEYS, 'Analysis counts');
-  Object.values(value.counts).forEach((entry) => requireRevision(entry, 'Analysis count', { minimum: 0 }));
-  exactRecord(value.rates, ['targetFirstRate'], 'Analysis rates');
-  exactRecord(value.rates.targetFirstRate, ['denominator', 'numerator', 'value'], 'Target-first rate');
-  if (value.rates.targetFirstRate.value !== null) requireFinite(value.rates.targetFirstRate.value);
-  exactRecord(value.medians, ['maePoints', 'mfePoints', 'timeToFirstTouchBars'], 'Analysis medians');
-  availabilityEntries(value.sourceAvailabilitySnapshot);
-  requireEpoch(value.createdAtEpochMs, 'Analysis creation time');
-  await verifyContentDigest(value, crypto);
-  return strictPortableValue(value);
 }

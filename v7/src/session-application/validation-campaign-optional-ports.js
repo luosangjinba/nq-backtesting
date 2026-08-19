@@ -42,6 +42,10 @@ export function validateValidationCampaignOptionalPorts(optionalPorts) {
   ]));
   const present = Object.values(values).filter(Boolean).length;
   if (present === 0) return Object.freeze({ ...values, available: false });
+  if ([values.domain, values.persistence, values.outcome, values.audit, values.runtime, values.ui]
+    .some((value) => value === null)) {
+    return Object.freeze({ ...values, available: false });
+  }
   requireFactory(values.domain, 'canonicalJson', IDS.domain);
   requireFactory(values.persistence, 'createValidationCampaignPersistenceAdapter', IDS.persistence);
   requireFactory(values.outcome, 'createValidationOutcomeWindowAdapter', IDS.outcome);

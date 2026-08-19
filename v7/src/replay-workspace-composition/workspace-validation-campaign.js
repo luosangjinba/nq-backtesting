@@ -16,13 +16,17 @@ function captureContext({ annotationWorkflow, calculatedSeriesWorkflow, record, 
   const composition = snapshot();
   const calculated = calculatedSeriesWorkflow?.snapshot().runtime ?? null;
   const paneWorkspace = session.workspaceState.read(composition.paneWorkspace);
+  const acceptedPanes = composition.workspace.acceptedSnapshot?.workspace?.panes ?? [];
+  const datasetRevision = acceptedPanes.find(({ status }) => status === 'ready')
+    ?.snapshot?.provenance?.datasetRevision ?? null;
   return Object.freeze({
     annotationSources: annotationWorkflow?.listEvidenceSources() ?? Object.freeze([]),
     calculatedPanes: calculated?.panes ?? Object.freeze([]),
     campaignInstrumentIds: record.configuration.instrumentIds,
+    datasetRevision,
     exclusiveReplayCutoffEpochMs: composition.replay.cursorEpochMs,
     paneWorkspace,
-    sessionId: composition.replay.sessionId,
+    sessionId: serializeSessionId(record.sessionId).value,
     sessionRevision: record.revision,
     workspaceRevision: composition.workspace.acceptedSnapshot?.revision ?? 0,
   });
@@ -61,6 +65,10 @@ export function createWorkspaceValidationCampaign({
       market: session.market,
       readReplaySnapshot: session.replay.snapshot,
       readWorkspaceSnapshot: () => snapshotComposition().workspace.acceptedSnapshot,
+      sessionIdentity: Object.freeze({
+        sessionId: serializeSessionId(record.sessionId).value,
+        sessionRevision: record.revision,
+      }),
       sessionRange: session.range,
     });
     binding = configuration.bridge.bind(Object.freeze({

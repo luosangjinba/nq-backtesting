@@ -1,4 +1,5 @@
 import {
+  canonicalJson,
   exactRecord,
   requireBoundedText,
   requireDigest,
@@ -38,7 +39,7 @@ export function cohortRef(value) {
   });
 }
 
-function readCohortRef(value) {
+export function readCohortRef(value) {
   if (value === null) return null;
   exactRecord(value, ['cohortContentDigest', 'cohortId', 'cohortRevision'], 'Cohort reference');
   return strictPortableValue({
@@ -48,13 +49,65 @@ function readCohortRef(value) {
   });
 }
 
-function orderedRefs(values) {
+function orderedRefs(values, { requireCanonicalOrder = false } = {}) {
   const result = values.map(readCaseRef).sort((left, right) => (
     left.caseId.localeCompare(right.caseId) || left.caseRevision - right.caseRevision
   ));
   const keys = result.map(({ caseId, caseRevision }) => `${caseId}:${caseRevision}`);
   if (new Set(keys).size !== keys.length) throw new TypeError('Cohort Case references are duplicated.');
+  if (requireCanonicalOrder && canonicalJson(values) !== canonicalJson(result)) {
+    throw new TypeError('Cohort Case references are not canonically ordered.');
+  }
   return Object.freeze(result);
+}
+
+function overrideReasons(values, knownRefs, { requireCanonicalOrder = false } = {}) {
+  if (!Array.isArray(values)) throw new TypeError('Cohort override reasons must be an array.');
+  const reasons = values.map((entry) => {
+    exactRecord(entry, ['caseRef', 'kind', 'reason'], 'Cohort override reason');
+    const ref = readCaseRef(entry.caseRef);
+    const key = `${ref.caseId}:${ref.caseRevision}`;
+    if (canonicalJson(knownRefs.get(key)) !== canonicalJson(ref)) {
+      throw new TypeError('Cohort override reason references an unknown or stale Case.');
+    }
+    return strictPortableValue({
+      caseRef: ref,
+      kind: requireOpaqueId(entry.kind, 'Override kind'),
+      reason: requireBoundedText(entry.reason, 'Override reason', {
+        bytes: VALIDATION_LIMITS.maximumReasonBytes,
+      }),
+    });
+  });
+  const ordered = [...reasons].sort((left, right) => (
+    left.caseRef.caseId.localeCompare(right.caseRef.caseId)
+      || left.caseRef.caseRevision - right.caseRef.caseRevision
+      || left.kind.localeCompare(right.kind)
+  ));
+  const keys = ordered.map(({ caseRef: ref, kind }) => `${ref.caseId}:${ref.caseRevision}:${kind}`);
+  if (new Set(keys).size !== keys.length) throw new TypeError('Cohort override reasons are duplicated.');
+  if (requireCanonicalOrder && canonicalJson(values) !== canonicalJson(ordered)) {
+    throw new TypeError('Cohort override reasons are not canonically ordered.');
+  }
+  return Object.freeze(ordered);
+}
+
+function cohortTopology(memberValues, excludedValues, reasonValues, options = {}) {
+  const members = orderedRefs(memberValues, options);
+  const excluded = orderedRefs(excludedValues, options);
+  const memberKeys = new Set(members.map(({ caseId, caseRevision }) => `${caseId}:${caseRevision}`));
+  const excludedKeys = new Set(excluded.map(({ caseId, caseRevision }) => `${caseId}:${caseRevision}`));
+  if ([...memberKeys].some((key) => excludedKeys.has(key))) {
+    throw new TypeError('A Cohort Case cannot be both included and excluded.');
+  }
+  const knownRefs = new Map([...members, ...excluded].map((ref) => [
+    `${ref.caseId}:${ref.caseRevision}`, ref,
+  ]));
+  const reasons = overrideReasons(reasonValues, knownRefs, options);
+  const reasonRefs = new Set(reasons.map(({ caseRef: ref }) => `${ref.caseId}:${ref.caseRevision}`));
+  if ([...excludedKeys].some((key) => !reasonRefs.has(key))) {
+    throw new TypeError('Every excluded Cohort Case requires an explicit override reason.');
+  }
+  return Object.freeze({ excluded, members, reasons });
 }
 
 function shortText(value, label) {
@@ -77,21 +130,11 @@ export async function createStudyCohort({
   parentCohortRef = null,
   setupDefinitionRef,
 }) {
-  const members = orderedRefs(memberCases.map(caseRef));
-  const excluded = orderedRefs(excludedCases.map((entry) => caseRef(entry.case ?? entry)));
-  if (members.some((member) => excluded.some((entry) => (
-    entry.caseId === member.caseId && entry.caseRevision === member.caseRevision
-  )))) throw new TypeError('A Cohort Case cannot be both included and excluded.');
-  const reasons = manualOverrideReasons.map((entry) => {
-    exactRecord(entry, ['caseRef', 'kind', 'reason'], 'Cohort override reason');
-    return strictPortableValue({
-      caseRef: readCaseRef(entry.caseRef),
-      kind: requireOpaqueId(entry.kind, 'Override kind'),
-      reason: requireBoundedText(entry.reason, 'Override reason', {
-        bytes: VALIDATION_LIMITS.maximumReasonBytes,
-      }),
-    });
-  });
+  const { excluded, members, reasons } = cohortTopology(
+    memberCases.map(caseRef),
+    excludedCases.map((entry) => caseRef(entry.case ?? entry)),
+    manualOverrideReasons,
+  );
   return withContentDigest({
     authorLabel: shortText(authorLabel, 'Cohort author'),
     campaignId: requireUuid(campaignId, 'Cohort Campaign id'),
@@ -122,8 +165,12 @@ export async function readStudyCohort(value, crypto = globalThis.crypto) {
   requireUuid(value.cohortId, 'Cohort id');
   requireRevision(value.cohortRevision, 'Cohort revision');
   requireUuid(value.campaignId, 'Cohort Campaign id');
-  orderedRefs(value.memberCaseRefs);
-  orderedRefs(value.excludedCaseRefs);
+  cohortTopology(
+    value.memberCaseRefs,
+    value.excludedCaseRefs,
+    value.manualOverrideReasons,
+    { requireCanonicalOrder: true },
+  );
   readCohortRef(value.parentCohortRef);
   readDefinitionRef(value.setupDefinitionRef);
   readDefinitionRef(value.outcomeDefinitionRef);

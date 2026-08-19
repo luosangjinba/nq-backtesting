@@ -1,6 +1,8 @@
 import {
+  canonicalJson,
   exactRecord,
   requireBoundedText,
+  requireContractId,
   requireDigest,
   requireEnum,
   requireEpoch,
@@ -15,7 +17,13 @@ import {
 } from './canonical-value.js';
 import { VALIDATION_LIMITS, VALIDATION_SCHEMAS } from './constants.js';
 import { caseRef } from './case-records.js';
-import { citationRef, readSourceReference } from './evidence-records.js';
+import { readCaseRef } from './cohort-records.js';
+import { citationRef, readCitationRef, readSourceReference } from './evidence-records.js';
+
+const VERIFICATION_RESULTS = Object.freeze([
+  'match', 'mismatch', 'source-absent', 'provider-absent',
+  'incompatible-version', 'dataset-mismatch', 'record-missing',
+]);
 
 const VERIFICATION_FIELDS = Object.freeze([
   'campaignId', 'caseRef', 'checkedAtEpochMs', 'citationRef', 'contentDigest', 'detail',
@@ -28,6 +36,57 @@ const RAW_CONTEXT_FIELDS = Object.freeze([
   'schema', 'sessionHoursId', 'sessionId', 'sessionRevision', 'sourceSelectionIntents',
   'version', 'workspaceDigest', 'workspaceRevision',
 ]);
+const PANE_ROLES = Object.freeze(['context-pane', 'execution-pane']);
+const EVIDENCE_ROLES = Object.freeze(['context-sma', 'execution-fvg']);
+
+function readRawPaneIntents(values) {
+  if (!Array.isArray(values) || values.length !== PANE_ROLES.length) {
+    throw new TypeError('Raw-context intent requires exactly two Pane intents.');
+  }
+  const entries = values.map((entry) => {
+    exactRecord(entry, ['paneId', 'paneRevision', 'paneRole', 'timeframeId'], 'Raw-context Pane intent');
+    return strictPortableValue({
+      paneId: requireOpaqueId(entry.paneId, 'Raw-context Pane id'),
+      paneRevision: requireRevision(entry.paneRevision, 'Raw-context Pane revision', { minimum: 0 }),
+      paneRole: requireEnum(entry.paneRole, PANE_ROLES, 'Raw-context Pane role'),
+      timeframeId: requireContractId(entry.timeframeId, 'Raw-context timeframe'),
+    });
+  });
+  const ordered = [...entries].sort((left, right) => left.paneRole.localeCompare(right.paneRole));
+  if (new Set(entries.map(({ paneRole }) => paneRole)).size !== PANE_ROLES.length
+    || canonicalJson(entries) !== canonicalJson(ordered)) {
+    throw new TypeError('Raw-context Pane roles are duplicated or unordered.');
+  }
+  return Object.freeze(entries);
+}
+
+function readRawSourceIntents(values) {
+  if (!Array.isArray(values) || values.length !== EVIDENCE_ROLES.length) {
+    throw new TypeError('Raw-context intent requires exactly two source selections.');
+  }
+  const entries = values.map((entry) => {
+    exactRecord(
+      entry,
+      ['evidenceRole', 'sourceRecordId', 'sourceRecordRevision'],
+      'Raw-context source intent',
+    );
+    return strictPortableValue({
+      evidenceRole: requireEnum(entry.evidenceRole, EVIDENCE_ROLES, 'Raw-context evidence role'),
+      sourceRecordId: requireOpaqueId(entry.sourceRecordId, 'Raw-context source record id'),
+      sourceRecordRevision: requireRevision(
+        entry.sourceRecordRevision, 'Raw-context source record revision',
+      ),
+    });
+  });
+  const ordered = [...entries].sort((left, right) => (
+    left.evidenceRole.localeCompare(right.evidenceRole)
+  ));
+  if (new Set(entries.map(({ evidenceRole }) => evidenceRole)).size !== EVIDENCE_ROLES.length
+    || canonicalJson(entries) !== canonicalJson(ordered)) {
+    throw new TypeError('Raw-context source roles are duplicated or unordered.');
+  }
+  return Object.freeze(entries);
+}
 
 export async function createSourceVerification({
   campaignId,
@@ -53,13 +112,10 @@ export async function createSourceVerification({
     }),
     observedSourceReference: observedSourceReference === null
       ? null : readSourceReference(observedSourceReference),
-    providerId: requireOpaqueId(providerId, 'Verification provider id'),
+    providerId: requireContractId(providerId, 'Verification provider id'),
     providerVersion: requireSemver(providerVersion, 'Verification provider version'),
     reasonCode: requireOpaqueId(reasonCode, 'Verification reason code'),
-    result: requireEnum(result, [
-      'match', 'mismatch', 'source-absent', 'provider-absent',
-      'incompatible-version', 'dataset-mismatch', 'record-missing',
-    ], 'Verification result'),
+    result: requireEnum(result, VERIFICATION_RESULTS, 'Verification result'),
     schema: VALIDATION_SCHEMAS.sourceVerification,
     verificationId: requireUuid(verificationId, 'Verification id'),
     verificationRevision: 1,
@@ -75,8 +131,22 @@ export async function readSourceVerification(value, crypto = globalThis.crypto) 
   requireUuid(value.verificationId, 'Verification id');
   requireRevision(value.verificationRevision, 'Verification revision');
   requireUuid(value.campaignId, 'Verification Campaign id');
+  readCaseRef(value.caseRef);
+  readCitationRef(value.citationRef);
   requireEpoch(value.checkedAtEpochMs, 'Verification check time');
-  if (value.observedSourceReference !== null) readSourceReference(value.observedSourceReference);
+  requireContractId(value.providerId, 'Verification provider id');
+  requireSemver(value.providerVersion, 'Verification provider version');
+  requireOpaqueId(value.reasonCode, 'Verification reason code');
+  requireBoundedText(value.detail, 'Verification detail', {
+    allowEmpty: true, bytes: VALIDATION_LIMITS.maximumReasonBytes,
+  });
+  const result = requireEnum(value.result, VERIFICATION_RESULTS, 'Verification result');
+  const source = value.observedSourceReference === null
+    ? null : readSourceReference(value.observedSourceReference);
+  const requiresObservedSource = ['match', 'mismatch', 'dataset-mismatch'].includes(result);
+  if (requiresObservedSource !== (source !== null)) {
+    throw new TypeError('Verification result and observed source are inconsistent.');
+  }
   await verifyContentDigest(value, crypto);
   return strictPortableValue(value);
 }
@@ -86,6 +156,9 @@ export function createRawContextIntent({
   caseRecord,
   contextRole,
 }) {
+  if (campaignId !== caseRecord?.campaignId) {
+    throw new TypeError('Raw-context Campaign differs from its Case.');
+  }
   const role = requireEnum(contextRole, ['observation', 'outcome'], 'Raw context role');
   const context = caseRecord.observationContext;
   if (context === null) throw new TypeError('Draft Case has no raw observation context.');
@@ -128,8 +201,19 @@ export async function readRawContextIntent(value, crypto = globalThis.crypto) {
     throw new TypeError('Raw-context intent schema is invalid.');
   }
   requireUuid(value.campaignId, 'Raw-context Campaign id');
+  readCaseRef(value.caseRef);
+  requireEnum(value.contextRole, ['observation', 'outcome'], 'Raw-context role');
+  requireOpaqueId(value.datasetId, 'Raw-context dataset id');
+  requireOpaqueId(value.datasetRevision, 'Raw-context dataset revision');
+  requireContractId(value.instrumentId, 'Raw-context instrument');
+  requireContractId(value.sessionHoursId, 'Raw-context Session Hours');
+  requireOpaqueId(value.sessionId, 'Raw-context Session id');
+  requireRevision(value.sessionRevision, 'Raw-context Session revision');
+  requireRevision(value.workspaceRevision, 'Raw-context Workspace revision', { minimum: 0 });
   requireDigest(value.workspaceDigest, 'Raw-context Workspace digest');
   requireEpoch(value.exclusiveReplayCutoffEpochMs, 'Raw-context Replay cutoff');
+  readRawPaneIntents(value.paneIntents);
+  readRawSourceIntents(value.sourceSelectionIntents);
   await verifyContentDigest(value, crypto);
   return strictPortableValue(value);
 }

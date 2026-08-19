@@ -55,7 +55,7 @@ retain their existing sole-owner authority.
   projection, source-quality, and production-architecture gates are retained as
   regression evidence. H114 is also declared in the production regression
   matrix.
-- Current production source evidence is 628 files, 58,339 effective lines, 5,981 functions, and 647 public exports, with no source-size/function exception or validation finding.
+- Current production source evidence is 642 files, 60,061 effective lines, 6,152 functions, and 650 public exports, with no source-size/function exception or validation finding.
 - Current architecture evidence is 64 modules, 147 actual dependency edges,
   122 construction sites, 18 declared writer surfaces, 23 observed writer
   sites, and zero known violations.

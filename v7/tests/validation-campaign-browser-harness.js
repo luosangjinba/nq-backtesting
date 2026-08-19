@@ -6,6 +6,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createStaticServer } from '../scripts/static-server.mjs';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
+import {
+  buildValidationCampaignBrowserSeed,
+} from './support/validation-campaign-browser-seed.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
@@ -138,7 +141,7 @@ try {
   assert.deepEqual(detail.rail, ['Sessions', 'Validation', 'Data acquisition']);
   const desktopBytes = await screenshot(cdp, desktopScreenshot);
 
-  const campaignRoute = await evaluate(cdp, 'location.hash');
+  let campaignRoute = await evaluate(cdp, 'location.hash');
   await cdp.send('Page.reload', { ignoreCache: true });
   await waitFor(cdp, `location.hash === '${campaignRoute}'
     && document.querySelector('.validation-page h1')?.textContent === 'H121 FVG + SMA Campaign'`, 20_000);
@@ -173,10 +176,80 @@ try {
     }))()`);
     throw new Error(`${error.message}; Replay Campaign state: ${JSON.stringify(state)}`);
   }
-  const beforeDialog = await evaluate(cdp, `(() => {
-    const host = document.querySelector('.lightweight-chart-host');
-    return { barCount: host.dataset.barCount, revision: host.dataset.visibleRevision };
+
+  // Seed a deterministic, exact-Session completed Case plus one pending Outcome.
+  await evaluate(cdp, `document.querySelector('[data-layout-id="layout.two-columns"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '2'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 20_000);
+  await frames(cdp, 3);
+  const seedContext = await evaluate(cdp, `(async () => {
+    const workspace = document.querySelector('.replay-workspace');
+    const panes = [...document.querySelectorAll('.workspace-pane:not([aria-hidden="true"])')]
+      .map((pane) => ({
+      paneId: pane.dataset.paneId,
+      timeframeId: pane.dataset.timeframeId,
+    }));
+    const sessionKey = Object.keys(localStorage)
+      .find((key) => key.startsWith('v7.session-browser:record:'));
+    const record = JSON.parse(localStorage.getItem(sessionKey)).value;
+    const health = await fetch('http://' + location.hostname + ':8766/v7/market-data/health')
+      .then((response) => response.json());
+    return {
+      contextPaneId: panes[0].paneId,
+      contextTimeframeId: panes[0].timeframeId,
+      currentSessionRevision: record.revision,
+      datasetRevision: health.datasetRevision,
+      executionPaneId: panes[1].paneId,
+      executionTimeframeId: panes[1].timeframeId,
+      outcomeCutoffEpochMs: Number(workspace.dataset.replayCursorEpochMs),
+      sessionId: decodeURIComponent(location.hash.split('/').at(-1)),
+    };
   })()`);
+  assert.equal(typeof seedContext.datasetRevision, 'string');
+  const seed = await buildValidationCampaignBrowserSeed({
+    ...seedContext,
+    decisionCutoffEpochMs: seedContext.outcomeCutoffEpochMs - 120_000,
+    sessionRevision: seedContext.currentSessionRevision + 1,
+  });
+  await evaluate(cdp, `(() => {
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith('v7.validation-campaign:')) localStorage.removeItem(key);
+    }
+    for (const [key, value] of ${JSON.stringify(seed.entries)}) localStorage.setItem(key, value);
+    localStorage.removeItem('v7.state-sync:metadata');
+  })()`);
+  await cdp.send('Page.reload', { ignoreCache: true });
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
+    && document.querySelector('.replay-workspace')?.dataset.paneCount === '2'
+    && document.querySelectorAll('.validation-pane-actions').length === 2`, 25_000);
+
+  // The Outcome surface exposes only this exact Session/dataset and accepts the current cutoff.
+  await evaluate(cdp, `document.querySelector('.validation-pane-button-secondary').click()`);
+  await waitFor(cdp, `document.querySelector('.validation-capture-dialog')?.open === true
+    && document.querySelector('.validation-capture-dialog h2')?.textContent === 'Pending Outcomes'`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelectorAll('.validation-outcome-list .validation-case-row').length`), 1);
+  await evaluate(cdp, `[...document.querySelectorAll('.validation-outcome-list button')]
+    .find((button) => button.textContent.includes('Record Outcome')).click()`);
+  try {
+    await waitFor(cdp, `document.querySelector('.validation-outcome-list')?.textContent
+      .includes('No observed Case from this exact Session')`, 20_000);
+  } catch (error) {
+    const state = await evaluate(cdp, `(() => ({
+      dialogError: document.querySelector(
+        '.validation-capture-dialog .validation-dialog-error')?.textContent,
+      outcomeText: document.querySelector('.validation-outcome-list')?.textContent,
+      replay: { ...document.querySelector('.replay-workspace')?.dataset },
+      pageErrors: globalThis.__h121BrowserErrors,
+    }))()`);
+    throw new Error(`${error.message}; Outcome state: ${JSON.stringify(state)}`);
+  }
+  await evaluate(cdp, `[...document.querySelectorAll('.validation-capture-dialog button')]
+    .find((button) => button.textContent === 'Close').click()`);
+  await waitFor(cdp, `document.querySelector('.validation-capture-dialog')?.open === false`);
+
+  const beforeDialog = await evaluate(cdp, `([...document.querySelectorAll('.lightweight-chart-host')]
+    .map((host) => ({ barCount: host.dataset.barCount, revision: host.dataset.visibleRevision })))`);
   await evaluate(cdp, `document.querySelector('.validation-pane-button').click()`);
   await waitFor(cdp, `document.querySelector('.validation-capture-dialog')?.open === true`);
   const captureReview = await evaluate(cdp, `(() => ({
@@ -186,15 +259,98 @@ try {
   }))()`);
   assert.deepEqual(captureReview, { heading: 'Capture Study Case', fvgOptions: 0, smaOptions: 0 });
   await evaluate(cdp, `[...document.querySelectorAll('.validation-capture-dialog button')]
+    .find((button) => button.textContent === 'Review evidence').click()`);
+  await waitFor(cdp, `document.querySelectorAll('.validation-preview-card').length === 2`, 20_000);
+  const incompletePreview = await evaluate(cdp, `(() => ({
+    cards: document.querySelectorAll('.validation-preview-card').length,
+    classification: document.querySelector('[name="qualificationClass"]').value,
+    changeDisabled: [...document.querySelectorAll('.validation-capture-dialog button')]
+      .find((button) => button.textContent === 'Change sources').disabled,
+    selectorsLocked: [...document.querySelectorAll(
+      '[name="campaignId"],[name="contextPaneId"],[name="executionPaneId"],'
+      + '[name="fvgArtifactId"],[name="smaInstanceId"]')].every((control) => control.disabled),
+    text: document.querySelector('.validation-preview').textContent,
+  }))()`);
+  assert.equal(incompletePreview.cards, 2);
+  assert.equal(incompletePreview.classification, 'incomplete');
+  assert.equal(incompletePreview.changeDisabled, false);
+  assert.equal(incompletePreview.selectorsLocked, true);
+  assert.match(incompletePreview.text, /only be retained as an incomplete draft/u);
+  await evaluate(cdp, `[...document.querySelectorAll('.validation-capture-dialog button')]
     .find((button) => button.textContent === 'Close').click()`);
   await waitFor(cdp, `document.querySelector('.validation-capture-dialog')?.open === false`);
   await frames(cdp);
-  const afterDialog = await evaluate(cdp, `(() => {
-    const host = document.querySelector('.lightweight-chart-host');
-    return { barCount: host.dataset.barCount, revision: host.dataset.visibleRevision };
-  })()`);
+  const afterDialog = await evaluate(cdp, `([...document.querySelectorAll('.lightweight-chart-host')]
+    .map((host) => ({ barCount: host.dataset.barCount, revision: host.dataset.visibleRevision })))`);
   assert.deepEqual(afterDialog, beforeDialog);
   assert.equal(await evaluate(cdp, `document.querySelector('.replay-next').disabled`), false);
+
+  // Production Campaign UI closes Case history, verification, Cohort, Analysis, and drill-down.
+  campaignRoute = `#/campaigns/${seed.campaignId}`;
+  await cdp.send('Page.navigate', { url: `http://127.0.0.1:${webPort}/v7/app/${campaignRoute}` });
+  await waitFor(cdp, `document.querySelectorAll('.validation-case-history').length === 2`, 20_000);
+  await evaluate(cdp, `document.querySelectorAll('.validation-case-history')
+    .forEach((entry) => { entry.open = true; })`);
+  const seededDetail = await evaluate(cdp, `(() => ({
+    citations: document.querySelectorAll('.validation-citation').length,
+    histories: document.querySelectorAll('.validation-case-history').length,
+    revisions: document.querySelectorAll('.validation-case-revision').length,
+    verificationEntries: document.querySelectorAll('.validation-verification-history li').length,
+  }))()`);
+  assert.equal(seededDetail.histories, 2);
+  assert.equal(seededDetail.revisions, 5);
+  assert.ok(seededDetail.citations >= 4);
+  assert.equal(seededDetail.verificationEntries, 1);
+  await evaluate(cdp, `[...document.querySelectorAll('.validation-case-revision button')]
+    .find((button) => button.textContent === 'Finalize').click()`);
+  await waitFor(cdp, `[...document.querySelectorAll('.validation-case-history summary strong')]
+    .filter((node) => node.textContent.includes('finalized')).length === 2`, 20_000);
+
+  await evaluate(cdp, `[...document.querySelectorAll('.validation-section-heading button')]
+    .find((button) => button.textContent === 'Freeze Cohort…').click()`);
+  await waitFor(cdp, `document.querySelector('.validation-cohort-dialog')?.open === true`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelectorAll('.validation-cohort-member').length`), 2);
+  await evaluate(cdp, `(() => {
+    const row = document.querySelectorAll('.validation-cohort-member')[1];
+    const select = row.querySelector('select');
+    select.value = 'exclude';
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    row.querySelector('input').value = 'Explicit browser-Harness exclusion.';
+    [...document.querySelectorAll('.validation-cohort-dialog button')]
+      .find((button) => button.textContent === 'Freeze Cohort').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.validation-cohort-dialog')?.open === false
+    && document.querySelector('.validation-cohort-summary')?.textContent.includes('Excluded')`, 20_000);
+  await evaluate(cdp, `[...document.querySelectorAll('.validation-section-heading button')]
+    .find((button) => button.textContent === 'Run analysis').click()`);
+  await waitFor(cdp, `JSON.parse(localStorage.getItem(Object.keys(localStorage)
+    .find((key) => key.startsWith('v7.validation-campaign:document:')))).analysisRuns.length === 2`, 20_000);
+  assert.equal(await evaluate(cdp, `document.querySelectorAll('.validation-statistics tbody tr').length`), 15);
+  const cohortCounts = await evaluate(cdp, `(() => {
+    const values = [...document.querySelectorAll('.validation-cohort-summary dd')]
+      .map((node) => node.textContent);
+    return { excluded: values[1], members: values[0] };
+  })()`);
+  assert.deepEqual(cohortCounts, { excluded: '1', members: '1' });
+  await evaluate(cdp, `(() => {
+    const row = [...document.querySelectorAll('.validation-statistics tbody tr')]
+      .find((entry) => entry.querySelector('th').textContent === 'Total Cases');
+    row.querySelector('button').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.validation-drilldown-dialog')?.open === true`);
+  const drilldown = await evaluate(cdp, `(() => ({
+    heading: document.querySelector('.validation-drilldown-dialog h2').textContent,
+    members: document.querySelectorAll('.validation-drilldown-member').length,
+    rawActions: [...document.querySelectorAll('.validation-drilldown-member button')]
+      .filter((button) => button.textContent === 'Open exact raw context').length,
+  }))()`);
+  assert.deepEqual(drilldown, { heading: 'count.total', members: 1, rawActions: 1 });
+  await evaluate(cdp, `[...document.querySelectorAll('.validation-drilldown-dialog button')]
+    .find((button) => button.textContent === 'Close').click()`);
+  await waitFor(cdp, `document.querySelector('.validation-drilldown-dialog')?.open === false`);
+  assert.equal(await evaluate(cdp,
+    `document.activeElement?.textContent === 'Inspect exact members'`), true);
 
   // 620px route remains readable without horizontal document overflow.
   await cdp.send('Page.navigate', {
@@ -245,9 +401,13 @@ try {
   assert.deepEqual(browserErrors, []);
   evidence = Object.freeze({
     captureReview,
+    cohortCounts,
     desktopBytes,
+    drilldown,
+    incompletePreview,
     narrowBytes,
     responsive,
+    seededDetail,
     storedKeys: storedKeys.length,
   });
 } finally {

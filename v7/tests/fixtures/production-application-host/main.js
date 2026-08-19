@@ -120,6 +120,17 @@ async function run() {
     .getPublicApi('adapter.session-application').snapshot();
   await stateSyncOptionalHost.stop();
 
+  const campaignOptionalDefinitions = await loadProductionApplicationDefinitions({
+    environment: sessionEnvironment(document.querySelector('#host-optional')),
+    omittedModuleIds: ['adapter.validation-campaign-ui'],
+    rootModuleId: 'adapter.session-application',
+  });
+  const campaignOptionalHost = createModuleHost(campaignOptionalDefinitions);
+  const campaignOptionalStarted = await campaignOptionalHost.start();
+  const campaignOptionalSnapshot = campaignOptionalHost
+    .getPublicApi('adapter.session-application').snapshot();
+  await campaignOptionalHost.stop();
+
   const dataDefinitions = await loadProductionApplicationDefinitions({
     environment: {
       root: document.querySelector('#host-data'),
@@ -170,6 +181,10 @@ async function run() {
   }
 
   return Object.freeze({
+    campaignOptional: Object.freeze({
+      moduleIds: campaignOptionalStarted.moduleIds,
+      snapshot: campaignOptionalSnapshot,
+    }),
     data: Object.freeze({
       childrenAfterStop: document.querySelector('#host-data').childElementCount,
       running: dataRunning,

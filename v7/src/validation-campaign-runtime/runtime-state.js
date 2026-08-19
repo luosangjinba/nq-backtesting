@@ -12,6 +12,8 @@ import {
   ValidationCampaignError,
 } from '../validation-study-domain/public.js';
 import { validationCampaignDocumentStorageKey } from '../validation-campaign-persistence/public.js';
+import { validateCampaignDocumentHistory } from './runtime-history-validation.js';
+import { refreshAllCampaignSourceResolution } from './source-availability.js';
 
 function requireMethod(value, method, label) {
   if (typeof value?.[method] !== 'function') throw new TypeError(`${label} requires ${method}().`);
@@ -66,41 +68,10 @@ export function createValidationCampaignRuntimeState(options) {
     previews: new Map(),
     providers: providers(options.evidenceProviders ?? []),
     raws: new Map(),
+    sourceResolution: new Map(),
     status: 'initializing',
     nowEpochMs: options.nowEpochMs,
   };
-}
-
-function validateHistory(document) {
-  const byId = new Map();
-  for (const entry of document.caseRevisions) {
-    if (entry.campaignId !== document.campaign.campaignId
-      || entry.acceptedDocumentRevision > document.documentRevision) {
-      throw new TypeError('Study Case does not belong to its Campaign document.');
-    }
-    const revisions = byId.get(entry.caseId) ?? [];
-    revisions.push(entry);
-    byId.set(entry.caseId, revisions);
-  }
-  for (const revisions of byId.values()) {
-    revisions.sort((left, right) => left.caseRevision - right.caseRevision);
-    if (revisions.some((entry, index) => entry.caseRevision !== index + 1
-      || (index === 0 ? entry.supersedesCaseRevision !== null
-        : entry.supersedesCaseRevision !== revisions[index - 1].caseRevision))) {
-      throw new TypeError('Study Case revision history is impossible.');
-    }
-  }
-  const retained = new Map(document.caseRevisions.map((entry) => [
-    `${entry.caseId}:${entry.caseRevision}`, entry,
-  ]));
-  for (const cohort of document.cohorts) {
-    for (const ref of cohort.memberCaseRefs) {
-      const entry = retained.get(`${ref.caseId}:${ref.caseRevision}`);
-      if (!entry || entry.lifecycleState !== 'finalized' || entry.contentDigest !== ref.caseContentDigest) {
-        throw new TypeError('Cohort member reference is not one exact retained finalized Case.');
-      }
-    }
-  }
 }
 
 async function validateDocument(state, value) {
@@ -111,7 +82,7 @@ async function validateDocument(state, value) {
     readVerification: readSourceVerification,
   });
   assertCampaignDocumentCeilings(document);
-  validateHistory(document);
+  await validateCampaignDocumentHistory(document, state.crypto);
   return document;
 }
 
@@ -142,10 +113,12 @@ export async function hydrateValidationCampaignRuntime(state) {
       || state.index.campaignIds.some((id) => !state.documents.has(id))) {
       throw new TypeError('Campaign index and documents do not close exactly.');
     }
+    await refreshAllCampaignSourceResolution(state);
     state.status = 'ready';
   } catch (error) {
     state.documents.clear();
     state.raws.clear();
+    state.sourceResolution.clear();
     state.poisoned = true;
     state.status = 'poisoned';
     state.diagnostic = Object.freeze({
@@ -163,7 +136,8 @@ function summaries(state) {
     direction: document.campaign.direction,
     documentRevision: document.documentRevision,
     instrumentId: document.campaign.instrumentId,
-    sourceResolutionState: state.providers.length === 2 ? 'available' : 'source-unavailable',
+    sourceResolutionState: state.sourceResolution.get(document.campaign.campaignId)
+      ?? (state.providers.length === 2 ? 'available' : 'source-unavailable'),
     status: document.campaign.status,
     title: document.campaign.title,
     updatedAtEpochMs: document.updatedAtEpochMs,
@@ -223,6 +197,14 @@ export function expectedDocument(document, expectedRevision, operation) {
   }
 }
 
+export function requireCommandActive(signal, operation) {
+  if (signal?.aborted) {
+    failValidation('VALIDATION_CAMPAIGN_PREPARATION_STALE', 'Campaign command was cancelled.', {
+      operation,
+    });
+  }
+}
+
 function poisonRollback(state, error) {
   if (error?.code === 'VALIDATION_CAMPAIGN_ROLLBACK_UNPROVEN') {
     state.poisoned = true;
@@ -232,7 +214,14 @@ function poisonRollback(state, error) {
   }
 }
 
-export async function commitCampaignDocument(state, { document, previous, index = null }) {
+export async function commitCampaignDocument(state, {
+  beforeApply = null,
+  document,
+  index = null,
+  operation = 'commit-campaign-document',
+  previous,
+  signal,
+}) {
   assertCampaignDocumentCeilings(document);
   const campaignId = document.campaign.campaignId;
   const key = validationCampaignDocumentStorageKey(campaignId);
@@ -248,6 +237,9 @@ export async function commitCampaignDocument(state, { document, previous, index 
   });
   const prepared = state.persistence.prepare({ writes });
   try {
+    requireCommandActive(signal, operation);
+    if (beforeApply !== null) await beforeApply();
+    requireCommandActive(signal, operation);
     const receipt = state.persistence.apply(prepared);
     state.persistence.finalize(prepared);
     for (const entry of receipt.raws) {

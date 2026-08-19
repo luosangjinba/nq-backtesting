@@ -21,6 +21,7 @@ export const STATE_SYNC_METADATA_KEY = 'v7.state-sync:metadata';
 export const STATE_SYNC_BACKUP_PREFIX = 'v7.state-sync:backup:';
 export const CALCULATED_SERIES_STATE_PREFIX = 'v7.calculated-series:document:';
 export const VALIDATION_CAMPAIGN_STATE_PREFIX = 'v7.validation-campaign:document:';
+const UUID_V4_SUFFIX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u;
 
 const EXACT_KEYS = new Set([
   'v7.session-browser:index',
@@ -39,7 +40,7 @@ export function isReplicatedStateKey(key) {
       || (key.startsWith(CALCULATED_SERIES_STATE_PREFIX)
         && key.length > CALCULATED_SERIES_STATE_PREFIX.length)
       || (key.startsWith(VALIDATION_CAMPAIGN_STATE_PREFIX)
-        && key.length > VALIDATION_CAMPAIGN_STATE_PREFIX.length)
+        && UUID_V4_SUFFIX.test(key.slice(VALIDATION_CAMPAIGN_STATE_PREFIX.length)))
   );
 }
 

@@ -6,8 +6,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   calculateOutcomeObservation,
+  calculateValidationMetrics,
   canonicalJson,
   createSeedDefinitions,
+  readAnalysisRun,
+  readRawContextIntent,
   sha256Canonical,
   sha256CanonicalSync,
   strictPortableValue,
@@ -37,6 +40,10 @@ import {
   isReplicatedStateKey,
 } from '../src/server-state-sync/snapshot.js';
 import { verifyProductionModuleAssembly } from './support/production-module-assembly.js';
+import { selectApplicationDescriptors } from '../app/production-module-catalog.js';
+import {
+  applyValidationRawContextIntent,
+} from '../src/replay-workspace-composition/validation-raw-context-command.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const V7_ROOT = path.resolve(TEST_DIR, '..');
@@ -102,7 +109,12 @@ const common = Object.freeze({
   sessionRevision: 1,
   workspaceRevision: 1,
 });
-const mutableSource = { fvgRevision: 1, smaRevision: 1 };
+const mutableSource = { fvgRevision: 1, fvgStatus: 'active', smaRevision: 1 };
+const commonDatasetDigest = await sha256Canonical({
+  datasetRevision: common.datasetRevision,
+  providerId: common.providerId,
+}, crypto);
+const commonDatasetId = `dataset-${commonDatasetDigest.slice(7, 23)}`;
 
 function fvgObservation({ paneId }) {
   return Object.freeze({
@@ -113,9 +125,10 @@ function fvgObservation({ paneId }) {
       evidenceBarStartEpochMs: Object.freeze([57_000, 58_000, 59_000]),
       id: 'artifact-fvg-h121',
       lowerPrice: 99,
+      observedAtReplayCutoffEpochMs: common.cutoff,
       provenance: Object.freeze({ acceptedWorkspaceRevision: 1, recognitionSource: 'manual' }),
       revision: mutableSource.fvgRevision,
-      status: 'active',
+      status: mutableSource.fvgStatus,
       typeId: 'imbalance.fvg',
       typeVersion: '1.0.0',
       upperPrice: 101,
@@ -222,9 +235,17 @@ async function outcomeAdapter(request) {
   });
 }
 
-function createRuntimeFixture({ evidenceProviders = providers(), map = new Map(), nowStart = 1_000_000 } = {}) {
+function createRuntimeFixture({
+  evidenceProviders = providers(),
+  idFactory = uuidFactory(),
+  map = new Map(),
+  nowStart = 1_000_000,
+  storageHooks = {},
+} = {}) {
   let now = nowStart;
-  const persistence = createValidationCampaignPersistenceAdapter({ storage: storagePort(map) });
+  const persistence = createValidationCampaignPersistenceAdapter({
+    storage: storagePort(map, storageHooks),
+  });
   return Object.freeze({
     map,
     now: () => now,
@@ -233,7 +254,7 @@ function createRuntimeFixture({ evidenceProviders = providers(), map = new Map()
       auditExporter: createValidationCampaignAuditExporter({ crypto }),
       crypto,
       evidenceProviders,
-      idFactory: uuidFactory(),
+      idFactory,
       nowEpochMs: () => now++,
       outcomeAdapter: Object.freeze({ observeOutcome: outcomeAdapter }),
       persistence,
@@ -364,56 +385,285 @@ assert.equal(shortOutcome.mfePoints, 7);
 assert.equal(shortOutcome.maePoints, 2);
 
 // The production Outcome adapter reads only Replay-revealed, Bar Data-owned accepted Bars.
-const outcomeWindow = createValidationOutcomeWindowAdapter({
-  barData: Object.freeze({
-    async acquire(request) {
-      return Object.freeze({ request: Object.freeze({
-        datasetRevision: common.datasetRevision,
-        instrumentId: request.instrumentId,
-        providerId: common.providerId,
-        sourceResolutionId: 'resolution-h121',
-      }) });
-    },
-  }),
-  crypto,
-  market: Object.freeze({
-    requestWindow({ instrumentId, windowEndEpochMs, windowStartEpochMs }) {
-      return Object.freeze({ instrumentId, windowEndEpochMs, windowStartEpochMs });
-    },
-  }),
-  readReplaySnapshot: () => Object.freeze({ cursorEpochMs: 64_000 }),
-  readWorkspaceSnapshot: () => Object.freeze({ workspace: Object.freeze({ panes: Object.freeze([{
-    paneId: 'pane-secondary',
-    snapshot: Object.freeze({
-      bars: Object.freeze([
-        Object.freeze({ close: 101, high: 103, low: 99, open: 100, startEpochMs: 60_000 }),
-        Object.freeze({ close: 105, high: 106, low: 100, open: 101, startEpochMs: 61_000 }),
-        Object.freeze({ close: 104, high: 105, low: 103, open: 105, startEpochMs: 62_000 }),
-      ]),
-      provenance: Object.freeze({
-        displayTimeframeId: 'timeframe.display-1-minute',
-        instrumentId: common.instrumentId ?? 'instrument.cme.nq',
-        sessionHoursPolicyId: 'session-hours.cme-eth',
-      }),
+function outcomeWindowFixture({ afterAcquire = () => {}, currentCursor = () => 64_000,
+  sessionId = common.sessionId } = {}) {
+  return createValidationOutcomeWindowAdapter({
+    barData: Object.freeze({
+      async acquire(request) {
+        afterAcquire();
+        return Object.freeze({ request: Object.freeze({
+          datasetRevision: common.datasetRevision,
+          instrumentId: request.instrumentId,
+          providerId: common.providerId,
+          sourceResolutionId: 'resolution-h121',
+        }) });
+      },
     }),
-    status: 'ready',
-  }]) }) }),
-  sessionRange: Object.freeze({ endEpochMs: 100_000 }),
-});
-const adaptedOutcome = await outcomeWindow.observeOutcome(Object.freeze({
-  decisionCutoffEpochMs: 60_000,
-  executionPaneId: 'pane-secondary',
-  executionTimeframeId: 'timeframe.display-1-minute',
-  instrumentId: 'instrument.cme.nq',
-  pathPlan: pathPlan(),
-  recordedAtEpochMs: 65_000,
-  requestedOutcomeCutoffEpochMs: 63_000,
-  sessionHoursId: 'session-hours.cme-eth',
-}));
+    crypto,
+    market: Object.freeze({
+      requestWindow({ instrumentId, windowEndEpochMs, windowStartEpochMs }) {
+        return Object.freeze({
+          datasetRevision: common.datasetRevision,
+          instrumentId,
+          providerId: common.providerId,
+          sourceResolutionId: 'resolution-h121',
+          windowEndEpochMs,
+          windowStartEpochMs,
+        });
+      },
+    }),
+    readReplaySnapshot: () => Object.freeze({ cursorEpochMs: currentCursor() }),
+    readWorkspaceSnapshot: () => Object.freeze({ revision: 1, workspace: Object.freeze({
+      panes: Object.freeze([{
+        paneId: 'pane-secondary',
+        snapshot: Object.freeze({
+          bars: Object.freeze([
+            Object.freeze({ close: 101, high: 103, low: 99, open: 100, startEpochMs: 60_000 }),
+            Object.freeze({ close: 105, high: 106, low: 100, open: 101, startEpochMs: 61_000 }),
+            Object.freeze({ close: 104, high: 105, low: 103, open: 105, startEpochMs: 62_000 }),
+          ]),
+          provenance: Object.freeze({
+            datasetRevision: common.datasetRevision,
+            displayTimeframeId: 'timeframe.display-1-minute',
+            instrumentId: 'instrument.cme.nq',
+            providerId: common.providerId,
+            sessionHoursPolicyId: 'session-hours.cme-eth',
+            sourceResolutionId: 'resolution-h121',
+          }),
+        }),
+        status: 'ready',
+      }]),
+    }) }),
+    sessionIdentity: Object.freeze({ sessionId, sessionRevision: common.sessionRevision }),
+    sessionRange: Object.freeze({ endEpochMs: 100_000 }),
+  });
+}
+
+function outcomeRequest(overrides = {}) {
+  return Object.freeze({
+    datasetId: commonDatasetId,
+    datasetRevision: common.datasetRevision,
+    decisionCutoffEpochMs: 60_000,
+    executionPaneId: 'pane-secondary',
+    executionTimeframeId: 'timeframe.display-1-minute',
+    instrumentId: 'instrument.cme.nq',
+    pathPlan: pathPlan(),
+    recordedAtEpochMs: 65_000,
+    requestedOutcomeCutoffEpochMs: 63_000,
+    sessionHoursId: 'session-hours.cme-eth',
+    sessionId: common.sessionId,
+    sessionRevision: common.sessionRevision,
+    ...overrides,
+  });
+}
+
+const adaptedOutcome = await outcomeWindowFixture().observeOutcome(outcomeRequest());
 assert.equal(adaptedOutcome.outcomeClass, 'target-first');
+
+let regressedCursor = 64_000;
+const regressingOutcomeWindow = outcomeWindowFixture({
+  afterAcquire: () => { regressedCursor = 62_000; },
+  currentCursor: () => regressedCursor,
+});
+await expectCode('outcome-replay-regressed', () => (
+  regressingOutcomeWindow.observeOutcome(outcomeRequest())
+), 'VALIDATION_CAMPAIGN_REPLAY_CUTOFF_CHANGED');
+
+await expectCode('outcome-session-mismatch', () => (
+  outcomeWindowFixture({ sessionId: 'different-session' }).observeOutcome(outcomeRequest())
+), 'VALIDATION_CAMPAIGN_SOURCE_MISMATCH');
+
+// Cancellation before the persistence linearization fence writes no Campaign bytes.
+const cancellationFixture = createRuntimeFixture();
+const cancellationRuntime = await cancellationFixture.runtime;
+const cancellation = new AbortController();
+const cancelledCreate = cancellationRuntime.execute(createCommand(), cancellation.signal);
+cancellation.abort('test-cancel-before-linearization');
+await expectCode('cancel-before-linearization', () => cancelledCreate,
+  'VALIDATION_CAMPAIGN_PREPARATION_STALE');
+assert.equal(cancellationFixture.map.size, 0);
+cancellationRuntime.dispose();
+
+// Cancellation after the synchronous persistence linearization point returns accepted success.
+const lateCancellation = new AbortController();
+const lateCancellationFixture = createRuntimeFixture({
+  storageHooks: {
+    beforeWrite() { lateCancellation.abort('test-cancel-after-linearization'); },
+  },
+});
+const lateCancellationRuntime = await lateCancellationFixture.runtime;
+const lateAccepted = await lateCancellationRuntime.execute(createCommand(), lateCancellation.signal);
+assert.equal(lateCancellationRuntime.getCampaign(lateAccepted.campaignId).documentRevision, 1);
+assert.equal(lateCancellationFixture.map.size, 2);
+lateCancellationRuntime.dispose();
+
+// Source-unavailable disclosure is keyed by exact Case revision, never Case identity alone.
+const sharedCaseId = '00000000-0000-4000-8000-000000000090';
+const exactAvailabilityMetrics = await calculateValidationMetrics({
+  cases: [1, 2].map((caseRevision) => ({
+    caseId: sharedCaseId,
+    caseRevision,
+    contentDigest: digest(caseRevision === 1 ? 'c' : 'd'),
+    outcomeObservation: {
+      maePoints: 1,
+      mfePoints: 2,
+      outcomeClass: caseRevision === 1 ? 'target-first' : 'invalidation-first',
+      timeToFirstTouchBars: 1,
+    },
+    qualificationClass: 'qualified',
+  })),
+  crypto,
+  sourceAvailabilitySnapshot: [1, 2].map((caseRevision) => ({
+    caseRef: {
+      caseContentDigest: digest(caseRevision === 1 ? 'c' : 'd'),
+      caseId: sharedCaseId,
+      caseRevision,
+    },
+    citationId: `00000000-0000-4000-8000-${String(90 + caseRevision).padStart(12, '0')}`,
+    evidenceRole: 'context-sma',
+    providerId: 'validation.evidence.sma-close',
+    providerVersion: '1.0.0',
+    status: caseRevision === 1 ? 'unavailable' : 'available',
+  })),
+});
+assert.equal(exactAvailabilityMetrics.counts.sourceUnavailableCount, 1);
+assert.deepEqual(exactAvailabilityMetrics.drilldownIndex.find(({ metricId }) => (
+  metricId === 'count.source-unavailable'
+)).caseRefs.map(({ caseRevision }) => caseRevision), [1]);
+
+// A future-observed Artifact and a provider-returned wrong Pane cannot qualify.
+function overriddenFvgObservation(input, { direction = 'bullish',
+  observedAtReplayCutoffEpochMs = common.cutoff, paneId = input.paneId } = {}) {
+  const observation = fvgObservation(input);
+  return Object.freeze({
+    ...observation,
+    artifact: Object.freeze({
+      ...observation.artifact, direction, observedAtReplayCutoffEpochMs,
+    }),
+    pane: Object.freeze({ ...observation.pane, paneId }),
+  });
+}
+function evidenceProvidersWithFvg(readObservation) {
+  return Object.freeze([
+    createValidationFvgEvidenceProvider({ crypto, readObservation }),
+    createValidationSmaEvidenceProvider({ crypto, readObservation: smaObservation }),
+  ]);
+}
+
+const futureFixture = createRuntimeFixture({
+  evidenceProviders: evidenceProvidersWithFvg((input) => overriddenFvgObservation(input, {
+    observedAtReplayCutoffEpochMs: common.cutoff + 1,
+  })),
+});
+const futureRuntime = await futureFixture.runtime;
+const futureCreated = await futureRuntime.execute(createCommand());
+const futureDocument = futureRuntime.getCampaign(futureCreated.campaignId);
+const futurePreview = await futureRuntime.prepareCaseObservation(observationRequest(futureDocument));
+assert.equal(futurePreview.predicateResults.find(({ evidenceRole }) => (
+  evidenceRole === 'execution-fvg'
+)).status, 'source-unavailable', 'future-observed FVG must be ineligible evidence');
+futureRuntime.dispose();
+
+const rejectedPredicateFixture = createRuntimeFixture({
+  evidenceProviders: evidenceProvidersWithFvg((input) => overriddenFvgObservation(input, {
+    direction: 'bearish',
+  })),
+});
+const rejectedPredicateRuntime = await rejectedPredicateFixture.runtime;
+const rejectedPredicateCreated = await rejectedPredicateRuntime.execute(createCommand());
+const rejectedPredicatePreview = await rejectedPredicateRuntime.prepareCaseObservation(
+  observationRequest(rejectedPredicateRuntime.getCampaign(rejectedPredicateCreated.campaignId)),
+);
+const rejectedFvg = rejectedPredicatePreview.predicateResults.find(({ evidenceRole }) => (
+  evidenceRole === 'execution-fvg'
+));
+assert.equal(rejectedFvg.status, 'ready');
+assert.equal(rejectedFvg.passed, false,
+  'an eligible source with a failed predicate must remain valid rejected evidence');
+assert.equal(rejectedPredicatePreview.availability.find(({ evidenceRole }) => (
+  evidenceRole === 'execution-fvg'
+)).status, 'available');
+rejectedPredicateRuntime.dispose();
+
+function evidenceProvidersWithSma(readObservation) {
+  return Object.freeze([
+    createValidationFvgEvidenceProvider({ crypto, readObservation: fvgObservation }),
+    createValidationSmaEvidenceProvider({ crypto, readObservation }),
+  ]);
+}
+for (const sourceOverride of [
+  { effectiveSettings: Object.freeze({ length: 21 }) },
+  { visibility: 'hidden' },
+]) {
+  const invalidSmaFixture = createRuntimeFixture({
+    evidenceProviders: evidenceProvidersWithSma((input) => {
+      const observation = smaObservation(input);
+      return Object.freeze({
+        ...observation,
+        instance: Object.freeze({ ...observation.instance, ...sourceOverride }),
+      });
+    }),
+  });
+  const invalidSmaRuntime = await invalidSmaFixture.runtime;
+  const invalidSmaCreated = await invalidSmaRuntime.execute(createCommand());
+  const invalidSmaPreview = await invalidSmaRuntime.prepareCaseObservation(
+    observationRequest(invalidSmaRuntime.getCampaign(invalidSmaCreated.campaignId)),
+  );
+  assert.equal(invalidSmaPreview.predicateResults.find(({ evidenceRole }) => (
+    evidenceRole === 'context-sma'
+  )).status, 'source-unavailable');
+  invalidSmaRuntime.dispose();
+}
+
+const wrongPaneFixture = createRuntimeFixture({
+  evidenceProviders: evidenceProvidersWithFvg((input) => overriddenFvgObservation(input, {
+    paneId: 'pane-provider-returned-wrong',
+  })),
+});
+const wrongPaneRuntime = await wrongPaneFixture.runtime;
+const wrongPaneCreated = await wrongPaneRuntime.execute(createCommand());
+const wrongPaneDocument = wrongPaneRuntime.getCampaign(wrongPaneCreated.campaignId);
+const wrongPanePreview = await wrongPaneRuntime.prepareCaseObservation(
+  observationRequest(wrongPaneDocument),
+);
+assert.equal(wrongPanePreview.candidates.find((candidate) => (
+  candidate?.evidenceRole === 'execution-fvg'
+)) ?? null, null, 'provider output from the wrong Pane must be unavailable');
+wrongPaneRuntime.dispose();
+
+// A source mutation while citations are built must be caught by the final pre-apply fence.
+mutableSource.fvgRevision = 1;
+mutableSource.fvgStatus = 'active';
+mutableSource.smaRevision = 1;
+const raceIds = uuidFactory();
+let mutateAtNextId = false;
+const sourceRaceFixture = createRuntimeFixture({
+  idFactory() {
+    const id = raceIds();
+    if (mutateAtNextId) {
+      mutateAtNextId = false;
+      mutableSource.fvgRevision += 1;
+    }
+    return id;
+  },
+});
+const sourceRaceRuntime = await sourceRaceFixture.runtime;
+const sourceRaceCreated = await sourceRaceRuntime.execute(createCommand());
+const sourceRaceDocument = sourceRaceRuntime.getCampaign(sourceRaceCreated.campaignId);
+const sourceRacePreview = await sourceRaceRuntime.prepareCaseObservation(
+  observationRequest(sourceRaceDocument),
+);
+const sourceRaceBytes = new Map(sourceRaceFixture.map);
+mutateAtNextId = true;
+await expectCode('source-changed-before-apply', () => sourceRaceRuntime.execute(
+  commitCommand(sourceRaceDocument, sourceRacePreview),
+), 'VALIDATION_CAMPAIGN_SOURCE_CHANGED');
+assert.deepEqual(sourceRaceFixture.map, sourceRaceBytes);
+sourceRaceRuntime.dispose();
 
 // Runtime: source change writes zero bytes, then full Campaign -> Analysis closure.
 mutableSource.fvgRevision = 1;
+mutableSource.fvgStatus = 'active';
 mutableSource.smaRevision = 1;
 const fixture = createRuntimeFixture();
 const runtime = await fixture.runtime;
@@ -486,6 +736,21 @@ const cohortResult = await runtime.execute({
 });
 documentValue = runtime.getCampaign(campaignId);
 const cohort = documentValue.cohorts.find(({ cohortId }) => cohortId === cohortResult.cohortId);
+const beforeNestedUnknown = new Map(fixture.map);
+await assert.rejects(() => runtime.execute({
+  authorLabel: 'Local researcher',
+  campaignId,
+  cohortRef: {
+    cohortContentDigest: cohort.contentDigest,
+    cohortId: cohort.cohortId,
+    cohortRevision: cohort.cohortRevision,
+    unexpected: true,
+  },
+  expectedDocumentRevision: documentValue.documentRevision,
+  kind: 'run-analysis',
+}));
+assert.deepEqual(fixture.map, beforeNestedUnknown,
+  'unknown nested command fields must write no Campaign bytes');
 const analysisResult = await runtime.execute({
   authorLabel: 'Local researcher', campaignId,
   cohortRef: {
@@ -506,6 +771,49 @@ assert.equal(runtime.readAnalysisDrilldown(
   campaignId, analysis.analysisRunId, 'rate.target-first',
 ).caseRefs[0].caseRevision, finalized.caseRevision);
 
+const { contentDigest: ignoredAnalysisDigest, ...analysisPayload } = analysis;
+const malformedAnalysisPayload = {
+  ...analysisPayload,
+  cohortRef: { forged: true },
+  rates: {
+    targetFirstRate: {
+      ...analysisPayload.rates.targetFirstRate,
+      numerator: 'not-a-number',
+    },
+  },
+};
+const malformedAnalysis = {
+  ...malformedAnalysisPayload,
+  contentDigest: await sha256Canonical(malformedAnalysisPayload, crypto),
+};
+await assert.rejects(
+  () => readAnalysisRun(malformedAnalysis, crypto),
+  'strict Analysis hydration must reject malformed nested fields despite a valid digest',
+);
+
+mutableSource.fvgStatus = 'archived';
+const unavailableAnalysisResult = await runtime.execute({
+  authorLabel: 'Local researcher',
+  campaignId,
+  cohortRef: {
+    cohortContentDigest: cohort.contentDigest,
+    cohortId: cohort.cohortId,
+    cohortRevision: cohort.cohortRevision,
+  },
+  expectedDocumentRevision: documentValue.documentRevision,
+  kind: 'run-analysis',
+});
+documentValue = runtime.getCampaign(campaignId);
+const unavailableAnalysis = documentValue.analysisRuns.find(({ analysisRunId }) => (
+  analysisRunId === unavailableAnalysisResult.analysisRunId
+));
+assert.equal(unavailableAnalysis.counts.sourceUnavailableCount, 1);
+assert.equal(analysis.counts.sourceUnavailableCount, 0,
+  'a later source loss must not rewrite the prior Analysis Run');
+mutableSource.fvgStatus = 'active';
+await runtime.prepareCaseObservation(observationRequest(documentValue));
+assert.equal(runtime.snapshot().campaigns[0].sourceResolutionState, 'available');
+
 const rawContext = runtime.prepareRawContextIntent({
   campaignId, caseId: finalized.caseId, caseRevision: finalized.caseRevision,
   contextRole: 'observation',
@@ -513,6 +821,67 @@ const rawContext = runtime.prepareRawContextIntent({
 assert.equal(rawContext instanceof Promise, false);
 assert.equal(rawContext.sessionId, common.sessionId);
 assert.equal(rawContext.paneIntents.length, 2);
+const { contentDigest: ignoredRawContextDigest, ...rawContextPayload } = rawContext;
+const forgedRawContextPayload = {
+  ...rawContextPayload,
+  paneIntents: rawContext.paneIntents.map((entry) => ({
+    ...entry,
+    paneRole: 'context-pane',
+  })),
+};
+const forgedRawContext = {
+  ...forgedRawContextPayload,
+  contentDigest: await sha256Canonical(forgedRawContextPayload, crypto),
+};
+await assert.rejects(() => readRawContextIntent(
+  forgedRawContext, crypto,
+), 'strict raw-context hydration must reject duplicated Pane roles');
+let rawContextMutationCount = 0;
+const rawContextCommands = Object.freeze({
+  changePaneLayout: async () => { rawContextMutationCount += 1; },
+  changeTimeframeSync: () => { rawContextMutationCount += 1; },
+  focusPane: () => { rawContextMutationCount += 1; },
+  gotoExact: async () => { rawContextMutationCount += 1; },
+  replaceInstrument: async () => { rawContextMutationCount += 1; },
+  replaceSessionHours: async () => { rawContextMutationCount += 1; },
+  replaceTimeframe: async () => { rawContextMutationCount += 1; },
+});
+await expectCode('raw-context-preflight', () => applyValidationRawContextIntent(
+  rawContextCommands,
+  rawContext,
+  { readActiveContext: () => Object.freeze({
+    datasetRevision: 'wrong-dataset',
+    sessionId: rawContext.sessionId,
+    sessionRevision: rawContext.sessionRevision,
+  }) },
+), 'VALIDATION_RAW_CONTEXT_UNAVAILABLE');
+assert.equal(rawContextMutationCount, 0, 'raw-context mismatch must fail before Workspace mutation');
+const matchingRawContext = Object.freeze({
+  datasetRevision: rawContext.datasetRevision,
+  sessionId: rawContext.sessionId,
+  sessionRevision: rawContext.sessionRevision,
+});
+const sourceUnavailableContext = await applyValidationRawContextIntent(
+  rawContextCommands,
+  rawContext,
+  { readActiveContext: () => matchingRawContext },
+);
+assert.equal(sourceUnavailableContext.status, 'applied-with-source-unavailable');
+assert.equal(sourceUnavailableContext.sourceStatus, 'source-unavailable');
+let selectedArtifactId = null;
+const sourceAvailableContext = await applyValidationRawContextIntent(
+  Object.freeze({
+    ...rawContextCommands,
+    selectAnnotationEvidenceSource: async (artifactId) => { selectedArtifactId = artifactId; },
+  }),
+  rawContext,
+  { readActiveContext: () => matchingRawContext },
+);
+assert.equal(sourceAvailableContext.status, 'applied-through-workspace-commands');
+assert.equal(sourceAvailableContext.sourceStatus, 'selected');
+assert.equal(selectedArtifactId, rawContext.sourceSelectionIntents.find(({ evidenceRole }) => (
+  evidenceRole === 'execution-fvg'
+)).sourceRecordId);
 const auditOne = await runtime.prepareAuditExport(campaignId);
 const auditTwo = await runtime.prepareAuditExport(campaignId);
 assert.equal(canonicalJson(auditOne), canonicalJson(auditTwo));
@@ -533,6 +902,60 @@ await expectCode('provider-absent', () => absentRuntime.execute(commitCommand(
   absentRuntime.getCampaign(campaignId), unavailablePreview,
 )), 'VALIDATION_CAMPAIGN_SOURCE_UNAVAILABLE');
 absentRuntime.dispose();
+
+const [fvgProviderV1, smaProviderV1] = providers();
+const incompatibleFixture = createRuntimeFixture({
+  evidenceProviders: Object.freeze([
+    Object.freeze({ ...fvgProviderV1, providerVersion: '2.0.0' }),
+    smaProviderV1,
+  ]),
+  map: new Map(fixture.map),
+});
+const incompatibleRuntime = await incompatibleFixture.runtime;
+const incompatibleDocument = incompatibleRuntime.getCampaign(campaignId);
+const incompatibleCase = incompatibleDocument.caseRevisions.find(({ lifecycleState }) => (
+  lifecycleState === 'finalized'
+));
+const incompatibleCitation = incompatibleCase.evidenceCitations.find(({ evidenceRole }) => (
+  evidenceRole === 'execution-fvg'
+));
+const incompatibleVerification = await incompatibleRuntime.execute({
+  campaignId,
+  caseId: incompatibleCase.caseId,
+  caseRevision: incompatibleCase.caseRevision,
+  citationRef: {
+    citationContentDigest: incompatibleCitation.contentDigest,
+    citationId: incompatibleCitation.citationId,
+    citationRevision: incompatibleCitation.citationRevision,
+  },
+  expectedDocumentRevision: incompatibleDocument.documentRevision,
+  kind: 'verify-source',
+});
+assert.equal(incompatibleVerification.result, 'incompatible-version');
+incompatibleRuntime.dispose();
+
+// Valid nested digests still cannot hydrate a cross-Campaign revision topology.
+const topologyMap = new Map(fixture.map);
+const topologyKey = `${VALIDATION_CAMPAIGN_DOCUMENT_PREFIX}${campaignId}`;
+const topologyDocument = JSON.parse(topologyMap.get(topologyKey));
+const { contentDigest: ignoredCaseDigest, ...casePayload } = topologyDocument.caseRevisions[0];
+const forgedCasePayload = {
+  ...casePayload,
+  campaignId: '00000000-0000-4000-8000-000000000099',
+};
+topologyDocument.caseRevisions[0] = {
+  ...forgedCasePayload,
+  contentDigest: await sha256Canonical(forgedCasePayload, crypto),
+};
+const { contentDigest: ignoredDocumentDigest, ...documentPayload } = topologyDocument;
+topologyMap.set(topologyKey, canonicalJson({
+  ...documentPayload,
+  contentDigest: await sha256Canonical(documentPayload, crypto),
+}));
+const topologyRuntime = await createRuntimeFixture({ map: topologyMap }).runtime;
+assert.equal(topologyRuntime.snapshot().status, 'poisoned');
+negativeResults.set('topology-corrupt-hydration', 'VALIDATION_CAMPAIGN_PERSISTENCE_CORRUPT');
+topologyRuntime.dispose();
 
 // Preview expiry is deterministic and writes nothing.
 const expiryFixture = createRuntimeFixture({ nowStart: 2_000_000 });
@@ -582,6 +1005,7 @@ negativeResults.set('corrupt-document', 'VALIDATION_CAMPAIGN_PERSISTENCE_CORRUPT
 assert.equal(isReplicatedStateKey(VALIDATION_CAMPAIGN_INDEX_KEY), true);
 assert.equal(isReplicatedStateKey(`${VALIDATION_CAMPAIGN_DOCUMENT_PREFIX}${campaignId}`), true);
 assert.equal(isReplicatedStateKey('v7.validation-campaign:document:'), false);
+assert.equal(isReplicatedStateKey('v7.validation-campaign:document:alpha'), false);
 const replicated = captureReplicatedEntries(enumerableWebStorage(new Map([
   [VALIDATION_CAMPAIGN_INDEX_KEY, 'index'],
   [`${VALIDATION_CAMPAIGN_DOCUMENT_PREFIX}${campaignId}`, 'document'],
@@ -618,6 +1042,30 @@ const removableFromApplication = new Set(productionAssembly.optionalRemovalMatri
   .map(({ omittedModuleId }) => omittedModuleId));
 assert.equal(descriptors.every(({ id }) => removableFromApplication.has(id)), true,
   'all eight Campaign modules must execute the production optional-removal path');
+const productionDescriptors = manifest.activeProductionModules.map((entry) => JSON.parse(
+  fs.readFileSync(path.join(V7_ROOT, entry), 'utf8'),
+));
+const withoutCampaignUi = selectApplicationDescriptors(
+  productionDescriptors,
+  'adapter.session-application',
+  ['adapter.validation-campaign-ui'],
+);
+assert.equal(withoutCampaignUi.some(({ id }) => descriptors.some((entry) => entry.id === id)), false,
+  'omitting Campaign UI must remove the complete Campaign dependency closure');
+const withoutFvg = selectApplicationDescriptors(
+  productionDescriptors,
+  'adapter.session-application',
+  ['adapter.validation-fvg-evidence'],
+);
+assert.equal(withoutFvg.some(({ id }) => id === 'optional.validation-campaign-runtime'), true);
+assert.equal(withoutFvg.some(({ id }) => id === 'adapter.validation-campaign-ui'), true);
+const withoutCalculatedRuntime = selectApplicationDescriptors(
+  productionDescriptors,
+  'adapter.session-application',
+  ['optional.calculated-series-runtime'],
+);
+assert.equal(withoutCalculatedRuntime.some(({ id }) => id === 'optional.calculated-series-ui'), false,
+  'omitting a required dependency must cascade to its dependent optional module');
 const rules = JSON.parse(fs.readFileSync(path.join(V7_ROOT, 'docs/v7-harness-rules.json'), 'utf8'));
 const h117 = rules.rules.find(({ id }) => id === 'H117');
 const h121 = rules.rules.find(({ id }) => id === 'H121');

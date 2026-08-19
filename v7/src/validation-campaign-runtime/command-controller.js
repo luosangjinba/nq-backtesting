@@ -10,13 +10,17 @@ import { exactCase, validateCommandShape } from './command-contract.js';
 
 const COMMANDS = Object.freeze({
   'archive-campaign': archiveCampaign,
-  'commit-case-observation': (state, command) => commitObservation(state, command, false),
+  'commit-case-observation': (state, command, signal) => (
+    commitObservation(state, command, false, signal)
+  ),
   'create-campaign': createCampaign,
   'finalize-case': finalizeCase,
   'freeze-cohort': freezeCohort,
   'record-case-outcome': recordOutcome,
   'run-analysis': runAnalysis,
-  'save-incomplete-case': (state, command) => commitObservation(state, command, true),
+  'save-incomplete-case': (state, command, signal) => (
+    commitObservation(state, command, true, signal)
+  ),
   'supersede-case': supersedeCase,
   'verify-source': verifySource,
 });

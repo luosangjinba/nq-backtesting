@@ -54,12 +54,12 @@ export function createValidationFvgEvidenceProvider({
 
   return Object.freeze({
     evidenceRole: EVIDENCE_ROLE,
-    async getAvailability(request) {
+    async getAvailability(request, signal) {
       try {
-        const candidate = await prepareCitation(request);
-        return candidate.boundedClaim.predicatePassed
-          ? safeAvailability('available', 'ready')
-          : safeAvailability('unavailable', 'predicate-mismatch');
+        const candidate = await prepareCitation(request, signal);
+        return safeAvailability(
+          'available', candidate.boundedClaim.predicatePassed ? 'ready' : 'predicate-mismatch',
+        );
       } catch (error) {
         return safeAvailability('unavailable', error?.code ?? 'source-unavailable');
       }

@@ -41,7 +41,7 @@ The repository gates pass without an accepted exception:
   removal cases;
 - writer closure: 18 declared surfaces, 23 observed writer files, and eight
   negative controls;
-- source quality: 628 files, 58,339 effective lines, 5,981 functions, and 647 public exports, with 22 negative controls;
+- source quality: 642 files, 60,061 effective lines, 6,152 functions, and 650 public exports, with 22 negative controls;
 - H107: 22 negative controls including real-Chromium no-future evidence.
 
 These gates prove the declared graph and existing behavior. They do not by

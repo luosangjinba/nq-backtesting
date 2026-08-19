@@ -3,6 +3,16 @@ import { CORE_PLUGIN_PROFILE_STORAGE_KEY } from '../src/core-plugin-profile/publ
 import { createProductionBuiltInPluginPlan } from './core-plugin-catalog.js';
 
 const DEFAULT_MANIFEST_URL = new URL('../docs/v7-architecture-manifest.json', import.meta.url);
+const VALIDATION_CAMPAIGN_CLOSURE = Object.freeze([
+  'adapter.validation-campaign-audit-export',
+  'adapter.validation-campaign-persistence',
+  'adapter.validation-campaign-ui',
+  'adapter.validation-fvg-evidence',
+  'adapter.validation-outcome-window',
+  'adapter.validation-sma-evidence',
+  'optional.validation-campaign-runtime',
+  'optional.validation-study-domain',
+]);
 
 async function readJson(url) {
   const response = await fetch(String(url));
@@ -10,11 +20,30 @@ async function readJson(url) {
   return response.json();
 }
 
-function selectApplicationDescriptors(descriptors, rootModuleId, omittedModuleIds) {
+export function selectApplicationDescriptors(descriptors, rootModuleId, omittedModuleIds) {
   const byId = new Map(descriptors.map((descriptor) => [descriptor.id, descriptor]));
   if (!byId.has(rootModuleId)) throw new TypeError(`Unknown production application ${rootModuleId}.`);
   const omitted = new Set(omittedModuleIds);
   if (omitted.has(rootModuleId)) throw new TypeError('The production application root cannot be omitted.');
+  let changed = true;
+  while (changed) {
+    changed = false;
+    if (omitted.has('adapter.validation-campaign-ui')) {
+      for (const moduleId of VALIDATION_CAMPAIGN_CLOSURE) {
+        if (!omitted.has(moduleId)) {
+          omitted.add(moduleId);
+          changed = true;
+        }
+      }
+    }
+    for (const descriptor of descriptors) {
+      if (descriptor.id === rootModuleId || omitted.has(descriptor.id)) continue;
+      if (descriptor.requiredPorts.some((moduleId) => omitted.has(moduleId))) {
+        omitted.add(descriptor.id);
+        changed = true;
+      }
+    }
+  }
   const selected = new Map();
   function visit(moduleId) {
     if (omitted.has(moduleId) || selected.has(moduleId)) return;

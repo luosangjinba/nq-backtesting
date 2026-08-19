@@ -28,6 +28,9 @@ EXACT_KEYS = frozenset(
 SESSION_RECORD_PREFIX = "v7.session-browser:record:"
 CALCULATED_SERIES_DOCUMENT_PREFIX = "v7.calculated-series:document:"
 VALIDATION_CAMPAIGN_DOCUMENT_PREFIX = "v7.validation-campaign:document:"
+UUID_V4_PATTERN = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+)
 
 
 class StateValidationError(ValueError):
@@ -48,12 +51,15 @@ def require_user_id(value: Any) -> str:
 
 
 def _allowed_key(value: str) -> bool:
+    if value.startswith(VALIDATION_CAMPAIGN_DOCUMENT_PREFIX):
+        return UUID_V4_PATTERN.fullmatch(
+            value[len(VALIDATION_CAMPAIGN_DOCUMENT_PREFIX):]
+        ) is not None
     return value in EXACT_KEYS or any(
         value.startswith(prefix) and len(value) > len(prefix)
         for prefix in (
             SESSION_RECORD_PREFIX,
             CALCULATED_SERIES_DOCUMENT_PREFIX,
-            VALIDATION_CAMPAIGN_DOCUMENT_PREFIX,
         )
     )
 

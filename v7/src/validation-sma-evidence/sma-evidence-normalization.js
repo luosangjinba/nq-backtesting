@@ -37,11 +37,9 @@ async function evidenceDigests({ frame, identity, instance, pane, point, session
   });
 }
 
-function eligibility({ comparison, frame, identity, instance, packageState, pane, point, predicate, request }) {
+function requireEligibleSource({ frame, identity, instance, packageState, pane, point, predicate, request }) {
   const cutoff = frame.identity.replayVisibleThroughEpochMs;
-  const comparisonPassed = comparison === 'close-above-sma'
-    ? pane.close > point?.value : pane.close < point?.value;
-  return instance.id === request.sourceRecordId
+  const eligible = instance.id === request.sourceRecordId
     && identity.definitionId === predicate.definitionId
     && identity.definitionVersion === predicate.definitionVersion
     && instance.effectiveSettings.length === predicate.length
@@ -52,9 +50,10 @@ function eligibility({ comparison, frame, identity, instance, packageState, pane
     && pane.latestEligibleBarStartEpochMs < cutoff
     && packageState.runtimeState === 'active'
     && pane.instrumentId === request.campaign.instrumentId
+    && pane.workspacePaneId === request.paneId
     && pane.displayTimeframeId === request.campaign.contextTimeframeId
-    && pane.sessionHoursPolicyId === request.campaign.sessionHoursId
-    && comparisonPassed;
+    && pane.sessionHoursPolicyId === request.campaign.sessionHoursId;
+  if (!eligible) throw new TypeError('SMA evidence source is unavailable or ineligible.');
 }
 
 function candidateInput({ digests, evidenceRole, observation, providerId, providerVersion, request }) {
@@ -65,15 +64,17 @@ function candidateInput({ digests, evidenceRole, observation, providerId, provid
   const workspaceRevision = frame.identity.workspaceStateRevision;
   const comparison = request.campaign.direction === 'long'
     ? predicate.longComparison : predicate.shortComparison;
-  const eligible = eligibility({
-    comparison, frame, identity, instance, packageState, pane, point, predicate, request,
+  requireEligibleSource({
+    frame, identity, instance, packageState, pane, point, predicate, request,
   });
+  const comparisonPassed = comparison === 'close-above-sma'
+    ? pane.close > point.value : pane.close < point.value;
   return {
     boundedClaim: {
       claimKind: 'sma-close-comparison',
       close: pane.close,
       comparison,
-      comparisonPassed: eligible,
+      comparisonPassed,
       length: instance.effectiveSettings.length,
       readiness: frame.state,
       sma: point?.value,

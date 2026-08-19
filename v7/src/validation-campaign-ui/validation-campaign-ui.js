@@ -5,7 +5,7 @@ import { button, element } from './dom.js';
 function requireRuntime(value) {
   for (const method of [
     'execute', 'getCampaign', 'listCampaigns', 'prepareAuditExport',
-    'prepareCaseObservation', 'prepareRawContextIntent', 'readAnalysisDrilldown',
+    'prepareCaseObservation', 'prepareRawContextIntent', 'readAnalysisDrilldown', 'readCase',
     'snapshot', 'subscribe',
   ]) {
     if (typeof value?.[method] !== 'function') {

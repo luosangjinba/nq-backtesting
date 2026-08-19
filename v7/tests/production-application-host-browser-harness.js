@@ -76,6 +76,23 @@ try {
   assert.equal(evidence.stateSyncOptional.moduleIds.includes('adapter.server-state-sync'), false);
   assert.equal(evidence.stateSyncOptional.snapshot.status, 'running');
   assert.equal(evidence.stateSyncOptional.snapshot.storageAvailable, true);
+  const campaignClosure = [
+    'adapter.validation-campaign-audit-export',
+    'adapter.validation-campaign-persistence',
+    'adapter.validation-campaign-ui',
+    'adapter.validation-fvg-evidence',
+    'adapter.validation-outcome-window',
+    'adapter.validation-sma-evidence',
+    'optional.validation-campaign-runtime',
+    'optional.validation-study-domain',
+  ];
+  assert.deepEqual(
+    campaignClosure.filter((moduleId) => evidence.campaignOptional.moduleIds.includes(moduleId)),
+    [],
+  );
+  assert.equal(evidence.campaignOptional.snapshot.status, 'running');
+  assert.equal(evidence.campaignOptional.snapshot.hasValidationCampaign, false);
+  assert.equal(evidence.campaignOptional.snapshot.hasReplayWorkspace, true);
   assert.equal(evidence.data.running.status, 'running');
   assert.equal(evidence.data.stopped.status, 'disposed');
   assert.equal(evidence.data.childrenAfterStop, 0);
@@ -115,4 +132,4 @@ try {
   });
 }
 
-console.log('v7 production application host browser harness passed (2 isolated instances, reverse cleanup, partial rollback, replay/state-sync optional removal, 2 real roots, 2 negative controls)');
+console.log('v7 production application host browser harness passed (2 isolated instances, reverse cleanup, partial rollback, replay/state-sync/Campaign-closure optional removal, 2 real roots, 2 negative controls)');

@@ -1,9 +1,11 @@
 import {
-  caseRef,
   createAnalysisRun,
   createSourceVerification,
   createStudyCohort,
   failValidation,
+  readCaseRef,
+  readCitationRef,
+  readCohortRef,
   replaceCampaignDocument,
 } from '../validation-study-domain/public.js';
 import {
@@ -13,10 +15,15 @@ import {
   providerFor,
 } from './runtime-state.js';
 import { exactCase } from './command-contract.js';
+import {
+  refreshCampaignSourceResolution,
+  sampleCasesAvailability,
+} from './source-availability.js';
 
 function casesForRefs(document, refs, { finalized = false } = {}) {
   if (!Array.isArray(refs)) throw new TypeError('Case references must be an array.');
-  return refs.map((ref) => {
+  return refs.map((rawRef) => {
+    const ref = readCaseRef(rawRef);
     const record = exactCase(document, ref.caseId, ref.caseRevision);
     if (record.contentDigest !== ref.caseContentDigest
       || (finalized && record.lifecycleState !== 'finalized')) {
@@ -28,18 +35,20 @@ function casesForRefs(document, refs, { finalized = false } = {}) {
   });
 }
 
-export async function freezeCohort(state, command) {
+export async function freezeCohort(state, command, signal) {
   const document = campaignDocument(state, command.campaignId);
   expectedDocument(document, command.expectedDocumentRevision, command.kind);
   const members = casesForRefs(document, command.memberCaseRefs, { finalized: true });
-  const excluded = casesForRefs(document, command.excludedCaseRefs ?? []);
-  const parent = command.parentCohortRef === null || command.parentCohortRef === undefined
+  const excluded = casesForRefs(document, command.excludedCaseRefs ?? [], { finalized: true });
+  const parentRef = command.parentCohortRef === null || command.parentCohortRef === undefined
+    ? null : readCohortRef(command.parentCohortRef);
+  const parent = parentRef === null
     ? null : document.cohorts.find(({ cohortId, cohortRevision, contentDigest }) => (
-      cohortId === command.parentCohortRef.cohortId
-        && cohortRevision === command.parentCohortRef.cohortRevision
-        && contentDigest === command.parentCohortRef.cohortContentDigest
+      cohortId === parentRef.cohortId
+        && cohortRevision === parentRef.cohortRevision
+        && contentDigest === parentRef.cohortContentDigest
     ));
-  if (command.parentCohortRef && !parent) throw new TypeError('Parent Cohort reference is stale.');
+  if (parentRef !== null && !parent) throw new TypeError('Parent Cohort reference is stale.');
   const cohort = await createStudyCohort({
     authorLabel: command.authorLabel,
     campaignId: command.campaignId,
@@ -61,7 +70,9 @@ export async function freezeCohort(state, command) {
   const candidate = await replaceCampaignDocument(document, {
     cohorts: [...document.cohorts, cohort],
   }, state.nowEpochMs(), state.crypto);
-  await commitCampaignDocument(state, { document: candidate, previous: document });
+  await commitCampaignDocument(state, {
+    document: candidate, operation: command.kind, previous: document, signal,
+  });
   return Object.freeze({
     campaignId: command.campaignId,
     cohortId: cohort.cohortId,
@@ -71,31 +82,14 @@ export async function freezeCohort(state, command) {
   });
 }
 
-function sourceAvailability(state, cases) {
-  return Object.freeze(cases.flatMap((record) => record.evidenceCitations.map((citation) => {
-    const provider = providerFor(state, {
-      evidenceRole: citation.evidenceRole,
-      providerId: citation.providerIdentity.providerId,
-      providerVersion: citation.providerIdentity.providerVersion,
-    });
-    return Object.freeze({
-      caseRef: caseRef(record),
-      citationId: citation.citationId,
-      evidenceRole: citation.evidenceRole,
-      providerId: citation.providerIdentity.providerId,
-      providerVersion: citation.providerIdentity.providerVersion,
-      status: provider === null ? 'unavailable' : 'available',
-    });
-  })));
-}
-
-export async function runAnalysis(state, command) {
+export async function runAnalysis(state, command, signal) {
   const document = campaignDocument(state, command.campaignId);
   expectedDocument(document, command.expectedDocumentRevision, command.kind);
+  const cohortRef = readCohortRef(command.cohortRef);
   const cohort = document.cohorts.find(({ cohortId, cohortRevision, contentDigest }) => (
-    cohortId === command.cohortRef.cohortId
-      && cohortRevision === command.cohortRef.cohortRevision
-      && contentDigest === command.cohortRef.cohortContentDigest
+    cohortId === cohortRef.cohortId
+      && cohortRevision === cohortRef.cohortRevision
+      && contentDigest === cohortRef.cohortContentDigest
   ));
   if (!cohort) {
     failValidation('VALIDATION_CAMPAIGN_ANALYSIS_INPUT_STALE', 'Analysis Cohort reference is stale.', {
@@ -103,6 +97,14 @@ export async function runAnalysis(state, command) {
     });
   }
   const cases = casesForRefs(document, cohort.memberCaseRefs, { finalized: true });
+  const sourceAvailabilitySnapshot = await sampleCasesAvailability(
+    state, document, cases, signal,
+  );
+  state.sourceResolution.set(
+    command.campaignId,
+    sourceAvailabilitySnapshot.every(({ status }) => status === 'available')
+      ? 'available' : 'source-unavailable',
+  );
   const analysis = await createAnalysisRun({
     analysisRunId: state.idFactory(),
     authorLabel: command.authorLabel,
@@ -111,12 +113,14 @@ export async function runAnalysis(state, command) {
     cohort,
     crypto: state.crypto,
     nowEpochMs: state.nowEpochMs(),
-    sourceAvailabilitySnapshot: sourceAvailability(state, cases),
+    sourceAvailabilitySnapshot,
   });
   const candidate = await replaceCampaignDocument(document, {
     analysisRuns: [...document.analysisRuns, analysis],
   }, state.nowEpochMs(), state.crypto);
-  await commitCampaignDocument(state, { document: candidate, previous: document });
+  await commitCampaignDocument(state, {
+    document: candidate, operation: command.kind, previous: document, signal,
+  });
   return Object.freeze({
     analysisRunId: analysis.analysisRunId,
     analysisRunRevision: analysis.analysisRunRevision,
@@ -126,12 +130,18 @@ export async function runAnalysis(state, command) {
   });
 }
 
-async function observeVerification(provider, citation, document, signal) {
-  if (provider === null) return Object.freeze({
-    observedSourceReference: null,
-    reasonCode: 'provider-absent',
-    result: 'provider-absent',
-  });
+async function observeVerification(state, provider, citation, document, signal) {
+  if (provider === null) {
+    const incompatible = state.providers.some((candidate) => (
+      candidate.evidenceRole === citation.evidenceRole
+        && candidate.providerId === citation.providerIdentity.providerId
+    ));
+    return Object.freeze({
+      observedSourceReference: null,
+      reasonCode: incompatible ? 'incompatible-version' : 'provider-absent',
+      result: incompatible ? 'incompatible-version' : 'provider-absent',
+    });
+  }
   try {
     const current = await provider.prepareCitation({
       campaign: document.campaign,
@@ -159,10 +169,11 @@ export async function verifySource(state, command, signal) {
   const document = campaignDocument(state, command.campaignId);
   expectedDocument(document, command.expectedDocumentRevision, command.kind);
   const record = exactCase(document, command.caseId, command.caseRevision);
+  const citationRef = readCitationRef(command.citationRef);
   const citation = record.evidenceCitations.find(({ citationId, citationRevision, contentDigest }) => (
-    citationId === command.citationRef.citationId
-      && citationRevision === command.citationRef.citationRevision
-      && contentDigest === command.citationRef.citationContentDigest
+    citationId === citationRef.citationId
+      && citationRevision === citationRef.citationRevision
+      && contentDigest === citationRef.citationContentDigest
   ));
   if (!citation) throw new TypeError('Evidence citation reference is stale.');
   const provider = providerFor(state, {
@@ -170,7 +181,8 @@ export async function verifySource(state, command, signal) {
     providerId: citation.providerIdentity.providerId,
     providerVersion: citation.providerIdentity.providerVersion,
   });
-  const observed = await observeVerification(provider, citation, document, signal);
+  const observed = await observeVerification(state, provider, citation, document, signal);
+  await refreshCampaignSourceResolution(state, document, signal);
   const verification = await createSourceVerification({
     campaignId: command.campaignId,
     caseRecord: record,
@@ -189,7 +201,9 @@ export async function verifySource(state, command, signal) {
   const candidate = await replaceCampaignDocument(document, {
     sourceVerifications: [...document.sourceVerifications, verification],
   }, state.nowEpochMs(), state.crypto);
-  await commitCampaignDocument(state, { document: candidate, previous: document });
+  await commitCampaignDocument(state, {
+    document: candidate, operation: command.kind, previous: document, signal,
+  });
   return Object.freeze({
     campaignId: command.campaignId,
     documentRevision: candidate.documentRevision,

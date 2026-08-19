@@ -24,11 +24,17 @@ import {
   verifyPreviewCurrency,
 } from './observation-controller.js';
 
-async function persistCase(state, document, record) {
+async function persistCase(state, document, record, {
+  beforeApply = null,
+  operation = 'persist-case',
+  signal,
+} = {}) {
   const candidate = await replaceCampaignDocument(document, {
     caseRevisions: [...document.caseRevisions, record],
   }, state.nowEpochMs(), state.crypto);
-  await commitCampaignDocument(state, { document: candidate, previous: document });
+  await commitCampaignDocument(state, {
+    beforeApply, document: candidate, operation, previous: document, signal,
+  });
   return Object.freeze({
     campaignId: document.campaign.campaignId,
     caseId: record.caseId,
@@ -55,7 +61,7 @@ async function citationRecords(state, preview) {
   )));
 }
 
-export async function commitObservation(state, command, incomplete) {
+export async function commitObservation(state, command, incomplete, signal) {
   const document = campaignDocument(state, command.campaignId);
   expectedDocument(document, command.expectedDocumentRevision, command.kind);
   expectedDefinitions(document, command);
@@ -110,7 +116,11 @@ export async function commitObservation(state, command, incomplete) {
     qualificationClass,
     setupDefinitionRef: document.campaign.setupDefinitionRef,
   });
-  const result = await persistCase(state, document, record);
+  const result = await persistCase(state, document, record, {
+    beforeApply: () => verifyPreviewCurrency(state, preview, command.kind),
+    operation: command.kind,
+    signal,
+  });
   consumePreview(state, command.previewToken);
   return Object.freeze({ ...result, kind: command.kind });
 }
@@ -129,6 +139,8 @@ export async function recordOutcome(state, command, signal) {
     .find(({ paneRole }) => paneRole === 'execution-pane');
   const nowEpochMs = state.nowEpochMs();
   const outcomeObservation = await state.outcomeAdapter.observeOutcome({
+    datasetId: previous.observationContext.datasetId,
+    datasetRevision: previous.observationContext.datasetRevision,
     decisionCutoffEpochMs: previous.observationContext.exclusiveReplayCutoffEpochMs,
     executionPaneId: executionPane.paneId,
     executionTimeframeId: executionPane.timeframeId,
@@ -137,6 +149,8 @@ export async function recordOutcome(state, command, signal) {
     recordedAtEpochMs: nowEpochMs,
     requestedOutcomeCutoffEpochMs: command.outcomeCutoffEpochMs,
     sessionHoursId: previous.observationContext.sessionHoursId,
+    sessionId: previous.observationContext.sessionId,
+    sessionRevision: previous.observationContext.sessionRevision,
   }, signal);
   const record = await supersedeStudyCase(previous, {
     finalizedAtEpochMs: null,
@@ -147,11 +161,13 @@ export async function recordOutcome(state, command, signal) {
     crypto: state.crypto,
     nowEpochMs,
   });
-  const result = await persistCase(state, document, record);
+  const result = await persistCase(state, document, record, {
+    operation: command.kind, signal,
+  });
   return Object.freeze({ ...result, kind: command.kind, outcomeClass: outcomeObservation.outcomeClass });
 }
 
-export async function finalizeCase(state, command) {
+export async function finalizeCase(state, command, signal) {
   const document = campaignDocument(state, command.campaignId);
   expectedDocument(document, command.expectedDocumentRevision, command.kind);
   const previous = exactCase(document, command.caseId, command.caseRevision);
@@ -175,11 +191,13 @@ export async function finalizeCase(state, command) {
     crypto: state.crypto,
     nowEpochMs,
   });
-  const result = await persistCase(state, document, record);
+  const result = await persistCase(state, document, record, {
+    operation: command.kind, signal,
+  });
   return Object.freeze({ ...result, kind: command.kind });
 }
 
-export async function supersedeCase(state, command) {
+export async function supersedeCase(state, command, signal) {
   const document = campaignDocument(state, command.campaignId);
   expectedDocument(document, command.expectedDocumentRevision, command.kind);
   const previous = exactCase(document, command.caseId, command.caseRevision);
@@ -236,7 +254,12 @@ export async function supersedeCase(state, command) {
     crypto: state.crypto,
     nowEpochMs,
   });
-  const result = await persistCase(state, document, record);
+  const result = await persistCase(state, document, record, {
+    beforeApply: preview === null
+      ? null : () => verifyPreviewCurrency(state, preview, command.kind),
+    operation: command.kind,
+    signal,
+  });
   if (preview !== null) consumePreview(state, command.previewToken);
   return Object.freeze({ ...result, kind: command.kind });
 }

@@ -29,6 +29,32 @@ function paneObservation(workspace, paneId) {
   });
 }
 
+function artifactObservation(artifact, packageSnapshot) {
+  const packageEvidence = artifact.provenance.packageProvenance;
+  return Object.freeze({
+    acceptance: packageSnapshot.state === 'active' ? 'accepted' : 'unresolved',
+    definition: artifact.definition,
+    direction: artifact.attributes?.direction,
+    evidenceBarStartEpochMs: Object.freeze(
+      (packageEvidence?.bars ?? []).map(({ reference }) => reference.startEpochMs),
+    ),
+    id: artifact.artifactId,
+    lowerPrice: artifact.attributes?.lowerPrice?.effectiveValue,
+    observedAtReplayCutoffEpochMs: artifact.provenance.observedAtReplayCutoffEpochMs,
+    provenance: Object.freeze({
+      acceptedWorkspaceRevision: packageEvidence?.acceptedWorkspaceRevision ?? null,
+      datasetRevision: artifact.provenance.sourceBars?.[0]?.datasetRevision ?? null,
+      recognitionSource: artifact.provenance.recognitionSource,
+      sourceTimeframeId: artifact.provenance.sourceTimeframeId,
+    }),
+    revision: artifact.revision,
+    status: artifact.status,
+    typeId: artifact.typeId,
+    typeVersion: artifact.typeVersion,
+    upperPrice: artifact.attributes?.upperPrice?.effectiveValue,
+  });
+}
+
 /** Read one package-neutral, portable Semantic Artifact observation. */
 export function readManualSemanticEvidenceObservation({
   artifactId,
@@ -46,35 +72,17 @@ export function readManualSemanticEvidenceObservation({
   if (artifact === null) {
     failManualWorkflow('MANUAL_WORKFLOW_ARTIFACT_SNAPSHOT_INVALID', 'Semantic Artifact was not found.');
   }
+  if (artifact.provenance.observedAtReplayCutoffEpochMs > workspace.replay.cursorEpochMs) {
+    failManualWorkflow(
+      'MANUAL_WORKFLOW_ARTIFACT_FUTURE',
+      'Semantic Artifact is not visible at the accepted Replay cutoff.',
+    );
+  }
   const document = runtime.getDocument();
   const packageSnapshot = semanticRegistry.packageSnapshot(artifact.definition.packageId);
   const pane = paneObservation(workspace, paneId);
-  const packageEvidence = artifact.provenance.packageProvenance;
-  const lowerPrice = artifact.attributes?.lowerPrice?.effectiveValue;
-  const upperPrice = artifact.attributes?.upperPrice?.effectiveValue;
   return Object.freeze({
-    artifact: Object.freeze({
-      acceptance: packageSnapshot.state === 'active' ? 'accepted' : 'unresolved',
-      definition: artifact.definition,
-      direction: artifact.attributes?.direction,
-      evidenceBarStartEpochMs: Object.freeze(
-        (packageEvidence?.bars ?? []).map(({ reference }) => reference.startEpochMs),
-      ),
-      id: artifact.artifactId,
-      lowerPrice,
-      observedAtReplayCutoffEpochMs: artifact.provenance.observedAtReplayCutoffEpochMs,
-      provenance: Object.freeze({
-        acceptedWorkspaceRevision: packageEvidence?.acceptedWorkspaceRevision ?? null,
-        datasetRevision: artifact.provenance.sourceBars?.[0]?.datasetRevision ?? null,
-        recognitionSource: artifact.provenance.recognitionSource,
-        sourceTimeframeId: artifact.provenance.sourceTimeframeId,
-      }),
-      revision: artifact.revision,
-      status: artifact.status,
-      typeId: artifact.typeId,
-      typeVersion: artifact.typeVersion,
-      upperPrice,
-    }),
+    artifact: artifactObservation(artifact, packageSnapshot),
     document: Object.freeze({
       id: `annotation:${document.sessionId}`,
       revision: document.revision,
@@ -94,11 +102,15 @@ export function readManualSemanticEvidenceObservation({
 export function createManualSemanticEvidencePort(readState, selectEvidenceSource) {
   return Object.freeze({
     listEvidenceSources() {
-      const { runtime } = readState();
-      if (runtime === null) return Object.freeze([]);
-      return Object.freeze(runtime.listSemanticArtifacts().map((artifact) => Object.freeze({
+      const { runtime, workspace } = readState();
+      const cutoff = workspace?.replay?.cursorEpochMs;
+      if (runtime === null || !Number.isSafeInteger(cutoff)) return Object.freeze([]);
+      return Object.freeze(runtime.listSemanticArtifacts().filter((artifact) => (
+        artifact.provenance.observedAtReplayCutoffEpochMs <= cutoff
+      )).map((artifact) => Object.freeze({
         artifactId: artifact.artifactId,
         direction: artifact.attributes?.direction ?? null,
+        observedAtReplayCutoffEpochMs: artifact.provenance.observedAtReplayCutoffEpochMs,
         revision: artifact.revision,
         status: artifact.status,
         typeId: artifact.typeId,

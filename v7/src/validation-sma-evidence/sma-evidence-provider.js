@@ -52,11 +52,12 @@ export function createValidationSmaEvidenceProvider({
   }
   return Object.freeze({
     evidenceRole: EVIDENCE_ROLE,
-    async getAvailability(request) {
+    async getAvailability(request, signal) {
       try {
-        const candidate = await prepareCitation(request);
-        return candidate.boundedClaim.comparisonPassed
-          ? availability('available', 'ready') : availability('unavailable', 'predicate-mismatch');
+        const candidate = await prepareCitation(request, signal);
+        return availability(
+          'available', candidate.boundedClaim.comparisonPassed ? 'ready' : 'predicate-mismatch',
+        );
       } catch (error) {
         return availability('unavailable', error?.code ?? 'source-unavailable');
       }

@@ -1,4 +1,5 @@
 import {
+  assertEvidenceCampaignClosure,
   failValidation,
   readDefinitionRef,
   readEvidenceCandidate,
@@ -77,6 +78,26 @@ function invalidateExisting(state) {
   state.previews.clear();
 }
 
+function requireCandidateClosure(candidate, document, request, config, provider) {
+  assertEvidenceCampaignClosure(candidate, document.campaign, document.setupDefinitions[0]);
+  const context = candidate.observationContext;
+  const providerIdentity = candidate.providerIdentity;
+  if (candidate.evidenceRole !== config.evidenceRole
+    || candidate.predicateId !== document.setupDefinitions[0].setupDefinitionId
+    || candidate.predicateVersion !== document.setupDefinitions[0].setupDefinitionVersion
+    || providerIdentity.providerId !== provider.providerId
+    || providerIdentity.providerVersion !== provider.providerVersion
+    || context.paneId !== request[config.paneField]
+    || candidate.sourceReference.sourceRecordId !== request[config.sourceField]) {
+    failValidation(
+      'VALIDATION_CAMPAIGN_SOURCE_MISMATCH',
+      'Evidence provider output does not close to the exact Campaign request.',
+      { operation: 'prepare-case-observation', sourceId: provider.providerId },
+    );
+  }
+  return candidate;
+}
+
 async function prepareRole(state, document, setupDefinition, request, config, signal) {
   const predicate = setupDefinition[config.predicateField];
   const provider = providerFor(state, {
@@ -88,7 +109,9 @@ async function prepareRole(state, document, setupDefinition, request, config, si
   const sourceRequest = providerRequest(document, setupDefinition, request, config);
   try {
     const candidate = await provider.prepareCitation(sourceRequest, signal);
-    const normalized = await readEvidenceCandidate(candidate, state.crypto);
+    const normalized = requireCandidateClosure(
+      await readEvidenceCandidate(candidate, state.crypto), document, request, config, provider,
+    );
     const claimPassed = normalized.boundedClaim.predicatePassed
       ?? normalized.boundedClaim.comparisonPassed;
     return Object.freeze({
@@ -189,6 +212,11 @@ export async function prepareCaseObservation(state, rawRequest, externalSignal) 
       );
     }
     const sharedContext = closeSharedContext(results);
+    state.sourceResolution.set(
+      request.campaignId,
+      results.every(({ availability }) => availability.status === 'available')
+        ? 'available' : 'source-unavailable',
+    );
     const previewToken = state.idFactory();
     const createdAtEpochMs = state.nowEpochMs();
     const publicPreview = strictPortableValue({

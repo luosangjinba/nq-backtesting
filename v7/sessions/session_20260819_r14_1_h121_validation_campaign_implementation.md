@@ -38,13 +38,13 @@ and its Developer Kit fingerprint baseline is untouched.
 The implementation retains exactly eight new removable descriptors. Production
 architecture records 84 modules, 183 dependency edges, 155 construction sites,
 34 observed writer files, 28 exact writer surfaces, and zero findings. Source
-quality records 628 files, 58,339 effective lines, 5,981 functions, and 647
-public exports with zero exception or finding. Campaign document, Campaign
+quality records 642 files, 60,061 effective lines, 6,152 functions, and 650 public
+exports with zero exception or finding. Campaign document, Campaign
 storage, and Campaign DOM each have one executable sole-writer detector.
 
 ## Automated Evidence
 
-- H121 Node domain/runtime/persistence/security/negative controls pass with 13
+- H121 Node domain/runtime/persistence/security/negative controls pass with 19
   declared negative fixtures;
 - H121 real production-route Chromium evidence passes at 1280x800 and 620x800;
 - Campaign index/document state-service allowlisting, client hydration, and
@@ -65,3 +65,9 @@ storage, and Campaign DOM each have one executable sole-writer detector.
 Automated passage does not accept H121. The exact next action is the focused
 ten-item review in
 `../docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_R14_1_HUMAN_REVIEW.md`.
+
+A separately authorized pre-next-step architecture audit subsequently found
+and repaired strict topology, exact Outcome/source identity, cancellation,
+no-future, optional-removal, and file-responsibility gaps. Its durable evidence
+is `session_20260819_r14_1_h121_post_implementation_architecture_audit.md`.
+H121 remains executable and unaccepted; H117 remains unchanged.

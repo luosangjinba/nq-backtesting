@@ -4,14 +4,20 @@
     { "name": "unknown-command-field", "expectedCode": "VALIDATION_CAMPAIGN_PERSISTENCE_CORRUPT" },
     { "name": "stale-document", "expectedCode": "VALIDATION_CAMPAIGN_REVISION_STALE" },
     { "name": "source-changed", "expectedCode": "VALIDATION_CAMPAIGN_SOURCE_CHANGED" },
+    { "name": "source-changed-before-apply", "expectedCode": "VALIDATION_CAMPAIGN_SOURCE_CHANGED" },
+    { "name": "cancel-before-linearization", "expectedCode": "VALIDATION_CAMPAIGN_PREPARATION_STALE" },
     { "name": "provider-absent", "expectedCode": "VALIDATION_CAMPAIGN_SOURCE_UNAVAILABLE" },
     { "name": "expired-preview", "expectedCode": "VALIDATION_CAMPAIGN_PREPARATION_EXPIRED" },
     { "name": "outcome-not-revealed", "expectedCode": "VALIDATION_CAMPAIGN_OUTCOME_NOT_REVEALED" },
     { "name": "outcome-resource-limit", "expectedCode": "VALIDATION_CAMPAIGN_RESOURCE_LIMIT" },
+    { "name": "outcome-replay-regressed", "expectedCode": "VALIDATION_CAMPAIGN_REPLAY_CUTOFF_CHANGED" },
+    { "name": "outcome-session-mismatch", "expectedCode": "VALIDATION_CAMPAIGN_SOURCE_MISMATCH" },
     { "name": "notes-resource-limit", "expectedCode": "VALIDATION_CAMPAIGN_RESOURCE_LIMIT" },
+    { "name": "raw-context-preflight", "expectedCode": "VALIDATION_RAW_CONTEXT_UNAVAILABLE" },
     { "name": "persistence-cas", "expectedCode": "VALIDATION_CAMPAIGN_PERSISTENCE_CAS_STALE" },
     { "name": "persistence-apply-rollback", "expectedCode": "VALIDATION_CAMPAIGN_PERSISTENCE_WRITE_FAILED" },
     { "name": "orphan-document", "expectedCode": "VALIDATION_CAMPAIGN_PERSISTENCE_CORRUPT" },
-    { "name": "corrupt-document", "expectedCode": "VALIDATION_CAMPAIGN_PERSISTENCE_CORRUPT" }
+    { "name": "corrupt-document", "expectedCode": "VALIDATION_CAMPAIGN_PERSISTENCE_CORRUPT" },
+    { "name": "topology-corrupt-hydration", "expectedCode": "VALIDATION_CAMPAIGN_PERSISTENCE_CORRUPT" }
   ]
 }

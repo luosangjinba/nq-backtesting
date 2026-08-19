@@ -74,6 +74,7 @@ export {
   createEvidenceCandidate,
   createEvidenceCitation,
   readBoundedClaim,
+  readCitationRef,
   readEvidenceCandidate,
   readEvidenceCitation,
   readObservationContext,
@@ -85,24 +86,26 @@ export {
   createStudyCase,
   observationContextFromCitations,
   readCaseObservationContext,
-  readOutcomeObservation,
   readPathPlan,
   readPredicateResults,
   readStudyCase,
   supersedeStudyCase,
 } from './case-records.js';
+export { assertEvidenceCampaignClosure } from './case-evidence-closure.js';
+export { readOutcomeObservation } from './outcome-records.js';
 export { calculateOutcomeObservation } from './outcome-calculation.js';
 export {
   cohortRef,
   createStudyCohort,
   readCaseRef,
+  readCohortRef,
   readStudyCohort,
 } from './cohort-records.js';
 export {
   calculateValidationMetrics,
   createAnalysisRun,
-  readAnalysisRun,
 } from './analysis-calculation.js';
+export { readAnalysisRun } from './analysis-record-validation.js';
 export {
   createRawContextIntent,
   createSourceVerification,

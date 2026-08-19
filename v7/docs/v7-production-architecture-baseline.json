@@ -2635,6 +2635,15 @@
             "importedNames": [
               "serializeSessionId"
             ],
+            "sourceFile": "src/replay-workspace-composition/workspace-composition.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeSessionId"
+            ],
             "sourceFile": "src/replay-workspace-composition/workspace-validation-campaign.js",
             "targetFile": "src/session-identity/public.js",
             "targetModuleId": "core.session-identity",
@@ -2710,11 +2719,33 @@
           },
           {
             "importedNames": [
-              "caseRef",
+              "assertEvidenceCampaignClosure",
+              "calculateValidationMetrics",
+              "canonicalJson"
+            ],
+            "sourceFile": "src/validation-campaign-runtime/runtime-history-validation.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "caseRef"
+            ],
+            "sourceFile": "src/validation-campaign-runtime/source-availability.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
               "createAnalysisRun",
               "createSourceVerification",
               "createStudyCohort",
               "failValidation",
+              "readCaseRef",
+              "readCitationRef",
+              "readCohortRef",
               "replaceCampaignDocument"
             ],
             "sourceFile": "src/validation-campaign-runtime/analysis-command-controller.js",
@@ -2762,6 +2793,7 @@
           {
             "importedNames": [
               "VALIDATION_LIMITS",
+              "assertEvidenceCampaignClosure",
               "failValidation",
               "readDefinitionRef",
               "readEvidenceCandidate",
@@ -5922,7 +5954,14 @@
           {
             "importedNames": [
               "calculateOutcomeObservation",
+              "exactRecord",
               "failValidation",
+              "readPathPlan",
+              "requireContractId",
+              "requireEpoch",
+              "requireOpaqueId",
+              "requireRevision",
+              "sha256Canonical",
               "strictPortableValue"
             ],
             "sourceFile": "src/validation-outcome-window/outcome-window-adapter.js",
@@ -6155,8 +6194,11 @@
         "independentHarnessMode": "public-entry-direct",
         "kind": "adapter",
         "observedDisposeSites": [
+          "src/validation-campaign-ui/analysis-drilldown-dialog.js",
+          "src/validation-campaign-ui/campaign-create-dialog.js",
           "src/validation-campaign-ui/campaign-route.js",
           "src/validation-campaign-ui/capture-dialog.js",
+          "src/validation-campaign-ui/cohort-freeze-dialog.js",
           "src/validation-campaign-ui/validation-campaign-ui.js"
         ],
         "owner": "validation-campaign-ui",

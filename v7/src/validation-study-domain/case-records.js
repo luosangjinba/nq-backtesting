@@ -1,4 +1,5 @@
 import {
+  canonicalJson,
   exactRecord,
   requireBoundedText,
   requireDigest,
@@ -15,13 +16,13 @@ import {
 } from './canonical-value.js';
 import {
   CASE_LIFECYCLE_STATES,
-  OUTCOME_CLASSES,
   QUALIFICATION_CLASSES,
   VALIDATION_LIMITS,
   VALIDATION_SCHEMAS,
 } from './constants.js';
 import { readDefinitionRef } from './definition-records.js';
 import { readEvidenceCitation } from './evidence-records.js';
+import { readOutcomeObservation } from './outcome-records.js';
 
 const CASE_FIELDS = Object.freeze([
   'acceptedDocumentRevision', 'authorLabel', 'campaignId', 'caseId', 'caseRevision',
@@ -33,12 +34,6 @@ const CASE_FIELDS = Object.freeze([
 ]);
 const PATH_FIELDS = Object.freeze([
   'direction', 'horizonBars', 'invalidationPrice', 'referencePrice', 'targetPrice',
-]);
-const OUTCOME_FIELDS = Object.freeze([
-  'barWindowDigest', 'calculationDigest', 'coverageState', 'decisionCutoffEpochMs',
-  'firstEligibleBarStartEpochMs', 'horizonBars', 'lastObservedBarStartEpochMs',
-  'maePoints', 'mfePoints', 'observedBarCount', 'outcomeClass', 'outcomeCutoffEpochMs',
-  'policyId', 'recordedAtEpochMs', 'terminalBarStartEpochMs', 'timeToFirstTouchBars',
 ]);
 const CASE_OBSERVATION_FIELDS = Object.freeze([
   'datasetId', 'datasetRevision', 'exclusiveReplayCutoffEpochMs', 'instrumentId',
@@ -143,43 +138,52 @@ export function readPredicateResults(value) {
   return Object.freeze(entries);
 }
 
-export function readOutcomeObservation(value) {
-  if (value === null) return null;
-  exactRecord(value, OUTCOME_FIELDS, 'Outcome observation');
-  const outcomeClass = requireEnum(value.outcomeClass, OUTCOME_CLASSES, 'Outcome class');
-  const observedBarCount = requireRevision(value.observedBarCount, 'Observed Bar count', { minimum: 0 });
-  const terminal = value.terminalBarStartEpochMs === null ? null
-    : requireEpoch(value.terminalBarStartEpochMs, 'Terminal Bar start');
-  const timeToTouch = value.timeToFirstTouchBars === null ? null
-    : requireRevision(value.timeToFirstTouchBars, 'Time to first touch');
-  const incomplete = outcomeClass === 'incomplete-data';
-  if ((incomplete && (value.mfePoints !== null || value.maePoints !== null))
-    || (!incomplete && (value.mfePoints === null || value.maePoints === null))
-    || (['target-first', 'invalidation-first'].includes(outcomeClass) && (terminal === null || timeToTouch === null))
-    || (!['target-first', 'invalidation-first'].includes(outcomeClass) && timeToTouch !== null)) {
-    throw new TypeError('Outcome terminal/MFE/MAE shape is invalid.');
+function requireEvidenceClosure(citations, predicateResults, observation, setupDefinitionRef) {
+  const citationRoles = citations.map(({ evidenceRole }) => evidenceRole);
+  if (new Set(citationRoles).size !== citationRoles.length) {
+    throw new TypeError('Study Case citation roles are duplicated.');
   }
-  return strictPortableValue({
-    ...value,
-    barWindowDigest: requireDigest(value.barWindowDigest, 'Bar window digest'),
-    calculationDigest: requireDigest(value.calculationDigest, 'Outcome calculation digest'),
-    coverageState: requireEnum(value.coverageState, ['complete', 'incomplete'], 'Outcome coverage'),
-    decisionCutoffEpochMs: requireEpoch(value.decisionCutoffEpochMs, 'Decision cutoff'),
-    firstEligibleBarStartEpochMs: value.firstEligibleBarStartEpochMs === null ? null
-      : requireEpoch(value.firstEligibleBarStartEpochMs, 'First eligible Bar start'),
-    horizonBars: requireRevision(value.horizonBars, 'Outcome horizon'),
-    lastObservedBarStartEpochMs: value.lastObservedBarStartEpochMs === null ? null
-      : requireEpoch(value.lastObservedBarStartEpochMs, 'Last observed Bar start'),
-    maePoints: value.maePoints === null ? null : requireFinite(value.maePoints, 'MAE'),
-    mfePoints: value.mfePoints === null ? null : requireFinite(value.mfePoints, 'MFE'),
-    observedBarCount,
-    outcomeClass,
-    outcomeCutoffEpochMs: requireEpoch(value.outcomeCutoffEpochMs, 'Outcome cutoff'),
-    policyId: requireOpaqueId(value.policyId, 'Outcome policy id'),
-    recordedAtEpochMs: requireEpoch(value.recordedAtEpochMs, 'Outcome record time'),
-    terminalBarStartEpochMs: terminal,
-    timeToFirstTouchBars: timeToTouch,
-  });
+  const predicateByRole = new Map(predicateResults.map((entry) => [entry.evidenceRole, entry]));
+  for (const citation of citations) {
+    const context = citation.observationContext;
+    const isSma = citation.evidenceRole === 'context-sma';
+    const expected = isSma ? {
+      claimKind: 'sma-close-comparison',
+      ownerKind: 'calculated-series-document',
+      paneRole: 'context-pane',
+      providerId: 'validation.evidence.sma-close',
+    } : {
+      claimKind: 'manual-fvg-observation',
+      ownerKind: 'annotation-document',
+      paneRole: 'execution-pane',
+      providerId: 'validation.evidence.manual-fvg',
+    };
+    const passed = citation.boundedClaim.comparisonPassed
+      ?? citation.boundedClaim.predicatePassed;
+    if (citation.predicateId !== setupDefinitionRef.id
+      || citation.predicateVersion !== setupDefinitionRef.version
+      || citation.boundedClaim.claimKind !== expected.claimKind
+      || citation.providerIdentity.providerId !== expected.providerId
+      || citation.sourceReference.ownerKind !== expected.ownerKind
+      || context.paneRole !== expected.paneRole
+      || predicateByRole.get(citation.evidenceRole)?.passed !== passed
+      || context.latestEligibleBarStartEpochMs >= context.exclusiveReplayCutoffEpochMs
+      || (isSma
+        ? citation.boundedClaim.valueBarStartEpochMs >= context.exclusiveReplayCutoffEpochMs
+        : citation.boundedClaim.evidenceBarStartEpochMs.some((start) => (
+          start >= context.exclusiveReplayCutoffEpochMs
+        )))) {
+      throw new TypeError('Study Case citation does not close to its predicate and no-future context.');
+    }
+  }
+  if (citations.length === 2) {
+    const derived = observationContextFromCitations(citations);
+    if (observation === null || canonicalJson(derived) !== canonicalJson(observation)) {
+      throw new TypeError('Study Case observation context differs from its citations.');
+    }
+  } else if (observation !== null) {
+    throw new TypeError('Partial Study Case evidence cannot claim a closed observation context.');
+  }
 }
 
 function notes(value) {
@@ -286,7 +290,15 @@ export async function readStudyCase(value, crypto = globalThis.crypto) {
   const observation = value.observationContext === null ? null : readCaseObservationContext(value.observationContext);
   const outcome = readOutcomeObservation(value.outcomeObservation);
   const predicateResults = readPredicateResults(value.predicateResults);
-  readPathPlan(value.pathPlan);
+  requireEvidenceClosure(
+    value.evidenceCitations, predicateResults, observation, value.setupDefinitionRef,
+  );
+  const plan = readPathPlan(value.pathPlan);
+  if (outcome !== null && (observation === null
+    || outcome.decisionCutoffEpochMs !== observation.exclusiveReplayCutoffEpochMs
+    || outcome.horizonBars !== plan.horizonBars)) {
+    throw new TypeError('Study Case Outcome differs from its frozen decision context or path.');
+  }
   if ((lifecycle === 'draft' && outcome !== null)
     || (lifecycle !== 'draft' && (value.evidenceCitations.length !== 2 || observation === null))
     || (['observation-recorded'].includes(lifecycle) && outcome !== null)

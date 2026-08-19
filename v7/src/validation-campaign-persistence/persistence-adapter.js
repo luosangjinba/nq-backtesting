@@ -43,6 +43,17 @@ function campaignKeys(storage) {
   )).sort());
 }
 
+function isCampaignDocumentKey(key) {
+  if (!key.startsWith(VALIDATION_CAMPAIGN_DOCUMENT_PREFIX)) return false;
+  try {
+    return validationCampaignDocumentStorageKey(
+      key.slice(VALIDATION_CAMPAIGN_DOCUMENT_PREFIX.length),
+    ) === key;
+  } catch {
+    return false;
+  }
+}
+
 function diagnostic(error, fallback = 'VALIDATION_CAMPAIGN_PERSISTENCE_CORRUPT') {
   return Object.freeze({
     code: typeof error?.code === 'string' ? error.code : fallback,
@@ -147,7 +158,7 @@ export function createValidationCampaignPersistenceAdapter({ storage } = {}) {
     const records = writes.map((write) => {
       if (!write || typeof write !== 'object' || typeof write.key !== 'string'
         || (write.key !== VALIDATION_CAMPAIGN_INDEX_KEY
-          && !write.key.startsWith(VALIDATION_CAMPAIGN_DOCUMENT_PREFIX))
+          && !isCampaignDocumentKey(write.key))
         || (write.expectedRaw !== null && typeof write.expectedRaw !== 'string')
         || seen.has(write.key)) throw new TypeError('Campaign persistence write is invalid.');
       seen.add(write.key);
