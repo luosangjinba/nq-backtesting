@@ -16573,97 +16573,6 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 268,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "safeId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "projectionFromCache",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "diagnostic",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "provenance",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 30,
-          "name": "nonReadyFrame",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "replayCutoffForPaneSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 49,
-          "name": "calculateProjectionFrame",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "projectedBars",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 55,
-          "name": "planCalculatedSeriesInstanceFrame",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 60,
-          "name": "createFramePlanIdentity",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "projectionFromResult",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.calculated-series-runtime",
-      "owner": "calculated-series-runtime",
-      "ownsContract": false,
-      "path": "src/calculated-series-runtime/frame-planner.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "9942663a3a5d4bfaa458b175bce4a51c15ad11e5804970c6d86d40049416c11c"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 27,
       "forwardingOnly": false,
       "functions": [
@@ -17167,6 +17076,107 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "e8cb502d29dcfdb023388be0f20440a8f8d82d6fa3a8cba05c88be1ac8267db0"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 277,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "safeId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "projectionFromCache",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "projectedBars",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "diagnostic",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "provenance",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 30,
+          "name": "nonReadyFrame",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "replayCutoffForPaneSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 49,
+          "name": "calculateProjectionFrame",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 55,
+          "name": "planCalculatedSeriesInstanceFrame",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 60,
+          "name": "createFramePlanIdentity",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "projectionFromResult",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.calculated-series-runtime",
+      "owner": "calculated-series-runtime",
+      "ownsContract": false,
+      "path": "src/calculated-series-runtime/frame-planner.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "3f04ba54ed824d16196e1b8b723b448e300491440f05bf34899136607f92fc0e"
     },
     {
       "adaptsBoundary": false,
@@ -32230,7 +32240,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "723fe6b2d7c5778cf4ba06b75b5ffaef69ab593b52dc91f99f1f7f6db0dcba1f"
+      "sourceHash": "9af879e7ede0d9a47212faef67a3c5afaa390a75b73c93b5a8c8f458d6914d79"
     },
     {
       "adaptsBoundary": true,
@@ -45353,235 +45363,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 389,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-13>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-31>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "getItem",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "key",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "length",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 10,
-          "name": "requireOptions",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "readRemote",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "poison",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "initialize",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "hydrateAutomatically",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "pushCurrent",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 18,
-          "name": "upload",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 27,
-          "name": "replaceRemote",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "hash",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 33,
-          "name": "resolveConflict",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 39,
-          "name": "createServerStateSync",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 39,
-          "name": "hydrateRemote",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-21>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "restoreMetadata",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "removeItem",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "retry",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "setItem",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "subscribe",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 59,
-          "name": "reconcile",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "enqueueSync",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "requestTimeoutMs",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "flush",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "metadata",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "publicSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "requireHealthyMutation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "publish",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "adapter",
-      "moduleId": "adapter.server-state-sync",
-      "owner": "session-state-replication",
-      "ownsContract": false,
-      "path": "src/server-state-sync/state-sync-client.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "session-state-replication.",
-            "purpose": "expose optional local-first replication without changing Session Store ownership.",
-            "inputs": "explicit fetch, Web Storage, Web Crypto, reload, and clock ports.",
-            "outputs": "initialized synchronized storage plus observable sync/conflict controls.",
-            "sideEffects": "reads/writes allowlisted local storage and one bounded state endpoint.",
-            "lifecycle": "initialize before Session owners; flush and dispose after they stop.",
-            "errors": "invalid ports throw; network failures become explicit local/offline state; unprovable local rollback throws reload-required and poisons the adapter.",
-            "concurrencyCancellation": "serialized snapshot PUTs use revision CAS; stale writers conflict."
-          },
-          "moduleId": "adapter.server-state-sync",
-          "name": "createServerStateSync",
-          "semanticMatches": [
-            "state",
-            "sync"
-          ],
-          "semanticTerms": [
-            "server",
-            "state",
-            "sync"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "external-state-io"
-      ],
-      "sideEffectConcerns": [
-        {
-          "concern": "browser-persistence",
-          "evidence": [
-            "rawStorage.removeItem()",
-            "rawStorage.setItem()"
-          ]
-        },
-        {
-          "concern": "remote-io",
-          "evidence": [
-            "options.fetch()"
-          ]
-        }
-      ],
-      "sizeException": null,
-      "sourceHash": "3b35d536f25142bc1b9330564d692de46720cbe3e7d14bb02390597966503188"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 39,
       "forwardingOnly": false,
       "functions": [
@@ -46138,6 +45919,240 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "8128e14a677afff92a1e720d7716994bb9887a161ad33d6fec59d714e5337597"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 400,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-32>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "getItem",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "key",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "length",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "requireOptions",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "readRemote",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "uploadAutomatically",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "poison",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "initialize",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "hydrateAutomatically",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "pushCurrent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 18,
+          "name": "upload",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "replaceRemote",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "hash",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 33,
+          "name": "resolveConflict",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 39,
+          "name": "createServerStateSync",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 39,
+          "name": "hydrateRemote",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-22>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "restoreMetadata",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "removeItem",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "retry",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "setItem",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "subscribe",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 59,
+          "name": "reconcile",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "enqueueSync",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "requestTimeoutMs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "flush",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "metadata",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "publicSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "requireHealthyMutation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "publish",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "adapter",
+      "moduleId": "adapter.server-state-sync",
+      "owner": "session-state-replication",
+      "ownsContract": false,
+      "path": "src/server-state-sync/state-sync-client.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "session-state-replication.",
+            "purpose": "expose optional local-first replication without changing Session Store ownership.",
+            "inputs": "explicit fetch, Web Storage, Web Crypto, reload, and clock ports.",
+            "outputs": "initialized synchronized storage plus observable sync/conflict controls.",
+            "sideEffects": "reads/writes allowlisted local storage and one bounded state endpoint.",
+            "lifecycle": "initialize before Session owners; flush and dispose after they stop.",
+            "errors": "invalid ports throw; network failures become explicit local/offline state; unprovable local rollback throws reload-required and poisons the adapter.",
+            "concurrencyCancellation": "serialized snapshot PUTs use revision CAS; stale writers conflict."
+          },
+          "moduleId": "adapter.server-state-sync",
+          "name": "createServerStateSync",
+          "semanticMatches": [
+            "state",
+            "sync"
+          ],
+          "semanticTerms": [
+            "server",
+            "state",
+            "sync"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "external-state-io"
+      ],
+      "sideEffectConcerns": [
+        {
+          "concern": "browser-persistence",
+          "evidence": [
+            "rawStorage.removeItem()",
+            "rawStorage.setItem()"
+          ]
+        },
+        {
+          "concern": "remote-io",
+          "evidence": [
+            "options.fetch()"
+          ]
+        }
+      ],
+      "sizeException": null,
+      "sourceHash": "9490048fa46c9e1c43a2fb28db00b26fa9273ecdcd7cc18b57f846285707873d"
     },
     {
       "adaptsBoundary": true,
@@ -54068,9 +54083,9 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 52593,
+    "effectiveLines": 52613,
     "files": 582,
-    "functions": 5470,
+    "functions": 5473,
     "publicExports": 558
   },
   "deliveryStep": "P1c.3",

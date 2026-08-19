@@ -231,6 +231,18 @@ export function createServerStateSync(rawOptions) {
     return true;
   }
 
+  async function uploadAutomatically(entries, expectedRevision) {
+    try {
+      return await upload(entries, expectedRevision);
+    } catch (error) {
+      publish({
+        message: `Saved on this device; server sync is offline. ${error.message}`,
+        status: 'offline',
+      });
+      return false;
+    }
+  }
+
   async function reconcile() {
     if (disposed || state.status === 'poisoned') return;
     publish({ message: 'Checking server state…', status: 'syncing' });
@@ -264,7 +276,7 @@ export function createServerStateSync(rawOptions) {
       return;
     }
     if (remote.revision === 0 && remote.entries.length === 0) {
-      await upload(localEntries, 0);
+      await uploadAutomatically(localEntries, 0);
       return;
     }
     if (localEntries.length === 0) {
@@ -279,7 +291,7 @@ export function createServerStateSync(rawOptions) {
       return;
     }
     if (!localUnchanged && remoteUnchanged) {
-      await upload(localEntries, remote.revision);
+      await uploadAutomatically(localEntries, remote.revision);
       return;
     }
     remoteConflict = remote;

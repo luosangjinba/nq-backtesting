@@ -67,6 +67,10 @@ try {
     entries: [
       { key: 'v7.session-browser:index', value: '{"sessions":["alpha"]}' },
       { key: 'v7.session-browser:record:alpha', value: '{"name":"Alpha"}' },
+      {
+        key: 'v7.calculated-series:document:alpha',
+        value: '{"schema":"v7.calculated-series-document","version":1}',
+      },
     ],
     expectedRevision: 0,
     schema: 'v7.user-state-snapshot',
@@ -91,7 +95,7 @@ try {
   });
   assert.equal(staleResponse.status, 409);
   assert.equal((await staleResponse.json()).current.revision, 1);
-  assert.equal((await (await request(port, 'reviewer')).json()).entries.length, 2,
+  assert.equal((await (await request(port, 'reviewer')).json()).entries.length, 3,
     'stale replacement must have zero state effect');
 
   const invalidKeyResponse = await request(port, 'reviewer', {
@@ -114,6 +118,26 @@ try {
     method: 'PUT',
   });
   assert.equal(emptyRecordKeyResponse.status, 400);
+  const emptyCalculatedSeriesKeyResponse = await request(port, 'reviewer', {
+    body: JSON.stringify({
+      ...replacement,
+      entries: [{ key: 'v7.calculated-series:document:', value: 'forbidden' }],
+      expectedRevision: 1,
+    }),
+    headers: { 'Content-Type': 'application/json' },
+    method: 'PUT',
+  });
+  assert.equal(emptyCalculatedSeriesKeyResponse.status, 400);
+  const forgedCalculatedSeriesKeyResponse = await request(port, 'reviewer', {
+    body: JSON.stringify({
+      ...replacement,
+      entries: [{ key: 'v7.calculated-series:documents:alpha', value: 'forbidden' }],
+      expectedRevision: 1,
+    }),
+    headers: { 'Content-Type': 'application/json' },
+    method: 'PUT',
+  });
+  assert.equal(forgedCalculatedSeriesKeyResponse.status, 400);
   const invalidJsonResponse = await request(port, 'reviewer', {
     body: '{',
     headers: { 'Content-Type': 'application/json' },
@@ -138,7 +162,10 @@ try {
   service = await startService(port);
   const restored = await (await request(port, 'reviewer')).json();
   assert.equal(restored.revision, 1);
-  assert.equal(restored.entries.length, 2, 'SQLite state must survive service restart');
+  assert.equal(restored.entries.length, 3, 'Session and calculated-series state must survive service restart');
+  assert.equal(restored.entries.some(
+    ({ key }) => key === 'v7.calculated-series:document:alpha'
+  ), true, 'calculated-series sidecars must remain readable after restart');
 } finally {
   await stopService(service);
   fs.rmSync(temporaryDirectory, { force: true, recursive: true });

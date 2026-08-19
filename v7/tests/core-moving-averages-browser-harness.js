@@ -471,6 +471,72 @@ try {
   assert.equal(await evaluate(cdp, `Object.keys(localStorage)
     .filter((key) => key.startsWith('v7.calculated-series:document:')).length`), 1);
 
+  // Reproduce the production failure shape: an unaligned Replay cutoff, two
+  // Panes, and a 1m→5m replacement whose trailing 5m candle is in progress.
+  const beforeOneMinuteStep = Number(await evaluate(cdp,
+    `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
+  await evaluate(cdp, `(() => {
+    const select = document.querySelector('.replay-step-select');
+    select.value = 'replay.step.1-minute';
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    document.querySelector('.replay-next').click();
+  })()`);
+  await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision)
+    > ${beforeOneMinuteStep}
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 20_000);
+  await evaluate(cdp, `document.querySelector('[data-layout-id="layout.two-columns"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '2'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 20_000);
+  await evaluate(cdp, `document.querySelector('[data-pane-id="pane-main"]')
+    .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.activePaneId === 'pane-main'`);
+  const beforeTimeframeRevision = Number(await evaluate(cdp,
+    `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
+  await evaluate(cdp, `(() => {
+    document.querySelector('.timeframe-toggle').click();
+    document.querySelector('[data-timeframe-id="timeframe.display-5-minute"]').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('[data-pane-id="pane-main"]')
+      ?.dataset.timeframeId === 'timeframe.display-5-minute'
+    && Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision)
+      === ${beforeTimeframeRevision + 1}
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 20_000);
+  const timeframeReplacement = await evaluate(cdp, `(() => ({
+    mainIndicatorState: document.querySelector('[data-pane-id="pane-main"] .calculated-series-legend-state')
+      ?.textContent ?? null,
+    mainTimeframe: document.querySelector('[data-pane-id="pane-main"]')?.dataset.timeframeId ?? null,
+    secondaryTimeframe: document.querySelector('[data-pane-id="pane-secondary"]')?.dataset.timeframeId ?? null,
+    status: document.querySelector('.workspace-inline-status')?.textContent ?? '',
+    viewState: document.querySelector('.replay-workspace')?.dataset.viewState ?? null,
+  }))()`);
+  assert.deepEqual(timeframeReplacement, {
+    mainIndicatorState: 'Ready',
+    mainTimeframe: 'timeframe.display-5-minute',
+    secondaryTimeframe: 'timeframe.display-1-minute',
+    status: '',
+    viewState: 'ready',
+  });
+  assert.ok((await pixelStats(cdp, '#FF00FF')).count > 10,
+    'SMA must remain painted after a two-Pane 1m→5m replacement');
+
+  await evaluate(cdp, `document.querySelector('[data-layout-id="layout.two-rows"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.layoutId === 'layout.two-rows'`);
+  await evaluate(cdp, `document.querySelector('[data-layout-id="layout.single"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '1'
+    && document.querySelector('[data-pane-id="pane-main"]')?.dataset.timeframeId
+      === 'timeframe.display-5-minute'
+    && document.querySelector('[data-pane-id="pane-main"] .calculated-series-pane-ui')
+      ?.dataset.instanceCount === '1'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 20_000);
+  assert.equal(await evaluate(cdp, `document.querySelector('.workspace-inline-status')?.textContent ?? ''`), '');
+  await evaluate(cdp, `(() => {
+    document.querySelector('.timeframe-toggle').click();
+    document.querySelector('[data-timeframe-id="timeframe.display-1-minute"]').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('[data-pane-id="pane-main"]')?.dataset.timeframeId
+      === 'timeframe.display-1-minute'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 20_000);
+
   // Remove clears the line and legend durably.
   await openAction(cdp, 'Remove');
   await waitFor(cdp, `document.querySelector('.calculated-series-pane-ui')?.dataset.instanceCount === '0'`);
@@ -540,6 +606,7 @@ try {
     readyBluePixels: readyBlue.count,
     responsive: containment,
     styledMagentaPixels: styledMagenta.count,
+    timeframeReplacement,
     timings: {
       fourPaneAddMs: fourPaneAddMs.map((durationMs) => Number(durationMs.toFixed(1))),
       onePaneAddMs: Number(onePaneAddMs.toFixed(1)),

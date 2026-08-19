@@ -25,6 +25,7 @@ EXACT_KEYS = frozenset(
     }
 )
 SESSION_RECORD_PREFIX = "v7.session-browser:record:"
+CALCULATED_SERIES_DOCUMENT_PREFIX = "v7.calculated-series:document:"
 
 
 class StateValidationError(ValueError):
@@ -45,8 +46,9 @@ def require_user_id(value: Any) -> str:
 
 
 def _allowed_key(value: str) -> bool:
-    return value in EXACT_KEYS or (
-        value.startswith(SESSION_RECORD_PREFIX) and len(value) > len(SESSION_RECORD_PREFIX)
+    return value in EXACT_KEYS or any(
+        value.startswith(prefix) and len(value) > len(prefix)
+        for prefix in (SESSION_RECORD_PREFIX, CALCULATED_SERIES_DOCUMENT_PREFIX)
     )
 
 

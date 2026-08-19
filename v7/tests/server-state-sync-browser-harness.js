@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createLayoutSync } from '../src/layout-sync-domain/public.js';
 import { createPaneLayout } from '../src/pane-layout-domain/public.js';
+import { encodeCalculatedSeriesDocumentEnvelope } from '../src/calculated-series-persistence/public.js';
 import { createServerStateSync } from '../src/server-state-sync/public.js';
 import { createSessionId } from '../src/session-identity/public.js';
 import { createStorageAdapter, createSessionRepository } from '../src/session-persistence/public.js';
@@ -92,6 +93,13 @@ function persistedFixture() {
     layoutSync: createLayoutSync(),
     nowEpochMs: 1_780_427_500_000,
   });
+  const calculatedSeries = encodeCalculatedSeriesDocumentEnvelope('session-cross-device', {
+    documentRevision: 1,
+    schemaVersion: 1,
+    sessionId: 'session-cross-device',
+    workspacePanes: [],
+  });
+  values.set(calculatedSeries.key, calculatedSeries.raw);
   return Object.freeze(Object.fromEntries(values));
 }
 
@@ -148,6 +156,9 @@ async function runProfile(webPort, profilePath, seed = null) {
         .find((key) => key.startsWith('v7.session-browser:record:'));
       const entry = JSON.parse(localStorage.getItem(recordKey));
       return {
+        calculatedSeriesSidecar: localStorage.getItem(
+          'v7.calculated-series:document:session-cross-device'
+        ),
         checkpoint: entry.value.workspace.checkpoint,
         sessionCount: document.querySelectorAll('.session-card').length,
         syncMessage: document.querySelector('.local-note').textContent,
@@ -182,6 +193,8 @@ try {
   assert.equal(first.sessionCount, 1);
   assert.equal(second.sessionCount, 1);
   assert.equal(second.syncMessage, 'Synced as reviewer');
+  assert.equal(second.calculatedSeriesSidecar, first.calculatedSeriesSidecar,
+    'a separate browser profile must hydrate the exact calculated-series sidecar');
   assert.deepEqual(second.checkpoint, first.checkpoint,
     'a separate browser profile must hydrate the exact Workspace checkpoint');
 } finally {
@@ -195,4 +208,4 @@ try {
   fs.rmSync(temporaryDirectory, { force: true, recursive: true });
 }
 
-console.log('v7 server state sync browser harness passed (two isolated Chrome profiles, one Session/checkpoint)');
+console.log('v7 server state sync browser harness passed (two isolated Chrome profiles, Session/checkpoint/calculated-series sidecar)');

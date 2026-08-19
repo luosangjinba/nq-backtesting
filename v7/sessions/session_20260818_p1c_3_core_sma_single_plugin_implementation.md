@@ -41,6 +41,54 @@ uses the inherited package/profile/default layer rather than the current
 instance override; and the Indicators overlay no longer covers the native OHLC
 readout.
 
+## Post-Deployment Server Validation Corrections
+
+The first server deployment exposed three connected production failures while
+H120 was still awaiting human acceptance:
+
+- adding SMA caused server sync to return HTTP 400; after reload the Sessions
+  route showed no records and New Session failed with a null `createSession`
+  owner;
+- changing one Pane from 1m to 5m rolled the Workspace transaction back with
+  the generic Chart update error;
+- later Pane-layout return attempts could encounter the same failed replacement
+  path.
+
+The sync failure had two exact causes. The browser snapshot contract already
+replicated `v7.calculated-series:document:*`, but the Python state-service
+allowlist omitted that prefix. In addition, an automatic startup upload
+rejection escaped synchronization instead of degrading to offline mode, so the
+application composed a null Session Store. The correction adds only the exact
+non-empty calculated-series document prefix to the server allowlist and makes
+automatic upload failures retain a usable local Session Store with explicit
+offline status. Existing local Session bytes are never cleared by this path.
+
+The timeframe failure came from a valid projected higher-timeframe Pane that
+contained one trailing in-progress candle. Its display timestamp was later than
+the exact Replay cutoff, so forwarding the complete candle list as the eligible
+SMA timeline violated the no-future contract. The correction keeps the full
+accepted Pane snapshot in its binding digest while admitting only the strictly
+no-future prefix to calculation. A malformed non-trailing future timeline still
+fails closed.
+
+Permanent regressions now prove rejected first/startup uploads remain locally
+usable, an existing Session remains listed, a New Session can still be created,
+the real Python service accepts and restores the exact sidecar across restart,
+and a second isolated Chromium profile hydrates the same Session/checkpoint and
+sidecar. H120's production browser gate additionally drives an unaligned Replay
+cutoff, two Panes, SMA 1m→5m, two-column→two-row→single layout return, and 5m→1m
+without stale/future output or a generic Chart error.
+
+These production corrections advanced the canonical source-quality evidence by
+20 effective lines and three function records, with file/export totals
+unchanged. That legitimate conformance change made the generated Developer Kit
+browser/example identity stale. The existing canonical generators refreshed
+only those two derived release outputs plus the consequent production source
+hash to toolchain digest
+`sha256:c20be4ed9753b0edd6597fa54b133f947326cadf911fc7e698a9b520c818f81c`.
+H116 and all 54 H117 negative groups pass afterward; no H117 rule/state,
+compiler, SDK, Schema, catalog, operation, simulator, or plugin behavior changed.
+
 ## Automated Evidence
 
 H120 passes formula lengths 2/20/500, warmup and gap truth, cancellation,

@@ -101,7 +101,7 @@ review, and P1b.4 authoring MCP/security/equivalence closure.
 - Plugin Contract, production architecture, source-quality, module assembly,
   ModuleHost, writer closure, deployed-runtime, architecture-hardening, and
   relevant schema/catalog regression gates pass.
-- The exact production source baseline is 582 files, 52,593 effective lines, 5,470 functions, and 558 public exports with zero accepted exception.
+- The exact production source baseline is 582 files, 52,613 effective lines, 5,473 functions, and 558 public exports with zero accepted exception.
 - `git diff --check` passes.
 - No browser or human visual gate is claimed because P1b.1 changes no product
   surface; H117 retains its required later human gate.

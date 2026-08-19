@@ -111,7 +111,7 @@ function identity(label, sessionId = 'session-h120') {
   });
 }
 
-function projectedPane(paneId, count = 30, label = paneId) {
+function projectedPane(paneId, count = 30, label = paneId, { cutoffEpochMs = null } = {}) {
   const projectedBars = Object.freeze(bars(count).map((bar) => Object.freeze({
     ...bar,
     high: bar.close + 1,
@@ -121,7 +121,7 @@ function projectedPane(paneId, count = 30, label = paneId) {
     volume: 10,
   })));
   const transactionIdentity = identity(`pane-${label}`);
-  const cutoff = projectedBars.at(-1)?.displayEpochMs ?? 0;
+  const cutoff = cutoffEpochMs ?? projectedBars.at(-1)?.displayEpochMs ?? 0;
   const proposal = createReplayCursorTargetProposal({
     baseRevision: 0,
     cursorEpochMs: 0,
@@ -620,6 +620,35 @@ assert.equal(snapshot.panes[0].instances.length, 0);
 const removedCandidate = fixture.chart.readCandidate(pane.paneId);
 assert.equal(removedCandidate.projectionFrames.length, 0);
 fixture.runtime.dispose();
+
+// A higher-timeframe Pane may expose one trailing in-progress candle whose
+// display time is later than the exact Replay cutoff. The complete Pane digest
+// remains bound, while only the no-future prefix is eligible for calculation.
+const cutoffFixture = runtimeFixture({ sessionId: 'session-cutoff-tail' });
+await cutoffFixture.runtime.initialize();
+const cutoffPane = projectedPane('pane-cutoff-tail', 30, 'cutoff-tail', {
+  cutoffEpochMs: 28_500,
+});
+await acceptWorkspace(cutoffFixture.runtime, cutoffFixture.chart, cutoffPane, 10);
+let cutoffSnapshot = cutoffFixture.runtime.snapshot();
+cutoffSnapshot = await cutoffFixture.runtime.execute({
+  definitionRef: cutoffSnapshot.catalog[0].definitionRef,
+  expectedDocumentRevision: cutoffSnapshot.documentRevision,
+  instanceValues: {},
+  kind: 'add-instance',
+  workspacePaneId: cutoffPane.paneId,
+});
+const cutoffInstance = cutoffSnapshot.panes[0].instances[0];
+const cutoffCandidate = cutoffFixture.chart.readCandidate(cutoffPane.paneId);
+const cutoffPoints = cutoffCandidate.projectionFrames[0].plotGroups[0].plots[0].points;
+assert.equal(cutoffCandidate.projectionFrames[0].state, 'ready');
+assert.equal(cutoffInstance.calculation.resourceUsage.actualInputBars, 28);
+assert.equal(cutoffInstance.latestValue, 18.5);
+assert.equal(cutoffPoints.length, 28);
+assert.equal(cutoffPoints.at(-1).displayEpochMs, 28_000);
+assert.equal(cutoffPoints.every(({ displayEpochMs }) => displayEpochMs <= 28_500), true,
+  'SMA output must exclude a trailing in-progress candle later than Replay cutoff');
+cutoffFixture.runtime.dispose();
 
 // Disable preserves unresolved bytes; re-enable resolves and freshly recalculates.
 const durableMap = new Map();

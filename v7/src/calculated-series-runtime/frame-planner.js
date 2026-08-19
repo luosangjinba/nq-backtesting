@@ -13,12 +13,21 @@ const SDK_CONTRACT = Object.freeze({ id: 'v7.calculated-series-sdk', version: '1
 
 function safeId(prefix, digest) { return `${prefix}-${digest.slice(7, 23)}`; }
 
-function projectedBars(paneSnapshot) {
+function projectedBars(paneSnapshot, replayVisibleThroughEpochMs) {
   if (!paneSnapshot || !Array.isArray(paneSnapshot.bars)) return Object.freeze([]);
-  return Object.freeze(paneSnapshot.bars.map((bar) => Object.freeze({
+  const bars = paneSnapshot.bars.map((bar) => Object.freeze({
     close: bar.close,
     displayEpochMs: bar.displayEpochMs,
-  })));
+  }));
+  const firstFutureIndex = bars.findIndex(({ displayEpochMs }) => (
+    displayEpochMs > replayVisibleThroughEpochMs
+  ));
+  if (firstFutureIndex === -1) return Object.freeze(bars);
+  const futureTail = bars.slice(firstFutureIndex);
+  if (futureTail.some(({ displayEpochMs }) => displayEpochMs <= replayVisibleThroughEpochMs)) {
+    return Object.freeze(bars);
+  }
+  return Object.freeze(bars.slice(0, firstFutureIndex));
 }
 
 function diagnostic(error, instanceId) {
@@ -118,7 +127,7 @@ async function createFramePlanIdentity({
   transactionIdentity,
 }) {
   const definition = readCalculatedSeriesDefinition(registration.definition);
-  const bars = projectedBars(paneSnapshot);
+  const bars = projectedBars(paneSnapshot, binding.replayVisibleThroughEpochMs);
   const timeline = Object.freeze(bars.map(({ displayEpochMs }) => displayEpochMs));
   const provenanceWire = paneSnapshot?.provenance ?? Object.freeze({ unavailable: true });
   const [datasetDigest, inputDigest, parameterDigest, paneDigest] = await Promise.all([

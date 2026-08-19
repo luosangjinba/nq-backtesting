@@ -268,10 +268,17 @@ Repair record:
   source-quality, and the nine-scenario production regression matrix;
 - [x] retain the two pre-existing production-matrix visual known failures by
   exact fingerprint; introduce no new known failure;
+- [x] correct the post-deployment H120 validation failures without widening
+  scope: accept the calculated-series Session sidecar at the Python state
+  service, preserve local Session availability when an automatic sync upload
+  is rejected, and exclude only a trailing in-progress higher-timeframe candle
+  later than the exact Replay cutoff; prove New Session/local recovery,
+  cross-browser sidecar restore, 1m→5m, and multi-Pane layout return paths;
 - [x] keep H117 `executable` and unaccepted without changing any H117 field;
-  rerun its complete Developer Kit regression without a fingerprint refresh;
-  keep P1b.4, Community/Worker, business-layer work, and every other plugin
-  paused;
+  rerun its complete Developer Kit regression; after the post-deployment source
+  correction, refresh only the canonically derived browser/example toolchain
+  identity and consequent source-quality hash, then pass H116/H117 again; keep
+  P1b.4, Community/Worker, business-layer work, and every other plugin paused;
 - [x] record the requested Segment/Ray/Infinite Line plus screen-space Circle/
   Arc model as a future documentation-only primitive requirement;
 - [ ] complete focused product-owner review of the real production route;
@@ -1901,7 +1908,7 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 582 files, 52,593 effective lines, 5,470 functions, and 558 public exports; the architecture baseline
+The current production source baseline contains 582 files, 52,613 effective lines, 5,473 functions, and 558 public exports; the architecture baseline
 contains 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
@@ -1913,7 +1920,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 582 files, 52,593 effective lines, 5,470 functions, and 558 public exports, 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
+currently at 582 files, 52,613 effective lines, 5,473 functions, and 558 public exports, 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
 ## Established Foundation Governance

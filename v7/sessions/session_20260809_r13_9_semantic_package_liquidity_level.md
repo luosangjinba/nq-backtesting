@@ -49,7 +49,7 @@ now binds both projection and Inspector suppression.
 Production assembly contains 61 public modules, 25 lifecycle modules, and 24
 optional-removal cases. Architecture evidence contains 61 modules, 132
 dependency edges, 115 construction sites, 18 declared writer surfaces, 23
-observed writer files, and zero findings. Current source evidence contains 582 files, 52,593 effective lines, 5,470 functions, and 558 public exports with no
+observed writer files, and zero findings. Current source evidence contains 582 files, 52,613 effective lines, 5,473 functions, and 558 public exports with no
 accepted exception.
 
 ## Human Acceptance Evidence

@@ -9,6 +9,9 @@ import {
   captureReplicatedEntries,
   STATE_SYNC_METADATA_KEY,
 } from '../src/server-state-sync/snapshot.js';
+import { createSessionId } from '../src/session-identity/public.js';
+import { createStorageAdapter, createSessionRepository } from '../src/session-persistence/public.js';
+import { createSessionStore } from '../src/session-store/public.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const NEGATIVE_FIXTURE_PATH = path.join(
@@ -91,6 +94,7 @@ function createStateServer(userId = 'reviewer') {
     entries: [], revision: 0, schema: 'v7.user-state-snapshot', userId, version: 1,
   };
   let offline = false;
+  let rejectedPutStatus = null;
   const requests = [];
   return {
     fetch: async (url, options = {}) => {
@@ -98,6 +102,11 @@ function createStateServer(userId = 'reviewer') {
       const method = options.method ?? 'GET';
       requests.push(method);
       if (method === 'GET') return Response.json(snapshot);
+      if (rejectedPutStatus !== null) {
+        return Response.json({ error: { code: 'FIXTURE_REJECTED', message: 'fixture rejection' } }, {
+          status: rejectedPutStatus,
+        });
+      }
       const body = JSON.parse(options.body);
       if (body.expectedRevision !== snapshot.revision) {
         return Response.json({
@@ -115,6 +124,10 @@ function createStateServer(userId = 'reviewer') {
       return Response.json(snapshot);
     },
     requests,
+    rejectPutsWith(status) {
+      assert.ok(Number.isSafeInteger(status) && status >= 400 && status <= 599);
+      rejectedPutStatus = status;
+    },
     replaceForTest(entries) {
       snapshot = {
         entries: structuredClone(entries),
@@ -248,6 +261,67 @@ offlineServer.setOffline(false);
 assert.equal((await offline.retry()).status, 'synced');
 assert.equal(offlineServer.snapshot().entries.length, 2,
   'explicit retry must upload the complete locally retained snapshot');
+
+const rejectedInitialServer = createStateServer();
+rejectedInitialServer.rejectPutsWith(400);
+const rejectedInitialStorage = createMemoryStorage({
+  'v7.session-browser:index': '{"sessions":[]}',
+});
+const rejectedInitialClient = createClient(
+  rejectedInitialStorage, rejectedInitialServer, { count: 0 },
+);
+assert.equal((await rejectedInitialClient.initialize()).status, 'offline',
+  'a rejected first-device import must also release local-first application boot');
+assert.equal(rejectedInitialStorage.getItem('v7.session-browser:index'), '{"sessions":[]}',
+  'a rejected first-device import must retain local state');
+
+const startupStorage = createMemoryStorage();
+const startupRepository = createSessionRepository({
+  namespace: 'v7.session-browser',
+  storage: createStorageAdapter(startupStorage),
+});
+const startupStore = createSessionStore({ repository: startupRepository });
+const sessionInput = {
+  historicalRange: { endEpochMs: 120_000, presentationEndEpochMs: 120_000, startEpochMs: 60_000 },
+  instrumentIds: ['instrument.cme.nq'],
+};
+startupStore.createSession({
+  ...sessionInput,
+  name: 'Retained before rejected sync',
+  nowEpochMs: 60_000,
+  sessionId: createSessionId('session-retained-before-rejected-sync'),
+});
+const rejectingServer = createStateServer();
+const initialStartupClient = createClient(startupStorage, rejectingServer, { count: 0 });
+assert.equal((await initialStartupClient.initialize()).status, 'synced');
+rejectingServer.rejectPutsWith(400);
+initialStartupClient.storage.setItem(
+  'v7.calculated-series:document:session-retained-before-rejected-sync',
+  '{"schema":"v7.calculated-series-document","version":1}',
+);
+await initialStartupClient.flush();
+assert.equal(initialStartupClient.snapshot().status, 'offline');
+
+const restartedStartupClient = createClient(startupStorage, rejectingServer, { count: 0 });
+assert.equal((await restartedStartupClient.initialize()).status, 'offline',
+  'a rejected startup upload must release local-first Session boot');
+assert.match(restartedStartupClient.snapshot().message, /HTTP 400/u);
+const restartedStore = createSessionStore({
+  repository: createSessionRepository({
+    namespace: 'v7.session-browser',
+    storage: createStorageAdapter(restartedStartupClient.storage),
+  }),
+});
+assert.equal(restartedStore.listSessions().length, 1,
+  'a rejected calculated-series upload must not hide an existing local Session');
+restartedStore.createSession({
+  ...sessionInput,
+  name: 'Created while sync is offline',
+  nowEpochMs: 60_001,
+  sessionId: createSessionId('session-created-while-sync-offline'),
+});
+assert.equal(restartedStore.listSessions().length, 2,
+  'New Session must remain available while server sync is offline');
 
 const localOnly = createServerStateSync({
   crypto: webcrypto,
@@ -483,9 +557,10 @@ assert.equal(negativeResults.length, negativeCases.length,
 
 await Promise.all([
   first.dispose(), second.dispose(), third.dispose(), offline.dispose(), localOnly.dispose(), hanging.dispose(),
-  automaticClient.dispose(), conflictClient.dispose(),
+  automaticClient.dispose(), conflictClient.dispose(), initialStartupClient.dispose(),
+  rejectedInitialClient.dispose(), restartedStartupClient.dispose(),
 ]);
 console.log('v7 server state sync harness passed', {
   negativeFixtures: negativeResults.length,
-  scope: 'import, exact/poisoned hydration, late-PUT seal, timeout/offline retry, ordered write, conflict x2',
+  scope: 'import, exact/poisoned hydration, rejected-upload local boot, late-PUT seal, timeout/offline retry, ordered write, conflict x2',
 });
