@@ -176,3 +176,16 @@ unallocated/unregistered. Even acceptance of all ten decisions would authorize
 documentation only; a later explicit implementation instruction is required
 before production modules, schemas, routes, storage/state-sync allowlists,
 fixtures, Harness registration, or implementation can begin.
+
+## Subsequent Specification Acceptance
+
+At 03:54 PDT on 2026-08-19, the product owner stated:
+
+> R14.1/H121 候选规格 1–10 全部接受。
+
+This accepts the candidate's ten decisions without amendment. The binding
+accepted specification remains at the same stable path. Its durable acceptance
+record is
+`session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_specification_acceptance.md`.
+R14.1/H121 remain unallocated/unregistered and no implementation authority is
+inferred.

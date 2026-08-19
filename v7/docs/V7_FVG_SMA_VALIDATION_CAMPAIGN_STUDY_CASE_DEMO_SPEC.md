@@ -663,7 +663,7 @@ delivery. This accepted business specification consumes
 only the already accepted single-Plot SMA and FVG paths. MACD or another real
 plugin remains later and separately gated.
 
-## Subsequent Implementation-Slice Candidate
+## Subsequent Implementation-Slice Specification Acceptance
 
 On 2026-08-19, the product owner separately authorized drafting the bounded
 implementation-slice candidate at
@@ -672,10 +672,12 @@ It proposes the review labels R14.1/H121, exact modules, schemas, commands,
 transactions, resource ceilings, diagnostics, automated evidence, and focused
 human gate required by this accepted parent specification.
 
-That later document is a candidate only. Its ten decisions await review;
-R14.1/H121 remain unallocated and H121 is not registered. The draft changes no
-production, plugin, state-sync, fixture, or Harness behavior and does not amend
-the accepted decisions in this document.
+The product owner then accepted all ten implementation-slice decisions without
+amendment on 2026-08-19. That later document is now binding for a possible
+implementation, but acceptance remains documentation-only: R14.1/H121 are
+unallocated, H121 is not registered, and no production, plugin, state-sync,
+fixture, or Harness behavior changed. It does not amend the accepted decisions
+in this parent document.
 
 ## Acceptance Record
 

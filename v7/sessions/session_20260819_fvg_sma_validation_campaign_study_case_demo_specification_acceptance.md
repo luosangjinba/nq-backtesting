@@ -128,3 +128,9 @@ with its durable drafting record at
 `session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_candidate_specification.md`.
 Its proposed R14.1/H121 labels remain unallocated/unregistered and its ten
 material decisions await review; no production authority is inferred.
+
+The product owner subsequently accepted those ten implementation-slice
+decisions without amendment at 03:54 PDT. The accepted implementation
+specification remains unallocated/unregistered and implementation still
+requires a separate explicit instruction. Its durable acceptance record is
+`session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_specification_acceptance.md`.

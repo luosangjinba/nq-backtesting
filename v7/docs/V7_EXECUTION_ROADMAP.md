@@ -1418,24 +1418,24 @@ outside authority. The separately authorized documentation candidate below
 supersedes only that next-document hold. Production work still requires its
 accepted boundaries and later explicit implementation authority.
 
-### R14.1/H121 FVG + SMA Validation Campaign Implementation Slice — Candidate, Unallocated
+### R14.1/H121 FVG + SMA Validation Campaign Implementation Slice — Specification Accepted, Implementation Unallocated
 
 The product owner separately authorized a documentation-only implementation-
-slice candidate on 2026-08-19. The candidate at
+slice candidate on 2026-08-19. The specification at
 `V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md`
-proposes one eight-module removable Campaign closure, strict versioned records
+binds one eight-module removable Campaign closure, strict versioned records
 and commands, generic read-only FVG/SMA evidence adapters, a bounded no-future
 Outcome adapter, frozen Cohort/Analysis lineage, reversible Campaign storage
 and existing state-sync reuse, raw-context intents through current owners, and
 a deterministic audit JSON export.
 
-Its ten material decisions await product-owner review. R14.1 and H121 are
-proposed labels only: neither is allocated, H121 is absent from the Harness
-registry, and no production/schema/module/storage/state-sync/route/fixture
-change is authorized. The exact next boundary is candidate review, followed—
-only if accepted—by a separate implementation instruction. P1c.4, P1b.4,
-another plugin, Community/Worker, Journal, Dataset Builder, AI, MEMO-V7-005,
-and H117 status remain unchanged.
+The product owner accepted all ten material decisions without amendment on
+2026-08-19. R14.1 and H121 remain proposed labels only: neither is allocated,
+H121 is absent from the Harness registry, and no production/schema/module/
+storage/state-sync/route/fixture change is authorized. The exact next boundary
+is a separate explicit instruction to allocate and implement only this slice.
+P1c.4, P1b.4, another plugin, Community/Worker, Journal, Dataset Builder, AI,
+MEMO-V7-005, and H117 status remain unchanged.
 
 ### MEMO-V7-005 Evidence Collections, Dashboard, Chart Application, And Visual Grammar — Non-Binding
 

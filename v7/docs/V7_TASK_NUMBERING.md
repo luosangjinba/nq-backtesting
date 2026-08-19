@@ -2,10 +2,10 @@
 
 Status: binding delivery rule; latest allocated repository step is P1c.3;
 H120 is accepted, P1c.3 is closed, the FVG + SMA business Demo specification's
-ten decisions are accepted, its implementation-slice candidate proposes but
-does not allocate R14.1/H121, MEMO-V7-005 is non-binding with no id,
-MEMO-V7-001's scope amendment is non-binding with no id, and H117 is unchanged
-(2026-08-19)
+ten decisions and the implementation-slice specification's ten decisions are
+accepted, but R14.1/H121 remain unallocated/unregistered; MEMO-V7-005 is non-
+binding with no id, MEMO-V7-001's scope amendment is non-binding with no id,
+and H117 is unchanged (2026-08-19)
 
 ## Delivery IDs
 
@@ -61,10 +61,11 @@ Campaign / Study Case Demo candidate and accepted all ten material decisions
 without amendment on 2026-08-19. The resulting accepted specification still
 has no delivery id, Harness id, or implementation authority. The product owner
 subsequently authorized only its implementation-slice candidate. That draft
-proposes `R14.1`/H121 for review, but neither label is allocated and H121 is not
-registered. Its ten decisions must be accepted or amended before a later
-explicit implementation instruction could allocate the business slice. It
-does not allocate P1c.4, which remains separate and unnumbered.
+proposed `R14.1`/H121 for review. The product owner accepted all ten slice
+decisions without amendment on 2026-08-19, but neither label is allocated and
+H121 is not registered. A later explicit implementation instruction is still
+required to allocate the business slice. It does not allocate P1c.4, which
+remains separate and unnumbered.
 
 The later MEMO-V7-005 Evidence Collection Dashboard / explicit multi-dataset
 Chart application / Setup-free Phenomenon Study / semantic visual grammar

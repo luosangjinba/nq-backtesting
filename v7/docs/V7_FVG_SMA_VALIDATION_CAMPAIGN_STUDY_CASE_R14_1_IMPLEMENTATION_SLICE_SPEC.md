@@ -1,10 +1,12 @@
-# V7 FVG + SMA Validation Campaign / Study Case R14.1/H121 Implementation Slice — Candidate Specification
+# V7 FVG + SMA Validation Campaign / Study Case R14.1/H121 Implementation Slice — Accepted Specification
 
-Status: product-owner-authorized candidate draft; decisions 1–10 await review;
-`R14.1` and H121 are proposed labels only and are not allocated or registered;
-no production implementation is authorized
+Status: all ten material decisions accepted without amendment on 2026-08-19;
+`R14.1` and H121 remain proposed labels only and are not allocated or
+registered; no production implementation is authorized
 
 Drafted: 2026-08-19 03:02 PDT
+
+Accepted: 2026-08-19 03:54 PDT
 
 Parent specification:
 `V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md`, accepted without
@@ -32,18 +34,28 @@ record, and documentation/governance synchronization. It does not authorize
 production schemas, modules, storage, state-sync, routes, fixtures, or Harness
 changes.
 
-This draft proposes the program label `R14.1` and Harness H121 for review. They
-remain deliberately **unallocated and unregistered** while decisions 1–10 are
-open. In particular:
+The product owner subsequently stated:
+
+> R14.1/H121 候选规格 1–10 全部接受。
+
+This accepts every material decision below without amendment and makes this
+document the binding implementation specification for the bounded slice.
+Accepted decision 10 remains controlling: specification acceptance is not
+implementation authority and does not allocate/register the proposed labels.
+
+The candidate proposed the program label `R14.1` and Harness H121. They remain
+deliberately **unallocated and unregistered** after specification acceptance.
+In particular:
 
 - `R14` denotes removable Validation Campaign business vertical slices;
 - `R14.1` would denote this one accepted-parent-spec tracer bullet;
 - H121 would be its automated plus focused-human acceptance gate;
-- no H121 row may be added to `v7-harness-rules.json` during candidate review;
+- no H121 row may be added to `v7-harness-rules.json` before a later explicit
+  implementation instruction;
 - the previously discussed P1c.4 remains a separate, unallocated calculated-
-  series expansion and receives no Harness number from this draft;
-- a later acceptance of this specification still would not implement it; only
-  a still-later explicit implementation instruction could allocate R14.1,
+  series expansion and receives no Harness number from this specification;
+- this specification acceptance does not implement the slice; only a later
+  explicit implementation instruction could allocate R14.1,
   register H121 as executable, and change production code.
 
 H117 remains `executable`, human-review-required, and unaccepted. Nothing in
@@ -130,7 +142,7 @@ objects, mutable internal state, or Campaign-specific predicate logic.
 ## Exact Proposed Module Graph
 
 The slice consists of exactly eight new removable modules. Versions are frozen
-at `1.0.0` for this delivery candidate.
+at `1.0.0` for this accepted specification.
 
 | Module | Sole owner | Required ports | Optional ports | Lifecycle |
 | --- | --- | --- | --- | --- |
@@ -1038,7 +1050,7 @@ must never delay candle publication or playback correctness.
 
 ## Proposed H121 Automated Evidence
 
-No H121 Harness or registry row exists during candidate review. If a later
+No H121 Harness or registry row exists at specification acceptance. If a later
 implementation instruction allocates R14.1/H121, H121 must be executable,
 human-review-required, and initially unaccepted. It must prove at least:
 
@@ -1123,7 +1135,7 @@ owner explicitly accepts this focused review after implementation.
 
 ## Explicit Exclusions
 
-This candidate does not authorize or include:
+This accepted specification does not authorize or include:
 
 - production implementation, Harness registration, allocation, or acceptance;
 - P1c.4, P1b.4, another plugin/algorithm, Community/Worker, Marketplace, or a
@@ -1143,7 +1155,10 @@ This candidate does not authorize or include:
   sync client, or a second Bar, Replay, Workspace, Chart, Annotation, or
   calculated-series writer.
 
-## Ten Material Decisions Awaiting Product Review
+## Ten Material Decisions — Accepted Without Amendment
+
+The product owner accepted decisions 1–10 below on 2026-08-19. Their meaning
+remains the exact bounded meaning reviewed in the candidate draft.
 
 1. **Proposed allocation:** reserve the unallocated labels R14.1/H121 for this
    exact accepted-parent-spec tracer bullet only after later implementation
@@ -1174,14 +1189,27 @@ This candidate does not authorize or include:
 9. **Acceptance evidence:** accept the proposed H121 negative/positive,
    production-browser, performance, security, optional-removal, regression,
    and ten-step focused-human gates, while keeping H117 unchanged.
-10. **Candidate-only authority:** reviewing or accepting decisions 1–10 does not
-    implement or allocate R14.1/H121, edit the Harness registry, start P1c.4 or
-    P1b.4, add another plugin, import MEMO-V7-005, or authorize Community/
-    Worker/Journal/Dataset/AI; implementation requires a separate explicit
-    product-owner instruction.
+10. **Acceptance is not implementation authority:** reviewing or accepting
+    decisions 1–10 does not implement or allocate R14.1/H121, edit the Harness
+    registry, start P1c.4 or P1b.4, add another plugin, import MEMO-V7-005, or
+    authorize Community/Worker/Journal/Dataset/AI; implementation requires a
+    separate explicit product-owner instruction.
+
+## Acceptance Record
+
+- deciding authority: product owner;
+- accepted: 2026-08-19 03:54 PDT, without amendment to decisions 1–10;
+- durable acceptance record:
+  `../sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_specification_acceptance.md`;
+- allocation: none; R14.1/H121 remain proposed and unregistered;
+- implementation: not authorized;
+- unchanged: H117 remains executable, human-review-required, and unaccepted;
+  P1c.4, P1b.4, another plugin, Community/Worker, Journal, Dataset Builder, AI,
+  and MEMO-V7-005 remain outside authority.
 
 ## Exact Next Boundary
 
-The next action is product-owner review of decisions 1–10. Until all accepted
-or amended, no implementation plan, production code, schema/module directory,
+The next possible action is a separate explicit product-owner instruction to
+allocate and implement only this accepted R14.1/H121 slice. Until such an
+instruction, no implementation plan, production code, schema/module directory,
 state-sync allowlist, route, fixture, or H121 registry entry may be created.

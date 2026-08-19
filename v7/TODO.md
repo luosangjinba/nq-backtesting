@@ -339,9 +339,11 @@ Future primitive requirement:
   schemas/commands, evidence/outcome transactions, storage/state-sync ceilings,
   diagnostics, browser/performance evidence, and focused human review without
   registering H121 or changing production code;
-- [ ] review and accept or amend the implementation-slice candidate's ten
-  material decisions;
-- [ ] after candidate acceptance, require separate implementation authority
+- [x] receive explicit product-owner acceptance of all ten implementation-
+  slice decisions without amendment on 2026-08-19;
+- [x] promote the candidate to the binding implementation specification while
+  keeping R14.1/H121 unallocated/unregistered and changing no production code;
+- [ ] after specification acceptance, require separate implementation authority
   before allocating R14.1/H121 or changing production code.
 
 Accepted specification:
@@ -358,6 +360,9 @@ Implementation-slice candidate:
 
 Implementation-slice draft record:
 `sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_candidate_specification.md`.
+
+Implementation-slice acceptance record:
+`sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_specification_acceptance.md`.
 
 ## MEMO-V7-005 Study Collection Dashboard / Chart Application / Visual Grammar — Captured 2026-08-18
 

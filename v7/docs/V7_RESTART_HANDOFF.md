@@ -1,39 +1,42 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-19 after the product owner authorized the FVG + SMA
-Validation Campaign implementation-slice candidate; proposed R14.1/H121 remain
-unallocated/unregistered, its ten decisions await review, no implementation is
-authorized, and H117 remains executable/unaccepted
+Last updated: 2026-08-19 after the product owner accepted all ten FVG + SMA
+Validation Campaign implementation-slice decisions without amendment;
+R14.1/H121 remain unallocated/unregistered, no implementation is authorized,
+and H117 remains executable/unaccepted
 
 ## Restart Resume Checkpoint
 
-### 2026-08-19 R14.1/H121 Business Implementation-Slice Candidate Drafted
+### 2026-08-19 R14.1/H121 Business Implementation Specification Accepted
 
 Resume first with
 `docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md`
 and
 `sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_candidate_specification.md`,
+then
+`sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_specification_acceptance.md`,
 then its accepted parent
 `docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md`.
 
-The candidate freezes one bounded implementation design: exactly eight
-removable modules, one sole Campaign writer, generic read-only FVG/SMA evidence
+The accepted specification freezes one bounded implementation design: exactly
+eight removable modules, one sole Campaign writer, generic read-only FVG/SMA evidence
 providers, strict versioned records and commands, exact storage/resource
 ceilings, one no-future first-touch Outcome algorithm, immutable Case revisions
 and Cohorts, reproducible statistics with exact denominators/drill-down,
 existing state-sync reuse, immutable raw-context intents through current
 owners, and deterministic audit JSON.
 
-Its ten material decisions await product-owner review. R14.1 and H121 are
-proposed labels only; neither is allocated and H121 is not present in the
-Harness registry. No production schema/module/storage/state-sync/route/fixture
-was created. P1c.4 is separate, unnumbered, and unallocated. MEMO-V7-005's
-seventeen decisions, P1b.4, another plugin, Community/Worker, Journal, Dataset
-Builder, AI, and H117 status remain untouched.
+The product owner accepted all ten material decisions without amendment at
+03:54 PDT. R14.1 and H121 remain proposed labels only; neither is allocated and
+H121 is not present in the Harness registry. No production schema/module/
+storage/state-sync/route/fixture was created. P1c.4 is separate, unnumbered, and
+unallocated. MEMO-V7-005's seventeen decisions, P1b.4, another plugin,
+Community/Worker, Journal, Dataset Builder, AI, and H117 status remain
+untouched.
 
-Exact next action: review decisions 1–10 in the candidate. Even complete
-candidate acceptance would remain documentation-only; a later explicit
-implementation instruction is required before allocation or production work.
+Exact next action: only a later explicit product-owner instruction may allocate
+and implement this accepted R14.1/H121 slice. Specification acceptance remains
+documentation-only.
 
 ### 2026-08-19 FVG + SMA Business Demo Specification Accepted
 
@@ -1569,25 +1572,26 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
-Review decisions 1–10 in
-`V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md`.
-The accepted parent Demo specification is unchanged. The candidate now defines
-the proposed delivery/Harness labels, exact public schemas and commands,
-storage/state-sync bounds, module descriptors, diagnostics, transaction
-phases, browser fixture, performance budgets, and focused human gate, but none
-is allocated or implemented. Candidate acceptance must precede a separate
-explicit production implementation instruction.
+Decisions 1–10 in
+`V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md`
+are accepted without amendment. The accepted parent Demo specification is
+unchanged. The implementation specification defines the proposed delivery/
+Harness labels, exact public schemas and commands, storage/state-sync bounds,
+module descriptors, diagnostics, transaction phases, browser fixture,
+performance budgets, and focused human gate, but none is allocated or
+implemented. The next possible repository-changing action requires a separate
+explicit product-owner instruction to allocate and implement only R14.1/H121.
 
-MEMO-V7-005 is not silently included in that review. Its seventeen Dashboard,
+MEMO-V7-005 is not silently included in the accepted specification. Its seventeen Dashboard,
 application, complete-Setup/multi-timeframe, visual-grammar, text, and
 Phenomenon Study questions remain a separate non-decision backlog until the
 product owner explicitly asks to promote or review them.
 
-The current candidate allocates no delivery/Harness id. Proposed R14.1/H121 are
-unallocated/unregistered; P1c.4 remains a separate unnumbered dependency inside
-the calculated-series expansion sequence. H117 remains executable/unaccepted;
-P1b.4, another plugin, Community/Worker, Journal, Dataset Builder, AI, and all
-Campaign implementation remain paused.
+The accepted specification allocates no delivery/Harness id. Proposed
+R14.1/H121 are unallocated/unregistered; P1c.4 remains a separate unnumbered
+dependency inside the calculated-series expansion sequence. H117 remains
+executable/unaccepted; P1b.4, another plugin, Community/Worker, Journal,
+Dataset Builder, AI, and all Campaign implementation remain paused.
 
 R13.10e/H114, P0b/H115, and P1a/H116 are closed. P1b.1–P1b.3 implement the
 non-executing local package contract/archive, transaction/storage, and corrected
