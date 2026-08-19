@@ -60,7 +60,7 @@
   },
   "conformance": {
     "sdkVersion": "1.0.0",
-    "toolchainDigest": "sha256:c20be4ed9753b0edd6597fa54b133f947326cadf911fc7e698a9b520c818f81c",
+    "toolchainDigest": "sha256:50255ddf0038e61f57dca07576363481df3cc98fc7f85b5725bcc65027c3f0ca",
     "requiredReceiptDigests": []
   }
 }

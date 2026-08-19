@@ -2743,7 +2743,7 @@
       "owner": "core-moving-averages/trusted-calculated-series-execution/calculated-series-runtime/calculated-series-persistence/calculated-series-ui/replay-workspace-composition/lightweight-chart-adapter/conformance-harness",
       "v6FailurePrevented": "an Indicator package became a second Chart or Bar/Replay owner, inferred execution from kind, exposed a partial or second algorithm, painted future or stale SMA points, lost exact settings/instance/placement state, persisted mixed bytes, failed to preserve unresolved disabled state, bypassed global Pane atomicity, or passed without real production-route pixel and interaction evidence",
       "activationStep": "P1c.3",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/core-moving-averages-harness.js",
       "positiveEvidence": [
         "docs/V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md",
@@ -2763,13 +2763,14 @@
         "tests/core-moving-averages-harness.js",
         "tests/core-moving-averages-browser-harness.js",
         "tests/fixtures/core-moving-averages/production-1000x700.png",
-        "sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md"
+        "sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md",
+        "sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md"
       ],
       "negativeFixtures": [
         "tests/fixtures/core-moving-averages/negative/cases.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md"
     }
   ]
 }

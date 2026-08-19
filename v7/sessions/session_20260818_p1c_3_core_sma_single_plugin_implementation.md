@@ -2,8 +2,8 @@
 
 Date: 2026-08-18
 
-Status: implementation and automated H120 complete; focused human review open;
-H120 remains executable and unaccepted
+Status: implementation, automated H120, and focused human review complete;
+H120 accepted and P1c.3 closed
 
 ## Authority And Scope
 
@@ -108,12 +108,30 @@ also passes without refreshing its generated fingerprint or changing its rule.
 
 ## Governance State
 
-`v7/docs/v7-harness-rules.json` records H120 as `executable`,
-`humanReviewRequired: true`, and `acceptanceEvidence: null`. H117 remains
-`executable`, human-review-required, and unaccepted; no H117 field or baseline
-was changed by this implementation.
+At implementation closure, `v7/docs/v7-harness-rules.json` recorded H120 as
+`executable`, `humanReviewRequired: true`, and `acceptanceEvidence: null`.
+The later focused acceptance below advances only H120. H117 remains
+`executable`, human-review-required, and unaccepted; no H117 state field was
+changed.
 
-The next allowed action is focused product-owner review using
-`docs/V7_CORE_SMA_P1C3_HUMAN_REVIEW.md`. No other plugin, algorithm, P1b.4,
-Community/Worker, or business-layer implementation may start before explicit
-H120 acceptance.
+The next allowed action at implementation closure was focused product-owner
+review using `docs/V7_CORE_SMA_P1C3_HUMAN_REVIEW.md`. No other plugin,
+algorithm, P1b.4, Community/Worker, or business-layer implementation was
+authorized by this delivery.
+
+## Focused Human Acceptance
+
+On 2026-08-18, after production server validation and the bounded corrections
+recorded above, the product owner stated:
+
+> H120验收通过，下一步该做什么？
+
+All ten focused checks are accepted. H120 is now `accepted`, remains
+`humanReviewRequired: true`, and P1c.3 is closed. Durable acceptance evidence is
+`session_20260818_p1c_3_h120_core_sma_human_acceptance.md`.
+
+This acceptance does not alter H117, resume P1b.4, or authorize another
+plugin, generic layout slice, Community/Worker tier, business layer, or future
+visual primitive. The binding calculated-series sequence recommends a separate
+synthetic generic multi-Plot/layout candidate next; that candidate remains
+unallocated pending explicit product-owner direction.

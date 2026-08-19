@@ -174,16 +174,19 @@ reload/remove product loop. It adopts no auto-attached Lightweight Charts
 Indicator helper, external Indicator library, second algorithm, or other
 plugin. The product owner accepted all ten material decisions without amendment
 on 2026-08-17 and separately authorized only this implementation. P1c.3 is now
-implemented; H120 automated evidence passes and remains `executable`,
-human-review-required, with `acceptanceEvidence: null`. H117 is unchanged and
+implemented; H120 automated evidence and the focused production-route review
+pass. The product owner accepted H120 on 2026-08-18, so H120 is `accepted`,
+remains human-review-required, and P1c.3 is closed. H117 is unchanged and
 P1b.4, every other plugin, Community/Worker, and business-layer work remain
-paused. The draft and acceptance records are
+paused. The draft and specification-acceptance records are
 `../sessions/session_20260817_core_sma_single_plugin_vertical_slice_candidate_specification.md`
 and
 `../sessions/session_20260817_core_sma_single_plugin_vertical_slice_specification_acceptance.md`;
 implementation and focused-review records are
 `../sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`
-and `V7_CORE_SMA_P1C3_HUMAN_REVIEW.md`. The later line-family/Circle/Arc
+and `V7_CORE_SMA_P1C3_HUMAN_REVIEW.md`; durable H120 acceptance is
+`../sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md`. The
+later line-family/Circle/Arc
 requirements are recorded without implementation at
 `V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md`.
 The seconds/tick memo additionally records the current decision that minute-
@@ -519,8 +522,8 @@ Read in this order before V7 implementation work:
      `V7_CALCULATED_SERIES_CHART_OWNED_PROJECTION_SLICE_SPEC.md` as accepted
      H118/H119 dependencies
 98h. `V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md` as the implemented
-     one-package/one-definition P1c.3 scope, followed by
-     `V7_CORE_SMA_P1C3_HUMAN_REVIEW.md` while H120 remains executable
+     and accepted one-package/one-definition P1c.3 scope, with
+     `V7_CORE_SMA_P1C3_HUMAN_REVIEW.md` as the passed focused gate
 98i. `V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md` as
      documentation-only future primitive input; it authorizes no implementation
 99. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,

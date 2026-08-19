@@ -1,11 +1,11 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-18 after P1c.3 implementation and automated H120 closure;
-focused H120 human review remains open and H117 remains executable/unaccepted
+Last updated: 2026-08-18 after focused H120 acceptance and P1c.3 closure;
+H117 remains executable/unaccepted and no next slice is allocated
 
 ## Restart Resume Checkpoint
 
-### 2026-08-18 P1c.3/H120 Core SMA Implemented; Human Review Pending
+### 2026-08-18 P1c.3/H120 Core SMA Accepted
 
 The product owner separately authorized the accepted P1c.3/H120 specification,
 strictly limited to `first-party.moving-averages@1.0.0` and its one
@@ -20,13 +20,18 @@ reload, disabled unresolved survival/re-enable, real production-route pixels,
 keyboard/focus/native interactions, one/four-Pane timing and containment,
 H118/H119, optional removal, architecture/writer/source-quality, Replay latency,
 and all nine production-matrix scenarios. The matrix retains only its two exact
-pre-existing visual known failures. H120 remains `executable`,
-`humanReviewRequired: true`, and `acceptanceEvidence: null`.
+pre-existing visual known failures. The product owner then accepted all ten
+focused production-route checks on
+2026-08-18. H120 is `accepted`, remains `humanReviewRequired: true`, and binds
+`sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md` as its
+durable evidence. P1c.3 is closed.
 
-Resume with `docs/V7_CORE_SMA_P1C3_HUMAN_REVIEW.md`. The implementation record
-is `sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`.
-Do not start another plugin, P1b.4, Community/Worker, business-layer work, or
-change H117 before explicit product-owner H120 acceptance.
+H120 acceptance authorizes no next implementation. The binding ADR-V7-005
+sequence recommends a documentation-only candidate for the generic multi-Plot
+and layout slice next, using synthetic oscillator/multi-region references and
+no second real plugin. Proposed P1c.4/H121 labels remain unallocated. Do not
+start it, another plugin, P1b.4, Community/Worker, business-layer work, or
+change H117 without separate product-owner authorization.
 
 The same authority recorded Segment/Ray/Infinite Line plus Circle/Arc
 requirements at
@@ -200,8 +205,9 @@ the first H119 review rejected whitespace bridging on 2026-08-17, its bounded
 correction is implemented, and the corrected focused human re-review accepted
 H119 on the same date. P1c.2 is closed. The separately authorized P1c.3 slice
 now wires that owner path into the Workstation for exactly one SMA(close)
-Definition; automated H120 passes and focused human review remains open. P1b.4
-remains paused and H117 remains unaccepted and unchanged.
+Definition; automated and focused human H120 review pass, H120 is accepted, and
+P1c.3 is closed. P1b.4 remains paused and H117 remains unaccepted and
+unchanged.
 `git log` is the authoritative commit identity.
 
 After a machine or agent restart, run:
@@ -216,10 +222,10 @@ git status --short
 Then read, in order:
 
 For the current resume, immediately after item 1 read
-`v7/docs/V7_CORE_SMA_P1C3_HUMAN_REVIEW.md`,
+`v7/sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md`,
 `v7/docs/V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md`, and
-`v7/sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`.
-The older pre-server-reboot H119 handoff is retained as historical context.
+`v7/docs/V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md`. The older
+pre-server-reboot H119 handoff is retained as historical context.
 
 1. `v7/docs/V7_RESTART_HANDOFF.md`
 2. `v7/docs/V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md`

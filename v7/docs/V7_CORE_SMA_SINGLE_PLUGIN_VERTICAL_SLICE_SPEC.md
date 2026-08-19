@@ -2,13 +2,13 @@
 
 Status: all ten material decisions accepted without amendment on 2026-08-17;
 separate P1c.3 implementation authorized; automated H120 passed on 2026-08-18;
-focused human review remains open, so H120 is executable and unaccepted
+focused human review accepted on 2026-08-18; H120 accepted and P1c.3 closed
 
 Drafted: 2026-08-17
 
 Accepted: 2026-08-17
 
-Implemented: 2026-08-18; human acceptance pending
+Implemented and human-accepted: 2026-08-18
 
 Upstream decisions: accepted `ADR-V7-004`, accepted `ADR-V7-006`, accepted
 `ADR-V7-005`, accepted `P1c.1`/H118, and accepted `P1c.2`/H119
@@ -58,10 +58,13 @@ The product owner later directed:
 
 That instruction allocated P1c.3, registered H120 as executable and
 human-review-required, and authorized only this vertical slice. Automated H120
-now passes. H120 remains unaccepted with `acceptanceEvidence: null` until the
-focused product-owner review in `V7_CORE_SMA_P1C3_HUMAN_REVIEW.md` passes.
-Implementation evidence is
-`../sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`.
+passes, and the focused product-owner review in
+`V7_CORE_SMA_P1C3_HUMAN_REVIEW.md` was accepted on 2026-08-18. H120 is now
+`accepted`, remains human-review-required, and closes P1c.3. Implementation and
+acceptance evidence are
+`../sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`
+and
+`../sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md`.
 
 ## Purpose
 
@@ -630,8 +633,10 @@ handle, filesystem path, network client, DOM node, or Canvas detail.
 
 ## H120 Automated Evidence
 
-The separate implementation authorization registered H120 as `executable`,
-retained `humanReviewRequired: true`, and kept `acceptanceEvidence: null`.
+The separate implementation authorization initially registered H120 as
+`executable`, retained `humanReviewRequired: true`, and kept
+`acceptanceEvidence: null`. The completed focused review later advanced H120 to
+`accepted` without changing the human-review requirement.
 
 The independent automated gate must prove:
 
@@ -681,7 +686,7 @@ product plugins. The gate must inspect the built product catalog and fail if an
 EMA/WMA/RSI/MACD/Volume/other real definition or external Indicator dependency
 appears.
 
-## Proposed Focused Human Gate
+## Focused Human Gate
 
 After automated H120 passes, focused human review must use a real production
 route and verify:
@@ -709,6 +714,11 @@ route and verify:
 Human review may reject any semantic, visual, interaction, latency, or recovery
 defect even when automation passes. Only an explicit product-owner acceptance
 may set H120 to `accepted` and attach a durable acceptance record.
+
+The product owner completed the production-route review and stated
+`H120验收通过，下一步该做什么？` on 2026-08-18. This passes the gate and binds
+the durable acceptance record at
+`../sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md`.
 
 ## Explicit Exclusions
 
@@ -787,10 +797,11 @@ The product owner accepted these ten decisions without amendment on 2026-08-17:
 ## Accepted Boundary And Later Sequence
 
 The ten material decisions are accepted and the bounded implementation is
-complete. Automated H120 passes; focused human acceptance remains open.
+complete. Automated H120 and focused human acceptance pass; H120 is accepted
+and P1c.3 is closed.
 
-No second plugin, second Moving Average definition, or generic real-Indicator
-catalog work may begin until the product owner accepts H120. H120 acceptance
-would close only P1c.3; every later layout, algorithm, plugin, SDK,
-Community/Worker, or P1b.4 step would still require a separate product decision
-and authorization.
+The H120 prerequisite is now satisfied, but its acceptance closes only P1c.3.
+Every later layout, algorithm, plugin, SDK, Community/Worker, or P1b.4 step
+still requires a separate product decision and authorization. The binding
+ADR-V7-005 sequence places a synthetic generic multi-Plot/layout slice before
+future real Indicator catalog decisions; no such slice is allocated here.

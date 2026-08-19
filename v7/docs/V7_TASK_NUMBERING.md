@@ -1,8 +1,7 @@
 # V7 Task And Requirement Numbering
 
 Status: binding delivery rule; latest allocated repository step is P1c.3;
-implementation and automated H120 are complete, focused human review remains
-open, and H117 is unchanged (2026-08-18)
+H120 is accepted, P1c.3 is closed, and H117 is unchanged (2026-08-18)
 
 ## Delivery IDs
 
@@ -43,10 +42,12 @@ The product owner subsequently authorized a documentation candidate for one
 complete Core Moving Averages/SMA vertical slice, accepted all ten material
 decisions without amendment, and issued a separate implementation instruction.
 `P1c.3` and H120 are now allocated. The exact one-definition slice is
-implemented and automated H120 passes; H120 remains `executable`,
-human-review-required, and unaccepted. The latest allocated step is therefore
-P1c.3. No other plugin, P1b.4, Community/Worker, business-layer work, or H117
-change is authorized by this allocation.
+implemented, automated H120 passes, and the product owner accepted the focused
+production-route review on 2026-08-18. H120 is `accepted`, remains
+human-review-required, and P1c.3 is closed. The latest allocated step remains
+P1c.3: a recommended P1c.4/H121 candidate has not been allocated. No other
+plugin, generic layout slice, P1b.4, Community/Worker, business-layer work, or
+H117 change is authorized by this acceptance.
 
 `R13.5` was the Segment Interaction And Preview step. R13.2 remains the pure
 removable Geometry boundary, R13.3 remains

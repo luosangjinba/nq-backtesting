@@ -1338,7 +1338,7 @@ The P1c.2 implementation added no calculation engine, production route, MA/SMA, 
 instance/persistence/UI, Community/Worker, P1b.4, or H117 change. No later
 delivery is authorized by implementation alone.
 
-### P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Implemented; Human Review Pending
+### P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Accepted 2026-08-18
 
 After H119 acceptance, the product owner directed V7 to complete one plugin
 before expanding to others and authorized a documentation-only candidate at
@@ -1371,11 +1371,19 @@ the package-neutral runtime, trusted execution, reversible sidecar/state sync,
 host UI, sole-Chart-owner projection, and production route are implemented.
 Automated H120 passes formula, transaction, persistence, pixel, interaction,
 one/four-Pane timing, optional-removal, and full production-regression evidence.
-H120 remains `executable`, human-review-required, and unaccepted pending
-`V7_CORE_SMA_P1C3_HUMAN_REVIEW.md`. H117 remains executable and unaccepted;
-P1b.4, every other plugin, Community/Worker, and business-layer work remain
-paused. Implementation evidence is
-`../sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`.
+The product owner accepted all ten focused production-route checks on
+2026-08-18. H120 is `accepted`, remains human-review-required, and P1c.3 is
+closed. H117 remains executable and unaccepted; P1b.4, every other plugin,
+Community/Worker, and business-layer work remain paused. Implementation and
+acceptance evidence are
+`../sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`
+and
+`../sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md`.
+
+The next required ADR-V7-005 dependency is a separately specified generic
+multi-Plot/layout slice using only synthetic oscillator and multi-region
+references. A possible P1c.4/H121 label remains unallocated until explicit
+product-owner authorization; H120 acceptance itself starts no new work.
 
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 

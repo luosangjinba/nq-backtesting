@@ -1,7 +1,7 @@
 # V7 P1c.3/H120 Core SMA Focused Human Review
 
-Status: automated H120 passed; focused product-owner review required; H120 is
-`executable` with `acceptanceEvidence: null`
+Status: focused product-owner review passed on 2026-08-18; H120 is `accepted`
+with durable acceptance evidence
 
 Scope: only `first-party.moving-averages@1.0.0` and its single
 `SMA(close)` Definition
@@ -56,6 +56,17 @@ unclear or defective. If all ten pass, an explicit product-owner statement such
 as `H120 验收通过` is still required before the repository may mark H120
 `accepted` or begin another plugin.
 
+## Review Result
+
+The product owner completed the production-route review and stated:
+
+> H120验收通过，下一步该做什么？
+
+All ten checks are accepted. H120 remains human-review-required and is now
+`accepted`; its durable evidence is
+`../sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md`.
+This closes only P1c.3 and grants no authority for the next slice.
+
 ## Automated Evidence Command
 
 ```bash
@@ -63,4 +74,4 @@ node v7/tests/core-moving-averages-harness.js
 ```
 
 The passing command reports formula/resource evidence, real-Chromium pixels,
-one/four-Pane timings, and `automated-passed-human-review-required`.
+one/four-Pane timings, and the current `accepted` gate state.

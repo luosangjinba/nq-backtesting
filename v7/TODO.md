@@ -246,7 +246,7 @@ Focused human gate:
 Repair record:
 `sessions/session_20260817_h117_developer_kit_toolchain_fingerprint_repair.md`.
 
-## P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Implemented; Human Review Pending
+## P1c.3/H120 Core SMA Single-Plugin Vertical Slice — Accepted 2026-08-18
 
 - [x] accept all ten binding product decisions on 2026-08-17, then receive the
   separate instruction authorizing only P1c.3/H120 implementation;
@@ -281,9 +281,12 @@ Repair record:
   P1b.4, Community/Worker, business-layer work, and every other plugin paused;
 - [x] record the requested Segment/Ray/Infinite Line plus screen-space Circle/
   Arc model as a future documentation-only primitive requirement;
-- [ ] complete focused product-owner review of the real production route;
-- [ ] only after explicit product-owner acceptance, set H120 to `accepted` and
+- [x] complete focused product-owner review of the real production route;
+- [x] after explicit product-owner acceptance, set H120 to `accepted` and
   attach the durable acceptance record. Do not start another plugin beforehand.
+- [x] refresh only the canonically derived Developer Kit/example identity and
+  consequent production source hash after the H120 registry transition; pass
+  H116/H117 again without changing H117 state or capability.
 
 Candidate specification:
 `docs/V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md`.
@@ -299,6 +302,9 @@ Implementation record:
 
 Focused human gate:
 `docs/V7_CORE_SMA_P1C3_HUMAN_REVIEW.md`.
+
+Human acceptance record:
+`sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md`.
 
 Future primitive requirement:
 `docs/V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md`.

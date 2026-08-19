@@ -763,7 +763,11 @@ assert.deepEqual({
   acceptanceEvidence: h120.acceptanceEvidence,
   humanReviewRequired: h120.humanReviewRequired,
   state: h120.state,
-}, { acceptanceEvidence: null, humanReviewRequired: true, state: 'executable' });
+}, {
+  acceptanceEvidence: 'sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md',
+  humanReviewRequired: true,
+  state: 'accepted',
+});
 
 for (const testCase of negativeCases) {
   assert.equal(
@@ -794,5 +798,5 @@ console.log(JSON.stringify({
   negativeControls: negativeCases.length,
   package: `${MOVING_AVERAGES_PACKAGE_ID}@${MOVING_AVERAGES_VERSION}`,
   resourceUsage: directResourceUsage,
-  status: 'automated-passed-human-review-required',
+  status: 'accepted',
 }));
