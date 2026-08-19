@@ -4,14 +4,16 @@ Memo id: `MEMO-V7-001`
 
 First formed: 2026-08-01
 
-Last substantive revision: 2026-08-12
+Last substantive revision: 2026-08-19 01:46 PDT
 
 Status: partially promoted by `ADR-V7-004`, `ADR-V7-006`, and `ADR-V7-005`,
 including interface/language, open Contribution Profile, typed-composition, and
 calculated-series projection boundaries; P0a/P0b/P1a later delivered through
 separate accepted contracts; P1b specification accepted separately; remaining
 product scope, execution sandbox, AI, remote distribution, Marketplace, and
-implementation decisions deferred
+implementation decisions deferred; the current non-binding product-scope
+position is narrowed to SMC/ICT-first, time-based OHLCV discretionary research
+rather than broad trading-school compatibility
 
 Registry: `V7_NON_DECISION_MEMO_REGISTRY.md`
 
@@ -21,6 +23,16 @@ This memo preserves the discussion about expanding V7 from a narrowly focused
 SMC/ICT workstation into a more general futures Replay and validation platform
 through calculated indicators, manual semantic annotations, Setup workflows,
 optional detectors, and developer-authored plugins.
+
+On 2026-08-19, after reviewing a product-owner-supplied survey spanning
+Brooks-style price action, ICT, non-ICT SMC, Wyckoff, Elliott Wave, Market/
+Volume Profile, trend following, CAN SLIM, quantitative/statistical strategies,
+and order-flow/HFT, the product owner narrowed the remaining candidate scope.
+V7 need not promise first-class compatibility with trading schools whose
+support would require specialized non-time-based models, volume-at-price,
+fundamental/universe data, portfolio engines, tick/quote/depth, or automated
+execution infrastructure. The stable memo title/path preserves history; it no
+longer implies a recommendation to become a universal futures platform.
 
 It is not a binding product decision, does not change
 `V7_PRODUCT_AND_SCOPE.md`, does not allocate a delivery step, and authorizes no
@@ -34,7 +46,8 @@ Community taxonomy, initial Core capability classification, derived dependency
 direction, Plugin Center product contract, install/developer channels,
 host-rendered settings scopes, strict TypeScript/compiled ESM/JSON Schema
 authoring model, trust posture, and thin-platform-first sequence. This memo
-remains the non-binding record for general-futures scope, Setup/AI capability,
+remains the non-binding record for product-scope evolution (now narrowed as
+recorded below), Setup/AI capability,
 concrete loader/sandbox/runtime implementation, remote distribution,
 commercialization, and paid Marketplace questions. Where the accepted spec
 and this earlier candidate differ, the accepted spec governs.
@@ -46,30 +59,74 @@ the governed rule lifecycle. As of 2026-08-01, H001, H003, H004, H070, H080,
 H081, and H082 still have no acceptance evidence. This memo resolves none of
 them.
 
-## Product Intention
+## Product Intention — Narrowed Candidate Position 2026-08-19
 
 The proposed expansion is not to place every trading style and indicator in
-the core. The candidate positioning is:
+the core. The revised candidate positioning is:
 
-> one general futures Replay/validation kernel, first-party capability packs,
-> and a governed community plugin ecosystem.
+> one SMC/ICT-first Replay and validation workstation with governed extension
+> compatibility for time-based OHLCV discretionary research.
 
-SMC/ICT would remain a flagship first-party pack rather than being deleted or
-diluted. Classic technical analysis, price/volume tools, discretionary semantic
-annotation tools, Setup workflows, and later data-intensive futures tools could
-be installed as other packs over the same Replay, Chart, Journal, and
-Validation owners.
+SMC/ICT remains the binding primary product rather than merely one pack among
+unbounded trading schools. The candidate compatibility envelope also allows
+Brooks-style Bar/K-line price action, standard OHLCV calculated indicators, and
+bar-based discretionary trend research when they use the same Replay, Chart,
+Annotation, Setup/Study, evidence, and plugin-owner contracts. This is an
+extension compatibility target, not a commitment to ship a first-party package
+for every named school or indicator.
 
-The first expanded audience should be **bar-based discretionary futures
-traders**, not every possible futures workflow. Order flow, depth-of-market,
-automated strategies, portfolio simulation, options, and multi-leg products
-have additional data and execution contracts and must not be implied by the
-first plugin milestone.
+The supported envelope is capability-defined rather than a permanent blacklist
+of school names:
+
+- time-based OHLCV Bars and registered derived timeframes remain the admitted
+  market-data basis;
+- one or several time-synchronized instruments may be cited only through
+  registered host capabilities and exact no-future snapshots;
+- standard calculated series/Plots, anchored studies, market-coordinate
+  Drawing Geometry, versioned Semantic Artifacts, deterministic or explicitly
+  suggested detectors, and evidence-linked Setup/Phenomenon workflows remain
+  valid contribution directions;
+- a Setup definition may use one timeframe, several arbitrary timeframes, or no
+  separately named Analysis stage. Any higher-than, same-as, fixed, or relative
+  timeframe rule belongs to that exact Setup definition, never Kernel policy;
+- discretionary observation, validation, research, review, and deliberate
+  practice remain the product outcome. A chart signal does not imply a broker,
+  order, fill, portfolio, or automated-execution contract.
+
+### Explicit Non-Support Envelope
+
+The current candidate position makes no first-class product, compatibility,
+fixture, documentation, or roadmap commitment for:
+
+- Wyckoff-specific phase schematics, point-and-figure cause/effect machinery,
+  or other dedicated school models beyond what generic existing annotations
+  happen to express;
+- Elliott hierarchical/alternative wave-count trees and specialized
+  relabelling/scenario infrastructure;
+- Market Profile or Volume Profile implementations requiring TPO/volume-at-
+  price data and specialized profile rendering;
+- CAN SLIM or other fundamental-equity/universe/corporate-action workflows;
+- multi-factor, statistical-arbitrage, portfolio-construction, or portfolio-
+  simulation systems;
+- order-flow, footprint, depth-of-market, HFT, broker execution, fill
+  simulation, options, or multi-leg product engines.
+
+V7 does not actively prevent an extension from using already admitted generic
+capabilities for an incidental unsupported workflow. Such use is best-effort:
+it creates no obligation to add a Profile, data owner, custom renderer,
+business owner, compatibility Harness, or migration solely for that school.
+Missing capabilities must fail as unsupported/unavailable rather than infer
+precision from minute OHLCV or bypass existing owners.
 
 ## Feasibility Conclusion
 
-The direction is technically feasible and fits the intended V7 extension
-model, but the work is larger than exposing Lightweight Charts plugin APIs.
+The retained direction is technically feasible and fits the intended V7
+extension model, but the work is larger than exposing Lightweight Charts
+plugin APIs. The feasibility labels below classify platform capabilities, not
+trading schools and not product eligibility. Medium-high detector or Setup
+capabilities remain relevant because the retained SMC/ICT and price-action
+workflows need them; the 2026-08-19 scope cut must not be misread as deleting
+every capability whose engineering feasibility is below `high`.
 
 | Candidate capability | Feasibility | Primary complexity |
 |---|---:|---|
@@ -309,9 +366,12 @@ Replay visible-commit critical path.
 
 ### Setup Workflow Plugin
 
-Defines the schema and stages for recording one complete discretionary trade
-process, such as thesis, entry analysis, plan, entry, management, exit,
-outcome, and review. It produces no order and need not detect a Setup.
+Defines versioned optional evidence requirements and presentation groups for
+recording one complete discretionary trade process. Thesis, Analysis, Context,
+Trigger, Plan, Entry, Risk, Management, Exit, Outcome, and Review are possible
+definition-owned roles, not a mandatory host sequence. A definition may be
+single-timeframe, arbitrarily multi-timeframe, or omit a separately named
+Analysis role. It produces no order and need not detect a Setup.
 
 The plugin may contribute a host-rendered Setup List or detail surface, but the
 Journal/Session owner persists each Setup Case. A Case references existing
@@ -338,8 +398,9 @@ visual contribution.
 
 Control surfaces are another capability rather than a plugin type. Calculated
 indicators declare a Settings schema; semantic annotations declare tool and
-property schemas; Setup workflows declare list, stage, and detail schemas. The
-host renders, validates, persists, and disposes these surfaces consistently.
+property schemas; Setup workflows declare list, optional role-group, and detail
+schemas. The host renders, validates, persists, and disposes these surfaces
+consistently.
 
 Arbitrary plugin-owned DOM, framework components, or unrestricted custom
 panels are a separate high-privilege capability and should not be required for
@@ -372,14 +433,17 @@ ports:
 
 ### `AnalysisInputRequirement`
 
-- required fields such as OHLCV, Open Interest, ticks, quotes, depth, or
-  session metadata;
+- required admitted fields such as OHLCV and session metadata;
 - source timeframe(s), instrument scope, and warmup history;
 - alignment, missing-data, Session Hours, and precision requirements;
 - whether exact-input results may be shared across Panes.
 
-Unavailable inputs must produce an explicit unavailable state. A plugin must
-not silently approximate bid/ask, Open Interest, or order flow from OHLCV.
+Open Interest or another time-based input would require a separately admitted
+host capability. Tick, quote, depth, volume-at-price, fundamental, and
+portfolio inputs are outside the current compatibility recommendation rather
+than fields promised by this candidate contract. Unavailable inputs must
+produce an explicit unavailable state. A plugin must not silently approximate
+bid/ask, Open Interest, order flow, or profile data from OHLCV.
 
 ### `DeclarativeCalculatedResult`
 
@@ -453,16 +517,22 @@ performing an ad hoc runtime fallback.
 
 ### `SetupDefinition`, `SetupCase`, And `SetupEvent`
 
-`SetupDefinition` versions the workflow stages, fields, validation, allowed
-evidence types, and host-rendered list/detail presentation. `SetupCase` is the
-Journal/Session-owned instance for one complete trade process. `SetupEvent`
-records thesis, analysis, plan, entry, management, exit, outcome, or review at
-an explicit market time and Replay observation cursor.
+`SetupDefinition` versions optional evidence-role requirements, cardinality,
+temporal/timeframe policies, fields, validation, allowed evidence types, and
+host-rendered list/detail presentation. It contains no universal Analysis,
+Entry, Context/Execution Pane, two-timeframe, or higher-than rule. `SetupCase`
+is the Journal/Session-owned instance for one complete trade process.
+`SetupEvent` records the exact definition-owned role at an explicit market time
+and Replay observation cursor; each evidence reference retains its own source
+timeframe/resolution independently from any target Chart timeframe.
 
 A Case references annotations, trade events, snapshots, and other evidence by
 stable ids. It does not copy their private payloads. Reference integrity,
 plugin/schema version, event chronology, ex-ante versus hindsight status, and
 raw-context drill-down must survive plugin disable, upgrade, and uninstall.
+MEMO-V7-005 contains the later non-binding `SetupEvidenceRequirementV1` and
+`SetupVisualGroupV1` candidate details; this older memo cannot override them
+with a fixed stage list.
 
 ### `SetupOccurrence`
 
@@ -697,18 +767,22 @@ credible annual marketplace volume.
 
 ```text
 V7 Core
-|-- General Calculated Indicator Pack
-|   |-- MA / EMA / VWAP / ATR / Volume
-|   `-- RSI / MACD / Bollinger / Trend
-|-- ICT/SMC Manual Annotation Pack
-|   |-- FVG / Order Block / BSL / SSL
-|   `-- SMT relationships / semantic roles
-|-- Setup Workflow Pack
-|   `-- thesis / entry / management / exit / review Case
-|-- Specialized Calculated Indicators
+|-- Accepted Built-In Foundations
+|   `-- FVG / BSL / SSL / MA-SMA / Fibonacci baselines
+|-- Candidate ICT/SMC Extensions
+|   `-- structure / liquidity / imbalance / time-price semantics
+|-- Candidate Price-Action And Bar-Based Trend Extensions
+|   `-- Bar sequence / standard OHLCV calculations / discretionary evidence
+|-- Setup And Study Workflow
+|   `-- definition-owned optional roles / Case / outcome / review
 |-- AI-Assisted Review Pack (future, governed)
-`-- Community Plugins
+`-- Community Plugins Within Admitted Host Capabilities
 ```
+
+This diagram is discovery/packaging language, not a new Core classification.
+Every addition still requires the accepted Core rule or the applicable future
+Community contract, and no school Pack may make its preferred ontology Kernel
+truth.
 
 Reference plugins for the first vertical slice should prove different
 boundaries rather than maximize indicator count:
@@ -757,8 +831,9 @@ boundaries rather than maximize indicator count:
 
 The future decision package must include:
 
-1. an explicit product-scope decision replacing or retaining the current
-   SMC/ICT-only statement;
+1. an explicit product-scope decision retaining the current SMC/ICT-first
+   statement and accepting, amending, or rejecting the narrowed time-based
+   OHLCV discretionary compatibility envelope above;
 2. user workflows for calculated Indicator, manual annotation, suggestion and
    acceptance, Setup Case, drawing, AI request/consent/review/cancel, local and
    marketplace install, configure, error, disable, upgrade, uninstall,
@@ -802,8 +877,10 @@ The future decision package must include:
 
 ## Deferred Decision Questions
 
-- Does the product formally become a general bar-based futures validation
-  workstation, or remain SMC/ICT-first with optional community extensions?
+- Does a binding decision adopt the current recommendation to remain SMC/ICT-
+  first with only the narrowed time-based OHLCV discretionary compatibility
+  envelope, or narrow it further? Broad general-futures repositioning is no
+  longer the recommended alternative in this memo.
 - Which plugin kinds are supported in the first public SDK?
 - Is the first release build-time registration, trusted local installation, or
   a truly dynamic sandboxed loader?
@@ -847,7 +924,9 @@ independent candidate decisions with shared constraints:
 
 - seconds/ticks extend provider resolution and execution precision;
 - plugins extend analysis, visual, and semantic evidence capabilities;
-- order-flow plugins may later consume tick/quote/depth inputs only through
+- the current plugin-scope recommendation does not promise order-flow/
+  footprint/DOM plugins even if a later seconds/tick decision improves Replay
+  precision; any future reversal requires a new explicit product decision and
   host-mediated, no-future, budgeted data ports;
 - AI plugins may receive seconds/tick-derived evidence only through the same
   host-built no-future bundle and explicit privacy/cost budgets;
@@ -864,8 +943,8 @@ formal implementation roadmap.
 After all current human-review obligations are explicitly closed:
 
 1. re-audit the rule registry and TODO for zero silently pending blockers;
-2. decide the intended general-futures product boundary and explicitly update
-   or retain the binding SMC/ICT scope;
+2. decide whether to bind the narrowed time-based OHLCV discretionary
+   compatibility envelope while retaining SMC/ICT as the primary scope;
 3. prototype only MA overlay, MACD native sub-pane, one manual semantic
    annotation, and one annotation-referencing Setup Workflow without opening
    third-party installation;
@@ -974,3 +1053,25 @@ ADR-V7-005 acceptance authorizes no Profile registration, SDK/runtime work,
 MA/SMA or other Indicator implementation, Community execution, P1b.4, or H117
 acceptance. General-futures scope, complete Setup/AI design, remote registry,
 commercialization, and paid Marketplace remain unresolved in this memo.
+
+### 2026-08-19 01:46 PDT — Trading-School Scope Narrowed
+
+After reviewing a broad trading-school survey, the product owner stated that
+V7 may abandon support for schools assessed as requiring medium-high or lower
+architectural fit. This memo translates that directional cutoff into stable
+capability language rather than persisting a subjective score as product data.
+
+The current recommendation retains SMC/ICT as the primary product and preserves
+compatibility only for time-based OHLCV discretionary research which fits the
+existing calculated-series, anchored-study, Drawing, Semantic Artifact,
+detector, Setup/Study, Replay, and Chart-owner contracts. Brooks-style price
+action and ordinary bar-based trend research may fit that envelope without
+becoming promised first-party packs. Wyckoff-specific phase/point-and-figure,
+Elliott alternative-count hierarchy, Market/Volume Profile special data and
+rendering, CAN SLIM fundamentals, quantitative/portfolio systems, and order-
+flow/HFT/execution receive no first-class support commitment.
+
+This scope amendment does not close the memo, alter the binding SMC/ICT product
+scope, remove generic capabilities, amend an accepted ADR, allocate a delivery
+or Harness id, enable Community/Worker execution, start P1b.4, accept H117, add
+a plugin, or authorize implementation.

@@ -4,7 +4,7 @@ Memo id: `MEMO-V7-005`
 
 First formed: 2026-08-18 23:25 PDT
 
-Last substantive revision: 2026-08-18 23:38 PDT
+Last substantive revision: 2026-08-19 01:46 PDT
 
 Status: discussion captured; decision and implementation not authorized
 
@@ -14,14 +14,19 @@ Registry: `V7_NON_DECISION_MEMO_REGISTRY.md`
 
 This memo preserves a proposed product layer above existing Replay, Journal,
 Annotation/Semantic Artifact, calculated-series, Validation Campaign, and
-future Research owners. It combines four related questions which must be
+future Research owners. It combines six related questions which must be
 designed together but need not be implemented in one delivery:
 
 1. one Dashboard for each user-visible research or trading dataset;
 2. explicit, default-off application of one or several datasets to a Chart;
 3. research into market phenomena which do not constitute a Setup or trade;
 4. one uniform semantic visual grammar for Entry, Stop Loss, Target, Exit,
-   sweep/respect/invalidation events, comparison state, and explanatory text.
+   sweep/respect/invalidation events, comparison state, and explanatory text;
+5. one complete but collapsible visual composition for all evidence belonging
+   to one Setup without turning the Setup into one giant drawing primitive;
+6. a strategy-neutral role/timeframe model in which Analysis is optional,
+   source timeframe is immutable evidence, and target Chart timeframe is only
+   projection state.
 
 The product owner specifically requested that datasets remain non-visual by
 default, become visible only after an explicit Apply-to-chart action, and allow
@@ -29,6 +34,16 @@ several datasets to coexist—for example actual live trades beside hindsight
 counterfactual trades. The product owner then added that Entry, Stop Loss,
 `4h FVG respected`, and text explanations require a uniform explicit Chart-
 element standard.
+
+The product owner subsequently clarified that no generic Setup model may
+require a 1D/4h Analysis stage, any named Analysis stage, or a global rule that
+Analysis timeframe is higher than Entry timeframe. Different retained
+SMC/ICT, price-action, and bar-based trend strategies may be multi-timeframe,
+single-timeframe, or have no separate Analysis stage. A 1D FVG may still be
+projected on a lower timeframe while remaining explicitly a 1D source
+Artifact. The product owner also narrowed MEMO-V7-001's future compatibility
+target to the supported time-based OHLCV discretionary envelope; this memo
+must not recreate unsupported school-specific data or rendering systems.
 
 This is not a product or architecture decision. It does not amend or accept
 the pending FVG + SMA Validation Campaign / Study Case Demo candidate, allocate
@@ -38,7 +53,7 @@ state-sync route, add a plugin/algorithm, or change H117. P1c.4, P1b.4,
 Community/Worker, Dataset Builder, AI, and all production work remain outside
 this memo.
 
-## Current Position As Of 2026-08-18 23:25 PDT
+## Current Position As Of 2026-08-19 01:46 PDT
 
 The current candidate position is:
 
@@ -65,7 +80,21 @@ The current candidate position is:
   completeness; hand-picked positive examples remain exploratory evidence;
 - explanatory text has both a compact anchored Chart projection and a full
   readable record/Inspector representation; free-form Chart text remains a
-  separate future Drawing type.
+  separate future Drawing type;
+- one Setup is a versioned Case/evidence relationship whose Chart presentation
+  may be grouped by a `SetupVisualGroup`; the group references portable
+  elements and explanations but is not a new source of semantic truth;
+- Analysis, Context, Trigger, Entry, Risk, Target, Management, Outcome, and
+  Explanation are optional/versioned roles rather than a mandatory global
+  stage tree. Exact Setup definitions choose their requirements, order,
+  cardinality, and any timeframe relationship;
+- every cited item retains its own source instrument/timeframe/resolution and
+  observation cutoff. Applying it to another target Pane/timeframe never
+  reclassifies or recomputes its source meaning;
+- the candidate remains inside the time-based OHLCV discretionary scope
+  recorded in MEMO-V7-001 and adds no special support for hierarchical wave
+  scenarios, profile/volume-at-price charts, fundamentals, portfolios,
+  tick/depth/order-flow, or automated execution.
 
 This position deliberately chooses a shared **application and visual grammar**,
 not a shared source-of-truth schema for every business workflow.
@@ -132,7 +161,8 @@ Native truth owners
                                  v
                    Workspace CollectionApplication
                                  |
-                    portable ChartElementSet
+               portable ChartElementSet + optional
+                        SetupVisualGroup set
                                  |
                     Chart-owned transaction/adapter
                                  |
@@ -189,7 +219,7 @@ CollectionChartApplicationV1
 |-- applicationId / revision
 |-- workspaceId / paneMapping
 |-- collectionId / exact snapshotId / snapshotDigest
-|-- instrument/timeframe/time-range policy
+|-- target instrument/display-timeframe/time-range policy
 |-- collectionStyleToken / visibility / z-band
 |-- labelDensity / noteVisibility
 |-- resolutionState / diagnostics
@@ -217,6 +247,9 @@ CollectionChartApplicationV1
 8. Applying a snapshot does not automatically restore the Replay cursor or
    alter current viewport. An explicit drill-down command may restore recorded
    context through existing owners.
+9. A target Pane/display timeframe is application state. Every source record
+   retains its exact source timeframe/resolution; application never rewrites
+   provenance or treats target-bucket placement as native source evidence.
 
 ### Actual Versus Hindsight Comparison
 
@@ -249,6 +282,7 @@ The candidate portable projection contract is:
 ChartSemanticElementV1
 |-- elementId / elementRevision
 |-- sourceCollection / snapshot / record exact references
+|-- source instrument / timeframe / resolution identities
 |-- semanticRoleId / semanticRoleVersion
 |-- evidenceMode
 |   `-- actual | planned | observed | counterfactual | public-claim | derived
@@ -258,6 +292,7 @@ ChartSemanticElementV1
 |-- shortLabel? / explanationRef?
 |-- collectionStyleToken / roleStyleToken / stateStyleToken
 |-- zBand / densityPriority / interactionPolicy
+|-- cross-timeframe projection policy reference?
 |-- observedAtReplayCutoff? / outcomeObservationWindow?
 `-- provenanceDigest / elementDigest
 ```
@@ -402,6 +437,125 @@ Initial candidate rules are:
 - hidden/collapsed labels remain discoverable from the parallel element list,
   legend, keyboard navigation, and Inspector;
 - deleting a Chart application never deletes its explanations.
+
+## Strategy-Neutral Setup Evidence And Timeframes
+
+`Analysis` and `Entry` are useful product words for some strategies, but they
+must not become two compulsory dataset kinds or two mandatory fields on every
+generic Setup/Case record. One Case remains an atomic research/trade-process
+identity whose evidence may be grouped for navigation without being split into
+independent Analysis and Entry datasets.
+
+A candidate definition-owned requirement is:
+
+```text
+SetupEvidenceRequirementV1
+|-- requirementId / requirementRevision
+|-- roleId / roleVersion
+|-- required provider/output contract range
+|-- cardinality / required-or-optional
+|-- timeframePolicy
+|   `-- any | fixed | one-of | same-as(reference) | relative-to(reference)
+|-- temporalRelations[]
+|-- qualificationPredicateId / version
+`-- non-authoritative display hints?
+```
+
+The final vocabulary remains undecided, but these constraints are the current
+recommendation:
+
+- the generic owner has no mandatory `analysisTimeframe`, `entryTimeframe`,
+  Context Pane, Execution Pane, or higher-than relation;
+- an exact Setup definition may expose parameters with those names and may
+  require `analysis > entry`, `analysis = entry`, a fixed timeframe, one of a
+  set, several parallel timeframes, or no Analysis role at all;
+- `Analysis`, `Context`, `Location`, `Trigger`, `Entry`, `Stop`, `Target`,
+  `Management`, `Outcome`, and school-/strategy-specific roles are optional,
+  versioned requirement identities rather than one closed global sequence;
+- each accepted Evidence Citation records its own source instrument,
+  timeframe, resolution, source revision, and no-future cutoff. A Case-level
+  timeframe summary is derived navigation metadata, never the authority for
+  every member;
+- planned Target and actual profit-taking/Exit remain distinct roles; Entry,
+  Stop, and Target do not inherit one shared timeframe merely because one UI
+  section groups them as execution evidence;
+- the existing FVG + SMA Demo may require one Context Pane and one Execution
+  Pane inside `demo.sma-trend-manual-fvg@1.0.0`; those requirements cannot be
+  promoted into the generic Campaign/Case contract.
+
+Valid examples therefore include `15m evidence -> 1m Entry`, `5m Trigger + 5m
+Entry`, `15m Entry with no separate Analysis role`, and an exact 1D FVG cited
+from a Setup inspected on a 5m or 1m Pane.
+
+### Source Timeframe Versus Display Timeframe
+
+Cross-timeframe display is a projection operation, not semantic conversion:
+
+1. source timeframe/resolution and canonical market anchors remain immutable;
+2. the current target Pane timeframe is recorded only in the Workspace
+   application/projection receipt;
+3. a higher-timeframe zone or level projected to a lower timeframe retains a
+   visible source-timeframe token such as `1D FVG` and follows the source
+   definition's lifecycle rather than being recomputed as a lower-timeframe
+   Artifact;
+4. a lower-timeframe event projected to a higher timeframe may collapse into
+   one target bucket. If exact location cannot remain legible, the adapter must
+   use an explicitly lossy aggregate/badge, Inspector-only representation, or
+   honest absence; it cannot pretend the higher-timeframe candle is the source;
+5. only registered anchor/projection policies with exact accepted target
+   evidence may map the element. Nearest-Bar guessing, silent snapping, and
+   source identity rewriting remain prohibited;
+6. changing the Chart timeframe rematerializes only projection state and never
+   edits the Case, Collection snapshot, source plugin record, or source
+   timeframe.
+
+## Complete Setup Visual Composition
+
+A complete Setup should not be persisted or rendered as one giant primitive.
+The candidate `SetupVisualGroupV1` is an application-layer composition over
+exact business records and `ChartSemanticElementV1` values:
+
+```text
+SetupVisualGroupV1
+|-- groupId / groupRevision
+|-- exact Collection / snapshot / Case / Setup-definition references
+|-- observation cutoff / later outcome window?
+|-- ordered optional role-group references[]
+|-- semantic-element and explanation references[]
+|-- source-timeframe summary / target Pane projection bindings[]
+|-- displayMode
+|   `-- collapsed | decision | outcome | review | compare
+|-- selection / visibility / density / availability state
+`-- provenanceDigest / groupDigest
+```
+
+The role groups may include Context/Analysis, Trigger, Execution Plan, Risk,
+Management, Outcome, and Explanation, but none is globally required and the
+Setup definition may supply differently named or ordered groups. The group is
+not a second Case, annotation document, plugin object, or visual truth owner;
+it only keeps related portable elements selectable, collapsible, and
+attributable as one Setup.
+
+Candidate interaction rules are:
+
+- applying a Collection initially keeps dense Setup groups collapsed; selecting
+  one Setup expands only its admitted roles and may temporarily dim unrelated
+  groups without changing saved visibility;
+- `decision` mode exposes only evidence knowable at the recorded cutoff;
+  `outcome` and `review` explicitly admit later evidence without rewriting
+  decision-time roles; `compare` requires exact actual/counterfactual or other
+  versioned relations;
+- one Setup spanning several Panes uses matching numbered/role tokens and the
+  Inspector to connect evidence. It does not draw an arbitrary screen-space
+  connector across unrelated coordinate systems;
+- the frequently discussed `1D trend -> 15m sweep/MSS/displacement -> 1m FVG
+  Entry` is an illustrative Setup definition, not the universal visual group
+  shape. A single-timeframe or no-Analysis Setup uses the same group contract
+  with fewer/different roles;
+- plugin-owned source geometry/series remains owned by its provider. If that
+  provider is absent, Setup-owned Entry/Stop/Outcome/Explanation elements may
+  remain with explicit source-unavailable diagnostics, while the group cannot
+  reconstruct missing FVG, indicator, or other provider-native pixels.
 
 ## Z-Order, Density, Interaction, And Accessibility
 
@@ -599,6 +753,21 @@ not executable package code. A provider plugin may produce source evidence or
 portable visual intents, but package lifecycle and dataset lifecycle remain
 separate.
 
+### F. Mandatory Analysis And Entry Dataset Split
+
+Rejected as the current recommendation. It would turn one Case into two
+independently drifting truths, force a stage which some valid strategies do not
+have, and confuse source timeframe with current Chart timeframe. Analysis may
+remain an optional UI grouping or definition-owned evidence role; exact
+citations and the Case identity remain unified.
+
+### G. One Fixed Setup Visual Tree
+
+Rejected as the current recommendation. A hard-coded Context → Trigger → Entry
+→ Stop → Target tree would encode one trading style in the business owner.
+`SetupVisualGroup` instead groups whatever optional/versioned roles the exact
+Setup definition requires.
+
 ## Open Product Decisions
 
 1. Is `Dataset` the final UI word while `EvidenceCollection` remains the
@@ -607,8 +776,9 @@ separate.
    review, and which cross-owner Collection references are legal?
 3. Which Dashboard surfaces and metric-capability rules form the first slice?
 4. Is exact pinned snapshot the only first Apply-to-chart mode?
-5. How are Pane/timeframe mappings chosen when a Collection contains several
-   source timeframes?
+5. How are target Pane/display-timeframe mappings chosen when a Collection
+   contains several source timeframes, including higher-to-lower projection
+   and explicitly lossy lower-to-higher representation?
 6. Which maximum simultaneously applied Collections/elements/notes and
    deterministic decluttering rules are acceptable?
 7. Are the proposed role/evidence-mode/Collection-state visual dimensions
@@ -630,6 +800,12 @@ separate.
 15. Should this direction be promoted as one ADR with several delivery slices
     or separate Dashboard/Application, Visual Grammar, and Phenomenon Study
     decisions?
+16. Is the proposed `SetupVisualGroup` composition, lifecycle, collapse/
+    selection behavior, and decision/outcome/review/compare mode set suitable
+    for the first complete Setup fixture?
+17. Which exact open role-id and `timeframePolicy` vocabularies express
+    single-timeframe, multi-timeframe, same/higher/relative-timeframe, and no-
+    Analysis strategies without adding mandatory generic Analysis/Entry fields?
 
 ## Evidence Required Before A Decision
 
@@ -654,6 +830,12 @@ At minimum, promotion should be informed by:
    primitives, render time, hit testing, and state bytes;
 10. source-quality, optional-removal, sole-writer, no-future, state-sync,
     production-regression, and focused human-gate plans.
+11. one complete multi-timeframe SetupVisualGroup fixture plus one single-
+    timeframe/no-Analysis fixture proving that the same generic Case and visual
+    group contracts do not contain fixed 1D/4h/context/execution branches;
+12. cross-timeframe projection evidence for a source 1D FVG on 5m/1m Panes and
+    one deliberately lossy lower-to-higher event, with source labels,
+    Inspector provenance, target mapping receipts, and no source mutation.
 
 ## What Would Change The Current Position
 
@@ -677,7 +859,7 @@ The recommendation should be revisited if:
 
 Before any content here becomes binding:
 
-- [ ] accept or amend the fifteen open product decisions;
+- [ ] accept or amend the seventeen open product decisions;
 - [ ] reconcile MEMO-V7-003, ADR-V7-001/003/005/006, and the pending FVG + SMA
   business Demo candidate;
 - [ ] select exact owners, public contracts, persistence namespaces, limits,
@@ -700,3 +882,27 @@ Setup-free EQL/EQH/FVG phenomenon research, and request for a uniform explicit
 Entry/Stop/FVG-respect/text visual standard. The initial recommendation is a
 shared Evidence Collection read/application layer plus one host-governed
 semantic visual grammar over native owners, with no implementation authority.
+
+### 2026-08-19 01:46 PDT — Strategy-Neutral Setup, Multi-Timeframe Projection, And Scope Amendment
+
+The product owner clarified that a generic Setup must not require 1D/4h
+Analysis, any Analysis stage, or a global higher-than-Entry timeframe rule.
+Different retained trading approaches may use arbitrary multi-timeframe,
+single-timeframe, or no-separate-Analysis evidence. Source timeframe remains
+immutable per citation while explicit Chart application may project the same
+evidence to another registered target timeframe; a projected 1D FVG remains a
+labelled 1D source Artifact.
+
+The current candidate now models definition-owned optional evidence roles and
+timeframe policies, keeps one Case rather than separate Analysis/Entry
+datasets, and adds `SetupVisualGroupV1` as a collapsible application-layer
+composition for a complete Setup. The product owner also narrowed the future
+plugin compatibility direction to time-based OHLCV discretionary research;
+this memo therefore assumes no school-specific wave hierarchy, Market/Volume
+Profile, fundamental, portfolio, order-flow, HFT, or automated-execution
+infrastructure.
+
+This amendment increases the open product questions from fifteen to seventeen.
+It does not accept the memo, amend or accept the pending FVG + SMA Demo
+candidate, allocate a delivery/Harness id, change H117 or P1b.4, add a plugin,
+or authorize any business, Chart, data, Community/Worker, or AI implementation.

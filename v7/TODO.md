@@ -363,7 +363,7 @@ Draft record:
   dependency or external owner;
 - [x] allocate no delivery/Harness id and implement no Dashboard, Collection,
   Chart projection, visual element, text, Journal, detector, or state-sync path;
-- [ ] decide or amend the Memo's fifteen open product questions before any ADR
+- [ ] decide or amend the Memo's seventeen open product questions before any ADR
   or implementation-slice specification.
 
 Non-decision Memo:
@@ -371,6 +371,38 @@ Non-decision Memo:
 
 Capture record:
 `sessions/session_20260818_study_collection_dashboard_chart_application_visual_grammar_predecision_memo.md`.
+
+## MEMO-V7-001/005 Trading-School Scope And Strategy-Neutral Setup Amendment — Captured 2026-08-19
+
+- [x] review the product-owner-supplied trading-school survey as an architecture
+  coverage stress test rather than an executable definition source;
+- [x] narrow MEMO-V7-001's current candidate compatibility position to
+  SMC/ICT-first, time-based OHLCV discretionary research while retaining only
+  best-effort incidental use of admitted generic capabilities for unsupported
+  schools;
+- [x] record no first-class support commitment for dedicated Wyckoff phase/
+  point-and-figure, Elliott alternative-wave hierarchy, Market/Volume Profile,
+  CAN SLIM/fundamental, quantitative/portfolio, order-flow/HFT, or automated-
+  execution infrastructure;
+- [x] clarify that the cutoff concerns trading-school scope rather than
+  deleting medium-high platform capabilities such as detectors or Setup
+  workflows which retained ICT/SMC paths still need;
+- [x] amend MEMO-V7-005 so Analysis is optional, every evidence item retains
+  its own source timeframe, timeframe relations belong only to exact Setup
+  definitions, and target Chart timeframe remains projection state;
+- [x] add candidate `SetupEvidenceRequirementV1` and `SetupVisualGroupV1`
+  compositions, including single-/multi-timeframe, no-Analysis, source-labelled
+  higher-to-lower projection, lossy lower-to-higher handling, and complete
+  Setup collapse/decision/outcome/review/compare behavior;
+- [x] retain the FVG + SMA Demo's Context/Execution rules only inside its exact
+  template; do not amend or accept its ten pending product decisions;
+- [x] increase MEMO-V7-005's open product questions from fifteen to seventeen;
+- [x] allocate no delivery/Harness id, modify no production/schema/runtime/UI/
+  state-sync/plugin path, and leave H117, P1b.4, P1c.4/H121, Community/Worker,
+  AI, and every implementation boundary unchanged.
+
+Amendment record:
+`sessions/session_20260819_trading_school_scope_strategy_neutral_setup_memo_amendment.md`.
 
 ## ADR-V7-003 Evidence-Grade Semantic Dataset Output — Accepted 2026-08-09
 

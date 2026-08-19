@@ -1,12 +1,44 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-18 after MEMO-V7-005 captured Evidence Collection
-Dashboards, explicit multi-dataset Chart application, Setup-free Phenomenon
-Studies, and a unified Chart-element/text grammar; the FVG + SMA Demo remains
-an unaccepted/unallocated candidate, H117 remains executable/unaccepted, and no
-implementation slice is allocated
+Last updated: 2026-08-19 after MEMO-V7-001 narrowed future compatibility to
+SMC/ICT-first time-based OHLCV discretionary research and MEMO-V7-005 added
+strategy-neutral multi-timeframe Setup evidence plus complete Setup visual
+groups; the FVG + SMA Demo remains an unaccepted/unallocated candidate, H117
+remains executable/unaccepted, and no implementation slice is allocated
 
 ## Restart Resume Checkpoint
+
+### 2026-08-19 Trading-School Scope And Strategy-Neutral Setup Memo Amendment
+
+The product owner supplied a broad trading-school survey, then chose not to
+promise support for schools whose architecture fit was assessed as medium-high
+or lower. MEMO-V7-001 translates that directional cutoff into capability
+language: SMC/ICT remains primary, while Brooks-style price action, ordinary
+OHLCV indicators, and bar-based discretionary trend research may fit the
+existing extension contracts without becoming promised first-party packs.
+Dedicated Wyckoff phase/point-and-figure, Elliott alternative-wave hierarchy,
+Market/Volume Profile, fundamental/universe, quantitative/portfolio, order-
+flow/HFT, and automated-execution infrastructure receive no support commitment.
+Generic admitted capabilities are not actively blocked, but incidental use is
+best-effort and cannot force a new Profile, owner, data source, renderer, or
+Harness.
+
+MEMO-V7-005 now rejects mandatory generic Analysis/Entry datasets, fixed 1D/4h
+Analysis, a global `analysis > entry` rule, and one fixed Setup visual tree.
+Each exact Setup definition owns optional/versioned evidence roles,
+cardinality, temporal constraints, and timeframe policy. Each citation retains
+its source timeframe; target Chart timeframe is reversible application state.
+A source 1D FVG can appear on 5m/1m through registered projection while staying
+visibly and semantically 1D. `SetupVisualGroupV1` groups the exact elements of
+one complete Setup for collapsed/decision/outcome/review/compare presentation
+without becoming another truth owner or giant Drawing primitive.
+
+These are memo amendments only. The FVG + SMA candidate's Context/Execution
+Panes remain local to `demo.sma-trend-manual-fvg@1.0.0`; none of its ten
+decisions is amended or accepted. MEMO-V7-005 now has seventeen open decisions.
+No delivery/Harness id, product-scope ADR, production/schema/runtime/UI/state-
+sync change, plugin, Community/Worker execution, P1b.4, P1c.4/H121, AI work, or
+H117 state change is authorized.
 
 ### 2026-08-18 MEMO-V7-005 Dashboard / Chart Application / Visual Grammar Captured
 
@@ -31,7 +63,7 @@ The Memo is not accepted, does not amend the pending FVG + SMA Demo candidate,
 and allocates no delivery/Harness id. Do not implement a Dashboard, Collection
 store, Chart application/projection, visual element, text tool, Journal,
 Phenomenon detector, state-sync path, or new plugin from this record. Its
-fifteen open decisions require a later explicit product-decision instruction.
+seventeen open decisions require a later explicit product-decision instruction.
 
 ### 2026-08-18 FVG + SMA Business Demo Candidate Drafted
 
@@ -1492,10 +1524,10 @@ the selected business records, one SMA(close,20) + manual FVG Setup, immutable
 evidence citations, separate first-touch Outcome, frozen Cohort/statistics,
 raw-context drill-down, audit export, and no-loss provider-removal semantics.
 
-MEMO-V7-005 is not silently included in that review. Its fifteen Dashboard,
-application, visual-grammar, text, and Phenomenon Study questions remain a
-separate non-decision backlog until the product owner explicitly asks to
-promote or review them.
+MEMO-V7-005 is not silently included in that review. Its seventeen Dashboard,
+application, complete-Setup/multi-timeframe, visual-grammar, text, and
+Phenomenon Study questions remain a separate non-decision backlog until the
+product owner explicitly asks to promote or review them.
 
 Even complete acceptance allocates no delivery/Harness id. A later separate
 instruction must authorize an implementation-slice specification before any

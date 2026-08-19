@@ -1443,7 +1443,24 @@ claims. Official Lightweight Charts 5.2 Markers, Price Lines, Primitives,
 Anchored Text, and Partial Price Line examples are implementation references
 only; no external owner/dependency is adopted.
 
-MEMO-V7-005 has fifteen open decisions and is not a roadmap allocation. It does
+The 2026-08-19 amendment adds a strategy-neutral Setup evidence model and a
+complete, collapsible `SetupVisualGroup`. Analysis/Context/Entry are optional,
+versioned definition roles rather than a fixed tree; every evidence citation
+retains its own source timeframe, while target Pane timeframe is reversible
+projection state. Exact Setup definitions may require single, multiple,
+same/higher/relative timeframes or no separate Analysis. A source 1D FVG may be
+projected on 5m/1m only through registered policy while remaining visibly 1D.
+The FVG + SMA Demo's two Pane roles remain local to its exact template.
+
+The same amendment narrows MEMO-V7-001's current non-binding compatibility
+position to SMC/ICT-first, time-based OHLCV discretionary research. No roadmap
+support is promised for dedicated Wyckoff/point-and-figure, Elliott scenario
+hierarchy, Market/Volume Profile, fundamental/universe, quantitative/portfolio,
+tick/depth/order-flow/HFT, or automated-execution systems. Incidental use of
+existing generic contracts remains best-effort and creates no new capability
+obligation.
+
+MEMO-V7-005 has seventeen open decisions and is not a roadmap allocation. It does
 not amend the ten pending FVG + SMA Demo decisions, authorize implementation,
 or change P1c.4/H121, P1b.4, H117, another plugin, Community/Worker, Journal,
 Dataset Builder, detector, or AI state.

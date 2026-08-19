@@ -205,8 +205,17 @@ aware Calendar/statistics/capital Dashboards, default-off explicit application
 of one or several exact snapshots to a Chart, actual-versus-counterfactual
 comparison, Setup-free EQL/EQH/FVG Phenomenon Studies, and one accessible
 semantic Chart-element grammar for Entry/Stop/Target/Exit/sweep/respect/
-invalidation/text. It neither amends the FVG + SMA candidate nor authorizes a
-Dashboard, Chart projection, text tool, detector, Journal, or implementation.
+invalidation/text. Its 2026-08-19 amendment adds optional definition-owned
+Setup roles/timeframe policies, immutable per-evidence source timeframe,
+explicit cross-timeframe projection, and a collapsible complete
+`SetupVisualGroup`; it rejects mandatory generic Analysis/Entry fields or one
+fixed Context → Entry tree. The same amendment cycle narrows MEMO-V7-001's
+non-binding compatibility position to SMC/ICT-first time-based OHLCV
+discretionary research and makes broader school support best-effort only. It
+neither amends the FVG + SMA candidate nor authorizes a Dashboard, Chart
+projection, text tool, detector, Journal, plugin, data capability, or
+implementation. The durable amendment record is
+`../sessions/session_20260819_trading_school_scope_strategy_neutral_setup_memo_amendment.md`.
 The later line-family/Circle/Arc
 requirements are recorded without implementation at
 `V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md`.
@@ -513,7 +522,9 @@ Read in this order before V7 implementation work:
 96. `V7_NON_DECISION_MEMO_REGISTRY.md` as the canonical dated index for every
     unresolved product/architecture memo and its cross-memo tensions
 97. `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` as deferred,
-    partially promoted context whose remaining questions are non-binding
+    partially promoted context whose 2026-08-19 current position narrows
+    compatibility to SMC/ICT-first time-based OHLCV discretionary research;
+    all remaining questions are non-binding
 98. `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` as accepted ADR-V7-004;
     read before specifying Core/Community packages, dependency graphs, Plugin
     Center, installation, SDK, Agent authoring Harness/MCP, Pine migration,
@@ -558,7 +569,8 @@ Read in this order before V7 implementation work:
 100a. `V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md`
       as non-binding context for Evidence Collection Dashboards, explicit
       multi-dataset Chart application, Setup-free Phenomenon Studies, unified
-      trade/research event visuals, and anchored explanatory text
+      trade/research event visuals, anchored explanatory text, strategy-neutral
+      source/display timeframe handling, and complete Setup visual groups
 101. `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md` as
     the partially promoted market, competitor, data-rights, commercialization,
     branding, and open-model discussion; its remaining questions are non-binding

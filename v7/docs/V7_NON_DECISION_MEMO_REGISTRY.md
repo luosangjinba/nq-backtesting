@@ -4,7 +4,7 @@ Status: binding documentation-governance index
 
 Created: 2026-08-07
 
-Last updated: 2026-08-18 23:38 PDT
+Last updated: 2026-08-19 01:46 PDT
 
 ## Purpose
 
@@ -44,11 +44,11 @@ converted into a decision.
 
 | Memo id | Topic | First formed | Last substantive revision | Current status | File |
 | --- | --- | --- | --- | --- | --- |
-| `MEMO-V7-001` | General futures/plugin platform, semantic tools, Setup workflow, AI, distribution, marketplace | 2026-08-01 | 2026-08-12 | partially promoted by ADR-V7-004, ADR-V7-006, and ADR-V7-005, including interface/language, Agent-authoring/Pine-migration, open Contribution-Profile/composition, and calculated-series projection boundaries; general-futures scope, Setup/AI, concrete runtime/sandbox/tooling, registry operations, commercialization, and Marketplace remain open | `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` |
+| `MEMO-V7-001` | SMC/ICT-first plugin platform, narrowed time-based OHLCV discretionary compatibility, semantic tools, Setup workflow, AI, distribution, marketplace | 2026-08-01 | 2026-08-19 01:46 PDT | partially promoted by ADR-V7-004, ADR-V7-006, and ADR-V7-005; current non-binding scope position rejects broad trading-school compatibility and retains only the narrowed OHLCV discretionary envelope; Setup/AI, concrete runtime/sandbox/tooling, registry operations, commercialization, Marketplace, and binding scope promotion remain open | `V7_GENERAL_FUTURES_PLUGIN_PLATFORM_PREDECISION_MEMO.md` |
 | `MEMO-V7-002` | Second-level Replay and tick-sourced data | 2026-08-01 | 2026-08-06 | current deferral position recorded; future activation undecided | `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` |
 | `MEMO-V7-003` | AI-Agent-participatory Research, Training, and Trading Review system, using semantic Study Cases/Cohorts | 2026-08-07 | 2026-08-07 12:12 PDT | partially promoted by ADR-V7-003; system boundary, autonomy, workflow ownership, and business model remain undecided | `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` |
 | `MEMO-V7-004` | Semantic-dataset competitive landscape, commercialization, open-source/SaaS path, market-data economics, and open-model use | 2026-08-09 | 2026-08-09 PDT | core evidence-dataset product position promoted by ADR-V7-003; hosting, shared data, branding, pricing, and market entry remain open | `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md` |
-| `MEMO-V7-005` | Evidence Collection Dashboards, explicit multi-dataset Chart application, Setup-free Phenomenon Studies, and a uniform Entry/Stop/respect/text visual grammar | 2026-08-18 | 2026-08-18 23:38 PDT | initial position captured; all fifteen product decisions and every implementation boundary remain open | `V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md` |
+| `MEMO-V7-005` | Evidence Collection Dashboards, explicit multi-dataset Chart application, Setup-free Phenomenon Studies, strategy-neutral multi-timeframe Setup visual groups, and a uniform Entry/Stop/respect/text grammar | 2026-08-18 | 2026-08-19 01:46 PDT | amended position captured; all seventeen product decisions and every implementation boundary remain open | `V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md` |
 
 ## Adjacent Decision Candidates
 
@@ -116,6 +116,28 @@ delete it.
 - Applying several Collections to a Chart remains presentation/application
   state. It does not merge native business records, Plugin lifecycles, or
   accepted source provenance.
+- The FVG + SMA candidate's Context/Execution Panes belong only to its exact
+  `demo.sma-trend-manual-fvg@1.0.0` template. MEMO-V7-005's generic future Case
+  and `SetupVisualGroup` position has no mandatory Analysis/Context/Entry role,
+  fixed timeframe, two-Pane shape, or global higher-than relationship.
+
+### MEMO-V7-001 Versus MEMO-V7-005 Supported Scope
+
+- MEMO-V7-001 now recommends retaining SMC/ICT as the primary product and
+  promising extension compatibility only for time-based OHLCV discretionary
+  research which fits admitted host capabilities. MEMO-V7-005 must not use a
+  Dashboard, SetupVisualGroup, Chart element, or timeframe mapping to recreate
+  unsupported wave hierarchy, volume-at-price/profile, fundamental, portfolio,
+  tick/depth/order-flow, HFT, or automated-execution infrastructure.
+- Strategy-neutral Setup roles remain necessary inside the narrowed scope:
+  retained ICT/SMC, Brooks-style price action, and bar-based trend strategies
+  may be single-timeframe, arbitrarily multi-timeframe, or omit a separately
+  named Analysis stage.
+- A source timeframe is evidence provenance; a target Pane timeframe is
+  application/projection state. Cross-timeframe display may use only admitted
+  registered policies and cannot broaden market-data or renderer authority.
+- Neither amended memo is a binding product-scope decision or implementation
+  authorization. The accepted SMC/ICT product statement still governs.
 
 ### MEMO-V7-005 Versus ADR-V7-001, ADR-V7-003, ADR-V7-005, And ADR-V7-006
 
@@ -156,8 +178,9 @@ delete it.
   future Agent-native Developer Kit/Harness with MCP as a bounded adapter, plus
   assisted Pine-indicator ingestion into ordinary TypeScript packages after the
   target SDK/runtime tiers exist.
-- It does not accept the memo's broader general-futures repositioning, complete
-  Setup/AI system, concrete loader/sandbox implementation, remote service
+- It does not accept the memo's remaining product-scope position (now narrowed
+  from broad general-futures expansion), complete Setup/AI system, concrete
+  loader/sandbox implementation, remote service
   operation, commercialization model, or paid Marketplace.
 - Core Plugin is a product/distribution tier represented by built-in first-
   party metadata; it does not change a V7 module to descriptor `kind: "core"`
@@ -187,8 +210,8 @@ delete it.
   Artifacts, Fibonacci anchored studies, Drawings, detectors, and calculated
   series retain Profile-correct owners even if one Chart adapter reuses native
   rendering helpers.
-- ADR-V7-006 and ADR-V7-005 do not promote general-futures scope, complete
-  Setup/AI ownership, Community execution, remote registry operation,
+- ADR-V7-006 and ADR-V7-005 do not promote the remaining narrowed product-scope
+  position, complete Setup/AI ownership, Community execution, remote registry operation,
   privileged renderers, commercialization, or Marketplace. Those positions
   remain open.
 - ADR-V7-006 acceptance changes no P1a/P1b availability, H117 state, Core
