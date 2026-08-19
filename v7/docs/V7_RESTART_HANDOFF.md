@@ -1,12 +1,39 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-19 after the product owner accepted all ten FVG + SMA
-Validation Campaign / Study Case Demo decisions without amendment; the
-specification remains delivery/Harness-unallocated and implementation is not
-authorized, H117 remains executable/unaccepted, and no implementation slice is
-allocated
+Last updated: 2026-08-19 after the product owner authorized the FVG + SMA
+Validation Campaign implementation-slice candidate; proposed R14.1/H121 remain
+unallocated/unregistered, its ten decisions await review, no implementation is
+authorized, and H117 remains executable/unaccepted
 
 ## Restart Resume Checkpoint
+
+### 2026-08-19 R14.1/H121 Business Implementation-Slice Candidate Drafted
+
+Resume first with
+`docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md`
+and
+`sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_candidate_specification.md`,
+then its accepted parent
+`docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md`.
+
+The candidate freezes one bounded implementation design: exactly eight
+removable modules, one sole Campaign writer, generic read-only FVG/SMA evidence
+providers, strict versioned records and commands, exact storage/resource
+ceilings, one no-future first-touch Outcome algorithm, immutable Case revisions
+and Cohorts, reproducible statistics with exact denominators/drill-down,
+existing state-sync reuse, immutable raw-context intents through current
+owners, and deterministic audit JSON.
+
+Its ten material decisions await product-owner review. R14.1 and H121 are
+proposed labels only; neither is allocated and H121 is not present in the
+Harness registry. No production schema/module/storage/state-sync/route/fixture
+was created. P1c.4 is separate, unnumbered, and unallocated. MEMO-V7-005's
+seventeen decisions, P1b.4, another plugin, Community/Worker, Journal, Dataset
+Builder, AI, and H117 status remain untouched.
+
+Exact next action: review decisions 1–10 in the candidate. Even complete
+candidate acceptance would remain documentation-only; a later explicit
+implementation instruction is required before allocation or production work.
 
 ### 2026-08-19 FVG + SMA Business Demo Specification Accepted
 
@@ -19,13 +46,13 @@ audit-export tracer bullet. Its asymmetric/degradable source relationship,
 frozen evidence, no-loss provider removal, exact Setup/Outcome policy, and
 separate local-first Campaign ownership are now binding.
 
-Decision 10 remains a hard non-implementation boundary. No delivery or Harness
-id was allocated; no implementation-slice specification or production code was
-authorized. The next possible action is only a separately product-owner-
-authorized implementation-slice specification. P1c.4/H121, P1b.4, another
-plugin, Community/Worker, Journal, Dataset Builder, AI, and H117 acceptance all
-remain unchanged. MEMO-V7-005's seventeen open decisions are separate and were
-not imported into the accepted Demo.
+Decision 10 remains a hard non-implementation boundary. At that checkpoint no
+delivery or Harness id was allocated and no implementation-slice specification
+or production code was authorized. The later documentation authority produced
+the newer candidate checkpoint above without allocating or implementing it.
+P1c.4, P1b.4, another plugin, Community/Worker, Journal, Dataset Builder, AI,
+and H117 acceptance all remain unchanged. MEMO-V7-005's seventeen open
+decisions are separate and were not imported into the accepted Demo.
 
 Durable acceptance record:
 `sessions/session_20260819_fvg_sma_validation_campaign_study_case_demo_specification_acceptance.md`.
@@ -1542,26 +1569,25 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
-Decisions 1–10 in
-`V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` are accepted without
-amendment. No further review action or implementation is currently authorized.
-The next possible action is a separate product-owner instruction to draft the
-implementation-slice specification. That future specification must select the
-delivery/Harness id, exact public schemas and commands, storage/state-sync
-bounds, module descriptors, diagnostics, transaction phases, browser fixture,
-performance budgets, and focused human gate; it must itself be accepted before
-any production implementation instruction.
+Review decisions 1–10 in
+`V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md`.
+The accepted parent Demo specification is unchanged. The candidate now defines
+the proposed delivery/Harness labels, exact public schemas and commands,
+storage/state-sync bounds, module descriptors, diagnostics, transaction
+phases, browser fixture, performance budgets, and focused human gate, but none
+is allocated or implemented. Candidate acceptance must precede a separate
+explicit production implementation instruction.
 
 MEMO-V7-005 is not silently included in that review. Its seventeen Dashboard,
 application, complete-Setup/multi-timeframe, visual-grammar, text, and
 Phenomenon Study questions remain a separate non-decision backlog until the
 product owner explicitly asks to promote or review them.
 
-This acceptance allocates no delivery/Harness id. P1c.4/H121 remains only the
-separately recommended next dependency inside the calculated-series expansion
-sequence and is not authorized by this business specification. H117 remains
-executable/unaccepted; P1b.4, another plugin, Community/Worker, Journal,
-Dataset Builder, AI, and all Campaign implementation remain paused.
+The current candidate allocates no delivery/Harness id. Proposed R14.1/H121 are
+unallocated/unregistered; P1c.4 remains a separate unnumbered dependency inside
+the calculated-series expansion sequence. H117 remains executable/unaccepted;
+P1b.4, another plugin, Community/Worker, Journal, Dataset Builder, AI, and all
+Campaign implementation remain paused.
 
 R13.10e/H114, P0b/H115, and P1a/H116 are closed. P1b.1–P1b.3 implement the
 non-executing local package contract/archive, transaction/storage, and corrected

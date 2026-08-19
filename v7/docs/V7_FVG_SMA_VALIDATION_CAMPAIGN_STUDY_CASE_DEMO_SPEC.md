@@ -663,6 +663,20 @@ delivery. This accepted business specification consumes
 only the already accepted single-Plot SMA and FVG paths. MACD or another real
 plugin remains later and separately gated.
 
+## Subsequent Implementation-Slice Candidate
+
+On 2026-08-19, the product owner separately authorized drafting the bounded
+implementation-slice candidate at
+`V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md`.
+It proposes the review labels R14.1/H121, exact modules, schemas, commands,
+transactions, resource ceilings, diagnostics, automated evidence, and focused
+human gate required by this accepted parent specification.
+
+That later document is a candidate only. Its ten decisions await review;
+R14.1/H121 remain unallocated and H121 is not registered. The draft changes no
+production, plugin, state-sync, fixture, or Harness behavior and does not amend
+the accepted decisions in this document.
+
 ## Acceptance Record
 
 - deciding authority: product owner;
@@ -676,5 +690,6 @@ plugin remains later and separately gated.
   multi-dataset Chart application, visual grammar, text, and Setup-free
   Phenomenon Study questions remain open and are not imported here;
 - unchanged gates: H117 remains `executable`, human-review-required, and
-  unaccepted; P1c.4/H121, P1b.4, other plugins, Community/Worker, Journal,
+  unaccepted; the separately unallocated P1c.4, P1b.4, other plugins,
+  Community/Worker, Journal,
   Dataset Builder, AI, and all production work remain paused.

@@ -118,3 +118,13 @@ persistence/state-sync ceilings, failures and transactions, automated evidence,
 browser fixture, performance budgets, and focused human gate. It must be
 accepted before a later explicit implementation instruction can change
 production code.
+
+## Subsequent Candidate Draft
+
+The product owner separately authorized that exact documentation step later on
+2026-08-19. The resulting candidate is
+`../docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md`,
+with its durable drafting record at
+`session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_candidate_specification.md`.
+Its proposed R14.1/H121 labels remain unallocated/unregistered and its ten
+material decisions await review; no production authority is inferred.

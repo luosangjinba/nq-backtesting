@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "p1c-3-core-moving-averages-sma-accepted-h120-business-demo-candidate-drafted",
+  "status": "p1c-3-h120-accepted-business-demo-spec-accepted-r14-1-h121-candidate-drafted",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -40,6 +40,7 @@
     "docs/V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md",
     "docs/V7_CORE_SMA_P1C3_HUMAN_REVIEW.md",
     "docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md",
+    "docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md",
     "docs/V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md",
     "docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md",
     "docs/V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md",

@@ -333,9 +333,16 @@ Future primitive requirement:
 - [x] promote the candidate to an accepted business/product/architecture
   specification while allocating no delivery/Harness id and authorizing no
   implementation;
-- [ ] require separate product-owner authority to draft an implementation-slice
-  specification; after that specification is accepted, require separate
-  implementation authority before allocating or changing production code.
+- [x] receive separate product-owner authority on 2026-08-19 to draft only the
+  implementation-slice candidate;
+- [x] propose unallocated `R14.1`/H121 labels, exact removable modules, public
+  schemas/commands, evidence/outcome transactions, storage/state-sync ceilings,
+  diagnostics, browser/performance evidence, and focused human review without
+  registering H121 or changing production code;
+- [ ] review and accept or amend the implementation-slice candidate's ten
+  material decisions;
+- [ ] after candidate acceptance, require separate implementation authority
+  before allocating R14.1/H121 or changing production code.
 
 Accepted specification:
 `docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md`.
@@ -345,6 +352,12 @@ Draft record:
 
 Specification-acceptance record:
 `sessions/session_20260819_fvg_sma_validation_campaign_study_case_demo_specification_acceptance.md`.
+
+Implementation-slice candidate:
+`docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md`.
+
+Implementation-slice draft record:
+`sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_candidate_specification.md`.
 
 ## MEMO-V7-005 Study Collection Dashboard / Chart Application / Visual Grammar — Captured 2026-08-18
 
@@ -402,11 +415,13 @@ Capture record:
   higher-to-lower projection, lossy lower-to-higher handling, and complete
   Setup collapse/decision/outcome/review/compare behavior;
 - [x] retain the FVG + SMA Demo's Context/Execution rules only inside its exact
-  template; do not amend or accept its ten pending product decisions;
+  template; do not import the Memo into or amend its separately accepted
+  product decisions;
 - [x] increase MEMO-V7-005's open product questions from fifteen to seventeen;
 - [x] allocate no delivery/Harness id, modify no production/schema/runtime/UI/
-  state-sync/plugin path, and leave H117, P1b.4, P1c.4/H121, Community/Worker,
-  AI, and every implementation boundary unchanged.
+  state-sync/plugin path, and leave H117, P1b.4, unallocated P1c.4, proposed
+  R14.1/H121, Community/Worker, AI, and every implementation boundary
+  unchanged.
 
 Amendment record:
 `sessions/session_20260819_trading_school_scope_strategy_neutral_setup_memo_amendment.md`.

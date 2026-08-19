@@ -201,6 +201,16 @@ are
 `../sessions/session_20260818_fvg_sma_validation_campaign_study_case_demo_candidate_specification.md`
 and
 `../sessions/session_20260819_fvg_sma_validation_campaign_study_case_demo_specification_acceptance.md`.
+The product owner subsequently authorized only the bounded implementation-
+slice candidate at
+`V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md`.
+It proposes unallocated R14.1/H121 review labels, eight removable modules,
+strict records/commands/resource limits, public-only FVG/SMA evidence capture,
+no-future Outcome semantics, frozen Cohort analytics, reversible local/state-
+sync persistence, raw-context intents, deterministic export, and automated plus
+focused-human gates. Its ten decisions await review; it does not register H121
+or authorize production work. The durable candidate record is
+`../sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_candidate_specification.md`.
 The later, independently decidable Dashboard/application/visual-language ideas
 are preserved without decision at
 `V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md`.

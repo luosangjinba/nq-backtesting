@@ -2,9 +2,10 @@
 
 Status: binding delivery rule; latest allocated repository step is P1c.3;
 H120 is accepted, P1c.3 is closed, the FVG + SMA business Demo specification's
-ten decisions are accepted but still have no delivery/Harness id, MEMO-V7-005
-is non-binding with no id, MEMO-V7-001's scope amendment is non-binding with no
-id, and H117 is unchanged (2026-08-19)
+ten decisions are accepted, its implementation-slice candidate proposes but
+does not allocate R14.1/H121, MEMO-V7-005 is non-binding with no id,
+MEMO-V7-001's scope amendment is non-binding with no id, and H117 is unchanged
+(2026-08-19)
 
 ## Delivery IDs
 
@@ -48,18 +49,22 @@ decisions without amendment, and issued a separate implementation instruction.
 implemented, automated H120 passes, and the product owner accepted the focused
 production-route review on 2026-08-18. H120 is `accepted`, remains
 human-review-required, and P1c.3 is closed. The latest allocated step remains
-P1c.3: a recommended P1c.4/H121 candidate has not been allocated. No other
-plugin, generic layout slice, P1b.4, Community/Worker, business implementation,
-or H117 change is authorized by this acceptance.
+P1c.3. The earlier possible P1c.4/H121 shorthand was never allocated; this
+documentation cycle instead proposes H121 for the separately named R14.1
+business candidate. P1c.4 remains a distinct, unnumbered and unallocated
+calculated-series expansion. No other plugin, generic layout slice, P1b.4,
+Community/Worker, business implementation, or H117 change is authorized by
+H120 acceptance.
 
 The product owner then authorized a documentation-only FVG + SMA Validation
 Campaign / Study Case Demo candidate and accepted all ten material decisions
 without amendment on 2026-08-19. The resulting accepted specification still
-has no delivery id, Harness id, or implementation authority. Acceptance does
-not allocate P1c.4/H121 or supersede the rule that drafting the implementation-
-slice specification requires separate authority and any repository-changing
-business slice requires an accepted implementation specification plus explicit
-implementation instruction.
+has no delivery id, Harness id, or implementation authority. The product owner
+subsequently authorized only its implementation-slice candidate. That draft
+proposes `R14.1`/H121 for review, but neither label is allocated and H121 is not
+registered. Its ten decisions must be accepted or amended before a later
+explicit implementation instruction could allocate the business slice. It
+does not allocate P1c.4, which remains separate and unnumbered.
 
 The later MEMO-V7-005 Evidence Collection Dashboard / explicit multi-dataset
 Chart application / Setup-free Phenomenon Study / semantic visual grammar
