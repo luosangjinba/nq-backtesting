@@ -1,0 +1,17 @@
+{
+  "id": "adapter.validation-sma-evidence",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "validation-evidence-adapter",
+  "publicEntry": "src/validation-sma-evidence/public.js",
+  "requiredPorts": [
+    "optional.validation-study-domain",
+    "core.plugin-contract",
+    "core.calculated-series-contract",
+    "optional.calculated-series-runtime"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/validation-campaign-harness.js",
+  "removable": true
+}

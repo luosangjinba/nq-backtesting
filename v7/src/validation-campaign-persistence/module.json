@@ -1,0 +1,15 @@
+{
+  "id": "adapter.validation-campaign-persistence",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "validation-campaign-persistence",
+  "publicEntry": "src/validation-campaign-persistence/public.js",
+  "requiredPorts": [
+    "optional.validation-study-domain",
+    "adapter.session-persistence"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/validation-campaign-harness.js",
+  "removable": true
+}

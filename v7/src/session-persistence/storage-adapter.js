@@ -37,6 +37,16 @@ export function createStorageAdapter(storage) {
     }
   }
   return Object.freeze({
+    keys() {
+      if (!Number.isSafeInteger(storage.length) || storage.length < 0
+        || typeof storage.key !== 'function') return Object.freeze([]);
+      const result = [];
+      for (let index = 0; index < storage.length; index += 1) {
+        const key = invoke('key', index);
+        if (key !== null) result.push(String(key));
+      }
+      return Object.freeze(result.sort());
+    },
     read(key) {
       const value = invoke('getItem', key);
       return value === null ? null : String(value);

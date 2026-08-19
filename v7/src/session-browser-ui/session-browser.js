@@ -4,12 +4,25 @@ import { renderSessionBrowserSurface, updateStateSyncPresentation } from './surf
 import { createOpenedSessionViewModel, createSessionListViewModel } from './view-model.js';
 
 function readRoute(hash) {
+  if (hash === '#/campaigns') {
+    return Object.freeze({ campaignId: null, screen: 'campaigns', token: null });
+  }
+  const campaign = /^#\/campaigns\/([^/]+)$/.exec(hash);
+  if (campaign) {
+    try {
+      return Object.freeze({
+        campaignId: decodeURIComponent(campaign[1]), screen: 'campaigns', token: null,
+      });
+    } catch {
+      return Object.freeze({ campaignId: '', screen: 'campaigns', token: null });
+    }
+  }
   const match = /^#\/session\/([^/]+)$/.exec(hash);
-  if (!match) return Object.freeze({ screen: 'list', token: null });
+  if (!match) return Object.freeze({ campaignId: null, screen: 'list', token: null });
   try {
-    return Object.freeze({ screen: 'opened', token: decodeURIComponent(match[1]) });
+    return Object.freeze({ campaignId: null, screen: 'opened', token: decodeURIComponent(match[1]) });
   } catch {
-    return Object.freeze({ screen: 'opened', token: '' });
+    return Object.freeze({ campaignId: null, screen: 'opened', token: '' });
   }
 }
 
@@ -31,6 +44,7 @@ class SessionBrowserController {
     this.now = options.now;
     this.schedule = options.schedule;
     this.openedSessionSurface = options.openedSessionSurface ?? null;
+    this.campaignSurface = options.campaignSurface ?? null;
     this.replayNavigationPreferences = options.replayNavigationPreferences ?? null;
     this.workstationSettings = options.workstationSettings ?? null;
     this.colorHistory = options.colorHistory ?? null;
@@ -59,6 +73,7 @@ class SessionBrowserController {
 
   commit(model) {
     if (this.stopped) return;
+    this.campaignSurface?.unmount();
     this.openedSessionSurface?.unmount();
     renderSessionBrowserSurface(
       this.root,
@@ -161,6 +176,12 @@ class SessionBrowserController {
   }
 
   applyRoute() {
+    const route = readRoute(this.navigation.read());
+    if (route.screen === 'campaigns' && this.campaignSurface) {
+      this.openedSessionSurface?.unmount();
+      this.campaignSurface.mount({ campaignId: route.campaignId, root: this.root });
+      return;
+    }
     if (!this.store) {
       this.commit(createSessionListViewModel({
         state: 'unavailable', records: [], instrumentLabels: this.labels,
@@ -168,7 +189,6 @@ class SessionBrowserController {
       }));
       return;
     }
-    const route = readRoute(this.navigation.read());
     if (route.screen === 'opened') this.openSession(route.token);
     else this.refreshList();
   }
@@ -191,6 +211,7 @@ class SessionBrowserController {
     this.unsubscribeStateSync?.();
     this.unsubscribeStateSync = null;
     this.openedSessionSurface?.unmount();
+    this.campaignSurface?.unmount();
     this.dialog.dispose();
     this.root.replaceChildren();
   }
@@ -217,6 +238,9 @@ export function createSessionBrowser(options) {
       'Workstation Settings',
     );
     requirePort(options.colorHistory, ['record', 'snapshot'], 'Color history');
+  }
+  if (options.campaignSurface) {
+    requirePort(options.campaignSurface, ['mount', 'unmount'], 'Validation Campaign surface');
   }
   if (options.stateSync) {
     requirePort(

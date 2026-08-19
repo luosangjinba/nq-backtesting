@@ -9,6 +9,9 @@ export function createWorkspaceAnnotationCommands({ annotationWorkflow, autoplay
     applyAnnotationInspector: () => pauseAnd(() => annotationWorkflow.applyInspector()),
     cancelAnnotationInspector: () => pauseAnd(() => annotationWorkflow.cancelInspector()),
     resetAnnotationInspector: () => pauseAnd(() => annotationWorkflow.resetInspector()),
+    selectAnnotationEvidenceSource: (artifactId) => (
+      pauseAnd(() => annotationWorkflow.selectEvidenceSource(artifactId))
+    ),
     toggleAnnotationTool: (toolId) => pauseAnd(() => annotationWorkflow.toggleTool(toolId)),
     updateAnnotationInspectorField: (value) => (
       pauseAnd(() => annotationWorkflow.updateInspectorField(value))

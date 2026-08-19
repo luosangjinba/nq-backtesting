@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "deliveryStep": "P1c.3",
+  "deliveryStep": "R14.1",
   "productionRoots": ["src", "app"],
   "application": {
     "kind": "composition",
@@ -57,7 +57,8 @@
       "optional.annotation-evidence-resolver",
       "optional.annotation-geometry-domain",
       "optional.semantic-fair-value-gap",
-      "optional.semantic-liquidity-level"
+      "optional.semantic-liquidity-level",
+      "optional.validation-study-domain"
     ],
     "runtime": [
       "core.bar-data-runtime",
@@ -81,20 +82,26 @@
       "optional.annotation-bar-picker",
       "optional.annotation-semantic-registry",
       "optional.annotation-runtime",
-      "optional.annotation-interaction"
+      "optional.annotation-interaction",
+      "optional.validation-campaign-runtime"
     ],
     "adapter": [
       "adapter.lightweight-chart",
       "adapter.server-state-sync",
       "adapter.market-data-provider",
       "optional.annotation-chart-projection",
-      "optional.calculated-series-chart-projection"
+      "optional.calculated-series-chart-projection",
+      "adapter.validation-campaign-audit-export",
+      "adapter.validation-fvg-evidence",
+      "adapter.validation-outcome-window",
+      "adapter.validation-sma-evidence"
     ],
     "persistence": [
       "adapter.annotation-persistence",
       "adapter.plugin-package-storage",
       "adapter.session-persistence",
       "adapter.calculated-series-persistence",
+      "adapter.validation-campaign-persistence",
       "core.replay-navigation-preference-store"
     ],
     "ui": [
@@ -104,6 +111,7 @@
       "adapter.plugin-center-ui",
       "adapter.replay-workspace-ui",
       "optional.calculated-series-ui",
+      "adapter.validation-campaign-ui",
       "adapter.session-browser-ui"
     ]
   },
@@ -234,6 +242,10 @@
     },
     {
       "path": "sessions/session_20260817_p1c_2_h119_whitespace_rejection_and_correction.md",
+      "expectedOccurrences": 1
+    },
+    {
+      "path": "sessions/session_20260819_r14_1_h121_validation_campaign_implementation.md",
       "expectedOccurrences": 1
     }
   ],

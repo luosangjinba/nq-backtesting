@@ -12,6 +12,15 @@ import { createServerStateSync } from '../src/server-state-sync/public.js';
 import { createSessionId } from '../src/session-identity/public.js';
 import { createStorageAdapter, createSessionRepository } from '../src/session-persistence/public.js';
 import { createSessionStore } from '../src/session-store/public.js';
+import {
+  canonicalJson,
+  createCampaignDocument,
+  createCampaignIndex,
+  createCampaignRecord,
+  createSeedDefinitions,
+  VALIDATION_CAMPAIGN_DOCUMENT_PREFIX,
+  VALIDATION_CAMPAIGN_INDEX_KEY,
+} from '../src/validation-study-domain/public.js';
 import { createWorkspaceCheckpoint } from '../src/workspace-checkpoint-domain/public.js';
 import { createStateProxy } from '../scripts/state-proxy.mjs';
 import { createStaticServer } from '../scripts/static-server.mjs';
@@ -49,7 +58,7 @@ async function startStateService(port) {
   throw new Error('state service did not become ready');
 }
 
-function persistedFixture() {
+async function persistedFixture() {
   const values = new Map();
   const storage = {
     getItem: (key) => values.get(String(key)) ?? null,
@@ -100,6 +109,35 @@ function persistedFixture() {
     workspacePanes: [],
   });
   values.set(calculatedSeries.key, calculatedSeries.raw);
+  const campaignId = '00000000-0000-4000-8000-000000000121';
+  const definitions = await createSeedDefinitions(globalThis.crypto);
+  const campaign = await createCampaignRecord({
+    authorLabel: 'Cross-device reviewer',
+    campaignId,
+    contextTimeframeId: 'timeframe.display-5-minute',
+    direction: 'long',
+    executionTimeframeId: 'timeframe.display-1-minute',
+    instrumentId: 'instrument.cme.nq',
+    nowEpochMs: 1_780_427_200_000,
+    outcomeDefinitionRef: definitions.outcomeDefinitionRef,
+    sessionHoursId: 'session-hours.cme-eth',
+    setupDefinitionRef: definitions.setupDefinitionRef,
+    title: 'Cross-device Validation Campaign',
+  });
+  const campaignDocument = await createCampaignDocument({
+    campaign,
+    crypto: globalThis.crypto,
+    nowEpochMs: 1_780_427_200_000,
+    outcomeDefinitions: [definitions.outcomeDefinition],
+    setupDefinitions: [definitions.setupDefinition],
+  });
+  const campaignIndex = await createCampaignIndex({
+    campaignIds: [campaignId],
+    crypto: globalThis.crypto,
+    nowEpochMs: 1_780_427_200_000,
+  });
+  values.set(VALIDATION_CAMPAIGN_INDEX_KEY, canonicalJson(campaignIndex));
+  values.set(`${VALIDATION_CAMPAIGN_DOCUMENT_PREFIX}${campaignId}`, canonicalJson(campaignDocument));
   return Object.freeze(Object.fromEntries(values));
 }
 
@@ -147,15 +185,31 @@ async function runProfile(webPort, profilePath, seed = null) {
       })()`);
       await cdp.send('Page.reload', { ignoreCache: true });
     }
-    await waitFor(cdp, `document.querySelector('[data-state-sync-status]')?.dataset.stateSyncStatus === 'synced'
-      && [...document.querySelectorAll('.session-card h3')]
-        .some((node) => node.textContent === 'Cross-device Session')`);
-    return await evaluate(cdp, `(() => {
+    try {
+      await waitFor(cdp, `document.querySelector('[data-state-sync-status]')?.dataset.stateSyncStatus === 'synced'
+        && [...document.querySelectorAll('.session-card h3')]
+          .some((node) => node.textContent === 'Cross-device Session')`);
+    } catch (error) {
+      const diagnostic = await evaluate(cdp, `({
+        body: document.body.innerText.slice(0, 1200),
+        campaignKeys: Object.keys(localStorage).filter((key) => key.startsWith('v7.validation-campaign:')),
+        errors: globalThis.__stateSyncErrors,
+        sessionKeys: Object.keys(localStorage).filter((key) => key.startsWith('v7.session-browser:')),
+        status: document.querySelector('[data-state-sync-status]')?.dataset.stateSyncStatus ?? null,
+      })`);
+      throw new Error(`${error.message}: ${JSON.stringify(diagnostic)}`);
+    }
+    const result = await evaluate(cdp, `(() => {
       const recordKey = [...Array(localStorage.length).keys()]
         .map((index) => localStorage.key(index))
         .find((key) => key.startsWith('v7.session-browser:record:'));
       const entry = JSON.parse(localStorage.getItem(recordKey));
       return {
+        campaignBytes: [...Array(localStorage.length).keys()]
+          .map((index) => localStorage.key(index))
+          .filter((key) => key.startsWith('v7.validation-campaign:'))
+          .sort()
+          .map((key) => [key, localStorage.getItem(key)]),
         calculatedSeriesSidecar: localStorage.getItem(
           'v7.calculated-series:document:session-cross-device'
         ),
@@ -164,6 +218,11 @@ async function runProfile(webPort, profilePath, seed = null) {
         syncMessage: document.querySelector('.local-note').textContent,
       };
     })()`);
+    await cdp.send('Page.navigate', { url: `http://127.0.0.1:${webPort}/v7/app/#/campaigns` });
+    await waitFor(cdp, `[...document.querySelectorAll('.validation-card h2')]
+      .some((node) => node.textContent === 'Cross-device Validation Campaign')`);
+    result.campaignTitle = await evaluate(cdp, `document.querySelector('.validation-card h2').textContent`);
+    return result;
   } finally {
     try { cdp?.close(); } catch {}
     const exited = new Promise((resolve) => chrome.once('exit', resolve));
@@ -187,7 +246,7 @@ try {
   const first = await runProfile(
     webPort,
     path.join(temporaryDirectory, 'profile-a'),
-    persistedFixture(),
+    await persistedFixture(),
   );
   const second = await runProfile(webPort, path.join(temporaryDirectory, 'profile-b'));
   assert.equal(first.sessionCount, 1);
@@ -195,6 +254,9 @@ try {
   assert.equal(second.syncMessage, 'Synced as reviewer');
   assert.equal(second.calculatedSeriesSidecar, first.calculatedSeriesSidecar,
     'a separate browser profile must hydrate the exact calculated-series sidecar');
+  assert.deepEqual(second.campaignBytes, first.campaignBytes,
+    'a separate browser profile must hydrate exact Campaign index/document bytes');
+  assert.equal(second.campaignTitle, 'Cross-device Validation Campaign');
   assert.deepEqual(second.checkpoint, first.checkpoint,
     'a separate browser profile must hydrate the exact Workspace checkpoint');
 } finally {
@@ -208,4 +270,4 @@ try {
   fs.rmSync(temporaryDirectory, { force: true, recursive: true });
 }
 
-console.log('v7 server state sync browser harness passed (two isolated Chrome profiles, Session/checkpoint/calculated-series sidecar)');
+console.log('v7 server state sync browser harness passed (two isolated Chrome profiles, Session/checkpoint/calculated-series/Campaign sidecars)');

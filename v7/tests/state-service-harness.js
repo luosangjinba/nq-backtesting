@@ -71,6 +71,11 @@ try {
         key: 'v7.calculated-series:document:alpha',
         value: '{"schema":"v7.calculated-series-document","version":1}',
       },
+      { key: 'v7.validation-campaign:index', value: '{"campaignIds":["alpha"]}' },
+      {
+        key: 'v7.validation-campaign:document:alpha',
+        value: '{"schema":"v7.validation-campaign-document","version":1}',
+      },
     ],
     expectedRevision: 0,
     schema: 'v7.user-state-snapshot',
@@ -95,7 +100,7 @@ try {
   });
   assert.equal(staleResponse.status, 409);
   assert.equal((await staleResponse.json()).current.revision, 1);
-  assert.equal((await (await request(port, 'reviewer')).json()).entries.length, 3,
+  assert.equal((await (await request(port, 'reviewer')).json()).entries.length, 5,
     'stale replacement must have zero state effect');
 
   const invalidKeyResponse = await request(port, 'reviewer', {
@@ -138,6 +143,26 @@ try {
     method: 'PUT',
   });
   assert.equal(forgedCalculatedSeriesKeyResponse.status, 400);
+  const emptyCampaignDocumentKeyResponse = await request(port, 'reviewer', {
+    body: JSON.stringify({
+      ...replacement,
+      entries: [{ key: 'v7.validation-campaign:document:', value: 'forbidden' }],
+      expectedRevision: 1,
+    }),
+    headers: { 'Content-Type': 'application/json' },
+    method: 'PUT',
+  });
+  assert.equal(emptyCampaignDocumentKeyResponse.status, 400);
+  const forgedCampaignDocumentKeyResponse = await request(port, 'reviewer', {
+    body: JSON.stringify({
+      ...replacement,
+      entries: [{ key: 'v7.validation-campaign:documents:alpha', value: 'forbidden' }],
+      expectedRevision: 1,
+    }),
+    headers: { 'Content-Type': 'application/json' },
+    method: 'PUT',
+  });
+  assert.equal(forgedCampaignDocumentKeyResponse.status, 400);
   const invalidJsonResponse = await request(port, 'reviewer', {
     body: '{',
     headers: { 'Content-Type': 'application/json' },
@@ -162,13 +187,17 @@ try {
   service = await startService(port);
   const restored = await (await request(port, 'reviewer')).json();
   assert.equal(restored.revision, 1);
-  assert.equal(restored.entries.length, 3, 'Session and calculated-series state must survive service restart');
+  assert.equal(restored.entries.length, 5,
+    'Session, calculated-series, and Campaign state must survive service restart');
   assert.equal(restored.entries.some(
     ({ key }) => key === 'v7.calculated-series:document:alpha'
   ), true, 'calculated-series sidecars must remain readable after restart');
+  assert.equal(restored.entries.some(
+    ({ key }) => key === 'v7.validation-campaign:document:alpha'
+  ), true, 'Campaign documents must remain readable after restart');
 } finally {
   await stopService(service);
   fs.rmSync(temporaryDirectory, { force: true, recursive: true });
 }
 
-console.log('v7 state service harness passed (identity isolation, CAS, bounds, methods, restart)');
+console.log('v7 state service harness passed (identity isolation, CAS, Campaign allowlist, bounds, methods, restart)');

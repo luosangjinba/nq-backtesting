@@ -31,6 +31,30 @@
     },
     {
       "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "adapter.validation-campaign-audit-export"
+    },
+    {
+      "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "adapter.validation-campaign-persistence"
+    },
+    {
+      "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "adapter.validation-campaign-ui"
+    },
+    {
+      "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "adapter.validation-fvg-evidence"
+    },
+    {
+      "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "adapter.validation-outcome-window"
+    },
+    {
+      "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "adapter.validation-sma-evidence"
+    },
+    {
+      "consumerModuleId": "adapter.session-application",
       "omittedModuleId": "optional.annotation-manual-workflow"
     },
     {
@@ -46,8 +70,52 @@
       "omittedModuleId": "optional.core-moving-averages"
     },
     {
+      "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "optional.validation-campaign-runtime"
+    },
+    {
+      "consumerModuleId": "adapter.session-application",
+      "omittedModuleId": "optional.validation-study-domain"
+    },
+    {
       "consumerModuleId": "adapter.session-browser-ui",
       "omittedModuleId": "adapter.replay-workspace-ui"
+    },
+    {
+      "consumerModuleId": "adapter.validation-campaign-audit-export",
+      "omittedModuleId": "optional.validation-study-domain"
+    },
+    {
+      "consumerModuleId": "adapter.validation-campaign-persistence",
+      "omittedModuleId": "optional.validation-study-domain"
+    },
+    {
+      "consumerModuleId": "adapter.validation-campaign-ui",
+      "omittedModuleId": "optional.validation-campaign-runtime"
+    },
+    {
+      "consumerModuleId": "adapter.validation-campaign-ui",
+      "omittedModuleId": "optional.validation-study-domain"
+    },
+    {
+      "consumerModuleId": "adapter.validation-fvg-evidence",
+      "omittedModuleId": "optional.annotation-manual-workflow"
+    },
+    {
+      "consumerModuleId": "adapter.validation-fvg-evidence",
+      "omittedModuleId": "optional.validation-study-domain"
+    },
+    {
+      "consumerModuleId": "adapter.validation-outcome-window",
+      "omittedModuleId": "optional.validation-study-domain"
+    },
+    {
+      "consumerModuleId": "adapter.validation-sma-evidence",
+      "omittedModuleId": "optional.calculated-series-runtime"
+    },
+    {
+      "consumerModuleId": "adapter.validation-sma-evidence",
+      "omittedModuleId": "optional.validation-study-domain"
     },
     {
       "consumerModuleId": "optional.annotation-bar-picker",
@@ -154,6 +222,18 @@
       "omittedModuleId": "optional.annotation-semantic-registry"
     },
     {
+      "consumerModuleId": "optional.validation-campaign-runtime",
+      "omittedModuleId": "adapter.validation-fvg-evidence"
+    },
+    {
+      "consumerModuleId": "optional.validation-campaign-runtime",
+      "omittedModuleId": "adapter.validation-sma-evidence"
+    },
+    {
+      "consumerModuleId": "optional.validation-campaign-runtime",
+      "omittedModuleId": "optional.validation-study-domain"
+    },
+    {
       "consumerModuleId": null,
       "omittedModuleId": "optional.annotation-bar-picker"
     },
@@ -212,6 +292,14 @@
     {
       "consumerModuleId": null,
       "omittedModuleId": "optional.semantic-liquidity-level"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.validation-campaign-runtime"
+    },
+    {
+      "consumerModuleId": null,
+      "omittedModuleId": "optional.validation-study-domain"
     }
   ]
 }

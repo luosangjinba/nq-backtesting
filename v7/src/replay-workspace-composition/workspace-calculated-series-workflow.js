@@ -83,6 +83,13 @@ export function createWorkspaceCalculatedSeriesWorkflow({
     snapshot() {
       return Object.freeze({ runtime: runtime.snapshot(), ui: ui?.snapshot() ?? null });
     },
+    readEvidenceObservation(input) {
+      const observation = runtime.readEvidenceObservation(input);
+      return Object.freeze({
+        ...observation,
+        session: Object.freeze({ ...observation.session, revision: record.revision }),
+      });
+    },
     start,
     workspaceParticipant: Object.freeze({
       id: 'calculated-series-document',

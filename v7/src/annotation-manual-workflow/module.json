@@ -6,6 +6,7 @@
   "publicEntry": "src/annotation-manual-workflow/public.js",
   "requiredPorts": [
     "core.plugin-contract",
+    "core.session-identity",
     "optional.annotation-bar-picker",
     "optional.annotation-chart-projection",
     "optional.annotation-context-projection",

@@ -162,6 +162,7 @@ export function mountReplayWorkspace(options) {
     ...state,
     annotationWorkflow: options.annotationWorkflow,
     calculatedSeries: options.calculatedSeries,
+    validationCampaign: options.validationCampaign,
     initialNavigationSettings: options.initialNavigationSettings,
     persistWorkspaceCheckpoint: options.onPersistWorkspaceCheckpoint,
     persistReplayNavigationSettings: options.onPersistReplayNavigationSettings,
@@ -172,6 +173,10 @@ export function mountReplayWorkspace(options) {
     workstationSettingsViewConsumer: createWorkstationSettingsViewConsumer({ view }),
   });
   bindCommands(callbacks, commands);
-  void commands.start();
+  void commands.start().catch((error) => {
+    view.setState('error', {
+      message: error?.message ?? 'Replay Workspace could not apply the requested context.',
+    });
+  });
   return Object.freeze({ controller: commands, view });
 }

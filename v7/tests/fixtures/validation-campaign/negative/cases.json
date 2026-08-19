@@ -1,0 +1,17 @@
+{
+  "cases": [
+    { "name": "hostile-accessor", "expectedCode": "VALIDATION_CAMPAIGN_PERSISTENCE_CORRUPT" },
+    { "name": "unknown-command-field", "expectedCode": "VALIDATION_CAMPAIGN_PERSISTENCE_CORRUPT" },
+    { "name": "stale-document", "expectedCode": "VALIDATION_CAMPAIGN_REVISION_STALE" },
+    { "name": "source-changed", "expectedCode": "VALIDATION_CAMPAIGN_SOURCE_CHANGED" },
+    { "name": "provider-absent", "expectedCode": "VALIDATION_CAMPAIGN_SOURCE_UNAVAILABLE" },
+    { "name": "expired-preview", "expectedCode": "VALIDATION_CAMPAIGN_PREPARATION_EXPIRED" },
+    { "name": "outcome-not-revealed", "expectedCode": "VALIDATION_CAMPAIGN_OUTCOME_NOT_REVEALED" },
+    { "name": "outcome-resource-limit", "expectedCode": "VALIDATION_CAMPAIGN_RESOURCE_LIMIT" },
+    { "name": "notes-resource-limit", "expectedCode": "VALIDATION_CAMPAIGN_RESOURCE_LIMIT" },
+    { "name": "persistence-cas", "expectedCode": "VALIDATION_CAMPAIGN_PERSISTENCE_CAS_STALE" },
+    { "name": "persistence-apply-rollback", "expectedCode": "VALIDATION_CAMPAIGN_PERSISTENCE_WRITE_FAILED" },
+    { "name": "orphan-document", "expectedCode": "VALIDATION_CAMPAIGN_PERSISTENCE_CORRUPT" },
+    { "name": "corrupt-document", "expectedCode": "VALIDATION_CAMPAIGN_PERSISTENCE_CORRUPT" }
+  ]
+}

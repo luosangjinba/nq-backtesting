@@ -65,8 +65,9 @@ try {
   assert.equal(evidence.isolationAfterFirstStop.oneChildren, 0);
   assert.equal(evidence.isolationAfterFirstStop.two.status, 'running');
   assert.ok(evidence.isolationAfterFirstStop.twoChildren > 0);
-  assert.deepEqual(evidence.reverseCleanup.slice(0, 2).map(({ event, moduleId }) => `${event}:${moduleId}`), [
+  assert.deepEqual(evidence.reverseCleanup.slice(0, 3).map(({ event, moduleId }) => `${event}:${moduleId}`), [
     'stop:adapter.session-application',
+    'stop:adapter.validation-campaign-ui',
     'dispose:adapter.session-application',
   ]);
   assert.equal(evidence.optional.moduleIds.includes('adapter.replay-workspace-ui'), false);

@@ -1,0 +1,16 @@
+{
+  "id": "adapter.validation-campaign-ui",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "validation-campaign-ui",
+  "publicEntry": "src/validation-campaign-ui/public.js",
+  "requiredPorts": [
+    "optional.validation-study-domain",
+    "optional.validation-campaign-runtime",
+    "core.browser-async-contract"
+  ],
+  "optionalPorts": [],
+  "lifecycle": ["start", "stop", "dispose"],
+  "independentHarness": "tests/validation-campaign-ui-independent-harness.js",
+  "removable": true
+}

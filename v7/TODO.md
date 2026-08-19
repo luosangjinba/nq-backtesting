@@ -343,8 +343,21 @@ Future primitive requirement:
   slice decisions without amendment on 2026-08-19;
 - [x] promote the candidate to the binding implementation specification while
   keeping R14.1/H121 unallocated/unregistered and changing no production code;
-- [ ] after specification acceptance, require separate implementation authority
-  before allocating R14.1/H121 or changing production code.
+- [x] receive separate product-owner authority to allocate and implement only
+  the accepted R14.1/H121 slice;
+- [x] allocate R14.1 and register H121 as `executable`, human-review-required,
+  and unaccepted without changing H117;
+- [x] implement exactly eight removable modules, exact Campaign keys/state-sync
+  allowlist, public-only FVG/SMA evidence, no-future Outcome, frozen Cohort/
+  Analysis lineage, raw-context intent, deterministic export, and bounded UI;
+- [x] pass H121 Node negative controls and real production-route Chromium at
+  1280x800 and 620x800;
+- [x] close architecture, writer, source-quality, deployed-runtime, standalone-
+  runtime, and state-sync automated gates without source exceptions;
+- [ ] execute and explicitly accept all ten focused product checks before
+  changing H121 from `executable` or closing R14.1;
+- [ ] do not start P1c.4, P1b.4, another plugin, Community/Worker, Journal,
+  Dataset Builder, AI, or MEMO-V7-005 implementation from this slice.
 
 Accepted specification:
 `docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md`.
@@ -363,6 +376,12 @@ Implementation-slice draft record:
 
 Implementation-slice acceptance record:
 `sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_specification_acceptance.md`.
+
+Implementation record:
+`sessions/session_20260819_r14_1_h121_validation_campaign_implementation.md`.
+
+Focused human gate:
+`docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_R14_1_HUMAN_REVIEW.md`.
 
 ## MEMO-V7-005 Study Collection Dashboard / Chart Application / Visual Grammar — Captured 2026-08-18
 
@@ -2036,7 +2055,7 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 582 files, 52,613 effective lines, 5,473 functions, and 558 public exports; the architecture baseline
+The current production source baseline contains 628 files, 58,339 effective lines, 5,981 functions, and 647 public exports; the architecture baseline
 contains 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
@@ -2048,7 +2067,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 582 files, 52,613 effective lines, 5,473 functions, and 558 public exports, 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
+currently at 628 files, 58,339 effective lines, 5,981 functions, and 647 public exports, 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
 ## Established Foundation Governance

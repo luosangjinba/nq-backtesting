@@ -259,6 +259,31 @@
       ]
     },
     {
+      "id": "validation-campaign-fvg-sma-browser",
+      "executionKind": "browser-production",
+      "harness": "tests/validation-campaign-harness.js",
+      "covers": {
+        "paneCount": ["single", "two"],
+        "focusTarget": ["P1", "non-primary"],
+        "instrument": ["NQ"],
+        "timeframe": ["fixed-source", "fixed-aggregate"],
+        "sessionHours": ["ETH"],
+        "viewport": ["default"],
+        "cacheState": ["warm-hit"],
+        "workOrdering": ["in-order", "stale", "participant-failure"],
+        "replayAction": ["manual-next"],
+        "persistence": ["initial-save", "reopen", "write-failure"],
+        "restart": ["hard-refresh"]
+      },
+      "assertions": [
+        "immutable-no-future-fvg-sma-evidence",
+        "reversible-campaign-only-persistence",
+        "source-removal-history-survival",
+        "campaign-poison-isolation",
+        "production-route-responsive-reload"
+      ]
+    },
+    {
       "id": "delayed-reordered-stale-owner",
       "executionKind": "production-owner",
       "harness": "tests/workspace-transaction-runtime-harness.js",

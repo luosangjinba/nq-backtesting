@@ -1,74 +1,18 @@
 import { resolveReplayTruncationTarget } from './replay-truncation.js';
 import { createReplayWorkspaceCommandPort } from './workspace-command-port.js';
-import { createWorkspaceChartAssembly } from './workspace-chart-assembly.js';
-import { createWorkspaceCheckpointPersistence } from './workspace-checkpoint-persistence.js';
-import { createWorkspaceDataAssembly } from './workspace-data-assembly.js';
-import { createWorkspacePublicationAssembly } from './workspace-publication-assembly.js';
-import { createWorkspaceRuntimeAssembly } from './workspace-runtime-assembly.js';
-import { createWorkspaceSessionState } from './workspace-session-state.js';
-import { createWorkspaceAnnotationWorkflow } from './workspace-annotation-workflow.js';
-import { createWorkspaceCalculatedSeriesWorkflow } from './workspace-calculated-series-workflow.js';
-
-function createCheckpointPersistence(options, session) {
-  return createWorkspaceCheckpointPersistence({
-    initialCheckpoint: options.initialCheckpoint,
-    initialLayout: session.readPaneLayout(),
-    initialLayoutSync: options.initialLayoutSync,
-    persist: options.persistWorkspaceCheckpoint,
-    readLayout: session.readPaneLayout,
-    readLayoutSync: () => session.readLayoutSync() ?? options.initialLayoutSync,
-    view: options.presentation,
-    workspaceState: session.workspaceState,
-  });
-}
-
-function createChartAssembly(options, session, checkpointPersistence, handleTruncationSelect, getExecution,
-  calculatedSeriesPort) {
-  return createWorkspaceChartAssembly({
-    calculatedSeriesPort,
-    checkpointPersistence,
-    getExecution,
-    handleTruncationSelect,
-    initialLayoutSync: options.initialLayoutSync,
-    presentation: options.presentation,
-    record: options.record,
-    session,
-    workstationSettings: options.workstationSettings,
-    workstationSettingsViewConsumer: options.workstationSettingsViewConsumer,
-  });
-}
-
-function createRuntimeGraph(options, session, chart, checkpointPersistence, annotationWorkflow) {
-  let runtime = null;
-  const data = createWorkspaceDataAssembly({ getRuntime: () => runtime, session });
-  const publication = createWorkspacePublicationAssembly({
-    checkpointPersistence,
-    data,
-    onAcceptedWorkspace: (candidate) => annotationWorkflow?.acceptWorkspace(candidate),
-    presentation: options.presentation,
-    session,
-  });
-  const runtimeAssembly = createWorkspaceRuntimeAssembly({
-    auxiliaryTransactionPorts: options.auxiliaryTransactionPorts ?? [],
-    chart,
-    data,
-    presentation: options.presentation,
-    publication,
-    record: options.record,
-    session,
-    workstationSettings: options.workstationSettings,
-  });
-  runtime = runtimeAssembly.runtime;
-  return Object.freeze({ data, runtime, runtimeAssembly });
-}
+import { createWorkspaceCompositionOwners } from './workspace-composition-owners.js';
+import { createWorkspaceValidationCampaign } from './workspace-validation-campaign.js';
+import { applyValidationRawContextIntent } from './validation-raw-context-command.js';
 
 function createCompositionCommandPort(options, owners) {
   const { chart, checkpointPersistence, data, runtimeAssembly, session } = owners;
-  return createReplayWorkspaceCommandPort({
+  const commands = createReplayWorkspaceCommandPort({
     acceptedPaneWorkspace: session.acceptedPaneWorkspace,
     annotationWorkflow: owners.annotationWorkflow,
+    afterOwnersStart: owners.afterOwnersStart,
     adapter: chart.adapter,
     autoplayScheduler: runtimeAssembly.autoplayScheduler,
+    beforeStart: owners.beforeStart,
     checkpointPersistence,
     disposeComposition: owners.disposeComposition,
     execution: runtimeAssembly.execution,
@@ -93,22 +37,28 @@ function createCompositionCommandPort(options, owners) {
     workstationSettings: options.workstationSettings,
     workspaceState: session.workspaceState,
   });
+  return Object.freeze({
+    ...commands,
+    async start() {
+      const result = await commands.start();
+      const intent = owners.validationCampaign?.takeRawContextIntent() ?? null;
+      if (intent !== null) await applyValidationRawContextIntent(commands, intent);
+      return result;
+    },
+  });
 }
 
-function createCompositionOptions(input, calculatedSeriesWorkflow) {
-  return Object.freeze({
-    auxiliaryTransactionPorts: calculatedSeriesWorkflow === null
-      ? Object.freeze([]) : Object.freeze([calculatedSeriesWorkflow.workspaceParticipant]),
-    initialCheckpoint: input.initialCheckpoint,
-    initialLayout: input.initialLayout,
-    initialLayoutSync: input.initialLayoutSync,
-    initialNavigationSettings: input.initialNavigationSettings,
-    persistWorkspaceCheckpoint: input.persistWorkspaceCheckpoint,
-    persistReplayNavigationSettings: input.persistReplayNavigationSettings,
-    presentation: input.presentation,
-    record: input.record,
-    workstationSettings: input.workstationSettings,
-    workstationSettingsViewConsumer: input.workstationSettingsViewConsumer,
+function createValidationCampaign(configuration, annotationWorkflow, calculatedSeriesWorkflow,
+  data, paneAddonPort, record, session, snapshotComposition) {
+  return createWorkspaceValidationCampaign({
+    annotationWorkflow,
+    calculatedSeriesWorkflow,
+    configuration,
+    data,
+    paneAddonPort,
+    record,
+    session,
+    snapshotComposition,
   });
 }
 
@@ -126,22 +76,14 @@ export function createReplayWorkspaceComposition({
   persistWorkspaceCheckpoint,
   persistReplayNavigationSettings,
   paneAddonPort = null,
+  validationCampaign: validationCampaignConfiguration = null,
   record,
   presentation,
   workstationSettings,
   workstationSettingsViewConsumer,
 }) {
-  const calculatedSeriesWorkflow = createWorkspaceCalculatedSeriesWorkflow({
-    configuration: calculatedSeriesConfiguration, paneAddonPort, record,
-  });
-  const options = createCompositionOptions({
-    initialCheckpoint, initialLayout, initialLayoutSync, initialNavigationSettings,
-    persistReplayNavigationSettings, persistWorkspaceCheckpoint, presentation, record,
-    workstationSettings, workstationSettingsViewConsumer,
-  }, calculatedSeriesWorkflow);
-  const session = createWorkspaceSessionState(options);
-  let runtimeAssembly, disposed = false;
-  const checkpointPersistence = createCheckpointPersistence(options, session);
+  let chart, runtimeAssembly, session;
+  let disposed = false;
 
   function setTruncationSelection(active, error = null) {
     session.setTruncationSelection(active);
@@ -166,21 +108,24 @@ export function createReplayWorkspaceComposition({
     await runtimeAssembly.execution.action('goto-exact', { targetEpochMs }, { allowDim: true });
   }
 
-  const chart = createChartAssembly(
-    options, session, checkpointPersistence, handleTruncationSelect,
-    () => runtimeAssembly?.execution ?? null, calculatedSeriesWorkflow?.workspacePort ?? null,
-  );
-  calculatedSeriesWorkflow?.bindChartAdapter(chart.adapter);
-  const annotationWorkflow = createWorkspaceAnnotationWorkflow({
-    chartAdapter: chart.adapter,
-    configuration: annotationWorkflowConfiguration,
-    presentation,
-    record,
+  const owners = createWorkspaceCompositionOwners({
+    annotationWorkflowConfiguration,
+    calculatedSeriesConfiguration,
+    handleTruncationSelect,
+    input: {
+      initialCheckpoint, initialLayout, initialLayoutSync, initialNavigationSettings,
+      persistReplayNavigationSettings, persistWorkspaceCheckpoint, presentation, record,
+      workstationSettings, workstationSettingsViewConsumer,
+    },
+    paneAddonPort,
+    readExecution: () => runtimeAssembly?.execution ?? null,
   });
-  session.setLayoutSyncReader(chart.layoutSyncController.snapshot);
-  const graph = createRuntimeGraph(options, session, chart, checkpointPersistence, annotationWorkflow);
-  ({ runtimeAssembly } = graph);
-  const { data, runtime } = graph;
+  ({ chart, runtimeAssembly, session } = owners);
+  const {
+    annotationWorkflow, calculatedSeriesWorkflow, checkpointPersistence, data, options, runtime,
+  } = owners;
+
+  let validationCampaign = null;
 
   function disposeComposition() {
     if (disposed) return;
@@ -191,6 +136,7 @@ export function createReplayWorkspaceComposition({
     runtimeAssembly.paneTimeLocation.dispose();
     runtimeAssembly.execution.dispose();
     runtime.dispose();
+    validationCampaign?.dispose();
     calculatedSeriesWorkflow?.dispose();
     chart.chartApplication.dispose();
     const annotationCleanup = annotationWorkflow?.dispose() ?? null;
@@ -215,11 +161,17 @@ export function createReplayWorkspaceComposition({
     paneWorkspace: session.acceptedPaneWorkspace(),
     replay: session.replay.snapshot(),
     semanticState: session.workspaceState.snapshot(),
+    validationCampaign: validationCampaign?.snapshot() ?? null,
     workspace: runtime.snapshot(),
   });
+  validationCampaign = createValidationCampaign(
+    validationCampaignConfiguration, annotationWorkflow, calculatedSeriesWorkflow,
+    data, paneAddonPort, record, session, snapshotComposition,
+  );
   return createCompositionCommandPort(options, {
     chart,
     annotationWorkflow,
+    afterOwnersStart: () => validationCampaign?.start(),
     beforeStart: () => calculatedSeriesWorkflow?.start(),
     checkpointPersistence,
     disposeComposition,
@@ -229,5 +181,6 @@ export function createReplayWorkspaceComposition({
     data,
     runtimeAssembly,
     session,
+    validationCampaign,
   });
 }

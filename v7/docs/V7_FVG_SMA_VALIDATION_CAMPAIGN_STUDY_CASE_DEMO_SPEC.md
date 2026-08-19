@@ -679,6 +679,13 @@ unallocated, H121 is not registered, and no production, plugin, state-sync,
 fixture, or Harness behavior changed. It does not amend the accepted decisions
 in this parent document.
 
+After that checkpoint, the product owner separately authorized the concrete
+implementation action. R14.1 is now allocated, H121 is executable and
+human-review-required, and the exact child slice is implemented with automated
+evidence passing. H121 is not accepted until the child specification's focused
+ten-item human review is explicitly accepted. This later disposition does not
+amend this parent specification or authorize any other business/plugin scope.
+
 ## Acceptance Record
 
 - deciding authority: product owner;

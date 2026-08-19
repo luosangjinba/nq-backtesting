@@ -1,18 +1,26 @@
-import { SESSION_BROWSER_CONFIG } from './config.js';
 import { createHashNavigation } from './hash-navigation.js';
 import { requireApplicationPort, SESSION_APPLICATION_MODULE_ID } from './application-ports.js';
 import { composeSessionApplicationStores } from './application-stores.js';
 import {
-  createCalculatedSeriesSurfaceConfiguration,
   validateCalculatedSeriesOptionalPorts,
 } from './calculated-series-optional-ports.js';
+import {
+  createApplicationReplayWorkspace,
+  createApplicationSessionBrowser,
+} from './session-surface-factories.js';
+import {
+  createValidationCampaignFeature,
+  validateValidationCampaignOptionalPorts,
+} from './validation-campaign-optional-ports.js';
 
 async function releaseResources({
   browser, packageBrowser, packageStore, pluginProfile, replayWorkspace, stateSync,
+  validationCampaign,
 }) {
   const errors = [];
   try { browser?.dispose(); } catch (error) { errors.push(error); }
   try { await replayWorkspace?.dispose(); } catch (error) { errors.push(error); }
+  try { validationCampaign?.dispose(); } catch (error) { errors.push(error); }
   try { packageBrowser?.dispose(); } catch (error) { errors.push(error); }
   try { packageStore?.dispose(); } catch (error) { errors.push(error); }
   try { pluginProfile?.dispose(); } catch (error) { errors.push(error); }
@@ -46,6 +54,7 @@ function validateOptionalPorts(optionalPorts) {
     pluginCenterApi,
     replayApi,
     stateSyncApi,
+    validationCampaign: validateValidationCampaignOptionalPorts(optionalPorts),
   });
 }
 
@@ -66,6 +75,7 @@ export function createSessionApplicationResources({
   let pluginProfile = null;
   let replayWorkspace = null;
   let stateSync = null;
+  let validationCampaign = null;
   let status = 'created';
   let storageAvailable = false;
 
@@ -74,6 +84,7 @@ export function createSessionApplicationResources({
       hasBrowser: browser !== null,
       hasCorePluginProfile: pluginProfile !== null,
       hasReplayWorkspace: replayWorkspace !== null,
+      hasValidationCampaign: validationCampaign !== null,
       status,
       storageAvailable,
     });
@@ -175,44 +186,6 @@ export function createSessionApplicationResources({
     environment.reload();
   }
 
-  function createReplayWorkspace(composed) {
-    if (!optional.replayApi) return null;
-    const annotationReady = optional.annotationWorkflowApi && composed
-      && Array.isArray(environment.productionModuleDescriptors)
-      && typeof environment.readModuleHostSnapshot === 'function';
-    return optional.replayApi.createReplayWorkspaceSurface({
-      annotationWorkflow: annotationReady ? Object.freeze({
-        api: optional.annotationWorkflowApi,
-        idFactory: () => environment.crypto.randomUUID(),
-        moduleDescriptors: environment.productionModuleDescriptors,
-        nowEpochMs: () => Date.now(),
-        readModuleHostSnapshot: environment.readModuleHostSnapshot,
-        storage: composed.storage,
-      }) : null,
-      calculatedSeries: createCalculatedSeriesSurfaceConfiguration({
-        composed, environment, optional, pluginProfile,
-      }),
-      pluginCenter: createPluginCenterFactory(),
-    });
-  }
-
-  function createBrowser(composed, unavailableMessage) {
-    return browserApi.createSessionBrowser({
-      colorHistory: composed?.colorHistory ?? null,
-      dateAvailability: dateApi.createMarketDateAvailability(),
-      idFactory: () => `session-${environment.crypto.randomUUID()}`,
-      instruments: SESSION_BROWSER_CONFIG.instruments,
-      navigation: createHashNavigation(environment.browserWindow),
-      openedSessionSurface: composed ? replayWorkspace : null,
-      replayNavigationPreferences: composed?.replayNavigationPreferences ?? null,
-      root: environment.root,
-      stateSync,
-      store: composed?.sessionStore ?? null,
-      unavailableMessage,
-      workstationSettings: composed?.workstationSettings ?? null,
-    });
-  }
-
   async function start() {
     lifecycleObserver('start', SESSION_APPLICATION_MODULE_ID);
     status = 'starting';
@@ -223,8 +196,35 @@ export function createSessionApplicationResources({
     await initializeLocalPackages();
     const unavailableMessage = composed ? null
       : 'Local Session storage could not be initialized. Check browser site-data permissions and reload.';
-    replayWorkspace = createReplayWorkspace(composed);
-    browser = createBrowser(composed, unavailableMessage);
+    const navigation = createHashNavigation(environment.browserWindow);
+    if (composed) {
+      validationCampaign = await createValidationCampaignFeature({
+        browserWindow: environment.browserWindow,
+        composed,
+        crypto: environment.crypto,
+        navigation,
+        optional: optional.validationCampaign,
+      });
+    }
+    replayWorkspace = createApplicationReplayWorkspace({
+      composed,
+      environment,
+      optional,
+      pluginCenter: createPluginCenterFactory(),
+      pluginProfile,
+      validationCampaign,
+    });
+    browser = createApplicationSessionBrowser({
+      browserApi,
+      composed,
+      dateApi,
+      environment,
+      navigation,
+      replayWorkspace,
+      stateSync,
+      unavailableMessage,
+      validationCampaign,
+    });
     browser.start();
     pluginProfile.acceptApplicationReady();
     status = 'running';
@@ -234,6 +234,7 @@ export function createSessionApplicationResources({
   async function cleanup(nextStatus) {
     const resources = {
       browser, packageBrowser, packageStore, pluginProfile, replayWorkspace, stateSync,
+      validationCampaign,
     };
     browser = null;
     packageBrowser = null;
@@ -241,6 +242,7 @@ export function createSessionApplicationResources({
     pluginProfile = null;
     replayWorkspace = null;
     stateSync = null;
+    validationCampaign = null;
     storageAvailable = false;
     status = nextStatus;
     await releaseResources(resources);

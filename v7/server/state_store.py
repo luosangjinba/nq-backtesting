@@ -22,10 +22,12 @@ EXACT_KEYS = frozenset(
         "v7.replay-navigation-preferences",
         "v7.workstation-settings:global",
         "v7.color-history:global",
+        "v7.validation-campaign:index",
     }
 )
 SESSION_RECORD_PREFIX = "v7.session-browser:record:"
 CALCULATED_SERIES_DOCUMENT_PREFIX = "v7.calculated-series:document:"
+VALIDATION_CAMPAIGN_DOCUMENT_PREFIX = "v7.validation-campaign:document:"
 
 
 class StateValidationError(ValueError):
@@ -48,7 +50,11 @@ def require_user_id(value: Any) -> str:
 def _allowed_key(value: str) -> bool:
     return value in EXACT_KEYS or any(
         value.startswith(prefix) and len(value) > len(prefix)
-        for prefix in (SESSION_RECORD_PREFIX, CALCULATED_SERIES_DOCUMENT_PREFIX)
+        for prefix in (
+            SESSION_RECORD_PREFIX,
+            CALCULATED_SERIES_DOCUMENT_PREFIX,
+            VALIDATION_CAMPAIGN_DOCUMENT_PREFIX,
+        )
     )
 
 

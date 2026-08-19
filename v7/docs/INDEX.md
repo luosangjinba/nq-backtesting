@@ -209,12 +209,19 @@ strict records/commands/resource limits, public-only FVG/SMA evidence capture,
 no-future Outcome semantics, frozen Cohort analytics, reversible local/state-
 sync persistence, raw-context intents, deterministic export, and automated plus
 focused-human gates. The product owner accepted all ten decisions without
-amendment on 2026-08-19. The specification remains implementation-unallocated,
-does not register H121, and authorizes no production work. Its durable draft
-and acceptance records are
+amendment on 2026-08-19 and later separately authorized the concrete
+implementation action. R14.1 is now allocated, the exact eight-module removable
+closure and H121 automated/production-browser evidence are implemented, and
+H121 is registered as `executable`, human-review-required, with focused human
+acceptance still pending. H117 and its Developer Kit baseline remain unchanged;
+no excluded plugin, platform, or broader business scope started. Its durable
+draft and acceptance records are
 `../sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_candidate_specification.md`
 and
-`../sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_specification_acceptance.md`.
+`../sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_specification_acceptance.md`;
+implementation evidence and the pending review sheet are
+`../sessions/session_20260819_r14_1_h121_validation_campaign_implementation.md`
+and `V7_FVG_SMA_VALIDATION_CAMPAIGN_R14_1_HUMAN_REVIEW.md`.
 The later, independently decidable Dashboard/application/visual-language ideas
 are preserved without decision at
 `V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md`.

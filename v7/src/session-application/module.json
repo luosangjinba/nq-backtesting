@@ -24,7 +24,15 @@
     "adapter.trusted-calculated-series-execution",
     "optional.calculated-series-runtime",
     "optional.calculated-series-ui",
-    "optional.core-moving-averages"
+    "optional.core-moving-averages",
+    "optional.validation-study-domain",
+    "adapter.validation-campaign-persistence",
+    "adapter.validation-fvg-evidence",
+    "adapter.validation-sma-evidence",
+    "adapter.validation-outcome-window",
+    "adapter.validation-campaign-audit-export",
+    "optional.validation-campaign-runtime",
+    "adapter.validation-campaign-ui"
   ],
   "lifecycle": ["start", "stop", "dispose"],
   "independentHarness": "tests/production-application-host-browser-harness.js",

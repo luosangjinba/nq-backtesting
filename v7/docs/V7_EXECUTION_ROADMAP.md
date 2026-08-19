@@ -1418,7 +1418,7 @@ outside authority. The separately authorized documentation candidate below
 supersedes only that next-document hold. Production work still requires its
 accepted boundaries and later explicit implementation authority.
 
-### R14.1/H121 FVG + SMA Validation Campaign Implementation Slice — Specification Accepted, Implementation Unallocated
+### R14.1/H121 FVG + SMA Validation Campaign Implementation Slice — Implemented, Human Acceptance Pending
 
 The product owner separately authorized a documentation-only implementation-
 slice candidate on 2026-08-19. The specification at
@@ -1430,12 +1430,15 @@ and existing state-sync reuse, raw-context intents through current owners, and
 a deterministic audit JSON export.
 
 The product owner accepted all ten material decisions without amendment on
-2026-08-19. R14.1 and H121 remain proposed labels only: neither is allocated,
-H121 is absent from the Harness registry, and no production/schema/module/
-storage/state-sync/route/fixture change is authorized. The exact next boundary
-is a separate explicit instruction to allocate and implement only this slice.
-P1c.4, P1b.4, another plugin, Community/Worker, Journal, Dataset Builder, AI,
-MEMO-V7-005, and H117 status remain unchanged.
+2026-08-19 and later separately authorized the concrete implementation action.
+R14.1 is allocated; the exact eight-module removable closure, Campaign-only
+storage/state-sync namespace, production route, Replay capture surface,
+no-future FVG/SMA evidence, Outcome/Cohort/Analysis/drill-down/export path, and
+H121 negative/Chromium evidence are implemented. Automated H121 passes. H121
+remains `executable`, human-review-required, and unaccepted until the product
+owner explicitly accepts all ten focused checks. P1c.4, P1b.4, another plugin,
+Community/Worker, Journal, Dataset Builder, AI, MEMO-V7-005, and H117 status
+remain unchanged; the Developer Kit fingerprint baseline was not refreshed.
 
 ### MEMO-V7-005 Evidence Collections, Dashboard, Chart Application, And Visual Grammar — Non-Binding
 

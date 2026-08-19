@@ -24,6 +24,7 @@ export function createReplayWorkspaceCommandPort(context) {
     async start() {
       await context.beforeStart?.();
       if (context.annotationWorkflow !== null) await context.annotationWorkflow.start();
+      await context.afterOwnersStart?.();
       return startReplay();
     },
   });

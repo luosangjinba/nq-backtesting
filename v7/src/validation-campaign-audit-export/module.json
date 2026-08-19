@@ -1,0 +1,12 @@
+{
+  "id": "adapter.validation-campaign-audit-export",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "validation-campaign-audit-export",
+  "publicEntry": "src/validation-campaign-audit-export/public.js",
+  "requiredPorts": ["optional.validation-study-domain"],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/validation-campaign-harness.js",
+  "removable": true
+}

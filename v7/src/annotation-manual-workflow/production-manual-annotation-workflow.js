@@ -11,7 +11,9 @@ import { createManualProjectionCoordinator } from './manual-projection-coordinat
 import { armManualSemanticTool } from './manual-tool-picker.js';
 import { requireManualWorkflowOptions } from './manual-workflow-options.js';
 import { startManualWorkflowOwners } from './manual-workflow-start.js';
+import { requireActiveManualTool } from './manual-tool-selection.js';
 import { createProductionSemanticToolCatalog } from './semantic-tool-catalog.js';
+import { createManualSemanticEvidencePort } from './semantic-evidence-observation.js';
 import { failManualWorkflow, stableManualWorkflowError } from './workflow-error.js';
 import { createManualWorkflowViewModel, emptyInspectorSnapshot } from './workflow-view-model.js';
 
@@ -74,15 +76,6 @@ export function createProductionManualAnnotationWorkflow(input = {}) {
     status = nextStatus;
     error = null;
     publish();
-  }
-
-  function tool(toolId) {
-    const selected = tools.find(({ id }) => id === toolId);
-    if (!selected) failManualWorkflow('MANUAL_WORKFLOW_TOOL_UNKNOWN', `Tool ${toolId} is unavailable.`);
-    if (selected.state !== 'active') {
-      failManualWorkflow('MANUAL_WORKFLOW_TOOL_INACTIVE', `Tool ${toolId} is not active.`);
-    }
-    return selected;
   }
 
   async function reconcile({ excludeSelected = false } = {}) {
@@ -169,7 +162,13 @@ export function createProductionManualAnnotationWorkflow(input = {}) {
     });
   }
 
+  const evidencePort = createManualSemanticEvidencePort(
+    () => ({ options, runtime, semanticRegistry, workspace }),
+    (artifactId) => selectArtifact(artifactId),
+  );
+
   return Object.freeze({
+    ...evidencePort,
     acceptWorkspace(candidate) {
       const sequence = ++workspaceSequence;
       workspace = readAcceptedManualWorkspace(candidate);
@@ -245,7 +244,7 @@ export function createProductionManualAnnotationWorkflow(input = {}) {
         publish();
         return snapshot();
       }
-      const selectedTool = tool(toolId);
+      const selectedTool = requireActiveManualTool(tools, toolId);
       activeToolId = selectedTool.id;
       error = null;
       status = 'picking';

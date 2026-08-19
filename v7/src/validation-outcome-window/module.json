@@ -1,0 +1,19 @@
+{
+  "id": "adapter.validation-outcome-window",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "validation-outcome-window-adapter",
+  "publicEntry": "src/validation-outcome-window/public.js",
+  "requiredPorts": [
+    "optional.validation-study-domain",
+    "core.bar-data-contract",
+    "core.bar-data-runtime",
+    "core.replay-contract",
+    "core.replay-runtime",
+    "core.session-hours-domain"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/validation-campaign-harness.js",
+  "removable": true
+}

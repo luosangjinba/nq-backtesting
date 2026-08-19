@@ -19,14 +19,19 @@ export function createWorkspaceAnnotationWorkflow({
 } = {}) {
   const value = requireConfiguration(configuration);
   if (value === null) return null;
-  return value.api.createProductionManualAnnotationWorkflow({
+  const workflow = value.api.createProductionManualAnnotationWorkflow({
     chartSurfacePort: chartAdapter,
     idFactory: value.idFactory,
     moduleDescriptors: value.moduleDescriptors,
     nowEpochMs: value.nowEpochMs,
     readModuleHostSnapshot: value.readModuleHostSnapshot,
     sessionId: record.sessionId,
+    sessionRevision: record.revision,
     storage: value.storage,
     view: presentation,
+  });
+  return Object.freeze({
+    ...workflow,
+    selectEvidenceSource: (artifactId) => workflow.selectEvidenceSource(artifactId),
   });
 }

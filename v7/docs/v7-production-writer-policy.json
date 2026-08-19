@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "p1c-3-core-sma-writer-closure",
+  "status": "r14-1-validation-campaign-writer-closure",
   "writerPolicies": [
     {
       "surface": "annotationDocument",
@@ -26,6 +26,21 @@
       "surface": "calculatedSeriesDom",
       "detectorId": "calculated-series-dom-commit",
       "allowedModuleIds": ["optional.calculated-series-ui"]
+    },
+    {
+      "surface": "validationCampaignDocument",
+      "detectorId": "validation-campaign-document-accepted-state",
+      "allowedModuleIds": ["optional.validation-campaign-runtime"]
+    },
+    {
+      "surface": "validationCampaignStorage",
+      "detectorId": "validation-campaign-storage-commit",
+      "allowedModuleIds": ["adapter.validation-campaign-persistence"]
+    },
+    {
+      "surface": "validationCampaignDom",
+      "detectorId": "validation-campaign-dom-commit",
+      "allowedModuleIds": ["adapter.validation-campaign-ui"]
     },
     {
       "surface": "calendarSurfaceDom",

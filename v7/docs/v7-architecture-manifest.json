@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "p1c-3-h120-accepted-r14-1-h121-spec-accepted-implementation-unallocated",
+  "status": "r14-1-h121-implemented-automated-and-human-acceptance-pending",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -41,6 +41,7 @@
     "docs/V7_CORE_SMA_P1C3_HUMAN_REVIEW.md",
     "docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md",
     "docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md",
+    "docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_R14_1_HUMAN_REVIEW.md",
     "docs/V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md",
     "docs/V7_DRAWING_AND_SEMANTIC_ANNOTATION_FOUNDATION_R13_1.md",
     "docs/V7_MINIMAL_ANNOTATION_GEOMETRY_CONTRACT_R13_2.md",
@@ -165,7 +166,14 @@
     "annotation-semantic-registry",
     "semantic-liquidity-level",
     "semantic-fair-value-gap",
-    "annotation-workflow-composition"
+    "annotation-workflow-composition",
+    "validation-study-domain",
+    "validation-campaign-persistence",
+    "validation-evidence-adapter",
+    "validation-outcome-window-adapter",
+    "validation-campaign-audit-export",
+    "validation-campaign-runtime",
+    "validation-campaign-ui"
   ],
   "requiredIdentityFields": [
     "sessionId",
@@ -197,6 +205,14 @@
     "src/calculated-series-runtime/module.json",
     "src/calculated-series-ui/module.json",
     "src/core-moving-averages/module.json",
+    "src/validation-study-domain/module.json",
+    "src/validation-campaign-persistence/module.json",
+    "src/validation-fvg-evidence/module.json",
+    "src/validation-sma-evidence/module.json",
+    "src/validation-outcome-window/module.json",
+    "src/validation-campaign-audit-export/module.json",
+    "src/validation-campaign-runtime/module.json",
+    "src/validation-campaign-ui/module.json",
     "src/plugin-package-storage/module.json",
     "src/plugin-package-store/module.json",
     "src/core-plugin-profile/module.json",
@@ -332,6 +348,9 @@
     "calculatedSeriesDocument": ["optional.calculated-series-runtime"],
     "calculatedSeriesDocumentStorage": ["adapter.calculated-series-persistence"],
     "calculatedSeriesDom": ["optional.calculated-series-ui"],
+    "validationCampaignDocument": ["optional.validation-campaign-runtime"],
+    "validationCampaignStorage": ["adapter.validation-campaign-persistence"],
+    "validationCampaignDom": ["adapter.validation-campaign-ui"],
     "replicatedUserState": ["adapter.server-state-sync"],
     "calendarSurfaceDom": ["adapter.calendar-surface"],
     "sessionBrowserDom": ["adapter.session-browser-ui"],
@@ -424,6 +443,7 @@
     "fvg-host-rendered-evidence-inspector-and-validated-override",
     "trusted-build-core-plugin-center-profile-generation",
     "local-plugin-package-inventory-atomic-inactive-and-device-local",
-    "local-plugin-center-host-rendered-and-developer-generations-inactive"
+    "local-plugin-center-host-rendered-and-developer-generations-inactive",
+    "validation-campaign-immutable-evidence-outcome-cohort-analysis-and-removal-closure"
   ]
 }

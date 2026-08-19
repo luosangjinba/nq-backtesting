@@ -35,7 +35,7 @@ and disposal. The generic interaction Harness passes 28 negative controls.
 
 The complete production regression matrix passes all eight scenarios while
 reproducing only its two registered visual findings. Architecture hardening
-passes 104 rules and 15 negative controls. Current source evidence contains 582 files, 52,613 effective lines, 5,473 functions, and 558 public exports, with no
+passes 104 rules and 15 negative controls. Current source evidence contains 628 files, 58,339 effective lines, 5,981 functions, and 647 public exports, with no
 accepted exception. `git diff --check` passes.
 
 ## Human Visual Gate

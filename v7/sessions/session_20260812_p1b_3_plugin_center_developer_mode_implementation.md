@@ -78,7 +78,7 @@ package HTML/CSS/ESM/TypeScript, or creates a ModuleHost descriptor.
   adopted the repository's bounded async retry pattern.
 - The exact production graph contains 68 modules, 150 dependency edges, 133
   construction sites, 27 observed writer sites, and zero blocking findings.
-  Source evidence contains 582 files, 52,613 effective lines, 5,473 functions, and 558 public exports with no size/function exception or finding.
+  Source evidence contains 628 files, 58,339 effective lines, 5,981 functions, and 647 public exports with no size/function exception or finding.
 - `git diff --check` passes. No accepted visual baseline was re-recorded.
 
 ## Open Human And Product Gates

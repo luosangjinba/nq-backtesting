@@ -20,12 +20,14 @@ export function isStateSnapshotRollbackError(error) {
 export const STATE_SYNC_METADATA_KEY = 'v7.state-sync:metadata';
 export const STATE_SYNC_BACKUP_PREFIX = 'v7.state-sync:backup:';
 export const CALCULATED_SERIES_STATE_PREFIX = 'v7.calculated-series:document:';
+export const VALIDATION_CAMPAIGN_STATE_PREFIX = 'v7.validation-campaign:document:';
 
 const EXACT_KEYS = new Set([
   'v7.session-browser:index',
   'v7.replay-navigation-preferences',
   'v7.workstation-settings:global',
   'v7.color-history:global',
+  'v7.validation-campaign:index',
 ]);
 
 /** Return whether one Web Storage key belongs to the replicated V7 state contract. */
@@ -36,6 +38,8 @@ export function isReplicatedStateKey(key) {
         && key.length > 'v7.session-browser:record:'.length)
       || (key.startsWith(CALCULATED_SERIES_STATE_PREFIX)
         && key.length > CALCULATED_SERIES_STATE_PREFIX.length)
+      || (key.startsWith(VALIDATION_CAMPAIGN_STATE_PREFIX)
+        && key.length > VALIDATION_CAMPAIGN_STATE_PREFIX.length)
   );
 }
 

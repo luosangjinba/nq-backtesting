@@ -1,8 +1,9 @@
 # V7 FVG + SMA Validation Campaign / Study Case R14.1/H121 Implementation Slice — Accepted Specification
 
 Status: all ten material decisions accepted without amendment on 2026-08-19;
-`R14.1` and H121 remain proposed labels only and are not allocated or
-registered; no production implementation is authorized
+later implementation authority allocated R14.1 and registered H121 as
+`executable`; the exact slice is implemented and its automated evidence passes;
+focused human acceptance remains pending
 
 Drafted: 2026-08-19 03:02 PDT
 
@@ -18,7 +19,7 @@ Outcome, frozen Cohort, deterministic Analysis Run, raw-context drill-down, and
 portable audit export, using only the already accepted FVG and SMA(close)
 capabilities
 
-## Authority And Allocation Hold
+## Authority And Allocation History
 
 The accepted parent specification ended with this exact next boundary:
 
@@ -43,9 +44,8 @@ document the binding implementation specification for the bounded slice.
 Accepted decision 10 remains controlling: specification acceptance is not
 implementation authority and does not allocate/register the proposed labels.
 
-The candidate proposed the program label `R14.1` and Harness H121. They remain
-deliberately **unallocated and unregistered** after specification acceptance.
-In particular:
+At specification acceptance, the candidate program label `R14.1` and Harness
+H121 remained deliberately **unallocated and unregistered**. In particular:
 
 - `R14` denotes removable Validation Campaign business vertical slices;
 - `R14.1` would denote this one accepted-parent-spec tracer bullet;
@@ -60,6 +60,13 @@ In particular:
 
 H117 remains `executable`, human-review-required, and unaccepted. Nothing in
 this draft refreshes its baseline or changes its status.
+
+The product owner later responded `授权以上动作` to the concrete recommendation
+to allocate and implement this accepted slice. That later instruction
+superseded only the allocation/implementation hold: R14.1 is now allocated,
+H121 is registered as `executable`, and the exact eight-module production slice
+is implemented. It did not amend decisions 1–10, authorize any excluded scope,
+accept H121, or change/refresh H117.
 
 ## Bound Product Result
 
@@ -1048,11 +1055,11 @@ sites, zero native chart objects, and zero per-Bar Campaign subscription. A
 Campaign calculation may yield between bounded chunks in the browser, but it
 must never delay candle publication or playback correctness.
 
-## Proposed H121 Automated Evidence
+## H121 Automated Evidence — Implemented, Human Acceptance Pending
 
-No H121 Harness or registry row exists at specification acceptance. If a later
-implementation instruction allocates R14.1/H121, H121 must be executable,
-human-review-required, and initially unaccepted. It must prove at least:
+At specification acceptance no H121 Harness or registry row existed. The later
+implementation instruction allocated R14.1/H121. H121 is now executable,
+human-review-required, and unaccepted; its implemented automated gate proves:
 
 1. exact eight-module descriptor graph, lifecycle disposal, public-import
    closure, and optional removal with unchanged FVG/SMA/Replay revisions;
@@ -1201,15 +1208,17 @@ remains the exact bounded meaning reviewed in the candidate draft.
 - accepted: 2026-08-19 03:54 PDT, without amendment to decisions 1–10;
 - durable acceptance record:
   `../sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_specification_acceptance.md`;
-- allocation: none; R14.1/H121 remain proposed and unregistered;
-- implementation: not authorized;
+- allocation at specification acceptance: none;
+- later disposition: R14.1 allocated, H121 registered as `executable`, exact
+  implementation and automated evidence complete, focused human acceptance pending;
 - unchanged: H117 remains executable, human-review-required, and unaccepted;
   P1c.4, P1b.4, another plugin, Community/Worker, Journal, Dataset Builder, AI,
   and MEMO-V7-005 remain outside authority.
 
 ## Exact Next Boundary
 
-The next possible action is a separate explicit product-owner instruction to
-allocate and implement only this accepted R14.1/H121 slice. Until such an
-instruction, no implementation plan, production code, schema/module directory,
-state-sync allowlist, route, fixture, or H121 registry entry may be created.
+Run the focused ten-item human review in
+`V7_FVG_SMA_VALIDATION_CAMPAIGN_R14_1_HUMAN_REVIEW.md`. Do not mark H121
+accepted or close R14.1 until the product owner explicitly accepts all ten
+checks. Do not start P1c.4, P1b.4, another plugin, Community/Worker, Journal,
+Dataset Builder, AI, or MEMO-V7-005 implementation as a consequence.

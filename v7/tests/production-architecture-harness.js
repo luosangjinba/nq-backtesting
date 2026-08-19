@@ -35,7 +35,7 @@ const analysisPolicy = Object.freeze({
 
 assert.equal(baseline.schemaVersion, 1);
 assert.equal(writerPolicy.schemaVersion, 1);
-assert.equal(writerPolicy.status, 'p1c-3-core-sma-writer-closure');
+assert.equal(writerPolicy.status, 'r14-1-validation-campaign-writer-closure');
 assert.equal(baseline.deliveryStep, harnessRules.currentStep);
 assert.equal(baseline.status, 'blocking-recovery-baseline');
 assert.deepEqual(baseline.analysisPolicy.writerPolicies, writerPolicy.writerPolicies,

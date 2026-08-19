@@ -1,0 +1,16 @@
+{
+  "id": "adapter.validation-fvg-evidence",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "validation-evidence-adapter",
+  "publicEntry": "src/validation-fvg-evidence/public.js",
+  "requiredPorts": [
+    "optional.validation-study-domain",
+    "core.plugin-contract",
+    "optional.annotation-manual-workflow"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/validation-campaign-harness.js",
+  "removable": true
+}

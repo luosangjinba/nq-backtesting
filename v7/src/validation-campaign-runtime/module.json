@@ -1,0 +1,20 @@
+{
+  "id": "optional.validation-campaign-runtime",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "validation-campaign-runtime",
+  "publicEntry": "src/validation-campaign-runtime/public.js",
+  "requiredPorts": [
+    "optional.validation-study-domain",
+    "adapter.validation-campaign-persistence",
+    "adapter.validation-outcome-window",
+    "adapter.validation-campaign-audit-export"
+  ],
+  "optionalPorts": [
+    "adapter.validation-fvg-evidence",
+    "adapter.validation-sma-evidence"
+  ],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/validation-campaign-harness.js",
+  "removable": true
+}

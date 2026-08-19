@@ -43,7 +43,7 @@ The browser scenario proves visible cyan transient Preview, one lime accepted
 Segment after release, zero accepted work after Escape, restored native chart
 scrolling, unchanged candlestick data, and complete listener/primitive cleanup.
 
-Current machine evidence contains 582 files, 52,613 effective lines, 5,473 functions, and 558 public exports. Architecture evidence contains 62 modules,
+Current machine evidence contains 628 files, 58,339 effective lines, 5,981 functions, and 647 public exports. Architecture evidence contains 62 modules,
 131 actual dependency edges, 115 construction sites, 18 declared writer
 surfaces, 21 observed writer files, 21 lifecycle modules, twelve
 optional-removal cases, and zero accepted baseline findings.

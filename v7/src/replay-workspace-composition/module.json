@@ -25,6 +25,7 @@
     "core.replay-pane-response-contract",
     "core.replay-runtime",
     "core.session-hours-domain",
+    "core.session-identity",
     "core.transaction-identity",
     "core.viewport-runtime",
     "core.workspace-checkpoint-domain",

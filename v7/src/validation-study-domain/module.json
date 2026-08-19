@@ -1,0 +1,12 @@
+{
+  "id": "optional.validation-study-domain",
+  "version": "1.0.0",
+  "kind": "optional",
+  "owner": "validation-study-domain",
+  "publicEntry": "src/validation-study-domain/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/validation-campaign-harness.js",
+  "removable": true
+}

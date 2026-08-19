@@ -47,6 +47,27 @@
         ]
       },
       {
+        "surface": "validationCampaignDocument",
+        "detectorId": "validation-campaign-document-accepted-state",
+        "allowedModuleIds": [
+          "optional.validation-campaign-runtime"
+        ]
+      },
+      {
+        "surface": "validationCampaignStorage",
+        "detectorId": "validation-campaign-storage-commit",
+        "allowedModuleIds": [
+          "adapter.validation-campaign-persistence"
+        ]
+      },
+      {
+        "surface": "validationCampaignDom",
+        "detectorId": "validation-campaign-dom-commit",
+        "allowedModuleIds": [
+          "adapter.validation-campaign-ui"
+        ]
+      },
+      {
         "surface": "calendarSurfaceDom",
         "detectorId": "calendar-surface-dom-commit",
         "allowedModuleIds": [
@@ -189,7 +210,7 @@
       }
     ]
   },
-  "deliveryStep": "P1c.3",
+  "deliveryStep": "R14.1",
   "knownViolations": [],
   "schemaVersion": 1,
   "snapshot": {
@@ -231,6 +252,13 @@
         "sourceFile": "src/session-store/session-store.js",
         "sourceModuleId": "core.session-store",
         "targetModuleId": "core.activation-generation"
+      },
+      {
+        "callCount": 1,
+        "factory": "createAnalysisRun",
+        "sourceFile": "src/validation-campaign-runtime/analysis-command-controller.js",
+        "sourceModuleId": "optional.validation-campaign-runtime",
+        "targetModuleId": "optional.validation-study-domain"
       },
       {
         "callCount": 1,
@@ -294,6 +322,27 @@
         "sourceFile": "src/replay-workspace-composition/foundation-calendar-timeframe-capability.js",
         "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.calendar-timeframe-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCampaignDocument",
+        "sourceFile": "src/validation-campaign-runtime/campaign-command-controller.js",
+        "sourceModuleId": "optional.validation-campaign-runtime",
+        "targetModuleId": "optional.validation-study-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCampaignIndex",
+        "sourceFile": "src/validation-campaign-runtime/runtime-state.js",
+        "sourceModuleId": "optional.validation-campaign-runtime",
+        "targetModuleId": "optional.validation-study-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createCampaignRecord",
+        "sourceFile": "src/validation-campaign-runtime/campaign-command-controller.js",
+        "sourceModuleId": "optional.validation-campaign-runtime",
+        "targetModuleId": "optional.validation-study-domain"
       },
       {
         "callCount": 1,
@@ -385,6 +434,27 @@
         "sourceFile": "src/replay-workspace-composition/pane-data-composition.js",
         "sourceModuleId": "core.replay-workspace-composition",
         "targetModuleId": "core.pane-set-materialization"
+      },
+      {
+        "callCount": 1,
+        "factory": "createEvidenceCandidate",
+        "sourceFile": "src/validation-fvg-evidence/fvg-evidence-normalization.js",
+        "sourceModuleId": "adapter.validation-fvg-evidence",
+        "targetModuleId": "optional.validation-study-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createEvidenceCandidate",
+        "sourceFile": "src/validation-sma-evidence/sma-evidence-normalization.js",
+        "sourceModuleId": "adapter.validation-sma-evidence",
+        "targetModuleId": "optional.validation-study-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createEvidenceCitation",
+        "sourceFile": "src/validation-campaign-runtime/case-command-controller.js",
+        "sourceModuleId": "optional.validation-campaign-runtime",
+        "targetModuleId": "optional.validation-study-domain"
       },
       {
         "callCount": 1,
@@ -752,6 +822,13 @@
       },
       {
         "callCount": 1,
+        "factory": "createRawContextIntent",
+        "sourceFile": "src/validation-campaign-runtime/validation-campaign-runtime.js",
+        "sourceModuleId": "optional.validation-campaign-runtime",
+        "targetModuleId": "optional.validation-study-domain"
+      },
+      {
+        "callCount": 1,
         "factory": "createRawCoverageLeasePolicy",
         "sourceFile": "src/bar-data-runtime/coverage-lease-runtime.js",
         "sourceModuleId": "core.bar-data-runtime",
@@ -878,6 +955,13 @@
       },
       {
         "callCount": 1,
+        "factory": "createSeedDefinitions",
+        "sourceFile": "src/validation-campaign-runtime/campaign-command-controller.js",
+        "sourceModuleId": "optional.validation-campaign-runtime",
+        "targetModuleId": "optional.validation-study-domain"
+      },
+      {
+        "callCount": 1,
         "factory": "createSemanticArtifactInspectorController",
         "sourceFile": "src/annotation-manual-workflow/manual-inspector-assembly.js",
         "sourceModuleId": "optional.annotation-manual-workflow",
@@ -910,6 +994,27 @@
         "sourceFile": "src/calculated-series-runtime/runtime-state.js",
         "sourceModuleId": "optional.calculated-series-runtime",
         "targetModuleId": "core.session-identity"
+      },
+      {
+        "callCount": 1,
+        "factory": "createSourceVerification",
+        "sourceFile": "src/validation-campaign-runtime/analysis-command-controller.js",
+        "sourceModuleId": "optional.validation-campaign-runtime",
+        "targetModuleId": "optional.validation-study-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createStudyCase",
+        "sourceFile": "src/validation-campaign-runtime/case-command-controller.js",
+        "sourceModuleId": "optional.validation-campaign-runtime",
+        "targetModuleId": "optional.validation-study-domain"
+      },
+      {
+        "callCount": 1,
+        "factory": "createStudyCohort",
+        "sourceFile": "src/validation-campaign-runtime/analysis-command-controller.js",
+        "sourceModuleId": "optional.validation-campaign-runtime",
+        "targetModuleId": "optional.validation-study-domain"
       },
       {
         "callCount": 1,
@@ -1278,6 +1383,18 @@
       },
       {
         "moduleIds": [
+          "adapter.validation-campaign-persistence"
+        ],
+        "surface": "validationCampaignStorage"
+      },
+      {
+        "moduleIds": [
+          "adapter.validation-campaign-ui"
+        ],
+        "surface": "validationCampaignDom"
+      },
+      {
+        "moduleIds": [
           "core.bar-data-runtime"
         ],
         "surface": "rawBarRequest"
@@ -1371,6 +1488,12 @@
           "optional.calculated-series-ui"
         ],
         "surface": "calculatedSeriesDom"
+      },
+      {
+        "moduleIds": [
+          "optional.validation-campaign-runtime"
+        ],
+        "surface": "validationCampaignDocument"
       }
     ],
     "modules": [
@@ -1378,6 +1501,7 @@
         "actualDependencies": [
           "adapter.annotation-persistence",
           "core.plugin-contract",
+          "core.session-identity",
           "optional.annotation-bar-picker",
           "optional.annotation-chart-projection",
           "optional.annotation-context-projection",
@@ -1395,6 +1519,7 @@
         "declaredRequiredPorts": [
           "adapter.annotation-persistence",
           "core.plugin-contract",
+          "core.session-identity",
           "optional.annotation-bar-picker",
           "optional.annotation-chart-projection",
           "optional.annotation-context-projection",
@@ -1519,6 +1644,15 @@
             "sourceFile": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
             "targetFile": "src/annotation-geometry-domain/public.js",
             "targetModuleId": "optional.annotation-geometry-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "serializeSessionId"
+            ],
+            "sourceFile": "src/annotation-manual-workflow/semantic-evidence-observation.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
             "throughPublicEntry": true
           }
         ],
@@ -1927,6 +2061,7 @@
           "core.replay-pane-response-contract",
           "core.replay-runtime",
           "core.session-hours-domain",
+          "core.session-identity",
           "core.transaction-identity",
           "core.viewport-runtime",
           "core.workspace-checkpoint-domain",
@@ -1961,6 +2096,7 @@
           "core.replay-pane-response-contract",
           "core.replay-runtime",
           "core.session-hours-domain",
+          "core.session-identity",
           "core.transaction-identity",
           "core.viewport-runtime",
           "core.workspace-checkpoint-domain",
@@ -2497,6 +2633,15 @@
           },
           {
             "importedNames": [
+              "serializeSessionId"
+            ],
+            "sourceFile": "src/replay-workspace-composition/workspace-validation-campaign.js",
+            "targetFile": "src/session-identity/public.js",
+            "targetModuleId": "core.session-identity",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
               "serializeWorkspaceCheckpoint"
             ],
             "sourceFile": "src/replay-workspace-composition/workspace-checkpoint-persistence.js",
@@ -2522,10 +2667,148 @@
           "src/replay-workspace-composition/refresh-feedback.js",
           "src/replay-workspace-composition/workspace-calculated-series-workflow.js",
           "src/replay-workspace-composition/workspace-command-port.js",
-          "src/replay-workspace-composition/workspace-execution.js"
+          "src/replay-workspace-composition/workspace-execution.js",
+          "src/replay-workspace-composition/workspace-validation-campaign.js"
         ],
         "owner": "replay-workspace-composition",
         "publicEntry": "src/replay-workspace-composition/public.js"
+      },
+      {
+        "actualDependencies": [
+          "adapter.validation-campaign-persistence",
+          "optional.validation-study-domain"
+        ],
+        "declaredLifecycle": [
+          "dispose"
+        ],
+        "declaredOptionalPorts": [
+          "adapter.validation-fvg-evidence",
+          "adapter.validation-sma-evidence"
+        ],
+        "declaredRequiredPorts": [
+          "adapter.validation-campaign-audit-export",
+          "adapter.validation-campaign-persistence",
+          "adapter.validation-outcome-window",
+          "optional.validation-study-domain"
+        ],
+        "descriptorPath": "src/validation-campaign-runtime/module.json",
+        "id": "optional.validation-campaign-runtime",
+        "importSites": [
+          {
+            "importedNames": [
+              "archiveCampaignRecord",
+              "createCampaignDocument",
+              "createCampaignRecord",
+              "createSeedDefinitions",
+              "failValidation",
+              "replaceCampaignDocument"
+            ],
+            "sourceFile": "src/validation-campaign-runtime/campaign-command-controller.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "caseRef",
+              "createAnalysisRun",
+              "createSourceVerification",
+              "createStudyCohort",
+              "failValidation",
+              "replaceCampaignDocument"
+            ],
+            "sourceFile": "src/validation-campaign-runtime/analysis-command-controller.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createEvidenceCitation",
+              "createStudyCase",
+              "failValidation",
+              "observationContextFromCitations",
+              "replaceCampaignDocument",
+              "requireBoundedText",
+              "supersedeStudyCase"
+            ],
+            "sourceFile": "src/validation-campaign-runtime/case-command-controller.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "createRawContextIntent",
+              "failValidation",
+              "strictPortableValue"
+            ],
+            "sourceFile": "src/validation-campaign-runtime/validation-campaign-runtime.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "failValidation",
+              "readDefinitionRef",
+              "readPathPlan"
+            ],
+            "sourceFile": "src/validation-campaign-runtime/command-contract.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "VALIDATION_LIMITS",
+              "failValidation",
+              "readDefinitionRef",
+              "readEvidenceCandidate",
+              "strictPortableValue"
+            ],
+            "sourceFile": "src/validation-campaign-runtime/observation-controller.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "validationCampaignDocumentStorageKey"
+            ],
+            "sourceFile": "src/validation-campaign-runtime/runtime-state.js",
+            "targetFile": "src/validation-campaign-persistence/public.js",
+            "targetModuleId": "adapter.validation-campaign-persistence",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "ValidationCampaignError",
+              "assertCampaignDocumentCeilings",
+              "createCampaignIndex",
+              "failValidation",
+              "readAnalysisRun",
+              "readCampaignDocument",
+              "readCampaignIndex",
+              "readSourceVerification",
+              "readStudyCase",
+              "readStudyCohort",
+              "strictPortableValue"
+            ],
+            "sourceFile": "src/validation-campaign-runtime/runtime-state.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/validation-campaign-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [
+          "src/validation-campaign-runtime/validation-campaign-runtime.js"
+        ],
+        "owner": "validation-campaign-runtime",
+        "publicEntry": "src/validation-campaign-runtime/public.js"
       },
       {
         "actualDependencies": [
@@ -5583,6 +5866,199 @@
         "publicEntry": "src/semantic-liquidity-level/public.js"
       },
       {
+        "actualDependencies": [
+          "optional.validation-study-domain"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "adapter.session-persistence",
+          "optional.validation-study-domain"
+        ],
+        "descriptorPath": "src/validation-campaign-persistence/module.json",
+        "id": "adapter.validation-campaign-persistence",
+        "importSites": [
+          {
+            "importedNames": [
+              "VALIDATION_CAMPAIGN_DOCUMENT_PREFIX",
+              "VALIDATION_CAMPAIGN_INDEX_KEY",
+              "VALIDATION_LIMITS",
+              "canonicalJson",
+              "failValidation",
+              "parseCanonicalJson",
+              "requireUuid",
+              "utf8Bytes"
+            ],
+            "sourceFile": "src/validation-campaign-persistence/persistence-adapter.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/validation-campaign-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [],
+        "owner": "validation-campaign-persistence",
+        "publicEntry": "src/validation-campaign-persistence/public.js"
+      },
+      {
+        "actualDependencies": [
+          "optional.validation-study-domain"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.bar-data-contract",
+          "core.bar-data-runtime",
+          "core.replay-contract",
+          "core.replay-runtime",
+          "core.session-hours-domain",
+          "optional.validation-study-domain"
+        ],
+        "descriptorPath": "src/validation-outcome-window/module.json",
+        "id": "adapter.validation-outcome-window",
+        "importSites": [
+          {
+            "importedNames": [
+              "calculateOutcomeObservation",
+              "failValidation",
+              "strictPortableValue"
+            ],
+            "sourceFile": "src/validation-outcome-window/outcome-window-adapter.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/validation-campaign-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [],
+        "owner": "validation-outcome-window-adapter",
+        "publicEntry": "src/validation-outcome-window/public.js"
+      },
+      {
+        "actualDependencies": [
+          "optional.validation-study-domain"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.calculated-series-contract",
+          "core.plugin-contract",
+          "optional.calculated-series-runtime",
+          "optional.validation-study-domain"
+        ],
+        "descriptorPath": "src/validation-sma-evidence/module.json",
+        "id": "adapter.validation-sma-evidence",
+        "importSites": [
+          {
+            "importedNames": [
+              "createEvidenceCandidate",
+              "sha256Canonical"
+            ],
+            "sourceFile": "src/validation-sma-evidence/sma-evidence-normalization.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireDigest"
+            ],
+            "sourceFile": "src/validation-sma-evidence/sma-evidence-provider.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/validation-campaign-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [],
+        "owner": "validation-evidence-adapter",
+        "publicEntry": "src/validation-sma-evidence/public.js"
+      },
+      {
+        "actualDependencies": [
+          "optional.validation-study-domain"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.plugin-contract",
+          "optional.annotation-manual-workflow",
+          "optional.validation-study-domain"
+        ],
+        "descriptorPath": "src/validation-fvg-evidence/module.json",
+        "id": "adapter.validation-fvg-evidence",
+        "importSites": [
+          {
+            "importedNames": [
+              "createEvidenceCandidate",
+              "sha256Canonical"
+            ],
+            "sourceFile": "src/validation-fvg-evidence/fvg-evidence-normalization.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          },
+          {
+            "importedNames": [
+              "requireDigest"
+            ],
+            "sourceFile": "src/validation-fvg-evidence/fvg-evidence-provider.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/validation-campaign-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [],
+        "owner": "validation-evidence-adapter",
+        "publicEntry": "src/validation-fvg-evidence/public.js"
+      },
+      {
+        "actualDependencies": [
+          "optional.validation-study-domain"
+        ],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "optional.validation-study-domain"
+        ],
+        "descriptorPath": "src/validation-campaign-audit-export/module.json",
+        "id": "adapter.validation-campaign-audit-export",
+        "importSites": [
+          {
+            "importedNames": [
+              "METRIC_SET_ID",
+              "METRIC_SET_VERSION",
+              "VALIDATION_LIMITS",
+              "VALIDATION_SCHEMAS",
+              "canonicalJson",
+              "requireEpoch",
+              "sha256Canonical",
+              "strictPortableValue",
+              "utf8Bytes"
+            ],
+            "sourceFile": "src/validation-campaign-audit-export/audit-exporter.js",
+            "targetFile": "src/validation-study-domain/public.js",
+            "targetModuleId": "optional.validation-study-domain",
+            "throughPublicEntry": true
+          }
+        ],
+        "independentHarness": "tests/validation-campaign-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [],
+        "owner": "validation-campaign-audit-export",
+        "publicEntry": "src/validation-campaign-audit-export/public.js"
+      },
+      {
         "actualDependencies": [],
         "declaredLifecycle": [
           "dispose",
@@ -5595,10 +6071,18 @@
           "adapter.replay-workspace-ui",
           "adapter.server-state-sync",
           "adapter.trusted-calculated-series-execution",
+          "adapter.validation-campaign-audit-export",
+          "adapter.validation-campaign-persistence",
+          "adapter.validation-campaign-ui",
+          "adapter.validation-fvg-evidence",
+          "adapter.validation-outcome-window",
+          "adapter.validation-sma-evidence",
           "optional.annotation-manual-workflow",
           "optional.calculated-series-runtime",
           "optional.calculated-series-ui",
-          "optional.core-moving-averages"
+          "optional.core-moving-averages",
+          "optional.validation-campaign-runtime",
+          "optional.validation-study-domain"
         ],
         "declaredRequiredPorts": [
           "adapter.market-data-provider",
@@ -5619,7 +6103,9 @@
         "kind": "adapter",
         "observedDisposeSites": [
           "src/session-application/application-definition.js",
-          "src/session-application/application-resources.js"
+          "src/session-application/application-resources.js",
+          "src/session-application/validation-campaign-optional-ports.js",
+          "src/session-application/validation-workspace-bridge.js"
         ],
         "owner": "application-composition",
         "publicEntry": "src/session-application/public.js"
@@ -5648,6 +6134,33 @@
         ],
         "owner": "application-composition",
         "publicEntry": "src/data-acquisition-application/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [
+          "dispose",
+          "start",
+          "stop"
+        ],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [
+          "core.browser-async-contract",
+          "optional.validation-campaign-runtime",
+          "optional.validation-study-domain"
+        ],
+        "descriptorPath": "src/validation-campaign-ui/module.json",
+        "id": "adapter.validation-campaign-ui",
+        "importSites": [],
+        "independentHarness": "tests/validation-campaign-ui-independent-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "adapter",
+        "observedDisposeSites": [
+          "src/validation-campaign-ui/campaign-route.js",
+          "src/validation-campaign-ui/capture-dialog.js",
+          "src/validation-campaign-ui/validation-campaign-ui.js"
+        ],
+        "owner": "validation-campaign-ui",
+        "publicEntry": "src/validation-campaign-ui/public.js"
       },
       {
         "actualDependencies": [],
@@ -6098,6 +6611,21 @@
         "declaredLifecycle": [],
         "declaredOptionalPorts": [],
         "declaredRequiredPorts": [],
+        "descriptorPath": "src/validation-study-domain/module.json",
+        "id": "optional.validation-study-domain",
+        "importSites": [],
+        "independentHarness": "tests/validation-campaign-harness.js",
+        "independentHarnessMode": "public-entry-direct",
+        "kind": "optional",
+        "observedDisposeSites": [],
+        "owner": "validation-study-domain",
+        "publicEntry": "src/validation-study-domain/public.js"
+      },
+      {
+        "actualDependencies": [],
+        "declaredLifecycle": [],
+        "declaredOptionalPorts": [],
+        "declaredRequiredPorts": [],
         "descriptorPath": "src/workspace-checkpoint-domain/module.json",
         "id": "core.workspace-checkpoint-domain",
         "importSites": [],
@@ -6271,6 +6799,24 @@
         "sourceFile": "src/session-store/session-store.js",
         "sourceModuleId": "core.session-store",
         "surface": "sessionRecord"
+      },
+      {
+        "detectorId": "validation-campaign-document-accepted-state",
+        "sourceFile": "src/validation-campaign-runtime/runtime-state.js",
+        "sourceModuleId": "optional.validation-campaign-runtime",
+        "surface": "validationCampaignDocument"
+      },
+      {
+        "detectorId": "validation-campaign-dom-commit",
+        "sourceFile": "src/validation-campaign-ui/campaign-route.js",
+        "sourceModuleId": "adapter.validation-campaign-ui",
+        "surface": "validationCampaignDom"
+      },
+      {
+        "detectorId": "validation-campaign-storage-commit",
+        "sourceFile": "src/validation-campaign-persistence/persistence-adapter.js",
+        "sourceModuleId": "adapter.validation-campaign-persistence",
+        "surface": "validationCampaignStorage"
       },
       {
         "detectorId": "viewport-intent-commit",
