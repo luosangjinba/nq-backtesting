@@ -1,10 +1,10 @@
 # V7 Task And Requirement Numbering
 
 Status: binding delivery rule; latest allocated repository step is P1c.3;
-H120 is accepted, P1c.3 is closed, the FVG + SMA business Demo remains an
-unaccepted documentation candidate with no id, MEMO-V7-005 is non-binding with
-no id, MEMO-V7-001's scope amendment is non-binding with no id, and H117 is
-unchanged (2026-08-19)
+H120 is accepted, P1c.3 is closed, the FVG + SMA business Demo specification's
+ten decisions are accepted but still have no delivery/Harness id, MEMO-V7-005
+is non-binding with no id, MEMO-V7-001's scope amendment is non-binding with no
+id, and H117 is unchanged (2026-08-19)
 
 ## Delivery IDs
 
@@ -53,10 +53,12 @@ plugin, generic layout slice, P1b.4, Community/Worker, business implementation,
 or H117 change is authorized by this acceptance.
 
 The product owner then authorized a documentation-only FVG + SMA Validation
-Campaign / Study Case Demo candidate. It has no delivery id, Harness id,
-implementation authority, or acceptance state. Drafting that candidate does
-not allocate P1c.4/H121 or supersede the rule that any repository-changing
-business slice requires a separately accepted specification and explicit
+Campaign / Study Case Demo candidate and accepted all ten material decisions
+without amendment on 2026-08-19. The resulting accepted specification still
+has no delivery id, Harness id, or implementation authority. Acceptance does
+not allocate P1c.4/H121 or supersede the rule that drafting the implementation-
+slice specification requires separate authority and any repository-changing
+business slice requires an accepted implementation specification plus explicit
 implementation instruction.
 
 The later MEMO-V7-005 Evidence Collection Dashboard / explicit multi-dataset
@@ -66,7 +68,7 @@ record is a registered non-decision memo, not a delivery candidate. Its
 amendment raises the open questions to seventeen. MEMO-V7-001's simultaneous
 SMC/ICT-first, time-based OHLCV compatibility narrowing is also a non-decision
 memo amendment. Neither allocates an `R`, `P`, or `H` id, amends the FVG + SMA
-candidate, or authorizes implementation.
+accepted specification, or authorizes implementation.
 
 `R13.5` was the Segment Interaction And Preview step. R13.2 remains the pure
 removable Geometry boundary, R13.3 remains

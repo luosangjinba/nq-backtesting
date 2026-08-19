@@ -1,12 +1,34 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-19 after MEMO-V7-001 narrowed future compatibility to
-SMC/ICT-first time-based OHLCV discretionary research and MEMO-V7-005 added
-strategy-neutral multi-timeframe Setup evidence plus complete Setup visual
-groups; the FVG + SMA Demo remains an unaccepted/unallocated candidate, H117
-remains executable/unaccepted, and no implementation slice is allocated
+Last updated: 2026-08-19 after the product owner accepted all ten FVG + SMA
+Validation Campaign / Study Case Demo decisions without amendment; the
+specification remains delivery/Harness-unallocated and implementation is not
+authorized, H117 remains executable/unaccepted, and no implementation slice is
+allocated
 
 ## Restart Resume Checkpoint
+
+### 2026-08-19 FVG + SMA Business Demo Specification Accepted
+
+The product owner accepted decisions 1–10 in
+`docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` without amendment.
+The accepted business/product/architecture scope uses only the existing manual
+FVG and SMA(close) capabilities for one Validation Campaign → Study Case →
+Outcome → frozen Cohort → deterministic statistics → raw-chart drill-down →
+audit-export tracer bullet. Its asymmetric/degradable source relationship,
+frozen evidence, no-loss provider removal, exact Setup/Outcome policy, and
+separate local-first Campaign ownership are now binding.
+
+Decision 10 remains a hard non-implementation boundary. No delivery or Harness
+id was allocated; no implementation-slice specification or production code was
+authorized. The next possible action is only a separately product-owner-
+authorized implementation-slice specification. P1c.4/H121, P1b.4, another
+plugin, Community/Worker, Journal, Dataset Builder, AI, and H117 acceptance all
+remain unchanged. MEMO-V7-005's seventeen open decisions are separate and were
+not imported into the accepted Demo.
+
+Durable acceptance record:
+`sessions/session_20260819_fvg_sma_validation_campaign_study_case_demo_specification_acceptance.md`.
 
 ### 2026-08-19 Trading-School Scope And Strategy-Neutral Setup Memo Amendment
 
@@ -313,11 +335,14 @@ Then read, in order:
 
 For the current resume, immediately after item 1 read
 `v7/docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` and
-`v7/sessions/session_20260818_fvg_sma_validation_campaign_study_case_demo_candidate_specification.md`.
+`v7/sessions/session_20260819_fvg_sma_validation_campaign_study_case_demo_specification_acceptance.md`.
+Use
+`v7/sessions/session_20260818_fvg_sma_validation_campaign_study_case_demo_candidate_specification.md`
+only for the preceding draft history.
 Read
 `v7/docs/V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md`
-only as non-binding future context; it does not alter the candidate's ten-item
-review.
+only as non-binding future context; it does not alter the accepted ten-decision
+specification.
 Then use
 `v7/sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md` and
 `v7/docs/V7_CORE_SMA_SINGLE_PLUGIN_VERTICAL_SLICE_SPEC.md` only as the direct
@@ -424,18 +449,18 @@ host bootstrap permutations, and multi-mode deployment matrix remain useful
 non-blocking operational evidence rather than open milestone gates. Binding
 closure: `V7_FOUNDATION_MILESTONE_V7_0_0.md`.
 
-The current product-decision frontier is the unaccepted, documentation-only
-FVG + SMA Validation Campaign / Study Case Demo candidate described in the
-latest checkpoint above. It changes no accepted foundation/plugin behavior and
-allocates no business delivery. Its dependency rule preserves plugin operation
-without the business module and preserves frozen business history without live
-source plugins; only affected new evidence capture and current verification
-become unavailable.
+The current product-decision frontier is the accepted, documentation-only FVG +
+SMA Validation Campaign / Study Case Demo specification described in the latest
+checkpoint above. It changes no accepted foundation/plugin behavior, allocates
+no business delivery, and authorizes no implementation. Its dependency rule
+preserves plugin operation without the business module and preserves frozen
+business history without live source plugins; only affected new evidence
+capture and current verification become unavailable.
 
 MEMO-V7-005 separately preserves future Collection Dashboard, multi-dataset
 Chart application, semantic visual grammar/text, and Setup-free phenomenon
 research ideas. It is non-binding and changes neither the current frontier nor
-the candidate's implementation boundary.
+the accepted specification's implementation boundary.
 
 Post-milestone development now follows accepted ADR-V7-001. R13.2 provides
 `optional.annotation-geometry-domain`; R13.3 provides
@@ -1517,25 +1542,26 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
-The next exact action is product-owner review of decisions 1–10 in
-`V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md`. Accept, amend, or
-reject the candidate; do not implement it during review. In particular, review
-the selected business records, one SMA(close,20) + manual FVG Setup, immutable
-evidence citations, separate first-touch Outcome, frozen Cohort/statistics,
-raw-context drill-down, audit export, and no-loss provider-removal semantics.
+Decisions 1–10 in
+`V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` are accepted without
+amendment. No further review action or implementation is currently authorized.
+The next possible action is a separate product-owner instruction to draft the
+implementation-slice specification. That future specification must select the
+delivery/Harness id, exact public schemas and commands, storage/state-sync
+bounds, module descriptors, diagnostics, transaction phases, browser fixture,
+performance budgets, and focused human gate; it must itself be accepted before
+any production implementation instruction.
 
 MEMO-V7-005 is not silently included in that review. Its seventeen Dashboard,
 application, complete-Setup/multi-timeframe, visual-grammar, text, and
 Phenomenon Study questions remain a separate non-decision backlog until the
 product owner explicitly asks to promote or review them.
 
-Even complete acceptance allocates no delivery/Harness id. A later separate
-instruction must authorize an implementation-slice specification before any
-Campaign schema/runtime/persistence/state-sync/UI/export code changes. P1c.4/
-H121 remains only the separately recommended next dependency inside the
-calculated-series expansion sequence and is not authorized by this business
-candidate. H117 remains executable/unaccepted; P1b.4, another plugin,
-Community/Worker, Journal, Dataset Builder, and AI remain paused.
+This acceptance allocates no delivery/Harness id. P1c.4/H121 remains only the
+separately recommended next dependency inside the calculated-series expansion
+sequence and is not authorized by this business specification. H117 remains
+executable/unaccepted; P1b.4, another plugin, Community/Worker, Journal,
+Dataset Builder, AI, and all Campaign implementation remain paused.
 
 R13.10e/H114, P0b/H115, and P1a/H116 are closed. P1b.1–P1b.3 implement the
 non-executing local package contract/archive, transaction/storage, and corrected
@@ -1559,10 +1585,10 @@ remains tooling/security evidence without retained handles or mode state. The
 corrected focused human review in
 `V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md` passed on 2026-08-12. P1b.4 is
 deliberately paused and still requires a separate product-owner instruction.
-The business Demo candidate does not supersede that pause. Do not create
-the MCP adapter or claim H117 acceptance, P2 registry, P3a Worker runtime, P3b
-Pine migration, detector, another Indicator/algorithm, Fibonacci, Marketplace,
-or R13.11–R13.13 before the applicable authorization.
+The accepted business Demo specification does not supersede that pause. Do not
+create the MCP adapter or claim H117 acceptance, P2 registry, P3a Worker
+runtime, P3b Pine migration, detector, another Indicator/algorithm, Fibonacci,
+Marketplace, or R13.11–R13.13 before the applicable authorization.
 
 Older clean-host, physical cross-device, Data Acquisition admin, resource, and
 known H091 visual checks remain non-blocking operational follow-up for the

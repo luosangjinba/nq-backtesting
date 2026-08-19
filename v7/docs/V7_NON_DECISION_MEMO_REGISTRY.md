@@ -4,7 +4,7 @@ Status: binding documentation-governance index
 
 Created: 2026-08-07
 
-Last updated: 2026-08-19 01:46 PDT
+Last updated: 2026-08-19 02:39 PDT
 
 ## Purpose
 
@@ -54,7 +54,7 @@ converted into a decision.
 
 | Candidate id | Topic | Drafted | Current status | File |
 | --- | --- | --- | --- | --- |
-| _Unallocated_ | FVG + SMA Validation Campaign / Study Case business Demo | 2026-08-18 | product-owner-authorized candidate draft; ten material decisions await review; no delivery/Harness id or implementation | `V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` |
+| _None_ | No active adjacent decision candidate | — | — | — |
 
 Accepted decisions which promote or constrain memo content are recorded in
 Decision History.
@@ -95,16 +95,16 @@ delete it.
   source-resolution provenance and materially larger evidence/resource budgets.
 - Neither memo silently activates the other.
 
-### MEMO-V7-005 Versus MEMO-V7-003 And The FVG + SMA Candidate
+### MEMO-V7-005 Versus MEMO-V7-003 And The FVG + SMA Specification
 
 - MEMO-V7-003 proposes the broader Research → Training → Trading Review
   learning system. MEMO-V7-005 narrows one independently decidable product
   surface: heterogeneous Collection Dashboards, explicit Chart application,
   Setup-free phenomenon observations, and consistent Chart element semantics.
-- The pending FVG + SMA candidate remains the smaller first Setup-validation
-  tracer bullet. MEMO-V7-005 does not amend its ten decisions or add Dashboard,
-  Journal, multi-dataset visualization, phenomenon probability, text, or
-  visual-grammar implementation to that candidate.
+- The accepted FVG + SMA specification remains the smaller first Setup-
+  validation tracer bullet. MEMO-V7-005 does not amend its ten accepted
+  decisions or add Dashboard, Journal, multi-dataset visualization, phenomenon
+  probability, text, or visual-grammar implementation to that specification.
 - A future promotion must choose whether the Campaign's frozen Cohorts become
   one native provider to the proposed Evidence Collection layer or whether the
   first Collection type is owned directly by Campaign. It cannot copy Campaign
@@ -116,7 +116,7 @@ delete it.
 - Applying several Collections to a Chart remains presentation/application
   state. It does not merge native business records, Plugin lifecycles, or
   accepted source provenance.
-- The FVG + SMA candidate's Context/Execution Panes belong only to its exact
+- The FVG + SMA specification's Context/Execution Panes belong only to its exact
   `demo.sma-trend-manual-fvg@1.0.0` template. MEMO-V7-005's generic future Case
   and `SetupVisualGroup` position has no mandatory Analysis/Context/Entry role,
   fixed timeframe, two-Pane shape, or global higher-than relationship.
@@ -303,6 +303,7 @@ A memo becomes a decision only through a separate ADR/specification which:
 | `ADR-V7-004` | 2026-08-10; amended 2026-08-11 | partially promotes MEMO-V7-001's Kernel/Core/Community taxonomy, FVG/MA/SMA/BSL/Fib Core classification, declared derived dependencies, Plugin Center experience, unified install/developer channels, host-rendered settings, strict TypeScript/ESM/JSON Schema model, Agent-native Developer Kit/Harness and MCP boundary, assisted Pine-to-TypeScript indicator migration, stricter trust tiers, and thin-platform/local/free-registry sequence | general-futures scope, Setup/AI system, concrete loader/sandbox/Developer-Kit/MCP/Pine implementation, remote registry operations, commercialization, and paid Marketplace remain open | `V7_CORE_AND_COMMUNITY_PLUGIN_MODEL_SPEC.md` |
 | `ADR-V7-006` | 2026-08-12 | promotes MEMO-V7-001's contribution taxonomy into an open host-governed Profile registry; accepts Package/Contribution/Profile/Capability/Domain-Tag/Pack separation, five non-exhaustive initial Profiles, multi-Contribution packages, typed host composition, unresolved survival, and same-Profile Core/Community semantics | no production/SDK registry, Profile implementation, calculated-series projection, Community execution, general-futures scope, Setup/AI system, remote registry, commercialization, or Marketplace is authorized | `V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md` |
 | `ADR-V7-005` | 2026-08-12 | promotes MEMO-V7-001's calculated-series projection boundary; accepts user-owned Main/internal-Chart-region placement, Plot Groups and standard Plots, structural Scale compatibility, exact no-stale projection frames, host-owned instance/layout/unresolved state, sole Chart writing, and same-Profile Core/Community semantics | no production/SDK Profile registration, MA/SMA or other Indicator implementation, Community execution, delivery/Harness id, P1b.4, H117 acceptance, general-futures scope, Setup/AI system, remote registry, commercialization, or Marketplace is authorized | `V7_GENERIC_INDICATOR_PROJECTION_AND_CHART_REGION_SPEC.md` |
+| _Unallocated accepted specification_ | 2026-08-19 | accepts all ten FVG + SMA Validation Campaign / Study Case Demo decisions without amendment: one existing-plugin tracer bullet, selected business records, asymmetric/degradable evidence dependency, frozen citations, no-loss provider removal, one exact Setup and Outcome policy, frozen traceable analytics, and separate local-first ownership | delivery/Harness allocation and implementation-slice specification remain separately unauthorized; P1c.4/H121, P1b.4, other plugins, Community/Worker, Journal, Dataset Builder, AI, H117 acceptance, and MEMO-V7-005's seventeen open decisions remain unchanged | `V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` |
 
 No registered memo has been fully promoted and closed. MEMO-V7-001,
 MEMO-V7-003, and MEMO-V7-004 are partially promoted; their explicitly

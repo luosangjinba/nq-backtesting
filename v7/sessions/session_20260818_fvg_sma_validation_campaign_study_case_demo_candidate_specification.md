@@ -148,3 +148,10 @@ still allocate no implementation; a later explicit implementation-slice
 specification must select schemas, commands, storage/state-sync bounds,
 diagnostics, transaction phases, delivery/Harness id, automated evidence, and
 focused human review.
+
+## Subsequent Decision
+
+On 2026-08-19, the product owner accepted all ten material decisions without
+amendment. The durable acceptance and preserved non-implementation boundary are
+recorded at
+`session_20260819_fvg_sma_validation_campaign_study_case_demo_specification_acceptance.md`.

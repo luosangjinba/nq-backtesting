@@ -187,16 +187,20 @@ implementation and focused-review records are
 `../sessions/session_20260818_p1c_3_core_sma_single_plugin_implementation.md`
 and `V7_CORE_SMA_P1C3_HUMAN_REVIEW.md`; durable H120 acceptance is
 `../sessions/session_20260818_p1c_3_h120_core_sma_human_acceptance.md`.
-The product owner then authorized only a documentation candidate for one FVG +
-SMA Validation Campaign / Study Case business tracer bullet. The unaccepted
-candidate at `V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` defines
+The product owner then authorized a documentation candidate for one FVG + SMA
+Validation Campaign / Study Case business tracer bullet and accepted all ten
+material decisions without amendment on 2026-08-19. The accepted specification
+at `V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` defines
 asymmetric, degradable independence: source plugins never depend on the
 business module; new Setup capture may require exact public evidence from them;
 frozen Cases, Outcomes, Cohorts, statistics, and audit history survive source
 disable, uninstall, or incompatibility. It allocates no delivery/Harness id and
 authorizes no implementation, other plugin, P1c.4, P1b.4, Community/Worker,
-Journal, Dataset Builder, or AI work. Its durable draft record is
-`../sessions/session_20260818_fvg_sma_validation_campaign_study_case_demo_candidate_specification.md`.
+Journal, Dataset Builder, or AI work. Its durable draft and acceptance records
+are
+`../sessions/session_20260818_fvg_sma_validation_campaign_study_case_demo_candidate_specification.md`
+and
+`../sessions/session_20260819_fvg_sma_validation_campaign_study_case_demo_specification_acceptance.md`.
 The later, independently decidable Dashboard/application/visual-language ideas
 are preserved without decision at
 `V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md`.
@@ -212,8 +216,8 @@ explicit cross-timeframe projection, and a collapsible complete
 fixed Context → Entry tree. The same amendment cycle narrows MEMO-V7-001's
 non-binding compatibility position to SMC/ICT-first time-based OHLCV
 discretionary research and makes broader school support best-effort only. It
-neither amends the FVG + SMA candidate nor authorizes a Dashboard, Chart
-projection, text tool, detector, Journal, plugin, data capability, or
+neither amends the accepted FVG + SMA specification nor authorizes a Dashboard,
+Chart projection, text tool, detector, Journal, plugin, data capability, or
 implementation. The durable amendment record is
 `../sessions/session_20260819_trading_school_scope_strategy_neutral_setup_memo_amendment.md`.
 The later line-family/Circle/Arc
@@ -559,8 +563,10 @@ Read in this order before V7 implementation work:
 98i. `V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md` as
      documentation-only future primitive input; it authorizes no implementation
 98j. `V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md` as the
-     documentation-only, unaccepted business tracer-bullet candidate using
+     accepted business/product/architecture tracer-bullet specification using
      existing FVG and SMA; it allocates no delivery/Harness id or implementation
+98k. `../sessions/session_20260819_fvg_sma_validation_campaign_study_case_demo_specification_acceptance.md`
+     as its durable ten-decision acceptance and non-implementation record
 99. `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md` as deferred,
     non-binding context only
 100. `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` as dated,

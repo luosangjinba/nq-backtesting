@@ -309,7 +309,7 @@ Human acceptance record:
 Future primitive requirement:
 `docs/V7_VISUAL_PRIMITIVE_LINE_CIRCLE_ARC_FUTURE_REQUIREMENTS.md`.
 
-## FVG + SMA Validation Campaign / Study Case Business Demo — Candidate Draft 2026-08-18
+## FVG + SMA Validation Campaign / Study Case Business Demo — Specification Accepted 2026-08-19
 
 - [x] receive product-owner authority to draft only one business vertical Demo
   candidate using the existing accepted FVG and SMA capabilities;
@@ -328,16 +328,23 @@ Future primitive requirement:
 - [x] allocate no delivery or Harness id, implement no schema/runtime/storage/
   state-sync/UI/export path, add no plugin or algorithm, and leave H117 and
   P1b.4 unchanged;
-- [ ] obtain explicit product-owner review of the ten material candidate
-  decisions;
-- [ ] require a later separate implementation-slice specification and explicit
-  authority before allocating or changing production code.
+- [x] receive explicit product-owner acceptance of all ten material decisions
+  without amendment on 2026-08-19;
+- [x] promote the candidate to an accepted business/product/architecture
+  specification while allocating no delivery/Harness id and authorizing no
+  implementation;
+- [ ] require separate product-owner authority to draft an implementation-slice
+  specification; after that specification is accepted, require separate
+  implementation authority before allocating or changing production code.
 
-Candidate specification:
+Accepted specification:
 `docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md`.
 
 Draft record:
 `sessions/session_20260818_fvg_sma_validation_campaign_study_case_demo_candidate_specification.md`.
+
+Specification-acceptance record:
+`sessions/session_20260819_fvg_sma_validation_campaign_study_case_demo_specification_acceptance.md`.
 
 ## MEMO-V7-005 Study Collection Dashboard / Chart Application / Visual Grammar — Captured 2026-08-18
 

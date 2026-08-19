@@ -1386,17 +1386,16 @@ multi-Plot/layout slice using only synthetic oscillator and multi-region
 references. A possible P1c.4/H121 label remains unallocated until explicit
 product-owner authorization; H120 acceptance itself starts no new work.
 
-### FVG + SMA Validation Campaign / Study Case Demo Candidate — Awaiting Review
+### FVG + SMA Validation Campaign / Study Case Demo Specification — Accepted, Implementation Unallocated
 
-After H120 closure, the product owner authorized only a documentation
-candidate at
+After H120 closure, the product owner authorized a documentation candidate at
 `V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_DEMO_SPEC.md`. It uses the already
 accepted manual FVG Artifact and SMA(close) paths to specify one optional
 Validation Campaign → Study Case → later Outcome → frozen Cohort →
 deterministic statistics → raw-chart drill-down → local audit-export loop. It
 adds no plugin, calculation, detector, signal, or chart capability.
 
-The candidate makes plugin/business independence asymmetric and degradable.
+The specification makes plugin/business independence asymmetric and degradable.
 FVG and SMA never import, call, or depend on the Campaign module. The Campaign
 may require exact immutable public evidence from both providers when accepting
 a new Case, but it cannot control their lifecycle or private state. Once
@@ -1407,13 +1406,15 @@ silently reclassifies Cases, Outcomes, Cohorts, Analysis Runs, or statistics.
 New affected capture fails closed; raw-Bar context remains available through
 the existing Session/Workspace/Replay owners.
 
-This is an unaccepted candidate with ten material decisions awaiting explicit
-product-owner review. It allocates no delivery or Harness id and authorizes no
-schema, runtime, persistence, state-sync, UI, or export implementation. P1c.4/
-H121 remains unallocated; P1b.4, another plugin, Community/Worker, Journal,
-Dataset Builder, AI, and H117 changes remain outside authority. Acceptance of
-the ten decisions would still require a separately authorized implementation-
-slice specification before production work.
+The product owner accepted all ten material decisions without amendment on
+2026-08-19. This binds the bounded business/product/architecture specification
+but allocates no delivery or Harness id and authorizes no schema, runtime,
+persistence, state-sync, UI, or export implementation. P1c.4/H121 remains
+unallocated; P1b.4, another plugin, Community/Worker, Journal, Dataset Builder,
+AI, and H117 changes remain outside authority. The next possible action is only
+a separately product-owner-authorized implementation-slice specification;
+production work still requires its accepted boundaries and later explicit
+implementation authority.
 
 ### MEMO-V7-005 Evidence Collections, Dashboard, Chart Application, And Visual Grammar — Non-Binding
 
@@ -1450,7 +1451,7 @@ retains its own source timeframe, while target Pane timeframe is reversible
 projection state. Exact Setup definitions may require single, multiple,
 same/higher/relative timeframes or no separate Analysis. A source 1D FVG may be
 projected on 5m/1m only through registered policy while remaining visibly 1D.
-The FVG + SMA Demo's two Pane roles remain local to its exact template.
+The accepted FVG + SMA Demo's two Pane roles remain local to its exact template.
 
 The same amendment narrows MEMO-V7-001's current non-binding compatibility
 position to SMC/ICT-first, time-based OHLCV discretionary research. No roadmap
@@ -1460,10 +1461,10 @@ tick/depth/order-flow/HFT, or automated-execution systems. Incidental use of
 existing generic contracts remains best-effort and creates no new capability
 obligation.
 
-MEMO-V7-005 has seventeen open decisions and is not a roadmap allocation. It does
-not amend the ten pending FVG + SMA Demo decisions, authorize implementation,
-or change P1c.4/H121, P1b.4, H117, another plugin, Community/Worker, Journal,
-Dataset Builder, detector, or AI state.
+MEMO-V7-005 has seventeen open decisions and is not a roadmap allocation. It
+does not amend the ten accepted FVG + SMA Demo decisions, authorize
+implementation, or change P1c.4/H121, P1b.4, H117, another plugin,
+Community/Worker, Journal, Dataset Builder, detector, or AI state.
 
 ### Plugin Platform Program — P1a Accepted, P1b.3 Focused Review Accepted
 

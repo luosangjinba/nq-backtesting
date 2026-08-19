@@ -1,15 +1,17 @@
-# V7 FVG + SMA Validation Campaign / Study Case Business Demo — Candidate Specification
+# V7 FVG + SMA Validation Campaign / Study Case Business Demo — Accepted Specification
 
-Status: product-owner-authorized candidate draft; not accepted; no delivery or
-Harness id allocated; no implementation authorized
+Status: all ten material product/architecture decisions accepted without
+amendment; no delivery or Harness id allocated; no implementation authorized
 
 Drafted: 2026-08-18
+
+Accepted: 2026-08-19 02:39 PDT
 
 Upstream decisions: accepted `ADR-V7-001`, accepted `ADR-V7-003`, accepted
 `ADR-V7-004`, accepted `ADR-V7-005`, accepted `ADR-V7-006`, accepted H114 FVG
 production workflow, and accepted P1c.3/H120 Core SMA vertical slice
 
-Candidate scope: one local-first Validation Campaign → Study Case → Outcome →
+Accepted scope: one local-first Validation Campaign → Study Case → Outcome →
 frozen Cohort → deterministic statistics → raw-chart drill-down → portable
 audit export loop using only the existing FVG and SMA capabilities
 
@@ -27,11 +29,17 @@ The product owner replied:
 > 同意以上授权，还想提个问题：业务层是否会影响插件生产使用，它们是否完全独立运行，
 > 不相互依赖，如果拆除某个业务流程使用的插件，会发生什么？
 
-This authorizes only this candidate specification and its durable drafting
-record. It does not accept the decisions below, allocate a business delivery
-or H121, create schemas/modules/storage/UI, alter either plugin, start P1c.4,
-resume P1b.4, or authorize Community/Worker, Journal, Dataset Builder, AI, or
-another business workflow.
+That instruction authorized only the candidate specification and its durable
+drafting record. On 2026-08-19, the product owner then stated:
+
+> V7_FVG_SMA_Validation_Campaign_Study_Case_Demo_SPEC的十项决策审核通过
+
+This accepts all ten material decisions below without amendment and makes this
+document the binding business/product/architecture specification for the
+bounded Demo. Per accepted decision 10, acceptance does not allocate a
+business delivery or H121, create schemas/modules/storage/UI, alter either
+plugin, start P1c.4, resume P1b.4, or authorize Community/Worker, Journal,
+Dataset Builder, AI, or another business workflow.
 
 ## Direct Answer: Independent Runtime, Explicit Evidence Dependency
 
@@ -69,8 +77,8 @@ H114 proves one complete semantic FVG workflow. H120 proves one complete
 calculated-series SMA workflow. Neither proves that a trader can turn exact
 Replay observations into a reproducible strategy-validation record.
 
-This candidate is a product tracer bullet above those two already accepted
-capabilities. It should answer whether a user can:
+This specification defines a product tracer bullet above those two already
+accepted capabilities. It should answer whether a user can:
 
 - state one simple Setup hypothesis before seeing outcomes;
 - capture exact FVG and SMA evidence at a no-future Replay cutoff;
@@ -103,7 +111,7 @@ The demo uses exactly these existing first-party capabilities:
 
 The accepted H114 and H120 capability/ecosystem checks already retain
 Lightweight Charts as the sole native chart adapter and reject external helper
-objects which would become second writers. This candidate adds no renderer,
+objects which would become second writers. This specification adds no renderer,
 Chart primitive, calculation algorithm, or third-party workflow dependency.
 Its chart interactions are existing FVG/SMA projection and existing Workspace
 navigation only.
@@ -115,9 +123,9 @@ unresolved-plugin behavior, and raw-chart drill-down. The bounded business
 records below therefore require an explicit V7 owner rather than an external
 UI/storage shortcut.
 
-## Selected Candidate Record Names
+## Selected Record Names
 
-This first demo proposes the following product records:
+This first demo specifies the following product records:
 
 | Record | Meaning | Sole semantic owner |
 | --- | --- | --- |
@@ -143,7 +151,7 @@ reference those owners rather than absorbing their payloads.
 
 ## One Included Demo Setup
 
-The only included business template is proposed as
+The only included business template is specified as
 `demo.sma-trend-manual-fvg@1.0.0`. It is host-owned versioned seed data, not a
 third plugin and not a hard-coded runtime branch.
 
@@ -263,7 +271,7 @@ Setup classification or citation cutoff.
 
 ## Minimal Outcome Definition
 
-The only proposed Outcome policy is
+The only specified Outcome policy is
 `demo.directional-first-touch-path@1.0.0`. At the decision cutoff the user
 records:
 
@@ -306,7 +314,7 @@ One `StudyCaseV1` binds:
 - a distinct later Outcome Evidence record and its observation cutoff/window;
 - source-verification history and stable diagnostics.
 
-The candidate states are:
+The specified states are:
 
 ```text
 draft
@@ -395,7 +403,7 @@ research truth owned elsewhere.
 
 ## Required Owner Boundaries
 
-The later implementation candidate should use focused modules with explicit
+The later implementation slice must use focused modules with explicit
 ports rather than a broad route controller:
 
 | Boundary | Allowed responsibility | Forbidden responsibility |
@@ -467,7 +475,7 @@ rights, privacy, conflict, and authorization decisions.
 
 ## Minimal Product Surface
 
-The candidate user experience reuses one workstation:
+The specified user experience reuses one workstation:
 
 1. create/open a Validation Campaign from a small Campaign surface;
 2. inspect the exact Setup and Outcome Definition versions;
@@ -490,10 +498,10 @@ dialog is open. Ordinary Replay controls, chart drag/wheel/crosshair, plugin
 settings, and FVG editing remain unchanged otherwise. Analytics and export run
 outside visible Replay transactions and cannot stall candle publication.
 
-## Candidate Automated Evidence
+## Required Automated Evidence For A Later Implementation
 
-No Harness id is registered by this draft. A later accepted implementation
-specification should require at least:
+No Harness id is registered by this specification acceptance. A later accepted
+implementation-slice specification must preserve at least:
 
 1. minimal-core and FVG/SMA production boot with the complete Campaign feature
    removed and unchanged plugin/runtime revisions;
@@ -533,7 +541,7 @@ one missing provider, one incompatible provider version, one same-Bar ambiguous
 Outcome, one state-sync conflict, and one corrupted Campaign document must fail
 with their exact intended diagnostic.
 
-## Candidate Focused Human Review
+## Required Focused Human Review For A Later Implementation
 
 Human review should verify:
 
@@ -555,12 +563,13 @@ Human review should verify:
 10. hard reload, a second device without one provider, and audit export remain
     understandable, local-first, and free of orphan or misleading states.
 
-An explicit product-owner acceptance of the material decisions and a later
-separate implementation instruction remain mandatory.
+The material decisions are accepted. A separately authorized implementation
+slice and its later focused product-owner human review remain mandatory before
+any implementation can close.
 
 ## Explicit Exclusions
 
-This candidate does not authorize or include:
+This accepted specification does not authorize or include:
 
 - implementation, a delivery/Harness id, or changes to production schemas,
   modules, manifests, source, persistence allowlists, routes, or fixtures;
@@ -587,7 +596,10 @@ This candidate does not authorize or include:
   requester, Replay owner, Chart writer, Annotation writer, calculated-series
   writer, Session store, or state-sync client.
 
-## Ten Material Decisions For Product-Owner Review
+## Ten Material Decisions — Accepted Without Amendment
+
+The product owner accepted decisions 1–10 below on 2026-08-19. Their accepted
+meaning remains exactly the bounded meaning reviewed in the candidate draft.
 
 1. **One product tracer bullet:** use only accepted
    `first-party.fair-value-gap@1.0.0` and
@@ -629,24 +641,40 @@ This candidate does not authorize or include:
    read-only, persistence/state sync is reversible and separately allowlisted,
    export is a bounded audit bundle rather than Dataset Builder, and removal
    leaves Replay/plugins unchanged.
-10. **Draft authority only:** accepting these decisions would bind the
-    candidate product/architecture scope but still would not allocate or
-    implement a delivery/Harness, start P1c.4/P1b.4, add another plugin,
-    authorize Community/Worker/AI/Journal/Dataset work, or change H117; every
-    repository-changing implementation step requires a later explicit
-    instruction.
+10. **Acceptance does not authorize implementation:** this acceptance binds the
+    specified product/architecture scope but does not allocate or implement a
+    delivery/Harness, start P1c.4/P1b.4, add another plugin, authorize
+    Community/Worker/AI/Journal/Dataset work, or change H117; every repository-
+    changing implementation step requires a later explicit instruction.
 
-## Candidate Sequence After Review
+## Required Sequence After Acceptance
 
-If the product owner accepts all ten decisions, the next action is still not
-implementation. A separately authorized implementation-slice specification
-must select the delivery/Harness id, exact public schemas/commands, storage
-keys and ceilings, state-sync change, module descriptors, diagnostics,
+Acceptance of all ten decisions is not implementation authority. The next
+possible action is a separately authorized implementation-slice specification,
+which must select the delivery/Harness id, exact public schemas/commands,
+storage keys and ceilings, state-sync change, module descriptors, diagnostics,
 transaction phases, browser fixture, performance budgets, and focused human
-gate.
+gate. Drafting that implementation-slice specification also requires an
+explicit later product-owner instruction.
 
 P1c.4 remains the next required dependency **inside the calculated-series
 expansion program**, but it is not automatically the next overall product
-delivery. This business candidate may be reviewed first because it consumes
+delivery. This accepted business specification consumes
 only the already accepted single-Plot SMA and FVG paths. MACD or another real
 plugin remains later and separately gated.
+
+## Acceptance Record
+
+- deciding authority: product owner;
+- accepted: 2026-08-19, without amendment to decisions 1–10;
+- durable record:
+  `../sessions/session_20260819_fvg_sma_validation_campaign_study_case_demo_specification_acceptance.md`;
+- allocation: none; no delivery or Harness id exists for this specification;
+- implementation: not authorized;
+- preserved scope: the Context/Execution Pane roles remain local to
+  `demo.sma-trend-manual-fvg@1.0.0`; the separate MEMO-V7-005 Dashboard,
+  multi-dataset Chart application, visual grammar, text, and Setup-free
+  Phenomenon Study questions remain open and are not imported here;
+- unchanged gates: H117 remains `executable`, human-review-required, and
+  unaccepted; P1c.4/H121, P1b.4, other plugins, Community/Worker, Journal,
+  Dataset Builder, AI, and all production work remain paused.
