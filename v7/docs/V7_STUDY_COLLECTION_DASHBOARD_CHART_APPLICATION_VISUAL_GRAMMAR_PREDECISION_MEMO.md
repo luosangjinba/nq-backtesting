@@ -4,7 +4,7 @@ Memo id: `MEMO-V7-005`
 
 First formed: 2026-08-18 23:25 PDT
 
-Last substantive revision: 2026-08-19 01:46 PDT
+Last substantive revision: 2026-08-19 22:15 PDT
 
 Status: discussion captured; decision and implementation not authorized
 
@@ -14,7 +14,7 @@ Registry: `V7_NON_DECISION_MEMO_REGISTRY.md`
 
 This memo preserves a proposed product layer above existing Replay, Journal,
 Annotation/Semantic Artifact, calculated-series, Validation Campaign, and
-future Research owners. It combines six related questions which must be
+future Research owners. It combines seven related questions which must be
 designed together but need not be implemented in one delivery:
 
 1. one Dashboard for each user-visible research or trading dataset;
@@ -26,7 +26,10 @@ designed together but need not be implemented in one delivery:
    to one Setup without turning the Setup into one giant drawing primitive;
 6. a strategy-neutral role/timeframe model in which Analysis is optional,
    source timeframe is immutable evidence, and target Chart timeframe is only
-   projection state.
+   projection state;
+7. one host-owned display-scope contract for market-anchored geometric
+   elements, with explicit target timeframes and Workspace Panes, which is not
+   reused by continuous calculated-series indicators.
 
 The product owner specifically requested that datasets remain non-visual by
 default, become visible only after an explicit Apply-to-chart action, and allow
@@ -45,6 +48,12 @@ Artifact. The product owner also narrowed MEMO-V7-001's future compatibility
 target to the supported time-based OHLCV discretionary envelope; this memo
 must not recreate unsupported school-specific data or rendering systems.
 
+The product owner further clarified that FVG, BSL/SSL, OB, anchored lines, and
+similar geometric semantic outputs require common cross-timeframe and cross-
+Pane display parameters. Each plugin must not invent an incompatible local
+vocabulary. MA/SMA, MACD, KDJ, RSI, and other continuous calculated series are
+explicitly outside that geometric display-scope contract.
+
 This is not a product or architecture decision. It does not amend or accept
 the pending FVG + SMA Validation Campaign / Study Case Demo candidate, allocate
 a delivery or Harness id, implement a Dashboard, Journal, Research module,
@@ -53,7 +62,7 @@ state-sync route, add a plugin/algorithm, or change H117. P1c.4, P1b.4,
 Community/Worker, Dataset Builder, AI, and all production work remain outside
 this memo.
 
-## Current Position As Of 2026-08-19 01:46 PDT
+## Current Position As Of 2026-08-19 22:15 PDT
 
 The current candidate position is:
 
@@ -91,6 +100,14 @@ The current candidate position is:
 - every cited item retains its own source instrument/timeframe/resolution and
   observation cutoff. Applying it to another target Pane/timeframe never
   reclassifies or recomputes its source meaning;
+- market-anchored geometric outputs use one host-governed, instance-persisted
+  projection-scope vocabulary for target timeframes and stable Workspace Pane
+  ids; FVG/BSL/OB plugins may declare defaults but cannot own competing Pane or
+  timeframe projection systems;
+- continuous calculated series remain governed by Calculated Series instance,
+  input-frame, Workspace Pane binding, and ChartRegion contracts. They are
+  recomputed from admitted Bars rather than projected as canonical geometric
+  anchors and therefore do not implement the geometric scope contract;
 - the candidate remains inside the time-based OHLCV discretionary scope
   recorded in MEMO-V7-001 and adds no special support for hierarchical wave
   scenarios, profile/volume-at-price charts, fundamentals, portfolios,
@@ -509,6 +526,95 @@ Cross-timeframe display is a projection operation, not semantic conversion:
    edits the Case, Collection snapshot, source plugin record, or source
    timeframe.
 
+### Host-Owned Projection Scope For Anchored Geometry
+
+Cross-timeframe and cross-Pane visibility for market-anchored geometry should
+be one host contract, not a custom setting language implemented independently
+by FVG, liquidity-level, OB, Fib, or drawing plugins. The candidate contract is
+tentatively named `AnchoredGeometryProjectionScopeV1`:
+
+```text
+AnchoredGeometryProjectionScopeV1
+|-- schemaVersion
+|-- enabled
+|-- instrumentScope
+|   `-- source-instrument-only
+|-- timeframeScope
+|   |-- mode: origin-only | explicit | all-compatible
+|   `-- timeframeIds[]?
+|-- paneScope
+|   |-- mode: origin-pane | explicit | all-compatible
+|   `-- paneIds[]?
+`-- anchorProjectionPolicyRef
+```
+
+The scope is portable declarative data. It contains no DOM node, native Chart
+object, executable callback, adapter handle, Pane ordinal, or business-role
+alias. In the first candidate, `explicit` means an exact allowlist and
+`all-compatible` means every accepted same-instrument Workspace Pane for which
+the registered anchor policy can produce an honest projection. Relative rules
+such as `higher-only`, `lower-only`, or a mandatory Analysis/Entry relationship
+are deliberately absent; an exact Setup definition may still impose such a
+requirement on its evidence without changing this generic display contract.
+
+The owning entity keeps four concerns separate:
+
+1. **canonical truth** — source instrument, source timeframe/resolution,
+   canonical market anchors, evidence revisions, and lifecycle;
+2. **projection scope** — which target timeframe ids and stable Workspace Pane
+   ids are eligible to display that truth;
+3. **anchor projection policy** — the registered exact-instant, containing-
+   bucket, collapse, missing-data, and accepted-frame rules used to map it;
+4. **presentation** — rectangle versus open upper/lower boundaries, color,
+   width, dash, fill, CE visibility/style, label, density, and z-band.
+
+Changing projection scope cannot mutate canonical truth. For example, a 15m
+FVG displayed on 15m and 1m Panes remains one 15m FVG Artifact with one source
+identity; it is neither duplicated nor reclassified as a 1m FVG. A BSL line
+uses the same scope vocabulary even though its primitive composition differs.
+
+An element is eligible in a target only when all of the following hold:
+
+```text
+source instrument matches target instrument
+AND target timeframe is admitted by timeframeScope
+AND stable target Pane id is admitted by paneScope
+AND the registered policy accepts the target projection frame
+```
+
+A missing target bucket, collapsed anchors, removed Pane, incompatible
+timeframe, or rejected projection makes that projection honestly absent or
+explicitly diagnostic in that target only. It cannot move the element into a
+different Pane, rewrite its anchors, blank another Pane, or fail a global Chart
+update. Removing or reconfiguring a Pane does not delete the durable entity;
+the projection may reappear if a compatible target returns.
+
+One semantic Artifact applies the scope to its complete portable visual group.
+An FVG Rectangle/open-boundary composition, optional CE line, source-timeframe
+token, and attached short explanation cannot silently split across unrelated
+Panes. Component visibility and styling remain presentation settings rather
+than separate target scopes. A future explicitly independent child Artifact
+requires its own identity and scope.
+
+Classification follows the output contract, not whether an algorithm helped
+produce it. A detector-generated FVG, BSL/SSL, OB, or EQL/EQH result is still a
+discrete market-anchored geometric Artifact and uses this scope. MA/SMA, MACD,
+KDJ, RSI, and similar continuous calculated outputs do not: they remain
+`CalculatedSeriesInstance` values bound to an admitted input frame, one
+Workspace Pane, and a ChartRegion. Showing a calculated indicator elsewhere
+requires an independently admitted series instance/recalculation; it is not
+cross-Pane projection of the same canonical anchors.
+
+Candidate resolution order is a host safe default, then a plugin's declarative
+default, then a persisted per-entity override. The resolved value should be
+snapshotted when the entity is created so a later plugin update cannot
+retroactively change existing visibility. A `CollectionChartApplicationV1`
+may further restrict effective targets. Whether a reviewed application may
+temporarily widen targets without mutating the source entity remains an open
+product decision. Plugins and business modules only emit portable scope and
+semantic intents; Annotation Context Projection resolves eligible accepted
+frames and the existing Chart Runtime/Adapter remains the sole native writer.
+
 ## Complete Setup Visual Composition
 
 A complete Setup should not be persisted or rendered as one giant primitive.
@@ -806,6 +912,26 @@ Setup definition requires.
 17. Which exact open role-id and `timeframePolicy` vocabularies express
     single-timeframe, multi-timeframe, same/higher/relative-timeframe, and no-
     Analysis strategies without adding mandatory generic Analysis/Entry fields?
+18. Is `AnchoredGeometryProjectionScopeV1` the final host contract name and is
+    output shape—the discrete market-anchored Artifact rather than whether it
+    was manually or algorithmically produced—the exact inclusion boundary?
+19. Should the first creation default be `origin-only` plus `origin-pane`, or
+    should selected first-party Artifact types default to broader compatible
+    targets? Which plugin defaults may be declared without changing existing
+    persisted entities after a plugin upgrade?
+20. Are `origin-pane`, exact stable Pane-id allowlists, and `all-compatible`
+    the complete first Pane-scope vocabulary, including deterministic behavior
+    across layout reorder, Pane removal, recreation, and Workspace restore?
+21. Are `origin-only`, exact timeframe-id allowlists, and `all-compatible` the
+    complete first timeframe-scope vocabulary, with no implicit higher/lower
+    or Analysis/Entry relation in the generic contract?
+22. Is effective application scope always the intersection of the persisted
+    entity scope and `CollectionChartApplicationV1`, or may a reviewed
+    application record a temporary widening override without mutating source
+    truth?
+23. Must one semantic Artifact's target scope always govern its complete
+    primitive/label/attached-explanation composition while component style and
+    visibility remain a separate presentation contract?
 
 ## Evidence Required Before A Decision
 
@@ -836,6 +962,18 @@ At minimum, promotion should be informed by:
 12. cross-timeframe projection evidence for a source 1D FVG on 5m/1m Panes and
     one deliberately lossy lower-to-higher event, with source labels,
     Inspector provenance, target mapping receipts, and no source mutation.
+13. an anchored-geometry scope matrix covering FVG and BSL on one/many selected
+    timeframes and Panes, same-instrument rejection, layout reorder, Pane
+    removal/recreation, reload, and one-target projection failure without a
+    global Chart failure;
+14. one semantic-group fixture proving an FVG body/open-boundary composition,
+    CE, source-timeframe token, and attached explanation do not acquire
+    contradictory target scopes while their presentation controls remain
+    independently editable;
+15. a negative contract fixture proving that MA/SMA, MACD, KDJ, RSI, and other
+    continuous calculated-series instances cannot enter the anchored-geometry
+    projection path or reuse its scope as a substitute for Pane binding and
+    recomputation.
 
 ## What Would Change The Current Position
 
@@ -859,7 +997,7 @@ The recommendation should be revisited if:
 
 Before any content here becomes binding:
 
-- [ ] accept or amend the seventeen open product decisions;
+- [ ] accept or amend the twenty-three open product decisions;
 - [ ] reconcile MEMO-V7-003, ADR-V7-001/003/005/006, and the pending FVG + SMA
   business Demo candidate;
 - [ ] select exact owners, public contracts, persistence namespaces, limits,
@@ -906,3 +1044,25 @@ This amendment increases the open product questions from fifteen to seventeen.
 It does not accept the memo, amend or accept the pending FVG + SMA Demo
 candidate, allocate a delivery/Harness id, change H117 or P1b.4, add a plugin,
 or authorize any business, Chart, data, Community/Worker, or AI implementation.
+
+### 2026-08-19 22:15 PDT — Anchored Geometry Projection-Scope Boundary
+
+The product owner requested one common parameter standard controlling the
+target timeframes and Workspace Panes in which FVG, BSL/SSL, anchored lines,
+and comparable geometric semantic elements appear. The candidate now places
+that vocabulary in a host-owned `AnchoredGeometryProjectionScopeV1`, separates
+canonical truth, target eligibility, anchor mapping, and presentation, and
+requires stable Pane ids plus explicit timeframe ids rather than plugin-local
+or Pane-position conventions.
+
+The inclusion test follows output semantics: detector-produced discrete
+anchored geometry is included, while MA/SMA, MACD, KDJ, RSI, and other
+continuous calculated series remain under their existing series-instance,
+input-frame, Pane-binding, and ChartRegion contracts. The candidate also makes
+projection failure target-local and forbids scope changes from rewriting
+source timeframe or anchors.
+
+This amendment increases the open product questions from seventeen to twenty-
+three. It records a candidate standard only. It does not accept the memo,
+implement the contract or Settings UI, amend H121 acceptance state, change
+H117, start P1b.4/Community/Worker/business work, or authorize another plugin.
