@@ -1,11 +1,73 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-19 after the product owner accepted all ten FVG + SMA
-Validation Campaign implementation-slice decisions without amendment;
-R14.1/H121 remain unallocated/unregistered, no implementation is authorized,
-and H117 remains executable/unaccepted
+Last updated: 2026-08-19 before a server restart, after the bounded H121
+cross-timeframe and higher-timeframe FVG projection repairs and the anchored-
+geometry projection Memo amendment. Repository HEAD is `405ba907`; H121 is
+implemented and executable but remains human-review-required and unaccepted.
+H117 remains executable/unaccepted.
 
 ## Restart Resume Checkpoint
+
+### 2026-08-19 Pre-Server-Restart H121 Review-Pending Checkpoint
+
+Resume first with
+`sessions/session_20260819_pre_server_reboot_h121_pending_handoff.md`, then
+`docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_R14_1_HUMAN_REVIEW.md`, then
+`sessions/session_20260819_h121_cross_timeframe_fvg_blocker_repair.md`.
+
+The durable repository checkpoint before this documentation update was:
+
+- branch `feature/v7-drawing-semantic-annotation`;
+- local and `origin` HEAD `405ba907` (`docs(v7): define anchored geometry
+  projection scope`);
+- clean worktree;
+- `606eaa09` contains the production higher-timeframe FVG display-coordinate
+  repair and its real-Chromium 1m/5m/15m, second-Pane, switching, hit-target,
+  and hard-reload evidence;
+- `230a9e5d` contains the earlier collapsed-bucket, stale source-Pane,
+  Inspector-cancel, Workspace-gate, and no-Campaign navigation repairs.
+
+H121 is registered as `executable`, `humanReviewRequired: true`, and
+`acceptanceEvidence: null`. All relevant automated gates passed after the
+repairs, but the complete ten-item product-owner review must restart at item 1.
+R14.1 remains open. H117 is unchanged. Do not infer acceptance from a server
+restart, process health, a successful deployment, or automated evidence.
+
+The last acceptance-host deployment explicitly evidenced in the conversation
+used `230a9e5d`. A machine reboot alone should restart the enabled systemd
+services and preserve that installed release, but it does not deploy
+`606eaa09`/`405ba907`. Before resuming H121 review on that host, fetch/pull the
+current branch and run the saved-profile idempotent deployment entry:
+
+```bash
+cd /root/backtesting-v7
+git fetch origin
+git switch feature/v7-drawing-semantic-annotation
+git pull --ff-only origin feature/v7-drawing-semantic-annotation
+git rev-parse --short HEAD
+sudo bash v7/deploy/linux/deploy.sh
+```
+
+The revision check must report `405ba907` or a later explicitly reviewed
+descendant. The deployer must complete its local service health checks before
+browser review. Do not use a plain service restart as a substitute for an
+immutable-release deployment when repository HEAD changed.
+
+The development host also has the official `tavily-cli 0.1.6` and eight Tavily
+Agent Skills installed outside this repository under the current user's home.
+They are operator tooling, not a V7 runtime dependency. A restarted Codex agent
+must rediscover the Skills and should verify `tvly --version` plus
+`tvly auth --json`. Authentication was proven through the
+`TAVILY_API_KEY` environment source and one live search; no key was written to
+V7. Because a key was exposed in chat, rotate/revoke it and update the secret
+environment after restart without recording the value in this repository.
+
+Exact next product action: deploy the repaired revision if needed, then execute
+all ten checks in the focused H121 human-review document and stop on the first
+failure. Only an explicit product-owner statement after all ten pass may accept
+H121 and close R14.1. Do not start right-click drawing, generalized plugin
+Settings, another plugin, P1c.4, P1b.4, Community/Worker, Journal, Dataset
+Builder, AI, or MEMO-V7-005 implementation.
 
 ### 2026-08-19 R14.1/H121 Business Implementation Specification Accepted
 

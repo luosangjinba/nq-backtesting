@@ -387,6 +387,9 @@ Future primitive requirement:
   Chromium;
 - [x] rerun H114, H118, H119, H120, H121 and focused architecture/writer/
   source-quality gates without changing H117 or H121 governance state;
+- [x] preserve a documentation-only pre-server-restart checkpoint at current
+  pushed HEAD, including the repaired deployment prerequisite and unchanged
+  H117/H121 governance state;
 - [ ] execute and explicitly accept all ten focused product checks before
   changing H121 from `executable` or closing R14.1;
 - [ ] do not start P1c.4, P1b.4, another plugin, Community/Worker, Journal,
@@ -418,6 +421,9 @@ Focused human gate:
 
 H121 review-blocker repair record:
 `sessions/session_20260819_h121_cross_timeframe_fvg_blocker_repair.md`.
+
+Pre-server-restart H121-pending handoff:
+`sessions/session_20260819_pre_server_reboot_h121_pending_handoff.md`.
 
 ## MEMO-V7-005 Study Collection Dashboard / Chart Application / Visual Grammar — Captured 2026-08-18
 
