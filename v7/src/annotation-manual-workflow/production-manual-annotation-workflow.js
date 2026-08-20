@@ -231,7 +231,7 @@ export function createProductionManualAnnotationWorkflow(input = {}) {
         throw cause;
       }
     },
-    toggleTool(toolId) {
+    toggleTool(toolId, paneId = null) {
       if (disposed || !['ready', 'error'].includes(status) || runtime === null || workspace === null) {
         failManualWorkflow('MANUAL_WORKFLOW_NOT_READY', 'Manual Annotation tool is not ready.');
       }
@@ -254,6 +254,7 @@ export function createProductionManualAnnotationWorkflow(input = {}) {
         onError: (cause) => recordError(cause, 'MANUAL_WORKFLOW_PICKER_FAILED'),
         onSelection: (selection) => { void constructFromSelection(selectedTool, selection); },
         onStateChange: publish,
+        paneId,
         tool: selectedTool,
         workspace,
       });

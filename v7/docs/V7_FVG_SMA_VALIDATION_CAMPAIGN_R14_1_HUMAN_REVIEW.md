@@ -8,6 +8,21 @@ Scope: only the removable Validation Campaign slice using existing manual FVG
 and `first-party.moving-averages@1.0.0` SMA(close,20). Passing automation does
 not accept H121.
 
+## 2026-08-19 Review-Blocker Repair
+
+The initial review exposed a 1m/15m FVG projection failure: both target anchors
+could collapse into one 15m bucket, causing `SEGMENT_DEGENERATE`, stale source-
+Pane selection, and a Workspace interaction lock. The repaired behavior omits
+that unrepresentable target-Pane projection without changing canonical FVG
+truth; tool construction binds the command-time focused Pane; Inspector cancel
+clears Preview and releases the Workspace gate. The empty capture dialog now
+offers `Go to Validation` when no active Campaign exists.
+
+Node and real Lightweight Charts regressions cover the exact 1m/15m case,
+source Pane/timeframe provenance, target-Pane absence/hit testing, atomic
+rollback, and interaction release. H121 remains unaccepted: restart this list
+from item 1 and record all ten human results.
+
 ## Before You Start
 
 1. Open the production V7 route with working market data.

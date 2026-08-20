@@ -252,6 +252,12 @@ const SEGMENT_DEFINITION = defineGeometryType({
     const startAnchor = projectAnchor(value.startAnchor);
     const endAnchor = projectAnchor(value.endAnchor);
     if (startAnchor === null || endAnchor === null) return null;
+    // A valid canonical Segment can collapse when both source anchors map to
+    // one containing target bucket. That target Pane cannot represent the
+    // Segment faithfully, so omit its projection instead of rejecting the
+    // canonical Geometry as degenerate.
+    if (startAnchor.epochMs === endAnchor.epochMs
+      && startAnchor.price === endAnchor.price) return null;
     return segmentPayload(createMarketAnchor(startAnchor), createMarketAnchor(endAnchor));
   },
   restore(value) {

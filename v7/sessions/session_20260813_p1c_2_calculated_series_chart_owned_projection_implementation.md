@@ -60,7 +60,7 @@ H119 is registered as `executable`, `humanReviewRequired: true`, and
 `acceptanceEvidence: null`. The focused checklist is
 `docs/V7_CALCULATED_SERIES_CHART_PROJECTION_P1C2_HUMAN_REVIEW.md`.
 
-The refreshed production source baseline contains 642 files, 60,061 effective lines, 6,152 functions, and 650 public exports with no source-size/function,
+The refreshed production source baseline contains 642 files, 60,097 effective lines, 6,155 functions, and 650 public exports with no source-size/function,
 documentation, or accepted-exception finding. The architecture baseline
 contains 71 modules, 162 dependency edges, 134 construction sites, 28 writer
 sites, and zero violations.

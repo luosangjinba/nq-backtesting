@@ -2,16 +2,26 @@ import { createCaptureCaseForm } from './capture-case-form.js';
 import { createPendingOutcomesView } from './capture-outcome-view.js';
 import { button, element } from './dom.js';
 
-function emptyCaptureView(close) {
-  return element('header', {}, [
-    element('h2', { text: 'Capture Study Case' }),
-    element('p', { text: 'Create an active Validation Campaign first.' }),
-    button('Close', close),
+function emptyCaptureView(close, onCampaignIntent) {
+  return element('section', { className: 'validation-empty-inline' }, [
+    element('header', {}, [
+      element('h2', { text: 'Capture Study Case' }),
+      element('p', {
+        text: 'Study Cases must belong to an active Validation Campaign.',
+      }),
+    ]),
+    element('div', { className: 'validation-row-actions' }, [
+      button('Go to Validation', () => {
+        close();
+        return onCampaignIntent();
+      }, 'validation-button validation-button-primary'),
+      button('Close', close, 'validation-button validation-button-ghost'),
+    ]),
   ]);
 }
 
 /** Own the bounded capture/outcome dialog mounted outside chart DOM. */
-export function createCaptureDialog({ onError, readCaptureContext, runtime }) {
+export function createCaptureDialog({ onCampaignIntent, onError, readCaptureContext, runtime }) {
   let active = false;
   let returnFocus = null;
   const dialog = element('dialog', { className: 'validation-dialog validation-capture-dialog' });
@@ -42,7 +52,7 @@ export function createCaptureDialog({ onError, readCaptureContext, runtime }) {
     const campaigns = runtime.listCampaigns().filter(({ status }) => status === 'active');
     const selectedId = campaignId ?? campaigns[0]?.campaignId;
     if (!selectedId) {
-      body.replaceChildren(emptyCaptureView(close));
+      body.replaceChildren(emptyCaptureView(close, onCampaignIntent));
       return;
     }
     const documentValue = runtime.getCampaign(selectedId);

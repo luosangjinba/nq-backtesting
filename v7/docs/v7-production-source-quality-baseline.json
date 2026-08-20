@@ -19833,7 +19833,108 @@
       "adaptsBoundary": false,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 276,
+      "effectiveLines": 277,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "safeId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "projectionFromCache",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "projectedBars",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "diagnostic",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "provenance",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 30,
+          "name": "nonReadyFrame",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "replayCutoffForPaneSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 49,
+          "name": "calculateProjectionFrame",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 55,
+          "name": "planCalculatedSeriesInstanceFrame",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 60,
+          "name": "createFramePlanIdentity",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "projectionFromResult",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.calculated-series-runtime",
+      "owner": "calculated-series-runtime",
+      "ownsContract": false,
+      "path": "src/calculated-series-runtime/frame-planner.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "3f04ba54ed824d16196e1b8b723b448e300491440f05bf34899136607f92fc0e"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 278,
       "forwardingOnly": false,
       "functions": [
         {
@@ -19948,11 +20049,6 @@
         },
         {
           "effectiveLines": 6,
-          "name": "projectAnchors",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
           "name": "projectGeometryAnchorsFromDefinition",
           "reviewedDecompositionException": false
         },
@@ -19979,6 +20075,11 @@
         {
           "effectiveLines": 8,
           "name": "exactRecord",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "projectAnchors",
           "reviewedDecompositionException": false
         },
         {
@@ -20150,108 +20251,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "e8cb502d29dcfdb023388be0f20440a8f8d82d6fa3a8cba05c88be1ac8267db0"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 277,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-14>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "safeId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "projectionFromCache",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "projectedBars",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "diagnostic",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "provenance",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 30,
-          "name": "nonReadyFrame",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "replayCutoffForPaneSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 49,
-          "name": "calculateProjectionFrame",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 55,
-          "name": "planCalculatedSeriesInstanceFrame",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 60,
-          "name": "createFramePlanIdentity",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "projectionFromResult",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.calculated-series-runtime",
-      "owner": "calculated-series-runtime",
-      "ownsContract": false,
-      "path": "src/calculated-series-runtime/frame-planner.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "3f04ba54ed824d16196e1b8b723b448e300491440f05bf34899136607f92fc0e"
+      "sourceHash": "400a6964627cd06fc670ecdd98448aa7df8f62a0953811e8fc606505b37027bd"
     },
     {
       "adaptsBoundary": false,
@@ -38499,6 +38499,94 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 107,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "emptyCaptureView",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "createCaptureDialog",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "renderOutcome",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 32,
+          "name": "renderCapture",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "openCapture",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "openOutcomes",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "setError",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "close",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.validation-campaign-ui",
+      "owner": "validation-campaign-ui",
+      "ownsContract": false,
+      "path": "src/validation-campaign-ui/capture-dialog.js",
+      "publicExports": [],
+      "responsibilities": [
+        "visual-surface-mutation"
+      ],
+      "sideEffectConcerns": [
+        {
+          "concern": "visual-surface-mutation",
+          "evidence": [
+            "append()"
+          ]
+        }
+      ],
+      "sizeException": null,
+      "sourceHash": "8497354e966d7b9545bff01431d18c6452065b7d51e855da86833437bfbc03f8"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 108,
       "forwardingOnly": false,
       "functions": [
@@ -40079,7 +40167,7 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 124,
+      "effectiveLines": 125,
       "forwardingOnly": false,
       "functions": [
         {
@@ -40108,6 +40196,11 @@
           "reviewedDecompositionException": false
         },
         {
+          "effectiveLines": 1,
+          "name": "onCampaignIntent",
+          "reviewedDecompositionException": false
+        },
+        {
           "effectiveLines": 16,
           "name": "downloadJson",
           "reviewedDecompositionException": false
@@ -40128,11 +40221,6 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 59,
-          "name": "createValidationCampaignFeature",
-          "reviewedDecompositionException": false
-        },
-        {
           "effectiveLines": 6,
           "name": "requireFactory",
           "reviewedDecompositionException": false
@@ -40140,6 +40228,11 @@
         {
           "effectiveLines": 6,
           "name": "takeRawContextIntent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 60,
+          "name": "createValidationCampaignFeature",
           "reviewedDecompositionException": false
         },
         {
@@ -40166,7 +40259,7 @@
         }
       ],
       "sizeException": null,
-      "sourceHash": "db3bb0b936899c09a3a01f8220c206cd85f123c4708756737ce8ef3dc21c1a41"
+      "sourceHash": "3144a56160d76e11847b6f71d60b7c57ad53efe8f233214dc04ce94051cf408e"
     },
     {
       "adaptsBoundary": true,
@@ -40703,97 +40796,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "e776d486f0adf7f8975c969e8be56d05fc391d9b325b3271fd10c81995277ce6"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 140,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "evidenceBar",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "readyPane",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "requireAcceptedWorkspace",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "barEndEpochMs",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "artifactReference",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "createManualWorkflowProjectionFrame",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "readAcceptedManualWorkspace",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 35,
-          "name": "resolveManualToolEvidence",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "activePaneId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "<anonymous-11>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "optional.annotation-manual-workflow",
-      "owner": "annotation-workflow-composition",
-      "ownsContract": false,
-      "path": "src/annotation-manual-workflow/accepted-workspace-evidence.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "459d913ea7a34c335e31ef8bbbd0895a920046817afa4efcff44ab4ca1b386a8"
     },
     {
       "adaptsBoundary": true,
@@ -41669,6 +41671,97 @@
       "functions": [
         {
           "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "evidenceBar",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "readyPane",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "activePaneId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "requireAcceptedWorkspace",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "barEndEpochMs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "artifactReference",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "createManualWorkflowProjectionFrame",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "readAcceptedManualWorkspace",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "resolveManualToolEvidence",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "optional.annotation-manual-workflow",
+      "owner": "annotation-workflow-composition",
+      "ownsContract": false,
+      "path": "src/annotation-manual-workflow/accepted-workspace-evidence.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "dff4255bc191c6fd77278c44c21d4d113a63d03eca5053d070f80bfdd3883789"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 146,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
           "name": "<anonymous-12>",
           "reviewedDecompositionException": false
         },
@@ -42069,160 +42162,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "8649780f5206bb508dfbbc7b7933e9ff28de86ffa37f63d8a29b237b3d9edb01"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 151,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-15>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "unmount",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "createReplayAttachment",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "start",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "stop",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "requireRuntime",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "attachReplayWorkspace",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 23,
-          "name": "mount",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 28,
-          "name": "createValidationCampaignUi",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "requireDownload",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "requireStarted",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "setWorkspaceDisabled",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "requireRawContextIntent",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "mount",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.validation-campaign-ui",
-      "owner": "validation-campaign-ui",
-      "ownsContract": false,
-      "path": "src/validation-campaign-ui/validation-campaign-ui.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "validation-campaign-ui.",
-            "purpose": "expose the DOM-only R14.1 Validation Campaign route and Replay capture adapter without owning business truth.",
-            "inputs": "the Campaign runtime plus download, raw-context, and error callbacks.",
-            "outputs": "start/stop/mount lifecycle and removable Replay Pane attachments.",
-            "sideEffects": "mutates only Campaign-owned DOM and invokes injected callbacks.",
-            "lifecycle": "create, start, mount/attach, unmount/stop, dispose.",
-            "errors": "rejects incomplete ports, invalid roots, and use outside lifecycle.",
-            "concurrencyCancellation": "async button work is runtime-fenced; stop/dispose removes subscriptions, dialogs, route DOM, and Pane attachments."
-          },
-          "moduleId": "adapter.validation-campaign-ui",
-          "name": "createValidationCampaignUi",
-          "semanticMatches": [
-            "campaign",
-            "validation"
-          ],
-          "semanticTerms": [
-            "campaign",
-            "validation"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "04a7f836dd6a76b2d2973531cceadf05c44ad3d984f2460f36a6ce515f1e9271"
     },
     {
       "adaptsBoundary": true,
@@ -43049,6 +42988,165 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "395e465e7b11b79a24ab01e378152cc3162e534286da8bbbbe93d2229ae06a20"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 160,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-13>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "unmount",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "createReplayAttachment",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "start",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "stop",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "requireRuntime",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "attachReplayWorkspace",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "mount",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 30,
+          "name": "createValidationCampaignUi",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "requireDownload",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "requireStarted",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "setWorkspaceDisabled",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireCampaignIntent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "requireRawContextIntent",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "mount",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.validation-campaign-ui",
+      "owner": "validation-campaign-ui",
+      "ownsContract": false,
+      "path": "src/validation-campaign-ui/validation-campaign-ui.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "validation-campaign-ui.",
+            "purpose": "expose the DOM-only R14.1 Validation Campaign route and Replay capture adapter without owning business truth.",
+            "inputs": "the Campaign runtime plus download, raw-context, and error callbacks.",
+            "outputs": "start/stop/mount lifecycle and removable Replay Pane attachments.",
+            "sideEffects": "mutates only Campaign-owned DOM and invokes injected callbacks.",
+            "lifecycle": "create, start, mount/attach, unmount/stop, dispose.",
+            "errors": "rejects incomplete ports, invalid roots, and use outside lifecycle.",
+            "concurrencyCancellation": "async button work is runtime-fenced; stop/dispose removes subscriptions, dialogs, route DOM, and Pane attachments."
+          },
+          "moduleId": "adapter.validation-campaign-ui",
+          "name": "createValidationCampaignUi",
+          "semanticMatches": [
+            "campaign",
+            "validation"
+          ],
+          "semanticTerms": [
+            "campaign",
+            "validation"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "a0b9e5abfc3f56206c8c9935f302a82b97403be9371a9b6ff33833162394775d"
     },
     {
       "adaptsBoundary": true,
@@ -44995,97 +45093,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "7b7531f01a861c41530dae0c03e4a54a6ec1b46ca94d86b456665564ec3b0b75"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 19,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-14>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "applyAnnotationInspector",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "cancelAnnotationInspector",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "resetAnnotationInspector",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "toggleAnnotationTool",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "createWorkspaceAnnotationCommands",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "selectAnnotationEvidenceSource",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "updateAnnotationInspectorField",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "pauseAnd",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
-      "ownsContract": false,
-      "path": "src/replay-workspace-composition/workspace-annotation-commands.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "850d0439f501d6d367e3e7ede53e1c34cc90e474db1d590ff0997ef764786f96"
     },
     {
       "adaptsBoundary": true,
@@ -48257,220 +48264,6 @@
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "<anonymous-15>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-16>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-17>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-19>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-20>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-21>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-25>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "applyInspector",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "cancelInspector",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "inspectorSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onArtifactSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onError",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onStatus",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readDocument",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readWorkspace",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "resetInspector",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "shouldSelectArtifact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "updateInspectorField",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "publish",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 13,
-          "name": "snapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 15,
-          "name": "updateWorkspace",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 16,
-          "name": "selectArtifact",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 29,
-          "name": "toggleTool",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "onInspectorError",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 31,
-          "name": "constructFromSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 36,
-          "name": "start",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "reconcile",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 49,
-          "name": "createProductionManualAnnotationWorkflow",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "settle",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "recordError",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "acceptWorkspace",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "optional.annotation-manual-workflow",
-      "owner": "annotation-workflow-composition",
-      "ownsContract": false,
-      "path": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "annotation-workflow-composition.",
-            "purpose": "expose the removable production manual Semantic tool workflow.",
-            "inputs": "trusted ModuleHost/plugin metadata plus public Chart, storage, Session, and UI ports.",
-            "outputs": "one Session-scoped start/command/snapshot/dispose controller.",
-            "sideEffects": "only injected owner commands; this module owns no Chart, Replay, Bar, DOM, or durable bytes.",
-            "lifecycle": "start once after ModuleHost activation; dispose releases Picker, Inspector, projection, and Registry state.",
-            "errors": "AnnotationManualWorkflowError or stable injected-owner errors fail the visible workflow closed.",
-            "concurrencyCancellation": "Workspace reconciliation is serialized/latest-wins; owner operations remain exact-revision."
-          },
-          "moduleId": "optional.annotation-manual-workflow",
-          "name": "createProductionManualAnnotationWorkflow",
-          "semanticMatches": [
-            "annotation",
-            "manual",
-            "production",
-            "workflow"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "manual",
-            "optional",
-            "production",
-            "workflow"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "fb32241cc8ba800bee3e15225bdece11509fc424937657cdc068c98f74f5f350"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 249,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
           "name": "idFactory",
           "reviewedDecompositionException": false
         },
@@ -48587,6 +48380,97 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "68d8d015b112674315c3f6e6ce1685cf8e8429298e47c6cd8c3b64e4c74dbf60"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 25,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-14>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-4>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "applyAnnotationInspector",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "cancelAnnotationInspector",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "resetAnnotationInspector",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "createWorkspaceAnnotationCommands",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "toggleAnnotationTool",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "selectAnnotationEvidenceSource",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "updateAnnotationInspectorField",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "pauseAnd",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/workspace-annotation-commands.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "d59904bf5b31e40f197ac0755cce30d04e6684aa8a7288e9b2e6a97e1c98fac9"
     },
     {
       "adaptsBoundary": true,
@@ -48770,6 +48654,220 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 250,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-15>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-16>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-17>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-19>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-20>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-21>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-25>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "applyInspector",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "cancelInspector",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "inspectorSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onArtifactSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onError",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onStatus",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readDocument",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readWorkspace",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "resetInspector",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "shouldSelectArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "updateInspectorField",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "publish",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "snapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "dispose",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 15,
+          "name": "updateWorkspace",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 16,
+          "name": "selectArtifact",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "onInspectorError",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 30,
+          "name": "toggleTool",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 31,
+          "name": "constructFromSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 36,
+          "name": "start",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "reconcile",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 49,
+          "name": "createProductionManualAnnotationWorkflow",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "settle",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "recordError",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "acceptWorkspace",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "optional.annotation-manual-workflow",
+      "owner": "annotation-workflow-composition",
+      "ownsContract": false,
+      "path": "src/annotation-manual-workflow/production-manual-annotation-workflow.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-workflow-composition.",
+            "purpose": "expose the removable production manual Semantic tool workflow.",
+            "inputs": "trusted ModuleHost/plugin metadata plus public Chart, storage, Session, and UI ports.",
+            "outputs": "one Session-scoped start/command/snapshot/dispose controller.",
+            "sideEffects": "only injected owner commands; this module owns no Chart, Replay, Bar, DOM, or durable bytes.",
+            "lifecycle": "start once after ModuleHost activation; dispose releases Picker, Inspector, projection, and Registry state.",
+            "errors": "AnnotationManualWorkflowError or stable injected-owner errors fail the visible workflow closed.",
+            "concurrencyCancellation": "Workspace reconciliation is serialized/latest-wins; owner operations remain exact-revision."
+          },
+          "moduleId": "optional.annotation-manual-workflow",
+          "name": "createProductionManualAnnotationWorkflow",
+          "semanticMatches": [
+            "annotation",
+            "manual",
+            "production",
+            "workflow"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "manual",
+            "optional",
+            "production",
+            "workflow"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "c6338c3eb5298415e8141380de814d5beafceeceed5a2eb087365e65cd85bb5e"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 26,
       "forwardingOnly": false,
       "functions": [
@@ -48796,37 +48894,6 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "bde4334fb5a8b3183ee5ed17e49bfba91ed025b76fa37d653978a87b5b4875f6"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 27,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 24,
-          "name": "armManualSemanticTool",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "optional.annotation-manual-workflow",
-      "owner": "annotation-workflow-composition",
-      "ownsContract": false,
-      "path": "src/annotation-manual-workflow/manual-tool-picker.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "0801c24c896fc766598872f1eb13499a3abd851e7290dcb1bdad5d0ae064c6f2"
     },
     {
       "adaptsBoundary": true,
@@ -49052,6 +49119,37 @@
       ],
       "sizeException": null,
       "sourceHash": "e854bb34d04364a92ba12e73482e1c3b3ee7ab5569be62cf2bf99427e1a2b2d4"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 28,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 25,
+          "name": "armManualSemanticTool",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "optional.annotation-manual-workflow",
+      "owner": "annotation-workflow-composition",
+      "ownsContract": false,
+      "path": "src/annotation-manual-workflow/manual-tool-picker.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "29be129e7dcbdf34048564b65e00a749f6d8f8d4d98e2edd1bc8eeac0c42a805"
     },
     {
       "adaptsBoundary": true,
@@ -60839,89 +60937,6 @@
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "<anonymous-4>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "dispose",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "createCaptureDialog",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 20,
-          "name": "renderOutcome",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 32,
-          "name": "renderCapture",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "openCapture",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "openOutcomes",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "setError",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "close",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "emptyCaptureView",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.validation-campaign-ui",
-      "owner": "validation-campaign-ui",
-      "ownsContract": false,
-      "path": "src/validation-campaign-ui/capture-dialog.js",
-      "publicExports": [],
-      "responsibilities": [
-        "visual-surface-mutation"
-      ],
-      "sideEffectConcerns": [
-        {
-          "concern": "visual-surface-mutation",
-          "evidence": [
-            "append()"
-          ]
-        }
-      ],
-      "sizeException": null,
-      "sourceHash": "84c7fb5091731c310165fe98cf43b4dd96febefbf7577db584a2cc50d6a8428c"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 97,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
           "name": "capture",
           "reviewedDecompositionException": false
         },
@@ -61239,9 +61254,9 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 60061,
+    "effectiveLines": 60097,
     "files": 642,
-    "functions": 6152,
+    "functions": 6155,
     "publicExports": 650
   },
   "deliveryStep": "R14.1",

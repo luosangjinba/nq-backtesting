@@ -26,7 +26,9 @@ const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const V7_ROOT = path.resolve(TEST_DIR, '..');
 const BASE = Date.UTC(2023, 10, 14, 14, 0);
 const MINUTE = 60_000;
+const FIFTEEN_MINUTES = 15 * MINUTE;
 const CUTOFF = BASE + (16 * MINUTE);
+const MIXED_CUTOFF = BASE + (45 * MINUTE);
 const sessionId = createSessionId('session.r13-10e-headless');
 const negativeCases = JSON.parse(fs.readFileSync(path.join(
   TEST_DIR,
@@ -64,21 +66,54 @@ const acceptedBars = bars();
 const projectedBars = Object.freeze(acceptedBars.map(({ endEpochMs: _endEpochMs, ...bar }) => (
   Object.freeze(bar)
 )));
+const coarseAcceptedBars = Object.freeze([
+  { close: 100.5, high: 101, low: 99, open: 100, volume: 31 },
+  { close: 104, high: 105, low: 100, open: 100.5, volume: 42 },
+  { close: 105, high: 106, low: 103, open: 104, volume: 36 },
+].map((value, index) => Object.freeze({
+  ...value,
+  endEpochMs: BASE + ((index + 1) * FIFTEEN_MINUTES),
+  startEpochMs: BASE + (index * FIFTEEN_MINUTES),
+})));
+const coarseProjectedBars = Object.freeze(coarseAcceptedBars.map(({
+  endEpochMs: _endEpochMs, ...bar
+}) => Object.freeze(bar)));
 
-function pane(paneId, values = projectedBars) {
+function pane(paneId, values = projectedBars, {
+  durationMs = MINUTE,
+  timeframeId = 'timeframe.1m',
+} = {}) {
   return Object.freeze({
     paneId,
     snapshot: Object.freeze({
       bars: values,
       provenance: Object.freeze({
         datasetRevision: 'dataset.r13-10e',
-        displayTimeframeDurationMs: MINUTE,
-        displayTimeframeId: 'timeframe.1m',
+        displayTimeframeDurationMs: durationMs,
+        displayTimeframeId: timeframeId,
         instrumentId: 'instrument.nq',
-        sourceResolutionId: 'timeframe.1m',
+        sourceResolutionId: timeframeId,
       }),
     }),
     status: 'ready',
+  });
+}
+
+function mixedWorkspace({ revision = 56 } = {}) {
+  return Object.freeze({
+    replay: Object.freeze({ cursorEpochMs: MIXED_CUTOFF }),
+    revision,
+    workspace: Object.freeze({
+      panes: Object.freeze([
+        pane('pane-main'),
+        pane('pane-second', coarseProjectedBars, {
+          durationMs: FIFTEEN_MINUTES,
+          timeframeId: 'timeframe.15m',
+        }),
+      ]),
+      // Deliberately stale relative to the explicit command-time Pane used below.
+      responsePlan: Object.freeze({ activePaneId: 'pane-main' }),
+    }),
   });
 }
 
@@ -343,6 +378,64 @@ for (const surface of primary.surfaces) {
 }
 await primary.workflow.dispose();
 
+const mixedStorage = createMemoryWebStorage();
+const mixed = workflowFixture(mixedStorage);
+await mixed.workflow.start();
+await mixed.workflow.acceptWorkspace(mixedWorkspace());
+mixed.workflow.toggleTool('construct.imbalance.fvg', 'pane-main');
+mixed.surfaces[0].interactionPort.select(acceptedBars[5].startEpochMs);
+await settle(
+  () => mixed.workflow.snapshot().annotationDocumentRevision === 1
+    && mixed.latestView().inspector.open,
+  '1m FVG did not settle against the 1m/15m Workspace.',
+);
+assert.equal(mixed.workflow.snapshot().error, null);
+assert.equal(mixed.latestView().busy, false);
+assert.equal(mixed.surfaces[0].acceptedPort.snapshot().projectionCount, 2);
+assert.equal(mixed.surfaces[1].acceptedPort.snapshot().projectionCount, 0,
+  'the 1m FVG must be unavailable when both anchors collapse into one 15m bucket');
+await mixed.workflow.updateInspectorField({
+  expectedDraftRevision: mixed.latestView().inspector.draftRevision,
+  field: 'lowerPrice',
+  value: 101.25,
+});
+assert.equal(mixed.latestView().busy, true);
+assert.equal(mixed.surfaces[0].previewPort.snapshot().projectionCount, 2);
+assert.equal(mixed.surfaces[1].previewPort.snapshot().projectionCount, 0);
+await mixed.workflow.cancelInspector();
+assert.equal(mixed.latestView().inspector.open, false);
+assert.equal(mixed.latestView().busy, false,
+  'cancel must release the Workspace interaction gate after cross-timeframe settlement');
+assert.equal(mixed.workflow.snapshot().status, 'ready');
+assert.equal(mixed.workflow.snapshot().error, null);
+for (const surface of mixed.surfaces) {
+  assert.equal(surface.previewPort.snapshot().projectionCount, 0);
+  assert.equal(surface.interactionPort.snapshot().pickerActive, false);
+}
+assert.equal(mixed.surfaces[0].acceptedPort.snapshot().projectionCount, 2);
+assert.equal(mixed.surfaces[1].acceptedPort.snapshot().projectionCount, 0);
+
+mixed.workflow.toggleTool('construct.imbalance.fvg', 'pane-second');
+mixed.surfaces[1].interactionPort.select(coarseAcceptedBars[1].startEpochMs);
+await settle(
+  () => mixed.workflow.snapshot().annotationDocumentRevision === 2
+    && mixed.latestView().inspector.open,
+  'explicit 15m source Pane construction did not settle.',
+);
+const coarseArtifactId = mixed.latestView().inspector.artifactId;
+const annotationEntry = Object.entries(mixedStorage.snapshot())
+  .find(([key]) => key.startsWith('v7.annotation-history:session:'));
+assert.ok(annotationEntry, 'mixed-timeframe Annotation document must be durable');
+const coarseArtifact = JSON.parse(annotationEntry[1]).document.artifacts
+  .find(({ artifactId }) => artifactId === coarseArtifactId);
+assert.equal(coarseArtifact.provenance.packageProvenance.paneId, 'pane-second');
+assert.equal(coarseArtifact.provenance.sourceTimeframeId, 'timeframe.15m',
+  'the explicit command-time Pane must override the stale accepted response-plan focus');
+assert.equal(mixed.surfaces[0].acceptedPort.snapshot().projectionCount, 2);
+assert.equal(mixed.surfaces[1].acceptedPort.snapshot().projectionCount, 2);
+await mixed.workflow.cancelInspector();
+await mixed.workflow.dispose();
+
 const restored = workflowFixture(storage);
 await restored.workflow.start();
 await restored.workflow.acceptWorkspace(workspace({ revision: 53 }));
@@ -443,6 +536,8 @@ try {
   assert.equal(browser.tool, 'FVG');
   assert.equal(browser.state.workflow.annotationDocumentRevision, 0);
   assert.equal(browser.state.view.tools[0].state, 'active');
+  assert.equal(browser.state.coarseChart.barCount, 1);
+  assert.equal(browser.state.coarseSurface.accepted.projectionCount, 0);
 
   await pointerClick(cdp, await evaluate(cdp, `(() => {
     const rect = document.querySelector('.annotation-tool-button').getBoundingClientRect();
@@ -473,6 +568,10 @@ try {
   }
   browser = await evaluate(cdp, 'globalThis.__h114.state()');
   assert.equal(browser.surface.accepted.projectionCount, 2);
+  assert.equal(browser.coarseSurface.accepted.projectionCount, 0);
+  assert.equal(browser.coarseArtifactTarget, null,
+    'the real 15m Chart must not paint or hit-test a collapsed 1m FVG');
+  assert.equal(await evaluate(cdp, 'document.body.dataset.actionError ?? null'), null);
   assert.deepEqual(browser.view.inspector.tabs.map(({ id }) => id), ['inputs', 'evidence', 'history']);
   assert.equal(await evaluate(cdp, `document.querySelectorAll('.annotation-inspector-number').length`), 2);
 
@@ -484,12 +583,17 @@ try {
   await waitFor(cdp, `document.body.dataset.previewCount === '2'`, 10_000);
   browser = await evaluate(cdp, 'globalThis.__h114.state()');
   assert.equal(browser.surface.accepted.projectionCount, 0);
+  assert.equal(browser.coarseSurface.accepted.projectionCount, 0);
+  assert.equal(browser.coarseSurface.preview.projectionCount, 0);
   assert.equal(browser.workflow.annotationDocumentRevision, 1);
   await evaluate(cdp, `document.querySelector('.annotation-inspector-action.action-cancel').click()`);
   await waitFor(cdp, `document.body.dataset.inspectorOpen === 'false'`, 10_000);
   browser = await evaluate(cdp, 'globalThis.__h114.state()');
   assert.equal(browser.surface.accepted.projectionCount, 2);
   assert.equal(browser.surface.preview.projectionCount, 0);
+  assert.equal(browser.coarseSurface.accepted.projectionCount, 0);
+  assert.equal(browser.coarseSurface.preview.projectionCount, 0);
+  assert.equal(browser.view.busy, false);
 
   const artifactTarget = await evaluate(cdp, 'globalThis.__h114.artifactTarget()');
   assert.ok(artifactTarget, 'Accepted FVG did not expose a bounded Chart hit target.');
@@ -510,8 +614,13 @@ try {
   browser = await evaluate(cdp, 'globalThis.__h114.state()');
   assert.equal(browser.surface.accepted.projectionCount, 2);
   assert.equal(browser.surface.preview.projectionCount, 0);
+  assert.equal(browser.coarseSurface.accepted.projectionCount, 0);
+  assert.equal(browser.coarseSurface.preview.projectionCount, 0);
   assert.equal(browser.chart.barCount, browser.initialChart.barCount);
   assert.equal(browser.chart.seriesDataRevision, browser.initialChart.seriesDataRevision);
+  assert.equal(browser.coarseChart.barCount, browser.initialCoarseChart.barCount);
+  assert.equal(browser.coarseChart.seriesDataRevision,
+    browser.initialCoarseChart.seriesDataRevision);
 
   const chartCenter = await evaluate(cdp, `(() => {
     const rect = document.querySelector('#chart').getBoundingClientRect();
@@ -535,6 +644,8 @@ try {
   browser = await evaluate(cdp, 'globalThis.__h114.state()');
   assert.equal(browser.workflow.annotationDocumentRevision, 2);
   assert.equal(browser.surface.accepted.projectionCount, 2);
+  assert.equal(browser.coarseSurface.accepted.projectionCount, 0);
+  assert.equal(browser.coarseArtifactTarget, null);
   const restoredTarget = await evaluate(cdp, 'globalThis.__h114.artifactTarget()');
   await pointerClick(cdp, restoredTarget);
   await waitFor(cdp, `document.body.dataset.inspectorOpen === 'true'`, 10_000);

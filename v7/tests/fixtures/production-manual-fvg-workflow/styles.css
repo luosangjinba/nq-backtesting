@@ -29,11 +29,34 @@ body { display: grid; grid-template-rows: 72px minmax(0, 1fr); }
   font-size: 10px;
 }
 #projection-status { color: #668294; font: 9px ui-monospace, SFMono-Regular, monospace; }
-.chart-frame { border: 0; }
+.chart-frame {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 1px;
+  border: 0;
+  background: #172630;
+}
+.fixture-pane {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  grid-template-rows: 24px minmax(0, 1fr);
+  background: #03070a;
+}
+.fixture-pane > span {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  color: #78909f;
+  background: #060c11;
+  font: 9px ui-monospace, SFMono-Regular, monospace;
+}
 #annotation-inspector-slot { position: absolute; inset: 0; pointer-events: none; }
 #annotation-inspector-slot > .annotation-inspector { pointer-events: auto; }
 .annotation-tool-strip { border-left: 0; }
 @media (max-width: 900px) {
   .fixture-title { min-width: 260px; }
   .fixture-title p { display: none; }
+  .chart-frame { grid-template-columns: minmax(0, 1fr) minmax(220px, .7fr); }
 }

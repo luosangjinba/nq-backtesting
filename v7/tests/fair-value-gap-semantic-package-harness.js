@@ -253,6 +253,14 @@ function frame(reconciliationRevision, replayCutoffEpochMs) {
         paneId: 'pane.nq-5m',
         timeframeId: 'timeframe.5m',
       },
+      {
+        acceptedBuckets: [
+          { endEpochMs: BASE + (15 * MINUTE), startEpochMs: BASE },
+        ],
+        instrumentId: 'instrument.nq',
+        paneId: 'pane.nq-15m',
+        timeframeId: 'timeframe.15m',
+      },
     ],
     reconciliationRevision,
     replayCutoffEpochMs,
@@ -271,16 +279,26 @@ function derive(reconciliationRevision, replayCutoffEpochMs) {
 }
 
 const hiddenSets = derive(1, BASE + (6 * MINUTE));
-assert.deepEqual(hiddenSets.map(({ projections }) => projections.length), [0, 0]);
+assert.deepEqual(hiddenSets.map(({ projections }) => projections.length), [0, 0, 0]);
 const visibleSets = derive(2, BASE + (7 * MINUTE));
-assert.deepEqual(visibleSets.map(({ projections }) => projections.length), [2, 2]);
-const projectedZone = visibleSets[0].projections
+const visibleByPane = new Map(visibleSets.map((set) => [set.paneId, set]));
+assert.deepEqual(Object.fromEntries([...visibleByPane].map(([paneId, set]) => (
+  [paneId, set.projections.length]
+))), {
+  'pane.nq-15m': 0,
+  'pane.nq-1m': 2,
+  'pane.nq-5m': 2,
+});
+assert.deepEqual(visibleByPane.get('pane.nq-15m').provenance, [],
+  'a 1m FVG collapsed inside one 15m bucket must omit the whole target-Pane projection');
+const projectedZone = visibleByPane.get('pane.nq-1m').projections
   .map(readAnnotationProjection)
   .find(({ geometry }) => geometry.typeId === 'geometry.rectangle');
 assert.equal(projectedZone.presentation.label.text, 'Bullish FVG');
 assert.equal(projectedZone.geometry.payload.lowPrice, 101);
 assert.equal(projectedZone.geometry.payload.highPrice, 103);
-assert.equal(visibleSets[1].provenance.every(({ mappings }) => mappings.length === 2), true);
+assert.equal(visibleByPane.get('pane.nq-5m').provenance
+  .every(({ mappings }) => mappings.length === 2), true);
 
 const canonicalDocument = JSON.stringify(annotation.getDocument());
 await owner.disablePackage(FAIR_VALUE_GAP_PACKAGE_ID);
@@ -355,7 +373,9 @@ const inconsistentArtifact = Object.freeze({
     }),
   }),
 });
-const validLabeledProjection = readAnnotationProjection(visibleSets[0].projections[0]);
+const validLabeledProjection = readAnnotationProjection(
+  visibleByPane.get('pane.nq-1m').projections[0],
+);
 const operations = {
   'artifact-reference': () => artifactDraft(owner, 'artifact.negative-reference', referencedEvidence),
   'bundle-lookalike': () => artifactDraft(owner, 'artifact.negative-lookalike', {}),

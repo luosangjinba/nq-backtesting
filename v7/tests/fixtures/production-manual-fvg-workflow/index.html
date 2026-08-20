@@ -20,11 +20,18 @@
     <main class="fixture-main">
       <section class="fixture-chart-shell">
         <div class="fixture-chart-head">
-          <strong>NQ · 1m · strict bullish FVG at 14:05</strong>
+          <strong>NQ · 1m source / 15m projection target</strong>
           <span id="projection-status">accepted 0 · preview 0</span>
         </div>
         <div class="chart-frame">
-          <div id="chart" class="lightweight-chart-host"></div>
+          <section class="fixture-pane fixture-pane-source">
+            <span>Pane 1 · 1m · strict bullish FVG at 14:05</span>
+            <div id="chart" class="lightweight-chart-host"></div>
+          </section>
+          <section class="fixture-pane fixture-pane-target">
+            <span>Pane 2 · 15m · collapsed projection must be absent</span>
+            <div id="chart-coarse" class="lightweight-chart-host"></div>
+          </section>
           <div id="annotation-inspector-slot"></div>
         </div>
       </section>
@@ -39,6 +46,6 @@
         document.body.dataset.scenario = 'failed';
       });
     </script>
-    <script type="module" src="./scenario.js?v=h114-20260810a"></script>
+    <script type="module" src="./scenario.js?v=h121-20260819a"></script>
   </body>
 </html>

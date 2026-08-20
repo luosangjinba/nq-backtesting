@@ -360,6 +360,22 @@ Future primitive requirement:
 - [x] prove the actual production host boots after removing the exact eight-
   module Campaign closure while Session and Replay remain available;
 - [x] retain H117 and H121 governance state unchanged throughout the audit;
+- [x] receive narrow product-owner authority to repair the H121 review blockers
+  without starting right-click drawing, generalized plugin Settings, another
+  plugin, or any broader business slice;
+- [x] treat a valid canonical FVG whose Rectangle/CE anchors collapse inside
+  one coarser accepted bucket as unavailable on that target Pane, while keeping
+  true canonical Segment degeneracy invalid;
+- [x] bind manual semantic construction to the command-time focused Pane and
+  prove exact source Pane/timeframe provenance even when the last accepted
+  Workspace response-plan focus is stale;
+- [x] prove 1m/15m accepted and Preview settlement, multi-Pane rollback,
+  Inspector cancellation, picker release, and Workspace busy-gate release with
+  Node plus real Lightweight Charts assertions;
+- [x] replace the no-Campaign dead end with an explicit `Go to Validation`
+  action and prove the Session route resumes unchanged after navigation;
+- [x] rerun H121 Node/browser, architecture, source-quality, and focused FVG/
+  projection/Workspace regressions while keeping H117 and H121 states unchanged;
 - [ ] execute and explicitly accept all ten focused product checks before
   changing H121 from `executable` or closing R14.1;
 - [ ] do not start P1c.4, P1b.4, another plugin, Community/Worker, Journal,
@@ -388,6 +404,9 @@ Implementation record:
 
 Focused human gate:
 `docs/V7_FVG_SMA_VALIDATION_CAMPAIGN_R14_1_HUMAN_REVIEW.md`.
+
+H121 review-blocker repair record:
+`sessions/session_20260819_h121_cross_timeframe_fvg_blocker_repair.md`.
 
 ## MEMO-V7-005 Study Collection Dashboard / Chart Application / Visual Grammar — Captured 2026-08-18
 
@@ -2061,7 +2080,7 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 642 files, 60,061 effective lines, 6,152 functions, and 650 public exports; the architecture baseline
+The current production source baseline contains 642 files, 60,097 effective lines, 6,155 functions, and 650 public exports; the architecture baseline
 contains 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
@@ -2073,7 +2092,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 642 files, 60,061 effective lines, 6,152 functions, and 650 public exports, 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
+currently at 642 files, 60,097 effective lines, 6,155 functions, and 650 public exports, 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
 ## Established Foundation Governance

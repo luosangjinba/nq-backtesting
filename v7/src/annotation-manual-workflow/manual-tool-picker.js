@@ -9,10 +9,11 @@ export function armManualSemanticTool({
   onError,
   onSelection,
   onStateChange,
+  paneId: requestedPaneId = null,
   tool,
   workspace,
 } = {}) {
-  const paneId = activePaneId(workspace);
+  const paneId = activePaneId(workspace, requestedPaneId);
   const surface = chartSurfacePort.annotationSurfaces(chartProjection)
     .find((candidate) => candidate.paneId === paneId);
   if (!surface) {

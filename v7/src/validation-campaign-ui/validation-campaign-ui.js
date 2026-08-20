@@ -27,6 +27,13 @@ function requireRawContextIntent(value) {
   return value;
 }
 
+function requireCampaignIntent(value) {
+  if (typeof value !== 'function') {
+    throw new TypeError('Validation Campaign UI requires onCampaignIntent().');
+  }
+  return value;
+}
+
 function createReplayAttachment({ captureDialog, paneAddonPort }) {
   if (typeof paneAddonPort?.register !== 'function') {
     throw new TypeError('Validation Campaign UI requires a Pane add-on port.');
@@ -65,12 +72,14 @@ function createReplayAttachment({ captureDialog, paneAddonPort }) {
 /** Own Campaign DOM only; all business writes go through the runtime command port. */
 export function createValidationCampaignUi({
   download,
+  onCampaignIntent,
   onError = () => {},
   onRawContextIntent,
   runtime,
 } = {}) {
   const owner = requireRuntime(runtime);
   const saveDownload = requireDownload(download);
+  const emitCampaignIntent = requireCampaignIntent(onCampaignIntent);
   const emitRawContext = requireRawContextIntent(onRawContextIntent);
   const replayAttachments = new Set();
   let disposed = false;
@@ -114,6 +123,7 @@ export function createValidationCampaignUi({
         throw new TypeError('Replay Campaign attachment requires readCaptureContext().');
       }
       const workspaceDialog = createCaptureDialog({
+        onCampaignIntent: emitCampaignIntent,
         onError,
         readCaptureContext,
         runtime: owner,

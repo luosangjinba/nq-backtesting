@@ -95,6 +95,7 @@ export async function createValidationCampaignFeature({
   let pendingRawContextIntent = null;
   const ui = optional.ui.createValidationCampaignUi({
     download: (filename, raw) => downloadJson(browserWindow, filename, raw),
+    onCampaignIntent() { navigation.go('#/campaigns'); },
     onRawContextIntent(intent) {
       pendingRawContextIntent = intent;
       navigation.go(`#\/session\/${encodeURIComponent(intent.sessionId)}`);

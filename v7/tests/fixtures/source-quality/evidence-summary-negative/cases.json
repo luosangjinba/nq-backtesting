@@ -5,8 +5,8 @@
       "operation": "replace-text",
       "path": "sessions/session_20260806_r11_1_architecture_integrity_recovery.md",
       "replace": {
-        "from": "60,061 effective lines",
-        "to": "60,060 effective lines"
+        "from": "60,097 effective lines",
+        "to": "60,096 effective lines"
       },
       "expectedFailureCode": "production-source-summary-drift"
     },

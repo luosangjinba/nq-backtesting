@@ -147,6 +147,10 @@ try {
     && document.querySelector('.validation-page h1')?.textContent === 'H121 FVG + SMA Campaign'`, 20_000);
   assert.equal(await evaluate(cdp, `Object.keys(localStorage)
     .filter((key) => key.startsWith('v7.validation-campaign:')).length`), 2);
+  await evaluate(cdp, `[...document.querySelectorAll('.validation-page-header button')]
+    .find((button) => button.textContent === 'Archive').click()`);
+  await waitFor(cdp, `document.querySelector('.validation-page-header')?.textContent
+    .includes('Archived')`, 20_000);
 
   // Real Session/Replay remains independent and receives only DOM-only Campaign actions.
   await cdp.send('Page.navigate', { url: `http://127.0.0.1:${webPort}/v7/app/#/sessions` });
@@ -176,6 +180,29 @@ try {
     }))()`);
     throw new Error(`${error.message}; Replay Campaign state: ${JSON.stringify(state)}`);
   }
+
+  const sessionRoute = await evaluate(cdp, 'location.hash');
+  await evaluate(cdp, `document.querySelector('.validation-pane-button').click()`);
+  await waitFor(cdp, `document.querySelector('.validation-capture-dialog')?.open === true
+    && document.querySelector('.validation-capture-dialog h2')?.textContent === 'Capture Study Case'`);
+  const emptyCampaignNavigation = await evaluate(cdp, `(() => ({
+    action: [...document.querySelectorAll('.validation-capture-dialog button')]
+      .find((button) => button.textContent === 'Go to Validation')?.textContent,
+    message: document.querySelector('.validation-capture-dialog p')?.textContent,
+  }))()`);
+  assert.deepEqual(emptyCampaignNavigation, {
+    action: 'Go to Validation',
+    message: 'Study Cases must belong to an active Validation Campaign.',
+  });
+  await evaluate(cdp, `[...document.querySelectorAll('.validation-capture-dialog button')]
+    .find((button) => button.textContent === 'Go to Validation').click()`);
+  await waitFor(cdp, `location.hash === '#/campaigns'
+    && document.querySelector('.validation-page h1')?.textContent === 'Campaigns'`, 20_000);
+  await cdp.send('Page.navigate', {
+    url: `http://127.0.0.1:${webPort}/v7/app/${sessionRoute}`,
+  });
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
+    && document.querySelector('.validation-pane-actions')`, 25_000);
 
   // Seed a deterministic, exact-Session completed Case plus one pending Outcome.
   await evaluate(cdp, `document.querySelector('[data-layout-id="layout.two-columns"]').click()`);
@@ -404,6 +431,7 @@ try {
     cohortCounts,
     desktopBytes,
     drilldown,
+    emptyCampaignNavigation,
     incompletePreview,
     narrowBytes,
     responsive,

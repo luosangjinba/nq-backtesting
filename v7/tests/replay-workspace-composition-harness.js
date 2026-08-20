@@ -13,6 +13,7 @@ import {
 } from '../src/replay-workspace-composition/public.js';
 import { createPaneDataComposition } from '../src/replay-workspace-composition/pane-data-composition.js';
 import { createWorkspaceCheckpointPersistence } from '../src/replay-workspace-composition/workspace-checkpoint-persistence.js';
+import { createWorkspaceAnnotationCommands } from '../src/replay-workspace-composition/workspace-annotation-commands.js';
 import { createPaneProjectionMemo } from '../src/replay-workspace-composition/pane-projection-memo.js';
 import { createWorkspaceReplayCommands } from '../src/replay-workspace-composition/workspace-replay-commands.js';
 import { brandProjectedPaneSnapshot } from '../src/projection-domain/projected-pane-snapshot.js';
@@ -51,6 +52,22 @@ assert.deepEqual(WORKSPACE_PANE_IDS, [
 ]);
 assert.equal(AUTOPLAY_SPEED_OPTIONS.length, 4);
 assert.deepEqual(validateReplayWorkspaceBoundary(production), []);
+
+let annotationToggle = null;
+let annotationPauseCount = 0;
+const annotationCommands = createWorkspaceAnnotationCommands({
+  annotationWorkflow: Object.freeze({
+    toggleTool(toolId, paneId) { annotationToggle = Object.freeze({ paneId, toolId }); },
+  }),
+  autoplayScheduler: Object.freeze({ pause() { annotationPauseCount += 1; } }),
+  workspaceState: Object.freeze({ activePaneId: () => 'pane-secondary' }),
+});
+annotationCommands.toggleAnnotationTool('construct.imbalance.fvg');
+assert.deepEqual(annotationToggle, {
+  paneId: 'pane-secondary',
+  toolId: 'construct.imbalance.fvg',
+}, 'Annotation commands must bind the command-time focused Pane explicitly');
+assert.equal(annotationPauseCount, 1);
 
 function deferred() {
   let resolve;

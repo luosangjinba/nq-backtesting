@@ -102,6 +102,11 @@ assert.deepEqual(
   readDrawingGeometry(initial.create('geometry.point', { anchor: first })),
   readDrawingGeometry(point),
 );
+assert.equal(initial.projectAnchors(readDrawingGeometry(segment), () => ({
+  epochMs: 10_000,
+  instrumentId: 'instrument.test',
+  price: 105,
+})), null, 'a valid Segment collapsed by target projection must be unavailable, not invalid');
 
 const triangleDefinition = defineGeometryType({
   typeId: 'geometry.test-triangle',

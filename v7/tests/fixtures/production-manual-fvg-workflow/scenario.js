@@ -12,8 +12,10 @@ import { createWorkstationSettings } from '../../../src/workstation-settings/pub
 
 const BASE = Date.UTC(2023, 10, 14, 14, 0);
 const MINUTE = 60_000;
+const FIFTEEN_MINUTES = 15 * MINUTE;
 const CUTOFF = BASE + (16 * MINUTE);
 const PANE_ID = 'pane-main';
+const COARSE_PANE_ID = 'pane-second';
 const sessionId = createSessionId('session.r13-10e-production-fixture');
 const activationGeneration = createActivationGeneration(1);
 const identity = createWorkspaceTransactionIdentity({
@@ -54,6 +56,15 @@ function marketBars() {
 
 const bars = marketBars();
 const chartBars = Object.freeze(bars.map(({ endEpochMs: _endEpochMs, ...bar }) => Object.freeze(bar)));
+const coarseBars = Object.freeze([Object.freeze({
+  close: bars[14].close,
+  displayEpochMs: BASE,
+  high: Math.max(...bars.slice(0, 15).map(({ high }) => high)),
+  low: Math.min(...bars.slice(0, 15).map(({ low }) => low)),
+  open: bars[0].open,
+  startEpochMs: BASE,
+  volume: bars.slice(0, 15).reduce((total, { volume }) => total + volume, 0),
+})]);
 const provenance = Object.freeze({
   cursorProposal: proposal,
   datasetRevision: 'dataset.r13-10e-fixture',
@@ -65,11 +76,25 @@ const provenance = Object.freeze({
   visibleThroughEpochMs: CUTOFF,
 });
 const paneSnapshot = Object.freeze({ bars: chartBars, paneId: PANE_ID, provenance, schemaVersion: 1 });
+const coarseProvenance = Object.freeze({
+  ...provenance,
+  displayTimeframeDurationMs: FIFTEEN_MINUTES,
+  displayTimeframeId: 'timeframe.15m',
+});
+const coarsePaneSnapshot = Object.freeze({
+  bars: coarseBars,
+  paneId: COARSE_PANE_ID,
+  provenance: coarseProvenance,
+  schemaVersion: 1,
+});
 const acceptedWorkspace = Object.freeze({
   replay: Object.freeze({ cursorEpochMs: CUTOFF }),
   revision: 52,
   workspace: Object.freeze({
-    panes: Object.freeze([{ paneId: PANE_ID, snapshot: paneSnapshot, status: 'ready' }]),
+    panes: Object.freeze([
+      { paneId: PANE_ID, snapshot: paneSnapshot, status: 'ready' },
+      { paneId: COARSE_PANE_ID, snapshot: coarsePaneSnapshot, status: 'ready' },
+    ]),
     responsePlan: Object.freeze({ activePaneId: PANE_ID }),
   }),
 });
@@ -96,11 +121,42 @@ const prepared = await chartApplication.prepare({
 const receipt = await prepared.apply();
 prepared.finalize(receipt);
 const initialChart = adapter.snapshot();
+const coarseChartHost = document.getElementById('chart-coarse');
+const coarseViewport = createViewportController({
+  defaultSpanBars: 8,
+  initialIntent: createInitialViewportIntent({
+    activationGeneration,
+    cursorEpochMs: CUTOFF,
+    latestOffsetBars: 2,
+    paneId: COARSE_PANE_ID,
+    sessionId,
+  }),
+});
+const coarseAdapter = createLightweightChartAdapter({
+  host: coarseChartHost,
+  viewportPort: coarseViewport,
+});
+coarseAdapter.applyWorkstationSettings(createWorkstationSettings(), '0.25', 'NQ');
+const coarseChartApplication = createChartSnapshotApplication({
+  activationGeneration,
+  adapter: coarseAdapter,
+  sessionId,
+});
+const coarsePrepared = await coarseChartApplication.prepare({
+  identity,
+  signal: new AbortController().signal,
+  workspaceSnapshot: coarsePaneSnapshot,
+});
+const coarseReceipt = await coarsePrepared.apply();
+coarsePrepared.finalize(coarseReceipt);
+const initialCoarseChart = coarseAdapter.snapshot();
 let annotationSurface = null;
+let coarseAnnotationSurface = null;
 const chartSurfacePort = Object.freeze({
   annotationSurfaces(projectionApi) {
     annotationSurface ??= adapter.annotationSurface(projectionApi, PANE_ID);
-    return Object.freeze([annotationSurface]);
+    coarseAnnotationSurface ??= coarseAdapter.annotationSurface(projectionApi, COARSE_PANE_ID);
+    return Object.freeze([annotationSurface, coarseAnnotationSurface]);
   },
 });
 
@@ -135,13 +191,18 @@ function render(value) {
   control.setSnapshot(value);
   const workflowSnapshot = workflow?.snapshot() ?? null;
   const surfaceSnapshot = annotationSurface?.snapshot() ?? null;
+  const coarseSurfaceSnapshot = coarseAnnotationSurface?.snapshot() ?? null;
   const accepted = surfaceSnapshot?.accepted.projectionCount ?? 0;
+  const coarseAccepted = coarseSurfaceSnapshot?.accepted.projectionCount ?? 0;
   const preview = surfaceSnapshot?.preview.projectionCount ?? 0;
-  projectionStatus.textContent = `accepted ${accepted} · preview ${preview}`;
+  const coarsePreview = coarseSurfaceSnapshot?.preview.projectionCount ?? 0;
+  projectionStatus.textContent = `1m ${accepted}/${preview} · 15m ${coarseAccepted}/${coarsePreview}`;
   status.textContent = `${value.status} · doc ${workflowSnapshot?.annotationDocumentRevision ?? 0}`;
   document.body.dataset.documentRevision = String(workflowSnapshot?.annotationDocumentRevision ?? 0);
   document.body.dataset.inspectorOpen = String(value.inspector.open);
   document.body.dataset.previewCount = String(preview);
+  document.body.dataset.coarseAcceptedCount = String(coarseAccepted);
+  document.body.dataset.coarsePreviewCount = String(coarsePreview);
   document.body.dataset.workflowStatus = value.status;
 }
 
@@ -184,11 +245,26 @@ function artifactTarget() {
   return null;
 }
 
+function coarseArtifactTarget() {
+  if (coarseAnnotationSurface === null) return null;
+  const rect = coarseChartHost.getBoundingClientRect();
+  for (let y = 20; y < rect.height - 30; y += 3) {
+    for (let x = 8; x < rect.width - 70; x += 3) {
+      if (coarseAnnotationSurface.acceptedPort.hitTest({ tolerancePx: 2, x, y }) !== null) {
+        return Object.freeze({ x: rect.left + x, y: rect.top + y });
+      }
+    }
+  }
+  return null;
+}
+
 globalThis.__h114 = Object.freeze({
   artifactTarget,
   barTarget,
+  coarseArtifactTarget,
   state() {
     const chart = adapter.snapshot();
+    const coarseChart = coarseAdapter.snapshot();
     return Object.freeze({
       artifactTarget: artifactTarget(),
       chart: Object.freeze({
@@ -200,6 +276,17 @@ globalThis.__h114 = Object.freeze({
         barCount: initialChart.barCount,
         seriesDataRevision: initialChart.seriesDataRevision,
       }),
+      coarseArtifactTarget: coarseArtifactTarget(),
+      coarseChart: Object.freeze({
+        barCount: coarseChart.barCount,
+        logicalRange: coarseChart.logicalRange,
+        seriesDataRevision: coarseChart.seriesDataRevision,
+      }),
+      initialCoarseChart: Object.freeze({
+        barCount: initialCoarseChart.barCount,
+        seriesDataRevision: initialCoarseChart.seriesDataRevision,
+      }),
+      coarseSurface: coarseAnnotationSurface?.snapshot() ?? null,
       surface: annotationSurface?.snapshot() ?? null,
       view: latestView,
       workflow: workflow.snapshot(),
@@ -211,6 +298,8 @@ addEventListener('pagehide', () => {
   void workflow.dispose().finally(() => {
     chartApplication.dispose();
     adapter.dispose();
+    coarseChartApplication.dispose();
+    coarseAdapter.dispose();
     control.dispose();
   });
 }, { once: true });

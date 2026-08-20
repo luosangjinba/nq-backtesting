@@ -139,9 +139,15 @@ export function createManualWorkflowProjectionFrame({
   });
 }
 
-export function activePaneId(workspace) {
+export function activePaneId(workspace, requestedPaneId = null) {
   const accepted = requireAcceptedWorkspace(workspace);
-  const paneId = accepted.workspace.responsePlan?.activePaneId;
+  const paneId = requestedPaneId ?? accepted.workspace.responsePlan?.activePaneId;
+  if (typeof paneId !== 'string' || paneId.length === 0) {
+    failManualWorkflow(
+      'MANUAL_WORKFLOW_PANE_UNAVAILABLE',
+      'Manual Annotation requires one explicit active Pane.',
+    );
+  }
   readyPane(accepted, paneId);
   return paneId;
 }

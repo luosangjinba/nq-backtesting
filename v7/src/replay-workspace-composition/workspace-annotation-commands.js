@@ -1,5 +1,9 @@
 /** Add package-neutral optional Annotation intents without exposing its controller to UI. */
-export function createWorkspaceAnnotationCommands({ annotationWorkflow, autoplayScheduler } = {}) {
+export function createWorkspaceAnnotationCommands({
+  annotationWorkflow,
+  autoplayScheduler,
+  workspaceState,
+} = {}) {
   function pauseAnd(work) {
     if (annotationWorkflow === null) return undefined;
     autoplayScheduler.pause();
@@ -12,7 +16,9 @@ export function createWorkspaceAnnotationCommands({ annotationWorkflow, autoplay
     selectAnnotationEvidenceSource: (artifactId) => (
       pauseAnd(() => annotationWorkflow.selectEvidenceSource(artifactId))
     ),
-    toggleAnnotationTool: (toolId) => pauseAnd(() => annotationWorkflow.toggleTool(toolId)),
+    toggleAnnotationTool: (toolId) => pauseAnd(() => (
+      annotationWorkflow.toggleTool(toolId, workspaceState.activePaneId())
+    )),
     updateAnnotationInspectorField: (value) => (
       pauseAnd(() => annotationWorkflow.updateInspectorField(value))
     ),

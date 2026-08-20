@@ -16,6 +16,7 @@ const runtime = Object.freeze({
 
 const ui = createValidationCampaignUi({
   download() {},
+  onCampaignIntent() {},
   onRawContextIntent() {},
   runtime,
 });
