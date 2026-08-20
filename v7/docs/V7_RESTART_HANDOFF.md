@@ -2,9 +2,10 @@
 
 Last updated: 2026-08-19 before a server restart, after the bounded H121
 cross-timeframe and higher-timeframe FVG projection repairs and the anchored-
-geometry projection Memo amendment. Repository HEAD is `405ba907`; H121 is
-implemented and executable but remains human-review-required and unaccepted.
-H117 remains executable/unaccepted.
+geometry projection Memo amendment. The pre-handoff product/documentation
+baseline is `405ba907`; the handoff commit itself is identified by `git log`.
+H121 is implemented and executable but remains human-review-required and
+unaccepted. H117 remains executable/unaccepted.
 
 ## Restart Resume Checkpoint
 
