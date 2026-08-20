@@ -56,7 +56,7 @@ for-byte unchanged. Production-owner evidence independently covers Chart,
 Replay, Workspace State, publication, and persistence failure boundaries plus
 delayed, reordered, stale, and late work.
 
-Current production evidence is 642 files, 60,099 effective lines, 6,155 functions, and 650 public exports, 71 modules, 162 dependency edges, 134
+Current production evidence is 643 files, 60,137 effective lines, 6,157 functions, and 650 public exports, 71 modules, 162 dependency edges, 134
 construction sites, 23 writer sites, and zero findings. Source policy has
 zero file/function exceptions and the source baseline has zero debt comments.
 

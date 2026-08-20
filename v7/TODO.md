@@ -19,6 +19,80 @@
 
 Canonical registry: `docs/V7_NON_DECISION_MEMO_REGISTRY.md`.
 
+## 2026-08-20 Product-Definition Pause — MEMO-V7-006
+
+- [x] pause Calendar, geometry, Study Case successor, order, and standalone AI
+  implementation while the product owner develops the software portrait and
+  feasibility position;
+- [x] inspect the two user-supplied Excel review workbooks and OTE explanation
+  read-only, preserving the observed workflow/field evidence without treating
+  those artifacts as production schemas or migration commitments;
+- [x] record the Notion/Obsidian/Excel limitation and interactive-Chart product
+  origin;
+- [x] record the distinction between full-future hindsight review and
+  pseudo-live FXReplay training;
+- [x] correct the discussion boundary: FVG/SMT/BSL/EQL-style atomic tools and
+  calculated indicators may be Plugins, while OTE is a customizable strategy
+  Model and a Setup is its concrete semantic-data instance;
+- [x] register
+  `V7_CHART_NATIVE_RESEARCH_MODEL_SETUP_PLUGIN_BOUNDARY_PREDECISION_MEMO.md` as
+  `MEMO-V7-006`, explicitly non-binding;
+- [x] record the product-wide target that a TradingView-familiar trader reaches
+  first success within three minutes and no more than three meaningful steps,
+  without disguising a large form as one step;
+- [ ] continue the product owner's software portrait in conversation before
+  promoting terminology, schemas, ownership, or a Model customization
+  boundary;
+- [ ] reconstruct one real OTE hindsight workflow and one pseudo-live workflow,
+  then classify every OTE field by source, value, automation, Model specificity,
+  and evidence provenance;
+- [ ] do not treat ADR-V7-007/008 review as the immediate next action; reconcile
+  both candidates with MEMO-V7-006 only after the product portrait is mature.
+
+Current discovery memo:
+`docs/V7_CHART_NATIVE_RESEARCH_MODEL_SETUP_PLUGIN_BOUNDARY_PREDECISION_MEMO.md`.
+
+## 2026-08-20 Study Case Product Hold And Successor Direction
+
+- [x] receive product-owner direction to retain execution-free price-action/
+  model-occurrence research while withdrawing the current form-first
+  `Capture Study Case` experience;
+- [x] make the withdrawal reversible through an explicit production product
+  policy which omits `adapter.validation-campaign-ui` and therefore the exact
+  eight-module Campaign closure;
+- [x] remove Validation navigation, Campaign routes/actions, Campaign code
+  loading, and Campaign stylesheet loading from the default product while
+  preserving all source, tests, and persisted/state-sync bytes;
+- [x] move H121 browser evidence to an isolated retained-prototype fixture and
+  prove the default product omits the closure while Session/Replay survive and
+  existing Campaign bytes remain untouched;
+- [x] audit the existing date-picker Calendar, exact-Go-To ownership path,
+  Workspace overlay surface, and duplicated Drawing/FVG fill parameters;
+- [x] check official Lightweight Charts and awesome-tradingview extension
+  patterns before proposing the Chart Activity Calendar boundary;
+- [x] draft `ADR-V7-007` as a candidate separating native truth owners, one
+  active authoring context, multiple visibility lenses, a read-only Activity
+  Index, Calendar location, and Anchored Geometry Appearance V2;
+- [x] preserve the product-owner-accepted strict TypeScript runtime target
+  while allowing natural language, Pine, and Python as standalone authoring/
+  migration inputs and differential oracles;
+- [x] perform a source-level GitHub reuse audit and draft `ADR-V7-008` for two
+  independently runnable standalone AI authoring/migration workflows over the
+  existing canonical Developer Kit;
+- [ ] after MEMO-V7-006 product discovery, reconcile and review ADR-V7-007
+  decisions 2–10 before allocating a Calendar, geometry, Research, Training,
+  Review, Journal, order, delivery, or Harness slice;
+- [ ] after MEMO-V7-006 product discovery, reconcile and review ADR-V7-008
+  decisions 2–10 before creating another repository, adopting an upstream
+  dependency, resuming P1b.4/P3a/P3b, or implementing an agent/migration
+  product.
+
+Chart/workflow candidate:
+`docs/V7_CHART_ACTIVITY_CALENDAR_AND_WORKFLOW_LENSES_CANDIDATE.md`.
+
+Standalone tooling candidate:
+`docs/V7_AI_PLUGIN_AUTHORING_AND_MIGRATION_STUDIO_CANDIDATE.md`.
+
 ## ADR-V7-006 — Plugin Contribution Profiles And Composition — Accepted 2026-08-12
 
 - [x] identify that Plugin Package/distribution, Contribution truth model,
@@ -390,8 +464,10 @@ Future primitive requirement:
 - [x] preserve a documentation-only pre-server-restart checkpoint at current
   pushed HEAD, including the repaired deployment prerequisite and unchanged
   H117/H121 governance state;
-- [ ] execute and explicitly accept all ten focused product checks before
-  changing H121 from `executable` or closing R14.1;
+- [x] supersede the pending ten-item H121 product review after the product owner
+  rejected the current entry experience; retain H121 as an executable,
+  unaccepted isolated-prototype gate and do not infer product acceptance from
+  its automated evidence;
 - [ ] do not start P1c.4, P1b.4, another plugin, Community/Worker, Journal,
   Dataset Builder, AI, or MEMO-V7-005 implementation from this slice.
 
@@ -2097,7 +2173,7 @@ Bar Data lease and real Chrome evidence now preserve dense/non-target walls
 through repeated ETH Locate, atomic RTH replacement, and both RTH target
 directions without moving Replay. H019/H066/H078 are executable, not human-
 accepted; R7.3n/R7.3o remain open through R8.15. Three R8.14 regressions remain.
-The current production source baseline contains 642 files, 60,099 effective lines, 6,155 functions, and 650 public exports; the architecture baseline
+The current production source baseline contains 643 files, 60,137 effective lines, 6,157 functions, and 650 public exports; the architecture baseline
 contains 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
@@ -2109,7 +2185,7 @@ durable Session record; all five owner participants have equivalent dynamic
 post-visible evidence. H021/H025/H079 are executable and H069 is accepted. No
 rule remains `regressed`, but recovery mode, R7.3n/R7.3o, and every human gate
 remain open for R8.15. Production source and architecture baselines remain
-currently at 642 files, 60,099 effective lines, 6,155 functions, and 650 public exports, 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
+currently at 643 files, 60,137 effective lines, 6,157 functions, and 650 public exports, 71 modules, 162 edges, 134 construction sites, 28 writers, and zero
 findings.
 
 ## Established Foundation Governance

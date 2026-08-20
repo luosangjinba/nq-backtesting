@@ -12,6 +12,26 @@ V7 is not a feature restart and not a rewrite of everything. It replaces the
 unreliable replay/chart execution core while retaining reviewed product
 decisions, V4 market-data/API capabilities, and reusable pure domain behavior.
 
+On 2026-08-20 the product owner withdrew the current form-first Validation
+Campaign/Study Case surface before H121 acceptance. Default production omits
+that removable closure while preserving its source and user-owned bytes. The
+next candidate direction is Calendar-first and Chart-native, with distinct
+Research/Practice/Retrospective/Imported-Execution truth over the same
+foundation; see `V7_CHART_ACTIVITY_CALENDAR_AND_WORKFLOW_LENSES_CANDIDATE.md`.
+Only the withdrawal is implemented, so this does not yet add Calendar, orders,
+Research, Review, or Journal.
+
+Later on 2026-08-20 the product owner paused successor review and
+implementation to develop the software portrait, Plugin/business architecture,
+and a product-wide three-minute/three-meaningful-step interaction standard.
+`V7_CHART_NATIVE_RESEARCH_MODEL_SETUP_PLUGIN_BOUNDARY_PREDECISION_MEMO.md`
+preserves the Notion/Obsidian/Excel and FXReplay evidence, Chart-as-primary-
+document motivation, full-future hindsight versus pseudo-live distinction, and
+the correction that atomic FVG/SMT/BSL/EQL-style tools or calculated indicators
+may be Plugins while OTE is a customizable Model and a Setup is its semantic-
+data instance. The Model customization boundary remains unresolved; neither
+candidate nor the memo authorizes implementation.
+
 ## First-Class Semantic Dataset Product Output
 
 The accepted product position in `ADR-V7-003` extends the validation outcome:
@@ -89,14 +109,15 @@ scaffold/validate/build/test/pack operations, an evidence-producing conformance
 Harness, and a local workspace-bounded MCP adapter over the same operations.
 This enables an AI coding agent to complete the ordinary developer workflow but
 does not bypass candidate transactions, permissions, no-future evidence, or
-human review. A later Pine indicator migration assistant may parse supported
-source and generate a normal strict-TypeScript plugin plus compatibility report,
-tests, and provenance. It does not execute Pine, promise universal semantic
-equivalence, or bring strategy/broker simulation into current product scope.
-P1a now specifies the canonical SDK/CLI/Harness, isolated synthetic-host,
-developer evidence bundle, diagnostic, and receipt contract under future H116.
-Its specification is accepted, but it has no implementation delivery
-authorization; MCP and Pine remain later phases.
+human review. The P1a canonical SDK/CLI/Harness, isolated synthetic host,
+developer evidence bundle, diagnostics, and receipts are implemented and H116
+is accepted; P1b.4 MCP remains paused. The product owner further accepted that
+standalone tools may use natural language, Pine, and Python as migration inputs
+and differential oracles while every executable plugin still targets strict
+TypeScript and pinned ES2022 ESM. Python/Pine are not browser runtimes. The
+surrounding standalone Studio architecture remains the unimplemented
+ADR-V7-008 candidate in
+`V7_AI_PLUGIN_AUTHORING_AND_MIGRATION_STUDIO_CANDIDATE.md`.
 
 ## Current Resolution And Simulation Boundary
 

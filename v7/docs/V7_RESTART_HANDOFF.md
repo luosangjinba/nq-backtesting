@@ -1,13 +1,86 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-19 before a server restart, after the bounded H121
-cross-timeframe and higher-timeframe FVG projection repairs and the anchored-
-geometry projection Memo amendment. The pre-handoff product/documentation
-baseline is `405ba907`; the handoff commit itself is identified by `git log`.
-H121 is implemented and executable but remains human-review-required and
-unaccepted. H117 remains executable/unaccepted.
+Last updated: 2026-08-20 after the product owner paused successor implementation
+to develop the software portrait, Plugin/business architecture, and a strict
+three-minute/three-step interaction standard. The current discovery state is
+captured in MEMO-V7-006. Default production still reversibly omits the complete
+eight-module Campaign closure while preserving source and persisted bytes.
+H121 remains executable/unaccepted only as an isolated retained-prototype gate;
+its former ten-item product review is superseded. H117 remains executable/
+unaccepted. The handoff commit is identified by `git log`.
 
 ## Restart Resume Checkpoint
+
+### 2026-08-20 Product-Definition Pause And MEMO-V7-006
+
+Resume first with
+`docs/V7_CHART_NATIVE_RESEARCH_MODEL_SETUP_PLUGIN_BOUNDARY_PREDECISION_MEMO.md`,
+then the product owner's read-only source explanation at
+`tmp/from 2012 to the present的OTE的一些说明.md`. The two workbook sources are
+`tmp/From 2012 to the present.xlsx` and `tmp/2013-demo.xlsx`.
+
+The product origin is now explicit: Notion/Obsidian/Excel can retain review
+rows, formulas, tags, links, and screenshots, but cannot immediately restore
+the richer interactive Chart context. V7 is being explored as a Chart-native
+trading research workstation in which Chart is the primary document and
+Calendar/search/table/statistics are indexes or derived views.
+
+The product owner corrected an earlier conversational overreach: OTE is a
+customizable strategy Model, not a Plugin. Plugins should stop at atomic
+reusable capabilities such as FVG/SMT/BSL/EQL-style tools and calculated
+indicators such as MA. A Setup is the Model's concrete semantic-data instance.
+Hindsight measurement, pseudo-live FXReplay training, and imported/live
+execution may share a Model and similar fields but cannot share provenance or
+execution claims.
+
+The allowed Model customization boundary is deliberately unresolved. The
+product owner is still describing the desired software and feasibility. Every
+feature must target a TradingView-familiar trader reaching first success within
+three minutes and no more than three meaningful steps; a large form does not
+become one step merely because it is one screen.
+
+Do not implement Calendar, Model Builder, Setup capture, order workflows,
+geometry migration, standalone AI tooling, Pine/Python migration, or another
+successor slice. ADR-V7-007 and ADR-V7-008 remain useful candidates but are not
+the immediate approval frontier. Continue product discovery, reconstruct the
+real OTE workflow, and classify its fields before seeking a decision.
+
+### 2026-08-20 Study Case Product Hold And Successor Candidates
+
+Resume first with
+`docs/V7_CHART_ACTIVITY_CALENDAR_AND_WORKFLOW_LENSES_CANDIDATE.md`, then
+`docs/V7_AI_PLUGIN_AUTHORING_AND_MIGRATION_STUDIO_CANDIDATE.md`, then
+`sessions/session_20260820_study_case_product_hold_calendar_ai_direction.md`.
+
+The binding product change is deliberately subtractive: the production policy
+omits `adapter.validation-campaign-ui`, catalog closure removes all eight
+Campaign modules, Validation navigation/actions/styles are absent, and existing
+Campaign storage/state-sync bytes are not read, rewritten, migrated, or
+deleted by Campaign owners. The old browser flow moved to an isolated test
+fixture so evidence contracts remain inspectable without exposing the rejected
+product surface.
+
+ADR-V7-007 decisions 2–10 await product-owner review. They propose native
+Research/Practice/Retrospective/Imported-Execution truth owners over one shared
+Chart/Replay foundation, one active write-controlling authoring context,
+multiple read-only visibility lenses, a derived Activity Index, an accessible
+floating Calendar, exact Session/Replay/Workspace location, and a unified
+stroke/fill appearance contract. Do not implement any of those surfaces from
+the draft.
+
+ADR-V7-008 preserves the accepted strict TypeScript to ES2022 ESM plugin target
+and accepts natural language, Pine, and Python only as standalone authoring/
+migration inputs and differential oracles. Its decisions 2–10 await review.
+No upstream repository was added; OpenHands SDK, goose, Opus Aether
+pine-transpiler, PineTS, OpenPineScript, lightweight-charts-indicators, TA-Lib,
+and pandas-ta-classic were audited only as reuse candidates.
+
+This checkpoint is superseded as the immediate next action by MEMO-V7-006's
+product-definition pause. ADR-V7-007 decisions 2–10 and ADR-V7-008 decisions
+2–10 remain unaccepted and must later be reconciled. Do not resume H121 product
+acceptance, implement Calendar or orders, migrate geometry, create a separate
+tool repository, adopt an upstream dependency, or resume P1b.4/P3a/P3b before
+the corresponding decision and bounded implementation authority.
 
 ### 2026-08-19 Pre-Server-Restart H121 Review-Pending Checkpoint
 
@@ -542,18 +615,17 @@ host bootstrap permutations, and multi-mode deployment matrix remain useful
 non-blocking operational evidence rather than open milestone gates. Binding
 closure: `V7_FOUNDATION_MILESTONE_V7_0_0.md`.
 
-The current product-decision frontier is the accepted, documentation-only FVG +
-SMA Validation Campaign / Study Case Demo specification described in the latest
-checkpoint above. It changes no accepted foundation/plugin behavior, allocates
-no business delivery, and authorizes no implementation. Its dependency rule
-preserves plugin operation without the business module and preserves frozen
-business history without live source plugins; only affected new evidence
-capture and current verification become unavailable.
+The current product-decision frontier is the 2026-08-20 product hold plus the
+two adjacent candidates at the first checkpoint in this handoff. R14.1's
+evidence contracts and source-removal properties remain useful, but its
+form-first Campaign/Study Case product surface is withdrawn before H121
+acceptance. ADR-V7-007 decisions 2–10 and ADR-V7-008 decisions 2–10 are the
+next review boundary; neither candidate authorizes implementation.
 
-MEMO-V7-005 separately preserves future Collection Dashboard, multi-dataset
-Chart application, semantic visual grammar/text, and Setup-free phenomenon
-research ideas. It is non-binding and changes neither the current frontier nor
-the accepted specification's implementation boundary.
+MEMO-V7-005 remains the non-binding source for broader Collection Dashboard,
+multi-dataset Chart application, semantic visual grammar/text, and Setup-free
+phenomenon research. ADR-V7-007 promotes only its Calendar/workflow/anchored-
+appearance questions for review and does not accept the rest of that Memo.
 
 Post-milestone development now follows accepted ADR-V7-001. R13.2 provides
 `optional.annotation-geometry-domain`; R13.3 provides

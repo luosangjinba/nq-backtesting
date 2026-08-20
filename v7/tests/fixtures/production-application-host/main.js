@@ -1,5 +1,6 @@
 import { createModuleHost } from '../../../src/module-host/public.js';
 import { loadProductionApplicationDefinitions } from '../../../app/production-module-catalog.js';
+import { readProductionProductModuleOmissions } from '../../../app/production-product-policy.js';
 
 function createMemoryStorage() {
   const values = new Map();
@@ -122,13 +123,15 @@ async function run() {
 
   const campaignOptionalDefinitions = await loadProductionApplicationDefinitions({
     environment: sessionEnvironment(document.querySelector('#host-optional')),
-    omittedModuleIds: ['adapter.validation-campaign-ui'],
+    omittedModuleIds: readProductionProductModuleOmissions('adapter.session-application'),
     rootModuleId: 'adapter.session-application',
   });
   const campaignOptionalHost = createModuleHost(campaignOptionalDefinitions);
   const campaignOptionalStarted = await campaignOptionalHost.start();
   const campaignOptionalSnapshot = campaignOptionalHost
     .getPublicApi('adapter.session-application').snapshot();
+  const campaignOptionalRail = [...document.querySelectorAll('#host-optional .rail-link')]
+    .map((node) => node.textContent.trim());
   await campaignOptionalHost.stop();
 
   const dataDefinitions = await loadProductionApplicationDefinitions({
@@ -183,6 +186,7 @@ async function run() {
   return Object.freeze({
     campaignOptional: Object.freeze({
       moduleIds: campaignOptionalStarted.moduleIds,
+      rail: campaignOptionalRail,
       snapshot: campaignOptionalSnapshot,
     }),
     data: Object.freeze({

@@ -1,11 +1,9 @@
-import { createModuleHost } from '../src/module-host/public.js';
-import { startProductionCorePluginGeneration } from './core-plugin-boot-supervisor.js';
-import { loadProductionModuleCatalog } from './production-module-catalog.js';
-import { readProductionProductModuleOmissions } from './production-product-policy.js';
+import { createModuleHost } from '../../../src/module-host/public.js';
+import { startProductionCorePluginGeneration } from '../../../app/core-plugin-boot-supervisor.js';
+import { loadProductionModuleCatalog } from '../../../app/production-module-catalog.js';
 
 const storage = window.localStorage;
 const catalog = await loadProductionModuleCatalog();
-const rootModuleId = 'adapter.session-application';
 const generation = await startProductionCorePluginGeneration({
   catalog,
   createEnvironment: ({ readModuleHostSnapshot }) => ({
@@ -18,8 +16,8 @@ const generation = await startProductionCorePluginGeneration({
     root: document.querySelector('#app'),
   }),
   createHost: (definitions) => createModuleHost(definitions),
-  productOmittedModuleIds: readProductionProductModuleOmissions(rootModuleId),
-  rootModuleId,
+  productOmittedModuleIds: [],
+  rootModuleId: 'adapter.session-application',
   storage,
 });
 window.addEventListener('pagehide', () => { void generation.host.stop(); }, { once: true });

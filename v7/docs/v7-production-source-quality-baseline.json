@@ -36924,7 +36924,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "915035937681bd086049f59cf7302360c823e40d055602f5859cc9f482cddfbd"
+      "sourceHash": "22593dad75efb1365854febdf4610237bfdc5e40212085975158853d76127ca4"
     },
     {
       "adaptsBoundary": true,
@@ -38200,47 +38200,6 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 106,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 10,
-          "name": "readProductionCorePluginBootSelection",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 2,
-          "name": "readModuleHostSnapshot",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 40,
-          "name": "startProductionCorePluginGeneration",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 48,
-          "name": "attemptGeneration",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "application",
-      "owner": "application-composition",
-      "ownsContract": false,
-      "path": "app/core-plugin-boot-supervisor.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "42efe5e1f6bfb117bdbf301fdbfe553aa24a914b6b12c62d379581dd08212f89"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
       "effectiveLines": 107,
       "forwardingOnly": false,
       "functions": [
@@ -39448,6 +39407,52 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
+      "effectiveLines": 112,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 10,
+          "name": "readProductionCorePluginBootSelection",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "readModuleHostSnapshot",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 43,
+          "name": "startProductionCorePluginGeneration",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 51,
+          "name": "attemptGeneration",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "application",
+      "owner": "application-composition",
+      "ownsContract": false,
+      "path": "app/core-plugin-boot-supervisor.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "9bc7072649a2a998e7eceba3077e7adac3d41b080dc18658e279bea7d3e17562"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
       "effectiveLines": 116,
       "forwardingOnly": false,
       "functions": [
@@ -40162,6 +40167,32 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "101cbf2a721d5252edaaf4d93c536e14f853835bbaab7ba4bed64c4d9cb69bac"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 12,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 6,
+          "name": "readProductionProductModuleOmissions",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "application",
+      "owner": "application-composition",
+      "ownsContract": false,
+      "path": "app/production-product-policy.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "37d95aff26a1367b81f91abea796a69e856d90523ac1bb5f12339d67ad0a00f8"
     },
     {
       "adaptsBoundary": true,
@@ -45755,52 +45786,6 @@
       "criticalInvariants": [],
       "debtComments": [],
       "effectiveLines": 20,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "createHost",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "readStorage",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "reload",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 9,
-          "name": "createEnvironment",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "application",
-      "owner": "application-composition",
-      "ownsContract": false,
-      "path": "app/main.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "10986efcacf2ff8e5534d098a747aa1a6aec020d54cb2514c28012d77f6405dd"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 20,
       "forwardingOnly": true,
       "functions": [],
       "kind": "adapter",
@@ -47412,7 +47397,99 @@
       "adaptsBoundary": true,
       "criticalInvariants": [],
       "debtComments": [],
-      "effectiveLines": 239,
+      "effectiveLines": 24,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-2>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "project",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "sameValues",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 4,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 8,
+          "name": "createPaneProjectionMemo",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "core.replay-workspace-composition",
+      "owner": "replay-workspace-composition",
+      "ownsContract": false,
+      "path": "src/replay-workspace-composition/pane-projection-memo.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "32a282c8e668fd4323b4701890d8f9fbf7eee8df97d54ad414e206155e5e0520"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 24,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-5>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "createHost",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "readStorage",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "reload",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "createEnvironment",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "application",
+      "owner": "application-composition",
+      "ownsContract": false,
+      "path": "app/main.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "207652e8ee6fce0fd7eb04616feef0b5b524bb879da1d05dda37c7c59ceb89d7"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 240,
       "forwardingOnly": false,
       "functions": [
         {
@@ -47516,13 +47593,13 @@
           "reviewedDecompositionException": false
         },
         {
-          "effectiveLines": 13,
-          "name": "commit",
+          "effectiveLines": 14,
+          "name": "<anonymous-18>",
           "reviewedDecompositionException": false
         },
         {
           "effectiveLines": 14,
-          "name": "<anonymous-18>",
+          "name": "commit",
           "reviewedDecompositionException": false
         },
         {
@@ -47623,53 +47700,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "301fbfa4803eab934d22f9f0e11f5ca1af49bc45c97e020f0be40cac5a391af4"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 24,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-2>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "project",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "sameValues",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 4,
-          "name": "<anonymous-5>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "createPaneProjectionMemo",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "core.replay-workspace-composition",
-      "owner": "replay-workspace-composition",
-      "ownsContract": false,
-      "path": "src/replay-workspace-composition/pane-projection-memo.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "32a282c8e668fd4323b4701890d8f9fbf7eee8df97d54ad414e206155e5e0520"
+      "sourceHash": "a7e2c5fa914877f90ba6ed7fe77fd22ff20853e068ec08623c57c388de2849ac"
     },
     {
       "adaptsBoundary": true,
@@ -50137,117 +50168,6 @@
       "forwardingOnly": false,
       "functions": [
         {
-          "effectiveLines": 1,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onClick",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "onClick",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "syncPresentation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "renderSessionBrowserSurface",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 2,
-          "name": "<anonymous-11>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "shell",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 23,
-          "name": "statePanel",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 27,
-          "name": "updateStateSyncPresentation",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 44,
-          "name": "stateSyncAlert",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 5,
-          "name": "<anonymous-7>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 52,
-          "name": "openedScreen",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 53,
-          "name": "listScreen",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 53,
-          "name": "sessionCard",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "ui",
-      "moduleId": "adapter.session-browser-ui",
-      "owner": "session-store",
-      "ownsContract": false,
-      "path": "src/session-browser-ui/surface.js",
-      "publicExports": [],
-      "responsibilities": [
-        "visual-surface-mutation"
-      ],
-      "sideEffectConcerns": [
-        {
-          "concern": "visual-surface-mutation",
-          "evidence": [
-            "add()",
-            "append()",
-            "replaceChildren()",
-            "textContent="
-          ]
-        }
-      ],
-      "sizeException": null,
-      "sourceHash": "91a78d5be02bf97899e39cd449e24d8670911f71600d4e26af6c81006d81d3dd"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 305,
-      "forwardingOnly": false,
-      "functions": [
-        {
           "effectiveLines": 10,
           "name": "hitTest",
           "reviewedDecompositionException": false
@@ -50404,6 +50324,117 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "3ba244003f424f6990b768a81b626b9ccd1279ee425621db72ad5a1c55e22ebd"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 320,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onClick",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "onClick",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "syncPresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 2,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 20,
+          "name": "renderSessionBrowserSurface",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "statePanel",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 27,
+          "name": "updateStateSyncPresentation",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 29,
+          "name": "shell",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 44,
+          "name": "stateSyncAlert",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 5,
+          "name": "<anonymous-7>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 52,
+          "name": "openedScreen",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 53,
+          "name": "listScreen",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 53,
+          "name": "sessionCard",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "ui",
+      "moduleId": "adapter.session-browser-ui",
+      "owner": "session-store",
+      "ownsContract": false,
+      "path": "src/session-browser-ui/surface.js",
+      "publicExports": [],
+      "responsibilities": [
+        "visual-surface-mutation"
+      ],
+      "sideEffectConcerns": [
+        {
+          "concern": "visual-surface-mutation",
+          "evidence": [
+            "add()",
+            "append()",
+            "replaceChildren()",
+            "textContent="
+          ]
+        }
+      ],
+      "sizeException": null,
+      "sourceHash": "eed1274e5e4ef17380fbd36149f88fd752e8105f442084b486151d67a3674e4e"
     },
     {
       "adaptsBoundary": true,
@@ -61254,9 +61285,9 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 60099,
-    "files": 642,
-    "functions": 6155,
+    "effectiveLines": 60137,
+    "files": 643,
+    "functions": 6157,
     "publicExports": 650
   },
   "deliveryStep": "R14.1",

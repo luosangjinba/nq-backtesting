@@ -93,6 +93,7 @@ try {
   assert.equal(evidence.campaignOptional.snapshot.status, 'running');
   assert.equal(evidence.campaignOptional.snapshot.hasValidationCampaign, false);
   assert.equal(evidence.campaignOptional.snapshot.hasReplayWorkspace, true);
+  assert.deepEqual(evidence.campaignOptional.rail, ['Sessions', 'Data acquisition']);
   assert.equal(evidence.data.running.status, 'running');
   assert.equal(evidence.data.stopped.status, 'disposed');
   assert.equal(evidence.data.childrenAfterStop, 0);
@@ -113,6 +114,7 @@ try {
     [evidence.requiredOmissionFailureCode, evidence.rollback.failureCode].sort(),
     negativeCases.cases.map(({ expectedFailureCode }) => expectedFailureCode).sort(),
   );
+
 } finally {
   cdp?.close();
   const exited = new Promise((resolve) => chrome.once('exit', resolve));
@@ -132,4 +134,4 @@ try {
   });
 }
 
-console.log('v7 production application host browser harness passed (2 isolated instances, reverse cleanup, partial rollback, replay/state-sync/Campaign-closure optional removal, 2 real roots, 2 negative controls)');
+console.log('v7 production application host browser harness passed (2 isolated instances, reverse cleanup, partial rollback, replay/state-sync/Campaign product hold, 2 real roots, 2 negative controls)');

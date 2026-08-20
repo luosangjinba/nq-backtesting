@@ -65,7 +65,7 @@ exposes no raw Chart/Series/Canvas handle.
 - Production assembly contains 63 public entries, 26 lifecycle modules, and 29
   optional-removal cases; the new contract is non-removable and the FVG package
   consumes it as a required public port.
-- Current source evidence is 642 files, 60,099 effective lines, 6,155 functions, and 650 public exports with no accepted size or function exception.
+- Current source evidence is 643 files, 60,137 effective lines, 6,157 functions, and 650 public exports with no accepted size or function exception.
 - Current architecture evidence is 63 modules, 136 actual dependency edges,
   115 construction sites, 18 declared writer surfaces, 23 writer sites, and no
   new writer authority.

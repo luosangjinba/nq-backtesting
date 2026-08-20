@@ -38,8 +38,7 @@ and its Developer Kit fingerprint baseline is untouched.
 The implementation retains exactly eight new removable descriptors. Production
 architecture records 84 modules, 183 dependency edges, 155 construction sites,
 34 observed writer files, 28 exact writer surfaces, and zero findings. Source
-quality records 642 files, 60,099 effective lines, 6,155 functions, and 650 public
-exports with zero exception or finding. Campaign document, Campaign
+quality records 643 files, 60,137 effective lines, 6,157 functions, and 650 public exports with zero exception or finding. Campaign document, Campaign
 storage, and Campaign DOM each have one executable sole-writer detector.
 
 ## Automated Evidence

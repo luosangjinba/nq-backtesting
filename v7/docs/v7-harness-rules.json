@@ -2802,6 +2802,10 @@
         "src/validation-campaign-ui/module.json",
         "tests/validation-campaign-harness.js",
         "tests/validation-campaign-browser-harness.js",
+        "tests/study-case-product-hold-browser-harness.js",
+        "tests/fixtures/validation-campaign/index.html",
+        "tests/fixtures/validation-campaign/main.js",
+        "app/production-product-policy.js",
         "server/state_store.py",
         "tests/state-service-harness.js",
         "tests/server-state-sync-harness.js",
@@ -2809,7 +2813,8 @@
         "tests/production-application-host-browser-harness.js",
         "tests/production-module-assembly-harness.js",
         "tests/fixtures/production-module-assembly/optional-removal-matrix.json",
-        "sessions/session_20260819_r14_1_h121_validation_campaign_implementation.md"
+        "sessions/session_20260819_r14_1_h121_validation_campaign_implementation.md",
+        "sessions/session_20260820_study_case_product_hold_calendar_ai_direction.md"
       ],
       "negativeFixtures": [
         "tests/fixtures/validation-campaign/negative/cases.json"

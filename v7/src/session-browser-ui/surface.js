@@ -278,7 +278,12 @@ export function updateStateSyncPresentation(root, snapshot) {
   }
 }
 
-function shell(content, { immersive = false, stateSync = null, syncActions } = {}) {
+function shell(content, {
+  immersive = false,
+  stateSync = null,
+  syncActions,
+  validationCampaign = false,
+} = {}) {
   const sync = syncPresentation(stateSync);
   return element('div', { className: 'workstation-shell' }, [
     immersive ? null : element('aside', { className: 'app-rail', 'aria-label': 'Primary navigation' }, [
@@ -288,7 +293,9 @@ function shell(content, { immersive = false, stateSync = null, syncActions } = {
       ]),
       element('nav', {}, [
         element('a', { className: 'rail-link is-active', href: '#/sessions' }, [icon('sessions'), element('span', { text: 'Sessions' })]),
-        element('a', { className: 'rail-link', href: '#/campaigns' }, [icon('layers'), element('span', { text: 'Validation' })]),
+        validationCampaign
+          ? element('a', { className: 'rail-link', href: '#/campaigns' }, [icon('layers'), element('span', { text: 'Validation' })])
+          : null,
         element('a', { className: 'rail-link', href: './data-acquisition.html' }, [icon('database'), element('span', { text: 'Data acquisition' })]),
       ]),
       element('div', { className: 'rail-footer', dataset: { stateSyncStatus: sync.status } }, [
@@ -302,7 +309,14 @@ function shell(content, { immersive = false, stateSync = null, syncActions } = {
 }
 
 /** Render one complete, atomic Session Browser snapshot into its owned root. */
-export function renderSessionBrowserSurface(root, model, actions, workstationSettings, stateSync = null) {
+export function renderSessionBrowserSurface(
+  root,
+  model,
+  actions,
+  workstationSettings,
+  stateSync = null,
+  capabilities = Object.freeze({}),
+) {
   const content = model.screen === 'opened'
     ? openedScreen(model, actions, workstationSettings)
     : listScreen(model, actions, workstationSettings);
@@ -310,6 +324,7 @@ export function renderSessionBrowserSurface(root, model, actions, workstationSet
     immersive: model.screen === 'opened' && model.workspace,
     stateSync,
     syncActions: actions,
+    validationCampaign: capabilities.validationCampaign === true,
   }));
   root.dataset.viewState = model.state;
   root.dataset.screen = model.screen;

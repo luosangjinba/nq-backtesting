@@ -86,9 +86,29 @@ records tensions that a later decision must resolve. The registered
 `V7_SECOND_LEVEL_REPLAY_TICK_DATA_PREDECISION_MEMO.md`, and
 `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md`, together with
 `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md`, preserve
-possible next product and business directions. Accepted ADRs may partially
-promote named portions, but the remaining memo content authorizes no
-implementation.
+possible next product and business directions. The later
+`V7_CHART_NATIVE_RESEARCH_MODEL_SETUP_PLUGIN_BOUNDARY_PREDECISION_MEMO.md`
+records the current product-definition pause, the product owner's Excel/
+FXReplay evidence, the Chart-as-primary-document motivation, the atomic Plugin
+versus customizable Model versus semantic Setup distinction, and the three-
+minute/three-step interaction constraint. Accepted ADRs may partially promote
+named portions, but the remaining memo content authorizes no implementation.
+The current product-direction checkpoint is split into two adjacent candidates.
+`V7_CHART_ACTIVITY_CALENDAR_AND_WORKFLOW_LENSES_CANDIDATE.md` records the
+implemented reversible withdrawal of the current form-first Campaign/Study Case
+surface and proposes a shared Chart Activity Calendar, native workflow truth,
+one active authoring context, independent visibility lenses, exact location,
+and Anchored Geometry Appearance V2. Only the product hold is implemented;
+decisions 2–10 await review. Independently,
+`V7_AI_PLUGIN_AUTHORING_AND_MIGRATION_STUDIO_CANDIDATE.md` preserves strict
+TypeScript to ES2022 ESM as the sole plugin target while accepting natural
+language, Pine, and Python as standalone tool inputs/oracles. It records the
+GitHub reuse audit and proposes two standalone workflows over the existing P1a
+engine; decisions 2–10 await review and no repository or dependency is adopted.
+Those two candidates are not the immediate approval frontier while
+MEMO-V7-006's software portrait, terminology, Model customization boundary,
+and interaction requirements are being developed. They remain useful drafts
+which must later be reconciled rather than silently accepted or discarded.
 Accepted upstream `ADR-V7-006` is recorded in
 `V7_PLUGIN_CONTRIBUTION_PROFILES_AND_COMPOSITION_SPEC.md`. It separates Plugin
 Package, typed Contribution, Contribution Profile, negotiated Capability,
@@ -221,7 +241,14 @@ and
 `../sessions/session_20260819_fvg_sma_validation_campaign_r14_1_implementation_slice_specification_acceptance.md`;
 implementation evidence and the pending review sheet are
 `../sessions/session_20260819_r14_1_h121_validation_campaign_implementation.md`
-and `V7_FVG_SMA_VALIDATION_CAMPAIGN_R14_1_HUMAN_REVIEW.md`.
+and `V7_FVG_SMA_VALIDATION_CAMPAIGN_R14_1_HUMAN_REVIEW.md`. On 2026-08-20 the
+product owner rejected the form-first experience before H121 acceptance and
+required a Calendar-first Chart-native redesign. Default production now omits
+the complete eight-module closure through explicit product composition, loads
+no Campaign UI code/style/navigation, and preserves existing Campaign bytes.
+The old H121 browser path is retained only as an isolated prototype fixture;
+H121 stays executable and unaccepted and its superseded review is not the next
+product action.
 The later, independently decidable Dashboard/application/visual-language ideas
 are preserved without decision at
 `V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md`.
@@ -598,6 +625,14 @@ Read in this order before V7 implementation work:
       multi-dataset Chart application, Setup-free Phenomenon Studies, unified
       trade/research event visuals, anchored explanatory text, strategy-neutral
       source/display timeframe handling, and complete Setup visual groups
+100b. `V7_CHART_NATIVE_RESEARCH_MODEL_SETUP_PLUGIN_BOUNDARY_PREDECISION_MEMO.md`
+      as the current non-binding product-definition checkpoint for the Excel/
+      FXReplay review origin, Chart-native retrieval, atomic Plugin versus
+      customizable Model versus semantic Setup boundary, hindsight/pseudo-live/
+      execution provenance, setup-corpus AI analysis, candidate personalized
+      prediction/calibration, near-miss vocabulary, and multimodal screenshot/
+      semantic assessment boundaries, and three-minute/three-step usability
+      requirement
 101. `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md` as
     the partially promoted market, competitor, data-rights, commercialization,
     branding, and open-model discussion; its remaining questions are non-binding

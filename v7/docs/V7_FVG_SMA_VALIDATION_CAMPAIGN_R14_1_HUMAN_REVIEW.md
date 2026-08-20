@@ -1,12 +1,28 @@
 # V7 R14.1/H121 FVG + SMA Validation Campaign Human Review
 
-Status: automated H121 passed; product-owner review pending
+Status: superseded on 2026-08-20; current product surface withdrawn for
+Calendar-first Chart-native redesign; retain as historical prototype review
+only and do not execute or accept H121 without a later explicit reopening
 
 Date prepared: 2026-08-19
 
 Scope: only the removable Validation Campaign slice using existing manual FVG
 and `first-party.moving-averages@1.0.0` SMA(close,20). Passing automation does
 not accept H121.
+
+## 2026-08-20 Product Hold
+
+The product owner found the form-first `Capture Study Case` experience too
+opaque, required the feature to be removed temporarily, and placed a floating
+Chart Activity Calendar plus unified anchored-element background parameters
+before any Study Case or order workflow redesign. Default production now omits
+the complete Campaign closure and preserves its persisted bytes. The browser
+Harness runs only through an isolated retained-prototype fixture.
+
+The checklist below is preserved as historical evidence of the rejected
+prototype. It is not the current next action and cannot accept H121 while the
+product hold is active. Successor decisions are drafted in
+`V7_CHART_ACTIVITY_CALENDAR_AND_WORKFLOW_LENSES_CANDIDATE.md`.
 
 ## 2026-08-19 Review-Blocker Repair
 

@@ -59,13 +59,21 @@ H120 acceptance.
 The product owner then authorized a documentation-only FVG + SMA Validation
 Campaign / Study Case Demo candidate and accepted all ten material decisions
 without amendment on 2026-08-19. The resulting accepted specification still
-has no delivery id, Harness id, or implementation authority. The product owner
-subsequently authorized only its implementation-slice candidate. That draft
-proposed `R14.1`/H121 for review. The product owner accepted all ten slice
-decisions without amendment on 2026-08-19, but neither label is allocated and
-H121 is not registered. A later explicit implementation instruction is still
-required to allocate the business slice. It does not allocate P1c.4, which
-remains separate and unnumbered.
+had no delivery id, Harness id, or implementation authority at acceptance. The
+product owner subsequently authorized its implementation-slice candidate,
+accepted all ten decisions, and separately authorized implementation. R14.1
+and H121 were therefore allocated; H121 remains `executable`, human-review-
+required, and unaccepted. On 2026-08-20 the product owner rejected the current
+form-first surface and required temporary withdrawal. The default product now
+omits the exact closure while the old H121 path remains an isolated prototype.
+This subtraction allocates no new `R`, `P`, or `H` id and does not allocate
+P1c.4, which remains separate and unnumbered.
+
+ADR-V7-007 and ADR-V7-008 are adjacent decision candidates, not delivery ids.
+Their review or acceptance cannot allocate a Calendar, appearance migration,
+workflow/order owner, standalone software repository, dependency, P1b.4,
+P3a/P3b, or Harness. Each requires a later bounded implementation
+specification and explicit authority.
 
 The later MEMO-V7-005 Evidence Collection Dashboard / explicit multi-dataset
 Chart application / Setup-free Phenomenon Study / semantic visual grammar

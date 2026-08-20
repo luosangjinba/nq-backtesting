@@ -3,7 +3,9 @@
 Status: all ten material decisions accepted without amendment on 2026-08-19;
 later implementation authority allocated R14.1 and registered H121 as
 `executable`; the exact slice is implemented and its automated evidence passes;
-focused human acceptance remains pending
+the product owner rejected the form-first experience on 2026-08-20, default
+production now reversibly omits the complete slice, and H121 remains an
+unaccepted retained-prototype gate rather than a pending product acceptance
 
 Drafted: 2026-08-19 03:02 PDT
 

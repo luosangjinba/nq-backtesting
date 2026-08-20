@@ -4,7 +4,7 @@ Status: binding documentation-governance index
 
 Created: 2026-08-07
 
-Last updated: 2026-08-19 03:54 PDT
+Last updated: 2026-08-20 08:09 PDT
 
 ## Purpose
 
@@ -49,12 +49,14 @@ converted into a decision.
 | `MEMO-V7-003` | AI-Agent-participatory Research, Training, and Trading Review system, using semantic Study Cases/Cohorts | 2026-08-07 | 2026-08-07 12:12 PDT | partially promoted by ADR-V7-003; system boundary, autonomy, workflow ownership, and business model remain undecided | `V7_CHART_RESEARCH_SEMANTIC_CASE_AGENT_PREDECISION_MEMO.md` |
 | `MEMO-V7-004` | Semantic-dataset competitive landscape, commercialization, open-source/SaaS path, market-data economics, and open-model use | 2026-08-09 | 2026-08-09 PDT | core evidence-dataset product position promoted by ADR-V7-003; hosting, shared data, branding, pricing, and market entry remain open | `V7_SEMANTIC_DATASET_MARKET_AND_COMMERCIALIZATION_PREDECISION_MEMO.md` |
 | `MEMO-V7-005` | Evidence Collection Dashboards, explicit multi-dataset Chart application, Setup-free Phenomenon Studies, strategy-neutral multi-timeframe Setup visual groups, and a uniform Entry/Stop/respect/text grammar | 2026-08-18 | 2026-08-19 01:46 PDT | amended position captured; all seventeen product decisions and every implementation boundary remain open | `V7_STUDY_COLLECTION_DASHBOARD_CHART_APPLICATION_VISUAL_GRAMMAR_PREDECISION_MEMO.md` |
+| `MEMO-V7-006` | Chart-native trading research product portrait, first-hand Excel/FXReplay evidence, atomic Plugin versus customizable Model versus semantic Setup boundary, evidence-bound AI over Setup corpora, candidate personalized prediction/calibration, near-miss vocabulary, multimodal screenshot/semantic assessment preconditions, and three-minute/three-step usability constraint | 2026-08-20 | 2026-08-20 08:09 PDT | discussion developing; Model customization, workflow provenance, terminology, necessary-versus-descriptive conditions, sampling/AI/prediction/multimodal contracts, GitHub reuse, Calendar/restore behavior, and UI remain open; successor implementation is paused | `V7_CHART_NATIVE_RESEARCH_MODEL_SETUP_PLUGIN_BOUNDARY_PREDECISION_MEMO.md` |
 
 ## Adjacent Decision Candidates
 
 | Candidate id | Topic | Drafted | Current status | File |
 | --- | --- | --- | --- | --- |
-| _None_ | No active adjacent decision candidate | — | — | — |
+| `ADR-V7-007` | Chart Activity Calendar, native workflow truth, authoring contexts versus visibility lenses, exact location, and anchored-element appearance | 2026-08-20 | decision 1 product hold implemented; decisions 2–10 await review; no successor implementation authorized | `V7_CHART_ACTIVITY_CALENDAR_AND_WORKFLOW_LENSES_CANDIDATE.md` |
+| `ADR-V7-008` | standalone AI plugin authoring and Pine/Python-to-TypeScript migration Studio | 2026-08-20 | strict TypeScript target/input constraint accepted; decisions 2–10 await review; no repository/dependency/implementation authorized | `V7_AI_PLUGIN_AUTHORING_AND_MIGRATION_STUDIO_CANDIDATE.md` |
 
 Accepted decisions which promote or constrain memo content are recorded in
 Decision History.
@@ -138,6 +140,41 @@ delete it.
   registered policies and cannot broaden market-data or renderer authority.
 - Neither amended memo is a binding product-scope decision or implementation
   authorization. The accepted SMC/ICT product statement still governs.
+
+### MEMO-V7-006 Versus MEMO-V7-001, MEMO-V7-003, And MEMO-V7-005
+
+- MEMO-V7-006 records the later product-owner clarification that a complete
+  strategy Model such as OTE is not a Plugin. Atomic FVG/SMT/BSL/EQL-style
+  tools and calculated indicators may supply reusable evidence, while Model
+  composition and Setup instances belong to a still-undecided business layer.
+  Older broad Plugin/Setup language in MEMO-V7-001 must not silently override
+  that clarification.
+- The user's Excel/FXReplay evidence grounds MEMO-V7-003's Research and
+  Training loops but distinguishes full-future hindsight measurement from
+  pseudo-live decisions and actual execution. Similar fields do not make their
+  provenance equivalent.
+- MEMO-V7-005's Collections, Dashboard, Chart application, Setup-free
+  phenomena, and visual grammar remain independently open. MEMO-V7-006 centers
+  the current product portrait on a Model-attached Setup instance and exact
+  Chart restore without rejecting genuinely Setup-free research.
+- `Setup`, `dataset`, `record`, `evidence bundle`, and `Collection` terminology
+  is unresolved. A later decision must choose user-facing meanings without
+  flattening native truth or preserving obsolete `StudyCase` wording merely
+  because it exists in an earlier prototype.
+
+### MEMO-V7-006 Versus ADR-V7-006, ADR-V7-007, And ADR-V7-008
+
+- Accepted ADR-V7-006 still governs Package/Contribution/Profile/Capability
+  separation. MEMO-V7-006 adds no Profile; it records that composition of
+  atomic Contributions into a strategy Model does not make the Model a Plugin.
+- ADR-V7-007's shared foundation, workflow lenses, Activity index, and Calendar
+  remain candidate ideas, but its decisions 2–10 are no longer the immediate
+  review action. They must be re-examined after the software portrait, Model/
+  Setup boundary, and three-minute interaction requirements become clearer.
+- ADR-V7-008's atomic Plugin authoring/migration question is separate from a
+  customizable Model Builder. Strict TypeScript remains the accepted
+  executable Plugin target, but neither candidate authorizes tooling or Model
+  implementation.
 
 ### MEMO-V7-005 Versus ADR-V7-001, ADR-V7-003, ADR-V7-005, And ADR-V7-006
 
@@ -307,5 +344,6 @@ A memo becomes a decision only through a separate ADR/specification which:
 | _Unallocated accepted implementation specification_ | 2026-08-19 | accepts all ten bounded R14.1/H121 implementation-slice decisions without amendment: exact eight-module ownership, strict records/commands/ceilings, asymmetric evidence capture, no-future Outcome, frozen Cohort analytics, local-first durability, bounded UI/drill-down, audit export, and automated/focused-human gates | R14.1/H121 allocation, H121 registration, production implementation, P1c.4, P1b.4, other plugins, Community/Worker, Journal, Dataset Builder, AI, H117 acceptance, and MEMO-V7-005 remain unauthorized | `V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md` |
 
 No registered memo has been fully promoted and closed. MEMO-V7-001,
-MEMO-V7-003, and MEMO-V7-004 are partially promoted; their explicitly
-unresolved questions remain discoverable here and authorize no implementation.
+MEMO-V7-003, and MEMO-V7-004 are partially promoted; MEMO-V7-002,
+MEMO-V7-005, and MEMO-V7-006 remain open. Their explicitly unresolved questions
+remain discoverable here and authorize no implementation.

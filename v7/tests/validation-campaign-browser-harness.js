@@ -13,10 +13,13 @@ import {
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
 const FIXTURE_ROOT = path.join(TEST_DIR, 'fixtures/validation-campaign');
+const FIXTURE_URL = '/v7/tests/fixtures/validation-campaign/';
 const desktopScreenshot = path.join(FIXTURE_ROOT, 'production-1280x800.png');
 const narrowScreenshot = path.join(FIXTURE_ROOT, 'responsive-620x800.png');
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-h121-campaign-'));
-const server = createStaticServer(REPOSITORY_ROOT);
+const server = createStaticServer(REPOSITORY_ROOT, {
+  additionalPublicPathPrefixes: [FIXTURE_URL],
+});
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 const webPort = server.address().port;
 const chrome = spawn('/usr/bin/google-chrome', [
@@ -58,7 +61,7 @@ async function frames(cdp, count = 2) {
 async function screenshot(cdp, target) {
   const capture = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
   const bytes = Buffer.from(capture.data, 'base64');
-  assert.ok(bytes.length > 10_000, 'Campaign production screenshot must contain rendered evidence.');
+  assert.ok(bytes.length > 10_000, 'Retained Campaign screenshot must contain rendered evidence.');
   if (process.env.V7_UPDATE_VISUALS === '1') {
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, bytes);
@@ -99,9 +102,20 @@ try {
     }`,
   });
   await cdp.send('Page.navigate', {
-    url: `http://127.0.0.1:${webPort}/v7/app/#/campaigns`,
+    url: `http://127.0.0.1:${webPort}${FIXTURE_URL}#/campaigns`,
   });
-  await waitFor(cdp, `document.querySelector('.validation-page h1')?.textContent === 'Campaigns'`, 20_000);
+  try {
+    await waitFor(cdp, `document.querySelector('.validation-page h1')?.textContent === 'Campaigns'`, 20_000);
+  } catch (error) {
+    const state = await evaluate(cdp, `(() => ({
+      appText: document.querySelector('#app')?.textContent?.slice(0, 500),
+      browserErrors: globalThis.__h121BrowserErrors,
+      bodyText: document.body?.textContent?.slice(0, 500),
+      hash: location.hash,
+      readyState: document.readyState,
+    }))()`);
+    throw new Error(`${error.message}; isolated Campaign boot: ${JSON.stringify(state)}`);
+  }
   assert.equal(await evaluate(cdp, `document.querySelectorAll('.validation-card').length`), 0);
   await evaluate(cdp, `[...document.querySelectorAll('.validation-page-header button')]
     .find((button) => button.textContent === 'New Campaign').click()`);
@@ -153,7 +167,7 @@ try {
     .includes('Archived')`, 20_000);
 
   // Real Session/Replay remains independent and receives only DOM-only Campaign actions.
-  await cdp.send('Page.navigate', { url: `http://127.0.0.1:${webPort}/v7/app/#/sessions` });
+  await cdp.send('Page.navigate', { url: `http://127.0.0.1:${webPort}${FIXTURE_URL}#/sessions` });
   await waitFor(cdp, `document.querySelector('#app')?.dataset.viewState === 'empty'`, 20_000);
   await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
   await waitFor(cdp, `document.querySelector('.create-dialog')?.dataset.dateAvailabilityState === 'ready'`, 20_000);
@@ -199,7 +213,7 @@ try {
   await waitFor(cdp, `location.hash === '#/campaigns'
     && document.querySelector('.validation-page h1')?.textContent === 'Campaigns'`, 20_000);
   await cdp.send('Page.navigate', {
-    url: `http://127.0.0.1:${webPort}/v7/app/${sessionRoute}`,
+    url: `http://127.0.0.1:${webPort}${FIXTURE_URL}${sessionRoute}`,
   });
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
     && document.querySelector('.validation-pane-actions')`, 25_000);
@@ -312,9 +326,9 @@ try {
   assert.deepEqual(afterDialog, beforeDialog);
   assert.equal(await evaluate(cdp, `document.querySelector('.replay-next').disabled`), false);
 
-  // Production Campaign UI closes Case history, verification, Cohort, Analysis, and drill-down.
+  // The isolated retained prototype closes Case history, verification, Cohort, Analysis, and drill-down.
   campaignRoute = `#/campaigns/${seed.campaignId}`;
-  await cdp.send('Page.navigate', { url: `http://127.0.0.1:${webPort}/v7/app/${campaignRoute}` });
+  await cdp.send('Page.navigate', { url: `http://127.0.0.1:${webPort}${FIXTURE_URL}${campaignRoute}` });
   await waitFor(cdp, `document.querySelectorAll('.validation-case-history').length === 2`, 20_000);
   await evaluate(cdp, `document.querySelectorAll('.validation-case-history')
     .forEach((entry) => { entry.open = true; })`);
@@ -381,7 +395,7 @@ try {
 
   // 620px route remains readable without horizontal document overflow.
   await cdp.send('Page.navigate', {
-    url: `http://127.0.0.1:${webPort}/v7/app/${campaignRoute}`,
+    url: `http://127.0.0.1:${webPort}${FIXTURE_URL}${campaignRoute}`,
   });
   await waitFor(cdp, `document.querySelector('.validation-page h1')?.textContent === 'H121 FVG + SMA Campaign'`, 20_000);
   await cdp.send('Emulation.setDeviceMetricsOverride', {
@@ -421,7 +435,7 @@ try {
     }))()`);
     throw new Error(`${error.message}; corrupt state: ${JSON.stringify(state)}`);
   }
-  await cdp.send('Page.navigate', { url: `http://127.0.0.1:${webPort}/v7/app/#/sessions` });
+  await cdp.send('Page.navigate', { url: `http://127.0.0.1:${webPort}${FIXTURE_URL}#/sessions` });
   await waitFor(cdp, `document.querySelector('.page-sessions')`, 20_000);
 
   const browserErrors = await evaluate(cdp, 'globalThis.__h121BrowserErrors');

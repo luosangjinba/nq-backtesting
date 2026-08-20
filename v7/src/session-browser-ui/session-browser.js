@@ -81,6 +81,7 @@ class SessionBrowserController {
       this.actions,
       this.workstationSettings?.snapshot().settings,
       this.stateSync?.snapshot() ?? null,
+      Object.freeze({ validationCampaign: this.campaignSurface !== null }),
     );
     this.root.append(this.dialog.element);
   }

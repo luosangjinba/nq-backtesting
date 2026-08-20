@@ -1418,7 +1418,7 @@ outside authority. The separately authorized documentation candidate below
 supersedes only that next-document hold. Production work still requires its
 accepted boundaries and later explicit implementation authority.
 
-### R14.1/H121 FVG + SMA Validation Campaign Implementation Slice — Implemented, Human Acceptance Pending
+### R14.1/H121 FVG + SMA Validation Campaign Implementation Slice — Prototype Implemented, Product Surface Withdrawn
 
 The product owner separately authorized a documentation-only implementation-
 slice candidate on 2026-08-19. The specification at
@@ -1434,11 +1434,29 @@ The product owner accepted all ten material decisions without amendment on
 R14.1 is allocated; the exact eight-module removable closure, Campaign-only
 storage/state-sync namespace, production route, Replay capture surface,
 no-future FVG/SMA evidence, Outcome/Cohort/Analysis/drill-down/export path, and
-H121 negative/Chromium evidence are implemented. Automated H121 passes. H121
-remains `executable`, human-review-required, and unaccepted until the product
-owner explicitly accepts all ten focused checks. P1c.4, P1b.4, another plugin,
-Community/Worker, Journal, Dataset Builder, AI, MEMO-V7-005, and H117 status
-remain unchanged; the Developer Kit fingerprint baseline was not refreshed.
+H121 negative/Chromium evidence are implemented. Automated H121 passed at that
+checkpoint, but the product owner rejected the form-first experience before
+human acceptance on 2026-08-20. Default production now omits the exact closure
+through product composition, preserves source and persisted bytes, and runs the
+old browser flow only in an isolated retained-prototype fixture. H121 remains
+`executable`, human-review-required, and unaccepted; the former ten-item review
+is superseded and cannot accept the withdrawn product surface.
+
+The separately reviewable successor candidates are
+`V7_CHART_ACTIVITY_CALENDAR_AND_WORKFLOW_LENSES_CANDIDATE.md` (ADR-V7-007) and
+`V7_AI_PLUGIN_AUTHORING_AND_MIGRATION_STUDIO_CANDIDATE.md` (ADR-V7-008). Only
+the subtractive product hold and the strict TypeScript target/input constraint
+are binding. No Calendar, geometry migration, order/workflow owner, standalone
+tool repository, dependency, P1b.4, P3a/P3b, or new Harness is allocated.
+
+The product owner subsequently paused candidate review and successor
+implementation to develop the software portrait, atomic Plugin versus
+customizable Model versus semantic Setup boundary, workflow provenance, and
+three-minute/three-step interaction constraint. That current non-binding
+checkpoint is MEMO-V7-006 in
+`V7_CHART_NATIVE_RESEARCH_MODEL_SETUP_PLUGIN_BOUNDARY_PREDECISION_MEMO.md`.
+Continue discovery rather than treating ADR-V7-007/008 review as the next
+roadmap action.
 
 ### MEMO-V7-005 Evidence Collections, Dashboard, Chart Application, And Visual Grammar — Non-Binding
 

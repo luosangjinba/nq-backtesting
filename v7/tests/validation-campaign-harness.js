@@ -41,6 +41,7 @@ import {
 } from '../src/server-state-sync/snapshot.js';
 import { verifyProductionModuleAssembly } from './support/production-module-assembly.js';
 import { selectApplicationDescriptors } from '../app/production-module-catalog.js';
+import { readProductionProductModuleOmissions } from '../app/production-product-policy.js';
 import {
   applyValidationRawContextIntent,
 } from '../src/replay-workspace-composition/validation-raw-context-command.js';
@@ -1045,13 +1046,18 @@ assert.equal(descriptors.every(({ id }) => removableFromApplication.has(id)), tr
 const productionDescriptors = manifest.activeProductionModules.map((entry) => JSON.parse(
   fs.readFileSync(path.join(V7_ROOT, entry), 'utf8'),
 ));
+const productOmissions = readProductionProductModuleOmissions('adapter.session-application');
+assert.deepEqual(productOmissions, ['adapter.validation-campaign-ui']);
+assert.equal(Object.isFrozen(productOmissions), true);
+assert.deepEqual(readProductionProductModuleOmissions('adapter.data-acquisition-application'), []);
+assert.throws(() => readProductionProductModuleOmissions(''), TypeError);
 const withoutCampaignUi = selectApplicationDescriptors(
   productionDescriptors,
   'adapter.session-application',
-  ['adapter.validation-campaign-ui'],
+  productOmissions,
 );
 assert.equal(withoutCampaignUi.some(({ id }) => descriptors.some((entry) => entry.id === id)), false,
-  'omitting Campaign UI must remove the complete Campaign dependency closure');
+  'the production product hold must remove the complete Campaign dependency closure');
 const withoutFvg = selectApplicationDescriptors(
   productionDescriptors,
   'adapter.session-application',

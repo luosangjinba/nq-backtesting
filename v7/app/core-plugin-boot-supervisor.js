@@ -26,6 +26,7 @@ async function attemptGeneration({
   createHost,
   failures,
   plan,
+  productOmittedModuleIds,
   rootModuleId,
   selection,
   storageRecoveryCode,
@@ -50,7 +51,9 @@ async function attemptGeneration({
     const definitions = await loadProductionApplicationDefinitions({
       catalog,
       environment: Object.freeze({ ...environment, corePluginBoot: boot }),
-      omittedModuleIds: impact.omittedModuleIds,
+      omittedModuleIds: Object.freeze([
+        ...new Set([...impact.omittedModuleIds, ...productOmittedModuleIds]),
+      ].sort()),
       rootModuleId,
     });
     host = createHost(definitions);
@@ -73,11 +76,14 @@ export async function startProductionCorePluginGeneration({
   catalog,
   createEnvironment,
   createHost,
+  productOmittedModuleIds = [],
   rootModuleId = 'adapter.session-application',
   storage,
 } = {}) {
   if (!catalog?.descriptors || typeof createEnvironment !== 'function'
-    || typeof createHost !== 'function' || !storage) {
+    || typeof createHost !== 'function' || !storage
+    || !Array.isArray(productOmittedModuleIds)
+    || productOmittedModuleIds.some((moduleId) => typeof moduleId !== 'string')) {
     throw new TypeError('Core Plugin boot supervisor requires catalog, storage, host, and environment factories.');
   }
   const { plan, selection, storageRecoveryCode } = readProductionCorePluginBootSelection({
@@ -88,7 +94,7 @@ export async function startProductionCorePluginGeneration({
   for (const candidate of selection.candidates) {
     const attempt = await attemptGeneration({
       candidate, catalog, createEnvironment, createHost, failures, plan,
-      rootModuleId, selection, storageRecoveryCode,
+      productOmittedModuleIds, rootModuleId, selection, storageRecoveryCode,
     });
     if (attempt.host) {
       return Object.freeze({
