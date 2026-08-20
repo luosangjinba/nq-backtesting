@@ -57,6 +57,7 @@ function bars() {
   values[6] = { close: 105, high: 106, low: 103, open: 104, volume: 36 };
   return Object.freeze(values.map((value, index) => Object.freeze({
     ...value,
+    displayEpochMs: BASE + (index * MINUTE),
     endEpochMs: BASE + ((index + 1) * MINUTE),
     startEpochMs: BASE + (index * MINUTE),
   })));
@@ -72,6 +73,7 @@ const coarseAcceptedBars = Object.freeze([
   { close: 105, high: 106, low: 103, open: 104, volume: 36 },
 ].map((value, index) => Object.freeze({
   ...value,
+  displayEpochMs: BASE + (((index + 1) * FIFTEEN_MINUTES) - MINUTE),
   endEpochMs: BASE + ((index + 1) * FIFTEEN_MINUTES),
   startEpochMs: BASE + (index * FIFTEEN_MINUTES),
 })));
@@ -536,7 +538,7 @@ try {
   assert.equal(browser.tool, 'FVG');
   assert.equal(browser.state.workflow.annotationDocumentRevision, 0);
   assert.equal(browser.state.view.tools[0].state, 'active');
-  assert.equal(browser.state.coarseChart.barCount, 1);
+  assert.equal(browser.state.coarseChart.barCount, 3);
   assert.equal(browser.state.coarseSurface.accepted.projectionCount, 0);
 
   await pointerClick(cdp, await evaluate(cdp, `(() => {
@@ -567,6 +569,7 @@ try {
     throw error;
   }
   browser = await evaluate(cdp, 'globalThis.__h114.state()');
+  const browserArtifactId = browser.view.inspector.artifactId;
   assert.equal(browser.surface.accepted.projectionCount, 2);
   assert.equal(browser.coarseSurface.accepted.projectionCount, 0);
   assert.equal(browser.coarseArtifactTarget, null,
@@ -653,6 +656,105 @@ try {
     .find(({ id }) => id === 'inputs').groups.flatMap(({ fields }) => fields)`);
   assert.equal(restoredFields.find(({ id }) => id === 'lowerPrice').value, 101.25);
   assert.equal(restoredFields.find(({ id }) => id === 'lowerPrice').source, 'OVERRIDDEN');
+
+  await evaluate(cdp, `document.querySelector('.annotation-inspector-action.action-cancel').click()`);
+  await waitFor(cdp, `document.body.dataset.inspectorOpen === 'false'`, 10_000);
+  await evaluate(cdp, `globalThis.__h114.switchMainTimeframe('timeframe.5m')`);
+  browser = await evaluate(cdp, 'globalThis.__h114.state()');
+  assert.equal(browser.chart.timeframeId, 'timeframe.5m');
+  assert.equal(browser.chart.barCount, 9);
+  assert.deepEqual(browser.chart.displayEpochMs, Array.from({ length: 9 }, (_, index) => (
+    BASE + (((index + 1) * 5 - 1) * MINUTE)
+  )), 'real 5m aggregation must expose completion-minute Chart coordinates');
+  assert.equal(browser.surface.accepted.projectionCount, 2);
+  assert.ok(await evaluate(
+    cdp,
+    `globalThis.__h114.artifactTarget(${JSON.stringify(browserArtifactId)})`,
+  ),
+    'the restored 1m FVG must paint after switching its target Pane to real 5m bars');
+
+  await evaluate(cdp, 'globalThis.__h114.armMainTool()');
+  await pointerClick(cdp, await evaluate(cdp, 'globalThis.__h114.barTarget(4)'));
+  await waitFor(cdp, `document.body.dataset.documentRevision === '3'
+    && document.body.dataset.inspectorOpen === 'true'`, 10_000);
+  const fiveMinuteArtifactId = await evaluate(
+    cdp,
+    'globalThis.__h114.state().view.inspector.artifactId',
+  );
+  browser = await evaluate(cdp, 'globalThis.__h114.state()');
+  assert.equal(browser.surface.accepted.projectionCount, 4);
+  assert.ok(await evaluate(
+    cdp,
+    `globalThis.__h114.artifactTarget(${JSON.stringify(fiveMinuteArtifactId)})`,
+  ), 'a 5m-source FVG must paint on the same real 5m Chart');
+  assert.equal(await evaluate(
+    cdp,
+    `globalThis.__h114.coarseArtifactTarget(${JSON.stringify(fiveMinuteArtifactId)})`,
+  ), null, 'a 5m FVG collapsed inside one 15m target bucket must stay absent');
+  await evaluate(cdp, `document.querySelector('.annotation-inspector-action.action-cancel').click()`);
+  await waitFor(cdp, `document.body.dataset.inspectorOpen === 'false'`, 10_000);
+
+  await evaluate(cdp, `globalThis.__h114.switchMainTimeframe('timeframe.15m')`);
+  browser = await evaluate(cdp, 'globalThis.__h114.state()');
+  assert.equal(browser.chart.timeframeId, 'timeframe.15m');
+  assert.equal(browser.chart.barCount, 3);
+  assert.deepEqual(browser.chart.displayEpochMs, [
+    BASE + (14 * MINUTE), BASE + (29 * MINUTE), BASE + (44 * MINUTE),
+  ], 'real 15m aggregation must expose completion-minute Chart coordinates');
+  assert.equal(browser.surface.accepted.projectionCount, 0);
+  assert.equal(browser.coarseSurface.accepted.projectionCount, 0);
+
+  await evaluate(cdp, 'globalThis.__h114.armMainTool()');
+  await pointerClick(cdp, await evaluate(cdp, 'globalThis.__h114.barTarget(1)'));
+  await waitFor(cdp, `document.body.dataset.documentRevision === '4'
+    && document.body.dataset.inspectorOpen === 'true'`, 10_000);
+  const fifteenMinuteArtifactId = await evaluate(
+    cdp,
+    'globalThis.__h114.state().view.inspector.artifactId',
+  );
+  browser = await evaluate(cdp, 'globalThis.__h114.state()');
+  assert.equal(browser.surface.accepted.projectionCount, 2);
+  assert.equal(browser.coarseSurface.accepted.projectionCount, 2);
+  assert.ok(await evaluate(
+    cdp,
+    `globalThis.__h114.artifactTarget(${JSON.stringify(fifteenMinuteArtifactId)})`,
+  ), 'a 15m-source FVG must paint on its real 15m source Chart');
+  assert.ok(await evaluate(
+    cdp,
+    `globalThis.__h114.coarseArtifactTarget(${JSON.stringify(fifteenMinuteArtifactId)})`,
+  ), 'the same 15m FVG must paint on a second real 15m target Pane');
+  await evaluate(cdp, `document.querySelector('.annotation-inspector-action.action-cancel').click()`);
+  await waitFor(cdp, `document.body.dataset.inspectorOpen === 'false'`, 10_000);
+
+  await evaluate(cdp, `globalThis.__h114.switchMainTimeframe('timeframe.5m')`);
+  browser = await evaluate(cdp, 'globalThis.__h114.state()');
+  assert.equal(browser.surface.accepted.projectionCount, 6);
+  assert.equal(browser.coarseSurface.accepted.projectionCount, 2);
+  assert.ok(await evaluate(
+    cdp,
+    `globalThis.__h114.artifactTarget(${JSON.stringify(fifteenMinuteArtifactId)})`,
+  ), 'the 15m FVG must remain visible after switching the Pane down to 5m');
+
+  await cdp.send('Page.reload', { ignoreCache: true });
+  await waitFor(cdp, `document.body && document.body.dataset.scenario === 'ready'
+    && document.body.dataset.documentRevision === '4'`, 15_000);
+  browser = await evaluate(cdp, 'globalThis.__h114.state()');
+  assert.equal(browser.chart.timeframeId, 'timeframe.1m');
+  assert.equal(browser.surface.accepted.projectionCount, 6);
+  assert.equal(browser.coarseSurface.accepted.projectionCount, 2);
+  for (const restoredArtifactId of [
+    browserArtifactId, fiveMinuteArtifactId, fifteenMinuteArtifactId,
+  ]) {
+    assert.ok(await evaluate(
+      cdp,
+      `globalThis.__h114.artifactTarget(${JSON.stringify(restoredArtifactId)})`,
+    ), `reloaded Artifact ${restoredArtifactId} must paint on the 1m target Pane`);
+  }
+  assert.ok(await evaluate(
+    cdp,
+    `globalThis.__h114.coarseArtifactTarget(${JSON.stringify(fifteenMinuteArtifactId)})`,
+  ), 'the reloaded 15m Artifact must paint on the real 15m target Pane');
+  assert.equal(await evaluate(cdp, 'document.body.dataset.actionError ?? null'), null);
 } finally {
   if (cdp) cdp.close();
   await stopChrome();

@@ -148,6 +148,7 @@ function frame() {
     annotationRevision: annotationRuntime.getDocument().revision,
     panes: [{
       acceptedBuckets: Array.from({ length: 18 }, (_, index) => ({
+        displayEpochMs: BASE + (index * MINUTE),
         endEpochMs: BASE + ((index + 1) * MINUTE),
         startEpochMs: BASE + (index * MINUTE),
       })),

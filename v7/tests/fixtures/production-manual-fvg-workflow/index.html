@@ -20,16 +20,16 @@
     <main class="fixture-main">
       <section class="fixture-chart-shell">
         <div class="fixture-chart-head">
-          <strong>NQ · 1m source / 15m projection target</strong>
+          <strong>NQ · real 1m/5m/15m display-time projection</strong>
           <span id="projection-status">accepted 0 · preview 0</span>
         </div>
         <div class="chart-frame">
           <section class="fixture-pane fixture-pane-source">
-            <span>Pane 1 · 1m · strict bullish FVG at 14:05</span>
+            <span>Pane 1 · switchable 1m/5m/15m FVG source</span>
             <div id="chart" class="lightweight-chart-host"></div>
           </section>
           <section class="fixture-pane fixture-pane-target">
-            <span>Pane 2 · 15m · collapsed projection must be absent</span>
+            <span>Pane 2 · 15m target · collapsed geometry stays absent</span>
             <div id="chart-coarse" class="lightweight-chart-host"></div>
           </section>
           <div id="annotation-inspector-slot"></div>
@@ -46,6 +46,6 @@
         document.body.dataset.scenario = 'failed';
       });
     </script>
-    <script type="module" src="./scenario.js?v=h121-20260819a"></script>
+    <script type="module" src="./scenario.js?v=h121-20260820-display-time"></script>
   </body>
 </html>

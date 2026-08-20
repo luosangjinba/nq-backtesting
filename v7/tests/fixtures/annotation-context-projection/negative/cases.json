@@ -1,6 +1,7 @@
 [
   { "name": "frame fields", "operation": "frame-fields", "expectedCode": "PROJECTION_FRAME_INVALID" },
   { "name": "overlapping buckets", "operation": "bucket-overlap", "expectedCode": "PROJECTION_FRAME_BUCKET_OVERLAP" },
+  { "name": "display time before bucket start", "operation": "bucket-display-outside", "expectedCode": "PROJECTION_FRAME_BUCKET_INVALID" },
   { "name": "subject fields", "operation": "subject-fields", "expectedCode": "PROJECTION_SUBJECT_INVALID" },
   { "name": "non-portable subject", "operation": "subject-portable", "expectedCode": "PROJECTION_SUBJECT_PORTABLE_INVALID" },
   { "name": "invalid source bar", "operation": "source-bar", "expectedCode": "PROJECTION_SUBJECT_SOURCE_BAR_INVALID" },

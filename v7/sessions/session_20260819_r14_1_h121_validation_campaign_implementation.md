@@ -38,7 +38,7 @@ and its Developer Kit fingerprint baseline is untouched.
 The implementation retains exactly eight new removable descriptors. Production
 architecture records 84 modules, 183 dependency edges, 155 construction sites,
 34 observed writer files, 28 exact writer surfaces, and zero findings. Source
-quality records 642 files, 60,097 effective lines, 6,155 functions, and 650 public
+quality records 642 files, 60,099 effective lines, 6,155 functions, and 650 public
 exports with zero exception or finding. Campaign document, Campaign
 storage, and Campaign DOM each have one executable sole-writer detector.
 
@@ -71,3 +71,13 @@ and repaired strict topology, exact Outcome/source identity, cancellation,
 no-future, optional-removal, and file-responsibility gaps. Its durable evidence
 is `session_20260819_r14_1_h121_post_implementation_architecture_audit.md`.
 H121 remains executable and unaccepted; H117 remains unchanged.
+
+The focused review later exposed cross-timeframe FVG settlement and then a
+separate higher-timeframe display-coordinate defect. The bounded repair keeps
+canonical bucket starts as Semantic/provenance identity, carries the accepted
+target `displayEpochMs` in projection frames, and emits Chart Geometry only at
+times present on the target series. The corrected H114 Chromium fixture uses
+production aggregation and proves 5m/15m creation, specific hit targets,
+timeframe switching, second-Pane projection, and hard reload. This repair does
+not change H121 or H117 state; durable details remain in
+`session_20260819_h121_cross_timeframe_fvg_blocker_repair.md`.

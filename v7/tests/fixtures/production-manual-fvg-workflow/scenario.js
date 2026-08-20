@@ -1,8 +1,9 @@
 import { createActivationGeneration } from '../../../src/activation-generation/public.js';
 import { createChartSnapshotApplication } from '../../../src/chart-snapshot-application/public.js';
 import { createProductionManualAnnotationWorkflow } from '../../../src/annotation-manual-workflow/public.js';
+import { projectFixedDurationBars } from '../../../src/fixed-timeframe-domain/public.js';
 import { createLightweightChartAdapter } from '../../../src/lightweight-chart-adapter/public.js';
-import { createReplayAdvanceInput, createReplayCursorProposal } from '../../../src/replay-contract/public.js';
+import { createReplayCursorRetentionProposal } from '../../../src/replay-contract/public.js';
 import { createAnnotationWorkflowControl } from '../../../src/replay-workspace-ui/annotation-workflow-control.js';
 import { createSessionId } from '../../../src/session-identity/public.js';
 import { createTransactionId } from '../../../src/transaction-identity/public.js';
@@ -12,34 +13,45 @@ import { createWorkstationSettings } from '../../../src/workstation-settings/pub
 
 const BASE = Date.UTC(2023, 10, 14, 14, 0);
 const MINUTE = 60_000;
+const FIVE_MINUTES = 5 * MINUTE;
 const FIFTEEN_MINUTES = 15 * MINUTE;
-const CUTOFF = BASE + (16 * MINUTE);
+const CUTOFF = BASE + (45 * MINUTE);
 const PANE_ID = 'pane-main';
 const COARSE_PANE_ID = 'pane-second';
+const TOOL_ID = 'construct.imbalance.fvg';
 const sessionId = createSessionId('session.r13-10e-production-fixture');
 const activationGeneration = createActivationGeneration(1);
-const identity = createWorkspaceTransactionIdentity({
-  activationGeneration,
-  sessionId,
-  transactionId: createTransactionId('r13-10e-production-fixture'),
-});
-const proposal = createReplayCursorProposal({
-  advance: createReplayAdvanceInput({ durationMs: MINUTE, source: 'manual' }),
-  baseRevision: 0,
-  cursorEpochMs: CUTOFF,
-  identity,
-  range: { endEpochMs: BASE + (30 * MINUTE), startEpochMs: BASE },
-});
+let transactionSequence = 0;
 
 function marketBars() {
-  const values = Array.from({ length: 16 }, (_, index) => {
-    const open = 99 + (index * 0.32);
-    const close = open + (index % 2 === 0 ? 0.24 : -0.18);
+  const values = Array.from({ length: 45 }, (_, index) => {
+    let open = 99.4 + ((index % 5) * 0.08);
+    let close = open + (index % 2 === 0 ? 0.18 : -0.12);
+    let high = Math.max(open, close) + 0.45;
+    let low = Math.min(open, close) - 0.45;
+    if (index >= 15 && index < 20) {
+      open = 99.8 + ((index - 15) * 0.05);
+      close = open + 0.12;
+      high = Math.max(open, close) + 0.55;
+      low = Math.min(open, close) - 0.55;
+    } else if (index >= 20 && index < 25) {
+      open = 103.6 + ((index - 20) * 0.08);
+      close = open + 0.2;
+      high = Math.max(open, close) + 0.7;
+      low = Math.min(open, close) - 0.6;
+    } else if (index >= 25 && index < 30) {
+      open = 104.1 + ((index - 25) * 0.08);
+      close = open + 0.18;
+      high = Math.max(open, close) + 0.65;
+      low = Math.min(open, close) - 0.85;
+    } else if (index >= 30) {
+      open = 111.5 + ((index - 30) * 0.05);
+      close = open + (index % 2 === 0 ? 0.2 : -0.1);
+      high = Math.max(open, close) + 0.5;
+      low = Math.min(open, close) - 0.5;
+    }
     return {
-      close,
-      high: Math.max(open, close) + 0.7,
-      low: Math.min(open, close) - 0.7,
-      open,
+      close, high, low, open,
       volume: 20 + index,
     };
   });
@@ -48,60 +60,98 @@ function marketBars() {
   values[6] = { close: 105, high: 106, low: 103, open: 104, volume: 36 };
   return Object.freeze(values.map((value, index) => Object.freeze({
     ...value,
-    displayEpochMs: BASE + (index * MINUTE),
-    endEpochMs: BASE + ((index + 1) * MINUTE),
     startEpochMs: BASE + (index * MINUTE),
   })));
 }
 
-const bars = marketBars();
-const chartBars = Object.freeze(bars.map(({ endEpochMs: _endEpochMs, ...bar }) => Object.freeze(bar)));
-const coarseBars = Object.freeze([Object.freeze({
-  close: bars[14].close,
-  displayEpochMs: BASE,
-  high: Math.max(...bars.slice(0, 15).map(({ high }) => high)),
-  low: Math.min(...bars.slice(0, 15).map(({ low }) => low)),
-  open: bars[0].open,
-  startEpochMs: BASE,
-  volume: bars.slice(0, 15).reduce((total, { volume }) => total + volume, 0),
-})]);
-const provenance = Object.freeze({
-  cursorProposal: proposal,
-  datasetRevision: 'dataset.r13-10e-fixture',
-  displayTimeframeDurationMs: MINUTE,
-  displayTimeframeId: 'timeframe.1m',
-  instrumentId: 'instrument.nq',
-  sessionHoursMode: 'eth',
-  sourceResolutionId: 'timeframe.1m',
-  visibleThroughEpochMs: CUTOFF,
+const sourceBars = marketBars();
+const chartBars = Object.freeze(sourceBars.map((bar) => Object.freeze({
+  ...bar,
+  displayEpochMs: bar.startEpochMs,
+})));
+const fiveMinuteBars = projectFixedDurationBars({
+  bars: sourceBars,
+  durationMs: FIVE_MINUTES,
+  offsetMs: 0,
+  sourceDurationMs: MINUTE,
 });
-const paneSnapshot = Object.freeze({ bars: chartBars, paneId: PANE_ID, provenance, schemaVersion: 1 });
-const coarseProvenance = Object.freeze({
-  ...provenance,
-  displayTimeframeDurationMs: FIFTEEN_MINUTES,
-  displayTimeframeId: 'timeframe.15m',
+const fifteenMinuteBars = projectFixedDurationBars({
+  bars: sourceBars,
+  durationMs: FIFTEEN_MINUTES,
+  offsetMs: 0,
+  sourceDurationMs: MINUTE,
 });
-const coarsePaneSnapshot = Object.freeze({
-  bars: coarseBars,
-  paneId: COARSE_PANE_ID,
-  provenance: coarseProvenance,
-  schemaVersion: 1,
-});
-const acceptedWorkspace = Object.freeze({
-  replay: Object.freeze({ cursorEpochMs: CUTOFF }),
-  revision: 52,
-  workspace: Object.freeze({
-    panes: Object.freeze([
-      { paneId: PANE_ID, snapshot: paneSnapshot, status: 'ready' },
-      { paneId: COARSE_PANE_ID, snapshot: coarsePaneSnapshot, status: 'ready' },
-    ]),
-    responsePlan: Object.freeze({ activePaneId: PANE_ID }),
+const timeframeDefinitions = Object.freeze({
+  'timeframe.1m': Object.freeze({ bars: chartBars, durationMs: MINUTE, label: '1m' }),
+  'timeframe.5m': Object.freeze({ bars: fiveMinuteBars, durationMs: FIVE_MINUTES, label: '5m' }),
+  'timeframe.15m': Object.freeze({
+    bars: fifteenMinuteBars,
+    durationMs: FIFTEEN_MINUTES,
+    label: '15m',
   }),
 });
 
+function nextTransactionIdentity(label) {
+  transactionSequence += 1;
+  return createWorkspaceTransactionIdentity({
+    activationGeneration,
+    sessionId,
+    transactionId: createTransactionId(`r13-10e-${label}-${transactionSequence}`),
+  });
+}
+
+function createPaneSnapshot(paneId, timeframeId, identity) {
+  const definition = timeframeDefinitions[timeframeId];
+  const proposal = createReplayCursorRetentionProposal({
+    baseRevision: 0,
+    cursorEpochMs: CUTOFF,
+    identity,
+    range: { endEpochMs: BASE + (60 * MINUTE), startEpochMs: BASE },
+  });
+  return Object.freeze({
+    bars: definition.bars,
+    paneId,
+    provenance: Object.freeze({
+      cursorProposal: proposal,
+      datasetRevision: 'dataset.r13-10e-fixture',
+      displayTimeframeDurationMs: definition.durationMs,
+      displayTimeframeId: timeframeId,
+      instrumentId: 'instrument.nq',
+      sessionHoursMode: 'eth',
+      sourceResolutionId: timeframeId,
+      visibleThroughEpochMs: CUTOFF - MINUTE,
+    }),
+    schemaVersion: 1,
+  });
+}
+
+const initialMainIdentity = nextTransactionIdentity('main-initial');
+let paneSnapshot = createPaneSnapshot(PANE_ID, 'timeframe.1m', initialMainIdentity);
+const coarseIdentity = nextTransactionIdentity('coarse-initial');
+const coarsePaneSnapshot = createPaneSnapshot(
+  COARSE_PANE_ID,
+  'timeframe.15m',
+  coarseIdentity,
+);
+let workspaceRevision = 52;
+
+function acceptedWorkspace() {
+  return Object.freeze({
+    replay: Object.freeze({ cursorEpochMs: CUTOFF }),
+    revision: workspaceRevision,
+    workspace: Object.freeze({
+      panes: Object.freeze([
+        Object.freeze({ paneId: PANE_ID, snapshot: paneSnapshot, status: 'ready' }),
+        Object.freeze({ paneId: COARSE_PANE_ID, snapshot: coarsePaneSnapshot, status: 'ready' }),
+      ]),
+      responsePlan: Object.freeze({ activePaneId: PANE_ID }),
+    }),
+  });
+}
+
 const chartHost = document.getElementById('chart');
 const viewport = createViewportController({
-  defaultSpanBars: 24,
+  defaultSpanBars: 50,
   initialIntent: createInitialViewportIntent({
     activationGeneration,
     cursorEpochMs: CUTOFF,
@@ -114,7 +164,7 @@ const adapter = createLightweightChartAdapter({ host: chartHost, viewportPort: v
 adapter.applyWorkstationSettings(createWorkstationSettings(), '0.25', 'NQ');
 const chartApplication = createChartSnapshotApplication({ activationGeneration, adapter, sessionId });
 const prepared = await chartApplication.prepare({
-  identity,
+  identity: initialMainIdentity,
   signal: new AbortController().signal,
   workspaceSnapshot: paneSnapshot,
 });
@@ -143,7 +193,7 @@ const coarseChartApplication = createChartSnapshotApplication({
   sessionId,
 });
 const coarsePrepared = await coarseChartApplication.prepare({
-  identity,
+  identity: coarseIdentity,
   signal: new AbortController().signal,
   workspaceSnapshot: coarsePaneSnapshot,
 });
@@ -196,13 +246,15 @@ function render(value) {
   const coarseAccepted = coarseSurfaceSnapshot?.accepted.projectionCount ?? 0;
   const preview = surfaceSnapshot?.preview.projectionCount ?? 0;
   const coarsePreview = coarseSurfaceSnapshot?.preview.projectionCount ?? 0;
-  projectionStatus.textContent = `1m ${accepted}/${preview} · 15m ${coarseAccepted}/${coarsePreview}`;
+  const mainLabel = timeframeDefinitions[paneSnapshot.provenance.displayTimeframeId].label;
+  projectionStatus.textContent = `${mainLabel} ${accepted}/${preview} · 15m ${coarseAccepted}/${coarsePreview}`;
   status.textContent = `${value.status} · doc ${workflowSnapshot?.annotationDocumentRevision ?? 0}`;
   document.body.dataset.documentRevision = String(workflowSnapshot?.annotationDocumentRevision ?? 0);
   document.body.dataset.inspectorOpen = String(value.inspector.open);
   document.body.dataset.previewCount = String(preview);
   document.body.dataset.coarseAcceptedCount = String(coarseAccepted);
   document.body.dataset.coarsePreviewCount = String(coarsePreview);
+  document.body.dataset.mainTimeframe = paneSnapshot.provenance.displayTimeframeId;
   document.body.dataset.workflowStatus = value.status;
 }
 
@@ -217,14 +269,14 @@ workflow = createProductionManualAnnotationWorkflow({
   view: Object.freeze({ setAnnotationWorkflow: render }),
 });
 await workflow.start();
-await workflow.acceptWorkspace(acceptedWorkspace);
+await workflow.acceptWorkspace(acceptedWorkspace());
 render(latestView);
 document.body.dataset.scenario = 'ready';
 
 function barTarget(index) {
   const snapshot = adapter.snapshot();
   const rect = chartHost.getBoundingClientRect();
-  const latestIndex = bars.length - 1;
+  const latestIndex = paneSnapshot.bars.length - 1;
   const spacing = snapshot.latestCandleCoordinate / (latestIndex - snapshot.logicalRange.from);
   return Object.freeze({
     x: rect.left + snapshot.latestCandleCoordinate + ((index - latestIndex) * spacing),
@@ -232,12 +284,13 @@ function barTarget(index) {
   });
 }
 
-function artifactTarget() {
-  if (annotationSurface === null) return null;
-  const rect = chartHost.getBoundingClientRect();
+function findArtifactTarget(surface, host, entityId = null) {
+  if (surface === null) return null;
+  const rect = host.getBoundingClientRect();
   for (let y = 20; y < rect.height - 30; y += 3) {
     for (let x = 8; x < rect.width - 70; x += 3) {
-      if (annotationSurface.acceptedPort.hitTest({ tolerancePx: 2, x, y }) !== null) {
+      const hit = surface.acceptedPort.hitTest({ tolerancePx: 2, x, y });
+      if (hit !== null && (entityId === null || hit.entityId === entityId)) {
         return Object.freeze({ x: rect.left + x, y: rect.top + y });
       }
     }
@@ -245,23 +298,44 @@ function artifactTarget() {
   return null;
 }
 
-function coarseArtifactTarget() {
-  if (coarseAnnotationSurface === null) return null;
-  const rect = coarseChartHost.getBoundingClientRect();
-  for (let y = 20; y < rect.height - 30; y += 3) {
-    for (let x = 8; x < rect.width - 70; x += 3) {
-      if (coarseAnnotationSurface.acceptedPort.hitTest({ tolerancePx: 2, x, y }) !== null) {
-        return Object.freeze({ x: rect.left + x, y: rect.top + y });
-      }
-    }
+function artifactTarget(entityId = null) {
+  return findArtifactTarget(annotationSurface, chartHost, entityId);
+}
+
+function coarseArtifactTarget(entityId = null) {
+  return findArtifactTarget(coarseAnnotationSurface, coarseChartHost, entityId);
+}
+
+async function switchMainTimeframe(timeframeId) {
+  if (!Object.hasOwn(timeframeDefinitions, timeframeId)) {
+    throw new TypeError(`Unknown fixture timeframe ${timeframeId}.`);
   }
-  return null;
+  const identity = nextTransactionIdentity(`main-${timeframeDefinitions[timeframeId].label}`);
+  const nextSnapshot = createPaneSnapshot(PANE_ID, timeframeId, identity);
+  const nextPrepared = await chartApplication.prepare({
+    identity,
+    signal: new AbortController().signal,
+    workspaceSnapshot: nextSnapshot,
+  });
+  const nextReceipt = await nextPrepared.apply();
+  nextPrepared.finalize(nextReceipt);
+  paneSnapshot = nextSnapshot;
+  workspaceRevision += 1;
+  await workflow.acceptWorkspace(acceptedWorkspace());
+  render(latestView);
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}
+
+function armMainTool() {
+  return workflow.toggleTool(TOOL_ID, PANE_ID);
 }
 
 globalThis.__h114 = Object.freeze({
+  armMainTool,
   artifactTarget,
   barTarget,
   coarseArtifactTarget,
+  switchMainTimeframe,
   state() {
     const chart = adapter.snapshot();
     const coarseChart = coarseAdapter.snapshot();
@@ -269,8 +343,10 @@ globalThis.__h114 = Object.freeze({
       artifactTarget: artifactTarget(),
       chart: Object.freeze({
         barCount: chart.barCount,
+        displayEpochMs: Object.freeze(paneSnapshot.bars.map((bar) => bar.displayEpochMs)),
         logicalRange: chart.logicalRange,
         seriesDataRevision: chart.seriesDataRevision,
+        timeframeId: paneSnapshot.provenance.displayTimeframeId,
       }),
       initialChart: Object.freeze({
         barCount: initialChart.barCount,

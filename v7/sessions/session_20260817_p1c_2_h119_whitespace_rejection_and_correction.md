@@ -85,7 +85,7 @@ the new native-segment ceiling case. H118, Chart Snapshot Application,
 Lightweight Charts browser, production architecture, production module
 assembly, production writer closure, architecture boundary/hardening, deployed
 runtime architecture, and source-quality Harnesses also pass. Current machine
-evidence is 642 files, 60,097 effective lines, 6,155 functions, and 650 public exports, 71 modules, 162 dependency edges, 134 construction sites, 28
+evidence is 642 files, 60,099 effective lines, 6,155 functions, and 650 public exports, 71 modules, 162 dependency edges, 134 construction sites, 28
 writer sites, and zero architecture findings.
 
 The production regression matrix itself could not start in this environment:

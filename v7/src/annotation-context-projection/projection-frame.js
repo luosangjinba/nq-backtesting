@@ -21,15 +21,16 @@ function epoch(value, label) {
 
 function bucket(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)
-    || Object.keys(value).sort().join(',') !== 'endEpochMs,startEpochMs') {
+    || Object.keys(value).sort().join(',') !== 'displayEpochMs,endEpochMs,startEpochMs') {
     failContextProjection('PROJECTION_FRAME_BUCKET_INVALID', 'Accepted bucket fields are invalid.');
   }
   const startEpochMs = epoch(value.startEpochMs, 'Bucket start');
+  const displayEpochMs = epoch(value.displayEpochMs, 'Bucket display time');
   const endEpochMs = epoch(value.endEpochMs, 'Bucket end');
-  if (startEpochMs >= endEpochMs) {
+  if (startEpochMs >= endEpochMs || displayEpochMs < startEpochMs) {
     failContextProjection('PROJECTION_FRAME_BUCKET_INVALID', 'Accepted bucket range is invalid.');
   }
-  return Object.freeze({ endEpochMs, startEpochMs });
+  return Object.freeze({ displayEpochMs, endEpochMs, startEpochMs });
 }
 
 function pane(value) {

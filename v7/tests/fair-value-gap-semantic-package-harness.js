@@ -237,6 +237,7 @@ function frame(reconciliationRevision, replayCutoffEpochMs) {
     panes: [
       {
         acceptedBuckets: Array.from({ length: 10 }, (_, index) => ({
+          displayEpochMs: BASE + (index * MINUTE),
           endEpochMs: BASE + ((index + 1) * MINUTE),
           startEpochMs: BASE + (index * MINUTE),
         })),
@@ -246,8 +247,16 @@ function frame(reconciliationRevision, replayCutoffEpochMs) {
       },
       {
         acceptedBuckets: [
-          { endEpochMs: BASE + (5 * MINUTE), startEpochMs: BASE },
-          { endEpochMs: BASE + (10 * MINUTE), startEpochMs: BASE + (5 * MINUTE) },
+          {
+            displayEpochMs: BASE + (4 * MINUTE),
+            endEpochMs: BASE + (5 * MINUTE),
+            startEpochMs: BASE,
+          },
+          {
+            displayEpochMs: BASE + (9 * MINUTE),
+            endEpochMs: BASE + (10 * MINUTE),
+            startEpochMs: BASE + (5 * MINUTE),
+          },
         ],
         instrumentId: 'instrument.nq',
         paneId: 'pane.nq-5m',
@@ -255,7 +264,11 @@ function frame(reconciliationRevision, replayCutoffEpochMs) {
       },
       {
         acceptedBuckets: [
-          { endEpochMs: BASE + (15 * MINUTE), startEpochMs: BASE },
+          {
+            displayEpochMs: BASE + (14 * MINUTE),
+            endEpochMs: BASE + (15 * MINUTE),
+            startEpochMs: BASE,
+          },
         ],
         instrumentId: 'instrument.nq',
         paneId: 'pane.nq-15m',
@@ -297,8 +310,16 @@ const projectedZone = visibleByPane.get('pane.nq-1m').projections
 assert.equal(projectedZone.presentation.label.text, 'Bullish FVG');
 assert.equal(projectedZone.geometry.payload.lowPrice, 101);
 assert.equal(projectedZone.geometry.payload.highPrice, 103);
+assert.equal(visibleByPane.get('pane.nq-5m').projections.map(readAnnotationProjection)
+  .find(({ geometry }) => geometry.typeId === 'geometry.rectangle')
+  .geometry.payload.startEpochMs, BASE + (4 * MINUTE));
+assert.equal(visibleByPane.get('pane.nq-5m').projections.map(readAnnotationProjection)
+  .find(({ geometry }) => geometry.typeId === 'geometry.rectangle')
+  .geometry.payload.endEpochMs, BASE + (9 * MINUTE));
 assert.equal(visibleByPane.get('pane.nq-5m').provenance
   .every(({ mappings }) => mappings.length === 2), true);
+assert.equal(visibleByPane.get('pane.nq-5m').provenance[0]
+  .mappings[0].targetBucket.displayEpochMs, BASE + (4 * MINUTE));
 
 const canonicalDocument = JSON.stringify(annotation.getDocument());
 await owner.disablePackage(FAIR_VALUE_GAP_PACKAGE_ID);

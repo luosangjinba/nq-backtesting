@@ -122,6 +122,7 @@ export function createManualWorkflowProjectionFrame({
       .filter(({ status }) => status === 'ready')
       .map(({ paneId, snapshot }) => ({
         acceptedBuckets: snapshot.bars.map((bar, index, bars) => ({
+          displayEpochMs: bar.displayEpochMs,
           endEpochMs: barEndEpochMs(
             bar,
             snapshot.provenance,

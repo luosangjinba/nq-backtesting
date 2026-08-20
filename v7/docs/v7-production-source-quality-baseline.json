@@ -29418,7 +29418,7 @@
       ],
       "sideEffectConcerns": [],
       "sizeException": null,
-      "sourceHash": "aeed7e9b27ce5aa22d5e460f8f216359bca58cdfc7510ee9af10928db1a82ecf"
+      "sourceHash": "241a8765b5bf73e515d9e4685b22dd6cc2fcd4f74041f4cc4f31e763fc58d19e"
     },
     {
       "adaptsBoundary": false,
@@ -32426,130 +32426,6 @@
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "<anonymous-6>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-9>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "constructor",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "read",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "bucket",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 22,
-          "name": "createAnnotationProjectionFrame",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 23,
-          "name": "pane",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "epoch",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 6,
-          "name": "readAnnotationProjectionFrame",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "runtime",
-      "moduleId": "optional.annotation-context-projection",
-      "owner": "annotation-context-projection",
-      "ownsContract": false,
-      "path": "src/annotation-context-projection/projection-frame.js",
-      "publicExports": [
-        {
-          "documentation": {
-            "owner": "annotation-context-projection.",
-            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
-            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
-            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
-            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
-            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
-            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
-            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
-          },
-          "moduleId": "optional.annotation-context-projection",
-          "name": "createAnnotationProjectionFrame",
-          "semanticMatches": [
-            "annotation",
-            "context",
-            "projection"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "context",
-            "frame",
-            "optional",
-            "projection"
-          ]
-        },
-        {
-          "documentation": {
-            "owner": "annotation-context-projection.",
-            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
-            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
-            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
-            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
-            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
-            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
-            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
-          },
-          "moduleId": "optional.annotation-context-projection",
-          "name": "readAnnotationProjectionFrame",
-          "semanticMatches": [
-            "annotation",
-            "context",
-            "projection"
-          ],
-          "semanticTerms": [
-            "annotation",
-            "context",
-            "frame",
-            "optional",
-            "projection"
-          ]
-        }
-      ],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "f1f03d9c013a7f5db5bba769493017873fe22fe0f3fdd4eb854eb8510d731cec"
-    },
-    {
-      "adaptsBoundary": false,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 80,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
           "name": "snapshot",
           "reviewedDecompositionException": false
         },
@@ -32710,6 +32586,130 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "4db4e16f99f9272a357c21067109745cc650082b764124afce952d7c43d77029"
+    },
+    {
+      "adaptsBoundary": false,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 81,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-6>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-9>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "constructor",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "read",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 13,
+          "name": "bucket",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 22,
+          "name": "createAnnotationProjectionFrame",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 23,
+          "name": "pane",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "epoch",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 6,
+          "name": "readAnnotationProjectionFrame",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "runtime",
+      "moduleId": "optional.annotation-context-projection",
+      "owner": "annotation-context-projection",
+      "ownsContract": false,
+      "path": "src/annotation-context-projection/projection-frame.js",
+      "publicExports": [
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "createAnnotationProjectionFrame",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "context",
+            "frame",
+            "optional",
+            "projection"
+          ]
+        },
+        {
+          "documentation": {
+            "owner": "annotation-context-projection.",
+            "purpose": "derive and reversibly settle source-agnostic Annotation projections for exact Pane/Replay frames.",
+            "inputs": "immutable subjects/frames plus injected Geometry, policy, projection-factory, and Chart ports.",
+            "outputs": "per-Pane projection sets with exact mapping provenance and a disposable coordinator.",
+            "sideEffects": "only injected Chart Annotation projection ports may mutate visual primitives.",
+            "lifecycle": "registries/values are pure; each coordinator is isolated and explicitly disposable.",
+            "errors": "AnnotationContextProjectionError with stable validation/settlement codes.",
+            "concurrencyCancellation": "one reconciliation per coordinator; failures roll back before decision."
+          },
+          "moduleId": "optional.annotation-context-projection",
+          "name": "readAnnotationProjectionFrame",
+          "semanticMatches": [
+            "annotation",
+            "context",
+            "projection"
+          ],
+          "semanticTerms": [
+            "annotation",
+            "context",
+            "frame",
+            "optional",
+            "projection"
+          ]
+        }
+      ],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "486583af01c1133225f74803a83b0e3be487aab4eeb64a571a7599ed9d9b2819"
     },
     {
       "adaptsBoundary": false,
@@ -41671,97 +41671,6 @@
       "functions": [
         {
           "effectiveLines": 1,
-          "name": "<anonymous-10>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-3>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 1,
-          "name": "<anonymous-8>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "evidenceBar",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 11,
-          "name": "readyPane",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "activePaneId",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 12,
-          "name": "requireAcceptedWorkspace",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 14,
-          "name": "barEndEpochMs",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 17,
-          "name": "artifactReference",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 19,
-          "name": "createManualWorkflowProjectionFrame",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 3,
-          "name": "readAcceptedManualWorkspace",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 35,
-          "name": "resolveManualToolEvidence",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 7,
-          "name": "<anonymous-11>",
-          "reviewedDecompositionException": false
-        },
-        {
-          "effectiveLines": 8,
-          "name": "<anonymous-12>",
-          "reviewedDecompositionException": false
-        }
-      ],
-      "kind": "composition",
-      "moduleId": "optional.annotation-manual-workflow",
-      "owner": "annotation-workflow-composition",
-      "ownsContract": false,
-      "path": "src/annotation-manual-workflow/accepted-workspace-evidence.js",
-      "publicExports": [],
-      "responsibilities": [
-        "internal-state-or-pure-computation"
-      ],
-      "sideEffectConcerns": [],
-      "sizeException": null,
-      "sourceHash": "dff4255bc191c6fd77278c44c21d4d113a63d03eca5053d070f80bfdd3883789"
-    },
-    {
-      "adaptsBoundary": true,
-      "criticalInvariants": [],
-      "debtComments": [],
-      "effectiveLines": 146,
-      "forwardingOnly": false,
-      "functions": [
-        {
-          "effectiveLines": 1,
           "name": "<anonymous-12>",
           "reviewedDecompositionException": false
         },
@@ -41838,6 +41747,97 @@
       "sideEffectConcerns": [],
       "sizeException": null,
       "sourceHash": "ede9c2f50c8b5fe9a31bc1d47627b4890cc27f9652b649c326efd61f548f7058"
+    },
+    {
+      "adaptsBoundary": true,
+      "criticalInvariants": [],
+      "debtComments": [],
+      "effectiveLines": 147,
+      "forwardingOnly": false,
+      "functions": [
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-10>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-3>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 1,
+          "name": "<anonymous-8>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "evidenceBar",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 11,
+          "name": "readyPane",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "activePaneId",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 12,
+          "name": "requireAcceptedWorkspace",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 14,
+          "name": "barEndEpochMs",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 17,
+          "name": "artifactReference",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 19,
+          "name": "createManualWorkflowProjectionFrame",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 3,
+          "name": "readAcceptedManualWorkspace",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 35,
+          "name": "resolveManualToolEvidence",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 7,
+          "name": "<anonymous-11>",
+          "reviewedDecompositionException": false
+        },
+        {
+          "effectiveLines": 9,
+          "name": "<anonymous-12>",
+          "reviewedDecompositionException": false
+        }
+      ],
+      "kind": "composition",
+      "moduleId": "optional.annotation-manual-workflow",
+      "owner": "annotation-workflow-composition",
+      "ownsContract": false,
+      "path": "src/annotation-manual-workflow/accepted-workspace-evidence.js",
+      "publicExports": [],
+      "responsibilities": [
+        "internal-state-or-pure-computation"
+      ],
+      "sideEffectConcerns": [],
+      "sizeException": null,
+      "sourceHash": "99b2d3ef201c7ead477b6fd3e05981c34db40cc65ff898e299b5b1ba1de00b79"
     },
     {
       "adaptsBoundary": true,
@@ -61254,7 +61254,7 @@
   ],
   "schemaVersion": 2,
   "summary": {
-    "effectiveLines": 60097,
+    "effectiveLines": 60099,
     "files": 642,
     "functions": 6155,
     "publicExports": 650

@@ -277,6 +277,7 @@ function projectionFrame(reconciliationRevision, replayCutoffEpochMs) {
     annotationRevision: primary.getDocument().revision,
     panes: [{
       acceptedBuckets: Array.from({ length: 8 }, (_, index) => ({
+        displayEpochMs: BASE + (index * MINUTE),
         endEpochMs: BASE + ((index + 1) * MINUTE),
         startEpochMs: BASE + (index * MINUTE),
       })),

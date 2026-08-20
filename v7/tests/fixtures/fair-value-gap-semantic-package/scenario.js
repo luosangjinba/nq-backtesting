@@ -169,7 +169,11 @@ function frame() {
   return createAnnotationProjectionFrame({
     annotationRevision: annotationRuntime.getDocument().revision,
     panes: [{
-      acceptedBuckets: acceptedBars.map(({ endEpochMs, startEpochMs }) => ({ endEpochMs, startEpochMs })),
+      acceptedBuckets: acceptedBars.map(({ endEpochMs, startEpochMs }) => ({
+        displayEpochMs: startEpochMs,
+        endEpochMs,
+        startEpochMs,
+      })),
       instrumentId: 'instrument.nq',
       paneId: 'pane.nq-1m',
       timeframeId: 'timeframe.1m',

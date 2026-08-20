@@ -53,7 +53,7 @@ panes[] {
   paneId
   instrumentId
   timeframeId
-  acceptedBuckets[] { startEpochMs, endEpochMs }
+  acceptedBuckets[] { startEpochMs, displayEpochMs, endEpochMs }
 }
 ```
 
@@ -61,6 +61,17 @@ All Panes share the exact Session, accepted Annotation revision, Replay cutoff,
 and monotonically increasing reconciliation revision. Accepted buckets are
 bounded immutable evidence already supplied by the host. The projection owner
 does not request, cache, aggregate, or manufacture Bars.
+
+`startEpochMs` remains the canonical market/bucket identity used for semantic
+matching and provenance. `displayEpochMs` is the exact time already written to
+the target Pane's Lightweight Charts series and is the only target x-coordinate
+used by projected Geometry. It must satisfy
+`startEpochMs <= displayEpochMs`, while the canonical evidence range separately
+satisfies `startEpochMs < endEpochMs`; the frame never derives or guesses this
+presentation time. An incomplete aggregate may intentionally occupy its future
+completion slot beyond the current accepted evidence end/Replay cutoff. No-
+future eligibility therefore continues to use canonical/source instants, never
+the presentation-only display time.
 
 Moving Replay changes only the projection frame. It never edits canonical
 Geometry, Drawing provenance, Annotation revision, history, or persistence.
@@ -84,13 +95,16 @@ definition/registry API available to future packages:
 1. `projection.anchor.exact-instant@1.0.0`
    - an anchor is eligible only when the target Pane has an accepted bucket
      whose start equals the canonical anchor instant;
+   - the projected anchor uses that bucket's exact `displayEpochMs`, while
+     mapping provenance retains the canonical instant and bucket start;
    - it never snaps to a nearby Bar;
    - missing exact target evidence makes that projection absent.
 2. `projection.anchor.accepted-containing-bucket@1.0.0`
    - every source anchor requires an exact supplied source-Bar reference that
      contains the canonical instant and matches its instrument;
-   - the target anchor maps to the start of the exact supplied accepted target
-     bucket containing that instant;
+   - the target anchor maps to the exact supplied accepted target bucket's
+     `displayEpochMs`; its start remains canonical bucket identity rather than
+     a Chart coordinate;
    - the mapping provenance retains canonical source instant, source Bar,
      target timeframe, target bucket, policy id, and policy version;
    - missing/ambiguous evidence or degenerate projected Geometry makes the

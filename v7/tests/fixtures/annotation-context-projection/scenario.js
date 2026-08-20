@@ -37,7 +37,8 @@ function bars(stepMinutes, count) {
     const close = open + (index % 2 === 0 ? 1.4 : -0.8);
     return Object.freeze({
       close, high: Math.max(open, close) + 1.4, low: Math.min(open, close) - 1.3,
-      open, time: (BASE + (index * stepMinutes * MINUTE)) / 1_000,
+      open,
+      time: (BASE + (((index + 1) * stepMinutes) - 1) * MINUTE) / 1_000,
     });
   }));
 }
@@ -45,6 +46,7 @@ function bars(stepMinutes, count) {
 function buckets(stepMinutes, count) {
   const duration = stepMinutes * MINUTE;
   return Object.freeze(Array.from({ length: count }, (_, index) => Object.freeze({
+    displayEpochMs: BASE + ((index + 1) * duration) - MINUTE,
     endEpochMs: BASE + ((index + 1) * duration),
     startEpochMs: BASE + (index * duration),
   })));

@@ -23,6 +23,16 @@ source Pane/timeframe provenance, target-Pane absence/hit testing, atomic
 rollback, and interaction release. H121 remains unaccepted: restart this list
 from item 1 and record all ten human results.
 
+A follow-up review then exposed a separate display-coordinate defect: an FVG
+created from a 5m/15m Pane was durable and opened Inspector, but its canonical
+bucket-start anchors were not times present on the higher-timeframe Chart
+series, whose candles use completion-minute `displayEpochMs`. The projection
+frame now carries both identities, preserves canonical starts in provenance,
+and paints only at the accepted target series times. Real Chromium now creates
+FVGs on 5m and 15m, switches among 1m/5m/15m, verifies a second 15m Pane, and
+restores all three Artifacts after hard reload. This repair also does not accept
+H121; restart the checklist only after deploying the repaired commit.
+
 ## Before You Start
 
 1. Open the production V7 route with working market data.

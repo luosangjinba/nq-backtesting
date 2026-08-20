@@ -134,10 +134,13 @@ construction failure creates no Artifact or projection.
 
 Every accepted Workspace/Replay publication schedules a latest-wins
 reconciliation from the durable document. The frame contains current accepted
-Pane buckets, instrument/timeframe identity, Replay cutoff, Annotation revision,
-and a strictly increasing reconciliation revision. Before-observation subjects
-remain absent; compatible multi-Pane subjects map only through registered
-anchor policies. Removed Pane Chart surfaces are never retained by the workflow.
+Pane bucket start/end identity plus exact Chart `displayEpochMs`, instrument/
+timeframe identity, Replay cutoff, Annotation revision, and a strictly
+increasing reconciliation revision. Canonical Artifact anchors remain at
+source bucket starts; compatible multi-Pane render anchors use only the target
+series' accepted display times through registered anchor policies. Before-
+observation subjects remain absent. Removed Pane Chart surfaces are never
+retained by the workflow.
 
 Hard reload restores the Session-keyed Annotation document before projection.
 Unknown or temporarily unavailable package meaning remains durable and
@@ -199,6 +202,12 @@ automation cannot make H114 executable.
 H114 passes six declarative negative controls plus its real-Chromium production
 path. Its focused human visual gate was accepted on 2026-08-11, so H114 is
 accepted.
+
+The 2026-08-19 H121 review-blocker follow-up strengthened the same accepted
+H114 path without changing its state: real 1m source bars are now aggregated by
+the production fixed-duration policy, and Chromium proves 5m/15m source
+construction, completion-minute display coordinates, target-Pane collapse,
+timeframe replacement, cross-Pane painting/hit testing, and hard reload.
 
 ## Human Visual Gate
 

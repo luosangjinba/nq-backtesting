@@ -43,6 +43,7 @@ const negativeCases = JSON.parse(fs.readFileSync(path.join(
 function buckets(stepMinutes, count = 12) {
   const duration = stepMinutes * MINUTE;
   return Array.from({ length: count }, (_, index) => Object.freeze({
+    displayEpochMs: BASE + ((index + 1) * duration) - MINUTE,
     endEpochMs: BASE + ((index + 1) * duration),
     startEpochMs: BASE + (index * duration),
   }));
@@ -154,12 +155,34 @@ const fiveMinuteSet = afterSets.find(({ paneId }) => paneId === 'pane.nq-5m');
 assert.equal(oneMinuteSet.sessionId, sessionId, 'per-Pane derivation must retain exact Session identity');
 assert.equal(fiveMinuteSet.provenance[0].mappings[0].canonicalEpochMs, BASE + (2 * MINUTE));
 assert.equal(fiveMinuteSet.provenance[0].mappings[0].targetBucket.startEpochMs, BASE);
+assert.equal(fiveMinuteSet.provenance[0].mappings[0].targetBucket.displayEpochMs,
+  BASE + (4 * MINUTE));
 assert.equal(fiveMinuteSet.provenance[0].mappings[0].sourceBar.datasetRevision, 'dataset.fixture-1');
 assert.equal(oneMinuteSet.projections.map(readAnnotationProjection)
   .find(({ entityId }) => entityId === 'drawing.segment-exact').geometry.payload.startAnchor.epochMs,
 BASE + MINUTE);
 assert.equal(JSON.stringify(subjects.map(readAnnotationProjectionSubject)), canonicalBefore,
   'projection must not rewrite canonical Geometry or provenance');
+const projectedFiveMinuteRectangle = fiveMinuteSet.projections.map(readAnnotationProjection)
+  .find(({ entityId }) => entityId === 'drawing.rectangle-containing');
+assert.equal(projectedFiveMinuteRectangle.geometry.payload.startEpochMs, BASE + (4 * MINUTE));
+assert.equal(projectedFiveMinuteRectangle.geometry.payload.endEpochMs, BASE + (9 * MINUTE));
+
+const fiveMinuteExactPoint = subject({
+  entityId: 'drawing.point-exact-5m',
+  geometry: geometryContract.createPointGeometry({ anchor: anchor(0, 105) }),
+  observedAt: BASE,
+  projectionId: 'projection.point-exact-5m',
+});
+const projectedFiveMinutePoint = deriveAnnotationPaneProjectionSets({
+  createProjection: createAnnotationProjection,
+  frame: afterFrame,
+  geometryContract,
+  policyRegistry: policies,
+  subjects: [fiveMinuteExactPoint],
+}).find(({ paneId }) => paneId === 'pane.nq-5m').projections.map(readAnnotationProjection)[0];
+assert.equal(projectedFiveMinutePoint.geometry.payload.anchor.epochMs, BASE + (4 * MINUTE),
+  'exact canonical bucket starts must paint at the accepted Chart display time');
 
 const pointSubject = subject({
   entityId: 'drawing.point-exact',
@@ -416,9 +439,21 @@ const operations = {
   'frame-fields': () => createAnnotationProjectionFrame({ ...baseFrame(), extra: true }),
   'bucket-overlap': () => createAnnotationProjectionFrame(baseFrame({ panes: [{
     acceptedBuckets: [
-      { startEpochMs: BASE, endEpochMs: BASE + (2 * MINUTE) },
-      { startEpochMs: BASE + MINUTE, endEpochMs: BASE + (3 * MINUTE) },
+      { displayEpochMs: BASE, startEpochMs: BASE, endEpochMs: BASE + (2 * MINUTE) },
+      {
+        displayEpochMs: BASE + MINUTE,
+        startEpochMs: BASE + MINUTE,
+        endEpochMs: BASE + (3 * MINUTE),
+      },
     ],
+    instrumentId: 'instrument.nq', paneId: 'pane.negative', timeframeId: 'timeframe.1m',
+  }] })),
+  'bucket-display-outside': () => createAnnotationProjectionFrame(baseFrame({ panes: [{
+    acceptedBuckets: [{
+      displayEpochMs: BASE - 1,
+      endEpochMs: BASE + MINUTE,
+      startEpochMs: BASE,
+    }],
     instrumentId: 'instrument.nq', paneId: 'pane.negative', timeframeId: 'timeframe.1m',
   }] })),
   'subject-fields': () => createAnnotationProjectionSubject({ ...baseSubject(), extra: true }),

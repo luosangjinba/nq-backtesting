@@ -20,7 +20,7 @@ const EXACT_INSTANT = defineAnchorProjectionPolicy({
     ));
     if (!target) return null;
     return {
-      anchor,
+      anchor: { ...anchor, epochMs: target.displayEpochMs },
       mapping: {
         canonicalEpochMs: anchor.epochMs,
         sourceBar: null,
@@ -45,7 +45,7 @@ const ACCEPTED_CONTAINING_BUCKET = defineAnchorProjectionPolicy({
     if (sources.length !== 1 || targets.length !== 1) return null;
     const target = targets[0];
     return {
-      anchor: { ...anchor, epochMs: target.startEpochMs },
+      anchor: { ...anchor, epochMs: target.displayEpochMs },
       mapping: {
         canonicalEpochMs: anchor.epochMs,
         sourceBar: sources[0],
