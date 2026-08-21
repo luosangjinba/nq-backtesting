@@ -1,15 +1,106 @@
 # V7 Restart Handoff
 
-Last updated: 2026-08-20 after the product owner paused successor implementation
-to develop the software portrait, Plugin/business architecture, and a strict
-three-minute/three-step interaction standard. The current discovery state is
-captured in MEMO-V7-006. Default production still reversibly omits the complete
-eight-module Campaign closure while preserving source and persisted bytes.
-H121 remains executable/unaccepted only as an isolated retained-prototype gate;
-its former ten-item product review is superseded. H117 remains executable/
-unaccepted. The handoff commit is identified by `git log`.
+Last updated: 2026-08-20 19:09 PDT immediately before a planned server restart.
+The durable pre-handoff product/research baseline is pushed as `66167c45` on
+`origin/feature/v7-drawing-semantic-annotation`; the handoff-only descendant is
+identified by `git log` after restart. The worktree was clean before this
+handoff update.
+
+The product owner has paused successor implementation to develop the software
+portrait, Plugin/business architecture, and a strict three-minute/three-step
+interaction standard. The current discovery state is MEMO-V7-006. Default
+production reversibly omits the complete eight-module Campaign closure while
+preserving source and persisted bytes. H121 remains executable/unaccepted only
+as an isolated retained-prototype gate; its former ten-item product review is
+superseded. H117 remains executable/unaccepted.
 
 ## Restart Resume Checkpoint
+
+### 2026-08-20 19:09 PDT — Current Durable Pre-Restart Checkpoint
+
+Repository state immediately before this handoff update:
+
+- repository: `/home/leo/myworkspace/trading/backtesting-v7`;
+- branch: `feature/v7-drawing-semantic-annotation`;
+- local and `origin` product/research baseline: `66167c45`
+  (`feat(v7): pause Study Case and capture successor research`);
+- worktree: clean;
+- no `v7/tmp/` workbook, screenshot, or private explanatory source was included
+  in that commit; and
+- ordinary non-force push completed successfully.
+
+`66167c45` contains one coherent checkpoint:
+
+- the form-first Validation Campaign/`Capture Study Case` surface is absent
+  from default production through explicit application composition;
+- Campaign source, isolated prototype evidence, and user-owned persisted bytes
+  remain preserved;
+- ADR-V7-007 Calendar/workflow/anchored-appearance and ADR-V7-008 standalone AI
+  plugin-authoring/migration candidates are preserved but not accepted;
+- MEMO-V7-006 captures the current Chart-native product portrait and is the
+  immediate discussion authority; and
+- architecture/source-quality and H116/H117 generated identities are refreshed
+  consistently with the new production product policy.
+
+The latest MEMO-V7-006 discussion state additionally records:
+
+1. Chart is the candidate primary research document; Calendar/search/table/
+   statistics are indexes or derived views rather than replacements for Chart
+   context.
+2. Atomic reusable FVG/SMT/BSL/EQL-style drawing/detection tools and calculated
+   indicators such as MA may be Plugins. OTE is a customizable strategy Model,
+   not a Plugin. A Setup is one semantic evidence instance under one exact
+   ModelVersion.
+3. Full-future hindsight research, pseudo-live Replay recognition/practice, and
+   imported/live execution must retain independent provenance. Entry/Stop/
+   Target research measurements do not imply an order.
+4. `near-miss` is only candidate vocabulary for a market candidate which
+   resembles a Setup but fails a necessary Model condition. Losing valid
+   Setups, recognition misses, decision/execution misses, outcome-path
+   near-misses, and ordinary non-Setups remain distinct.
+5. One hundred confirmed OTE-only records can support schema discovery,
+   retrieval, exploratory comparisons, and a small structured baseline. They
+   cannot train OTE-versus-non-OTE recognition without a declared candidate/
+   opportunity universe, near-misses, and representative negatives.
+6. Setup recognition, conditional outcome estimation, and entry/order policy
+   are separate problems. Any empirical probability belongs to a specialized,
+   time-validated and calibrated statistical predictor; an LLM may plan,
+   interpret, retrieve counterexamples, and restore Chart evidence.
+7. For future multimodal assessment, the candidate preference is a canonical
+   decision-time screenshot plus exact OHLCV, semantic evidence, and
+   ModelVersion. Screenshot-only fluent analysis is not evidence that a model
+   used candlesticks or produced a calibrated probability.
+8. GitHub screenshot wrappers, hybrid LLM agents, chart detectors/classifiers,
+   structured-OHLC extraction, FinVis-GPT, and primary VLM chart benchmarks were
+   reviewed only as discovery evidence. No repository, dependency, model,
+   provider, training path, or AI implementation was selected.
+
+Current verification evidence for `66167c45`:
+
+- the default-product Study Case hold, production application host, and
+  independent Session Browser real-Chromium Harnesses pass;
+- Campaign Node evidence passes with its browser leg isolated from default
+  production;
+- production module assembly, writer closure, deployed runtime architecture,
+  server state sync, architecture hardening/boundary/production, and source
+  quality Harnesses pass;
+- H116 Developer Kit and complete H117 local-package Harnesses pass against the
+  refreshed identity; and
+- `git diff --check` and the staged common-secret-pattern check passed.
+
+The complete legacy H121 browser journey is not a current product gate. Its
+retained fixture previously reached the real Session dialog but could not
+complete because the date-availability request used port 8766 owned by an
+unrelated V4 service/dataset. No service was stopped or replaced. The new
+default-product hold has independent, self-contained passing browser evidence.
+
+After restart, resume the product conversation; do not infer feature authority
+from this checkpoint. The most useful next evidence, when the product owner is
+ready, is a real OTE capture/review walkthrough followed by classification of
+which fields are necessary Model rules, optional research observations,
+derived measurements, decision-time evidence, or future outcomes. Screenshot,
+text, or video may support that walkthrough, but no particular medium is
+required by this handoff.
 
 ### 2026-08-20 Product-Definition Pause And MEMO-V7-006
 
@@ -615,12 +706,14 @@ host bootstrap permutations, and multi-mode deployment matrix remain useful
 non-blocking operational evidence rather than open milestone gates. Binding
 closure: `V7_FOUNDATION_MILESTONE_V7_0_0.md`.
 
-The current product-decision frontier is the 2026-08-20 product hold plus the
-two adjacent candidates at the first checkpoint in this handoff. R14.1's
-evidence contracts and source-removal properties remain useful, but its
-form-first Campaign/Study Case product surface is withdrawn before H121
-acceptance. ADR-V7-007 decisions 2–10 and ADR-V7-008 decisions 2–10 are the
-next review boundary; neither candidate authorizes implementation.
+The current product-decision frontier is MEMO-V7-006's deliberately slow
+product-definition work, not implementation and not immediate acceptance of the
+two adjacent candidates. The binding production state is only the 2026-08-20
+product hold: R14.1's evidence contracts and source-removal properties remain
+useful, but its form-first Campaign/Study Case surface is withdrawn before H121
+acceptance. ADR-V7-007 decisions 2–10 and ADR-V7-008 decisions 2–10 remain
+available for later reconciliation; neither candidate authorizes
+implementation or is the automatic next review action.
 
 MEMO-V7-005 remains the non-binding source for broader Collection Dashboard,
 multi-dataset Chart application, semantic visual grammar/text, and Setup-free
@@ -979,6 +1072,12 @@ handoff was committed.
 ## Repository State
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
+- current active development branch:
+  `feature/v7-drawing-semantic-annotation`
+- current pushed product/research baseline before this handoff-only update:
+  `66167c45`
+- expected development worktree after the handoff commit: clean, with local
+  `HEAD` equal to its `origin` upstream
 - default release branch: `main`
 - accepted release tag: `v7.0.0`
 - historical delivery branch: `v7/rebuild`
@@ -1179,6 +1278,27 @@ the legacy/reference repository. V7 production work belongs to the worktree
 listed above.
 
 ## Minimal Restart Reading Order
+
+For the current product-definition discussion, read only this compact set
+before loading older engineering history:
+
+1. repository `AGENTS.md`;
+2. this file;
+3. `docs/V7_CHART_NATIVE_RESEARCH_MODEL_SETUP_PLUGIN_BOUNDARY_PREDECISION_MEMO.md`;
+4. `docs/V7_NON_DECISION_MEMO_REGISTRY.md`;
+5. `sessions/session_20260820_study_case_product_hold_calendar_ai_direction.md`;
+6. `docs/INDEX.md`, `TODO.md`, `docs/V7_PRODUCT_AND_SCOPE.md`, and
+   `docs/V7_EXECUTION_ROADMAP.md`.
+
+Read `docs/V7_CHART_ACTIVITY_CALENDAR_AND_WORKFLOW_LENSES_CANDIDATE.md` or
+`docs/V7_AI_PLUGIN_AUTHORING_AND_MIGRATION_STUDIO_CANDIDATE.md` only when the
+product owner explicitly returns to those candidates. Read the private OTE
+workbooks and explanation only for a targeted workflow/field reconstruction;
+do not load them or all historical sessions during ordinary restart context.
+
+If a later explicit instruction authorizes an implementation step, continue
+with the engineering baseline order below and then load only the documents
+relevant to that exact step:
 
 1. repository `AGENTS.md`;
 2. this file;
@@ -1662,8 +1782,10 @@ with duckdb.connect(db, read_only=True) as conn:
 
 Expected results:
 
-- branch is `main` for a normal release checkout, or detached at `v7.0.0` when
-  reproducing the accepted milestone;
+- the current development checkout is
+  `feature/v7-drawing-semantic-annotation` at `66167c45` or its handoff-only
+  descendant with identical product behavior; a deliberately separate release
+  checkout may instead be `main` or detached at `v7.0.0`;
 - `git status --short` is empty;
 - ES reports 6,494,880 rows and NQ reports 6,167,407 rows.
 
@@ -1707,59 +1829,34 @@ for test_file in v7/tests/*-harness.js; do node "$test_file"; done
 
 ## Exact Next Step
 
-Decisions 1–10 in
-`V7_FVG_SMA_VALIDATION_CAMPAIGN_STUDY_CASE_R14_1_IMPLEMENTATION_SLICE_SPEC.md`
-are accepted without amendment. The accepted parent Demo specification is
-unchanged. The implementation specification defines the proposed delivery/
-Harness labels, exact public schemas and commands, storage/state-sync bounds,
-module descriptors, diagnostics, transaction phases, browser fixture,
-performance budgets, and focused human gate, but none is allocated or
-implemented. The next possible repository-changing action requires a separate
-explicit product-owner instruction to allocate and implement only R14.1/H121.
+There is no authorized next repository-changing feature step. Resume the
+product-definition conversation from MEMO-V7-006 and allow the product owner to
+continue describing the desired software before proposing schemas, architecture
+promotion, or UI implementation.
 
-MEMO-V7-005 is not silently included in the accepted specification. Its seventeen Dashboard,
-application, complete-Setup/multi-timeframe, visual-grammar, text, and
-Phenomenon Study questions remain a separate non-decision backlog until the
-product owner explicitly asks to promote or review them.
+The strongest candidate next evidence task, only when the product owner is
+ready, is to reconstruct one real OTE workflow from discovery through capture
+and later Chart review. Classify the current OTE fields into necessary Model
+rules, optional semantic observations, deterministic derivations, decision-time
+evidence, future outcomes, and abandoned/low-value fields. Use that evidence to
+clarify the Model customization boundary and test the three-minute/three-step
+constraint before designing a replacement Setup authoring surface.
 
-The accepted specification allocates no delivery/Harness id. Proposed
-R14.1/H121 are unallocated/unregistered; P1c.4 remains a separate unnumbered
-dependency inside the calculated-series expansion sequence. H117 remains
-executable/unaccepted; P1b.4, another plugin, Community/Worker, Journal,
-Dataset Builder, AI, and all Campaign implementation remain paused.
+If the discussion instead continues toward AI, first define one exact task and
+label: Setup recognition, conditional target-before-stop outcome, trader
+recognition, or entry policy. Do not combine them. Preserve a declared
+opportunity universe, decision cutoff, ModelVersion, near-miss/negative
+evidence, temporal validation, calibration, uncertainty, abstention, and Chart
+provenance. Do not fine-tune or display a probability merely because a vision
+LLM can produce fluent screenshot analysis.
 
-R13.10e/H114, P0b/H115, and P1a/H116 are closed. P1b.1–P1b.3 implement the
-non-executing local package contract/archive, transaction/storage, and corrected
-two-surface Plugin Center boundaries. Installed generations remain explicitly
-inactive and cannot reach activation, MCP, registry, or production candidate
-execution. The accepted amended P1b
-specification is
-`V7_LOCAL_PLUGIN_PACKAGES_AUTHORING_MCP_P1B.md`; H117 is registered as
-executable with 54 groups but remains unaccepted. Its five binding decisions are:
-installation is not activation; `.v7plugin` is distinct from `.v7dk.tar`; one
-device-local package store owns inventory transactions; prepared candidates
-remain non-executing authoring/tool artifacts; and local `stdio` MCP is
-authoring-only. Focused review first corrected a vertically stretched tab
-layout and bound a compact 40 px strip with 30 px controls in real Chromium.
-The accompanying role review found that Developer Mode had no unique
-product outcome: P1a owns validate/build/test/preview/pack, Installed owns
-admission, and P1b cannot execute or preview an external package. The product
-owner accepted its removal: production now has exactly Included and Installed,
-the browser adapter is archive-only, and strict unpacked-candidate inspection
-remains tooling/security evidence without retained handles or mode state. The
-corrected focused human review in
-`V7_LOCAL_PLUGIN_PACKAGE_P1B3_HUMAN_REVIEW.md` passed on 2026-08-12. P1b.4 is
-deliberately paused and still requires a separate product-owner instruction.
-The accepted business Demo specification does not supersede that pause. Do not
-create the MCP adapter or claim H117 acceptance, P2 registry, P3a Worker
-runtime, P3b Pine migration, detector, another Indicator/algorithm, Fibonacci,
-Marketplace, or R13.11–R13.13 before the applicable authorization.
-
-Older clean-host, physical cross-device, Data Acquisition admin, resource, and
-known H091 visual checks remain non-blocking operational follow-up for the
-already accepted V7.0.0 foundation. Second-level/tick-sourced Replay also stays
-behind its separate predecision hard gates; no provider purchase, prototype,
-second cache owner, or implementation is implied by R13.10d acceptance.
+ADR-V7-007 Calendar/workflow/anchored appearance and ADR-V7-008 standalone AI
+plugin authoring/migration remain adjacent drafts for later reconciliation.
+They do not authorize Calendar, geometry migration, order owners, Model
+Builder, Setup capture, AI training, external repositories/dependencies,
+P1b.4, P3a/P3b, or another Harness/delivery slice. H121 remains executable and
+unaccepted only as a retained prototype; H117 remains executable/unaccepted.
+The default product hold remains the only implemented successor-state change.
 
 ## Standing Workflow
 
